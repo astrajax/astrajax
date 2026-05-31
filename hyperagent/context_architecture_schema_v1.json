@@ -1,0 +1,712 @@
+{
+  "version": "v2",
+  "generated_at": "2026-05-30T11:10:30.787043+00:00",
+  "base_id": "appYv601Oq7fKTCj0",
+  "tables": {
+    "Context Intake": {
+      "id": "tblJCmPGPUyszgFux",
+      "name": "Context Intake",
+      "fields": {},
+      "note": "See .cursor/skills/clive-context-intake/SKILL.md for complete live field IDs."
+    },
+    "Context Items": {
+      "id": "tblisiZJQmQuBqEef",
+      "name": "Context Items",
+      "fields": {
+        "Title": {
+          "id": "fldE7w7mFIocLC6FF",
+          "name": "Title",
+          "type": "singleLineText"
+        },
+        "Canonical Text": {
+          "id": "fldfNF4ivqfFbYyRU",
+          "name": "Canonical Text",
+          "type": "multilineText"
+        },
+        "Category": {
+          "id": "fldaPVEnAjl5RIhgK",
+          "name": "Category",
+          "type": "singleSelect"
+        },
+        "Applies To": {
+          "id": "fldHw0tI9Rqm2NeBs",
+          "name": "Applies To",
+          "type": "multipleSelects"
+        },
+        "Owner": {
+          "id": "fldvABVoGBgXZI5hA",
+          "name": "Owner",
+          "type": "singleSelect"
+        },
+        "Status": {
+          "id": "fldvKLpN2wJs71vGv",
+          "name": "Status",
+          "type": "singleSelect"
+        },
+        "Version": {
+          "id": "fldHak9PCZ9OEXFqE",
+          "name": "Version",
+          "type": "singleLineText"
+        },
+        "Authority": {
+          "id": "fldth9EfnR5xPwk9g",
+          "name": "Authority",
+          "type": "singleSelect"
+        },
+        "Freshness": {
+          "id": "fld2wpNWlETGcLcI1",
+          "name": "Freshness",
+          "type": "singleSelect"
+        },
+        "Published To": {
+          "id": "fld3DExRzUObGsE0g",
+          "name": "Published To",
+          "type": "multipleSelects"
+        },
+        "Source Notes": {
+          "id": "fldcFcsKdw04GeU8u",
+          "name": "Source Notes",
+          "type": "multilineText"
+        },
+        "Conflicts": {
+          "id": "fldU78dk3HwU3JKEe",
+          "name": "Conflicts",
+          "type": "multilineText"
+        },
+        "Risk if included": {
+          "id": "fldgsHYzDdQYFVs7w",
+          "name": "Risk if included",
+          "type": "multilineText"
+        },
+        "Risk if omitted": {
+          "id": "fldaLikCiN49D3sED",
+          "name": "Risk if omitted",
+          "type": "multilineText"
+        },
+        "Approval Notes": {
+          "id": "fldWSFV681AtG3tiB",
+          "name": "Approval Notes",
+          "type": "multilineText"
+        },
+        "Last Reviewed": {
+          "id": "fldNVRQiVtzfsEZSg",
+          "name": "Last Reviewed",
+          "type": "dateTime"
+        },
+        "Created at": {
+          "id": "fldhf8ohn6HyVMB11",
+          "name": "Created at",
+          "type": "dateTime"
+        },
+        "Source Intake": {
+          "id": "fldzFS7rumgC5RAVW",
+          "name": "Source Intake",
+          "type": "multipleRecordLinks"
+        },
+        "Context Pack": {
+          "id": "fldVw8pNXb1KRyQGl",
+          "name": "Context Pack",
+          "type": "multipleRecordLinks"
+        },
+        "Change Log": {
+          "id": "fldNELZQ89Wf06Eid",
+          "name": "Change Log",
+          "type": "multipleRecordLinks"
+        },
+        "Created By": {
+          "id": "fldxCyHOC65IJnzv5",
+          "name": "Created By",
+          "type": "singleSelect"
+        },
+        "Proposed By Agent": {
+          "id": "fldUJgH8IlnPgUHZ6",
+          "name": "Proposed By Agent",
+          "type": "singleLineText"
+        },
+        "Confirmed By Human": {
+          "id": "fldGpfrpxTJQ7qNlu",
+          "name": "Confirmed By Human",
+          "type": "singleSelect"
+        },
+        "Confirmation Method": {
+          "id": "fldJ7HPf6GSIeJqk0",
+          "name": "Confirmation Method",
+          "type": "singleSelect"
+        },
+        "Bootstrap Source": {
+          "id": "fldHvczG3AcanVqzH",
+          "name": "Bootstrap Source",
+          "type": "singleLineText"
+        }
+      }
+    },
+    "Context Packs": {
+      "id": "tblcMubmJXW92D18r",
+      "name": "Context Packs",
+      "fields": {
+        "Pack Name": {
+          "id": "fld15pwGYHLUZjhsx",
+          "name": "Pack Name",
+          "type": "singleLineText"
+        },
+        "Purpose": {
+          "id": "fldZVzbGhqAUzktNJ",
+          "name": "Purpose",
+          "type": "multilineText"
+        },
+        "Primary Destination": {
+          "id": "fldX6PVVYH54RJSTq",
+          "name": "Primary Destination",
+          "type": "singleSelect"
+        },
+        "GitHub Path": {
+          "id": "fldn4YdpC3pwGaZU1",
+          "name": "GitHub Path",
+          "type": "singleLineText"
+        },
+        "Hyperagent Skill Name": {
+          "id": "fldGTkV2EenBwc2PZ",
+          "name": "Hyperagent Skill Name",
+          "type": "singleLineText"
+        },
+        "Status": {
+          "id": "fldLTmw16KFprDQzB",
+          "name": "Status",
+          "type": "singleSelect"
+        },
+        "Version": {
+          "id": "fldFajOMBzIMN1rJv",
+          "name": "Version",
+          "type": "singleLineText"
+        },
+        "Last Published": {
+          "id": "fldnYyz70wr7xjvBz",
+          "name": "Last Published",
+          "type": "dateTime"
+        },
+        "Owner": {
+          "id": "fldRlXVlGNuV8OYV7",
+          "name": "Owner",
+          "type": "singleSelect"
+        },
+        "Notes": {
+          "id": "fldZQtvczqz9SB2cD",
+          "name": "Notes",
+          "type": "multilineText"
+        },
+        "Created at": {
+          "id": "fldxFHmiEiXh6ubem",
+          "name": "Created at",
+          "type": "dateTime"
+        },
+        "Context Items": {
+          "id": "fldwjxAv9WaMMl9nX",
+          "name": "Context Items",
+          "type": "multipleRecordLinks"
+        },
+        "Agent Environments": {
+          "id": "fldzqBxV6irPXt8Xr",
+          "name": "Agent Environments",
+          "type": "multipleRecordLinks"
+        }
+      }
+    },
+    "Agent Environments": {
+      "id": "tblYuSo413ZeQuoq3",
+      "name": "Agent Environments",
+      "fields": {
+        "Agent Name": {
+          "id": "fldiDxDjULFuxlJOC",
+          "name": "Agent Name",
+          "type": "singleLineText"
+        },
+        "Platform": {
+          "id": "fldtb6Hv1tYp3iZef",
+          "name": "Platform",
+          "type": "multipleSelects"
+        },
+        "Purpose": {
+          "id": "fld8FJXZMj7o0ezvw",
+          "name": "Purpose",
+          "type": "multilineText"
+        },
+        "Runtime Environment": {
+          "id": "fld6Cww3ljcIDTirs",
+          "name": "Runtime Environment",
+          "type": "multilineText"
+        },
+        "Skills": {
+          "id": "fld50ljJncRAkuP2R",
+          "name": "Skills",
+          "type": "multilineText"
+        },
+        "Tool Permissions": {
+          "id": "fldAwu95lGqrhefh6",
+          "name": "Tool Permissions",
+          "type": "multilineText"
+        },
+        "Owner": {
+          "id": "fldxObEc7Yf7zvkwz",
+          "name": "Owner",
+          "type": "singleSelect"
+        },
+        "Status": {
+          "id": "fldqfklTjIpnM5QRh",
+          "name": "Status",
+          "type": "singleSelect"
+        },
+        "Last Config Review": {
+          "id": "fldSaUX5jB0awhaHy",
+          "name": "Last Config Review",
+          "type": "dateTime"
+        },
+        "Notes": {
+          "id": "fldwfb4hFRXsZt0jV",
+          "name": "Notes",
+          "type": "multilineText"
+        },
+        "Created at": {
+          "id": "fldRPt33q7Wi5oFwx",
+          "name": "Created at",
+          "type": "dateTime"
+        },
+        "Context Packs": {
+          "id": "fldWdmG7zIxvlecuW",
+          "name": "Context Packs",
+          "type": "multipleRecordLinks"
+        },
+        "Repo Path": {
+          "id": "fldA506VDgrNLemgU",
+          "name": "Repo Path",
+          "type": "singleLineText"
+        }
+      }
+    },
+    "Change Log": {
+      "id": "tbl9jCEYH1mM8b7T2",
+      "name": "Change Log",
+      "fields": {
+        "Change Summary": {
+          "id": "fldl5WNeChHpii0DW",
+          "name": "Change Summary",
+          "type": "singleLineText"
+        },
+        "Change Type": {
+          "id": "fldmxLfk4ZZhfUsZJ",
+          "name": "Change Type",
+          "type": "singleSelect"
+        },
+        "Destination": {
+          "id": "fldeXsyxe2DXx1oVN",
+          "name": "Destination",
+          "type": "multipleSelects"
+        },
+        "Changed By": {
+          "id": "fldDaoPWCk6snOyc4",
+          "name": "Changed By",
+          "type": "singleSelect"
+        },
+        "Approved By": {
+          "id": "fldvJD1yOa5b7mRuY",
+          "name": "Approved By",
+          "type": "singleSelect"
+        },
+        "Published Path": {
+          "id": "fldAW8sFm5jUpLWGH",
+          "name": "Published Path",
+          "type": "singleLineText"
+        },
+        "Commit SHA": {
+          "id": "fldkxG7bg4GIww5c5",
+          "name": "Commit SHA",
+          "type": "singleLineText"
+        },
+        "Status": {
+          "id": "fldcCQ9woZ15QM4my",
+          "name": "Status",
+          "type": "singleSelect"
+        },
+        "Notes": {
+          "id": "fldscoE5ryX94ehRv",
+          "name": "Notes",
+          "type": "multilineText"
+        },
+        "Created at": {
+          "id": "fld8q0yIcfJbJc775",
+          "name": "Created at",
+          "type": "dateTime"
+        },
+        "Related Intake": {
+          "id": "fldUuKWdVlUZgTN0P",
+          "name": "Related Intake",
+          "type": "multipleRecordLinks"
+        },
+        "Related Context Item": {
+          "id": "fldEjT331ruGYuyUA",
+          "name": "Related Context Item",
+          "type": "multipleRecordLinks"
+        },
+        "Prev Hash": {
+          "id": "fldxHr1jbsdMrcymL",
+          "name": "Prev Hash",
+          "type": "singleLineText"
+        },
+        "Entry Hash": {
+          "id": "fldFFO9GMZ1LJ30B3",
+          "name": "Entry Hash",
+          "type": "singleLineText"
+        }
+      }
+    },
+    "Emails": {
+      "id": "tblq8QM5IegQxurYJ",
+      "name": "Emails",
+      "fields": {
+        "Subject": {
+          "id": "fldt2IHMqKEBaHUyK",
+          "name": "Subject",
+          "type": "singleLineText"
+        },
+        "From": {
+          "id": "fldoeZeXFy5AqzRxp",
+          "name": "From",
+          "type": "singleLineText"
+        },
+        "Received At": {
+          "id": "fldmwGNMJ3kfUG3Tp",
+          "name": "Received At",
+          "type": "dateTime"
+        },
+        "Gmail Message ID": {
+          "id": "fldclF6Th9hK9c9z6",
+          "name": "Gmail Message ID",
+          "type": "singleLineText"
+        },
+        "Gmail Link": {
+          "id": "fld3ugzGZ7ufkSWar",
+          "name": "Gmail Link",
+          "type": "url"
+        },
+        "Body": {
+          "id": "fldd5HhSBLnKnKUTU",
+          "name": "Body",
+          "type": "multilineText"
+        },
+        "Ingest Source": {
+          "id": "fldVSyTQuexVMvnZB",
+          "name": "Ingest Source",
+          "type": "singleSelect"
+        },
+        "Email Category": {
+          "id": "fld3lopLQBvc4UJ6O",
+          "name": "Email Category",
+          "type": "singleSelect"
+        },
+        "Scanner Status": {
+          "id": "fldI24v0I4f9Hmydj",
+          "name": "Scanner Status",
+          "type": "singleSelect"
+        },
+        "Notes": {
+          "id": "fldic6BAvDO8WkN9h",
+          "name": "Notes",
+          "type": "multilineText"
+        },
+        "From Email": {
+          "id": "flduFEKQMOgACvxNL",
+          "name": "From Email",
+          "type": "email"
+        },
+        "Body Excerpt": {
+          "id": "fldGhO9Mdq85q1xCd",
+          "name": "Body Excerpt",
+          "type": "multilineText"
+        },
+        "AI Summary": {
+          "id": "fldZGOW3JSgnbenUq",
+          "name": "AI Summary",
+          "type": "multilineText"
+        },
+        "AI Structured JSON": {
+          "id": "fldOsHCIvZsLoiYKY",
+          "name": "AI Structured JSON",
+          "type": "multilineText"
+        },
+        "Thread ID": {
+          "id": "fldOuAylDBp4nsQhw",
+          "name": "Thread ID",
+          "type": "singleLineText"
+        },
+        "To": {
+          "id": "fldsBZvZDh3mGpe53",
+          "name": "To",
+          "type": "singleLineText"
+        },
+        "Cc": {
+          "id": "fldRkamebxj6hGWa6",
+          "name": "Cc",
+          "type": "singleLineText"
+        },
+        "Has Attachments": {
+          "id": "fldaKhnFajikyiqPf",
+          "name": "Has Attachments",
+          "type": "checkbox"
+        },
+        "Attachment Names": {
+          "id": "fldJns2z0nesd0e50",
+          "name": "Attachment Names",
+          "type": "multilineText"
+        }
+      },
+      "note": "All Gmail via Apps Script webhook. Email Category via Airtable AI structured data (manual UI setup). Scanner reads Hyperagent Release only."
+    }
+  },
+  "allowed_values": {
+    "item_status": [
+      "Draft",
+      "Agent proposed",
+      "Proposed",
+      "Needs decision",
+      "Approved",
+      "Rejected",
+      "Published",
+      "Deprecated"
+    ],
+    "change_status": [
+      "Draft",
+      "Prepared",
+      "Published",
+      "Deployed",
+      "Rolled back",
+      "Cancelled"
+    ],
+    "authority": [
+      "Canonical candidate",
+      "Supporting",
+      "Anecdotal",
+      "Historical",
+      "Unknown"
+    ],
+    "freshness": [
+      "Current",
+      "Ageing",
+      "Stale",
+      "Unknown"
+    ],
+    "owner": [
+      "Matthew",
+      "TL",
+      "Unassigned"
+    ],
+    "destination": [
+      "Airtable",
+      "Hyperagent",
+      "Cursor/GitHub",
+      "Notion",
+      "Slack",
+      "None"
+    ],
+    "agent_status": [
+      "Active",
+      "Planned",
+      "Paused",
+      "Deprecated"
+    ],
+    "created_by": [
+      "Agent",
+      "Matthew",
+      "TL"
+    ],
+    "confirmed_by_human": [
+      "Matthew",
+      "TL"
+    ],
+    "confirmation_method": [
+      "Airtable edit",
+      "Interface button",
+      "approver script"
+    ],
+    "item_categories": [
+      "Workflow Rule",
+      "Business Definition",
+      "Decision",
+      "Agent Instruction",
+      "Build Context",
+      "Prompt Update",
+      "Example Pattern",
+      "Context Gap",
+      "Source of Truth",
+      "Open Question",
+      "Deprecated Context"
+    ],
+    "applies_to": [
+      "AstraJax",
+      "Clive",
+      "Clive Intake",
+      "Clive Curator",
+      "Clive Publisher",
+      "Clive Scanner",
+      "Hyperagent",
+      "Cursor/GitHub",
+      "Notion",
+      "Airtable",
+      "Matthew",
+      "TL"
+    ],
+    "change_types": [
+      "Context item",
+      "Context pack",
+      "Agent environment",
+      "Hyperagent skill",
+      "GitHub markdown",
+      "Notion doc",
+      "Schema",
+      "Other"
+    ],
+    "email_categories": [
+      "Hyperagent Release",
+      "Platform / SaaS Update",
+      "Customer / Sales",
+      "Finance / Billing",
+      "Newsletter / Marketing",
+      "Personal",
+      "Internal / Team",
+      "Notification / System",
+      "Other",
+      "Uncategorised"
+    ],
+    "email_scanner_status": [
+      "New",
+      "Synced to repo",
+      "Promoted",
+      "Ignored"
+    ],
+    "email_ingest_source": [
+      "Apps Script Gmail",
+      "Manual paste",
+      "Other"
+    ]
+  },
+  "write_permissions": {
+    "Clive Intake": {
+      "Context Intake": [
+        "create"
+      ],
+      "Context Items": [],
+      "Context Packs": [],
+      "Agent Environments": [],
+      "Change Log": []
+    },
+    "Clive Curator": {
+      "Context Intake": [
+        "read"
+      ],
+      "Context Items": [
+        "read",
+        "create_proposed"
+      ],
+      "Context Packs": [
+        "read"
+      ],
+      "Agent Environments": [
+        "read"
+      ],
+      "Change Log": []
+    },
+    "Clive Agent Factory": {
+      "Context Intake": [],
+      "Context Items": [],
+      "Context Packs": [
+        "read"
+      ],
+      "Agent Environments": [
+        "read"
+      ],
+      "Change Log": [],
+      "note": "Cursor-native, read-only on Airtable. Writes versioned repo artifacts only, after explicit Matthew approval. Never commits, pushes, or deploys."
+    },
+    "Clive Publisher": {
+      "Context Items": [
+        "read_approved"
+      ],
+      "Context Packs": [
+        "read_approved"
+      ],
+      "Change Log": [
+        "append"
+      ]
+    },
+    "Matthew approver": {
+      "Context Items": [
+        "approve",
+        "reject",
+        "deprecate",
+        "publish"
+      ],
+      "Change Log": [
+        "append_published"
+      ]
+    },
+    "Clive Scanner": {
+      "Emails": [
+        "read",
+        "update_scanner_status"
+      ],
+      "Context Intake": [
+        "create"
+      ],
+      "Context Items": [
+        "read"
+      ],
+      "note": "v0.1: scan non-Hyperagent-Release Emails, dedupe, create Context Intake after Matthew confirm; mark Scanner Status after sync."
+    },
+    "Clive Hyperagent Release Scanner": {
+      "Emails": [
+        "read",
+        "update_scanner_status"
+      ],
+      "note": "Read Hyperagent Release rows; mark Scanner Status after repo sync."
+    },
+    "Apps Script Gmail Webhook": {
+      "Emails": [
+        "create"
+      ]
+    }
+  },
+  "scripts": {
+    "Context Intake": [
+      "hyperagent/scripts/create_context_intake.py",
+      "hyperagent/scripts/read_context_intake.py"
+    ],
+    "Context Items": [
+      "hyperagent/scripts/read_context_items.py",
+      "hyperagent/scripts/create_context_item.py",
+      "hyperagent/scripts/update_context_item_status.py",
+      "hyperagent/scripts/approve_context_item.py",
+      "hyperagent/scripts/quarantine_context_items.py"
+    ],
+    "Context Packs": [
+      "hyperagent/scripts/read_context_packs.py"
+    ],
+    "Agent Environments": [
+      "hyperagent/scripts/read_agent_environments.py",
+      "hyperagent/scripts/list_repo_agents.py"
+    ],
+    "Change Log": [
+      "hyperagent/scripts/append_change_log.py"
+    ],
+    "Validation": [
+      "hyperagent/scripts/validate_context_architecture_v2.py"
+    ],
+    "Emails": [
+      "hyperagent/scripts/read_email_inbox.py",
+      "hyperagent/scripts/setup_email_inbox_table.py",
+      "hyperagent/scripts/scan_context_candidates.py"
+    ]
+  },
+  "credentials": {
+    "read": "AIRTABLE_READ_TOKEN",
+    "write": "AIRTABLE_WRITE_TOKEN",
+    "approver": "AIRTABLE_APPROVER_TOKEN"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "version": "v0.3",
+  "agent": "clive-context-scanner",
+  "last_reviewed": "2026-05-31",
+  "mandate": {
+    "role": "Analyst. Look ONLY for context that is genuinely useful to AstraJax as a business, or that would help AI better support TL and Matthew as they work.",
+    "must_state": "Every candidate must carry a one-line context claim and a reason it matters. A file path or excerpt is never, on its own, a candidate.",
+    "silence_is_success": "Most runs should produce few or zero candidates. Surfacing nothing is a correct outcome when nothing durable and useful was found.",
+    "not_an_index": "This agent does not catalogue files. It judges whether material carries a durable, attributable, business-relevant claim."
+  },
+  "runtime": {
+    "primary": "cursor",
+    "mode": "on_demand",
+    "schedule_supported": false,
+    "schedule_installed": false,
+    "schedule_label": "com.astrajax.clive-context-scanner",
+    "note": "Matthew chose an on-demand analyst on 2026-05-31. There is no automatic schedule. The analyst (the Cursor agent) runs when asked, reads gathered material, judges it, and proposes only worthwhile Context Intake candidates. The previous 4-hour launchd schedule was removed because a scheduled script cannot perform the required judgement."
+  },
+  "local_sources": {
+    "roots": [
+      "/Users/matthewhopkinson/Documents/AstraJax",
+      "/Users/matthewhopkinson/ds-platform/Context",
+      "/Users/matthewhopkinson/ds-platform/docs",
+      "/Users/matthewhopkinson/ds-platform/training"
+    ],
+    "include_extensions": [
+      ".md",
+      ".mdx",
+      ".txt"
+    ],
+    "exclude_dirs": [
+      ".git",
+      ".cursor",
+      "node_modules",
+      "dist",
+      "build",
+      ".next",
+      "coverage",
+      ".turbo",
+      ".venv",
+      "__pycache__",
+      "interface-extensions",
+      "Interface_Extensions",
+      "frontend",
+      "components",
+      "hooks",
+      "utils",
+      "public",
+      "assets"
+    ],
+    "exclude_files": [
+      ".env",
+      ".env.local",
+      ".env.production",
+      "package-lock.json",
+      "yarn.lock",
+      "pnpm-lock.yaml"
+    ],
+    "exclude_filename_substrings": [
+      "CHANGELOG",
+      "LICENSE",
+      "tsconfig",
+      "package"
+    ],
+    "max_file_bytes": 200000,
+    "max_files_per_run": 400,
+    "max_material_per_run": 60,
+    "comment_extensions": "Prose only. Code, config, and build artefacts are excluded by design: the system itself lives in code, but durable context lives in prose and Airtable. The analyst can be pointed at a specific code file by hand if a genuine claim is suspected."
+  },
+  "airtable": {
+    "base_id": "appYv601Oq7fKTCj0",
+    "base_name": "AstraJax",
+    "scope": "AstraJax live Airtable only",
+    "table_discovery": "live_meta_api",
+    "table_discovery_note": "Tables are listed live from the AstraJax base via the Airtable Meta API. Dedupe still reads Context Intake and Context Items.",
+    "source_excluded_tables": [
+      "Context Intake",
+      "Context Items",
+      "Change Log"
+    ],
+    "dedupe_tables": [
+      "Context Intake",
+      "Context Items"
+    ],
+    "exclude_email_categories": [
+      "Hyperagent Release"
+    ],
+    "max_records_per_table": 100,
+    "max_material_per_run": 60,
+    "excluded_base_ids": {
+      "appu8d81k3iWA0IIR": "Activity Staffing System",
+      "appzByRxxMIsdtmxb": "Activity Booking System",
+      "appT5ReusGYT6VVyn": "Performance Analysis System",
+      "appcbUbKvlLayiuo5": "Budget Tracking System",
+      "appaJajcwGgWWHdjC": "Recruitment System",
+      "appWIc1VHoKNKyajQ": "Logistics System",
+      "appZoN6xBB9mDv8h4": "Telesales System",
+      "appz1q20h5FUkSwBr": "Agent Operations"
+    }
+  },
+  "candidate_rules": {
+    "create_statuses": [
+      "New",
+      "Needs clarification",
+      "Possible duplicate"
+    ],
+    "submitted_by": "Other",
+    "source_interface": "Other",
+    "next_owner": "Matthew",
+    "reasoning_prefix": "Created by Clive Context Scanner",
+    "quality_bar": [
+      "durable: a claim that stays true beyond today, not a transient detail",
+      "attributable: a clear source the claim came from",
+      "business-relevant: useful to AstraJax as a business, or to AI supporting TL and Matthew",
+      "actionable: clear what the reviewer would do with it",
+      "stated: the candidate names the claim and the reason, not just the file",
+      "novel: not already represented in Context Intake or Context Items"
+    ],
+    "hard_gate": "No claim and reason, no row. The create script rejects candidates whose summary or reasoning is a template, a file path, or a raw excerpt."
+  }
+}

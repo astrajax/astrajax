@@ -1,0 +1,174 @@
+/* ============================================================
+   Clive Context Intake — global styles.
+   Nocturne Orchard palette (astrajax_brand_colours.md).
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Brand hex — astrajax_brand_colours.md */
+  --ax-deep-moss: #202A1B;
+  --ax-graphite-ink: #171A18;
+  --ax-blueberry-black: #111423;
+  --ax-parchment-dim: #E7D1AD;
+  --ax-buttermilk: #E4D3A3;
+  --ax-burnt-apricot: #D77545;
+  --ax-sage-signal: #9AA77A;
+
+  /* Surfaces */
+  --clive-bg: var(--ax-deep-moss);
+  --clive-bg-raised: var(--ax-graphite-ink);
+  --clive-bg-inset: var(--ax-blueberry-black);
+  --clive-bg-hover: #1E211D;
+
+  /* Text + dividers */
+  --clive-text: var(--ax-parchment-dim);
+  --clive-text-muted: rgba(231, 209, 173, 0.62);
+  --clive-text-dim: rgba(231, 209, 173, 0.38);
+  --clive-border: rgba(231, 209, 173, 0.12);
+  --clive-border-strong: rgba(231, 209, 173, 0.28);
+
+  /* Sage Signal — active / system */
+  --clive-accent: var(--ax-sage-signal);
+  --clive-accent-soft: rgba(154, 167, 122, 0.14);
+  --clive-accent-line: rgba(154, 167, 122, 0.48);
+  --clive-glow: rgba(154, 167, 122, 0.20);
+
+  /* Buttermilk — warm emphasis */
+  --clive-warm: var(--ax-buttermilk);
+  --clive-warm-soft: rgba(228, 211, 163, 0.14);
+
+  /* Burnt Apricot — Clive / human */
+  --clive-clive: var(--ax-burnt-apricot);
+  --clive-clive-soft: rgba(215, 117, 69, 0.14);
+
+  /* Grid — quiet sage, not blue */
+  --clive-grid: rgba(154, 167, 122, 0.05);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+
+.clive-root {
+  position: relative;
+  background:
+    linear-gradient(var(--clive-grid) 1px, transparent 1px) 0 0 / 100% 30px,
+    linear-gradient(90deg, var(--clive-grid) 1px, transparent 1px) 0 0 / 30px 100%,
+    radial-gradient(130% 90% at 50% -20%, var(--clive-clive-soft), transparent 55%),
+    var(--clive-bg);
+  color: var(--clive-text);
+}
+
+.clive-rule {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, var(--clive-accent-line), transparent 70%);
+  opacity: 0.7;
+}
+
+.clive-card {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(231, 209, 173, 0.025), transparent 40%),
+    var(--clive-bg-raised);
+  border: 1px solid var(--clive-border);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.clive-card:hover {
+  border-color: var(--clive-border-strong);
+  box-shadow: 0 0 0 1px var(--clive-accent-soft), 0 8px 30px -12px var(--clive-glow);
+}
+
+.clive-card::before,
+.clive-card::after {
+  content: '';
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  pointer-events: none;
+  opacity: 0.55;
+  transition: opacity 0.16s ease;
+}
+.clive-card::before {
+  top: -1px;
+  left: -1px;
+  border-top: 1px solid var(--clive-accent-line);
+  border-left: 1px solid var(--clive-accent-line);
+}
+.clive-card::after {
+  bottom: -1px;
+  right: -1px;
+  border-bottom: 1px solid var(--clive-accent-line);
+  border-right: 1px solid var(--clive-accent-line);
+}
+.clive-card:hover::before,
+.clive-card:hover::after { opacity: 1; }
+
+.clive-tab {
+  position: relative;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--clive-text-muted);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color 0.14s ease, background-color 0.14s ease, border-color 0.14s ease;
+}
+.clive-tab:hover {
+  color: var(--clive-text);
+  background: var(--clive-bg-hover);
+  border-color: var(--clive-border);
+}
+.clive-tab[aria-selected='true'] {
+  color: var(--clive-accent);
+  background: var(--clive-accent-soft);
+  border-color: var(--clive-accent-line);
+}
+
+.clive-btn {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid var(--clive-border-strong);
+  color: var(--clive-text);
+  cursor: pointer;
+  transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+}
+.clive-btn:hover {
+  background: var(--clive-warm-soft);
+  border-color: var(--clive-warm);
+  color: var(--clive-warm);
+}
+.clive-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.clive-select {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  background: var(--clive-bg-inset);
+  border: 1px solid var(--clive-border);
+  color: var(--clive-text);
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
+}
+.clive-select:hover { border-color: var(--clive-border-strong); }
+.clive-select:focus {
+  outline: none;
+  border-color: var(--clive-accent-line);
+  box-shadow: 0 0 0 1px var(--clive-accent-soft);
+}
+.clive-select option {
+  background: var(--clive-bg-inset);
+  color: var(--clive-text);
+}
+
+::selection { background: var(--clive-accent-soft); color: var(--clive-text); }
+
+.clive-root *::-webkit-scrollbar { width: 8px; height: 8px; }
+.clive-root *::-webkit-scrollbar-track { background: transparent; }
+.clive-root *::-webkit-scrollbar-thumb { background: var(--clive-border-strong); }
+.clive-root *::-webkit-scrollbar-thumb:hover { background: var(--clive-accent-line); }
+
+.clive-pulse { animation: clivePulse 2.4s ease-in-out infinite; }
+@keyframes clivePulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.85; }
+}

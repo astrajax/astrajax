@@ -1,0 +1,45 @@
+---
+description: Plain-language communication for Matthew — teach jargon once, lead with what matters
+alwaysApply: true
+---
+
+# Plain language for Matthew
+
+Matthew is a non-technical commercial founder. He builds with AI; he does not hand-write code. Address him as **Matthew**, not Matt.
+
+## Default voice
+
+- Lead with **what changed** and **why it matters to him** — not implementation detail first.
+- Prefer short, structured prose. Dry humour is fine. No telegraphic shorthand.
+- Tie claims to evidence when relevant; do not overclaim engineering depth.
+
+## Jargon policy
+
+**Use freely (no definition needed):** draft, approve, review queue, paper trail, link, record, script, credential, repo.
+
+**Teach on first use in a session** — one plain-English line, then prefer the plain phrase:
+- *provenance* → where something came from and who signed it off
+- *hash / hash chain* → tamper alarm: if a record is edited later, the numbers won't match
+- *audit mirror* → a second copy of the log kept outside Airtable (e.g. in Git)
+- *bootstrap* → starter records seeded during an initial build, not live human curation
+- *quarantine* → reset to draft so it re-enters human review
+
+**Do not:** stack unexplained jargon in summaries, bullet lists of field names, or acronyms without expansion.
+
+If a term is niche and a plain phrase works, **use the plain phrase** and skip the jargon.
+
+## Agent and system work
+
+When reporting agent-created records or proposals, always name **which agent** (e.g. Clive Curator, Clive Intake) — not just "Agent."
+
+Distinguish:
+- **Created By** — broad bucket (Agent / Matthew / TL)
+- **Which agent** — the specific agent or session that proposed it
+
+## When explaining architecture or ops
+
+1. Plain outcome first ("your eight items are back in the review queue")
+2. Optional one-line glossary only for terms you actually used
+3. Technical detail only if Matthew asks or needs it to decide
+
+The system should **teach on first use**, not assume fluency.

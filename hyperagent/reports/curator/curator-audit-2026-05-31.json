@@ -1,0 +1,1198 @@
+{
+  "success": true,
+  "target": "daily",
+  "checks": [
+    "conflicts",
+    "duplicates",
+    "risky",
+    "stale",
+    "unsupported"
+  ],
+  "date": "2026-05-31",
+  "generated_at": "2026-05-31T08:12:34.689489+00:00",
+  "source_count": 53,
+  "read_errors": [],
+  "findings": [
+    {
+      "id": "CUR-20260531-001",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": ".cursor/agents/clive-agent-factory.md, .cursor/skills/clive-agent-factory/SKILL.md",
+      "evidence": "2 sources share title 'clive-agent-factory'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260531-002",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": ".cursor/agents/clive-context-scanner.md, .cursor/skills/clive-context-scanner/SKILL.md",
+      "evidence": "2 sources share title 'clive-context-scanner'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260531-003",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": ".cursor/agents/clive-curator.md, hyperagent/exports/agents/agent-clive-curator-v0_1.json, hyperagent/exports/agents/agent-clive-curator-v1.json, hyperagent/exports/agents/agent-clive-curator-v2.json, hyperagent/exports/agents/agent-clive-curator-v3.json, hyperagent/exports/agents/agent-clive-curator-v4.json",
+      "evidence": "6 sources share title 'clive-curator'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260531-004",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": ".cursor/agents/clive-hyperagent-release-scanner.md, .cursor/skills/clive-hyperagent-release-scanner/SKILL.md",
+      "evidence": "2 sources share title 'clive-hyperagent-release-scanner'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260531-005",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": ".cursor/agents/clive-intake.md, hyperagent/exports/agents/agent-clive-intake-v1.json",
+      "evidence": "2 sources share title 'clive-intake'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260531-006",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": ".cursor/skills/clive-context-curator/SKILL.md, hyperagent/exports/skills/skill-clive-context-curator-v0_1.json, hyperagent/exports/skills/skill-clive-context-curator-v1.json, hyperagent/exports/skills/skill-clive-context-curator-v2.json, hyperagent/exports/skills/skill-clive-context-curator-v3.json, hyperagent/exports/skills/skill-clive-context-curator-v4.json",
+      "evidence": "6 sources share title 'clive-context-curator'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260531-007",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": ".cursor/skills/clive-context-intake/SKILL.md, hyperagent/exports/skills/skill-clive-context-intake-v1.json",
+      "evidence": "2 sources share title 'clive-context-intake'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260531-008",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": ".cursor/skills/clive-context-intake-slack-blocks/SKILL.md, hyperagent/exports/skills/skill-clive-context-intake-slack-blocks-v1.json",
+      "evidence": "2 sources share title 'clive-context-intake-slack-blocks'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260531-009",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": "hyperagent/builds/build_clive_agent_factory_v2.py, hyperagent/builds/build_clive_curator_v0_1.py, hyperagent/builds/build_clive_curator_v1.py, hyperagent/builds/build_clive_curator_v2.py, hyperagent/builds/build_clive_curator_v3.py, hyperagent/builds/build_clive_curator_v4.py",
+      "evidence": "6 sources share title '!/usr/bin/env python3'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260531-010",
+      "severity": "Low",
+      "check": "duplicates",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v0_1.json, hyperagent/exports/agents/agent-clive-curator-v1.json, hyperagent/exports/agents/agent-clive-curator-v2.json, hyperagent/exports/agents/agent-clive-curator-v3.json, hyperagent/exports/agents/agent-clive-curator-v4.json",
+      "evidence": "5 exports exist for clive-curator.",
+      "why_it_matters": "Multiple exports are acceptable as history, but the live one should be obvious.",
+      "recommended_action": "Mark the current export in the build pack or archive older exports.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-011",
+      "severity": "Low",
+      "check": "stale",
+      "surface": ".cursor/agents/clive-agent-factory.md",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-012",
+      "severity": "Low",
+      "check": "stale",
+      "surface": ".cursor/agents/clive-context-scanner.md",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-013",
+      "severity": "Low",
+      "check": "stale",
+      "surface": ".cursor/agents/clive-hyperagent-release-scanner.md",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-014",
+      "severity": "Low",
+      "check": "stale",
+      "surface": ".cursor/skills/clive-agent-factory/SKILL.md",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-015",
+      "severity": "Low",
+      "check": "stale",
+      "surface": ".cursor/skills/clive-context-curator/SKILL.md",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-016",
+      "severity": "Low",
+      "check": "stale",
+      "surface": ".cursor/skills/clive-context-intake/SKILL.md",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-017",
+      "severity": "Low",
+      "check": "stale",
+      "surface": ".cursor/skills/clive-hyperagent-release-scanner/SKILL.md",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-018",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "AGENTS.md",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-019",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "agents/cursor/clive/agent-factory/build-pack-v2.md",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-020",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "clive_context_architecture_v2.md",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-021",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "docs/context/human-approval-path.md",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-022",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/builds/build_clive_agent_factory_v2.py",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-023",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/builds/build_clive_curator_v0_1.py",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-024",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/builds/build_clive_curator_v1.py",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-025",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/context_architecture_schema_v1.json",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-026",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v0_1.json",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-027",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v1.json",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-028",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v2.json",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-029",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v3.json",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-030",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/exports/agents/agent-clive-intake-v1.json",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-031",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v0_1.json",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-032",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v1.json",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-033",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v2.json",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-034",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v3.json",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-035",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v4.json",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-036",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "hyperagent/exports/skills/skill-clive-context-intake-v1.json",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-037",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "Context Items/recPQzHHxvayexRre",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-038",
+      "severity": "Low",
+      "check": "stale",
+      "surface": "Context Items/recJabWSwJbZASaCq",
+      "evidence": "Source has authority language but no ISO review date.",
+      "why_it_matters": "Authority claims need a review date so Clive can judge freshness.",
+      "recommended_action": "Add or update a Last Reviewed date.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-039",
+      "severity": "Medium",
+      "check": "stale",
+      "surface": "docs/context/hyperagent-releases.json",
+      "evidence": "Release log has no last_synced_at.",
+      "why_it_matters": "Agent Factory should not rely on an unsynced release log for platform truth.",
+      "recommended_action": "Run the Hyperagent release scanner or mark the log intentionally unsynced.",
+      "route": "Release Scanner"
+    },
+    {
+      "id": "CUR-20260531-040",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": ".cursor/agents/clive-curator.md",
+      "evidence": "Uncertainty markers found: placeholder, tbc, todo.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-041",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": ".cursor/agents/clive-hyperagent-release-scanner.md",
+      "evidence": "Uncertainty markers found: unverified.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-042",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": ".cursor/skills/clive-agent-factory/SKILL.md",
+      "evidence": "Uncertainty markers found: placeholder, unverified.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-043",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": ".cursor/skills/clive-context-curator/SKILL.md",
+      "evidence": "Uncertainty markers found: guess, placeholder, tbc, todo.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-044",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": ".cursor/skills/clive-context-intake-slack-blocks/SKILL.md",
+      "evidence": "Uncertainty markers found: placeholder.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-045",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": ".cursor/skills/clive-context-scanner/SKILL.md",
+      "evidence": "Uncertainty markers found: placeholder.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-046",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": ".cursor/skills/clive-hyperagent-release-scanner/SKILL.md",
+      "evidence": "Uncertainty markers found: unverified.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-047",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": "agents/cursor/clive/agent-factory/build-pack-v2.md",
+      "evidence": "Uncertainty markers found: placeholder, unverified.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-048",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "agents/cursor/clive/curator/build-pack-v2.md",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-049",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": "docs/context/hyperagent-platform.md",
+      "evidence": "Uncertainty markers found: unknown, unverified.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-050",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": "docs/context/hyperagent-releases.json",
+      "evidence": "Uncertainty markers found: unverified.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-051",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": "hyperagent/builds/build_clive_agent_factory_v2.py",
+      "evidence": "Uncertainty markers found: placeholder, unverified.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-052",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "hyperagent/builds/build_clive_curator_v0_1.py",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-053",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "hyperagent/builds/build_clive_curator_v1.py",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-054",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "hyperagent/builds/build_clive_curator_v3.py",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-055",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": "hyperagent/builds/build_clive_curator_v4.py",
+      "evidence": "Uncertainty markers found: guess, maybe, not sure, placeholder, probably, tbc, todo, unknown, unverified.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-056",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "hyperagent/context_architecture_schema_v1.json",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-057",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v0_1.json",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-058",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v1.json",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-059",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v2.json",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-060",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v3.json",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-061",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v4.json",
+      "evidence": "Uncertainty markers found: guess, maybe, not sure, placeholder, probably, tbc, todo, unknown, unverified.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-062",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": "hyperagent/exports/agents/agent-clive-intake-v1.json",
+      "evidence": "Uncertainty markers found: placeholder.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-063",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v0_1.json",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-064",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v1.json",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-065",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v2.json",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-066",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v3.json",
+      "evidence": "Uncertainty markers found: unknown.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-067",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v4.json",
+      "evidence": "Uncertainty markers found: guess, maybe, not sure, placeholder, probably, tbc, todo, unknown, unverified.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-068",
+      "severity": "Medium",
+      "check": "unsupported",
+      "surface": "hyperagent/exports/skills/skill-clive-context-intake-slack-blocks-v1.json",
+      "evidence": "Uncertainty markers found: placeholder.",
+      "why_it_matters": "Uncertain or placeholder language can be mistaken for durable context.",
+      "recommended_action": "Either source and approve the claim, or mark it as draft/unverified.",
+      "route": "Matthew or source owner"
+    },
+    {
+      "id": "CUR-20260531-069",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "Context Items/recUJaurBEHabB9DX",
+      "evidence": "Approved Context Item text does not include an obvious source marker.",
+      "why_it_matters": "Approved context should carry enough source trail for later audits.",
+      "recommended_action": "Add source notes or provenance.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-070",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "Context Items/recPQzHHxvayexRre",
+      "evidence": "Approved Context Item text does not include an obvious source marker.",
+      "why_it_matters": "Approved context should carry enough source trail for later audits.",
+      "recommended_action": "Add source notes or provenance.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-071",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "Context Items/recJabWSwJbZASaCq",
+      "evidence": "Approved Context Item text does not include an obvious source marker.",
+      "why_it_matters": "Approved context should carry enough source trail for later audits.",
+      "recommended_action": "Add source notes or provenance.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-072",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "Context Items/recuOM7itdyK3LBhS",
+      "evidence": "Approved Context Item text does not include an obvious source marker.",
+      "why_it_matters": "Approved context should carry enough source trail for later audits.",
+      "recommended_action": "Add source notes or provenance.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-073",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "Context Items/recoWcmc9fSwMwmDL",
+      "evidence": "Approved Context Item text does not include an obvious source marker.",
+      "why_it_matters": "Approved context should carry enough source trail for later audits.",
+      "recommended_action": "Add source notes or provenance.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-074",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "Context Items/rec4E2xltxXeCsicl",
+      "evidence": "Approved Context Item text does not include an obvious source marker.",
+      "why_it_matters": "Approved context should carry enough source trail for later audits.",
+      "recommended_action": "Add source notes or provenance.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-075",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "Context Items/reckhCIz5AFhFhag4",
+      "evidence": "Approved Context Item text does not include an obvious source marker.",
+      "why_it_matters": "Approved context should carry enough source trail for later audits.",
+      "recommended_action": "Add source notes or provenance.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-076",
+      "severity": "Low",
+      "check": "unsupported",
+      "surface": "Context Items/recvWCNlwxlwqrQ0i",
+      "evidence": "Approved Context Item text does not include an obvious source marker.",
+      "why_it_matters": "Approved context should carry enough source trail for later audits.",
+      "recommended_action": "Add source notes or provenance.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-077",
+      "severity": "High",
+      "check": "risky",
+      "surface": "agents/cursor/clive/curator/build-pack-v2.md",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-078",
+      "severity": "Medium",
+      "check": "risky",
+      "surface": "agents/cursor/clive/curator/build-pack-v3.md",
+      "evidence": "Scheduled context mentions `create_context_item.py`.",
+      "why_it_matters": "Scheduled creation can blur audit with proposal creation.",
+      "recommended_action": "Verify scheduled mode is read-only.",
+      "route": "Curator"
+    },
+    {
+      "id": "CUR-20260531-079",
+      "severity": "High",
+      "check": "risky",
+      "surface": "docs/context/hyperagent-platform.md",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-080",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v0_1.py",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-081",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v1.py",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-082",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v1.py",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-083",
+      "severity": "Medium",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v1.py",
+      "evidence": "Scheduled context mentions `create_context_item.py`.",
+      "why_it_matters": "Scheduled creation can blur audit with proposal creation.",
+      "recommended_action": "Verify scheduled mode is read-only.",
+      "route": "Curator"
+    },
+    {
+      "id": "CUR-20260531-084",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v2.py",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-085",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v2.py",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-086",
+      "severity": "Medium",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v2.py",
+      "evidence": "Scheduled context mentions `create_context_item.py`.",
+      "why_it_matters": "Scheduled creation can blur audit with proposal creation.",
+      "recommended_action": "Verify scheduled mode is read-only.",
+      "route": "Curator"
+    },
+    {
+      "id": "CUR-20260531-087",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v3.py",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-088",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v3.py",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-089",
+      "severity": "Medium",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v3.py",
+      "evidence": "Scheduled context mentions `create_context_item.py`.",
+      "why_it_matters": "Scheduled creation can blur audit with proposal creation.",
+      "recommended_action": "Verify scheduled mode is read-only.",
+      "route": "Curator"
+    },
+    {
+      "id": "CUR-20260531-090",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v4.py",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-091",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v4.py",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-092",
+      "severity": "Medium",
+      "check": "risky",
+      "surface": "hyperagent/builds/build_clive_curator_v4.py",
+      "evidence": "Scheduled context mentions `create_context_item.py`.",
+      "why_it_matters": "Scheduled creation can blur audit with proposal creation.",
+      "recommended_action": "Verify scheduled mode is read-only.",
+      "route": "Curator"
+    },
+    {
+      "id": "CUR-20260531-093",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/context_architecture_schema_v1.json",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-094",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v0_1.json",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-095",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v1.json",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-096",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v1.json",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-097",
+      "severity": "Medium",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v1.json",
+      "evidence": "Scheduled context mentions `create_context_item.py`.",
+      "why_it_matters": "Scheduled creation can blur audit with proposal creation.",
+      "recommended_action": "Verify scheduled mode is read-only.",
+      "route": "Curator"
+    },
+    {
+      "id": "CUR-20260531-098",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v2.json",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-099",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v2.json",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-100",
+      "severity": "Medium",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v2.json",
+      "evidence": "Scheduled context mentions `create_context_item.py`.",
+      "why_it_matters": "Scheduled creation can blur audit with proposal creation.",
+      "recommended_action": "Verify scheduled mode is read-only.",
+      "route": "Curator"
+    },
+    {
+      "id": "CUR-20260531-101",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v3.json",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-102",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v3.json",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-103",
+      "severity": "Medium",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v3.json",
+      "evidence": "Scheduled context mentions `create_context_item.py`.",
+      "why_it_matters": "Scheduled creation can blur audit with proposal creation.",
+      "recommended_action": "Verify scheduled mode is read-only.",
+      "route": "Curator"
+    },
+    {
+      "id": "CUR-20260531-104",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v4.json",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-105",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v4.json",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-106",
+      "severity": "Medium",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v4.json",
+      "evidence": "Scheduled context mentions `create_context_item.py`.",
+      "why_it_matters": "Scheduled creation can blur audit with proposal creation.",
+      "recommended_action": "Verify scheduled mode is read-only.",
+      "route": "Curator"
+    },
+    {
+      "id": "CUR-20260531-107",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/agents/agent-clive-intake-v1.json",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-108",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v1.json",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-109",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v2.json",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-110",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v3.json",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-111",
+      "severity": "Medium",
+      "check": "risky",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v3.json",
+      "evidence": "Scheduled context mentions `create_context_item.py`.",
+      "why_it_matters": "Scheduled creation can blur audit with proposal creation.",
+      "recommended_action": "Verify scheduled mode is read-only.",
+      "route": "Curator"
+    },
+    {
+      "id": "CUR-20260531-112",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v4.json",
+      "evidence": "`autoSaveMemories` appears with `true` nearby.",
+      "why_it_matters": "Auto-saved memories bypass the deliberate context approval lane.",
+      "recommended_action": "Disable auto-save or document why this agent is exempt.",
+      "route": "Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-113",
+      "severity": "High",
+      "check": "risky",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v4.json",
+      "evidence": "Write credential and approval language appear in the same surface.",
+      "why_it_matters": "Write credentials must not be confused with human approval authority.",
+      "recommended_action": "Split write and approval language; verify no approver token is exposed.",
+      "route": "Matthew"
+    },
+    {
+      "id": "CUR-20260531-114",
+      "severity": "Medium",
+      "check": "risky",
+      "surface": "hyperagent/exports/skills/skill-clive-context-curator-v4.json",
+      "evidence": "Scheduled context mentions `create_context_item.py`.",
+      "why_it_matters": "Scheduled creation can blur audit with proposal creation.",
+      "recommended_action": "Verify scheduled mode is read-only.",
+      "route": "Curator"
+    },
+    {
+      "id": "CUR-20260531-115",
+      "severity": "High",
+      "check": "conflicts",
+      "surface": "approve context",
+      "evidence": ".cursor/agents/clive-curator.md: cans approved context, proposed context,   context | .cursor/agents/clive-hyperagent-release-scanner.md: candidate changes for `docs/context/hyperagent-platform.md` for matthew to approve  ## forbidden work  - edit `docs/context | .cursor/agents/clive-intake.md: never set status to approved, rejected, published, or deployed. - never write outside context | .cursor/skills/clive-agent-factory/SKILL.md: never deploys to hyperagent, commits, pushes, approves canonical context",
+      "why_it_matters": "Contradictory permission language can make agents choose the wrong authority boundary.",
+      "recommended_action": "Decide the canonical rule and update or archive the conflicting surface.",
+      "route": "Matthew or Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-116",
+      "severity": "High",
+      "check": "conflicts",
+      "surface": "create context items",
+      "evidence": ".cursor/skills/clive-context-curator/SKILL.md: canonicalise context - write airtable records - create context item | agents/cursor/clive/curator/build-pack-v2.md: canonical.  in v2, you may create context item | .cursor/agents/clive-curator.md: must never:  - approve, reject, publish, deploy, or canonicalise context - create context item | .cursor/skills/clive-agent-factory/SKILL.md: may read these. it must not create or update agent environments, context item",
+      "why_it_matters": "Contradictory permission language can make agents choose the wrong authority boundary.",
+      "recommended_action": "Decide the canonical rule and update or archive the conflicting surface.",
+      "route": "Matthew or Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-117",
+      "severity": "High",
+      "check": "conflicts",
+      "surface": "edit repo",
+      "evidence": ".cursor/agents/clive-curator.md: canonicalise context - create context items from scheduled mode - edit agents, skills, rules, repo file | .cursor/skills/clive-agent-factory/SKILL.md: canonical context, writing change log, editing unrelated repo file | .cursor/agents/clive-intake.md: never write outside context intake. - never edit other agents, github files, notion, or repo | .cursor/skills/clive-context-intake/SKILL.md: must never: approve, publish, deploy, or canonicalise context; edit hyperagent prompts or skills; write to github",
+      "why_it_matters": "Contradictory permission language can make agents choose the wrong authority boundary.",
+      "recommended_action": "Decide the canonical rule and update or archive the conflicting surface.",
+      "route": "Matthew or Agent Factory"
+    },
+    {
+      "id": "CUR-20260531-118",
+      "severity": "High",
+      "check": "conflicts",
+      "surface": "auto-save memories",
+      "evidence": ".cursor/skills/clive-agent-factory/SKILL.md: enable auto-save memor | agents/cursor/clive/agent-factory/build-pack-v2.md: enable auto-save memor | hyperagent/builds/build_clive_curator_v4.py: must not|never).{0,80}edit.{0,80}(repo|file|github)\"),         (\"auto-save memories\", r\"(enable|disable|must|never|allow).{0,80}auto.?save.{0,80}memor | hyperagent/exports/skills/skill-clive-context-curator-v4.json: must not|never).{0,80}edit.{0,80}(repo|file|github)\\\\\\\"),\\\\n        (\\\\\\\"auto-save memories\\\\\\\", r\\\\\\\"(enable|disable|must|never|allow).{0,80}auto.?save.{0,80}memor",
+      "why_it_matters": "Contradictory permission language can make agents choose the wrong authority boundary.",
+      "recommended_action": "Decide the canonical rule and update or archive the conflicting surface.",
+      "route": "Matthew or Agent Factory"
+    }
+  ],
+  "markdown_path": "/Users/matthewhopkinson/Documents/AstraJax/hyperagent/reports/curator/curator-audit-2026-05-31.md"
+}

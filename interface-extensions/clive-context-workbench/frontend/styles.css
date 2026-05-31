@@ -1,0 +1,130 @@
+/* Clive Context Workbench — cream surface matching AstraJax website mockups */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --clive-bg: #F3EDDB;
+  --clive-bg-raised: #FAF7ED;
+  --clive-bg-inset: #EAE2CC;
+  --clive-bg-hover: rgba(35, 39, 27, 0.05);
+  --clive-text: #23271B;
+  --clive-text-muted: rgba(35, 39, 27, 0.66);
+  --clive-text-dim: rgba(35, 39, 27, 0.42);
+  --clive-border: rgba(35, 39, 27, 0.12);
+  --clive-border-strong: rgba(35, 39, 27, 0.22);
+  --clive-accent: #6E7B52;
+  --clive-accent-soft: rgba(110, 123, 82, 0.14);
+  --clive-accent-line: rgba(110, 123, 82, 0.50);
+  --clive-glow: rgba(110, 123, 82, 0.20);
+  --clive-warm: #A95A2E;
+  --clive-warm-soft: rgba(169, 90, 46, 0.12);
+  --clive-clive: #A95A2E;
+  --clive-clive-soft: rgba(169, 90, 46, 0.12);
+  --clive-grid: rgba(35, 39, 27, 0.035);
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; }
+
+.clive-root {
+  position: relative;
+  background:
+    linear-gradient(var(--clive-grid) 1px, transparent 1px) 0 0 / 100% 30px,
+    linear-gradient(90deg, var(--clive-grid) 1px, transparent 1px) 0 0 / 30px 100%,
+    var(--clive-bg);
+  color: var(--clive-text);
+}
+
+.clive-rule {
+  height: 1px;
+  border: 0;
+  background: linear-gradient(90deg, var(--clive-accent-line), transparent 70%);
+  opacity: 0.85;
+}
+
+.clive-card {
+  position: relative;
+  background: var(--clive-bg-raised);
+  border: 1px solid var(--clive-border);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+.clive-card:hover {
+  border-color: var(--clive-border-strong);
+  box-shadow: 0 0 0 1px var(--clive-accent-soft), 0 8px 24px -14px rgba(35, 39, 27, 0.18);
+}
+
+.clive-tab {
+  position: relative;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--clive-text-muted);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: color 0.14s ease, background-color 0.14s ease, border-color 0.14s ease;
+}
+.clive-tab:hover {
+  color: var(--clive-text);
+  background: var(--clive-bg-hover);
+  border-color: var(--clive-border);
+}
+.clive-tab[aria-selected='true'] {
+  color: var(--clive-accent);
+  background: var(--clive-accent-soft);
+  border-color: var(--clive-accent-line);
+}
+
+.clive-btn {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid var(--clive-border-strong);
+  color: var(--clive-text);
+  cursor: pointer;
+  transition: background-color 0.14s ease, border-color 0.14s ease, color 0.14s ease;
+}
+.clive-btn:hover {
+  background: var(--clive-warm-soft);
+  border-color: var(--clive-clive);
+  color: var(--clive-clive);
+}
+.clive-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.clive-btn-primary {
+  background: var(--clive-clive);
+  border-color: var(--clive-clive);
+  color: #FAF7ED;
+}
+.clive-btn-primary:hover {
+  background: #95491F;
+  border-color: #95491F;
+  color: #FAF7ED;
+}
+
+.clive-input,
+.clive-select {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  background: var(--clive-bg-inset);
+  border: 1px solid var(--clive-border);
+  color: var(--clive-text);
+  transition: border-color 0.14s ease, box-shadow 0.14s ease;
+}
+.clive-input:hover,
+.clive-select:hover { border-color: var(--clive-border-strong); }
+.clive-input:focus,
+.clive-select:focus {
+  outline: none;
+  border-color: var(--clive-accent-line);
+  box-shadow: 0 0 0 1px var(--clive-accent-soft);
+}
+.clive-select option {
+  background: var(--clive-bg-raised);
+  color: var(--clive-text);
+}
+
+::selection { background: var(--clive-accent-soft); color: var(--clive-text); }
+
+.clive-root *::-webkit-scrollbar { width: 8px; height: 8px; }
+.clive-root *::-webkit-scrollbar-track { background: transparent; }
+.clive-root *::-webkit-scrollbar-thumb { background: var(--clive-border-strong); }

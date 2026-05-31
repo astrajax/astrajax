@@ -1,0 +1,5 @@
+node_modules/
+.block/*
+!.block/remote.json
+dist/
+*.log
