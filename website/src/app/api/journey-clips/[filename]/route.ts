@@ -49,8 +49,10 @@ export async function GET(
   if (contentLength) responseHeaders.set("Content-Length", contentLength);
   if (contentRange) responseHeaders.set("Content-Range", contentRange);
 
+  const status = contentRange ? 206 : 200;
+
   return new NextResponse(result.stream, {
-    status: contentRange ? 206 : 200,
+    status,
     headers: responseHeaders,
   });
 }

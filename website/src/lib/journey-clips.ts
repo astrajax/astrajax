@@ -8,9 +8,20 @@
  * With it unset, we fall back to the local /public folder for dev.
  */
 
-const TALK =
-  process.env.NEXT_PUBLIC_JOURNEY_CLIPS_BASE?.replace(/\/$/, "") ??
-  "/video/journey-clips/talk";
+/**
+ * Resolves where talk clips are served from.
+ * - Explicit NEXT_PUBLIC_JOURNEY_CLIPS_BASE wins (optional override).
+ * - Production never ships the mp4s — always proxy via /api/journey-clips.
+ * - Local dev plays from /public unless overridden.
+ */
+function talkClipBase(): string {
+  const configured = process.env.NEXT_PUBLIC_JOURNEY_CLIPS_BASE?.replace(/\/$/, "");
+  if (configured) return configured;
+  if (process.env.NODE_ENV === "production") return "/api/journey-clips";
+  return "/video/journey-clips/talk";
+}
+
+const TALK = talkClipBase();
 
 export type JourneyClip = {
   src: string;
