@@ -1,3 +1,5 @@
+import { BOOKING_URL } from "@/lib/site";
+
 export function Hero() {
   return (
     <section id="story" className="border-b border-ink/10">
@@ -13,7 +15,12 @@ export function Hero() {
             with the people who know the work best.
           </p>
           <div className="flex flex-wrap gap-4">
-            <a href="#start" className="btn-primary">
+            <a
+              href={BOOKING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary"
+            >
               Get a Commercial OS Audit
               <span aria-hidden>→</span>
             </a>
@@ -23,24 +30,23 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="card p-6 lg:p-8">
-          <div className="mb-4 flex items-center justify-between">
-            <p className="section-label">Operating system — illustrative</p>
-            <span className="status-pill status-pill--live">Live preview</span>
+        <div className="card overflow-hidden p-6 lg:p-8">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <p className="section-label">Agent fleet — production</p>
+            <span className="status-pill status-pill--live">Live</span>
           </div>
-          <div className="space-y-3 font-mono text-xs">
-            <div className="flex items-center justify-between rounded-lg bg-cream px-4 py-3">
-              <span className="text-ink-muted">Pipeline · market</span>
-              <span className="status-pill status-pill--live">Live</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg bg-cream px-4 py-3">
-              <span className="text-ink-muted">Approvals</span>
-              <span className="status-pill status-pill--pending">2 pending</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg bg-cream px-4 py-3">
-              <span className="text-ink-muted">Data health</span>
-              <span className="status-pill status-pill--clean">Clean</span>
-            </div>
+          <div className="overflow-hidden rounded-lg border border-ink/10 bg-ink">
+            <video
+              className="block h-auto w-full"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-label="Screen recording of the Direct Sales agent fleet dashboard with moving character profiles"
+            >
+              <source src="/video/agent-fleet-loop.mp4" type="video/mp4" />
+            </video>
           </div>
           <p className="mt-4 text-sm text-ink-muted">
             The product is the proof — don&apos;t just describe the system, show it.

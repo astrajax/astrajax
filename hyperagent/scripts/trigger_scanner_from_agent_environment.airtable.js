@@ -7,7 +7,7 @@
  *
  * Input variables:
  *   recordId = {{recordId}}
- *   webhookUrl = Hyperagent Clive Context Scanner /receive URL
+ *   webhookUrl = optional override; default reads Hyperagent Webhook URL from this record
  *   previewOnly = optional "true" to gather and preview claims only (no Intake creates)
  *
  * Secret: HYPERAGENT_WEBHOOK_SECRET (or CLIVE_SCANNER_WEBHOOK_SECRET)
@@ -22,6 +22,7 @@
 const TABLE_NAME = 'Agent Environments';
 const TRIGGER_FIELD = 'Trigger Scanner';
 const AGENT_NAME_FIELD = 'Agent Name';
+const WEBHOOK_URL_FIELD = 'Hyperagent Webhook URL';
 const EXPECTED_AGENT = 'Clive Scanner';
 
 const cfg = input.config();
@@ -70,8 +71,19 @@ function readSecret() {
 const recordId = pickStr(cfg, ['recordId']);
 if (!recordId) throw new Error('Missing recordId input variable.');
 
-const webhookUrl = pickStr(cfg, ['webhookUrl', 'hyperagentWebhookUrl', 'scannerWebhookUrl']);
-if (!webhookUrl) throw new Error('Missing webhookUrl input variable.');
+const table = base.getTable(TABLE_NAME);
+const record = await table.selectRecordAsync(recordId);
+if (!record) throw new Error(`Record not found: ${recordId}`);
+
+const urlFromRecord = pickStr({ u: record.getCellValueAsString(WEBHOOK_URL_FIELD) }, ['u']);
+const webhookUrl =
+    pickStr(cfg, ['webhookUrl', 'hyperagentWebhookUrl', 'scannerWebhookUrl']) || urlFromRecord;
+if (!webhookUrl) {
+    throw new Error(
+        `Missing webhook URL. Set ${WEBHOOK_URL_FIELD} on this Agent Environments row, `
+            + 'or pass webhookUrl input. See hyperagent/docs/hyperagent-deploy-playbook.md',
+    );
+}
 
 const secretInfo = readSecret();
 if (!secretInfo.secret) {
@@ -79,10 +91,6 @@ if (!secretInfo.secret) {
         'HYPERAGENT_WEBHOOK_SECRET not set on Secrets tab (or CLIVE_SCANNER_WEBHOOK_SECRET).',
     );
 }
-
-const table = base.getTable(TABLE_NAME);
-const record = await table.selectRecordAsync(recordId);
-if (!record) throw new Error(`Record not found: ${recordId}`);
 
 const agentName = pickStr({ n: record.getCellValueAsString(AGENT_NAME_FIELD) }, ['n']);
 if (agentName && agentName !== EXPECTED_AGENT) {

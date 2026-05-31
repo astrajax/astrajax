@@ -40,9 +40,11 @@ Copy **receive URL** and **secret**.
 2. **Action:** Run script → `hyperagent/scripts/trigger_scanner_from_agent_environment.airtable.js`
 3. **Input variables:**
    - `recordId` = `{{recordId}}`
-   - `webhookUrl` = your Scanner Hyperagent `/receive` URL
    - `previewOnly` = `false` (or `true` for preview-only runs)
+   - `webhookUrl` = optional override; default reads **Hyperagent Webhook URL** on the row
 4. **Secret:** `HYPERAGENT_WEBHOOK_SECRET` (Scanner webhook secret)
+
+Paste the Scanner `/receive` URL once on the **Clive Scanner** Agent Environments row (**Hyperagent Webhook URL**). See `hyperagent/docs/hyperagent-deploy-playbook.md`.
 
 The script POSTs JSON, then **clears Trigger Scanner** on success.
 

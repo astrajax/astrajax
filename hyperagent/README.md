@@ -22,6 +22,12 @@ hyperagent/
   context_architecture_schema_v1.json
 ```
 
+## Deploy without deleting agents
+
+**Do not delete Hyperagent agents to update them** — that destroys webhooks and forces Airtable rewiring.
+
+See **`hyperagent/docs/hyperagent-deploy-playbook.md`** (skill-only re-import, in-UI prompt edits, webhook URL on Agent Environments).
+
 ## Regenerate an agent
 
 ```bash

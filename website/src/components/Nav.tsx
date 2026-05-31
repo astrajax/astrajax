@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { BOOKING_URL } from "@/lib/site";
 
 const links = [
   { href: "#story", label: "Story" },
@@ -39,7 +40,12 @@ export function Nav() {
             </a>
           ))}
         </nav>
-        <a href="#start" className="btn-primary shrink-0 text-sm">
+        <a
+          href={BOOKING_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary shrink-0 text-sm"
+        >
           Book an Audit
         </a>
       </div>

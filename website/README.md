@@ -12,7 +12,7 @@ Single-page site with sections:
 - Clive section with **live Ask Clive** (server-side `/api/ask-clive`)
 - Audit CTA close
 
-Copy uses canonical claims only. Ask Clive reads approved Context Items from Airtable (fallback bundled context if the token is missing). Booking is still a placeholder.
+Copy uses canonical claims only. Ask Clive reads approved Context Items from Airtable (fallback bundled context if the token is missing). Audit booking via Calendly.
 
 ## Local preview
 
@@ -52,7 +52,6 @@ Copy `website/.env.example` for local dev. Redeploy after adding keys.
 ## Next steps
 
 1. Add `ANTHROPIC_API_KEY` (+ `AIRTABLE_READ_TOKEN`) in Vercel and redeploy
-2. Replace `mailto:hello@astrajax.com` with Calendly or a form
-3. Add favicon and OG image
+2. Add favicon and OG image
 
 Not designed for Framer import — this is an owned codebase. If you stay on Framer, use this as the section/copy reference while rebuilding visually there.

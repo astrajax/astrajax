@@ -77,8 +77,10 @@ On the Workbench extension → **Data** → **Agent Environments**, expose both 
 
 1. **Trigger:** Agent Environments — when record matches → **Trigger Curator** is checked
 2. **Action:** Run script — `hyperagent/scripts/trigger_curator_from_agent_environment.airtable.js`
-3. **Input variables:** `recordId` = `{{recordId}}`, `webhookUrl` = your Hyperagent Curator `/receive` URL
+3. **Input variables:** `recordId` = `{{recordId}}` only (webhook URL comes from the row — see deploy playbook)
 4. **Secret:** `HYPERAGENT_WEBHOOK_SECRET`
+
+**Stop rewiring automations:** paste the Curator `/receive` URL once on the **Clive Curator** row, field **Hyperagent Webhook URL**. See `hyperagent/docs/hyperagent-deploy-playbook.md`.
 
 The script POSTs to Hyperagent, then **clears Trigger Curator** on success.
 

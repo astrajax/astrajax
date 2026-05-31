@@ -1,3 +1,5 @@
+import { BOOKING_URL } from "@/lib/site";
+
 const deliverables = [
   "Workflow map & data / tool audit",
   "AI-readiness assessment",
@@ -17,13 +19,15 @@ export function CtaClose() {
             <p className="mt-4 text-lg text-parchment/80">
               You keep the judgement; agents take the sludge.
             </p>
-            <a href="mailto:hello@astrajax.com" className="btn-primary mt-8">
-              Request your Audit
+            <a
+              href={BOOKING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary mt-8"
+            >
+              Book your Audit
               <span aria-hidden>→</span>
             </a>
-            <p className="mt-4 text-xs text-parchment/50">
-              Booking mechanism TBC — replace mailto with Calendly or form when ready.
-            </p>
           </div>
           <div className="rounded-xl border border-parchment/10 bg-graphite/40 p-6">
             <p className="section-label mb-4 text-parchment/60">What you get</p>

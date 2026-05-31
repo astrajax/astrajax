@@ -7,7 +7,7 @@
  *
  * Input variables:
  *   recordId = {{recordId}}
- *   webhookUrl = Hyperagent Clive Curator /receive URL
+ *   webhookUrl = optional override; default reads Hyperagent Webhook URL from this record
  *   target = optional override (default maps from Agent Name)
  *   checks = optional (default stale,conflicts,duplicates,unsupported,risky)
  *
@@ -19,6 +19,7 @@
 const TABLE_NAME = 'Agent Environments';
 const TRIGGER_FIELD = 'Trigger Curator';
 const AGENT_NAME_FIELD = 'Agent Name';
+const WEBHOOK_URL_FIELD = 'Hyperagent Webhook URL';
 
 const TARGET_BY_AGENT = {
     'Clive Curator': 'curator',
@@ -59,17 +60,23 @@ function readSecret() {
 const recordId = pickStr(cfg, ['recordId']);
 if (!recordId) throw new Error('Missing recordId input variable.');
 
-const webhookUrl = pickStr(cfg, ['webhookUrl', 'hyperagentWebhookUrl']);
-if (!webhookUrl) throw new Error('Missing webhookUrl input variable.');
+const table = base.getTable(TABLE_NAME);
+const record = await table.selectRecordAsync(recordId);
+if (!record) throw new Error(`Record not found: ${recordId}`);
+
+const urlFromRecord = pickStr({ u: record.getCellValueAsString(WEBHOOK_URL_FIELD) }, ['u']);
+const webhookUrl = pickStr(cfg, ['webhookUrl', 'hyperagentWebhookUrl']) || urlFromRecord;
+if (!webhookUrl) {
+    throw new Error(
+        `Missing webhook URL. Set ${WEBHOOK_URL_FIELD} on this Agent Environments row, `
+            + 'or pass webhookUrl input. See hyperagent/docs/hyperagent-deploy-playbook.md',
+    );
+}
 
 const secret = readSecret();
 if (!secret) {
     throw new Error('HYPERAGENT_WEBHOOK_SECRET not set on Secrets tab.');
 }
-
-const table = base.getTable(TABLE_NAME);
-const record = await table.selectRecordAsync(recordId);
-if (!record) throw new Error(`Record not found: ${recordId}`);
 
 const agentName = pickStr({ n: record.getCellValueAsString(AGENT_NAME_FIELD) }, ['n']);
 const target = pickStr(cfg, ['target'], TARGET_BY_AGENT[agentName] || 'daily');
