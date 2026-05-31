@@ -3,9 +3,8 @@
  * Kept separate from journey.ts so the narrative copy stays untouched.
  * Match by ASCII substring to avoid em-dash / arrow encoding mismatches.
  *
- * Clips are served from Vercel Blob in production. Set
- * NEXT_PUBLIC_JOURNEY_CLIPS_BASE to the Blob folder URL (e.g.
- * https://<store>.public.blob.vercel-storage.com/journey-clips/talk).
+ * Clips are served from Vercel Blob in production via /api/journey-clips (private
+ * store proxy). Set NEXT_PUBLIC_JOURNEY_CLIPS_BASE=/api/journey-clips on Vercel.
  * With it unset, we fall back to the local /public folder for dev.
  */
 

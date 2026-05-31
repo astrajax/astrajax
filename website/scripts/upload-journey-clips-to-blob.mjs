@@ -70,7 +70,7 @@ async function main() {
     const body = await readFile(filePath);
     const pathname = `${BLOB_PREFIX}/${file}`;
     const blob = await put(pathname, body, {
-      access: "public",
+      access: "private",
       addRandomSuffix: false,
       contentType: "video/mp4",
       allowOverwrite: true,
@@ -85,9 +85,15 @@ async function main() {
   }
 
   console.log(`\nUploaded ${uploaded}/${FILES.length} clips.`);
+  console.log(
+    "\nYour Blob store is private — clips are served via /api/journey-clips on the site.",
+  );
+  console.log(
+    "Set in Vercel → Settings → Environment Variables (Production + Preview):",
+  );
+  console.log("  NEXT_PUBLIC_JOURNEY_CLIPS_BASE=/api/journey-clips");
   if (base) {
-    console.log("\nSet this in Vercel → Settings → Environment Variables (Production + Preview):");
-    console.log(`  NEXT_PUBLIC_JOURNEY_CLIPS_BASE=${base}`);
+    console.log(`\n(Blob path prefix: ${BLOB_PREFIX}/)`);
   }
 }
 

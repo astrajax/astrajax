@@ -19,9 +19,11 @@ All timestamps in this guide that look like `00:13-01:02`, `08:47-09:12`, `31:56
 | Source | Detail |
 |---|---|
 | Transcript file | `/Users/matthewhopkinson/Downloads/Butternut Box： Building an AI-Powered Sales Operation from the Ground Up.txt` |
+| **Video file (use for all timestamps)** | `/Users/matthewhopkinson/Downloads/Butternut Box： Building an AI-Powered Sales Operation from the Ground Up.mp4` (~36m) |
 | Likely video title | **Butternut Box: Building an AI-Powered Sales Operation from the Ground Up** |
 | Airtable match | `Townhall Section — Matthew Hopkinson` (`recXGFfrATVoHcSIm`) |
-| Airtable local video path noted | `/Users/matthewhopkinson/Library/CloudStorage/GoogleDrive-matt@butternutbox.com/My Drive/Townhall Section MH.mp4` |
+| Short town-hall excerpt only (~4m41s) | `/Users/matthewhopkinson/Library/CloudStorage/GoogleDrive-matt@butternutbox.com/My Drive/Townhall Section MH.mp4` — **do not** use for guide timestamps |
+| Trimmed exports (repo) | `website/public/video/journey-clips/` — run `python3 website/scripts/trim-journey-clips.py` to regenerate |
 | Use for | Hero, intro, problem, boring layer, demo voiceover, agent explanations, final lesson |
 
 **Important:** the Airtable record previously had the wrong transcript attachment: `airtable-hyperagent-communications-summary.md`. The usable transcript is the local Downloads file above.
