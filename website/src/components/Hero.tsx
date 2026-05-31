@@ -1,3 +1,4 @@
+import { AgentFleetVideo } from "@/components/AgentFleetVideo";
 import { BOOKING_URL } from "@/lib/site";
 
 export function Hero() {
@@ -35,21 +36,9 @@ export function Hero() {
             <p className="section-label">Agent fleet — production</p>
             <span className="status-pill status-pill--live">Live</span>
           </div>
-          <div className="overflow-hidden rounded-lg border border-ink/10 bg-ink">
-            <video
-              className="block h-auto w-full"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              aria-label="Screen recording of the Direct Sales agent fleet dashboard with moving character profiles"
-            >
-              <source src="/video/agent-fleet-loop.mp4" type="video/mp4" />
-            </video>
-          </div>
+          <AgentFleetVideo />
           <p className="mt-4 text-sm text-ink-muted">
-            The product is the proof — don&apos;t just describe the system, show it.
+            The gang — Bot Fleet from production. The product is the proof.
           </p>
         </div>
       </div>
