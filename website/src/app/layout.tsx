@@ -21,15 +21,38 @@ const spaceMono = Space_Mono({
   display: "swap",
 });
 
+const logoImage = "/astrajax-logo.png";
+
 export const metadata: Metadata = {
+  metadataBase: new URL("https://astrajax.com"),
   title: "AstraJax — AI-ready operating systems",
   description:
     "AstraJax helps commercial teams turn messy workflows, scattered data and trapped know-how into AI-ready operating systems — built with the people who know the work best.",
+  icons: {
+    icon: [{ url: logoImage, type: "image/png", sizes: "1024x1024" }],
+    shortcut: [logoImage],
+    apple: [{ url: logoImage, type: "image/png", sizes: "1024x1024" }],
+  },
   openGraph: {
     title: "AstraJax — AI-ready operating systems",
     description:
       "Stop running high-value work through low-leverage tools. Built with domain experts, on clean data.",
     type: "website",
+    images: [
+      {
+        url: logoImage,
+        width: 1024,
+        height: 1024,
+        alt: "AstraJax logo mark",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: "AstraJax — AI-ready operating systems",
+    description:
+      "Stop running high-value work through low-leverage tools. Built with domain experts, on clean data.",
+    images: [logoImage],
   },
 };
 
