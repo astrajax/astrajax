@@ -3,6 +3,7 @@ const links = [
   { href: "/#method", label: "Method" },
   { href: "/#proof", label: "Proof" },
   { href: "/journey", label: "Journey" },
+  { href: "/seeds-of-promise", label: "Seeds" },
   { href: "/#clive", label: "Clive" },
   { href: "/#start", label: "Contact" },
 ];

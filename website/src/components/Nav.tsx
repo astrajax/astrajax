@@ -10,6 +10,7 @@ const links = [
   { href: "/#offers", label: "Offers" },
   { href: "/#clive", label: "Clive" },
   { href: "/journey", label: "Journey" },
+  { href: "/seeds-of-promise", label: "Seeds" },
 ];
 
 export function Nav() {
