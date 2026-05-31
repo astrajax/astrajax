@@ -2,7 +2,7 @@
 
 **Status:** V2 proposal. Adversarial review of V1 plus the corrective design.
 **Audience:** Matthew, TL, and AI assistants.
-**Last updated:** 30 May 2026
+**Last updated:** 31 May 2026
 **Supersedes:** the enforcement assumptions in `clive_context_architecture_v1.md`. V1 tables, scripts, and Curator stay; V2 changes how trust and approval are enforced.
 
 ---
@@ -215,7 +215,28 @@ Publisher-only status: `Published`, always with a Change Log entry.
 
 ---
 
-## 6. New Acceptance Tests
+## 6. Interface Proof
+
+V2 is not only tables, scripts, and credentials. It also has three human-facing
+surfaces that make the trust model visible:
+
+| Surface | Role in V2 | What it proves |
+|--------|------------|----------------|
+| **Context Intake** | Captures raw submissions and routes them into review | Agents propose; humans see the raw evidence before anything becomes canonical |
+| **Context Items** | Matthew's review queue for proposed canonical context | `Created By`, `Proposed By Agent`, and `Confirmed By Human` are visible at decision time |
+| **Context Workbench** | Operating cockpit for fleet, approved library, and paper trail | The maintenance layer stays readable after approval — agents, approved context, audit trail in one place |
+
+These screens are **not** the source of trust. They are where the trust model
+becomes visible to Matthew. Enforcement still lives in credentials, field
+permissions, narrow scripts, and the tamper-evident Change Log (sections 4 and
+7). The interfaces make the gate legible; they do not replace it.
+
+Screenshots from production Airtable Interface Extensions (May 2026) are in
+**Appendix A**.
+
+---
+
+## 7. New Acceptance Tests
 
 - AT-1: An agent cannot set `Approved`, `Published`, or `Deprecated` with any
   available script or credential.
@@ -233,7 +254,7 @@ Publisher-only status: `Published`, always with a Change Log entry.
 
 ---
 
-## 7. Migration Order
+## 8. Migration Order
 
 1. Quarantine the eight V1 bootstrap items (needs Matthew go-ahead; touches live
    data).
@@ -249,7 +270,7 @@ Publisher-only status: `Published`, always with a Change Log entry.
 
 ---
 
-## 8. What V2 Still Does Not Build
+## 9. What V2 Still Does Not Build
 
 - Publisher automation beyond Change Log writing.
 - Scanner.
@@ -257,3 +278,36 @@ Publisher-only status: `Published`, always with a Change Log entry.
 - Any agent-side approval or publishing authority.
 
 V2 is not bigger than V1. It is the same system with the trust model made real.
+
+---
+
+## Appendix A — Interface screenshots (demo material)
+
+Production Interface Extensions in the AstraJax base (`appYv601Oq7fKTCj0`),
+captured 31 May 2026. Use these when explaining the architecture to Matthew, TL,
+or external readers who need to see the operating shape, not just the schema.
+
+### A.1 Context Intake — review queue
+
+Clive Intake captures submissions (e.g. from Slack), shows clean summary vs raw
+evidence, agent reasoning, and routing (status, category, destination, next
+owner). This is the front door: nothing is canonical until it passes human
+review downstream.
+
+![Clive Context Intake V1 — review queue with submission detail expanded](docs/context/clive/screenshots/context-intake-review-queue.png)
+
+### A.2 Context Items — Matthew review
+
+Proposed canonical context with explicit provenance: which agent proposed each
+item, `Created By`, and human confirmation fields. Matthew approves or rejects
+here; that sets the human sign-off in Airtable.
+
+![Clive Context Items V1 — Matthew review queue with agent provenance visible](docs/context/clive/screenshots/context-items-matthew-review.png)
+
+### A.3 Context Workbench — context health
+
+The maintenance layer: active agents, approved context library, change log, and
+manual triggers for Curator and Scanner. Intake and approval happen elsewhere;
+this is where Matthew checks fleet health and the approved shelf agents rely on.
+
+![Clive Context Workbench V1 — agent fleet, context library, and change log tabs](docs/context/clive/screenshots/context-workbench-health.png)
