@@ -131,6 +131,50 @@ body {
   background: color-mix(in srgb, var(--color-ink) 20%, transparent);
 }
 
+.timeline-column {
+  --focus: 0;
+  width: calc(
+    (68vw + (92vw - 68vw) * var(--focus)) * 1
+  );
+  opacity: calc(0.42 + 0.58 * var(--focus));
+  transition:
+    width 0.22s ease-out,
+    opacity 0.22s ease-out;
+}
+
+.timeline-column[data-act="true"] {
+  width: calc(52vw + (68vw - 52vw) * var(--focus));
+}
+
+.timeline-column[data-wide="true"] {
+  width: calc(72vw + (96vw - 72vw) * var(--focus));
+}
+
+@media (min-width: 640px) {
+  .timeline-column {
+    width: calc(16rem + (min(56rem, 88vw) - 16rem) * var(--focus));
+  }
+
+  .timeline-column[data-act="true"] {
+    width: calc(11rem + (14rem - 11rem) * var(--focus));
+  }
+
+  .timeline-column[data-wide="true"] {
+    width: calc(18rem + (min(60rem, 92vw) - 18rem) * var(--focus));
+  }
+}
+
+.timeline-column-card {
+  transform: scale(calc(0.94 + 0.06 * var(--focus)));
+  transform-origin: top center;
+  transition: transform 0.22s ease-out;
+}
+
+.timeline-column-card article {
+  max-height: calc(72vh + 16vh * var(--focus));
+  transition: max-height 0.22s ease-out;
+}
+
 .seeds-sage-page {
   background-color: #6e7b52;
   background-image:

@@ -9,7 +9,7 @@ const capabilities = [
 
 export function CliveSection() {
   return (
-    <section id="clive" className="border-b border-ink/10 bg-white">
+    <section id="clive" className="scroll-mt-24 border-b border-ink/10 bg-white">
       <div className="mx-auto grid max-w-6xl gap-12 px-6 py-16 lg:grid-cols-2 lg:py-20">
         <div>
           <p className="section-label mb-4">The context product</p>
@@ -40,7 +40,7 @@ export function CliveSection() {
           </dl>
         </div>
 
-        <div>
+        <div id="ask-clive" className="scroll-mt-24">
           <p className="section-label mb-3">A small taste — ask the context layer</p>
           <AskClivePanel />
         </div>

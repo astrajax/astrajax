@@ -30,6 +30,10 @@ export function Hero() {
             <Link href="/journey" className="btn-secondary">
               See the Butternut story
             </Link>
+            <a href="#ask-clive" className="btn-secondary">
+              Ask Clive about AstraJax
+              <span aria-hidden>↓</span>
+            </a>
           </div>
         </div>
 

@@ -114,14 +114,55 @@ function buildTimelineNodes(
   return nodes;
 }
 
+function romanFromActLabel(label: string): string {
+  return label.replace(/^Act\s+/i, "").trim();
+}
+
+function actTagline(intro?: string): string {
+  if (!intro) return "";
+  const sentence = intro.split(/[.!?]/)[0]?.trim() ?? "";
+  if (sentence.length <= 72) return sentence;
+  return `${sentence.slice(0, 69).trim()}…`;
+}
+
+function ActDiamond() {
+  return (
+    <span
+      className="relative z-10 block h-5 w-5 rotate-45 bg-apricot shadow-[0_0_0_5px_var(--color-cream-deep)]"
+      aria-hidden
+    />
+  );
+}
+
+function ActSeparator({
+  label,
+  title,
+  intro,
+}: {
+  label: string;
+  title: string;
+  intro?: string;
+}) {
+  const tagline = actTagline(intro);
+
+  return (
+    <div className="flex w-full max-w-[15rem] flex-col items-center px-2 text-center">
+      <p className="font-display text-5xl font-semibold leading-none tracking-tight text-apricot sm:text-6xl">
+        {romanFromActLabel(label)}
+      </p>
+      <h3 className="mt-3 font-display text-base font-semibold leading-snug tracking-tight text-moss sm:text-lg">
+        {title}
+      </h3>
+      {tagline ? (
+        <p className="mt-2 text-xs leading-relaxed text-ink-muted sm:text-sm">{tagline}</p>
+      ) : null}
+    </div>
+  );
+}
+
 function SpineMarker({ kind }: { kind: TimelineNode["kind"] }) {
   if (kind === "act") {
-    return (
-      <span
-        className="block h-4 w-4 rotate-45 border-2 border-apricot bg-cream-deep shadow-[0_0_0_4px_var(--color-cream-deep)]"
-        aria-hidden
-      />
-    );
+    return <ActDiamond />;
   }
 
   if (kind === "intro" || kind === "close") {
@@ -236,6 +277,7 @@ function CloseCard({ close }: { close: JourneyClose }) {
 function TimelineCard({ node }: { node: TimelineNode }) {
   if (node.kind === "intro") return <IntroCard node={node} />;
   if (node.kind === "close") return <CloseCard close={node.close} />;
+  if (node.kind === "act") return null;
 
   const dark = node.dark;
   const clip = node.clip;
@@ -264,18 +306,12 @@ function TimelineCard({ node }: { node: TimelineNode }) {
         </span>
 
         <h3
-          className={`mt-2.5 font-display font-semibold leading-snug tracking-tight ${
-            node.kind === "act" ? "text-xl sm:text-2xl" : "text-lg sm:text-xl"
-          } ${dark ? "text-parchment" : "text-ink"}`}
+          className={`mt-2.5 font-display text-lg font-semibold leading-snug tracking-tight sm:text-xl ${
+            dark ? "text-parchment" : "text-ink"
+          }`}
         >
           {node.title}
         </h3>
-
-        {node.kind === "act" && node.intro ? (
-          <p className={`mt-2.5 text-sm leading-relaxed ${dark ? "text-parchment/75" : "text-ink-muted"}`}>
-            {node.intro}
-          </p>
-        ) : null}
 
         {paragraphs.length > 0 ? (
           <div className="mt-2.5 space-y-2.5">
@@ -306,23 +342,38 @@ function TimelineCard({ node }: { node: TimelineNode }) {
 
 function TimelineColumn({
   node,
-  side,
+  stagger,
   columnRef,
 }: {
   node: TimelineNode;
-  side: "above" | "below";
+  stagger: "left" | "right";
   columnRef?: (element: HTMLDivElement | null) => void;
 }) {
   const wide = node.kind === "intro" || node.kind === "close";
-  const card = <TimelineCard node={node} />;
+  const isAct = node.kind === "act";
   const connector = <span className="h-6 w-px shrink-0 bg-ink/20" aria-hidden />;
+
+  const content =
+    node.kind === "act" ? (
+      <ActSeparator label={node.label} title={node.title} intro={node.intro} />
+    ) : (
+      <TimelineCard node={node} />
+    );
+
+  const staggerClass =
+    node.kind === "beat"
+      ? stagger === "left"
+        ? "-translate-x-3 sm:-translate-x-5"
+        : "translate-x-3 sm:translate-x-5"
+      : "";
 
   return (
     <div
       ref={columnRef}
-      id={node.kind === "act" ? node.id.replace("-act", "") : undefined}
+      id={isAct ? node.id.replace("-act", "") : undefined}
       data-wide={wide ? "true" : "false"}
-      className="timeline-column grid h-full shrink-0 grid-rows-[1fr_1.25rem_1fr] scroll-ml-6 scroll-mr-6 px-3 sm:scroll-ml-12 sm:scroll-mr-12 sm:px-5"
+      data-act={isAct ? "true" : "false"}
+      className="timeline-column flex h-full shrink-0 flex-col items-center scroll-ml-6 scroll-mr-6 px-3 sm:scroll-ml-12 sm:scroll-mr-12 sm:px-5"
       style={
         {
           "--focus": "0",
@@ -330,30 +381,14 @@ function TimelineColumn({
         } as React.CSSProperties
       }
     >
-      <div className="flex min-h-0 flex-col items-center justify-end">
-        {side === "above" ? (
-          <>
-            <div className="timeline-column-card flex min-h-0 w-full flex-1 items-end justify-center">
-              {card}
-            </div>
-            {connector}
-          </>
-        ) : null}
-      </div>
-
-      <div className="relative z-10 flex items-center justify-center">
+      <div className="relative z-10 flex h-5 shrink-0 items-center justify-center">
         <SpineMarker kind={node.kind} />
       </div>
-
-      <div className="flex min-h-0 flex-col items-center justify-start">
-        {side === "below" ? (
-          <>
-            {connector}
-            <div className="timeline-column-card flex min-h-0 w-full flex-1 items-start justify-center">
-              {card}
-            </div>
-          </>
-        ) : null}
+      {connector}
+      <div
+        className={`timeline-column-card flex min-h-0 w-full flex-1 justify-center pt-1 ${staggerClass}`}
+      >
+        {content}
       </div>
     </div>
   );
@@ -461,12 +496,14 @@ export function JourneyTimeline({ intro, acts, close }: JourneyTimelineProps) {
 
     const delta = event.clientX - dragState.current.startX;
     scroller.scrollLeft = dragState.current.scrollLeft - delta;
+    scheduleFocusUpdate();
   };
 
   const endDrag = (event: React.PointerEvent<HTMLDivElement>) => {
     dragState.current.active = false;
     setIsDragging(false);
     scrollerRef.current?.releasePointerCapture(event.pointerId);
+    scheduleFocusUpdate();
   };
 
   return (
@@ -507,18 +544,20 @@ export function JourneyTimeline({ intro, acts, close }: JourneyTimelineProps) {
 
       <div
         ref={scrollerRef}
-        className={`timeline-scroll relative min-h-0 flex-1 overflow-x-auto overflow-y-hidden bg-[linear-gradient(color-mix(in_srgb,var(--color-ink)_4%,transparent)_1px,transparent_1px),linear-gradient(90deg,color-mix(in_srgb,var(--color-ink)_4%,transparent)_1px,transparent_1px)] bg-size-[1.5rem_1.5rem] ${
+        className={`timeline-scroll relative min-h-0 flex-1 overflow-x-auto overflow-y-hidden scroll-smooth bg-[linear-gradient(color-mix(in_srgb,var(--color-ink)_4%,transparent)_1px,transparent_1px),linear-gradient(90deg,color-mix(in_srgb,var(--color-ink)_4%,transparent)_1px,transparent_1px)] bg-size-[1.5rem_1.5rem] ${
           isDragging ? "cursor-grabbing select-none" : "cursor-grab"
         }`}
+        style={{ scrollSnapType: "x proximity" }}
+        onScroll={scheduleFocusUpdate}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={endDrag}
         onPointerLeave={endDrag}
         aria-label="Journey timeline"
       >
-        <div className="relative h-full min-w-max px-6 py-6 sm:px-12 sm:py-8">
+        <div className="relative h-full min-w-max px-6 pt-8 pb-6 sm:px-12 sm:pt-10 sm:pb-8">
           <div
-            className="pointer-events-none absolute inset-x-6 top-1/2 h-px -translate-y-1/2 bg-ink/20 sm:inset-x-12"
+            className="pointer-events-none absolute inset-x-6 top-[2.125rem] h-px bg-ink/20 sm:inset-x-12 sm:top-[2.375rem]"
             aria-hidden
           />
           <div className="relative flex h-full items-stretch">
@@ -526,7 +565,10 @@ export function JourneyTimeline({ intro, acts, close }: JourneyTimelineProps) {
               <TimelineColumn
                 key={node.id}
                 node={node}
-                side={index % 2 === 0 ? "above" : "below"}
+                stagger={index % 2 === 0 ? "left" : "right"}
+                columnRef={(element) => {
+                  columnRefs.current[index] = element;
+                }}
               />
             ))}
           </div>

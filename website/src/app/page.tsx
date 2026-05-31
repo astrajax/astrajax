@@ -16,11 +16,11 @@ export default function HomePage() {
       <Nav />
       <main>
         <Hero />
+        <CliveSection />
         <FounderProof />
         <Problem />
         <Method />
         <Proof />
-        <CliveSection />
         <Adoption />
         <Offers />
         <CtaClose />

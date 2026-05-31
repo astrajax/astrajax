@@ -4,10 +4,10 @@ import { BOOKING_URL } from "@/lib/site";
 
 const links = [
   { href: "/#story", label: "Story" },
+  { href: "/#clive", label: "Clive" },
   { href: "/#problem", label: "Problem" },
   { href: "/#method", label: "Method" },
   { href: "/#proof", label: "Proof" },
-  { href: "/#clive", label: "Clive" },
   { href: "/#offers", label: "Offers" },
   { href: "/journey", label: "Journey" },
   { href: "/seeds-of-promise", label: "Seeds" },
