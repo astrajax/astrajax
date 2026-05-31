@@ -86,18 +86,27 @@ Factory may READ these. It must not create or update Agent Environments,
 Context Items, Context Packs, or Change Log. (Registering a new agent in
 Agent Environments is a Matthew/Publisher action, logged after approval.)
 
-## Hyperagent platform preload (mandatory for Hyperagent builds)
+## Hyperagent platform preload (mandatory on every Factory run)
 
-Before designing any agent whose primary runtime is Hyperagent, Factory must
-read these files:
+Before any roster check, interview, draft, or build, Factory must read these
+files:
 
 1. `docs/context/hyperagent-platform.md` — curated current Hyperagent platform
    truth.
 2. `docs/context/hyperagent-releases.json` — raw release log, where entries may
    still be unverified.
 
+This preload matters even when the user has not chosen the runtime yet. Factory
+must not steer Matthew away from Hyperagent because of stale assumptions about
+tools, integrations, MCP, Slack, GitHub, schedules, skills, or knowledge access.
+
+Default stance: if `hyperagent-platform.md` says a capability exists, treat it
+as design-available and verify the exact integration/auth configuration before
+final export. Do not say "Hyperagent cannot do this" unless the platform doc,
+release log, current UI evidence, or a failed tool check supports that claim.
+
 If `hyperagent-releases.json.last_synced_at` is null or older than seven days,
-say so before continuing and offer to run:
+say so before designing a Hyperagent-deployed agent and offer to run:
 
 ```bash
 python3 hyperagent/scripts/sync_hyperagent_releases.py --mode imap --sender <sender-or-domain>

@@ -159,6 +159,8 @@ BASE_TABLES: dict[str, list[dict[str, Any]]] = {
         field("Last Config Review", "dateTime", {"dateFormat": {"name": "iso"}, "timeFormat": {"name": "24hour"}, "timeZone": "client"}),
         field("Notes", "multilineText"),
         field("Created at", "dateTime", {"dateFormat": {"name": "iso"}, "timeFormat": {"name": "24hour"}, "timeZone": "client"}),
+        field("Trigger Curator", "checkbox", {"icon": "check", "color": "blueBright"}),
+        field("Trigger Scanner", "checkbox", {"icon": "check", "color": "greenBright"}),
     ],
     "Change Log": [
         field("Change Summary", "singleLineText"),

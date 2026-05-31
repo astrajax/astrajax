@@ -1,6 +1,6 @@
 {
   "version": "v2",
-  "generated_at": "2026-05-30T11:10:30.787043+00:00",
+  "generated_at": "2026-05-31T08:59:01.373140+00:00",
   "base_id": "appYv601Oq7fKTCj0",
   "tables": {
     "Context Intake": {
@@ -279,6 +279,16 @@
           "id": "fldA506VDgrNLemgU",
           "name": "Repo Path",
           "type": "singleLineText"
+        },
+        "Trigger Curator": {
+          "id": "fldWdobWahSsYE2cH",
+          "name": "Trigger Curator",
+          "type": "checkbox"
+        },
+        "Trigger Scanner": {
+          "id": "fldeQgWOhXemToGvf",
+          "name": "Trigger Scanner",
+          "type": "checkbox"
         }
       }
     },

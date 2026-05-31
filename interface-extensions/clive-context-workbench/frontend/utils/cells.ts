@@ -58,6 +58,11 @@ export function cellLinkedNames(record: any, fieldId: string): string[] {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function cellCheckbox(record: any, fieldId: string): boolean {
+    return cellRaw(record, fieldId) === true;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function cellDate(record: any, fieldId: string): Date | null {
     const v = cellRaw(record, fieldId);
     if (!v) return null;

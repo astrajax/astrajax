@@ -1,7 +1,183 @@
 {
   "schema_version": 1,
-  "last_synced_at": null,
-  "last_sync_source": null,
+  "last_synced_at": "2026-05-31T09:48:00+00:00",
+  "last_sync_source": "manual_csv_review:/Users/matthewhopkinson/Downloads/Emails-Grid view.csv",
   "curation_rule": "Scanner entries are unverified until Matthew promotes durable facts into docs/context/hyperagent-platform.md.",
-  "releases": []
+  "releases": [
+    {
+      "source_id": "manual-csv:19e7086f0126fea4",
+      "status": "unverified",
+      "captured_at": "2026-05-31T09:48:00+00:00",
+      "source_type": "csv_email_export",
+      "source_hint": "/Users/matthewhopkinson/Downloads/Emails-Grid view.csv",
+      "date": "",
+      "from": "Andrew and the Hyperagent Team",
+      "subject": "Hyperagent updates: Opus 4.8 + integrations",
+      "gmail_link": "https://mail.google.com/mail/u/0/#inbox/19e7086f0126fea4",
+      "extracted_bullets": [
+        "Claude Opus 4.8 can run Hyperagent agents and is positioned as better for long-running tasks, honesty about performance, self-correction, spatial reasoning, copywriting, coding, and resourceful reasoning.",
+        "Hyperagent announced native integrations for common tools and support for custom MCP servers.",
+        "Native integrations give more control over the experience and more precise tool use."
+      ],
+      "raw_excerpt": "Hyperagent announced Opus 4.8, native integrations for common tools, and custom MCP support.",
+      "promotion_notes": "Durable facts promoted into docs/context/hyperagent-platform.md on 2026-05-31."
+    },
+    {
+      "source_id": "manual-csv:19e78adcaea4eb1f",
+      "status": "unverified",
+      "captured_at": "2026-05-31T09:48:00+00:00",
+      "source_type": "csv_email_export",
+      "source_hint": "/Users/matthewhopkinson/Downloads/Emails-Grid view.csv",
+      "date": "Thu, 23 Apr 2026",
+      "from": "Andrew from Hyperagent",
+      "subject": "Fwd: Hyperagent updates - Apr 23",
+      "gmail_link": "https://mail.google.com/mail/u/0/#inbox/19e78adcaea4eb1f",
+      "extracted_bullets": [
+        "Hyperagent can dispatch specialized subagents in parallel, each with a name, role, and focused task.",
+        "The orchestrator synthesizes subagent findings across research, analysis, and execution.",
+        "The redesigned Agent page exposes prompt, tools, knowledge, and integrations, with accessible threads and auto-save while editing.",
+        "Named agents can use more than one Gmail account for the same integration, selected from a multi-select picker.",
+        "Skills teach an agent a reusable process once so workspace agents can use it repeatedly."
+      ],
+      "raw_excerpt": "Apr 23 update covering subagents, redesigned Agent page, multiple Gmail accounts per named agent, and skills.",
+      "promotion_notes": "Durable facts promoted into docs/context/hyperagent-platform.md on 2026-05-31."
+    },
+    {
+      "source_id": "manual-csv:19e78adb4c1f8379",
+      "status": "unverified",
+      "captured_at": "2026-05-31T09:48:00+00:00",
+      "source_type": "csv_email_export",
+      "source_hint": "/Users/matthewhopkinson/Downloads/Emails-Grid view.csv",
+      "date": "Thu, 14 May 2026",
+      "from": "Andrew Busse",
+      "subject": "Fwd: Hyperagent updates: Deploy agents to your team",
+      "gmail_link": "https://mail.google.com/mail/u/0/#inbox/19e78adb4c1f8379",
+      "extracted_bullets": [
+        "Agents and skills can be published to a Team so coworkers can use the agent from the web app.",
+        "Shared agents can be packaged with skills, memories, and tools.",
+        "Shared credentials can be included, or teammates can bring their own credentials.",
+        "Agents still have one owner; co-owning or editing an agent config with teammates was not supported in this release.",
+        "Threads and artifacts can be shared read-only, with links limited to trusted email domains.",
+        "Hyperagent recommends codifying agent jobs into skills, scripts, and memories for quality and cost consistency."
+      ],
+      "raw_excerpt": "May 14 update covering Team publishing, shared skills/agents, credential options, one-owner limitation, and thread/artifact sharing.",
+      "promotion_notes": "Durable facts promoted into docs/context/hyperagent-platform.md on 2026-05-31."
+    },
+    {
+      "source_id": "manual-csv:19e78ada658064cd",
+      "status": "unverified",
+      "captured_at": "2026-05-31T09:48:00+00:00",
+      "source_type": "csv_email_export",
+      "source_hint": "/Users/matthewhopkinson/Downloads/Emails-Grid view.csv",
+      "date": "Thu, 7 May 2026",
+      "from": "Hyperagent",
+      "subject": "Fwd: Hyperagent updates - May 7",
+      "gmail_link": "https://mail.google.com/mail/u/0/#inbox/19e78ada658064cd",
+      "extracted_bullets": [
+        "Live mode lets an agent work continuously in the background in a single thread with a checklist and schedule.",
+        "Live mode agents can reach out proactively if something needs attention.",
+        "Hyperagent can edit webpages and dashboards inline and save changes directly to the artifact.",
+        "Usage caps can be set for pay-as-you-go billing.",
+        "A builder example described connecting GitHub and Cloudflare to update and link a custom domain."
+      ],
+      "raw_excerpt": "May 7 update covering Live mode, inline webpage edits, usage caps, and a GitHub/Cloudflare builder example.",
+      "promotion_notes": "Durable facts promoted into docs/context/hyperagent-platform.md on 2026-05-31."
+    },
+    {
+      "source_id": "manual-csv:19e78ad859c0060e",
+      "status": "unverified",
+      "captured_at": "2026-05-31T09:48:00+00:00",
+      "source_type": "csv_email_export",
+      "source_hint": "/Users/matthewhopkinson/Downloads/Emails-Grid view.csv",
+      "date": "Thu, 30 Apr 2026",
+      "from": "Andrew Busse",
+      "subject": "Fwd: Hyperagent updates - Apr 30",
+      "gmail_link": "https://mail.google.com/mail/u/0/#inbox/19e78ad859c0060e",
+      "extracted_bullets": [
+        "Agents can be configured to always use the latest Opus or Sonnet model.",
+        "Supported Claude models use the full 1M-token context window by default.",
+        "Command Center surfaces scheduled runs that failed, timed out, or hit billing blocks, with clear error messages.",
+        "A sales outreach agent example drafts Gmail messages, monitors replies, learns from response data, audits a website, and suggests copy changes.",
+        "An Airtable data science example connected Hyperagent to Databricks, loaded business context, and deployed the agent directly in Slack.",
+        "A daily pipeline example pulls market data from multiple government APIs, calculates outputs, and writes one clean row per day into a dataset."
+      ],
+      "raw_excerpt": "Apr 30 update covering latest-model settings, 1M Claude context, scheduled-run visibility, Gmail, Databricks, Slack, and automated data pipelines.",
+      "promotion_notes": "Durable facts promoted into docs/context/hyperagent-platform.md on 2026-05-31."
+    },
+    {
+      "source_id": "manual-csv:19e78acc489180fb",
+      "status": "unverified",
+      "captured_at": "2026-05-31T09:48:00+00:00",
+      "source_type": "csv_email_export",
+      "source_hint": "/Users/matthewhopkinson/Downloads/Emails-Grid view.csv",
+      "date": "Thu, 21 May 2026",
+      "from": "Andrew Busse",
+      "subject": "Fwd: Hyperagent updates: Join our Livestream + Discord",
+      "gmail_link": "https://mail.google.com/mail/u/0/#inbox/19e78acc489180fb",
+      "extracted_bullets": [
+        "Airtable integration was rebuilt using the latest MCP server.",
+        "Airtable can be queried even when the user only has interface-level permissions.",
+        "Knowledge access can use predefined modes, including Personal for broad memories and skills access, and Curated for explicit linking.",
+        "Granular knowledge permissions remain available when needed.",
+        "Agents can be deployed to Slack with a custom identity so they can be mentioned by name.",
+        "Examples include monthly scraper skills, daily cron checks, weekly agents, and turning repeated work into skills."
+      ],
+      "raw_excerpt": "May 21 update covering Airtable MCP, knowledge modes, Slack custom identity, and scheduled operating patterns.",
+      "promotion_notes": "Durable facts promoted into docs/context/hyperagent-platform.md on 2026-05-31."
+    },
+    {
+      "source_id": "manual-csv:19e78ac595fb55f0",
+      "status": "unverified",
+      "captured_at": "2026-05-31T09:48:00+00:00",
+      "source_type": "csv_email_export",
+      "source_hint": "/Users/matthewhopkinson/Downloads/Emails-Grid view.csv",
+      "date": "Sun, 24 May 2026",
+      "from": "Hyperagent Security Team",
+      "subject": "Fwd: Composio Incident Response",
+      "gmail_link": "https://mail.google.com/mail/u/0/#inbox/19e78ac595fb55f0",
+      "extracted_bullets": [
+        "Composio-powered integrations were disabled in Hyperagent after a Composio security incident.",
+        "The incident did not impact Hyperagent's own systems or software code according to the email.",
+        "Many services can already be connected natively in Hyperagent through skills that call a service API directly and store credentials securely within the skill.",
+        "Hyperagent said native integrations for widely used tools like GSuite and GitHub were being built."
+      ],
+      "raw_excerpt": "Composio incident response covering disabled Composio integrations, direct API skills, and native GSuite/GitHub integration direction.",
+      "promotion_notes": "Durable facts promoted into docs/context/hyperagent-platform.md on 2026-05-31."
+    },
+    {
+      "source_id": "manual-csv:19e040bc810895d5",
+      "status": "unverified",
+      "captured_at": "2026-05-31T09:48:00+00:00",
+      "source_type": "csv_email_export",
+      "source_hint": "/Users/matthewhopkinson/Downloads/Emails-Grid view.csv",
+      "date": "",
+      "from": "Andrew",
+      "subject": "Connect your tools to Hyperagent",
+      "gmail_link": "https://mail.google.com/mail/u/0/#inbox/19e040bc810895d5",
+      "extracted_bullets": [
+        "Hyperagent can search the web and write code out of the box.",
+        "Connected tools let agents pull from actual data.",
+        "Examples include reading Slack threads, pulling from Airtable, HubSpot, or a data warehouse, checking calendar context, and reading Gmail to draft replies."
+      ],
+      "raw_excerpt": "Activation email covering built-in web/code capability and connected-tool examples.",
+      "promotion_notes": "Durable facts promoted into docs/context/hyperagent-platform.md on 2026-05-31."
+    },
+    {
+      "source_id": "manual-csv:19df9a64cb886730",
+      "status": "unverified",
+      "captured_at": "2026-05-31T09:48:00+00:00",
+      "source_type": "csv_email_export",
+      "source_hint": "/Users/matthewhopkinson/Downloads/Emails-Grid view.csv",
+      "date": "",
+      "from": "Andrew",
+      "subject": "Your first 10 minutes with Hyperagent",
+      "gmail_link": "https://mail.google.com/mail/u/0/#inbox/19df9a64cb886730",
+      "extracted_bullets": [
+        "Hyperagent can research live websites, write and run code, analyze data, create visualizations, work with uploaded files, and generate images, video, and audio in a single thread.",
+        "Users can describe the desired outcome without breaking the task into steps and let the agent figure out the path."
+      ],
+      "raw_excerpt": "Activation email describing Hyperagent's built-in work surface across web research, code, data analysis, files, visualization, and media generation.",
+      "promotion_notes": "Durable facts promoted into docs/context/hyperagent-platform.md on 2026-05-31."
+    }
+  ]
 }

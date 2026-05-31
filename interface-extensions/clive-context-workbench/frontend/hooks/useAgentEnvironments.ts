@@ -3,6 +3,7 @@ import { useRecords } from '@airtable/blocks/interface/ui';
 import { AGENT } from '../utils/constants';
 import {
     cellDate,
+    cellCheckbox,
     cellLinkedNames,
     cellMultiSelectNames,
     cellSelectName,
@@ -23,6 +24,8 @@ export interface AgentEnvironmentRow {
     packNames: string[];
     lastConfigReview: Date | null;
     notes: string;
+    triggerCurator: boolean;
+    triggerScanner: boolean;
     createdAt: Date | null;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     raw: any;
@@ -48,6 +51,8 @@ export function useAgentEnvironments(agentsTable: any): AgentEnvironmentRow[] | 
             packNames: cellLinkedNames(record, AGENT.CONTEXT_PACKS),
             lastConfigReview: cellDate(record, AGENT.LAST_CONFIG_REVIEW),
             notes: cellStr(record, AGENT.NOTES),
+            triggerCurator: cellCheckbox(record, AGENT.TRIGGER_CURATOR),
+            triggerScanner: cellCheckbox(record, AGENT.TRIGGER_SCANNER),
             createdAt: cellDate(record, AGENT.CREATED_AT),
             raw: record,
         }));

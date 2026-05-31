@@ -56,6 +56,14 @@ export const AGENT = {
     CONTEXT_PACKS: 'fldWdmG7zIxvlecuW',
     REPO_PATH: 'fldA506VDgrNLemgU',
     CREATED_AT: 'fldRPt33q7Wi5oFwx',
+    TRIGGER_CURATOR: 'fldWdobWahSsYE2cH',
+    TRIGGER_SCANNER: 'fldeQgWOhXemToGvf',
+} as const;
+
+/** Agent Environment rows that accept workbench trigger buttons. */
+export const AGENT_TRIGGER_NAMES = {
+    CURATOR: 'Clive Curator',
+    SCANNER: 'Clive Scanner',
 } as const;
 
 export const CHANGE_LOG = {

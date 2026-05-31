@@ -41,6 +41,7 @@ Add all three tables. Expose fields below.
 | Context Packs, Repo Path | Read |
 | Runtime Environment, Skills, Tool Permissions | Read only (reference — edit in Cursor) |
 | Last Config Review, Notes | **Edit** |
+| Trigger Curator, Trigger Scanner | **Edit** — Workbench sets these; automations fire agents |
 | Created at | Read |
 
 #### Context Items (Library tab)

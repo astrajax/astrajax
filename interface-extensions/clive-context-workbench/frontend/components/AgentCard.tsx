@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AGENT } from '../utils/constants';
+import { AGENT, AGENT_TRIGGER_NAMES } from '../utils/constants';
 import { githubTreeUrl } from '../utils/github';
 import { formatRelative } from '../utils/cells';
 import { agentStatusColor, colors, fonts, microLabel, space } from '../utils/theme';
@@ -74,6 +74,24 @@ export const AgentCard = React.memo(function AgentCard({ row, agentsTable }: Age
             setBusy(false);
         }
     }
+
+    async function pulseTrigger(fieldId: string) {
+        if (!agentsTable?.updateRecordAsync) return;
+        setBusy(true);
+        try {
+            await agentsTable.updateRecordAsync(row.id, { [fieldId]: true });
+        } catch (error) {
+            console.error('[AgentCard] pulseTrigger', error);
+            window.alert('Could not send trigger. Check Workbench has Edit on the trigger fields.');
+        } finally {
+            setBusy(false);
+        }
+    }
+
+    const isCurator = row.agentName === AGENT_TRIGGER_NAMES.CURATOR;
+    const isScanner = row.agentName === AGENT_TRIGGER_NAMES.SCANNER;
+    const curatorPending = isCurator && row.triggerCurator;
+    const scannerPending = isScanner && row.triggerScanner;
 
     return (
         <article
@@ -192,6 +210,39 @@ export const AgentCard = React.memo(function AgentCard({ row, agentsTable }: Age
                     alignItems: 'flex-end',
                 }}
             >
+                {(isCurator || isScanner) && canWrite ? (
+                    <div style={{ width: '100%', marginBottom: space(2) }}>
+                        <div style={microLabel}>Agent ops</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: space(2), marginTop: space(2) }}>
+                            {isCurator ? (
+                                <button
+                                    type="button"
+                                    disabled={busy || curatorPending}
+                                    className="clive-btn clive-btn-primary"
+                                    style={{ fontSize: '0.7rem', padding: `${space(2)} ${space(3)}` }}
+                                    onClick={() => pulseTrigger(AGENT.TRIGGER_CURATOR)}
+                                >
+                                    {curatorPending ? 'Curator audit queued…' : 'Run context audit'}
+                                </button>
+                            ) : null}
+                            {isScanner ? (
+                                <button
+                                    type="button"
+                                    disabled={busy || scannerPending}
+                                    className="clive-btn clive-btn-primary"
+                                    style={{ fontSize: '0.7rem', padding: `${space(2)} ${space(3)}` }}
+                                    onClick={() => pulseTrigger(AGENT.TRIGGER_SCANNER)}
+                                >
+                                    {scannerPending ? 'Scanner queued…' : 'Run context scan'}
+                                </button>
+                            ) : null}
+                        </div>
+                        <p style={{ margin: `${space(2)} 0 0`, fontSize: '0.72rem', color: colors.textDim }}>
+                            Sets the Airtable trigger checkbox; automation posts to Hyperagent (Curator) or runs Scanner.
+                        </p>
+                    </div>
+                ) : null}
+
                 <div>
                     <div style={microLabel}>Last config review</div>
                     <span style={{ fontFamily: fonts.mono, fontSize: '0.78rem', color: colors.textMuted }}>

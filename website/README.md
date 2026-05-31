@@ -9,10 +9,10 @@ Single-page site with sections:
 - Hero + illustrative OS panel (Product-systems direction)
 - Founder proof (Founder-led direction)
 - Problem, Method, Proof, Adoption, Offers
-- Clive section with **Ask Clive placeholder**
+- Clive section with **live Ask Clive** (server-side `/api/ask-clive`)
 - Audit CTA close
 
-Copy uses canonical claims only. Ask Clive and booking are placeholders for the next pass.
+Copy uses canonical claims only. Ask Clive reads approved Context Items from Airtable (fallback bundled context if the token is missing). Booking is still a placeholder.
 
 ## Local preview
 
@@ -37,11 +37,22 @@ Output lands in `website/out/` — a folder of HTML, CSS, and JS you can upload 
 - **Cloudflare Pages** — same
 - **Any static host** — upload the contents of `out/`
 
+## Ask Clive env vars (Vercel)
+
+Add in **Vercel → astrajax → Settings → Environment Variables**:
+
+| Variable | Required | Purpose |
+|----------|----------|---------|
+| `ANTHROPIC_API_KEY` | Yes | Claude API for replies |
+| `AIRTABLE_READ_TOKEN` | Recommended | Live approved Context Items from base `appYv601Oq7fKTCj0` |
+| `CLIVE_MODEL` | No | Override model (default `claude-sonnet-4-20250514`) |
+
+Copy `website/.env.example` for local dev. Redeploy after adding keys.
+
 ## Next steps
 
-1. Replace `mailto:hello@astrajax.com` with Calendly or a form
-2. Wire Ask Clive to a live agent endpoint
+1. Add `ANTHROPIC_API_KEY` (+ `AIRTABLE_READ_TOKEN`) in Vercel and redeploy
+2. Replace `mailto:hello@astrajax.com` with Calendly or a form
 3. Add favicon and OG image
-4. Point custom domain at your host
 
 Not designed for Framer import — this is an owned codebase. If you stay on Framer, use this as the section/copy reference while rebuilding visually there.

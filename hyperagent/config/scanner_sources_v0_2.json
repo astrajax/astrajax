@@ -9,12 +9,15 @@
     "not_an_index": "This agent does not catalogue files. It judges whether material carries a durable, attributable, business-relevant claim."
   },
   "runtime": {
-    "primary": "cursor",
-    "mode": "on_demand",
-    "schedule_supported": false,
+    "primary": "hyperagent",
+    "mode": "manual_and_scheduled",
+    "schedule_supported": true,
     "schedule_installed": false,
     "schedule_label": "com.astrajax.clive-context-scanner",
-    "note": "Matthew chose an on-demand analyst on 2026-05-31. There is no automatic schedule. The analyst (the Cursor agent) runs when asked, reads gathered material, judges it, and proposes only worthwhile Context Intake candidates. The previous 4-hour launchd schedule was removed because a scheduled script cannot perform the required judgement."
+    "note": "Hyperagent-primary analyst with manual and scheduled modes. Scheduled runs are capped and send one Block Kit Slack summary to schedule_channel_id after completion.",
+    "schedule_channel_id": "C0B6FJUD755",
+    "schedule_note": "v0.4 export includes a native Hyperagent daily schedule at 08:30 Europe/London. The scheduled run posts one Slack summary via the native Slack integration to schedule_channel_id. It becomes live only after Matthew imports/enables the agent.",
+    "slack_integration": "native"
   },
   "local_sources": {
     "roots": [
