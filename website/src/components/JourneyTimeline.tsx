@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BOOKING_URL } from "@/lib/site";
 import type { JourneyAct } from "@/lib/journey";
 import { clipForAct, clipForBeat, type JourneyClip } from "@/lib/journey-clips";
@@ -304,22 +304,38 @@ function TimelineCard({ node }: { node: TimelineNode }) {
   );
 }
 
-function TimelineColumn({ node, side }: { node: TimelineNode; side: "above" | "below" }) {
+function TimelineColumn({
+  node,
+  side,
+  columnRef,
+}: {
+  node: TimelineNode;
+  side: "above" | "below";
+  columnRef?: (element: HTMLDivElement | null) => void;
+}) {
   const wide = node.kind === "intro" || node.kind === "close";
   const card = <TimelineCard node={node} />;
   const connector = <span className="h-6 w-px shrink-0 bg-ink/20" aria-hidden />;
 
   return (
     <div
+      ref={columnRef}
       id={node.kind === "act" ? node.id.replace("-act", "") : undefined}
-      className={`grid h-full shrink-0 grid-rows-[1fr_1.25rem_1fr] px-3 sm:px-5 ${
-        wide ? "w-[86vw] sm:w-[24rem]" : "w-[84vw] sm:w-[22rem]"
-      }`}
+      data-wide={wide ? "true" : "false"}
+      className="timeline-column grid h-full shrink-0 grid-rows-[1fr_1.25rem_1fr] scroll-ml-6 scroll-mr-6 px-3 sm:scroll-ml-12 sm:scroll-mr-12 sm:px-5"
+      style={
+        {
+          "--focus": "0",
+          scrollSnapAlign: "center",
+        } as React.CSSProperties
+      }
     >
       <div className="flex min-h-0 flex-col items-center justify-end">
         {side === "above" ? (
           <>
-            <div className="flex min-h-0 w-full flex-1 items-end justify-center">{card}</div>
+            <div className="timeline-column-card flex min-h-0 w-full flex-1 items-end justify-center">
+              {card}
+            </div>
             {connector}
           </>
         ) : null}
@@ -333,7 +349,9 @@ function TimelineColumn({ node, side }: { node: TimelineNode; side: "above" | "b
         {side === "below" ? (
           <>
             {connector}
-            <div className="flex min-h-0 w-full flex-1 items-start justify-center">{card}</div>
+            <div className="timeline-column-card flex min-h-0 w-full flex-1 items-start justify-center">
+              {card}
+            </div>
           </>
         ) : null}
       </div>
@@ -344,19 +362,82 @@ function TimelineColumn({ node, side }: { node: TimelineNode; side: "above" | "b
 export function JourneyTimeline({ intro, acts, close }: JourneyTimelineProps) {
   const nodes = buildTimelineNodes(intro, acts, close);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const columnRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const rafRef = useRef<number | null>(null);
   const dragState = useRef<{ active: boolean; startX: number; scrollLeft: number }>({
     active: false,
     startX: 0,
     scrollLeft: 0,
   });
   const [isDragging, setIsDragging] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(0);
 
-  const scrollBy = useCallback((direction: "left" | "right") => {
-    scrollerRef.current?.scrollBy({
-      left: direction === "left" ? -560 : 560,
-      behavior: "smooth",
+  const updateColumnFocus = useCallback(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+
+    const scrollerRect = scroller.getBoundingClientRect();
+    const viewportCenter = scrollerRect.width / 2;
+    let bestIndex = 0;
+    let bestFocus = -1;
+
+    columnRefs.current.forEach((column, index) => {
+      if (!column) return;
+
+      const rect = column.getBoundingClientRect();
+      const columnCenter = rect.left - scrollerRect.left + rect.width / 2;
+      const distance = Math.abs(columnCenter - viewportCenter);
+      const focus = Math.max(0, 1 - distance / (scrollerRect.width * 0.52));
+      column.style.setProperty("--focus", focus.toFixed(3));
+
+      if (focus > bestFocus) {
+        bestFocus = focus;
+        bestIndex = index;
+      }
     });
+
+    setFocusedIndex((current) => (current === bestIndex ? current : bestIndex));
   }, []);
+
+  const scheduleFocusUpdate = useCallback(() => {
+    if (rafRef.current !== null) return;
+    rafRef.current = window.requestAnimationFrame(() => {
+      rafRef.current = null;
+      updateColumnFocus();
+    });
+  }, [updateColumnFocus]);
+
+  useEffect(() => {
+    scheduleFocusUpdate();
+    window.addEventListener("resize", scheduleFocusUpdate);
+
+    return () => {
+      window.removeEventListener("resize", scheduleFocusUpdate);
+      if (rafRef.current !== null) {
+        window.cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, [nodes.length, scheduleFocusUpdate]);
+
+  const scrollBy = useCallback(
+    (direction: "left" | "right") => {
+      const scroller = scrollerRef.current;
+      if (!scroller) return;
+
+      const nextIndex =
+        direction === "left"
+          ? Math.max(0, focusedIndex - 1)
+          : Math.min(nodes.length - 1, focusedIndex + 1);
+      const column = columnRefs.current[nextIndex];
+      if (!column) return;
+
+      const targetLeft =
+        column.offsetLeft - (scroller.clientWidth - column.offsetWidth) / 2;
+
+      scroller.scrollTo({ left: targetLeft, behavior: "smooth" });
+    },
+    [focusedIndex, nodes.length],
+  );
 
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
