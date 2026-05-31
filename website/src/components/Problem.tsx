@@ -21,10 +21,11 @@ export function Problem() {
           ))}
         </ul>
         <aside className="card-muted mt-10 max-w-xl p-5">
-          <p className="section-label mb-2">What we&apos;re not</p>
+          <p className="section-label mb-2">Where we start</p>
           <p className="text-sm leading-relaxed text-ink-muted">
-            Not a generic AI consultancy, lead-gen agency, Airtable build shop, CRM installer or
-            chatbot vendor.
+            Not chatbots bolted onto chaos. AstraJax starts underneath — the data, workflows and
+            approvals that make AI safe to switch on. Not a generic AI consultancy, lead-gen agency,
+            Airtable build shop or CRM installer.
           </p>
         </aside>
       </div>

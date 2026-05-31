@@ -1,9 +1,9 @@
 import { TRAINING_HUB_URL } from "@/lib/site";
 
 const stats = [
-  { value: "~£180k", label: "yr travel saved" },
-  { value: "~3,000 hrs", label: "yr capacity at scale" },
-  { value: "~£8.1m", label: "Direct Sales channel" },
+  { value: "~£180k", label: "travel saved per year" },
+  { value: "~3,000 hrs", label: "capacity unlocked at scale" },
+  { value: "~£8.1m", label: "Direct Sales spend governed" },
 ];
 
 export function Proof() {

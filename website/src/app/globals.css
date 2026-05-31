@@ -130,3 +130,11 @@ body {
   border-radius: 9999px;
   background: color-mix(in srgb, var(--color-ink) 20%, transparent);
 }
+
+.seeds-sage-page {
+  background-color: #6e7b52;
+  background-image:
+    linear-gradient(color-mix(in srgb, white 8%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, white 8%, transparent) 1px, transparent 1px);
+  background-size: 2.5rem 2.5rem;
+}

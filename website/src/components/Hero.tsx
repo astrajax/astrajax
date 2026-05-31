@@ -12,8 +12,9 @@ export function Hero() {
           </h1>
           <p className="max-w-xl text-lg leading-relaxed text-ink-muted">
             AstraJax turns messy workflows, scattered data and trapped know-how into{" "}
-            <strong className="font-medium text-ink">AI-ready operating systems</strong> — built
-            with the people who know the work best.
+            <strong className="font-medium text-ink">AI-ready operating systems</strong> — then adds
+            bounded agents your team can actually trust. Built for and by the people who run the
+            business — not the data team.
           </p>
           <div className="flex flex-wrap gap-4">
             <a

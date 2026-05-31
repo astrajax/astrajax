@@ -1,23 +1,23 @@
 const offers = [
   {
-    title: "Audit",
+    title: "Commercial OS Audit",
     body: "Diagnose & plan.",
-    detail: "Where you lose time, visibility and leverage — with a roadmap.",
+    detail: "Where you lose time, visibility and leverage — with a roadmap to fix it.",
   },
   {
-    title: "Sprint",
+    title: "Commercial OS Sprint",
     body: "Build the first layer.",
-    detail: "A done-with-you build of the first clean operating layer.",
+    detail: "A done-with-you build of your first clean, AI-ready operating layer.",
   },
   {
-    title: "Enablement",
+    title: "Domain Architect Enablement",
     body: "Coach the experts.",
-    detail: "Coaching inside delivery so your people can shape and safely use AI.",
+    detail: "Your people learn to shape, run and safely improve the system themselves.",
   },
   {
     title: "Clive",
     body: "Keep context clean.",
-    detail: "Keeps the context agents rely on clean, current, and trustworthy.",
+    detail: "Keeps the context your agents rely on current, sourced and trustworthy.",
     highlight: true,
   },
 ];

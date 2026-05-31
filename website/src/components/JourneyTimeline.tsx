@@ -1,8 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useRef, useState } from "react";
 import { BOOKING_URL } from "@/lib/site";
 import type { JourneyAct } from "@/lib/journey";
+
+type JourneyIntro = {
+  eyebrow: string;
+  headline: string;
+  summary: string;
+  structure: string[];
+};
+
+type JourneyClose = {
+  headline: string;
+  lines: string[];
+  body: string[];
+  pullQuote: string;
+};
 
 type TimelineNode =
   | {
@@ -24,14 +39,41 @@ type TimelineNode =
       dark?: boolean;
       showVideo?: boolean;
       showCta?: boolean;
+    }
+  | {
+      id: string;
+      kind: "intro";
+      label: string;
+      summary: string;
+      structure: string[];
+    }
+  | {
+      id: string;
+      kind: "close";
+      label: string;
+      close: JourneyClose;
     };
 
 type JourneyTimelineProps = {
+  intro: JourneyIntro;
   acts: JourneyAct[];
+  close: JourneyClose;
 };
 
-function buildTimelineNodes(acts: JourneyAct[]): TimelineNode[] {
-  const nodes: TimelineNode[] = [];
+function buildTimelineNodes(
+  intro: JourneyIntro,
+  acts: JourneyAct[],
+  close: JourneyClose,
+): TimelineNode[] {
+  const nodes: TimelineNode[] = [
+    {
+      id: "intro",
+      kind: "intro",
+      label: "Intro",
+      summary: intro.summary,
+      structure: intro.structure,
+    },
+  ];
 
   for (const act of acts) {
     const dark = act.id === "agents";
@@ -64,57 +106,14 @@ function buildTimelineNodes(acts: JourneyAct[]): TimelineNode[] {
     }
   }
 
+  nodes.push({
+    id: "close",
+    kind: "close",
+    label: "The close",
+    close,
+  });
+
   return nodes;
-}
-
-function TimelineLegend() {
-  const items = [
-    { icon: "node", label: "Step node" },
-    { icon: "act", label: "Act / phase marker" },
-    { icon: "video", label: "Video placeholder" },
-    { icon: "section", label: "Section name" },
-    { icon: "claim", label: "Claim / design note" },
-  ] as const;
-
-  return (
-    <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-ink-muted">
-      {items.map((item) => (
-        <li key={item.label} className="flex items-center gap-2">
-          {item.icon === "node" ? (
-            <span className="inline-block h-2.5 w-2.5 rounded-full bg-apricot" aria-hidden />
-          ) : null}
-          {item.icon === "act" ? (
-            <span
-              className="inline-block h-2.5 w-2.5 rotate-45 bg-apricot"
-              aria-hidden
-            />
-          ) : null}
-          {item.icon === "video" ? (
-            <span
-              className="inline-flex h-5 w-7 items-center justify-center rounded border border-ink/20 bg-white text-[0.5rem]"
-              aria-hidden
-            >
-              ▶
-            </span>
-          ) : null}
-          {item.icon === "section" ? (
-            <span
-              className="inline-block rounded border border-ink/15 px-1.5 py-0.5 font-mono text-[0.5625rem] uppercase tracking-wider"
-              aria-hidden
-            >
-              Label
-            </span>
-          ) : null}
-          {item.icon === "claim" ? (
-            <span className="font-display text-apricot" aria-hidden>
-              →
-            </span>
-          ) : null}
-          <span>{item.label}</span>
-        </li>
-      ))}
-    </ul>
-  );
 }
 
 function SpineMarker({ kind }: { kind: TimelineNode["kind"] }) {
@@ -135,12 +134,82 @@ function SpineMarker({ kind }: { kind: TimelineNode["kind"] }) {
   );
 }
 
+function CloseCard({ close }: { close: JourneyClose }) {
+  return (
+    <article className="card-muted flex min-h-[calc(100dvh-7.5rem)] w-full flex-col border-apricot/20 bg-moss p-6 text-parchment sm:p-8">
+      <span className="inline-block w-fit rounded border border-parchment/20 px-2 py-0.5 font-mono text-[0.5625rem] uppercase tracking-wider text-parchment/70">
+        The close
+      </span>
+      <h3 className="mt-4 font-display text-2xl font-semibold leading-snug tracking-tight sm:text-3xl">
+        {close.headline}
+      </h3>
+      <ul className="mt-6 grid gap-2 sm:grid-cols-2">
+        {close.lines.map((line) => (
+          <li
+            key={line}
+            className="rounded-lg border border-parchment/10 bg-graphite/40 px-3 py-2 font-display text-base"
+          >
+            {line}
+          </li>
+        ))}
+      </ul>
+      <div className="mt-6 space-y-3 text-sm leading-relaxed text-parchment/80">
+        {close.body.map((paragraph) => (
+          <p key={paragraph.slice(0, 48)}>{paragraph}</p>
+        ))}
+      </div>
+      <blockquote className="mt-6 border-l-2 border-apricot pl-4 font-display text-lg italic text-buttermilk sm:text-xl">
+        {close.pullQuote}
+      </blockquote>
+      <div className="mt-auto flex flex-wrap gap-3 pt-8">
+        <a
+          href={BOOKING_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn-primary text-sm"
+        >
+          Book a Commercial OS Audit
+          <span aria-hidden>→</span>
+        </a>
+        <Link href="/" className="btn-secondary border-parchment/20 text-parchment hover:border-parchment/40">
+          Back to AstraJax
+        </Link>
+      </div>
+    </article>
+  );
+}
+
 function TimelineCard({ node }: { node: TimelineNode }) {
+  if (node.kind === "close") {
+    return <CloseCard close={node.close} />;
+  }
+
+  if (node.kind === "intro") {
+    return (
+      <article className="card-muted flex min-h-[calc(100dvh-7.5rem)] w-full flex-col overflow-y-auto border-apricot/20 bg-moss p-5 text-parchment sm:p-6">
+        <span className="inline-block w-fit rounded border border-parchment/20 px-2 py-0.5 font-mono text-[0.5625rem] uppercase tracking-wider text-parchment/70">
+          {node.label}
+        </span>
+        <p className="mt-4 text-sm leading-relaxed text-parchment/80">{node.summary}</p>
+        <ol className="mt-6 space-y-3 border-l-2 border-apricot/60 pl-4">
+          {node.structure.map((part, index) => (
+            <li key={part} className="text-parchment/85">
+              <span className="font-mono text-xs text-buttermilk">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span className="mt-1 block text-sm leading-relaxed">{part}</span>
+            </li>
+          ))}
+        </ol>
+      </article>
+    );
+  }
+
   const dark = "dark" in node && node.dark;
 
   return (
     <article
-      className={`card-muted flex min-h-[18rem] w-full flex-col p-5 ${
+      className={`card-muted flex min-h-[calc(100dvh-7.5rem)] w-full flex-col overflow-y-auto p-5 sm:p-6 ${
         dark ? "border-parchment/15 bg-graphite/90 text-parchment" : ""
       }`}
     >
@@ -157,9 +226,7 @@ function TimelineCard({ node }: { node: TimelineNode }) {
       </div>
 
       {"sectionName" in node && node.sectionName ? (
-        <p
-          className={`section-label mb-2 ${dark ? "text-parchment/55" : ""}`}
-        >
+        <p className={`section-label mb-2 ${dark ? "text-parchment/55" : ""}`}>
           {node.sectionName}
         </p>
       ) : null}
@@ -245,8 +312,8 @@ function TimelineCard({ node }: { node: TimelineNode }) {
   );
 }
 
-export function JourneyTimeline({ acts }: JourneyTimelineProps) {
-  const nodes = buildTimelineNodes(acts);
+export function JourneyTimeline({ intro, acts, close }: JourneyTimelineProps) {
+  const nodes = buildTimelineNodes(intro, acts, close);
   const scrollerRef = useRef<HTMLDivElement>(null);
   const dragState = useRef<{ active: boolean; startX: number; scrollLeft: number }>({
     active: false,
@@ -257,7 +324,7 @@ export function JourneyTimeline({ acts }: JourneyTimelineProps) {
 
   const scrollBy = useCallback((direction: "left" | "right") => {
     scrollerRef.current?.scrollBy({
-      left: direction === "left" ? -420 : 420,
+      left: direction === "left" ? -480 : 480,
       behavior: "smooth",
     });
   }, []);
@@ -293,92 +360,84 @@ export function JourneyTimeline({ acts }: JourneyTimelineProps) {
   };
 
   return (
-    <section className="border-b border-ink/10 bg-cream-deep" aria-label="Journey timeline">
-      <div className="mx-auto max-w-6xl px-6 py-10 lg:py-12">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="section-label mb-2">Timeline view</p>
-            <h2 className="font-display text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-              The journey, as a left-to-right timeline
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
-              Scroll, drag, or use the arrows — nodes along a spine, grouped by act.
+    <div className="fixed inset-0 z-50 flex h-dvh flex-col bg-cream-deep">
+      <header className="flex shrink-0 items-center justify-between gap-4 border-b border-ink/10 bg-cream/95 px-4 py-3 backdrop-blur-md sm:px-6">
+        <div className="flex min-w-0 items-center gap-4">
+          <Link
+            href="/"
+            className="shrink-0 text-sm text-ink-muted transition hover:text-ink"
+          >
+            ← AstraJax
+          </Link>
+          <div className="min-w-0 border-l border-ink/10 pl-4">
+            <p className="section-label truncate">{intro.eyebrow}</p>
+            <p className="truncate font-display text-sm font-semibold text-ink sm:text-base">
+              {intro.headline}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => scrollBy("left")}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 bg-white text-ink transition hover:border-ink/30"
-              aria-label="Scroll timeline left"
-            >
-              ←
-            </button>
-            <button
-              type="button"
-              onClick={() => scrollBy("right")}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 bg-white text-ink transition hover:border-ink/30"
-              aria-label="Scroll timeline right"
-            >
-              →
-            </button>
-          </div>
         </div>
 
-        <div className="mt-6">
-          <TimelineLegend />
+        <div className="flex shrink-0 items-center gap-2">
+          <p className="hidden text-xs text-ink-muted sm:block">Scroll or drag →</p>
+          <button
+            type="button"
+            onClick={() => scrollBy("left")}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-ink/15 bg-white text-ink transition hover:border-ink/30"
+            aria-label="Scroll timeline left"
+          >
+            ←
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollBy("right")}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-ink/15 bg-white text-ink transition hover:border-ink/30"
+            aria-label="Scroll timeline right"
+          >
+            →
+          </button>
         </div>
-      </div>
+      </header>
 
-      <div className="mx-auto max-w-[calc(100%-3rem)] overflow-hidden rounded-t-xl border border-b-0 border-ink/10 bg-cream shadow-sm lg:max-w-6xl">
-        <div className="flex items-center gap-2 border-b border-ink/10 bg-white/80 px-4 py-2.5">
-          <div className="flex gap-1.5" aria-hidden>
-            <span className="h-2.5 w-2.5 rounded-full bg-ink/15" />
-            <span className="h-2.5 w-2.5 rounded-full bg-ink/15" />
-            <span className="h-2.5 w-2.5 rounded-full bg-ink/15" />
-          </div>
-          <p className="mx-auto font-mono text-[0.625rem] text-ink-muted">
-            astrajax.com/journey
-          </p>
-          <span className="rounded border border-ink/10 px-2 py-0.5 font-mono text-[0.5625rem] uppercase tracking-wider text-ink-muted">
-            Timeline view
-          </span>
-        </div>
+      <div
+        ref={scrollerRef}
+        className={`timeline-scroll relative min-h-0 flex-1 overflow-x-auto overflow-y-hidden bg-[linear-gradient(color-mix(in_srgb,var(--color-ink)_4%,transparent)_1px,transparent_1px),linear-gradient(90deg,color-mix(in_srgb,var(--color-ink)_4%,transparent)_1px,transparent_1px)] bg-size-[1.25rem_1.25rem] ${
+          isDragging ? "cursor-grabbing select-none" : "cursor-grab"
+        }`}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={endDrag}
+        onPointerLeave={endDrag}
+        aria-label="Journey timeline"
+      >
+        <div className="relative flex h-full min-w-max items-stretch px-6 py-6 sm:px-10 sm:py-8">
+          <div
+            className="pointer-events-none absolute left-6 right-6 top-[2.75rem] h-px bg-ink/20 sm:left-10 sm:right-10"
+            aria-hidden
+          />
 
-        <div
-          ref={scrollerRef}
-          className={`timeline-scroll bg-[linear-gradient(color-mix(in_srgb,var(--color-ink)_4%,transparent)_1px,transparent_1px),linear-gradient(90deg,color-mix(in_srgb,var(--color-ink)_4%,transparent)_1px,transparent_1px)] bg-size-[1.25rem_1.25rem] bg-position-[0_0,0_0] overflow-x-auto ${
-            isDragging ? "cursor-grabbing select-none" : "cursor-grab"
-          }`}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
-          onPointerLeave={endDrag}
-        >
-          <div className="relative min-w-max px-8 pb-10 pt-14">
-            <div
-              className="pointer-events-none absolute left-8 right-8 top-[3.25rem] h-px bg-ink/20"
-              aria-hidden
-            />
-
-            <div className="relative flex items-start gap-0">
-              {nodes.map((node) => (
-                <div
-                  key={node.id}
-                  id={node.kind === "act" ? node.id.replace("-act", "") : undefined}
-                  className="timeline-column w-72 shrink-0 px-3 sm:w-80"
-                >
-                  <div className="flex flex-col items-center">
-                    <SpineMarker kind={node.kind} />
-                    <div className="h-8 w-px bg-ink/20" aria-hidden />
+          <div className="relative flex h-full items-start">
+            {nodes.map((node) => (
+              <div
+                key={node.id}
+                id={node.kind === "act" ? node.id.replace("-act", "") : undefined}
+                className={`timeline-column h-full shrink-0 px-2 sm:px-3 ${
+                  node.kind === "close" || node.kind === "intro"
+                    ? "w-[min(90vw,28rem)] sm:w-[32rem]"
+                    : "w-[min(85vw,20rem)] sm:w-80"
+                }`}
+              >
+                <div className="flex h-full flex-col items-center">
+                  <SpineMarker kind={node.kind} />
+                  <div className="h-6 w-px shrink-0 bg-ink/20" aria-hidden />
+                  <div className="min-h-0 w-full flex-1">
                     <TimelineCard node={node} />
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 }

@@ -97,6 +97,7 @@ def cut(source: Path, start: str, end: str, dest: Path) -> None:
 
 
 def concat(sources: list[Path], dest: Path) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
     list_file = dest.with_suffix(".txt")
     lines = [f"file '{p.resolve()}'" for p in sources]
     list_file.write_text("\n".join(lines) + "\n", encoding="utf-8")

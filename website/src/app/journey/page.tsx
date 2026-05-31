@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Nav } from "@/components/Nav";
 import { JourneyContent } from "@/components/JourneyContent";
-import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Matthew's Journey — AstraJax",
@@ -10,11 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function JourneyPage() {
-  return (
-    <>
-      <Nav />
-      <JourneyContent />
-      <Footer />
-    </>
-  );
+  return <JourneyContent />;
 }

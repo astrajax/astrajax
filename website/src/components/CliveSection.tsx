@@ -13,8 +13,9 @@ export function CliveSection() {
             AstraJax structures the work. Clive structures the context. Agents use both.
           </blockquote>
           <p className="mt-6 text-lg leading-relaxed text-ink-muted">
-            Keeps the context agents rely on clean and current. Fits the hand-over &amp; maintain
-            step, so agents stay trustworthy as the business changes.
+            In plain terms: Clive keeps track of what your agents are allowed to know, where that
+            knowledge came from, and when it needs updating — so they stay trustworthy as the
+            business changes.
           </p>
         </div>
 
