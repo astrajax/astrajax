@@ -1,9 +1,10 @@
 const links = [
-  { href: "#story", label: "Story" },
-  { href: "#method", label: "Method" },
-  { href: "#proof", label: "Proof" },
-  { href: "#clive", label: "Clive" },
-  { href: "#start", label: "Contact" },
+  { href: "/#story", label: "Story" },
+  { href: "/#method", label: "Method" },
+  { href: "/#proof", label: "Proof" },
+  { href: "/journey", label: "Journey" },
+  { href: "/#clive", label: "Clive" },
+  { href: "/#start", label: "Contact" },
 ];
 
 export function Footer() {

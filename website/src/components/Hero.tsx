@@ -1,5 +1,5 @@
 import { AgentFleetVideo } from "@/components/AgentFleetVideo";
-import { BOOKING_URL } from "@/lib/site";
+import { BOOKING_URL, TRAINING_HUB_URL } from "@/lib/site";
 
 export function Hero() {
   return (
@@ -25,7 +25,12 @@ export function Hero() {
               Get a Commercial OS Audit
               <span aria-hidden>→</span>
             </a>
-            <a href="#proof" className="btn-secondary">
+            <a
+              href={TRAINING_HUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-secondary"
+            >
               See the Butternut story
             </a>
           </div>

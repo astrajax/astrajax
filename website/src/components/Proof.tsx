@@ -1,3 +1,5 @@
+import { TRAINING_HUB_URL } from "@/lib/site";
+
 const stats = [
   { value: "~£180k", label: "yr travel saved" },
   { value: "~3,000 hrs", label: "yr capacity at scale" },
@@ -29,6 +31,17 @@ export function Proof() {
           Bounded agents follow the Trinity pattern: link → propose → human approves → execute.
           Humans keep judgement; agents take the sludge.
         </p>
+        <div className="mt-8">
+          <a
+            href={TRAINING_HUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-secondary"
+          >
+            See the training hub in production
+            <span aria-hidden>→</span>
+          </a>
+        </div>
       </div>
     </section>
   );

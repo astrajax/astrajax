@@ -116,3 +116,17 @@ body {
   background: color-mix(in srgb, var(--color-sage) 12%, white);
   color: #4a5c38;
 }
+
+.timeline-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-ink) 25%, transparent) transparent;
+}
+
+.timeline-scroll::-webkit-scrollbar {
+  height: 0.5rem;
+}
+
+.timeline-scroll::-webkit-scrollbar-thumb {
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-ink) 20%, transparent);
+}

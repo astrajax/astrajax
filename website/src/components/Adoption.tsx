@@ -1,4 +1,11 @@
-const signals = ["Training hub", "Sandboxes", "Leaderboards", "Characterful agents"];
+import { TRAINING_HUB_URL } from "@/lib/site";
+
+const signals = [
+  { label: "Training hub", href: TRAINING_HUB_URL },
+  { label: "Sandboxes", href: TRAINING_HUB_URL },
+  { label: "Leaderboards", href: TRAINING_HUB_URL },
+  { label: "Characterful agents", href: TRAINING_HUB_URL },
+];
 
 export function Adoption() {
   return (
@@ -10,13 +17,31 @@ export function Adoption() {
         </blockquote>
         <div className="mt-6 flex flex-wrap gap-2">
           {signals.map((signal) => (
-            <span
-              key={signal}
-              className="rounded-full border border-ink/10 bg-white px-3 py-1 text-xs font-medium text-ink-muted"
+            <a
+              key={signal.label}
+              href={signal.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-ink/10 bg-white px-3 py-1 text-xs font-medium text-ink-muted transition hover:border-apricot/40 hover:text-apricot"
             >
-              {signal}
-            </span>
+              {signal.label}
+            </a>
           ))}
+        </div>
+        <div className="mt-8">
+          <a
+            href={TRAINING_HUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-secondary"
+          >
+            Open the DS training hub
+            <span aria-hidden>→</span>
+          </a>
+          <p className="mt-3 max-w-xl text-sm text-ink-muted">
+            Live from production — operational bases, walkthroughs, and a training leaderboard
+            synced from Agent Ops.
+          </p>
         </div>
       </div>
     </section>
