@@ -10,6 +10,7 @@ export const seedsNavLinks = [
   { href: "#agentic", label: "Agentic layer" },
   { href: "#unlocks", label: "What it unlocks" },
   { href: "#malawi", label: "Proof" },
+  { href: "#links", label: "Links" },
   { href: "#ask", label: "Fund" },
 ] as const;
 
@@ -176,11 +177,11 @@ export const seedsMalawiRows: SeedsSplitRow[] = [
     id: "malawi",
     eyebrow: "Malawi",
     headline: "A known community with existing vision.",
-    lead: "Seeds of Promise is not an abstract beneficiary. The relationship, the computer-centre vision, and the appetite for practical technology are already there.",
+    lead: "Seeds of Promise is not an abstract beneficiary. Matthew reached the community through Links, a UK charity with long-standing partner relationships in Malawi and across Africa.",
     bullets: [
       "Matthew visited in October 2025 and delivered an introductory AI coaching session",
       "Strong local appetite, with feedback that content needs deeper local adaptation",
-      "Partnership with Links and trusted community leadership already in place",
+      "Introduced and supported through Sam at Links, who knows the community and the wider partner network",
       "The next step is validating the delivery model, not whether the community cares",
     ],
     image: {
@@ -242,6 +243,32 @@ export const seedsAsk = {
       src: "/seeds-of-promise/malawi-grove-session.png",
       alt: "Community members gathered under trees for a coaching session",
     },
+  ],
+};
+
+export const seedsLinksPartnership = {
+  id: "links",
+  eyebrow: "Trusted partner route",
+  headline: "Routed through Links, not invented from scratch.",
+  lead:
+    "This pilot sits inside an existing charity relationship. That matters for funders: Seeds of Promise is a known community, reached through a partner organisation that already works for lasting change.",
+  links: {
+    name: "Links",
+    url: "https://www.links.charity/",
+    description:
+      "Links is a UK charity that connects people, confronts poverty, and creates potential by working with partner communities around the world - including in Malawi - on sustainable solutions in health, education, justice, and enterprise.",
+  },
+  sam: {
+    name: "Sam at Links",
+    role: "Partner contact and route into Seeds of Promise",
+    body:
+      "Matthew's relationship with Sam at Links is how this work started. Sam connected the October 2025 visit, shared training materials with community leaders, and confirmed both the local appetite and the need for deeper local adaptation. Sam also sees potential to extend the model to other Links partners across Malawi, Uganda, Kenya, and Zambia if the pilot works.",
+  },
+  confidence: [
+    "Seeds of Promise is a Links-connected community, not a cold outreach project",
+    "Local leadership and charity partner oversight are already in place",
+    "The pilot can be documented as a repeatable model for other Links partners",
+    "Funders are backing a specific community with a known route in, not a vague geography",
   ],
 };
 

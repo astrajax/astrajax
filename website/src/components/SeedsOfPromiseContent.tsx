@@ -7,6 +7,7 @@ import {
   seedsAsk,
   seedsDifferentiators,
   seedsHero,
+  seedsLinksPartnership,
   seedsMalawiRows,
   seedsModelRows,
   seedsNavLinks,
@@ -162,6 +163,77 @@ function DifferentiatorGrid() {
   );
 }
 
+function LinksPartnership() {
+  const { links, sam } = seedsLinksPartnership;
+
+  return (
+    <section id={seedsLinksPartnership.id} className="scroll-mt-24 border-t border-white/10">
+      <div className="mx-auto max-w-6xl px-6 py-16 lg:py-24">
+        <article className="rounded-2xl bg-[#F3EDDB] p-8 text-[#23271B] shadow-lg shadow-black/10 lg:p-12">
+          <p className="section-label mb-4 text-[#6E7B52]">
+            {seedsLinksPartnership.eyebrow}
+          </p>
+          <h2 className="font-display max-w-3xl text-3xl font-semibold tracking-tight sm:text-4xl">
+            {seedsLinksPartnership.headline}
+          </h2>
+          <p className="mt-6 max-w-3xl text-lg leading-relaxed text-[#4a4f4c]">
+            {seedsLinksPartnership.lead}
+          </p>
+
+          <div className="mt-10 grid gap-6 lg:grid-cols-2">
+            <div className="rounded-xl border border-[#6E7B52]/15 bg-white/60 p-6">
+              <p className="section-label mb-3 text-[#6E7B52]">Who Links are</p>
+              <h3 className="font-display text-2xl font-semibold tracking-tight">
+                <a
+                  href={links.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-[#A95A2E]"
+                >
+                  {links.name}
+                </a>
+              </h3>
+              <p className="mt-4 text-sm leading-relaxed text-[#4a4f4c]">
+                {links.description}
+              </p>
+              <a
+                href={links.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[#A95A2E] transition-colors hover:text-[#95491F]"
+              >
+                Visit links.charity
+                <span aria-hidden>→</span>
+              </a>
+            </div>
+
+            <div className="rounded-xl border border-[#6E7B52]/15 bg-white/60 p-6">
+              <p className="section-label mb-3 text-[#6E7B52]">Why Sam matters</p>
+              <h3 className="font-display text-2xl font-semibold tracking-tight">
+                {sam.name}
+              </h3>
+              <p className="mt-1 text-sm text-[#6E7B52]">{sam.role}</p>
+              <p className="mt-4 text-sm leading-relaxed text-[#4a4f4c]">{sam.body}</p>
+            </div>
+          </div>
+
+          <ul className="mt-10 grid gap-3 sm:grid-cols-2">
+            {seedsLinksPartnership.confidence.map((item) => (
+              <li
+                key={item.slice(0, 48)}
+                className="flex gap-3 rounded-xl border border-[#6E7B52]/15 bg-white/60 px-4 py-3 text-sm leading-relaxed text-[#4a4f4c]"
+              >
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#6E7B52]" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 function ParallelLayers() {
   return (
     <section id={seedsParallelComparison.id} className="scroll-mt-24 border-t border-white/10">
@@ -229,7 +301,7 @@ export function SeedsOfPromiseContent() {
               alt=""
               width={28}
               height={28}
-              className="h-7 w-7 shrink-0 brightness-0 invert"
+              className="h-7 w-7 shrink-0 rounded-sm"
             />
             <span>Seeds of Promise</span>
             <span className="hidden text-sm font-normal text-[#F3EDDB]/70 sm:inline">
@@ -290,6 +362,8 @@ export function SeedsOfPromiseContent() {
       {seedsMalawiRows.map((row) => (
         <SplitRow key={row.id} row={row} />
       ))}
+
+      <LinksPartnership />
 
       <section id={seedsAsk.id} className="scroll-mt-24 border-t border-white/10">
         <div className="mx-auto max-w-6xl px-6 py-16 lg:py-24">
