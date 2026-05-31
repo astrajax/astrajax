@@ -14,10 +14,11 @@ export function Proof() {
         <h2 className="font-display max-w-2xl text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
           From inboxes to an operating system.
         </h2>
+        <p className="mt-3 text-sm font-medium text-apricot">Butternut Box · Direct Sales</p>
         <p className="mt-4 max-w-2xl text-lg leading-relaxed text-ink-muted">
-          From Gmail, WhatsApp, Notion, and Google Sheets to an operating system. ~12 months on the
-          boring layer, then a fleet of custom screens in ~1 month and the first agents in ~2
-          weeks — fast because the foundation existed.
+          Matthew&apos;s work leading the channel — from Gmail, WhatsApp, Notion, and Google Sheets
+          to an operating system. ~12 months on the boring layer, then a fleet of custom screens in
+          ~1 month and the first agents in ~2 weeks — fast because the foundation existed.
         </p>
         <div className="mt-10 grid gap-4 sm:grid-cols-3">
           {stats.map((stat) => (
@@ -38,7 +39,7 @@ export function Proof() {
             rel="noopener noreferrer"
             className="btn-secondary"
           >
-            See the training hub in production
+            See the Butternut training hub in production
             <span aria-hidden>→</span>
           </a>
         </div>
