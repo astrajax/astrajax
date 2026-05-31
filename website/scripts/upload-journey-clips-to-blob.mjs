@@ -56,10 +56,13 @@ async function main() {
     process.exit(1);
   }
 
+  const only = process.argv.slice(2);
+  const queue = only.length > 0 ? only : FILES;
+
   let base;
   let uploaded = 0;
 
-  for (const file of FILES) {
+  for (const file of queue) {
     const filePath = join(TALK_DIR, file);
     try {
       await access(filePath);
@@ -85,7 +88,7 @@ async function main() {
     if (!base) base = blob.url.slice(0, blob.url.length - file.length - 1);
   }
 
-  console.log(`\nUploaded ${uploaded}/${FILES.length} clips.`);
+  console.log(`\nUploaded ${uploaded}/${queue.length} clips.`);
   console.log(
     "\nYour Blob store is private — clips are served via /api/journey-clips on the site.",
   );

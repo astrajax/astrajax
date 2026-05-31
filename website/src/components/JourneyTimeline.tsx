@@ -188,14 +188,48 @@ function ClipPlayer({
   clip,
   dark,
   stacked,
+  active,
 }: {
   clip: JourneyClip;
   dark?: boolean;
   stacked?: boolean;
+  active?: boolean;
 }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const title = clip.title ?? (stacked ? clip.caption : undefined);
+  const showCaptionBelow = !stacked || Boolean(clip.title && clip.caption !== clip.title);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    if (!active) {
+      video.pause();
+      return;
+    }
+
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) return;
+
+    video.currentTime = 0;
+    void video.play().catch(() => {
+      // Browser blocked autoplay despite muted — user can press play.
+    });
+  }, [active]);
+
   return (
     <figure className={stacked ? "mt-5 flex min-h-0 flex-1 flex-col" : "shrink-0"}>
+      {title ? (
+        <p
+          className={`mb-3 px-1 font-display text-base font-semibold leading-snug sm:text-lg ${
+            dark ? "text-parchment" : "text-ink"
+          }`}
+        >
+          {title}
+        </p>
+      ) : null}
       <video
+        ref={videoRef}
         className={
           stacked
             ? "min-h-[14rem] w-full flex-1 bg-black object-contain sm:min-h-[18rem]"
@@ -209,13 +243,15 @@ function ClipPlayer({
       >
         <source src={clip.src} type="video/mp4" />
       </video>
-      <figcaption
-        className={`px-4 pt-2 font-mono text-[0.625rem] uppercase tracking-wider ${
-          dark ? "text-parchment/55" : "text-ink-muted"
-        }`}
-      >
-        {clip.caption}
-      </figcaption>
+      {showCaptionBelow ? (
+        <figcaption
+          className={`px-4 pt-2 font-mono text-[0.625rem] uppercase tracking-wider ${
+            dark ? "text-parchment/55" : "text-ink-muted"
+          }`}
+        >
+          {clip.caption}
+        </figcaption>
+      ) : null}
     </figure>
   );
 }
@@ -293,7 +329,7 @@ function CloseCard({ close }: { close: JourneyClose }) {
   );
 }
 
-function TimelineCard({ node }: { node: TimelineNode }) {
+function TimelineCard({ node, isFocused }: { node: TimelineNode; isFocused?: boolean }) {
   if (node.kind === "intro") return <IntroCard node={node} />;
   if (node.kind === "close") return <CloseCard close={node.close} />;
   if (node.kind === "act") return null;
@@ -360,11 +396,11 @@ function TimelineCard({ node }: { node: TimelineNode }) {
       {stacked ? (
         <>
           {textBlock}
-          {clip ? <ClipPlayer clip={clip} dark={dark} stacked /> : null}
+          {clip ? <ClipPlayer clip={clip} dark={dark} stacked active={isFocused} /> : null}
         </>
       ) : (
         <>
-          {clip ? <ClipPlayer clip={clip} dark={dark} /> : null}
+          {clip ? <ClipPlayer clip={clip} dark={dark} active={isFocused} /> : null}
           {textBlock}
         </>
       )}
@@ -376,10 +412,12 @@ function TimelineColumn({
   node,
   stagger,
   columnRef,
+  isFocused,
 }: {
   node: TimelineNode;
   stagger: "left" | "right";
   columnRef?: (element: HTMLDivElement | null) => void;
+  isFocused?: boolean;
 }) {
   const isIntro = node.kind === "intro";
   const isClose = node.kind === "close";
@@ -391,7 +429,7 @@ function TimelineColumn({
     node.kind === "act" ? (
       <ActSeparator label={node.label} title={node.title} intro={node.intro} />
     ) : (
-      <TimelineCard node={node} />
+      <TimelineCard node={node} isFocused={isFocused} />
     );
 
   const staggerClass =
@@ -605,6 +643,7 @@ export function JourneyTimeline({ intro, acts, close }: JourneyTimelineProps) {
                 key={node.id}
                 node={node}
                 stagger={index % 2 === 0 ? "left" : "right"}
+                isFocused={index === focusedIndex}
                 columnRef={(element) => {
                   columnRefs.current[index] = element;
                 }}

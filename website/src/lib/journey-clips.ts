@@ -25,8 +25,10 @@ const TALK = talkClipBase();
 
 export type JourneyClip = {
   src: string;
-  /** Short human label shown under the player. */
+  /** Short human label shown under the player (or above when stacked). */
   caption: string;
+  /** Optional display title above the player in stack layout. Falls back to caption. */
+  title?: string;
   /** stack = full copy above a tall player; default = player first, one paragraph. */
   layout?: "stack";
 };
@@ -45,6 +47,7 @@ const BEAT_CLIPS: { match: string; clip: JourneyClip }[] = [
     match: "Employee number 33",
     clip: {
       src: `${TALK}/neanderthal-matthew-fighting.mp4`,
+      title: "Neanderthal Matthew in Hulu & MGM's 'Dawn'",
       caption: "Neanderthal Matthew in Hulu & MGM's 'Dawn'",
       layout: "stack",
     },
