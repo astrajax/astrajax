@@ -213,7 +213,7 @@ function ClipPlayer({
 
     video.currentTime = 0;
     void video.play().catch(() => {
-      // Browser blocked autoplay despite muted — user can press play.
+      // Browser blocked autoplay with sound — user can press play.
     });
   }, [active]);
 
@@ -236,7 +236,6 @@ function ClipPlayer({
             : "aspect-video w-full bg-black object-cover"
         }
         controls
-        muted
         playsInline
         preload="metadata"
         aria-label={clip.caption}
