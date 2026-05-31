@@ -20,9 +20,9 @@ export default function HomePage() {
         <Problem />
         <Method />
         <Proof />
+        <CliveSection />
         <Adoption />
         <Offers />
-        <CliveSection />
         <CtaClose />
       </main>
       <Footer />

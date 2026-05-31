@@ -4,3 +4,6 @@ out
 .DS_Store
 *.log
 .env*.local
+
+# Journey talk/demo clips are hosted on Vercel Blob, not committed (too large)
+public/video/journey-clips/**/*.mp4

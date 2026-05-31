@@ -1,10 +1,11 @@
+import Link from "next/link";
 import { AgentFleetVideo } from "@/components/AgentFleetVideo";
-import { BOOKING_URL, TRAINING_HUB_URL } from "@/lib/site";
+import { BOOKING_URL } from "@/lib/site";
 
 export function Hero() {
   return (
     <section id="story" className="border-b border-ink/10">
-      <div className="mx-auto grid max-w-6xl gap-12 px-6 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-28">
+      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 lg:grid-cols-[0.95fr_1.15fr] lg:items-center lg:py-28">
         <div className="space-y-8">
           <p className="section-label">Built with AI, by a non-technical operator</p>
           <h1 className="font-display text-4xl leading-[1.08] font-semibold tracking-tight text-ink sm:text-5xl lg:text-[3.25rem]">
@@ -26,24 +27,19 @@ export function Hero() {
               Get a Commercial OS Audit
               <span aria-hidden>→</span>
             </a>
-            <a
-              href={TRAINING_HUB_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary"
-            >
+            <Link href="/journey" className="btn-secondary">
               See the Butternut story
-            </a>
+            </Link>
           </div>
         </div>
 
-        <div className="card overflow-hidden p-6 lg:p-8">
-          <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="card overflow-hidden p-3 sm:p-4">
+          <div className="mb-3 flex items-center justify-between gap-3 px-1">
             <p className="section-label">Agent fleet — production</p>
             <span className="status-pill status-pill--live">Live</span>
           </div>
           <AgentFleetVideo />
-          <p className="mt-4 text-sm text-ink-muted">
+          <p className="mt-4 px-1 text-sm text-ink-muted">
             The gang — Bot Fleet from production. The product is the proof.
           </p>
         </div>

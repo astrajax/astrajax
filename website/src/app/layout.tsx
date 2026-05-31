@@ -29,9 +29,9 @@ export const metadata: Metadata = {
   description:
     "AstraJax helps commercial teams turn messy workflows, scattered data and trapped know-how into AI-ready operating systems — built with the people who know the work best.",
   icons: {
-    icon: [{ url: logoImage, type: "image/png", sizes: "1024x1024" }],
+    icon: [{ url: logoImage, type: "image/png", sizes: "596x597" }],
     shortcut: [logoImage],
-    apple: [{ url: logoImage, type: "image/png", sizes: "1024x1024" }],
+    apple: [{ url: logoImage, type: "image/png", sizes: "596x597" }],
   },
   openGraph: {
     title: "AstraJax — AI-ready operating systems",
@@ -41,8 +41,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: logoImage,
-        width: 1024,
-        height: 1024,
+        width: 596,
+        height: 597,
         alt: "AstraJax logo mark",
       },
     ],

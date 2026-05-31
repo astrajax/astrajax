@@ -7,8 +7,8 @@ const links = [
   { href: "/#problem", label: "Problem" },
   { href: "/#method", label: "Method" },
   { href: "/#proof", label: "Proof" },
-  { href: "/#offers", label: "Offers" },
   { href: "/#clive", label: "Clive" },
+  { href: "/#offers", label: "Offers" },
   { href: "/journey", label: "Journey" },
   { href: "/seeds-of-promise", label: "Seeds" },
 ];
