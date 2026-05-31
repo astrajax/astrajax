@@ -21,7 +21,7 @@ export function AgentFleetVideo() {
   }, []);
 
   return (
-    <div className="aspect-[1200/650] overflow-hidden rounded-lg border border-ink/10 bg-white">
+    <div className="h-full min-h-[16rem] w-full overflow-hidden rounded-lg border border-ink/10 bg-white sm:min-h-[20rem] lg:min-h-[28rem]">
       <video
         ref={videoRef}
         className="block h-full w-full bg-white object-contain object-center"

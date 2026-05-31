@@ -27,6 +27,8 @@ export type JourneyClip = {
   src: string;
   /** Short human label shown under the player. */
   caption: string;
+  /** stack = full copy above a tall player; default = player first, one paragraph. */
+  layout?: "stack";
 };
 
 /** Act-intro clips, keyed by act id. */
@@ -39,6 +41,14 @@ const ACT_CLIPS: Record<string, JourneyClip> = {
 
 /** Beat clips, matched by a unique ASCII substring of the beat title. */
 const BEAT_CLIPS: { match: string; clip: JourneyClip }[] = [
+  {
+    match: "Employee number 33",
+    clip: {
+      src: `${TALK}/neanderthal-matthew-fighting.mp4`,
+      caption: "Neanderthal Matthew in Hulu & MGM's 'Dawn'",
+      layout: "stack",
+    },
+  },
   { match: "Scale catches", clip: { src: `${TALK}/flow-scale_0428-0505.mp4`, caption: "Seed fund to unicorn" } },
   { match: "operational weight", clip: { src: `${TALK}/best-problem-tools_0615-0624.mp4`, caption: "Tools that never talked" } },
   { match: "Google Sheets problem", clip: { src: `${TALK}/flow-breaking-point_0751-0814.mp4`, caption: "The 10M-cell breaking point" } },

@@ -45,6 +45,7 @@ type TimelineNode =
       id: string;
       kind: "intro";
       label: string;
+      headline: string;
       summary: string;
       structure: string[];
     }
@@ -70,7 +71,8 @@ function buildTimelineNodes(
     {
       id: "intro",
       kind: "intro",
-      label: "Intro",
+      label: "The set-up",
+      headline: intro.headline,
       summary: intro.summary,
       structure: intro.structure,
     },
@@ -182,11 +184,23 @@ function SpineMarker({ kind }: { kind: TimelineNode["kind"] }) {
   );
 }
 
-function ClipPlayer({ clip, dark }: { clip: JourneyClip; dark?: boolean }) {
+function ClipPlayer({
+  clip,
+  dark,
+  stacked,
+}: {
+  clip: JourneyClip;
+  dark?: boolean;
+  stacked?: boolean;
+}) {
   return (
-    <figure className="shrink-0">
+    <figure className={stacked ? "mt-5 flex min-h-0 flex-1 flex-col" : "shrink-0"}>
       <video
-        className="aspect-video w-full bg-black object-cover"
+        className={
+          stacked
+            ? "min-h-[14rem] w-full flex-1 bg-black object-contain sm:min-h-[18rem]"
+            : "aspect-video w-full bg-black object-cover"
+        }
         controls
         muted
         playsInline
@@ -208,19 +222,24 @@ function ClipPlayer({ clip, dark }: { clip: JourneyClip; dark?: boolean }) {
 
 function IntroCard({ node }: { node: Extract<TimelineNode, { kind: "intro" }> }) {
   return (
-    <article className="flex max-h-full w-full flex-col overflow-hidden rounded-xl border border-apricot/25 bg-moss text-parchment shadow-sm">
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-5">
-        <span className="inline-block w-fit rounded border border-parchment/20 px-2 py-0.5 font-mono text-[0.5625rem] uppercase tracking-wider text-parchment/70">
+    <article className="timeline-intro-card flex max-h-full w-full flex-col overflow-hidden rounded-xl border border-apricot/30 bg-moss text-parchment shadow-md">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-6 sm:p-8">
+        <span className="inline-block w-fit rounded border border-parchment/20 px-2.5 py-1 font-mono text-[0.625rem] uppercase tracking-wider text-parchment/70">
           {node.label}
         </span>
-        <p className="mt-4 text-sm leading-relaxed text-parchment/85">{node.summary}</p>
-        <ol className="mt-5 space-y-3 border-l-2 border-apricot/60 pl-4">
+        <h2 className="mt-5 font-display text-2xl font-semibold leading-snug tracking-tight text-parchment sm:text-3xl">
+          {node.headline}
+        </h2>
+        <p className="mt-5 text-base leading-relaxed text-parchment/90 sm:text-lg">
+          {node.summary}
+        </p>
+        <ol className="mt-8 space-y-4 border-l-2 border-apricot pl-5">
           {node.structure.map((part, index) => (
-            <li key={part} className="text-parchment/85">
-              <span className="font-mono text-xs text-buttermilk">
+            <li key={part} className="text-parchment/90">
+              <span className="font-mono text-sm text-buttermilk sm:text-base">
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <span className="mt-1 block text-sm leading-relaxed">{part}</span>
+              <span className="mt-1.5 block text-base leading-relaxed sm:text-lg">{part}</span>
             </li>
           ))}
         </ol>
@@ -281,61 +300,74 @@ function TimelineCard({ node }: { node: TimelineNode }) {
 
   const dark = node.dark;
   const clip = node.clip;
-  // With a clip, the video carries the detail — keep the card light. Without one,
-  // show the full narrative so the beat still reads on its own.
+  const stacked = clip?.layout === "stack";
   const paragraphs =
-    node.kind === "beat" ? (clip ? node.body.slice(0, 1) : node.body) : [];
+    node.kind === "beat" ? (clip && !stacked ? node.body.slice(0, 1) : node.body) : [];
+
+  const textBlock = (
+    <div className={`flex flex-col ${stacked ? "shrink-0" : "min-h-0 flex-1 overflow-y-auto"} p-4 sm:p-5`}>
+      <span
+        className={`inline-block w-fit rounded border px-2 py-0.5 font-mono text-[0.5625rem] uppercase tracking-wider ${
+          dark ? "border-parchment/20 text-parchment/70" : "border-ink/15 text-ink-muted"
+        }`}
+      >
+        {node.label}
+      </span>
+
+      <h3
+        className={`mt-2.5 font-display text-lg font-semibold leading-snug tracking-tight sm:text-xl ${
+          dark ? "text-parchment" : "text-ink"
+        }`}
+      >
+        {node.title}
+      </h3>
+
+      {paragraphs.length > 0 ? (
+        <div className="mt-2.5 space-y-2.5">
+          {paragraphs.map((paragraph) => (
+            <p
+              key={paragraph.slice(0, 48)}
+              className={`text-sm leading-relaxed ${dark ? "text-parchment/75" : "text-ink-muted"}`}
+            >
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      ) : null}
+
+      {node.kind === "beat" && node.pullQuote ? (
+        <blockquote
+          className={`mt-3 border-l-2 border-apricot pl-3 font-display text-sm italic ${
+            dark ? "text-buttermilk" : "text-ink"
+          }`}
+        >
+          {node.pullQuote}
+        </blockquote>
+      ) : null}
+    </div>
+  );
 
   return (
     <article
       className={`flex max-h-full w-full flex-col overflow-hidden ${
+        stacked ? "min-h-[calc(72vh+16vh*var(--focus,0))]" : ""
+      } ${
         dark
           ? "rounded-xl border border-parchment/15 bg-graphite text-parchment shadow-sm"
           : "card-muted"
       }`}
     >
-      {clip ? <ClipPlayer clip={clip} dark={dark} /> : null}
-
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4 sm:p-5">
-        <span
-          className={`inline-block w-fit rounded border px-2 py-0.5 font-mono text-[0.5625rem] uppercase tracking-wider ${
-            dark ? "border-parchment/20 text-parchment/70" : "border-ink/15 text-ink-muted"
-          }`}
-        >
-          {node.label}
-        </span>
-
-        <h3
-          className={`mt-2.5 font-display text-lg font-semibold leading-snug tracking-tight sm:text-xl ${
-            dark ? "text-parchment" : "text-ink"
-          }`}
-        >
-          {node.title}
-        </h3>
-
-        {paragraphs.length > 0 ? (
-          <div className="mt-2.5 space-y-2.5">
-            {paragraphs.map((paragraph) => (
-              <p
-                key={paragraph.slice(0, 48)}
-                className={`text-sm leading-relaxed ${dark ? "text-parchment/75" : "text-ink-muted"}`}
-              >
-                {paragraph}
-              </p>
-            ))}
-          </div>
-        ) : null}
-
-        {node.kind === "beat" && node.pullQuote ? (
-          <blockquote
-            className={`mt-3 border-l-2 border-apricot pl-3 font-display text-sm italic ${
-              dark ? "text-buttermilk" : "text-ink"
-            }`}
-          >
-            {node.pullQuote}
-          </blockquote>
-        ) : null}
-      </div>
+      {stacked ? (
+        <>
+          {textBlock}
+          {clip ? <ClipPlayer clip={clip} dark={dark} stacked /> : null}
+        </>
+      ) : (
+        <>
+          {clip ? <ClipPlayer clip={clip} dark={dark} /> : null}
+          {textBlock}
+        </>
+      )}
     </article>
   );
 }
@@ -349,7 +381,9 @@ function TimelineColumn({
   stagger: "left" | "right";
   columnRef?: (element: HTMLDivElement | null) => void;
 }) {
-  const wide = node.kind === "intro" || node.kind === "close";
+  const isIntro = node.kind === "intro";
+  const isClose = node.kind === "close";
+  const wide = isClose;
   const isAct = node.kind === "act";
   const connector = <span className="h-6 w-px shrink-0 bg-ink/20" aria-hidden />;
 
@@ -372,6 +406,7 @@ function TimelineColumn({
       ref={columnRef}
       id={isAct ? node.id.replace("-act", "") : undefined}
       data-wide={wide ? "true" : "false"}
+      data-intro={isIntro ? "true" : "false"}
       data-act={isAct ? "true" : "false"}
       className="timeline-column flex h-full shrink-0 flex-col items-center scroll-ml-6 scroll-mr-6 px-3 sm:scroll-ml-12 sm:scroll-mr-12 sm:px-5"
       style={
@@ -413,18 +448,22 @@ export function JourneyTimeline({ intro, acts, close }: JourneyTimelineProps) {
 
     const scrollerRect = scroller.getBoundingClientRect();
     const viewportCenter = scrollerRect.width / 2;
-    let bestIndex = 0;
-    let bestFocus = -1;
+    const falloff = scrollerRect.width * 0.62;
 
-    columnRefs.current.forEach((column, index) => {
-      if (!column) return;
-
+    // Read every rect first, then write — interleaving reads and style writes
+    // forces a synchronous reflow per tile and makes scrolling stutter.
+    const focuses = columnRefs.current.map((column) => {
+      if (!column) return 0;
       const rect = column.getBoundingClientRect();
       const columnCenter = rect.left - scrollerRect.left + rect.width / 2;
       const distance = Math.abs(columnCenter - viewportCenter);
-      const focus = Math.max(0, 1 - distance / (scrollerRect.width * 0.52));
-      column.style.setProperty("--focus", focus.toFixed(3));
+      return Math.max(0, 1 - distance / falloff);
+    });
 
+    let bestIndex = 0;
+    let bestFocus = -1;
+    focuses.forEach((focus, index) => {
+      columnRefs.current[index]?.style.setProperty("--focus", focus.toFixed(3));
       if (focus > bestFocus) {
         bestFocus = focus;
         bestIndex = index;
@@ -547,7 +586,7 @@ export function JourneyTimeline({ intro, acts, close }: JourneyTimelineProps) {
         className={`timeline-scroll relative min-h-0 flex-1 overflow-x-auto overflow-y-hidden scroll-smooth bg-[linear-gradient(color-mix(in_srgb,var(--color-ink)_4%,transparent)_1px,transparent_1px),linear-gradient(90deg,color-mix(in_srgb,var(--color-ink)_4%,transparent)_1px,transparent_1px)] bg-size-[1.5rem_1.5rem] ${
           isDragging ? "cursor-grabbing select-none" : "cursor-grab"
         }`}
-        style={{ scrollSnapType: "x proximity" }}
+        style={{ scrollSnapType: isDragging ? "none" : "x mandatory" }}
         onScroll={scheduleFocusUpdate}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}

@@ -5,8 +5,8 @@ export const runtime = "nodejs";
 
 const BLOB_PREFIX = "journey-clips/talk";
 
-/** Matches trimmed talk filenames, e.g. p01-hero-opener_0013-0102.mp4 */
-const FILENAME_PATTERN = /^[a-z0-9-]+_\d+-?\d+\.mp4$/i;
+/** Matches talk clip filenames — timestamped trims or simple slug names. */
+const FILENAME_PATTERN = /^(?:[a-z0-9-]+_\d+-?\d+|[a-z0-9-]+)\.mp4$/i;
 
 export async function GET(
   request: Request,

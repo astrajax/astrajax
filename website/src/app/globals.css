@@ -131,48 +131,59 @@ body {
   background: color-mix(in srgb, var(--color-ink) 20%, transparent);
 }
 
+/* Fixed widths keep the layout stable while scrolling — the focus emphasis is
+   driven entirely by transform/opacity so neighbouring tiles never reflow. */
 .timeline-column {
   --focus: 0;
-  width: calc(
-    (68vw + (92vw - 68vw) * var(--focus)) * 1
-  );
-  opacity: calc(0.42 + 0.58 * var(--focus));
-  transition:
-    width 0.22s ease-out,
-    opacity 0.22s ease-out;
+  width: min(34rem, 86vw);
+  opacity: calc(0.45 + 0.55 * var(--focus));
+  transition: opacity 0.28s ease-out;
 }
 
 .timeline-column[data-act="true"] {
-  width: calc(52vw + (68vw - 52vw) * var(--focus));
+  width: min(15rem, 62vw);
+}
+
+.timeline-column[data-intro="true"] {
+  width: min(34rem, 88vw);
+  opacity: calc(0.7 + 0.3 * var(--focus));
 }
 
 .timeline-column[data-wide="true"] {
-  width: calc(72vw + (96vw - 72vw) * var(--focus));
+  width: min(34rem, 88vw);
 }
 
 @media (min-width: 640px) {
   .timeline-column {
-    width: calc(16rem + (min(56rem, 88vw) - 16rem) * var(--focus));
+    width: 44rem;
+  }
+
+  .timeline-column[data-intro="true"] {
+    width: 46rem;
   }
 
   .timeline-column[data-act="true"] {
-    width: calc(11rem + (14rem - 11rem) * var(--focus));
+    width: 15rem;
   }
 
   .timeline-column[data-wide="true"] {
-    width: calc(18rem + (min(60rem, 92vw) - 18rem) * var(--focus));
+    width: 46rem;
   }
 }
 
+.timeline-column-card article.timeline-intro-card {
+  min-height: 80vh;
+}
+
 .timeline-column-card {
-  transform: scale(calc(0.94 + 0.06 * var(--focus)));
+  transform: scale(calc(0.82 + 0.18 * var(--focus)));
   transform-origin: top center;
-  transition: transform 0.22s ease-out;
+  transition: transform 0.28s ease-out;
+  will-change: transform;
 }
 
 .timeline-column-card article {
-  max-height: calc(72vh + 16vh * var(--focus));
-  transition: max-height 0.22s ease-out;
+  max-height: 86vh;
 }
 
 .seeds-sage-page {

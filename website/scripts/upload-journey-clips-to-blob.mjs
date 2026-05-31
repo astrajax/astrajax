@@ -25,6 +25,7 @@ const BLOB_PREFIX = "journey-clips/talk";
 
 // The 18 clips referenced by src/lib/journey-clips.ts. Keep in sync if that changes.
 const FILES = [
+  "neanderthal-matthew-fighting.mp4",
   "p01-hero-opener_0013-0102.mp4",
   "flow-scale_0428-0505.mp4",
   "p03-problem_0701-0721.mp4",
