@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  // Native Next.js on Vercel — no static export; enables API routes for Ask Clive later.
   images: { unoptimized: true },
 };
 
