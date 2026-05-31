@@ -1,33 +1,27 @@
-/* Clive Email Inbox — global styles (Nocturne Orchard) */
+/* Clive Email Inbox - global styles (light AstraJax surface) */
 
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --ax-deep-moss: #202A1B;
-  --ax-graphite-ink: #171A18;
-  --ax-blueberry-black: #111423;
-  --ax-parchment-dim: #E7D1AD;
-  --ax-buttermilk: #E4D3A3;
-  --ax-burnt-apricot: #D77545;
-  --ax-sage-signal: #9AA77A;
-  --clive-bg: var(--ax-deep-moss);
-  --clive-bg-raised: var(--ax-graphite-ink);
-  --clive-bg-inset: var(--ax-blueberry-black);
-  --clive-bg-hover: #1E211D;
-  --clive-text: var(--ax-parchment-dim);
-  --clive-text-muted: rgba(231, 209, 173, 0.62);
-  --clive-text-dim: rgba(231, 209, 173, 0.38);
-  --clive-border: rgba(231, 209, 173, 0.12);
-  --clive-border-strong: rgba(231, 209, 173, 0.28);
-  --clive-accent: var(--ax-sage-signal);
-  --clive-accent-soft: rgba(154, 167, 122, 0.14);
-  --clive-accent-line: rgba(154, 167, 122, 0.48);
-  --clive-glow: rgba(154, 167, 122, 0.20);
-  --clive-warm: var(--ax-buttermilk);
-  --clive-warm-soft: rgba(228, 211, 163, 0.14);
-  --clive-clive: var(--ax-burnt-apricot);
-  --clive-clive-soft: rgba(215, 117, 69, 0.14);
-  --clive-grid: rgba(154, 167, 122, 0.05);
+  --clive-bg: #F3EDDB;
+  --clive-bg-raised: #FAF7ED;
+  --clive-bg-inset: #EAE2CC;
+  --clive-bg-hover: rgba(35, 39, 27, 0.05);
+  --clive-message-bg: #FFFDF7;
+  --clive-text: #23271B;
+  --clive-text-muted: rgba(35, 39, 27, 0.68);
+  --clive-text-dim: rgba(35, 39, 27, 0.44);
+  --clive-border: rgba(35, 39, 27, 0.12);
+  --clive-border-strong: rgba(35, 39, 27, 0.22);
+  --clive-accent: #6E7B52;
+  --clive-accent-soft: rgba(110, 123, 82, 0.14);
+  --clive-accent-line: rgba(110, 123, 82, 0.50);
+  --clive-glow: rgba(110, 123, 82, 0.20);
+  --clive-warm: #A95A2E;
+  --clive-warm-soft: rgba(169, 90, 46, 0.12);
+  --clive-clive: #A95A2E;
+  --clive-clive-soft: rgba(169, 90, 46, 0.12);
+  --clive-grid: rgba(35, 39, 27, 0.035);
 }
 
 * { box-sizing: border-box; }
@@ -38,29 +32,36 @@ body { margin: 0; }
   background:
     linear-gradient(var(--clive-grid) 1px, transparent 1px) 0 0 / 100% 30px,
     linear-gradient(90deg, var(--clive-grid) 1px, transparent 1px) 0 0 / 30px 100%,
-    radial-gradient(130% 90% at 50% -20%, var(--clive-clive-soft), transparent 55%),
     var(--clive-bg);
   color: var(--clive-text);
+}
+
+.email-shell {
+  max-width: 1180px;
+  margin: 0 auto;
 }
 
 .clive-rule {
   height: 1px;
   border: 0;
   background: linear-gradient(90deg, var(--clive-accent-line), transparent 70%);
-  opacity: 0.7;
+  opacity: 0.85;
 }
 
 .clive-card {
   position: relative;
-  background:
-    linear-gradient(180deg, rgba(231, 209, 173, 0.025), transparent 40%),
-    var(--clive-bg-raised);
+  background: var(--clive-bg-raised);
   border: 1px solid var(--clive-border);
   transition: border-color 0.16s ease, box-shadow 0.16s ease;
 }
 .clive-card:hover {
   border-color: var(--clive-border-strong);
-  box-shadow: 0 0 0 1px var(--clive-accent-soft), 0 8px 30px -12px var(--clive-glow);
+  box-shadow: 0 0 0 1px var(--clive-accent-soft), 0 10px 28px -18px rgba(35, 39, 27, 0.30);
+}
+
+.email-card--expanded {
+  background: var(--clive-message-bg);
+  box-shadow: 0 18px 48px -34px rgba(35, 39, 27, 0.55);
 }
 
 .clive-tab {
@@ -101,6 +102,17 @@ body { margin: 0; }
 }
 .clive-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
+.clive-btn-primary {
+  background: var(--clive-clive);
+  border-color: var(--clive-clive);
+  color: #FAF7ED;
+}
+.clive-btn-primary:hover {
+  background: #95491F;
+  border-color: #95491F;
+  color: #FAF7ED;
+}
+
 .clive-input,
 .clive-select {
   font-family: 'IBM Plex Mono', ui-monospace, monospace;
@@ -118,8 +130,33 @@ body { margin: 0; }
   box-shadow: 0 0 0 1px var(--clive-accent-soft);
 }
 
+.email-reader {
+  max-width: 68ch;
+}
+
+.email-body {
+  font-size: 1rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.email-body p {
+  margin: 0 0 1em;
+}
+
 ::selection { background: var(--clive-accent-soft); color: var(--clive-text); }
 
 .clive-root *::-webkit-scrollbar { width: 8px; height: 8px; }
 .clive-root *::-webkit-scrollbar-track { background: transparent; }
 .clive-root *::-webkit-scrollbar-thumb { background: var(--clive-border-strong); }
+
+@media (max-width: 720px) {
+  .clive-root {
+    padding: 20px !important;
+  }
+
+  .email-search-row {
+    grid-template-columns: 1fr !important;
+  }
+}

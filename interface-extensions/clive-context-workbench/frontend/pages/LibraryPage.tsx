@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { memo, useMemo, useState } from 'react';
 import { LibraryCard } from '../components/LibraryCard';
 import { matchesSearch } from '../utils/cells';
 import { IN_REVIEW_STATUSES, ITEM_STATUS } from '../utils/constants';
@@ -11,7 +11,7 @@ interface LibraryPageProps {
     itemsTable: any;
 }
 
-export const LibraryPage = React.memo(function LibraryPage({ rows, itemsTable }: LibraryPageProps) {
+export const LibraryPage = memo(function LibraryPage({ rows, itemsTable }: LibraryPageProps) {
     const [search, setSearch] = useState('');
     const [packFilter, setPackFilter] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('');
@@ -24,6 +24,10 @@ export const LibraryPage = React.memo(function LibraryPage({ rows, itemsTable }:
     const approvedRows = useMemo(
         () => rows.filter(row => row.status === ITEM_STATUS.APPROVED),
         [rows],
+    );
+    const confirmedCount = useMemo(
+        () => approvedRows.filter(row => row.confirmedByHuman).length,
+        [approvedRows],
     );
 
     const packOptions = useMemo(() => {
@@ -53,38 +57,37 @@ export const LibraryPage = React.memo(function LibraryPage({ rows, itemsTable }:
 
     return (
         <div>
-            <div
-                style={{
-                    marginBottom: space(4),
-                    padding: space(3),
-                    background: colors.bgRaised,
-                    border: `1px solid ${colors.border}`,
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: space(4),
-                    alignItems: 'center',
-                }}
-            >
+            <section className="workbench-page-header">
                 <div>
-                    <div style={microLabel}>Approved (canonical)</div>
-                    <span style={{ fontFamily: fonts.mono, fontSize: '1.1rem', color: colors.success }}>
-                        {approvedRows.length}
-                    </span>
+                    <div style={{ ...microLabel, color: colors.success }}>Approved context library</div>
+                    <h2 style={{ margin: `${space(2)} 0 0`, fontSize: '1.45rem', lineHeight: 1.15, color: colors.text }}>
+                        The shelf Clive is allowed to trust.
+                    </h2>
+                    <p style={{ margin: `${space(2)} 0 0`, fontSize: '0.92rem', color: colors.textMuted, maxWidth: 760, lineHeight: 1.6 }}>
+                        This tab deliberately shows approved records only. Anything still in draft or proposed status belongs in the separate Context Items review queue before it becomes part of the working library.
+                    </p>
                 </div>
-                <div>
-                    <div style={microLabel}>In review</div>
-                    <span style={{ fontFamily: fonts.mono, fontSize: '1.1rem', color: colors.warm }}>
-                        {inReviewCount}
-                    </span>
+                <div className="workbench-stat-grid">
+                    <div className="workbench-stat">
+                        <div style={microLabel}>Approved</div>
+                        <strong style={{ display: 'block', marginTop: space(1), fontFamily: fonts.mono, fontSize: '1.25rem', color: colors.success }}>
+                            {approvedRows.length}
+                        </strong>
+                    </div>
+                    <div className="workbench-stat">
+                        <div style={microLabel}>Confirmed</div>
+                        <strong style={{ display: 'block', marginTop: space(1), fontFamily: fonts.mono, fontSize: '1.25rem', color: colors.text }}>
+                            {confirmedCount}
+                        </strong>
+                    </div>
+                    <div className="workbench-stat">
+                        <div style={microLabel}>In review elsewhere</div>
+                        <strong style={{ display: 'block', marginTop: space(1), fontFamily: fonts.mono, fontSize: '1.25rem', color: colors.warm }}>
+                            {inReviewCount}
+                        </strong>
+                    </div>
                 </div>
-                <p style={{ margin: 0, fontSize: '0.78rem', color: colors.textMuted, flex: '1 1 240px', lineHeight: 1.5 }}>
-                    This library shows
-                    {' '}
-                    <strong style={{ color: colors.text }}>Approved</strong>
-                    {' '}
-                    items only. Published status appears after the Publisher is built — not shown here yet.
-                </p>
-            </div>
+            </section>
 
             {approvedRows.length === 0 ? (
                 <p style={{ fontFamily: fonts.mono, fontSize: '0.82rem', color: colors.textMuted, lineHeight: 1.6 }}>
@@ -95,7 +98,7 @@ export const LibraryPage = React.memo(function LibraryPage({ rows, itemsTable }:
                 </p>
             ) : (
                 <>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: space(3), marginBottom: space(4) }}>
+                    <div className="workbench-filterbar">
                         <label style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: '1 1 200px' }}>
                             <span style={microLabel}>Search</span>
                             <input
@@ -104,7 +107,7 @@ export const LibraryPage = React.memo(function LibraryPage({ rows, itemsTable }:
                                 onChange={e => setSearch(e.target.value)}
                                 placeholder="Title, text, pack…"
                                 className="clive-select"
-                                style={{ fontSize: '0.74rem', padding: '8px 10px' }}
+                                style={{ fontSize: '0.84rem', padding: '10px 12px' }}
                             />
                         </label>
                         <label style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
@@ -113,7 +116,7 @@ export const LibraryPage = React.memo(function LibraryPage({ rows, itemsTable }:
                                 value={packFilter}
                                 onChange={e => setPackFilter(e.target.value)}
                                 className="clive-select"
-                                style={{ fontSize: '0.74rem', padding: '8px 10px' }}
+                                style={{ fontSize: '0.84rem', padding: '10px 12px' }}
                             >
                                 <option value="">All packs</option>
                                 {packOptions.map(pack => (
@@ -127,7 +130,7 @@ export const LibraryPage = React.memo(function LibraryPage({ rows, itemsTable }:
                                 value={categoryFilter}
                                 onChange={e => setCategoryFilter(e.target.value)}
                                 className="clive-select"
-                                style={{ fontSize: '0.74rem', padding: '8px 10px' }}
+                                style={{ fontSize: '0.84rem', padding: '10px 12px' }}
                             >
                                 <option value="">All</option>
                                 {categories.map(category => (
@@ -142,7 +145,7 @@ export const LibraryPage = React.memo(function LibraryPage({ rows, itemsTable }:
                             No approved items match this filter.
                         </p>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: space(4) }}>
+                        <div className="workbench-card-list">
                             {filtered.map(row => (
                                 <LibraryCard key={row.id} row={row} itemsTable={itemsTable} />
                             ))}

@@ -19,6 +19,8 @@ npx block release --remote astrajax
 
 Hard-refresh the **Interface page** (`Cmd+Shift+R`) — not the extension code editor (that stays Hello world).
 
+If you see Hello world on the **live page**: wrong block on the element, or release not run. This extension must use block **`blkN9GDiYsKhWjLzJ`**, not a newly created scaffold. See [`../README.md`](../README.md) for the block ID checklist.
+
 ## Interface setup (two layers)
 
 ### 1. Extension properties

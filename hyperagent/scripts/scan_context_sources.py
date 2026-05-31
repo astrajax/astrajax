@@ -50,6 +50,119 @@ SECRET_RE = re.compile(
 )
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
+# Hyperagent imports bundle skill scripts, but not the surrounding repo tree.
+# Keep the approved Scanner scope in the script so missing workspace files do
+# not force the agent to invent defaults.
+EMBEDDED_CONFIG: dict[str, Any] = {
+    "version": "v0.4-embedded",
+    "agent": "clive-context-scanner",
+    "last_reviewed": "2026-05-31",
+    "mandate": {
+        "role": "Analyst. Look ONLY for context that is genuinely useful to AstraJax as a business, or that would help AI better support TL and Matthew as they work.",
+        "must_state": "Every candidate must carry a one-line context claim and a reason it matters. A file path or excerpt is never, on its own, a candidate.",
+        "silence_is_success": "Most runs should produce few or zero candidates. Surfacing nothing is a correct outcome when nothing durable and useful was found.",
+        "not_an_index": "This agent does not catalogue files. It judges whether material carries a durable, attributable, business-relevant claim.",
+    },
+    "runtime": {
+        "primary": "hyperagent",
+        "mode": "manual_and_scheduled",
+        "schedule_supported": True,
+        "schedule_installed": False,
+        "schedule_label": "com.astrajax.clive-context-scanner",
+        "schedule_channel_id": "C0B6FJUD755",
+        "slack_integration": "native",
+    },
+    "local_sources": {
+        "roots": [
+            "/agent/workspace",
+            "/Users/matthewhopkinson/Documents/AstraJax",
+            "/Users/matthewhopkinson/ds-platform/Context",
+            "/Users/matthewhopkinson/ds-platform/docs",
+            "/Users/matthewhopkinson/ds-platform/training",
+        ],
+        "include_extensions": [".md", ".mdx", ".txt"],
+        "exclude_dirs": [
+            ".git",
+            ".cursor",
+            "node_modules",
+            "dist",
+            "build",
+            ".next",
+            "coverage",
+            ".turbo",
+            ".venv",
+            "__pycache__",
+            "interface-extensions",
+            "Interface_Extensions",
+            "frontend",
+            "components",
+            "hooks",
+            "utils",
+            "public",
+            "assets",
+        ],
+        "exclude_files": [
+            ".env",
+            ".env.local",
+            ".env.production",
+            "package-lock.json",
+            "yarn.lock",
+            "pnpm-lock.yaml",
+        ],
+        "exclude_filename_substrings": ["CHANGELOG", "LICENSE", "tsconfig", "package"],
+        "max_file_bytes": 200000,
+        "max_files_per_run": 400,
+        "max_material_per_run": 60,
+        "comment_extensions": "Prose only. Code, config, and build artefacts are excluded by design.",
+    },
+    "airtable": {
+        "base_id": BASE_ID,
+        "base_name": "AstraJax",
+        "scope": "AstraJax live Airtable only",
+        "table_discovery": "live_meta_api",
+        "source_excluded_tables": ["Context Intake", "Context Items", "Change Log"],
+        "dedupe_tables": ["Context Intake", "Context Items"],
+        "exclude_email_categories": ["Hyperagent Release"],
+        "max_records_per_table": 100,
+        "max_material_per_run": 60,
+        "excluded_base_ids": {
+            "appu8d81k3iWA0IIR": "Activity Staffing System",
+            "appzByRxxMIsdtmxb": "Activity Booking System",
+            "appT5ReusGYT6VVyn": "Performance Analysis System",
+            "appcbUbKvlLayiuo5": "Budget Tracking System",
+            "appaJajcwGgWWHdjC": "Recruitment System",
+            "appWIc1VHoKNKyajQ": "Logistics System",
+            "appZoN6xBB9mDv8h4": "Telesales System",
+            "appz1q20h5FUkSwBr": "Agent Operations",
+        },
+    },
+    "candidate_rules": {
+        "create_statuses": ["New", "Needs clarification", "Possible duplicate"],
+        "submitted_by": "Other",
+        "source_interface": "Other",
+        "next_owner": "Matthew",
+        "reasoning_prefix": "Created by Clive Context Scanner",
+        "quality_bar": [
+            "durable",
+            "attributable",
+            "business-relevant",
+            "actionable",
+            "stated",
+            "novel",
+        ],
+        "hard_gate": "No claim and reason, no row.",
+    },
+}
+
+EMBEDDED_SCHEMA: dict[str, Any] = {
+    "version": "v2-embedded-minimal",
+    "base_id": BASE_ID,
+    "tables": {
+        "Context Intake": {"id": INTAKE_TABLE_ID, "name": "Context Intake"},
+        "Context Items": {"id": ITEMS_TABLE_ID, "name": "Context Items"},
+    },
+}
+
 
 def fail(message: str, code: int = 1) -> None:
     print(json.dumps({"success": False, "error": message}, ensure_ascii=False))
@@ -125,19 +238,30 @@ def airtable_request(
 
 
 def load_config() -> dict[str, Any]:
-    if not CONFIG_PATH.exists():
-        fail(f"Missing scanner config: {CONFIG_PATH}")
-    config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+    if CONFIG_PATH.exists():
+        config = json.loads(CONFIG_PATH.read_text(encoding="utf-8"))
+        config_source = str(CONFIG_PATH)
+    else:
+        config = json.loads(json.dumps(EMBEDDED_CONFIG))
+        config_source = "embedded"
     base_id = config.get("airtable", {}).get("base_id")
     if base_id != BASE_ID:
         fail(f"Blocked Airtable base: {base_id}. Scanner may only read {BASE_ID}")
+    config["_loaded_from"] = config_source
     return config
 
 
 def load_schema() -> dict[str, Any]:
-    if not SCHEMA_PATH.exists():
-        fail(f"Missing schema: {SCHEMA_PATH}")
-    return json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+    if SCHEMA_PATH.exists():
+        schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+        schema_source = str(SCHEMA_PATH)
+    else:
+        schema = json.loads(json.dumps(EMBEDDED_SCHEMA))
+        schema_source = "embedded"
+    if schema.get("base_id") != BASE_ID:
+        fail(f"Blocked schema base: {schema.get('base_id')}. Scanner may only read {BASE_ID}")
+    schema["_loaded_from"] = schema_source
+    return schema
 
 
 def sha256(text: str) -> str:
@@ -432,6 +556,7 @@ def main() -> None:
     args = parser.parse_args()
 
     config = load_config()
+    schema = load_schema()
     batch_id = now_batch_id()
     intake_titles, source_links, fingerprints, intake_hashes = read_intake_index(args.max_existing)
     item_titles, item_hashes = read_item_index(args.max_existing)
@@ -473,6 +598,8 @@ def main() -> None:
         "stats": {
             **local_stats,
             **airtable_stats,
+            "config_source": config.get("_loaded_from"),
+            "schema_source": schema.get("_loaded_from"),
             "material_total": len(all_material),
             "material_new": new_count,
             "material_duplicate": len(all_material) - new_count,

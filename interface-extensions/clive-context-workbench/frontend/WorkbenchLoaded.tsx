@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { TabBar } from './components/TabBar';
 import { FleetPage } from './pages/FleetPage';
 import { LibraryPage } from './pages/LibraryPage';
@@ -30,9 +30,9 @@ export function WorkbenchLoaded({ agentsTable, itemsTable, changeLogTable }: Wor
 
     const dataLoading = agents === null || items === null || changeLog === null;
 
-    const agentRows = agents ?? [];
-    const itemRows = items ?? [];
-    const changeLogRows = changeLog ?? [];
+    const agentRows = useMemo(() => agents ?? [], [agents]);
+    const itemRows = useMemo(() => items ?? [], [items]);
+    const changeLogRows = useMemo(() => changeLog ?? [], [changeLog]);
 
     const approvedCount = useMemo(
         () => itemRows.filter(row => row.status === ITEM_STATUS.APPROVED).length,
@@ -41,6 +41,14 @@ export function WorkbenchLoaded({ agentsTable, itemsTable, changeLogTable }: Wor
     const inReviewCount = useMemo(
         () => itemRows.filter(row => IN_REVIEW_STATUSES.includes(row.status as typeof IN_REVIEW_STATUSES[number])).length,
         [itemRows],
+    );
+    const activeAgentCount = useMemo(
+        () => agentRows.filter(row => row.status === 'Active').length,
+        [agentRows],
+    );
+    const agentsWithoutRepoPath = useMemo(
+        () => agentRows.filter(row => !row.repoPath.trim()).length,
+        [agentRows],
     );
 
     const tabs = useMemo(() => ([
@@ -75,51 +83,109 @@ export function WorkbenchLoaded({ agentsTable, itemsTable, changeLogTable }: Wor
                 padding: space(6),
             }}
         >
-            <header style={{ marginBottom: space(4) }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: space(3), flexWrap: 'wrap' }}>
-                    <h1
-                        style={{
-                            margin: 0,
-                            fontSize: '1.25rem',
-                            fontWeight: 600,
-                            letterSpacing: '0.04em',
-                            textTransform: 'uppercase',
-                            color: colors.text,
-                        }}
-                    >
-                        Clive
-                        {' '}
-                        <span style={{ color: colors.clive }}>// Workbench</span>
-                    </h1>
-                    <span style={{ ...microLabel, color: colors.clive }}>v1 · read layer</span>
+            <div className="workbench-shell">
+                <header className="workbench-hero">
+                    <section className="workbench-panel">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: space(2), flexWrap: 'wrap' }}>
+                            <span
+                                style={{
+                                    ...microLabel,
+                                    color: colors.clive,
+                                    background: colors.cliveSoft,
+                                    border: `1px solid ${colors.borderStrong}`,
+                                    padding: `${space(1)} ${space(2)}`,
+                                }}
+                            >
+                                Clive Context Workbench
+                            </span>
+                            <span style={{ ...microLabel, color: colors.textDim }}>v1 - context health</span>
+                        </div>
+                        <h1
+                            style={{
+                                margin: `${space(4)} 0 0`,
+                                fontSize: 'clamp(1.8rem, 4vw, 3rem)',
+                                fontWeight: 700,
+                                letterSpacing: '-0.04em',
+                                lineHeight: 1,
+                                color: colors.text,
+                                maxWidth: 760,
+                            }}
+                        >
+                            Keep Clive&apos;s agents, approved context, and paper trail in one place.
+                        </h1>
+                        <p
+                            style={{
+                                margin: `${space(3)} 0 0`,
+                                fontSize: '1rem',
+                                color: colors.textMuted,
+                                maxWidth: 760,
+                                lineHeight: 1.6,
+                            }}
+                        >
+                            This is the maintenance layer. Intake and approval happen elsewhere; this view helps you check the fleet, read the approved library, and spot whether the audit trail still lines up.
+                        </p>
+                        <div className="workbench-flow" aria-label="Workbench workflow">
+                            <div className="workbench-flow-card">
+                                <div style={{ ...microLabel, color: colors.accent }}>1. Agents</div>
+                                <p style={{ margin: `${space(2)} 0 0`, fontSize: '0.84rem', color: colors.textMuted, lineHeight: 1.5 }}>
+                                    Who is running, what they are allowed to read, and which packs they depend on.
+                                </p>
+                            </div>
+                            <div className="workbench-flow-card">
+                                <div style={{ ...microLabel, color: colors.success }}>2. Approved context</div>
+                                <p style={{ margin: `${space(2)} 0 0`, fontSize: '0.84rem', color: colors.textMuted, lineHeight: 1.5 }}>
+                                    The source shelf agents should trust after Matthew has approved the record.
+                                </p>
+                            </div>
+                            <div className="workbench-flow-card">
+                                <div style={{ ...microLabel, color: colors.clive }}>3. Paper trail</div>
+                                <p style={{ margin: `${space(2)} 0 0`, fontSize: '0.84rem', color: colors.textMuted, lineHeight: 1.5 }}>
+                                    What changed, who signed it off, and whether the tamper check passes.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <aside className="workbench-stat-grid" aria-label="Workbench totals">
+                        <div className="workbench-stat">
+                            <div style={microLabel}>Active agents</div>
+                            <strong style={{ display: 'block', marginTop: space(1), fontFamily: fonts.mono, fontSize: '1.5rem', color: colors.success }}>
+                                {activeAgentCount}
+                            </strong>
+                        </div>
+                        <div className="workbench-stat">
+                            <div style={microLabel}>Approved items</div>
+                            <strong style={{ display: 'block', marginTop: space(1), fontFamily: fonts.mono, fontSize: '1.5rem', color: colors.success }}>
+                                {approvedCount}
+                            </strong>
+                        </div>
+                        <div className="workbench-stat">
+                            <div style={microLabel}>In review elsewhere</div>
+                            <strong style={{ display: 'block', marginTop: space(1), fontFamily: fonts.mono, fontSize: '1.5rem', color: colors.warm }}>
+                                {inReviewCount}
+                            </strong>
+                        </div>
+                        <div className="workbench-stat">
+                            <div style={microLabel}>Missing repo path</div>
+                            <strong style={{ display: 'block', marginTop: space(1), fontFamily: fonts.mono, fontSize: '1.5rem', color: agentsWithoutRepoPath > 0 ? colors.warm : colors.textMuted }}>
+                                {agentsWithoutRepoPath}
+                            </strong>
+                        </div>
+                    </aside>
+                </header>
+
+                <div style={{ marginBottom: space(4), overflowX: 'auto' }}>
+                    <TabBar
+                        tabs={tabs}
+                        activeId={activeTab}
+                        onChange={id => setActiveTab(id as WorkbenchTab)}
+                    />
                 </div>
-                <p
-                    style={{
-                        margin: `${space(2)} 0 0`,
-                        fontSize: '0.82rem',
-                        color: colors.textMuted,
-                        maxWidth: 760,
-                        lineHeight: 1.5,
-                    }}
-                >
-                    Fleet roster, approved context library, and change history.
-                    {' '}
-                    {inReviewCount > 0 ? `${inReviewCount} item(s) in review — approve on Context Items first.` : ''}
-                </p>
-                <hr className="clive-rule" style={{ marginTop: space(4) }} />
-            </header>
 
-            <div style={{ marginBottom: space(4), overflowX: 'auto' }}>
-                <TabBar
-                    tabs={tabs}
-                    activeId={activeTab}
-                    onChange={id => setActiveTab(id as WorkbenchTab)}
-                />
+                {activeTab === 'fleet' ? <FleetPage rows={agentRows} agentsTable={agentsTable} /> : null}
+                {activeTab === 'library' ? <LibraryPage rows={itemRows} itemsTable={itemsTable} /> : null}
+                {activeTab === 'changelog' ? <ChangeLogPage rows={changeLogRows} /> : null}
             </div>
-
-            {activeTab === 'fleet' ? <FleetPage rows={agentRows} agentsTable={agentsTable} /> : null}
-            {activeTab === 'library' ? <LibraryPage rows={itemRows} itemsTable={itemsTable} /> : null}
-            {activeTab === 'changelog' ? <ChangeLogPage rows={changeLogRows} /> : null}
         </div>
     );
 }

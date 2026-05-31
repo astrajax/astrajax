@@ -45,7 +45,7 @@ Add in **Vercel → astrajax → Settings → Environment Variables**:
 |----------|----------|---------|
 | `ANTHROPIC_API_KEY` | Yes | Claude API for replies |
 | `AIRTABLE_READ_TOKEN` | Recommended | Live approved Context Items from base `appYv601Oq7fKTCj0` |
-| `CLIVE_MODEL` | No | Override model (default `claude-sonnet-4-20250514`) |
+| `CLIVE_MODEL` | No | Override model (default `claude-sonnet-4-6`) |
 
 Copy `website/.env.example` for local dev. Redeploy after adding keys.
 

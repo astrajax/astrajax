@@ -21,6 +21,7 @@
   },
   "local_sources": {
     "roots": [
+      "/agent/workspace",
       "/Users/matthewhopkinson/Documents/AstraJax",
       "/Users/matthewhopkinson/ds-platform/Context",
       "/Users/matthewhopkinson/ds-platform/docs",

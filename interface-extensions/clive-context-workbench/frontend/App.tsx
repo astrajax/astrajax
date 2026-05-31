@@ -1,4 +1,3 @@
-import React from 'react';
 import { useCustomProperties } from '@airtable/blocks/interface/ui';
 import './styles.css';
 import { getCustomProperties } from './index';
@@ -17,7 +16,7 @@ export function App() {
     if (errorState) {
         return (
             <div className="clive-root" style={{ minHeight: '100%', padding: space(6), fontFamily: fonts.mono, color: colors.danger }}>
-                <span style={microLabel}>// config error</span>
+                <span style={microLabel}>config error</span>
                 <p style={{ marginTop: space(2) }}>{errorState.error.message}</p>
             </div>
         );
@@ -26,7 +25,7 @@ export function App() {
     if (!agentsTable || !itemsTable || !changeLogTable) {
         return (
             <div className="clive-root" style={{ minHeight: '100%', padding: space(6), fontFamily: fonts.mono, color: colors.textMuted }}>
-                <span style={microLabel}>// awaiting source</span>
+                <span style={microLabel}>awaiting source</span>
                 <p style={{ marginTop: space(2) }}>
                     Select Agent Environments, Context Items, and Change Log tables in this extension&apos;s settings.
                 </p>

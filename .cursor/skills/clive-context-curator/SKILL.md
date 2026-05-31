@@ -114,14 +114,18 @@ Use:
 
 ```bash
 python3 audit_context_health.py --target daily
+python3 audit_context_health.py --target curator --repo-root /agent/workspace
 ```
 
 Options:
 
 - `--target`: `daily`, `clive-core`, `agent-factory`, `curator`, `hyperagent-platform`, `approved-context`, `proposed-context`, `context-packs`, `all`
 - `--checks`: comma-separated list from `stale,conflicts,duplicates,unsupported,risky`
+- `--repo-root`: AstraJax checkout (Hyperagent: `/agent/workspace` when repo is attached)
 - `--max-files`: local file cap
 - `--max-records`: Airtable record cap
+
+Exit code 1 with `read_gaps` when zero sources are read. Never treat that as a clean audit.
 
 ## Guardrails
 

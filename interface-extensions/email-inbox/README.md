@@ -4,23 +4,12 @@ Browse captured Gmail in **Emails** (`appYv601Oq7fKTCj0`) by category — same t
 
 ## Block
 
-Create the block once in Airtable, then link this folder:
+Block ID: **`blkEn20927wOhYhKt`** (`.block/remote.json` + `.block/astrajax.remote.json`)
 
-1. AstraJax → **Interfaces** → add **Extension** → **Build a custom extension**.
-2. Copy block ID from URL: `appYv601Oq7fKTCj0/blkXXXXXXXX`.
-3. From this folder:
+Link once if missing:
 
 ```bash
-cd interface-extensions/email-inbox
-npm install
-npx block add-remote appYv601Oq7fKTCj0/blkXXXXXXXX default
-```
-
-Optional base-scoped remote (same pattern as other Clive extensions):
-
-```bash
-cp .block/remote.json .block/astrajax.remote.json
-# Edit astrajax.remote.json → "baseId": "appYv601Oq7fKTCj0"
+npx block add-remote appYv601Oq7fKTCj0/blkEn20927wOhYhKt default
 ```
 
 Once: `npx block set-api-key` (PAT with **block:manage**).
@@ -35,6 +24,8 @@ npx block release --remote astrajax  # if astrajax remote exists
 ```
 
 Hard-refresh the **Interface page** (`Cmd+Shift+R`). Not the in-browser code editor.
+
+If you see Hello world on the **live page**: wrong block on the element, or release not run. This extension must use block **`blkEn20927wOhYhKt`**, not a newly created scaffold. See [`../README.md`](../README.md) for the block ID checklist.
 
 ## Interface setup (two layers)
 

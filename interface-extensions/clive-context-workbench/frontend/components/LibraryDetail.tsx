@@ -1,4 +1,3 @@
-import React from 'react';
 import { BASE_ID } from '../utils/constants';
 import { formatRelative } from '../utils/cells';
 import { colors, fonts, space } from '../utils/theme';
@@ -20,9 +19,9 @@ export function LibraryDetail({ row, itemsTable }: LibraryDetailProps) {
     return (
         <div
             style={{
-                marginTop: space(3),
-                padding: space(3),
-                background: colors.bgInset,
+                marginTop: space(4),
+                padding: space(4),
+                background: '#FFFDF7',
                 border: `1px solid ${colors.border}`,
             }}
         >

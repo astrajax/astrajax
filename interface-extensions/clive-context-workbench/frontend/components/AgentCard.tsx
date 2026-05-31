@@ -95,14 +95,13 @@ export const AgentCard = React.memo(function AgentCard({ row, agentsTable }: Age
 
     return (
         <article
-            className="clive-card"
+            className="clive-card clive-card--focus"
             style={{
-                padding: space(4),
-                paddingLeft: space(5),
-                borderLeft: `2px solid ${statusColor}`,
+                padding: space(5),
+                borderLeft: `4px solid ${statusColor}`,
             }}
         >
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: space(2), alignItems: 'center', marginBottom: space(3) }}>
+            <div className="workbench-card-topline">
                 <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: colors.text }}>
                     {row.agentName || 'Unnamed agent'}
                 </h3>
@@ -128,72 +127,113 @@ export const AgentCard = React.memo(function AgentCard({ row, agentsTable }: Age
                 ) : null}
             </div>
 
-            <p style={{ margin: `0 0 ${space(3)}`, fontSize: '0.84rem', color: colors.textMuted, lineHeight: 1.55 }}>
+            <p style={{ margin: `0 0 ${space(4)}`, fontSize: '0.95rem', color: colors.textMuted, lineHeight: 1.6, maxWidth: 820 }}>
                 {row.purpose || '—'}
             </p>
 
-            {row.repoPath ? (
-                <div
-                    style={{
-                        marginBottom: space(3),
-                        padding: space(3),
-                        background: colors.cliveSoft,
-                        border: `1px solid ${colors.clive}44`,
-                    }}
-                >
-                    <div style={microLabel}>Repo path — edit in Cursor only</div>
-                    <a
-                        href={repoUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                            display: 'inline-block',
-                            marginTop: space(2),
-                            fontFamily: fonts.mono,
-                            fontSize: '0.78rem',
-                            color: colors.clive,
-                            wordBreak: 'break-all',
-                        }}
-                    >
-                        {row.repoPath}
-                    </a>
-                    <p style={{ margin: `${space(2)} 0 0`, fontSize: '0.72rem', color: colors.textDim }}>
-                        System prompts and skills live in the repo, not in Airtable. Open the path in GitHub, then edit in Cursor.
-                    </p>
-                </div>
-            ) : (
-                <p style={{ margin: `0 0 ${space(3)}`, fontSize: '0.78rem', color: colors.warm }}>
-                    No Repo Path set — add one on the Agent Environment record.
-                </p>
-            )}
-
-            {row.packNames.length > 0 ? (
-                <div style={{ marginBottom: space(3) }}>
-                    <div style={microLabel}>Linked context packs</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: space(2), marginTop: space(2) }}>
-                        {row.packNames.map(pack => (
-                            <span
-                                key={pack}
+            <div
+                className="agent-card-main"
+                style={{
+                    gap: space(4),
+                }}
+            >
+                <div>
+                    {row.repoPath ? (
+                        <div
+                            style={{
+                                marginBottom: space(3),
+                                padding: space(3),
+                                background: colors.cliveSoft,
+                                border: `1px solid ${colors.clive}44`,
+                            }}
+                        >
+                            <div style={microLabel}>Repo path - edit in Cursor only</div>
+                            <a
+                                href={repoUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
                                 style={{
+                                    display: 'inline-block',
+                                    marginTop: space(2),
                                     fontFamily: fonts.mono,
-                                    fontSize: '0.68rem',
-                                    padding: '3px 8px',
-                                    border: `1px solid ${colors.border}`,
-                                    color: colors.textMuted,
+                                    fontSize: '0.82rem',
+                                    color: colors.clive,
+                                    wordBreak: 'break-all',
                                 }}
                             >
-                                {pack}
-                            </span>
-                        ))}
-                    </div>
-                </div>
-            ) : (
-                <p style={{ margin: `0 0 ${space(3)}`, fontSize: '0.78rem', color: colors.warm }}>
-                    No Context Packs linked.
-                </p>
-            )}
+                                {row.repoPath}
+                            </a>
+                            <p style={{ margin: `${space(2)} 0 0`, fontSize: '0.76rem', color: colors.textDim, lineHeight: 1.45 }}>
+                                System prompts and skills live in the repo, not in Airtable. Open the path in GitHub, then edit in Cursor.
+                            </p>
+                        </div>
+                    ) : (
+                        <p style={{ margin: `0 0 ${space(3)}`, fontSize: '0.84rem', color: colors.warm }}>
+                            No Repo Path set. Add one on the Agent Environment record so future reviews have a source to inspect.
+                        </p>
+                    )}
 
-            <div style={{ display: 'grid', gap: space(3) }}>
+                    {row.packNames.length > 0 ? (
+                        <div>
+                            <div style={microLabel}>Linked context packs</div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: space(2), marginTop: space(2) }}>
+                                {row.packNames.map(pack => (
+                                    <span
+                                        key={pack}
+                                        style={{
+                                            fontFamily: fonts.mono,
+                                            fontSize: '0.72rem',
+                                            padding: '4px 9px',
+                                            border: `1px solid ${colors.border}`,
+                                            background: colors.bgRaised,
+                                            color: colors.textMuted,
+                                        }}
+                                    >
+                                        {pack}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <p style={{ margin: `0 0 ${space(3)}`, fontSize: '0.84rem', color: colors.warm }}>
+                            No Context Packs linked.
+                        </p>
+                    )}
+                </div>
+
+                <aside
+                    style={{
+                        padding: space(3),
+                        background: colors.bgRaised,
+                        border: `1px solid ${colors.border}`,
+                    }}
+                >
+                    <div style={microLabel}>Config health</div>
+                    <div
+                        style={{
+                            display: 'grid',
+                            gap: space(3),
+                            marginTop: space(3),
+                            fontFamily: fonts.mono,
+                            fontSize: '0.78rem',
+                            color: colors.textMuted,
+                        }}
+                    >
+                        <div>
+                            <span style={microLabel}>Owner</span>
+                            <br />
+                            {row.owner || '—'}
+                        </div>
+                        <div>
+                            <span style={microLabel}>Last config review</span>
+                            <br />
+                            {row.lastConfigReview ? formatRelative(row.lastConfigReview) : 'Never'}
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: space(3), marginTop: space(4) }}>
                 <DisplayOnlyBlock label="Runtime environment" value={row.runtimeEnvironment} />
                 <DisplayOnlyBlock label="Skills" value={row.skills} />
                 <DisplayOnlyBlock label="Tool permissions" value={row.toolPermissions} />
@@ -242,13 +282,6 @@ export const AgentCard = React.memo(function AgentCard({ row, agentsTable }: Age
                         </p>
                     </div>
                 ) : null}
-
-                <div>
-                    <div style={microLabel}>Last config review</div>
-                    <span style={{ fontFamily: fonts.mono, fontSize: '0.78rem', color: colors.textMuted }}>
-                        {row.lastConfigReview ? formatRelative(row.lastConfigReview) : 'Never'}
-                    </span>
-                </div>
 
                 {canWrite ? (
                     <>

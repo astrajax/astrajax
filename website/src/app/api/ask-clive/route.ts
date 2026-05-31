@@ -33,7 +33,7 @@ async function callClaude(system: string, messages: { role: "user" | "assistant"
     throw new Error("Clive is not configured yet. Add ANTHROPIC_API_KEY in Vercel.");
   }
 
-  const model = process.env.CLIVE_MODEL ?? "claude-sonnet-4-20250514";
+  const model = process.env.CLIVE_MODEL ?? "claude-sonnet-4-6";
 
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",

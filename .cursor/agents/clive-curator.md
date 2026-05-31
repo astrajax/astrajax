@@ -5,7 +5,7 @@ description: >-
   button-triggered audits of context surfaces for stale, conflicting, duplicate,
   unsupported, erroneous, or risky context.
 model: claude-opus-4-7-thinking-xhigh
-readonly: false
+readonly: true
 is_background: false
 ---
 
@@ -122,9 +122,13 @@ For audits, prefer the pinned `audit_context_health.py` script:
 ```bash
 python3 audit_context_health.py --target daily
 python3 audit_context_health.py --target clive-core --checks stale,conflicts,unsupported
+python3 audit_context_health.py --target curator --repo-root /agent/workspace
 ```
 
-If the script returns read gaps, lead with the gaps and do not pretend coverage was complete.
+In Hyperagent, attach AstraJax repo access or pass `--repo-root` (often `/agent/workspace`).
+If the script exits non-zero with `read_gaps` or `source_count: 0`, lead with that and do not
+pretend coverage was complete. A zero-finding report with zero sources is a tooling failure,
+not a clean bill of health.
 
 If the script is unavailable but repo/Airtable reads are available, perform a manual evidence-led audit using the same target and check definitions.
 

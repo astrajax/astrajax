@@ -27,12 +27,11 @@ export const EmailCard = React.memo(function EmailCard({ row }: EmailCardProps) 
 
     return (
         <article
-            className="clive-card"
+            className={`clive-card${expanded ? ' email-card--expanded' : ''}`}
             style={{
-                padding: space(4),
-                paddingLeft: space(5),
+                padding: space(5),
                 fontFamily: fonts.sans,
-                borderLeft: `2px solid ${categoryColor}`,
+                borderLeft: `4px solid ${categoryColor}`,
             }}
         >
             <div
@@ -79,7 +78,7 @@ export const EmailCard = React.memo(function EmailCard({ row }: EmailCardProps) 
                 ) : null}
 
                 {row.hasAttachments ? (
-                    <span style={{ ...microLabel, textTransform: 'none', letterSpacing: 0 }}>
+                    <span style={{ ...microLabel, textTransform: 'none', letterSpacing: 0, color: colors.textMuted }}>
                         Attachment
                     </span>
                 ) : null}
@@ -92,10 +91,12 @@ export const EmailCard = React.memo(function EmailCard({ row }: EmailCardProps) 
             <h3
                 style={{
                     margin: 0,
-                    fontSize: '1rem',
-                    fontWeight: 600,
+                    fontSize: 'clamp(1.15rem, 2vw, 1.45rem)',
+                    fontWeight: 700,
                     color: colors.text,
-                    lineHeight: 1.35,
+                    lineHeight: 1.2,
+                    letterSpacing: '-0.02em',
+                    maxWidth: '70ch',
                 }}
             >
                 {row.subject || '(No subject)'}
@@ -104,16 +105,24 @@ export const EmailCard = React.memo(function EmailCard({ row }: EmailCardProps) 
             <p
                 style={{
                     margin: `${space(2)} 0 0`,
-                    fontSize: '0.78rem',
+                    fontSize: '0.92rem',
                     color: colors.clive,
-                    fontFamily: fonts.mono,
+                    fontWeight: 600,
                     wordBreak: 'break-word',
                 }}
             >
                 {row.from || row.fromEmail || 'Unknown sender'}
             </p>
 
-            <p style={{ margin: `${space(2)} 0 0`, fontSize: '0.84rem', color: colors.textMuted, lineHeight: 1.55 }}>
+            <p
+                style={{
+                    margin: `${space(3)} 0 0`,
+                    fontSize: '1rem',
+                    color: colors.textMuted,
+                    lineHeight: 1.6,
+                    maxWidth: '68ch',
+                }}
+            >
                 {truncate(preview, 280)}
             </p>
 
@@ -130,11 +139,15 @@ export const EmailCard = React.memo(function EmailCard({ row }: EmailCardProps) 
                 <button
                     type="button"
                     onClick={() => setExpanded(!expanded)}
-                    className="clive-btn"
-                    style={{ fontSize: '0.7rem', padding: `${space(2)} ${space(3)}` }}
+                    className={`clive-btn${expanded ? '' : ' clive-btn-primary'}`}
+                    style={{
+                        fontSize: '0.72rem',
+                        minHeight: 44,
+                        padding: `${space(2)} ${space(4)}`,
+                    }}
                     aria-expanded={expanded}
                 >
-                    {expanded ? 'Hide details' : 'Show details'}
+                    {expanded ? 'Close reader' : 'Read message'}
                 </button>
 
                 {row.gmailLink ? (
@@ -144,8 +157,9 @@ export const EmailCard = React.memo(function EmailCard({ row }: EmailCardProps) 
                         rel="noopener noreferrer"
                         className="clive-btn"
                         style={{
-                            fontSize: '0.7rem',
-                            padding: `${space(2)} ${space(3)}`,
+                            fontSize: '0.72rem',
+                            minHeight: 44,
+                            padding: `${space(2)} ${space(4)}`,
                             textDecoration: 'none',
                             display: 'inline-flex',
                             alignItems: 'center',

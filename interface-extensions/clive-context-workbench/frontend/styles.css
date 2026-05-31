@@ -35,6 +35,90 @@ body { margin: 0; }
   color: var(--clive-text);
 }
 
+.workbench-shell {
+  max-width: 1220px;
+  margin: 0 auto;
+}
+
+.workbench-hero {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.4fr) minmax(260px, 0.8fr);
+  gap: 24px;
+  align-items: stretch;
+  margin-bottom: 24px;
+}
+
+.workbench-panel {
+  background: var(--clive-bg-raised);
+  border: 1px solid var(--clive-border);
+  padding: 18px;
+}
+
+.workbench-flow {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.workbench-flow-card {
+  background: rgba(250, 247, 237, 0.72);
+  border: 1px solid var(--clive-border);
+  padding: 14px;
+}
+
+.workbench-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.workbench-stat {
+  background: var(--clive-bg-raised);
+  border: 1px solid var(--clive-border);
+  padding: 14px;
+}
+
+.workbench-page-header {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(240px, 0.8fr);
+  gap: 16px;
+  align-items: start;
+  margin-bottom: 18px;
+}
+
+.workbench-filterbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+  padding: 14px;
+  background: rgba(250, 247, 237, 0.72);
+  border: 1px solid var(--clive-border);
+}
+
+.workbench-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.workbench-card-topline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.agent-card-main {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(220px, 0.7fr);
+  gap: 16px;
+  align-items: start;
+}
+
 .clive-rule {
   height: 1px;
   border: 0;
@@ -51,6 +135,11 @@ body { margin: 0; }
 .clive-card:hover {
   border-color: var(--clive-border-strong);
   box-shadow: 0 0 0 1px var(--clive-accent-soft), 0 8px 24px -14px rgba(35, 39, 27, 0.18);
+}
+
+.clive-card--focus {
+  background: #FFFDF7;
+  box-shadow: 0 16px 44px -34px rgba(35, 39, 27, 0.42);
 }
 
 .clive-tab {
@@ -128,3 +217,16 @@ body { margin: 0; }
 .clive-root *::-webkit-scrollbar { width: 8px; height: 8px; }
 .clive-root *::-webkit-scrollbar-track { background: transparent; }
 .clive-root *::-webkit-scrollbar-thumb { background: var(--clive-border-strong); }
+
+@media (max-width: 820px) {
+  .clive-root {
+    padding: 20px !important;
+  }
+
+  .workbench-hero,
+  .workbench-page-header,
+  .workbench-flow,
+  .agent-card-main {
+    grid-template-columns: 1fr;
+  }
+}

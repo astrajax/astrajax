@@ -4,28 +4,29 @@ import { brand } from './brand';
 export { brand };
 
 export const colors = {
-    bg: brand.deepMoss,
-    bgRaised: brand.graphiteInk,
-    bgInset: brand.blueberryBlack,
-    bgHover: '#1E211D',
-    border: 'rgba(231, 209, 173, 0.12)',
-    borderStrong: 'rgba(231, 209, 173, 0.28)',
-    text: brand.parchmentDim,
-    textMuted: 'rgba(231, 209, 173, 0.62)',
-    textDim: 'rgba(231, 209, 173, 0.38)',
-    accent: brand.sageSignal,
-    accentText: brand.deepMoss,
-    accentSoft: 'rgba(154, 167, 122, 0.14)',
-    accentLine: 'rgba(154, 167, 122, 0.48)',
-    glow: 'rgba(154, 167, 122, 0.20)',
-    warm: brand.buttermilk,
-    warmSoft: 'rgba(228, 211, 163, 0.14)',
-    clive: brand.burntApricot,
-    cliveSoft: 'rgba(215, 117, 69, 0.14)',
-    success: brand.sageSignal,
-    warning: brand.buttermilk,
-    danger: '#A85A38',
-    muted: 'rgba(231, 209, 173, 0.50)',
+    bg: '#F3EDDB',
+    bgRaised: '#FAF7ED',
+    bgInset: '#EAE2CC',
+    bgHover: 'rgba(35, 39, 27, 0.05)',
+    messageBg: '#FFFDF7',
+    border: 'rgba(35, 39, 27, 0.12)',
+    borderStrong: 'rgba(35, 39, 27, 0.22)',
+    text: '#23271B',
+    textMuted: 'rgba(35, 39, 27, 0.68)',
+    textDim: 'rgba(35, 39, 27, 0.44)',
+    accent: '#6E7B52',
+    accentText: '#FAF7ED',
+    accentSoft: 'rgba(110, 123, 82, 0.14)',
+    accentLine: 'rgba(110, 123, 82, 0.50)',
+    glow: 'rgba(110, 123, 82, 0.20)',
+    warm: '#A95A2E',
+    warmSoft: 'rgba(169, 90, 46, 0.12)',
+    clive: '#A95A2E',
+    cliveSoft: 'rgba(169, 90, 46, 0.12)',
+    success: '#6E7B52',
+    warning: '#A95A2E',
+    danger: '#A23B26',
+    muted: 'rgba(35, 39, 27, 0.50)',
 } as const;
 
 export const fonts = {
@@ -52,11 +53,11 @@ export function emailCategoryColor(category: string | null): string {
         case 'Customer / Sales':
             return colors.warm;
         case 'Finance / Billing':
-            return '#C9A86A';
+            return '#8C6A2E';
         case 'Newsletter / Marketing':
-            return '#8FA4B8';
+            return '#567085';
         case 'Personal':
-            return '#B88FA8';
+            return '#8D5D76';
         case 'Internal / Team':
             return colors.success;
         case 'Notification / System':

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ITEM } from '../utils/constants';
 import { colors, fonts, microLabel, space } from '../utils/theme';
 import { DetailField } from './DetailField';
@@ -49,15 +49,16 @@ export function CanonicalTextEditor({ recordId, value, itemsTable }: CanonicalTe
                     value={draft}
                     disabled={busy}
                     onChange={e => setDraft(e.target.value)}
-                    rows={8}
+                    rows={10}
                     className="clive-select"
                     style={{
-                        fontSize: '0.8rem',
-                        lineHeight: 1.55,
+                        fontSize: '1rem',
+                        lineHeight: 1.65,
                         resize: 'vertical',
-                        minHeight: 120,
+                        minHeight: 180,
                         fontFamily: fonts.sans,
-                        color: colors.textMuted,
+                        color: colors.text,
+                        background: '#FFFDF7',
                     }}
                 />
             </label>
@@ -66,7 +67,7 @@ export function CanonicalTextEditor({ recordId, value, itemsTable }: CanonicalTe
                     type="button"
                     disabled={busy || !dirty}
                     className="clive-btn clive-btn-primary"
-                    style={{ fontSize: '0.7rem', padding: `${space(2)} ${space(3)}` }}
+                    style={{ fontSize: '0.72rem', minHeight: 44, padding: `${space(2)} ${space(4)}` }}
                     onClick={() => save()}
                 >
                     Save text
@@ -76,7 +77,7 @@ export function CanonicalTextEditor({ recordId, value, itemsTable }: CanonicalTe
                         type="button"
                         disabled={busy}
                         className="clive-btn"
-                        style={{ fontSize: '0.7rem', padding: `${space(2)} ${space(3)}` }}
+                        style={{ fontSize: '0.72rem', minHeight: 44, padding: `${space(2)} ${space(4)}` }}
                         onClick={() => setDraft(value)}
                     >
                         Discard

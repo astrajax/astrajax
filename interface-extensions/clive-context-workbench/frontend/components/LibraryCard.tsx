@@ -27,14 +27,13 @@ export const LibraryCard = React.memo(function LibraryCard({ row, itemsTable }: 
 
     return (
         <article
-            className="clive-card"
+            className={`clive-card${expanded ? ' clive-card--focus' : ''}`}
             style={{
-                padding: space(4),
-                paddingLeft: space(5),
-                borderLeft: `2px solid ${statusColor}`,
+                padding: space(5),
+                borderLeft: `4px solid ${statusColor}`,
             }}
         >
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: space(2), alignItems: 'center', marginBottom: space(2) }}>
+            <div className="workbench-card-topline">
                 <span
                     style={{
                         fontFamily: fonts.mono,
@@ -58,11 +57,11 @@ export const LibraryCard = React.memo(function LibraryCard({ row, itemsTable }: 
                 </span>
             </div>
 
-            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: colors.text, lineHeight: 1.35 }}>
+            <h3 style={{ margin: 0, fontSize: '1.18rem', fontWeight: 700, color: colors.text, lineHeight: 1.25, letterSpacing: '-0.02em' }}>
                 {row.title || 'Untitled'}
             </h3>
 
-            <p style={{ margin: `${space(2)} 0 0`, fontSize: '0.84rem', color: colors.textMuted, lineHeight: 1.55 }}>
+            <p style={{ margin: `${space(3)} 0 0`, fontSize: '0.96rem', color: colors.textMuted, lineHeight: 1.65, maxWidth: '76ch' }}>
                 {truncate(row.canonicalText, 320)}
             </p>
 
@@ -73,9 +72,10 @@ export const LibraryCard = React.memo(function LibraryCard({ row, itemsTable }: 
                             key={pack}
                             style={{
                                 fontFamily: fonts.mono,
-                                fontSize: '0.68rem',
-                                padding: '3px 8px',
+                                fontSize: '0.72rem',
+                                padding: '4px 9px',
                                 border: `1px solid ${colors.border}`,
+                                background: colors.bgRaised,
                                 color: colors.textMuted,
                             }}
                         >
@@ -88,9 +88,12 @@ export const LibraryCard = React.memo(function LibraryCard({ row, itemsTable }: 
             <div
                 style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
                     gap: space(3),
-                    marginTop: space(3),
+                    marginTop: space(4),
+                    padding: space(3),
+                    background: colors.bgRaised,
+                    border: `1px solid ${colors.border}`,
                 }}
             >
                 <Meta label="confirmed by" value={row.confirmedByHuman} />
@@ -102,15 +105,15 @@ export const LibraryCard = React.memo(function LibraryCard({ row, itemsTable }: 
                 ) : null}
             </div>
 
-            <div style={{ marginTop: space(3), paddingTop: space(3), borderTop: `1px solid ${colors.border}` }}>
+            <div style={{ marginTop: space(4), paddingTop: space(3), borderTop: `1px solid ${colors.border}` }}>
                 <button
                     type="button"
                     onClick={() => setExpanded(!expanded)}
                     className="clive-btn"
-                    style={{ fontSize: '0.7rem', padding: `${space(2)} ${space(3)}` }}
+                    style={{ fontSize: '0.72rem', minHeight: 44, padding: `${space(2)} ${space(4)}` }}
                     aria-expanded={expanded}
                 >
-                    {expanded ? 'Hide full text' : 'Show full text'}
+                    {expanded ? 'Close canonical text' : 'Open canonical text'}
                 </button>
                 {expanded ? <LibraryDetail row={row} itemsTable={itemsTable} /> : null}
             </div>

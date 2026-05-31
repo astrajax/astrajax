@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useCustomProperties } from '@airtable/blocks/interface/ui';
 import './styles.css';
 import { TabBar } from './components/TabBar';
@@ -28,7 +28,7 @@ export function App() {
     if (errorState) {
         return (
             <div className="clive-root" style={{ minHeight: '100%', padding: space(6), fontFamily: fonts.mono, color: colors.danger }}>
-                <span style={microLabel}>// config error</span>
+                <span style={microLabel}>config error</span>
                 <p style={{ marginTop: space(2) }}>{errorState.error.message}</p>
             </div>
         );
@@ -37,7 +37,7 @@ export function App() {
     if (!emailsTable) {
         return (
             <div className="clive-root" style={{ minHeight: '100%', padding: space(6), fontFamily: fonts.mono, color: colors.textMuted }}>
-                <span style={microLabel}>// awaiting source</span>
+                <span style={microLabel}>awaiting source</span>
                 <p style={{ marginTop: space(2) }}>
                     Select the Emails table in this extension&apos;s settings.
                 </p>
@@ -55,46 +55,58 @@ export function App() {
                 padding: space(6),
             }}
         >
-            <header style={{ marginBottom: space(4) }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: space(3), flexWrap: 'wrap' }}>
+            <div className="email-shell">
+                <header style={{ marginBottom: space(5) }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: space(3), flexWrap: 'wrap' }}>
+                        <span
+                            style={{
+                                ...microLabel,
+                                color: colors.clive,
+                                background: colors.cliveSoft,
+                                border: `1px solid ${colors.borderStrong}`,
+                                padding: `${space(1)} ${space(2)}`,
+                            }}
+                        >
+                            Clive Email Inbox
+                        </span>
+                        <span style={{ ...microLabel, color: colors.textDim }}>v1 - by category</span>
+                    </div>
                     <h1
                         style={{
-                            margin: 0,
-                            fontSize: '1.25rem',
-                            fontWeight: 600,
-                            letterSpacing: '0.04em',
-                            textTransform: 'uppercase',
+                            margin: `${space(3)} 0 0`,
+                            fontSize: 'clamp(1.8rem, 4vw, 3rem)',
+                            fontWeight: 700,
+                            letterSpacing: '-0.04em',
+                            lineHeight: 1,
+                            maxWidth: 760,
                         }}
                     >
-                        Clive
-                        {' '}
-                        <span style={{ color: colors.clive }}>// Email Inbox</span>
+                        Captured email, arranged for quick human review.
                     </h1>
-                    <span style={{ ...microLabel, color: colors.warm }}>v1 · by category</span>
+                    <p
+                        style={{
+                            margin: `${space(3)} 0 0`,
+                            fontSize: '1rem',
+                            color: colors.textMuted,
+                            maxWidth: 720,
+                            lineHeight: 1.6,
+                        }}
+                    >
+                        Gmail lands in Airtable, AI adds a category and summary, then this view gives you the subject, sender, preview, and full body in a readable order.
+                    </p>
+                    <hr className="clive-rule" style={{ marginTop: space(5) }} />
+                </header>
+
+                <div style={{ marginBottom: space(4), overflowX: 'auto' }}>
+                    <TabBar
+                        tabs={tabs}
+                        activeId={activeTab}
+                        onChange={id => setActiveTab(id as CategoryTab)}
+                    />
                 </div>
-                <p
-                    style={{
-                        margin: `${space(2)} 0 0`,
-                        fontSize: '0.82rem',
-                        color: colors.textMuted,
-                        maxWidth: 720,
-                        lineHeight: 1.5,
-                    }}
-                >
-                    All Gmail captured into Airtable. Browse by category, search, and open the full message or jump back to Gmail.
-                </p>
-                <hr className="clive-rule" style={{ marginTop: space(4) }} />
-            </header>
 
-            <div style={{ marginBottom: space(4), overflowX: 'auto' }}>
-                <TabBar
-                    tabs={tabs}
-                    activeId={activeTab}
-                    onChange={id => setActiveTab(id as CategoryTab)}
-                />
+                <InboxPage rows={rows} activeTab={activeTab} />
             </div>
-
-            <InboxPage rows={rows} activeTab={activeTab} />
         </div>
     );
 }

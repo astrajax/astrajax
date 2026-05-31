@@ -1,6 +1,6 @@
 {
   "version": "v2",
-  "generated_at": "2026-05-31T08:59:01.373140+00:00",
+  "generated_at": "2026-05-31T09:58:13.089504+00:00",
   "base_id": "appYv601Oq7fKTCj0",
   "tables": {
     "Context Intake": {
@@ -469,6 +469,158 @@
         }
       },
       "note": "All Gmail via Apps Script webhook. Email Category via Airtable AI structured data (manual UI setup). Scanner reads Hyperagent Release only."
+    },
+    "Video Content": {
+      "id": "tblsqBIu4nH27qcsF",
+      "name": "Video Content",
+      "fields": {
+        "Title": {
+          "id": "fldilE1k4sCQyZzM1",
+          "name": "Title",
+          "type": "singleLineText"
+        },
+        "Video ID": {
+          "id": "fldrUFuovLRXhoqPM",
+          "name": "Video ID",
+          "type": "singleLineText"
+        },
+        "Source URL": {
+          "id": "fldVtXFOLLgqaV40k",
+          "name": "Source URL",
+          "type": "url"
+        },
+        "Platform": {
+          "id": "fld7wA6CtiWz9nwLr",
+          "name": "Platform",
+          "type": "singleSelect"
+        },
+        "Recorded Date": {
+          "id": "fldg9l9M4JYRIVbbV",
+          "name": "Recorded Date",
+          "type": "date"
+        },
+        "Owner": {
+          "id": "fldzL8L1W4MrXlkNd",
+          "name": "Owner",
+          "type": "singleSelect"
+        },
+        "Length Seconds": {
+          "id": "fldaSV7zo38SwkWC0",
+          "name": "Length Seconds",
+          "type": "number"
+        },
+        "Length": {
+          "id": "fldPTC4Xbe7b1P3Tt",
+          "name": "Length",
+          "type": "duration"
+        },
+        "Embed URL": {
+          "id": "fld2TxfWNN4ghh3bP",
+          "name": "Embed URL",
+          "type": "url"
+        },
+        "Transcript Source": {
+          "id": "fldTiLQkG6X5ObEin",
+          "name": "Transcript Source",
+          "type": "singleSelect"
+        },
+        "Transcript": {
+          "id": "fldMQDavIF9LuFbke",
+          "name": "Transcript",
+          "type": "multilineText"
+        },
+        "AI Summary": {
+          "id": "fld1PkCQM8tF45Wr2",
+          "name": "AI Summary",
+          "type": "multilineText"
+        },
+        "Key Claims": {
+          "id": "fldNXzQKKIkXYRbaq",
+          "name": "Key Claims",
+          "type": "multilineText"
+        },
+        "Notable Quotes": {
+          "id": "fldXypvZUjFDvsXqE",
+          "name": "Notable Quotes",
+          "type": "multilineText"
+        },
+        "Transcript Confidence": {
+          "id": "fldDVPkQECFAO1Us3",
+          "name": "Transcript Confidence",
+          "type": "singleSelect"
+        },
+        "Audience": {
+          "id": "fld2KHgfBvaQFtWKA",
+          "name": "Audience",
+          "type": "multipleSelects"
+        },
+        "Website Section": {
+          "id": "fld1b6NXq2FiCOchy",
+          "name": "Website Section",
+          "type": "multipleSelects"
+        },
+        "Funnel Stage": {
+          "id": "fldsb9YQc160cBV7U",
+          "name": "Funnel Stage",
+          "type": "singleSelect"
+        },
+        "Content Role": {
+          "id": "fldbI5qZPmi495dgv",
+          "name": "Content Role",
+          "type": "multipleSelects"
+        },
+        "Publish Status": {
+          "id": "fldJLGBIBZopK0UTA",
+          "name": "Publish Status",
+          "type": "singleSelect"
+        },
+        "Rights Status": {
+          "id": "fldQlNY37t4SZE9QW",
+          "name": "Rights Status",
+          "type": "singleSelect"
+        },
+        "Sensitivity": {
+          "id": "fldv5h9R1PyTm6s1g",
+          "name": "Sensitivity",
+          "type": "singleSelect"
+        },
+        "Redaction Needed": {
+          "id": "fldzznaCtdZBAwAym",
+          "name": "Redaction Needed",
+          "type": "checkbox"
+        },
+        "Last Reviewed": {
+          "id": "fldf2GDDtbUg63jq8",
+          "name": "Last Reviewed",
+          "type": "date"
+        },
+        "Review Notes": {
+          "id": "fldAcfpfW17N87vDv",
+          "name": "Review Notes",
+          "type": "multilineText"
+        },
+        "Scanner Status": {
+          "id": "fld6tq7jiANY0iJ6c",
+          "name": "Scanner Status",
+          "type": "singleSelect"
+        },
+        "Related Intake": {
+          "id": "fldQHBHuxtA8qWdNW",
+          "name": "Related Intake",
+          "type": "multipleRecordLinks"
+        },
+        "Related Context Items": {
+          "id": "fldfcsuG9Hze21imT",
+          "name": "Related Context Items",
+          "type": "multipleRecordLinks"
+        },
+        "Thumbnail": {
+          "id": "fld58UqF804Y58U5q",
+          "name": "Thumbnail",
+          "type": "multipleAttachments"
+        }
+      },
+      "note": "Source library for video transcripts and website selection. Approved claims flow through Context Intake and Context Items."
     }
   },
   "allowed_values": {
@@ -595,6 +747,85 @@
       "Apps Script Gmail",
       "Manual paste",
       "Other"
+    ],
+    "video_platforms": [
+      "YouTube",
+      "Vimeo",
+      "Loom",
+      "Local file",
+      "Other"
+    ],
+    "video_transcript_sources": [
+      "Manual",
+      "Whisper",
+      "YouTube auto",
+      "Other"
+    ],
+    "video_transcript_confidence": [
+      "High",
+      "Medium",
+      "Low",
+      "Unknown"
+    ],
+    "video_audiences": [
+      "Founder",
+      "Commercial leader",
+      "Client prospect",
+      "Internal team",
+      "General public"
+    ],
+    "video_website_sections": [
+      "Hero",
+      "Founder proof",
+      "Problem",
+      "Method",
+      "Proof",
+      "Adoption",
+      "Offers",
+      "Clive",
+      "Audit CTA"
+    ],
+    "video_funnel_stages": [
+      "Awareness",
+      "Consideration",
+      "Decision",
+      "Retention",
+      "Internal"
+    ],
+    "video_content_roles": [
+      "Proof clip",
+      "Explainer",
+      "Testimonial",
+      "Method walkthrough",
+      "Brand story",
+      "Training",
+      "B-roll"
+    ],
+    "video_publish_statuses": [
+      "Draft",
+      "Internal only",
+      "Website ready",
+      "Published",
+      "Archived"
+    ],
+    "video_rights_statuses": [
+      "Owned",
+      "Licensed",
+      "Fair use review",
+      "Restricted",
+      "Unknown"
+    ],
+    "video_sensitivity": [
+      "Public",
+      "Internal",
+      "Confidential",
+      "Client-sensitive"
+    ],
+    "video_scanner_status": [
+      "New",
+      "Reviewed",
+      "Promoted",
+      "Ignored"
     ]
   },
   "write_permissions": {

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -18,9 +19,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# Set in main() via resolve_repo_root(). Default supports local repo runs.
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DEFAULT_OUTPUT_DIR = REPO_ROOT / "hyperagent" / "reports" / "curator"
 DEFAULT_CHECKS = ("stale", "conflicts", "duplicates", "unsupported", "risky")
+LOCAL_ONLY_TARGETS = frozenset({"curator", "agent-factory", "hyperagent-platform"})
+REPO_MARKER = "AGENTS.md"
 
 TARGET_PATTERNS: dict[str, list[str]] = {
     "clive-core": [
@@ -40,11 +43,13 @@ TARGET_PATTERNS: dict[str, list[str]] = {
     "curator": [
         ".cursor/agents/clive-curator.md",
         ".cursor/skills/clive-context-curator/SKILL.md",
-        "agents/cursor/clive/curator/**/*.md",
+        "agents/hyperagent/clive/curator/**/*.md",
+        "agents/cursor/clive/curator/archive/**/*.md",
         "hyperagent/builds/build_clive_curator*.py",
         "hyperagent/exports/agents/agent-clive-curator*.json",
         "hyperagent/exports/skills/skill-clive-context-curator*.json",
-        "hyperagent/schedule/com.astrajax.clive-curator-daily.plist",
+        "hyperagent/docs/clive-curator-webhook-setup.md",
+        "hyperagent/schedule/archive/com.astrajax.clive-curator-daily.plist",
     ],
     "hyperagent-platform": [
         "docs/context/hyperagent-platform.md",
@@ -98,6 +103,40 @@ class Finding:
     why_it_matters: str
     recommended_action: str
     route: str
+
+
+def looks_like_astrajax_repo(path: Path) -> bool:
+    return path.is_dir() and (path / REPO_MARKER).is_file()
+
+
+def resolve_repo_root(explicit: str | None = None) -> tuple[Path, str]:
+    """Pick the AstraJax repo root for local globs.
+
+    Hyperagent bundles skill scripts under /agent/workspace without the full repo
+    tree. Prefer an explicit --repo-root, ASTRAJAX_REPO_ROOT, a parents[2] path
+    that contains AGENTS.md, or /agent/workspace when repo access is attached.
+    """
+    if explicit:
+        resolved = Path(explicit).expanduser().resolve()
+        label = "--repo-root" if looks_like_astrajax_repo(resolved) else "--repo-root (unverified)"
+        return resolved, label
+
+    env_root = os.environ.get("ASTRAJAX_REPO_ROOT")
+    if env_root:
+        resolved = Path(env_root).expanduser().resolve()
+        if looks_like_astrajax_repo(resolved):
+            return resolved, "ASTRAJAX_REPO_ROOT"
+
+    for label, path in (
+        ("script parents[2]", Path(__file__).resolve().parents[2]),
+        ("/agent/workspace", Path("/agent/workspace")),
+    ):
+        resolved = path.resolve()
+        if looks_like_astrajax_repo(resolved):
+            return resolved, label
+
+    fallback = Path(__file__).resolve().parents[2].resolve()
+    return fallback, "script parents[2] (unverified)"
 
 
 def rel(path: Path) -> str:
@@ -367,6 +406,22 @@ def check_unsupported(sources: list[Source], findings: list[Finding]) -> None:
                 )
 
 
+def check_infrastructure(findings: list[Finding]) -> None:
+    """Repo-level checks that do not depend on gathered source text."""
+    active_plist = REPO_ROOT / "hyperagent" / "schedule" / "com.astrajax.clive-curator-daily.plist"
+    if active_plist.is_file():
+        add_findings(
+            findings,
+            "conflicts",
+            rel(active_plist),
+            "Active launchd plist still present alongside Hyperagent V5 scheduledInvocations at 08:00 Europe/London.",
+            "Two daily schedulers for Curator can double-run audits or keep a stale Cursor-era path live.",
+            "Unload launchd job; keep hyperagent/schedule/archive/ copy only. Hyperagent schedule is canonical.",
+            "Matthew",
+            "Medium",
+        )
+
+
 def check_risky(sources: list[Source], findings: list[Finding]) -> None:
     for source in sources:
         lowered = source.text.lower()
@@ -444,6 +499,8 @@ def check_conflicts(sources: list[Source], findings: list[Finding]) -> None:
 def run_checks(sources: list[Source], checks: set[str]) -> list[Finding]:
     findings: list[Finding] = []
     now = datetime.now(timezone.utc)
+    if "conflicts" in checks or "risky" in checks:
+        check_infrastructure(findings)
     if "duplicates" in checks:
         check_duplicates(sources, findings)
     if "stale" in checks:
@@ -470,6 +527,7 @@ def markdown_report(target: str, checks: set[str], sources: list[Source], findin
         f"Checks: `{', '.join(sorted(checks))}`",
         f"Sources read: {len(sources)}",
         f"Findings: {len(findings)}",
+        f"Repo root: `{REPO_ROOT}`",
         "",
         "Safety: audit mode is read-only. This run did not create, approve, publish, demote, or edit context.",
         "",
@@ -521,45 +579,96 @@ def markdown_report(target: str, checks: set[str], sources: list[Source], findin
 
 
 def main() -> None:
+    global REPO_ROOT
     parser = argparse.ArgumentParser(description="Audit context health for Clive Curator")
     parser.add_argument("--target", choices=sorted(TARGET_PATTERNS), default="daily")
     parser.add_argument("--checks", default=",".join(DEFAULT_CHECKS))
     parser.add_argument("--max-files", type=int, default=120)
     parser.add_argument("--max-records", type=int, default=50)
-    parser.add_argument("--output-dir", default=str(DEFAULT_OUTPUT_DIR))
+    parser.add_argument(
+        "--repo-root",
+        default=None,
+        help="AstraJax repo root for local globs (default: ASTRAJAX_REPO_ROOT, script parents, or /agent/workspace).",
+    )
+    parser.add_argument(
+        "--output-dir",
+        default=None,
+        help="Report output directory (default: <repo-root>/hyperagent/reports/curator).",
+    )
     parser.add_argument("--date", default=datetime.now().strftime("%Y-%m-%d"))
     args = parser.parse_args()
+
+    REPO_ROOT, repo_root_source = resolve_repo_root(args.repo_root)
+    output_dir = Path(args.output_dir) if args.output_dir else REPO_ROOT / "hyperagent" / "reports" / "curator"
 
     checks = {item.strip() for item in args.checks.split(",") if item.strip()}
     invalid = checks.difference(DEFAULT_CHECKS)
     if invalid:
         raise SystemExit(f"Unknown checks: {', '.join(sorted(invalid))}")
 
-    sources = collect_local_sources(args.target, args.max_files)
+    local_sources = collect_local_sources(args.target, args.max_files)
     airtable_sources, errors = collect_airtable_sources(args.target, args.max_records)
-    sources.extend(airtable_sources)
-    findings = run_checks(sources, checks)
+    sources = local_sources + airtable_sources
 
-    output_dir = Path(args.output_dir)
+    read_gaps: list[str] = []
+    if not sources:
+        read_gaps.append(
+            "No sources read. This is a read gap, not a clean audit. "
+            f"REPO_ROOT={REPO_ROOT} (resolved from {repo_root_source}). "
+            "Attach the AstraJax repo to the Hyperagent agent, pass --repo-root, or set ASTRAJAX_REPO_ROOT."
+        )
+    elif not local_sources and args.target in LOCAL_ONLY_TARGETS:
+        read_gaps.append(
+            f"Target `{args.target}` requires local repo files but 0 local sources matched. "
+            f"REPO_ROOT={REPO_ROOT} (resolved from {repo_root_source}). "
+            "Airtable is not used for this target."
+        )
+    if not looks_like_astrajax_repo(REPO_ROOT):
+        read_gaps.append(
+            f"REPO_ROOT does not look like an AstraJax checkout (missing {REPO_MARKER}): {REPO_ROOT}"
+        )
+
+    errors = read_gaps + errors
+    findings = run_checks(sources, checks) if sources else []
+
     output_dir.mkdir(parents=True, exist_ok=True)
     md_path = output_dir / f"curator-audit-{args.date}.md"
     json_path = output_dir / f"curator-audit-{args.date}.json"
 
+    ok = not read_gaps and not errors
     payload = {
-        "success": not errors,
+        "success": ok,
         "target": args.target,
         "checks": sorted(checks),
         "date": args.date,
         "generated_at": datetime.now(timezone.utc).isoformat(),
+        "repo_root": str(REPO_ROOT),
+        "repo_root_source": repo_root_source,
+        "repo_verified": looks_like_astrajax_repo(REPO_ROOT),
+        "local_source_count": len(local_sources),
+        "airtable_source_count": len(airtable_sources),
         "source_count": len(sources),
         "read_errors": errors,
+        "read_gaps": read_gaps,
         "findings": [asdict(finding) for finding in findings],
         "markdown_path": str(md_path),
     }
     md_path.write_text(markdown_report(args.target, checks, sources, findings, errors, args.date), encoding="utf-8")
     json_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(json.dumps({"success": payload["success"], "markdown_path": str(md_path), "json_path": str(json_path), "findings": len(findings)}))
-    if errors:
+    print(
+        json.dumps(
+            {
+                "success": payload["success"],
+                "markdown_path": str(md_path),
+                "json_path": str(json_path),
+                "findings": len(findings),
+                "source_count": len(sources),
+                "read_gaps": read_gaps,
+                "repo_root": str(REPO_ROOT),
+            }
+        )
+    )
+    if read_gaps or errors:
         sys.exit(1)
 
 

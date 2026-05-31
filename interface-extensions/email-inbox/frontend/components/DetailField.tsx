@@ -16,10 +16,10 @@ export function DetailField({ label, value, mono, multiline }: DetailFieldProps)
             <div
                 style={{
                     marginTop: 4,
-                    fontSize: '0.8rem',
+                    fontSize: multiline ? '0.92rem' : '0.86rem',
                     color: display === '—' ? colors.textDim : colors.textMuted,
                     fontFamily: mono ? fonts.mono : fonts.sans,
-                    lineHeight: multiline ? 1.55 : 1.4,
+                    lineHeight: multiline ? 1.6 : 1.45,
                     whiteSpace: multiline ? 'pre-wrap' : 'normal',
                     wordBreak: 'break-word',
                 }}
@@ -40,7 +40,7 @@ export function DetailSection({ title, children }: DetailSectionProps) {
         <div
             style={{
                 marginTop: space(3),
-                paddingTop: space(3),
+                paddingTop: space(4),
                 borderTop: `1px solid ${colors.border}`,
             }}
         >
@@ -48,7 +48,7 @@ export function DetailSection({ title, children }: DetailSectionProps) {
             <div
                 style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
                     gap: space(3),
                 }}
             >

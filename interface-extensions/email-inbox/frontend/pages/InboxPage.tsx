@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import type { CategoryTab } from '../utils/constants';
 import { matchesSearch } from '../utils/cells';
 import { colors, fonts, microLabel, space } from '../utils/theme';
@@ -41,27 +41,42 @@ export function InboxPage({ rows, activeTab }: InboxPageProps) {
     return (
         <div style={{ fontFamily: fonts.sans }}>
             <div
+                className="email-search-row"
                 style={{
                     display: 'grid',
-                    gridTemplateColumns: 'minmax(240px, 1.6fr) auto',
+                    gridTemplateColumns: 'minmax(260px, 1fr) auto',
                     gap: space(3),
-                    alignItems: 'end',
-                    marginBottom: space(4),
+                    alignItems: 'center',
+                    marginBottom: space(5),
+                    padding: space(3),
+                    background: colors.bgRaised,
+                    border: `1px solid ${colors.border}`,
                 }}
             >
                 <label style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                    <span style={microLabel}>search subject, sender, or body</span>
+                    <span style={microLabel}>search subject, sender, summary, or body</span>
                     <input
                         type="search"
                         value={searchQuery}
                         onChange={event => setSearchQuery(event.target.value)}
                         placeholder="e.g. Hyperagent, invoice, Cursor"
                         className="clive-input"
-                        style={{ fontSize: '0.78rem', padding: '8px 10px', width: '100%' }}
+                        style={{ fontSize: '0.9rem', padding: '12px 14px', width: '100%' }}
                     />
                 </label>
 
-                <span style={{ ...microLabel, paddingBottom: 8 }}>{countLabel}</span>
+                <span
+                    style={{
+                        ...microLabel,
+                        color: colors.textMuted,
+                        justifySelf: 'end',
+                        padding: `${space(2)} ${space(3)}`,
+                        border: `1px solid ${colors.border}`,
+                        background: colors.bgInset,
+                    }}
+                >
+                    {countLabel}
+                </span>
             </div>
 
             {filtered.length === 0 ? (
