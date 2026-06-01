@@ -9,7 +9,7 @@ const steps = [
 
 export function Method() {
   return (
-    <section id="method" className="border-b border-ink/10 bg-moss text-parchment">
+    <section id="method" className="scroll-mt-24 border-b border-ink/10 bg-moss text-parchment">
       <div className="mx-auto max-w-6xl px-6 py-16 lg:py-20">
         <p className="section-label mb-4 text-parchment/60">02 · The method</p>
         <h2 className="font-display max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
