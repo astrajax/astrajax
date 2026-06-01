@@ -5,7 +5,7 @@ import { BOOKING_URL } from "@/lib/site";
 export function Hero() {
   return (
     <section id="story" className="border-b border-ink/10">
-      <div className="mx-auto grid max-w-[90rem] gap-10 px-6 py-20 lg:grid-cols-[0.78fr_1.42fr] lg:items-stretch lg:gap-10 lg:py-28">
+      <div className="mx-auto grid max-w-[96rem] gap-10 px-6 py-20 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.48fr)] lg:items-stretch lg:gap-8 lg:py-28">
         <div className="flex flex-col justify-between gap-10 lg:min-h-[34rem]">
           <div className="space-y-8">
             <p className="section-label">Built with AI, by a non-technical operator</p>
@@ -44,12 +44,12 @@ export function Hero() {
 
         <div
           id="agent-cast"
-          className="flex min-h-0 scroll-mt-24 flex-col justify-center lg:-mr-2 lg:min-h-[38rem] xl:-mr-6"
+          className="flex min-h-0 scroll-mt-24 flex-col justify-center lg:min-h-[34rem] xl:min-w-0 xl:pr-0"
         >
           <h2 className="font-display text-3xl leading-tight font-medium text-ink italic sm:text-4xl lg:text-[2.75rem]">
             The Live Direct Sales Agent Cast
           </h2>
-          <div className="mt-4 lg:mt-5">
+          <div className="mt-4 w-full lg:mt-5">
             <AgentFleetVideo />
           </div>
           <p className="mt-4 text-sm leading-relaxed text-ink-muted/70 italic sm:text-base">
