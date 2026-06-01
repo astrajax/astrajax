@@ -5,11 +5,42 @@ import Link from "next/link";
 import { useEffect, useId, useState } from "react";
 import { BOOKING_URL } from "@/lib/site";
 
-const links = [
-  { href: "/#method", label: "Method" },
-  { href: "/journey", label: "Journey" },
-  { href: "/seeds-of-promise", label: "Seeds" },
+type NavLink = {
+  href: string;
+  label: string;
+  featured?: boolean;
+  hint?: string;
+};
+
+const links: NavLink[] = [
+  { href: "/#method", label: "Method", hint: "How AstraJax works" },
+  {
+    href: "/journey",
+    label: "Journey",
+    featured: true,
+    hint: "The Butternut story",
+  },
+  {
+    href: "/seeds-of-promise",
+    label: "Seeds",
+    featured: true,
+    hint: "Proof on the ground",
+  },
 ];
+
+const featuredLinks = links.filter((link) => link.featured);
+const secondaryLinks = links.filter((link) => !link.featured);
+
+function desktopLinkClass(link: NavLink) {
+  if (link.featured) {
+    return "font-display text-base font-semibold text-ink transition hover:text-apricot";
+  }
+  return "text-base font-medium text-ink-muted transition hover:text-ink";
+}
+
+function mobileFeaturedClass() {
+  return "font-display text-sm font-semibold text-ink transition hover:text-apricot sm:text-base";
+}
 
 function MenuIcon({ open }: { open: boolean }) {
   return (
@@ -62,11 +93,11 @@ export function Nav() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-ink/10 bg-cream/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-3 md:py-4">
+      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 md:py-4">
         <Link
           href="/"
           aria-label="AstraJax home"
-          className="flex items-center gap-2.5 font-display text-lg font-semibold tracking-tight text-ink"
+          className="flex shrink-0 items-center gap-2 font-display text-lg font-semibold tracking-tight text-ink sm:gap-2.5"
           onClick={closeMenu}
         >
           <Image
@@ -80,19 +111,34 @@ export function Nav() {
           <span>AstraJax</span>
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
+        <nav
+          className="hidden flex-1 items-center justify-center gap-8 md:flex"
+          aria-label="Main"
+        >
           {links.map((link) => (
+            <a key={link.href} href={link.href} className={desktopLinkClass(link)}>
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
+        <nav
+          className="flex flex-1 items-center justify-end gap-4 sm:gap-5 md:hidden"
+          aria-label="Featured"
+        >
+          {featuredLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
-              className="text-sm text-ink-muted transition-colors hover:text-ink"
+              className={mobileFeaturedClass()}
+              onClick={closeMenu}
             >
               {link.label}
             </a>
           ))}
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink transition hover:border-ink/30 md:hidden"
@@ -117,19 +163,22 @@ export function Nav() {
       {menuOpen ? (
         <nav
           id={panelId}
-          aria-label="Mobile"
+          aria-label="More"
           className="border-t border-ink/10 bg-cream md:hidden"
         >
-          <div className="mx-auto max-w-6xl px-6 py-4">
+          <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
             <ul className="grid gap-1">
-              {links.map((link) => (
+              {secondaryLinks.map((link) => (
                 <li key={link.href}>
                   <a
                     href={link.href}
-                    className="block rounded-lg px-3 py-3 text-base font-medium text-ink transition hover:bg-ink/5"
+                    className="block rounded-lg px-3 py-3 transition hover:bg-ink/5"
                     onClick={closeMenu}
                   >
-                    {link.label}
+                    <span className="block text-base font-medium text-ink">{link.label}</span>
+                    {link.hint ? (
+                      <span className="mt-0.5 block text-sm text-ink-muted">{link.hint}</span>
+                    ) : null}
                   </a>
                 </li>
               ))}
