@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AgentCastReel } from "@/components/AgentCastReel";
+import { AgentFleetVideo } from "@/components/AgentFleetVideo";
 import { BOOKING_URL } from "@/lib/site";
 
 export function Hero() {
@@ -44,16 +44,15 @@ export function Hero() {
 
         <div
           id="agent-cast"
-          className="card flex min-h-0 scroll-mt-24 flex-col overflow-hidden p-2 sm:p-3 lg:min-h-[34rem]"
+          className="flex min-h-0 scroll-mt-24 flex-col justify-center lg:min-h-[34rem]"
         >
-          <div className="mb-2 flex shrink-0 items-center justify-between gap-3 px-1 sm:mb-3">
-            <p className="section-label">The DS Agent Cast</p>
-            <span className="status-pill status-pill--live">Live</span>
+          <h2 className="font-display text-3xl leading-tight font-medium text-ink italic sm:text-4xl">
+            The Live Direct Sales Agent Cast
+          </h2>
+          <div className="mt-5">
+            <AgentFleetVideo />
           </div>
-          <div className="min-h-0 flex-1">
-            <AgentCastReel />
-          </div>
-          <p className="mt-3 shrink-0 px-1 text-sm text-ink-muted sm:mt-4">
+          <p className="mt-4 text-sm leading-relaxed text-ink-muted/70 italic sm:text-base">
             The gang in motion — operational agents with names, jobs and just enough theatre to
             make people actually use them.
           </p>

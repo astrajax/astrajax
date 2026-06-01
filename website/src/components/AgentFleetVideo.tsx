@@ -21,20 +21,17 @@ export function AgentFleetVideo() {
   }, []);
 
   return (
-    <div className="h-full min-h-[16rem] w-full overflow-hidden rounded-lg border border-ink/10 bg-white sm:min-h-[20rem] lg:min-h-[28rem]">
-      <video
-        ref={videoRef}
-        className="block h-full w-full bg-white object-contain object-center"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        poster="/video/agent-fleet-poster.jpg"
-        aria-label="Screen recording of the Direct Sales agent fleet dashboard with moving character profiles"
-      >
-        <source src="/video/agent-fleet-loop.mp4" type="video/mp4" />
-      </video>
-    </div>
+    <video
+      ref={videoRef}
+      className="block w-full bg-transparent object-contain object-center"
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+      aria-label="Moving gallery of the Direct Sales agent cast"
+    >
+      <source src="/video/direct-sales-agent-cast.mov" type="video/quicktime" />
+    </video>
   );
 }
