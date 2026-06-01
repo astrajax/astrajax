@@ -11,6 +11,7 @@ const links = [
   { href: "/#problem", label: "Problem" },
   { href: "/#method", label: "Method" },
   { href: "/#proof", label: "Proof" },
+  { href: "/#agent-cast", label: "Cast" },
   { href: "/#offers", label: "Offers" },
   { href: "/journey", label: "Journey" },
   { href: "/seeds-of-promise", label: "Seeds" },
