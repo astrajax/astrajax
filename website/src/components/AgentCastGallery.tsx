@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-const agents = [
+export const agents = [
   {
     name: "Professor Iris Mortimer",
     role: "Context Curator",

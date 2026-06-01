@@ -186,6 +186,31 @@ body {
   max-height: 86vh;
 }
 
+@keyframes agent-cast-reel {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.agent-cast-reel {
+  animation: agent-cast-reel 38s linear infinite;
+  will-change: transform;
+}
+
+.agent-cast-reel:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-cast-reel {
+    animation: none;
+  }
+}
+
 .seeds-sage-page {
   background-color: #6e7b52;
   background-image:

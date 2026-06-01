@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { AgentFleetVideo } from "@/components/AgentFleetVideo";
+import { AgentCastReel } from "@/components/AgentCastReel";
 import { BOOKING_URL } from "@/lib/site";
 
 export function Hero() {
@@ -42,16 +42,20 @@ export function Hero() {
           </a>
         </div>
 
-        <div className="card flex min-h-0 flex-col overflow-hidden p-2 sm:p-3 lg:min-h-[34rem]">
+        <div
+          id="agent-cast"
+          className="card flex min-h-0 scroll-mt-24 flex-col overflow-hidden p-2 sm:p-3 lg:min-h-[34rem]"
+        >
           <div className="mb-2 flex shrink-0 items-center justify-between gap-3 px-1 sm:mb-3">
-            <p className="section-label">Agent fleet — production</p>
+            <p className="section-label">The DS Agent Cast</p>
             <span className="status-pill status-pill--live">Live</span>
           </div>
           <div className="min-h-0 flex-1">
-            <AgentFleetVideo />
+            <AgentCastReel />
           </div>
           <p className="mt-3 shrink-0 px-1 text-sm text-ink-muted sm:mt-4">
-            The gang — Bot Fleet from production. The product is the proof.
+            The gang in motion — operational agents with names, jobs and just enough theatre to
+            make people actually use them.
           </p>
         </div>
       </div>
