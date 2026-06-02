@@ -89,6 +89,12 @@ export function Nav() {
     };
   }, [menuOpen]);
 
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   const closeMenu = () => setMenuOpen(false);
 
   return (

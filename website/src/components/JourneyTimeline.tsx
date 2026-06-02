@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BOOKING_URL } from "@/lib/site";
@@ -255,13 +256,31 @@ function ClipPlayer({
   );
 }
 
+const INTRO_KEYNOTE_IMAGE = "/images/journey/airspace-keynote-stage.png";
+
 function IntroCard({ node }: { node: Extract<TimelineNode, { kind: "intro" }> }) {
   return (
-    <article className="timeline-intro-card flex max-h-full w-full flex-col overflow-hidden rounded-xl border border-apricot/30 bg-moss text-parchment shadow-md">
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-6 sm:p-8">
+    <article className="timeline-intro-card relative flex h-full max-h-full w-full flex-col overflow-hidden rounded-xl border border-apricot/30 text-parchment shadow-md">
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <Image
+          src={INTRO_KEYNOTE_IMAGE}
+          alt=""
+          fill
+          priority
+          sizes="(max-width: 640px) 88vw, 46rem"
+          className="scale-105 object-cover object-[center_38%] blur-[1.5px]"
+        />
+        <div className="absolute inset-0 bg-moss/78" />
+        <div className="absolute inset-0 bg-gradient-to-b from-moss/88 via-moss/72 to-moss/92" />
+      </div>
+
+      <div className="timeline-card-scroll relative z-10 flex min-h-0 flex-1 flex-col overflow-y-auto p-6 sm:p-8">
         <span className="inline-block w-fit rounded border border-parchment/20 px-2.5 py-1 font-mono text-[0.625rem] uppercase tracking-wider text-parchment/70">
           {node.label}
         </span>
+        <p className="mt-2 font-mono text-[0.625rem] uppercase tracking-wider text-parchment/50">
+          Airspace keynote · 2026
+        </p>
         <h2 className="mt-5 font-display text-2xl font-semibold leading-snug tracking-tight text-parchment sm:text-3xl">
           {node.headline}
         </h2>
@@ -285,8 +304,8 @@ function IntroCard({ node }: { node: Extract<TimelineNode, { kind: "intro" }> })
 
 function CloseCard({ close }: { close: JourneyClose }) {
   return (
-    <article className="flex max-h-full w-full flex-col overflow-hidden rounded-xl border border-apricot/25 bg-moss text-parchment shadow-sm">
-      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-5">
+    <article className="flex h-full max-h-full w-full flex-col overflow-hidden rounded-xl border border-apricot/25 bg-moss text-parchment shadow-sm">
+      <div className="timeline-card-scroll flex min-h-0 flex-1 flex-col overflow-y-auto p-5">
         <span className="inline-block w-fit rounded border border-parchment/20 px-2 py-0.5 font-mono text-[0.5625rem] uppercase tracking-wider text-parchment/70">
           The close
         </span>
@@ -340,7 +359,7 @@ function TimelineCard({ node, isFocused }: { node: TimelineNode; isFocused?: boo
     node.kind === "beat" ? (clip && !stacked ? node.body.slice(0, 1) : node.body) : [];
 
   const textBlock = (
-    <div className={`flex flex-col ${stacked ? "shrink-0" : "min-h-0 flex-1 overflow-y-auto"} p-4 sm:p-5`}>
+    <div className={`timeline-card-scroll flex flex-col ${stacked ? "shrink-0" : "min-h-0 flex-1 overflow-y-auto"} p-4 sm:p-5`}>
       <span
         className={`inline-block w-fit rounded border px-2 py-0.5 font-mono text-[0.5625rem] uppercase tracking-wider ${
           dark ? "border-parchment/20 text-parchment/70" : "border-ink/15 text-ink-muted"
@@ -384,7 +403,7 @@ function TimelineCard({ node, isFocused }: { node: TimelineNode; isFocused?: boo
 
   return (
     <article
-      className={`flex max-h-full w-full flex-col overflow-hidden ${
+      className={`flex h-full max-h-full w-full flex-col overflow-hidden ${
         stacked ? "min-h-[calc(72vh+16vh*var(--focus,0))]" : ""
       } ${
         dark
@@ -458,7 +477,7 @@ function TimelineColumn({
       </div>
       {connector}
       <div
-        className={`timeline-column-card flex min-h-0 w-full flex-1 justify-center pt-1 ${staggerClass}`}
+        className={`timeline-column-card flex h-full min-h-0 w-full max-h-full flex-1 justify-center pt-1 ${staggerClass}`}
       >
         {content}
       </div>
@@ -471,13 +490,25 @@ export function JourneyTimeline({ intro, acts, close }: JourneyTimelineProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const columnRefs = useRef<(HTMLDivElement | null)[]>([]);
   const rafRef = useRef<number | null>(null);
-  const dragState = useRef<{ active: boolean; startX: number; scrollLeft: number }>({
+  const dragState = useRef<{
+    active: boolean;
+    pending: boolean;
+    startX: number;
+    startY: number;
+    scrollLeft: number;
+    pointerId: number | null;
+  }>({
     active: false,
+    pending: false,
     startX: 0,
+    startY: 0,
     scrollLeft: 0,
+    pointerId: null,
   });
   const [isDragging, setIsDragging] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(0);
+
+  const onIntroLanding = focusedIndex === 0 && nodes[0]?.kind === "intro";
 
   const updateColumnFocus = useCallback(() => {
     const scroller = scrollerRef.current;
@@ -552,33 +583,70 @@ export function JourneyTimeline({ intro, acts, close }: JourneyTimelineProps) {
 
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
-    if (target.closest("a, button, video")) return;
+    if (target.closest("a, button, video, .timeline-card-scroll")) return;
+    if (event.button !== 0) return;
 
     const scroller = scrollerRef.current;
     if (!scroller) return;
 
     dragState.current = {
-      active: true,
+      active: false,
+      pending: true,
       startX: event.clientX,
+      startY: event.clientY,
       scrollLeft: scroller.scrollLeft,
+      pointerId: event.pointerId,
     };
-    setIsDragging(true);
-    scroller.setPointerCapture(event.pointerId);
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     const scroller = scrollerRef.current;
-    if (!scroller || !dragState.current.active) return;
+    if (!scroller) return;
 
-    const delta = event.clientX - dragState.current.startX;
-    scroller.scrollLeft = dragState.current.scrollLeft - delta;
+    const state = dragState.current;
+    if (!state.pending && !state.active) return;
+    if (state.pointerId !== event.pointerId) return;
+
+    if (state.pending) {
+      const deltaX = event.clientX - state.startX;
+      const deltaY = event.clientY - state.startY;
+
+      if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 6) {
+        state.pending = false;
+        state.pointerId = null;
+        return;
+      }
+
+      if (Math.abs(deltaX) <= 6) return;
+
+      state.pending = false;
+      state.active = true;
+      setIsDragging(true);
+      scroller.setPointerCapture(event.pointerId);
+    }
+
+    if (!state.active) return;
+
+    const delta = event.clientX - state.startX;
+    scroller.scrollLeft = state.scrollLeft - delta;
     scheduleFocusUpdate();
   };
 
   const endDrag = (event: React.PointerEvent<HTMLDivElement>) => {
-    dragState.current.active = false;
+    const state = dragState.current;
+    if (state.pointerId !== null && state.pointerId !== event.pointerId) return;
+
+    state.active = false;
+    state.pending = false;
+    state.pointerId = null;
     setIsDragging(false);
-    scrollerRef.current?.releasePointerCapture(event.pointerId);
+
+    try {
+      scrollerRef.current?.releasePointerCapture(event.pointerId);
+    } catch {
+      // Pointer may already be released.
+    }
+
     scheduleFocusUpdate();
   };
 
@@ -631,7 +699,20 @@ export function JourneyTimeline({ intro, acts, close }: JourneyTimelineProps) {
         onPointerLeave={endDrag}
         aria-label="Journey timeline"
       >
-        <div className="relative h-full min-w-max px-6 pt-8 pb-6 sm:px-12 sm:pt-10 sm:pb-8">
+        {onIntroLanding ? (
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 flex justify-end px-6 sm:px-12"
+            aria-hidden
+          >
+            <p className="flex items-center gap-2 font-mono text-[0.6875rem] uppercase tracking-wider text-ink-muted">
+              <span className="hidden sm:inline">Scroll right to begin</span>
+              <span className="sm:hidden">Swipe right</span>
+              <span className="journey-scroll-hint-arrow text-base text-apricot">→</span>
+            </p>
+          </div>
+        ) : null}
+
+        <div className="relative h-full min-w-max px-6 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-12 sm:pt-10 sm:pb-[max(2rem,env(safe-area-inset-bottom))]">
           <div
             className="pointer-events-none absolute inset-x-6 top-[2.125rem] h-px bg-ink/20 sm:inset-x-12 sm:top-[2.375rem]"
             aria-hidden

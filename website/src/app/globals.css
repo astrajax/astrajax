@@ -172,7 +172,13 @@ body {
 }
 
 .timeline-column-card article.timeline-intro-card {
-  min-height: 80vh;
+  min-height: 0;
+}
+
+@media (min-width: 640px) {
+  .timeline-column-card article.timeline-intro-card {
+    min-height: min(72vh, 100%);
+  }
 }
 
 .timeline-column-card {
@@ -180,10 +186,40 @@ body {
   transform-origin: top center;
   transition: transform 0.28s ease-out;
   will-change: transform;
+  min-height: 0;
+  max-height: 100%;
 }
 
 .timeline-column-card article {
-  max-height: 86vh;
+  max-height: 100%;
+  min-height: 0;
+}
+
+.timeline-scroll {
+  touch-action: pan-x;
+}
+
+.timeline-card-scroll {
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+@keyframes journey-scroll-hint {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.55;
+  }
+
+  50% {
+    transform: translateX(0.4rem);
+    opacity: 1;
+  }
+}
+
+.journey-scroll-hint-arrow {
+  animation: journey-scroll-hint 1.5s ease-in-out infinite;
 }
 
 .seeds-sage-page {
