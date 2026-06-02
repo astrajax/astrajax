@@ -36,8 +36,23 @@ REQUIRED_KEYS = (
     "submitted_by",
     "source_interface",
     "next_owner",
-    "suggested_action",
 )
+
+# Live Airtable field fld1uEGF1NLgniofg is multipleSelects (not single select).
+ALLOWED_SUGGESTED_ACTIONS = {
+    "Review and approve",
+    "Ask for more detail",
+    "Add to context pack",
+    "Update agent instruction",
+    "Update skill",
+    "Update GitHub doc or skill",
+    "Update Notion doc",
+    "Create build ticket",
+    "Mark duplicate",
+    "Deprecate old context",
+    "Hold as open question",
+    "Add to context pack (downstream)",
+}
 
 ALLOWED_STATUSES = {
     "New",
@@ -89,6 +104,43 @@ def fail(message: str, code: int = 1) -> None:
     sys.exit(code)
 
 
+def normalize_suggested_action(value: object) -> list[str] | None:
+    """Map intake payload to Airtable multipleSelects values."""
+    if value is None:
+        return None
+
+    if isinstance(value, list):
+        items = value
+    elif isinstance(value, str):
+        stripped = value.strip()
+        if not stripped:
+            return None
+        items = [stripped]
+    else:
+        fail(f"suggested_action must be a string or list, got {type(value).__name__}")
+
+    normalized: list[str] = []
+    for item in items:
+        label = str(item).strip()
+        if not label:
+            continue
+
+        canonical = label
+        if canonical.endswith(" (downstream)"):
+            without_suffix = canonical[: -len(" (downstream)")]
+            if without_suffix in ALLOWED_SUGGESTED_ACTIONS:
+                canonical = without_suffix
+
+        if canonical not in ALLOWED_SUGGESTED_ACTIONS:
+            allowed = ", ".join(sorted(ALLOWED_SUGGESTED_ACTIONS))
+            fail(f"Invalid suggested_action '{label}'. Allowed: {allowed}")
+
+        if canonical not in normalized:
+            normalized.append(canonical)
+
+    return normalized or None
+
+
 def airtable_request(method: str, path: str, data: dict | None = None) -> dict:
     load_dotenv()
     token = token_for_role("write")
@@ -130,8 +182,12 @@ def build_fields(payload: dict) -> dict:
 
     fields["User Confirmation"] = True
 
+    suggested_action = normalize_suggested_action(payload.get("suggested_action"))
+    if suggested_action:
+        fields["Suggested Action"] = suggested_action
+
     for key, airtable_name in FIELD_MAP.items():
-        if key in REQUIRED_KEYS:
+        if key in REQUIRED_KEYS or key == "suggested_action":
             continue
         value = payload.get(key)
         if value is not None and value != "":

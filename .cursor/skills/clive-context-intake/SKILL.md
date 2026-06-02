@@ -90,19 +90,24 @@ Intake must never set: Approved, Rejected, Published, Deployed.
 - Manual (typed directly into Airtable)
 - Other
 
-## Suggested Action (single select)
+## Suggested Action (multiple select — optional)
+
+Leave empty unless Matthew or TL picks one. When set, use exact labels below (no `(downstream)` suffix except where listed). The Airtable field accepts one or more values as an array in the create script.
 
 - Review and approve
 - Ask for more detail
-- Add to context pack (downstream)
-- Update agent instruction (downstream)
-- Update skill (downstream)
-- Update GitHub doc or skill (downstream)
-- Update Notion doc (downstream)
-- Create build ticket (downstream)
+- Add to context pack
+- Update agent instruction
+- Update skill
+- Update GitHub doc or skill
+- Update Notion doc
+- Create build ticket
 - Mark duplicate
 - Deprecate old context
 - Hold as open question
+
+Legacy alias: if you only have a skill draft with `(downstream)` on the end, the create script strips that suffix when the base option exists without it.
+
 
 ## Build fields (set only when Destination = Cursor/GitHub)
 
@@ -125,10 +130,9 @@ Intake must never set: Approved, Rejected, Published, Deployed.
 - Submitted By (`fldV99RVwZLPFOAib`)
 - Source Interface (`flddTgzHg9SPALfFt`)
 - Next Owner (`fldSSBGAB0MbF3C0E`)
-- Suggested Action (`fld1uEGF1NLgniofg`)
 - User Confirmation (`fldbmKaTPteEPEy15`) — true after confirm
 
-Recommended: Secondary Destination, Source Link, Reasoning, Clarifying Questions Asked, Duplicate Candidate Note, build fields when Destination = Cursor/GitHub.
+Recommended: Suggested Action (optional), Secondary Destination, Source Link, Reasoning, Clarifying Questions Asked, Duplicate Candidate Note, build fields when Destination = Cursor/GitHub.
 
 ## Clarifying questions
 
@@ -192,12 +196,11 @@ After the user confirms the draft.
 | `submitted_by` | Submitted By |
 | `source_interface` | Source Interface |
 | `next_owner` | Next Owner |
-| `suggested_action` | Suggested Action |
 | `user_confirmation` | User Confirmation (must be `true`) |
 
 ### Optional JSON keys
 
-`secondary_destination`, `source_link`, `reasoning`, `clarifying_questions_asked`, `duplicate_candidate_note`, `build_surface`, `version_truth`, `suggested_repo`, `suggested_path`, `cursor_handoff_needed`, `github_publish_needed`
+`suggested_action` (string or array; omit to leave blank), `secondary_destination`, `source_link`, `reasoning`, `clarifying_questions_asked`, `duplicate_candidate_note`, `build_surface`, `version_truth`, `suggested_repo`, `suggested_path`, `cursor_handoff_needed`, `github_publish_needed`
 
 On create from Cursor chat: set `source_interface` to **Other** and include `Cursor chat` in `reasoning`.
 
@@ -266,10 +269,11 @@ cancel or drop → reply "Cancelled. Nothing logged." and stop.
 Before Airtable create, verify:
 
 1. All required fields are present and non-empty.
-2. Category, Destination, Confidence, Status, Submitted By, Source Interface, Next Owner, Suggested Action are exact strings from this skill.
-3. User Confirmation is true.
-4. Raw Submission contains the user's exact wording.
-5. Build fields are populated only when Destination = Cursor/GitHub.
+2. Category, Destination, Confidence, Status, Submitted By, Source Interface, Next Owner are exact strings from this skill.
+3. Suggested Action is omitted or uses exact labels from this skill (script sends an array to Airtable).
+4. User Confirmation is true.
+5. Raw Submission contains the user's exact wording.
+6. Build fields are populated only when Destination = Cursor/GitHub.
 
 Prefer field IDs when the integration accepts them; otherwise use exact field names.
 

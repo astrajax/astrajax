@@ -164,7 +164,7 @@ def fields_from_payload(payload: dict[str, Any], batch_id: str) -> dict[str, Any
         f"source_fingerprint={fingerprint} | reason: {reason}"
     )
 
-    payload = {**payload, "suggested_action": action, "reasoning": reasoning}
+    payload = {**payload, "suggested_action": [action], "reasoning": reasoning}
 
     fields: dict[str, Any] = {}
     for key, airtable_name in FIELD_MAP.items():

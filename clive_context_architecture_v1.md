@@ -237,10 +237,11 @@ leave a clean place for it.
 
 ### Clive Scanner
 
-v0.1 is live in Cursor (`clive-context-scanner`). It scans Airtable **Emails**
-(excluding Hyperagent Release), dedupes against Context Intake and Context Items,
-and creates Context Intake records only after Matthew confirms. Hyperagent Release
-traffic stays with Clive Hyperagent Release Scanner.
+v0.4 is live on Hyperagent (`agent-clive-context-scanner-v0_4.json`). It scans
+Airtable **Emails** (excluding Hyperagent Release), dedupes against Context Intake
+and Context Items, and creates Context Intake records only after Matthew confirms.
+A Cursor mirror exists for local dev. Hyperagent Release traffic stays with Clive
+Hyperagent Release Scanner (Cursor-native).
 
 ---
 
@@ -347,15 +348,17 @@ V1 is operational only when these tests pass:
 
 ## 11. Do Not Build Yet
 
-Defer until V1 is stable:
+Defer until the core approval pipeline is stable:
 
-- Scanner automation.
-- Stale-context scans.
+- Stale-context scans beyond Curator V5 scheduled audits.
 - Autonomous GitHub commits or PRs.
 - Automated Notion publishing.
 - Memory creation or demotion.
 - Large batch writes without Matthew review.
 - Multi-model subagent routing.
+
+Note: Context Scanner v0.4 and Curator V5 are live on Hyperagent; they operate
+within the Intake/Proposed boundaries above.
 
 The first win is a boring, inspectable context pipeline. Cleverness comes after
 the audit trail works.

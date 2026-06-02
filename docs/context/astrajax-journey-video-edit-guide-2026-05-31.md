@@ -1,9 +1,11 @@
+> **Working draft — not canonical context.** Stored here until Publisher exists or Matthew approves it as a Context Item.
+
 # AstraJax Journey Video Edit Guide
 
 **Date:** 31 May 2026  
 **Primary source:** `/Users/matthewhopkinson/Downloads/Butternut Box： Building an AI-Powered Sales Operation from the Ground Up.txt`  
 **Reference page:** [AstraJax — The Journey, Timeline v2](https://hyperagent.com/s/2Z8JUkO98EmUG_OxucBUWA)  
-**Reference script:** `docs/context/matthew talk track (3).md`
+**Reference script:** `docs/context/matthew-talk-track-v3.md`
 
 ## Video Source Map
 

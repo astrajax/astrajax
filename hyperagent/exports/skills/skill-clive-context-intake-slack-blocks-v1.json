@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "skill",
-  "exportedAt": "2026-05-30T05:39:44.000Z",
+  "exportedAt": "2026-05-31T16:12:07.000Z",
   "data": {
     "name": "clive-context-intake-slack-blocks",
     "description": "Slack Block Kit confirmation and read-back templates for Clive Intake. Load after draft, before Airtable create.",

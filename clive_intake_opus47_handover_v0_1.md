@@ -1,3 +1,5 @@
+> **Superseded by Context Architecture V1/V2.** Live intake behaviour is governed by `clive_context_architecture_v1.md`, `clive_context_architecture_v2.md`, and `.cursor/skills/clive-context-intake/SKILL.md`. This handover is historical reference only.
+
 # Clive Intake Agent v0.1 — Handover to Opus 4.7
 
 **Owner:** Matthew Hopkinson  

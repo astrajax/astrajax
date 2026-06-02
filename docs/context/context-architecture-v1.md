@@ -6,6 +6,11 @@
 **Primary sources:** `clive_context_architecture_v1.md`,
 `hyperagent/context_architecture_schema_v1.json`.
 
+> **Enforcement:** V2 supersedes V1 approval gates. For human confirmation,
+> provenance, and approver paths, read `context-architecture-v2.md` and
+> `human-approval-path.md`. V1 tables, lifecycle, and write surfaces below
+> remain valid.
+
 ## Purpose
 
 Summarise the V1 schema, status lifecycle, write permissions, and publishing

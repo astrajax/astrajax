@@ -29,12 +29,17 @@ writes outside `Context Intake`.
 
 ### Clive Curator
 
+**Production:** Hyperagent V5 (scheduled and button-triggered context health
+audits). Live import: `agents/hyperagent/clive/curator/LIVE.md`.
+
 Curator reviews intake and canonical context tables, clusters related context,
 exposes conflicts, and creates `Context Items` with `Status = Proposed` only
 after explicit Matthew confirmation.
 
 Curator never approves, rejects, publishes, deploys, writes Change Log entries,
 edits repo files while acting as Curator, or treats proposals as canonical.
+
+Human approval uses V2 paths only — see `human-approval-path.md`.
 
 ### Clive Agent Factory
 
@@ -52,13 +57,21 @@ Publisher is planned. It will read approved Context Items/Packs, prepare exports
 to GitHub/Hyperagent/Notion, append Change Log entries, and stop for Matthew
 approval before any deploy or commit.
 
-### Clive Scanner
+### Clive Context Scanner
 
-v0.1 (Cursor): scans **Emails** for context candidates, dedupes against intake
-and items, routes net-new rows into **Context Intake** after Matthew confirms.
-Skill: `.cursor/skills/clive-context-scanner/SKILL.md`. Script:
-`hyperagent/scripts/scan_context_candidates.py`. Does not handle Hyperagent Release
-emails (see Hyperagent Release Scanner).
+**Production:** Hyperagent v0.4 (manual or daily schedule; native Slack summary
+after scheduled runs). Live import:
+`agents/hyperagent/clive/context-scanner/LIVE.md`.
+
+Scans Airtable **Emails** (excluding Hyperagent Release), dedupes against intake
+and items, and creates **Context Intake** records only after Matthew confirms.
+
+Skill: `.cursor/skills/clive-context-scanner/SKILL.md`. A Cursor mirror exists
+for local dev (`.cursor/agents/clive-context-scanner.md`); production is
+Hyperagent.
+
+Does not handle Hyperagent Release emails — see Clive Hyperagent Release Scanner
+(Cursor-native).
 
 ## Status Gates
 

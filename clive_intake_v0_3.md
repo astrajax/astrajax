@@ -1,3 +1,5 @@
+> **Superseded by Context Architecture V1/V2.** Live intake behaviour is governed by `clive_context_architecture_v1.md`, `clive_context_architecture_v2.md`, and `.cursor/skills/clive-context-intake/SKILL.md`. This draft is historical reference only.
+
 # Clive Intake v0.3 — Implementation-Ready Build Pack
 
 **Product:** Clive by Astrajax

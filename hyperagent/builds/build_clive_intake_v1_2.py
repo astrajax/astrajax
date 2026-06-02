@@ -322,12 +322,11 @@ After the user confirms the draft.
 | `submitted_by` | Submitted By |
 | `source_interface` | Source Interface |
 | `next_owner` | Next Owner |
-| `suggested_action` | Suggested Action |
 | `user_confirmation` | User Confirmation (must be `true`) |
 
 ### Optional JSON keys
 
-`secondary_destination`, `source_link`, `reasoning`, `clarifying_questions_asked`, `duplicate_candidate_note`, `build_surface`, `version_truth`, `suggested_repo`, `suggested_path`, `cursor_handoff_needed`, `github_publish_needed`
+`suggested_action` (string or array; omit to leave blank), `secondary_destination`, `source_link`, `reasoning`, `clarifying_questions_asked`, `duplicate_candidate_note`, `build_surface`, `version_truth`, `suggested_repo`, `suggested_path`, `cursor_handoff_needed`, `github_publish_needed`
 
 On create from Cursor chat: set `source_interface` to **Other** and include `Cursor chat` in `reasoning`.
 
@@ -351,6 +350,25 @@ Matthew and TL submit context in the **Clive Intake Cursor agent** chat.
 """
 
 
+SUGGESTED_ACTION_SECTION = """## Suggested Action (multiple select — optional)
+
+Leave empty unless Matthew or TL picks one. When set, use exact labels below (no `(downstream)` suffix except where listed). The Airtable field accepts one or more values as an array in the create script.
+
+- Review and approve
+- Ask for more detail
+- Add to context pack
+- Update agent instruction
+- Update skill
+- Update GitHub doc or skill
+- Update Notion doc
+- Create build ticket
+- Mark duplicate
+- Deprecate old context
+- Hold as open question
+
+Legacy alias: if you only have a skill draft with `(downstream)` on the end, the create script strips that suffix when the base option exists without it."""
+
+
 def load_base_skill_body() -> str:
     if INTAKE_SKILL_PATH.exists():
         body = json.loads(INTAKE_SKILL_PATH.read_text())["data"]["skillMdBody"]
@@ -371,6 +389,48 @@ def load_base_skill_body() -> str:
     if "## Slack interface" not in body:
         marker = "## Confirmation template"
         body = body.replace(marker, SLACK_INTERFACE_PATCH.strip() + "\n\n" + marker)
+
+    body = re.sub(
+        r"## Suggested Action \(single select\).*?(?=\n## Build fields)",
+        SUGGESTED_ACTION_SECTION + "\n\n",
+        body,
+        count=1,
+        flags=re.DOTALL,
+    )
+
+    body = body.replace(
+        "- Next Owner (`fldSSBGAB0MbF3C0E`)\n"
+        "- Suggested Action (`fld1uEGF1NLgniofg`)\n"
+        "- User Confirmation (`fldbmKaTPteEPEy15`) — true after confirm\n\n"
+        "Recommended: Secondary Destination, Source Link, Reasoning, Clarifying Questions Asked, Duplicate Candidate Note, build fields when Destination = Cursor/GitHub.",
+        "- Next Owner (`fldSSBGAB0MbF3C0E`)\n"
+        "- User Confirmation (`fldbmKaTPteEPEy15`) — true after confirm\n\n"
+        "Recommended: Suggested Action (optional), Secondary Destination, Source Link, Reasoning, Clarifying Questions Asked, Duplicate Candidate Note, build fields when Destination = Cursor/GitHub.",
+    )
+
+    body = body.replace(
+        "2. Category, Destination, Confidence, Status, Submitted By, Source Interface, Next Owner, Suggested Action are exact strings from this skill.\n"
+        "3. User Confirmation is true.\n"
+        "4. Raw Submission contains the user's exact wording.\n"
+        "5. Build fields are populated only when Destination = Cursor/GitHub.",
+        "2. Category, Destination, Confidence, Status, Submitted By, Source Interface, Next Owner are exact strings from this skill.\n"
+        "3. Suggested Action is omitted or uses exact labels from this skill (script sends an array to Airtable).\n"
+        "4. User Confirmation is true.\n"
+        "5. Raw Submission contains the user's exact wording.\n"
+        "6. Build fields are populated only when Destination = Cursor/GitHub.",
+    )
+
+    body = body.replace(
+        "| `next_owner` | Next Owner |\n"
+        "| `suggested_action` | Suggested Action |\n"
+        "| `user_confirmation` | User Confirmation (must be `true`) |\n\n"
+        "### Optional JSON keys\n\n"
+        "`secondary_destination`, `source_link`, `reasoning`, `clarifying_questions_asked`, `duplicate_candidate_note`, `build_surface`, `version_truth`, `suggested_repo`, `suggested_path`, `cursor_handoff_needed`, `github_publish_needed`",
+        "| `next_owner` | Next Owner |\n"
+        "| `user_confirmation` | User Confirmation (must be `true`) |\n\n"
+        "### Optional JSON keys\n\n"
+        "`suggested_action` (string or array; omit to leave blank), `secondary_destination`, `source_link`, `reasoning`, `clarifying_questions_asked`, `duplicate_candidate_note`, `build_surface`, `version_truth`, `suggested_repo`, `suggested_path`, `cursor_handoff_needed`, `github_publish_needed`",
+    )
 
     return body
 

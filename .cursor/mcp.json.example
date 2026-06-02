@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "airtable": {
+      "url": "https://mcp.airtable.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_ASTRAJAX_PAT_HERE"
+      }
+    }
+  }
+}

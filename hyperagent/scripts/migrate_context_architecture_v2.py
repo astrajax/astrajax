@@ -114,12 +114,11 @@ def ensure_env_file() -> None:
     mcp_path = REPO_ROOT / ".cursor" / "mcp.json"
     if not mcp_path.exists():
         raise SystemExit(".env missing and .cursor/mcp.json unavailable")
-    token = (
-        json.loads(mcp_path.read_text(encoding="utf-8"))
-        ["mcpServers"]["airtable-astrajax"]["headers"]["Authorization"]
-        .replace("Bearer ", "")
-        .strip()
-    )
+    mcp = json.loads(mcp_path.read_text(encoding="utf-8"))["mcpServers"]
+    server = mcp.get("airtable") or mcp.get("airtable-astrajax")
+    if not server:
+        raise SystemExit(".cursor/mcp.json missing airtable MCP server")
+    token = server["headers"]["Authorization"].replace("Bearer ", "").strip()
     ENV_PATH.write_text(
         "\n".join(
             [
