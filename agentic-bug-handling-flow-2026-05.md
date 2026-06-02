@@ -424,5 +424,5 @@ Delegation model: `docs/context/ds-build-fix-bot-operating-model-2026-04.md`
 - Build/fix delegation: `docs/context/ds-build-fix-bot-operating-model-2026-04.md`
 - Bot Ops base baseline: `docs/context/bot-operations-architecture-2026-04.md`
 - Fleet current state: `docs/context/bot-fleet-state.md`
-- Trinity pattern (similar human-gate model): `docs/context/trinity-orchestration-pattern-2026-04.md`
+- Trinity pattern (similar human-gate model): `docs/context/trinity-agent-flow.md`
 - Context ops: `docs/context/context-operations-playbook.md`

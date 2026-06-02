@@ -43,8 +43,10 @@
 |---|---|---|---|---|---|---|
 | `SRC-HA-RELATIONSHIP` | `docs/context/Airtable/Hyperagent-Relationship/` | Draft folder | Matthew | Working draft | Current | Founding 500 + Airspace |
 | `SRC-SEEDS-PLAN` | `docs/context/Seeds-of-Promise/` | Draft folder | Matthew | Working draft | Current | Seeds pitch material |
+| `SRC-DRAFT-CONTEXT-FLOW` | `agents/draft/context-processing/` | Draft folder | Matthew | Working draft | Current | Proposed simpler Clive context processing flow |
 | `SRC-JOURNEY-EDIT` | `docs/context/astrajax-journey-video-edit-guide-2026-05-31.md` | Draft doc | Matthew | Working draft | Current | Video edit guide |
 | `SRC-TALK-TRACK` | `docs/context/matthew-talk-track-v3.md` | Draft doc | Matthew | Working draft | Current | Founder talk script |
+| `SRC-CLIVE-TRINITY-FLOW` | `docs/context/trinity-agent-flow.md` | Repo doc | Matthew | Working reference | Current | Proposer / challenger / executor pattern from Claude chat |
 
 ## Bootstrap notes
 

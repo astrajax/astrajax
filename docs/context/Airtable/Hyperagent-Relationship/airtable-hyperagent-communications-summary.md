@@ -60,7 +60,7 @@ All addresses are @airtable.com.
 
 ## The Airspace LA talk and the narrative pivot
 
-- **What it was**: a 20-minute headline keynote in the Customer Studio track, plus an on-site sit-down studio interview for web and social.
+- **What it was**: a 30-minute headline keynote in the Customer Studio track, plus an on-site sit-down studio interview for web and social.
 - **Your working pack**: a Hyperagent page (before-state, system map, agents, interfaces, demo clips), a Notion talk track, and a narrative brief. Proposed hero moments: Weekly Report Bot, Trinity flow, Clive / AI culture-carrying, Staffing / 2026 view, Bonus Bot.
 - **The pivot (agreed 4 May)**: the presentation moved away from Hyperagent-as-product toward the AI-native workflows powered in Airtable, framing agents by what they do and how clean Airtable data powers them. Tool-agnostic by design (see Internal oversight). Your reply to Austin: "All good on the pivot. Honestly it lands better for me too."
 - **How it landed**: Austin described the session as "one of the moments people kept referencing all day." The recording is on YouTube and a social edit of the interview followed on 27 May.

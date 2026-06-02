@@ -36,6 +36,7 @@ agents/
   _template/
     cursor/
     hyperagent/
+  draft/                          ← draft agent designs, not live policy
   cursor/                         ← Cursor-native agents
     clive/
       agent-factory/
@@ -69,5 +70,6 @@ python3 hyperagent/scripts/list_repo_agents.py --platform hyperagent
 ## Governance
 
 - Design new agents with **Clive Agent Factory** (`agents/cursor/clive/agent-factory/`).
+- Use `agents/draft/` for messy early designs before they become build packs.
 - Factory writes registry + runtime artifacts only after explicit Matthew approval.
 - Hyperagent import and git commit stay human actions.

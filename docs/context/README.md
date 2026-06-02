@@ -12,7 +12,7 @@ review, diff, and update them safely.
 | Area | Path | Meaning |
 |---|---|---|
 | **Packs** | Files listed below | Bootstrap or approved context packs agents may treat as canonical *after Matthew approves the underlying Context Items* |
-| **Operational** | `human-approval-path.md`, `email-inbox-setup.md` | Live procedures not yet folded into a named pack |
+| **Operational** | `human-approval-path.md`, `trinity-agent-flow.md`, `email-inbox-setup.md` | Live procedures and agent patterns not yet folded into a named pack |
 | **Working drafts** | `Airtable/`, `Seeds-of-Promise/`, dated one-offs | In-progress material stored here for convenience until Intake → approval → Publisher |
 | **Reference assets** | `clive/screenshots/` | UI evidence for reviews and applications |
 | **Audit mirror** | `audit/` | Append-only Change Log mirror (see `audit/README.md`) |
@@ -30,9 +30,11 @@ Items. When in doubt, prefer the pack files and root architecture docs.
 - `source-registry.md` — source inventory for context surfaces.
 - `hyperagent-platform.md` — current Hyperagent platform constraints and build rules.
 - `hyperagent-releases.json` — raw unverified Hyperagent release log.
+- `trinity-agent-flow.md` — proposer / challenger / executor pattern for high-stakes agent workflows.
 
 ## Working drafts (not canonical)
 
+- `../../agents/draft/context-processing/` — proposed simpler Clive context processing flow and draft agent roles.
 - `Airtable/Hyperagent-Relationship/` — Founding 500 application and Airspace relationship notes.
 - `Seeds-of-Promise/` — Seeds of Promise pitch and plan drafts.
 - `astrajax-journey-video-edit-guide-2026-05-31.md` — journey video edit guide.
