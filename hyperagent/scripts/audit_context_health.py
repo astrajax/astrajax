@@ -44,7 +44,7 @@ TARGET_PATTERNS: dict[str, list[str]] = {
         ".cursor/agents/clive-curator.md",
         ".cursor/skills/clive-context-curator/SKILL.md",
         "agents/hyperagent/clive/curator/**/*.md",
-        "agents/cursor/clive/curator/archive/**/*.md",
+        "agents/cursor/clive/curator/**/*.md",
         "hyperagent/builds/build_clive_curator*.py",
         "hyperagent/exports/agents/agent-clive-curator*.json",
         "hyperagent/exports/skills/skill-clive-context-curator*.json",
