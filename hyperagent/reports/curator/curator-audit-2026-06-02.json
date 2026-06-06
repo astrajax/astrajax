@@ -1,0 +1,90 @@
+{
+  "success": true,
+  "target": "curator",
+  "checks": [
+    "duplicates"
+  ],
+  "date": "2026-06-02",
+  "generated_at": "2026-06-02T05:58:18.378322+00:00",
+  "repo_root": "/Users/matthewhopkinson/Documents/AstraJax",
+  "repo_root_source": "script parents[2]",
+  "repo_verified": true,
+  "local_source_count": 28,
+  "airtable_source_count": 0,
+  "source_count": 28,
+  "read_errors": [],
+  "read_gaps": [],
+  "findings": [
+    {
+      "id": "CUR-20260602-001",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": ".cursor/agents/clive-curator.md, hyperagent/exports/agents/agent-clive-curator-v0_1.json, hyperagent/exports/agents/agent-clive-curator-v1.json, hyperagent/exports/agents/agent-clive-curator-v2.json, hyperagent/exports/agents/agent-clive-curator-v3.json, hyperagent/exports/agents/agent-clive-curator-v4.json",
+      "evidence": "7 sources share title 'clive-curator'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260602-002",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": ".cursor/skills/clive-context-curator/SKILL.md, hyperagent/exports/skills/skill-clive-context-curator-v5.json",
+      "evidence": "2 sources share title 'clive-context-curator'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260602-003",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": "agents/cursor/clive/curator/archive/build-pack-v2.md, agents/cursor/clive/curator/build-pack-v2.md",
+      "evidence": "2 sources share title 'Clive Curator V2 — Build Pack'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260602-004",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": "agents/cursor/clive/curator/archive/build-pack-v3.md, agents/cursor/clive/curator/build-pack-v3.md",
+      "evidence": "2 sources share title 'Clive Curator V3 - Build Pack'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260602-005",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": "agents/cursor/clive/curator/archive/build-pack-v4.md, agents/cursor/clive/curator/build-pack-v4.md",
+      "evidence": "2 sources share title 'Clive Curator V4 - Build Pack'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260602-006",
+      "severity": "Medium",
+      "check": "duplicates",
+      "surface": "hyperagent/builds/build_clive_curator_v0_1.py, hyperagent/builds/build_clive_curator_v1.py, hyperagent/builds/build_clive_curator_v2.py, hyperagent/builds/build_clive_curator_v3.py, hyperagent/builds/build_clive_curator_v4.py, hyperagent/builds/build_clive_curator_v5.py",
+      "evidence": "6 sources share title '!/usr/bin/env python3'.",
+      "why_it_matters": "Duplicate context titles make it unclear which copy is canonical.",
+      "recommended_action": "Choose a canonical copy; mark or archive superseded copies.",
+      "route": "Matthew or Publisher"
+    },
+    {
+      "id": "CUR-20260602-007",
+      "severity": "Low",
+      "check": "duplicates",
+      "surface": "hyperagent/exports/agents/agent-clive-curator-v0_1.json, hyperagent/exports/agents/agent-clive-curator-v1.json, hyperagent/exports/agents/agent-clive-curator-v2.json, hyperagent/exports/agents/agent-clive-curator-v3.json, hyperagent/exports/agents/agent-clive-curator-v4.json, hyperagent/exports/agents/agent-clive-curator-v5.json",
+      "evidence": "6 exports exist for clive-curator.",
+      "why_it_matters": "Multiple exports are acceptable as history, but the live one should be obvious.",
+      "recommended_action": "Mark the current export in the build pack or archive older exports.",
+      "route": "Agent Factory"
+    }
+  ],
+  "markdown_path": "/Users/matthewhopkinson/Documents/AstraJax/hyperagent/reports/curator/curator-audit-2026-06-02.md"
+}
