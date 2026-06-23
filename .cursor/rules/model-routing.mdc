@@ -1,0 +1,34 @@
+---
+description: Model and tool routing for AstraJax — flag when Matthew may be on the wrong one
+alwaysApply: true
+---
+
+# Model & Tool Routing
+
+AstraJax runs on a reason → act split. Match the model to the job, and **flag when the current one looks wrong for the task.**
+
+## The intended split
+
+| Job | Right tool |
+|-----|-----------|
+| Reasoning, strategy, positioning, "should we?" trade-offs | Strong reasoning model (e.g. GPT at max) — the **Clive** lane |
+| Translating an approved decision into precise build instructions | Opus-class model — the **Doc dispatch** lane |
+| Repo work: build, refactor, scaffold, mechanical file ops | Cursor **Composer** (in-IDE or via subagents) — cheap, fast hands |
+| Running deployed agents | **HyperAgent** runtime |
+
+## When to flag Matthew
+
+Proactively say something (briefly, once) if:
+
+- He's doing **heavy reasoning/strategy on a fast coding model** → suggest moving the thinking to a stronger reasoning model.
+- He's burning an **expensive reasoning model on mechanical build/edits** → suggest Cursor/Composer, or offer to hand it to a Composer subagent.
+- A task is **clearly mechanical and repeatable** (file moves, scaffolds, find-replace) → offer to dispatch it to Composer rather than doing it inline.
+- He's about to **run agent/runtime work through the coding lane** → point him back to HyperAgent.
+
+## How to flag
+
+One plain line, not a lecture. Example:
+
+> "Heads up — this is strategy reasoning. Worth doing in GPT-max rather than here, and I'll keep Cursor for the build."
+
+Don't flag on small/ambiguous calls. The goal is protecting his speed and spend, not policing every message.

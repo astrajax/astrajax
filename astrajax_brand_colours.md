@@ -3,7 +3,7 @@
 **Status:** Working colour direction for AstraJax visual identity.
 **Selected route:** Nocturne Orchard — with **Pale Cream** as the primary public surface (Tara Lee / website).
 **Audience:** Matthew, designers, AI assistants, and anyone creating AstraJax visual assets.
-**Companion docs:** `astrajax_positioning.md`, `astrajax_ops_brief.md`, and `AGENTS.md`.
+**Companion docs:** `docs/business/positioning.md`, `astrajax_ops_brief.md`, and `AGENTS.md`.
 **Last updated:** 30 May 2026
 
 ---

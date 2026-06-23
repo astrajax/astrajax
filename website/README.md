@@ -1,6 +1,6 @@
 # AstraJax website shell
 
-V1 marketing site built from Taralee's architecture mockups and `astrajax_positioning.md`. Static export — deploy anywhere that hosts HTML.
+V1 marketing site built from Taralee's architecture mockups and `docs/business/positioning.md`. Static export — deploy anywhere that hosts HTML.
 
 ## What's in the shell
 

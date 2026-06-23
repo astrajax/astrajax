@@ -2,7 +2,7 @@
 
 > Purpose: give any AI assistant the background it needs to help with AstraJax
 > without re-explaining who Matthew is or what the business does.
-> Positioning source of truth: `astrajax_positioning.md`. Internal execution +
+> Positioning source of truth: `docs/business/positioning.md`. Internal execution +
 > AI rules: `astrajax_ops_brief.md`. Do not duplicate them here.
 
 ## Who Matthew is (founder)
@@ -123,7 +123,7 @@ is a genuine edge, not a quirk to sand off.
 
 ## Guardrails
 
-- Stay on the AstraJax thesis (see `astrajax_positioning.md` §10 "What We Are Not"
+- Stay on the AstraJax thesis (see `docs/business/positioning.md` §13 "What We Are Not"
   and `astrajax_ops_brief.md` §3). Do not drift into pet
   businesses, generic lead-gen, broad AI consulting, or "Matthew builds Airtable bases".
 - Default framing: *AstraJax helps commercial teams turn domain expertise into

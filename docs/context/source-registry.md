@@ -8,7 +8,7 @@
 
 | Source ID | Title | Type | Owner | Authority | Freshness | Destination |
 |---|---|---|---|---|---|---|
-| `SRC-AJ-POSITIONING` | `astrajax_positioning.md` | Repo doc | Matthew | Canonical | Current | AstraJax Core Positioning |
+| `SRC-AJ-POSITIONING` | `docs/business/positioning.md` | Repo doc | Matthew | Canonical | Current | AstraJax Core Positioning (old `astrajax_positioning.md` archived in `docs/archive/`) |
 | `SRC-AJ-OPS` | `astrajax_ops_brief.md` | Repo doc | Matthew | Canonical | Current | AstraJax Core Positioning |
 | `SRC-AJ-AGENTS` | `AGENTS.md` | Repo doc | Matthew | Canonical | Current | AstraJax Core Positioning |
 | `SRC-CLIVE-ARCH-V1` | `clive_context_architecture_v1.md` | Repo doc | Matthew | Canonical | Current | Context Architecture V1 |

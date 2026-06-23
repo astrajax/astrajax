@@ -2,7 +2,7 @@
 
 **Status:** V2 internal execution brief for launch priorities, ownership, claim-control, and AI-assistant rules.
 **Audience:** Matthew, TL, and AI assistants working on AstraJax.
-**Companion docs:** `astrajax_positioning.md` (positioning source of truth) and `AGENTS.md` (founder background and proof detail).
+**Companion docs:** `docs/business/positioning.md` (positioning source of truth) and `AGENTS.md` (founder background and proof detail).
 **Last updated:** 29 May 2026
 
 ---
@@ -13,7 +13,7 @@ Use the docs this way:
 
 | Need | Source |
 |------|--------|
-| What AstraJax is, who it helps, offers, method, proof, and messaging | `astrajax_positioning.md` |
+| What AstraJax is, who it helps, offers, method, proof, and messaging | `docs/business/positioning.md` |
 | Matthew's background, proof detail, strengths, working style, and sensitive-info guardrails | `AGENTS.md` |
 | Current priorities, ownership, launch rules, and claim-control | this file |
 | TL onboarding reference (HTML modules in Airtable) | **TL Onboarding** table + `interface-extensions/tl-onboarding` |
@@ -99,7 +99,7 @@ Talk-track figures such as 1,500 employees, 120 sellers, and 7 markets are usefu
 
 ### Website
 
-Use `astrajax_positioning.md` for source language, but make the public site sharper and less caveated. The site should not read like an internal strategy doc.
+Use `docs/business/positioning.md` for source language, but make the public site sharper and less caveated. The site should not read like an internal strategy doc.
 
 Website must communicate:
 
@@ -167,7 +167,7 @@ If TL is unsure whether a claim is public-safe, commercial-strategic, or technic
 
 ## 6. Guidance for AI Assistants
 
-Use `astrajax_positioning.md` as the source of truth for what AstraJax is. Use `AGENTS.md` for founder background and proof detail. Use this file for execution and guardrails.
+Use `docs/business/positioning.md` as the source of truth for what AstraJax is. Use `AGENTS.md` for founder background and proof detail. Use this file for execution and guardrails.
 
 ### Default framing
 

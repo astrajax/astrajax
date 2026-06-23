@@ -1,5 +1,10 @@
 # Clive Context Packs
 
+> **Scope note:** This folder is the **Clive context-engine** — the live operational
+> machinery for the Clive context-curation agents. It is **not** the business
+> positioning or strategy layer. For what AstraJax is, how the product works, and
+> how the company runs, start at `docs/START-HERE.md` and `docs/business/`.
+
 This directory holds versioned Markdown exports of approved or bootstrap context
 packs for Clive by AstraJax.
 
@@ -22,7 +27,7 @@ Items. When in doubt, prefer the pack files and root architecture docs.
 
 ## Packs
 
-- `astrajax-core-positioning.md` — AstraJax positioning, proof, and claim-control.
+- Business positioning now lives in `docs/business/positioning.md` (start at `docs/START-HERE.md`). The former `astrajax-core-positioning.md` pack is archived in `docs/archive/`.
 - `clive-operating-rules.md` — Intake, Curator, Publisher, Scanner boundaries.
 - `model-collaboration.md` — model roles and routing policy.
 - `context-architecture-v1.md` — schema, lifecycle, and governance summary (V1 tables).

@@ -17,7 +17,7 @@ The core split:
 
 > **Clive is the face. Pam is the raised eyebrow. Doc is the hands. Humans keep judgement.**
 
-Clive reasons with the user. Pam Portiscue stress-tests important thinking. Doc turns approved reasoning into structured action. Agent runtimes execute the work.
+Clive reasons with the user. Pam Portiscue stress-tests important thinking. Doc turns approved reasoning into routed action — direct writes, packaging, or Opus → Composer implementation. Agent runtimes execute the work.
 
 ---
 
@@ -46,7 +46,7 @@ No agent should both persuade and write live state.
 In practice:
 
 ```text
-Clive reasons -> Pam challenges when needed -> human approves -> Doc acts -> runtime executes -> humans review -> brain improves
+User brain mapped -> Clive reasons (adapted) -> Pam challenges (calibrated) -> human approves -> Doc routes -> [direct write | Opus -> Composer | package] -> runtime executes -> humans review -> brain improves
 ```
 
 That is the spine of the adoption operating system.
@@ -89,6 +89,8 @@ Clive can draft proposed context and agent ideas, but Clive does not write appro
 
 Clive is deliberately conversational, warm, and accessible. His job is to make the hard thinking feel safe enough to do properly.
 
+Clive adapts to the **user brain** (see Step 0). A domain expert who has never touched a context environment should get plain language, slower assumptions, and more explanation. Someone with strong system-architecture experience can go faster and hear more precise trade-offs. Clive should not treat every user like a beginner, and should not assume expertise the user has not shown.
+
 ### 4.3 Pam Portiscue: Challenger
 
 Pam Portiscue is the sceptical quality layer.
@@ -106,6 +108,8 @@ Pam helps the domain expert and Clive check:
 - whether Doc should be allowed to act yet
 
 Pam should be memorable, sharp, and a little sassy, but never cruel. Her value is scepticism with taste.
+
+Pam's **frequency and entry points** are calibrated by the user brain (see Step 0). A user with low AI or context-environment experience should see Pam earlier and more often — not as punishment, but because agreeable AI drift is most dangerous when the user cannot yet spot it. A user with strong commercial or architecture experience may need Pam less on those domains and more on adoption, narrative, or evidence gaps Pam detects in the thread.
 
 Suggested product language:
 
@@ -153,6 +157,10 @@ Doc should be more operational than charming. He can have character, but his pri
 
 Doc acts only from an approved brief.
 
+**Users do not explore with Doc.** Clive is the conversational face. Pam is the challenger. The human decides. Doc receives the approved outcome and dispatches work. In product UI, Doc should feel like: *"Approved brief received. I'll write it properly and leave a trail."* — not a second open-ended chat partner.
+
+In production, Doc is also a **router**: he chooses the right executor for each approved action — direct structured write, HyperAgent packaging, or an implementation worker (see §9).
+
 ### 4.5 Human Approver
 
 The human approver decides what becomes trusted context or a live configuration.
@@ -199,6 +207,66 @@ AstraJax responsibilities stay upstream:
 
 ## 5. The Product Loop
 
+### Step 0: Build The User Brain
+
+Before the system builds the **business brain**, it builds a lightweight map of **who is sitting in the chair**.
+
+This is not a test. It is a competency and confidence profile that tells Clive how to talk and tells Pam when to step in.
+
+The user brain captures experience and comfort across domains such as:
+
+- AI usage and prompting
+- context environments and knowledge curation
+- system architecture and workflow design
+- coding and technical implementation
+- commercial forecasting and planning
+- data quality and evidence
+- team leadership and change
+- domain-specific work (filled in per client or vertical)
+
+Each domain can be scored simply — for example: **new / comfortable / expert / prefer not to say** — plus optional notes ("strong on ops, weak on prompts").
+
+**What the user brain controls:**
+
+| Signal | Clive behaviour | Pam behaviour |
+|--------|-----------------|---------------|
+| Low AI / prompt experience | More explanation, fewer assumptions, slower pace | More sensitive **contextual** triggers (thin evidence, scope creep); mandatory Pam at action gates — not more frequent turn-count interrupts |
+| Low context-environment experience | Plain language, teach as you go, do not trust vague context claims | Challenge scope and source boundaries when those topics arise, not on a timer |
+| Strong system architecture | Faster trade-off language, less hand-holding | Less challenge on structure; more on adoption and evidence |
+| Strong commercial / domain | Trust domain claims more; ask sharper operational questions | Focus on narrative risk, stakeholder reaction, overconfidence |
+| Expert across the board | Peer-level conversation; skip basics | Mandatory checkpoints still apply before action — expertise does not remove governance |
+
+The user brain is **living**, not one-and-done. It can be updated by:
+
+- self-report at onboarding
+- Clive inference from how the user actually talks and decides
+- manager input (same pattern as Coach Whit: engagement level and technical adeptness set by a lead)
+- outcomes from Pam checkpoints and approval history
+
+**Product principle:**
+
+> **The system adapts to the human before the human adapts to the system.**
+
+Example Clive opener after a light user-brain intake:
+
+```text
+Right — you're strong on commercial planning and you've run teams through change before.
+I'll stay out of your way on the business side. Where I'm going to be more careful
+is context environments and prompt habits — that's where Pam and I will slow you down
+on purpose before anything goes to Doc.
+```
+
+Example Pam calibration note (internal or surfaced lightly):
+
+```text
+User brain: low context-environment experience.
+Contextual Pam sensitivity: high (scope creep, vague sources, over-broad agent brief).
+Turn-count nudge: same as default — only at action boundary, not mid-exploration.
+Mandatory Pam before: canonical context approval, agent creation, Doc handoff.
+```
+
+This step belongs at the **very start of Chapter 1**, before guide selection or business brain work. Without it, Pam's checkpoints are generic and Clive either over-explains or under-protects.
+
 ### Step 1: Pick Your Guide
 
 The user chooses the guide tone and story mode.
@@ -216,6 +284,8 @@ Guide tone examples:
 - playful
 - balanced
 - sober
+
+Guide selection may also be **informed by the user brain** — for example, a user who marks themselves as new to AI might default to Light Story with clearer scaffolding, while an expert may choose No Story without the system second-guessing them.
 
 This is not only branding. Story keeps the experience engaging and keeps scopes tight without making constraints feel disengaging. Underneath, the same roles and guardrails apply.
 
@@ -252,7 +322,23 @@ Pam should be invited when:
 
 Pam does not need to appear for every small interaction. Her job is to make red-teaming feel like a useful social ritual, not a bureaucratic checkpoint.
 
-There should also be a prompt-count checkpoint. After a set number of uninterrupted Clive turns in the same thread, Pam must be invited before the user can approve context, create an agent, or send anything to Doc. The exact threshold can be tuned, but the product principle is fixed:
+**Pam has two trigger types. Do not confuse them.**
+
+1. **Action gates (mandatory):** Before approval, agent creation, deployment, or Doc handoff — Pam is required. Every user. This is governance at meaningful moments, not mid-chat nagging.
+
+2. **Contextual invitations (optional but smart):** Pam is *suggested* when the thread shows risk signals — scope expanding, evidence thin, one-direction drift, strategic recommendation, consequential write/deploy. The user brain adjusts **how sensitive** these suggestions are, not how often a turn counter fires.
+
+**Turn-count nudges should not interrupt exploration.** A long Clive conversation is often productive. The turn-count safety net only applies when the user tries to **move from thinking to action** after a long uninterrupted thread — and the threshold should be high enough not to feel annoying.
+
+Default turn-count rule (action boundary only):
+
+```text
+If the user attempts approval, agent creation, deployment, or Doc handoff after 12+ Clive/user turns without Pam in this thread, block until Pam reviews — regardless of user brain.
+```
+
+Less experienced users feel Pam **more often** because contextual triggers fire more readily and Clive proactively suggests her at action gates — not because the turn counter is lower.
+
+There should also be a prompt-count checkpoint at the action boundary. After a set number of uninterrupted Clive turns in the same thread, Pam must be invited **before** the user can approve context, create an agent, or send anything to Doc. The exact threshold should be **high and shared across users**; user brain tunes contextual sensitivity instead. The product principle is fixed:
 
 > **Long helpful conversations need a sceptical interruption before action.**
 
@@ -325,19 +411,20 @@ Nothing becomes trusted system context just because Pam challenged it either. Pa
 
 ### Step 5: Doc Writes The System State
 
-Doc receives the approved brief and writes the relevant records.
+Doc receives the approved brief and routes it to the correct executor.
 
-Examples:
+Examples of what Doc dispatches:
 
-- Context Item
+- Context Item (structured write)
 - Agent Environment
 - Agent Configuration Draft
 - Approval Rule
 - Change Log entry
 - Deployment Package record
 - Follow-up task
+- Implementation job (build/refactor work — see §9)
 
-Doc writes with source, reason, approver, timestamp, and action.
+Doc writes or dispatches with source, reason, approver, timestamp, and action. Outputs land in **Draft** or review queue until a human confirms publish where required.
 
 ### Step 6: Design The Fleet
 
@@ -394,6 +481,102 @@ The system should show:
 
 This must be framed as enablement, not staff surveillance.
 
+Brain maturity should also be visible and engaging. The system should make context quality feel like progress, not admin.
+
+Example brain levels:
+
+```text
+Level 0 — Seedling Brain
+Starter context exists, but it is mostly draft.
+
+Level 1 — House-Trained Brain
+Core records are tidy enough for guided use.
+
+Level 2 — Working Brain
+Domain expert QA has started; agents can answer low-risk questions with caveats.
+
+Level 3 — Sharp Brain
+Multiple QA passes complete; agents can answer routine in-scope questions with source confidence.
+
+Level 4 — Trusted Brain
+Management sign-off complete; mature enough for operational use within defined boundaries.
+
+Level 5 — Elder Brain
+Battle-tested through feedback, corrections, and repeated successful use.
+Still not allowed to publish or change live state without human approval.
+```
+
+Names can be tuned by client culture. A sober client might see "Draft / Reviewed / Operational / Trusted". A playful team might see the full story-mode labels. The underlying maturity controls stay the same.
+
+The system can show:
+
+- brain level
+- next level requirements
+- QA pass count
+- approved record count
+- stale records to fix
+- known gaps
+- confidence by domain
+- leaderboard position where appropriate
+- estimated efficiency impact
+- eligible Brain Efficiency Credit
+
+Leaderboard patterns should reward **brain health and contribution**, not raw staff surveillance:
+
+- cleanest brain
+- most improved brain
+- fastest stale-context cleanup
+- best evidence coverage
+- most helpful corrections
+- strongest domain-owner review streak
+
+The point is to make context hygiene feel rewarding. The point is not to rank humans by productivity.
+
+In production, brain maturity can also connect to pricing through a **Brain Efficiency Credit**.
+
+The commercial logic is simple:
+
+> **Better brains cost less to run, so clients who maintain better context should share in the savings.**
+
+A mature brain should reduce:
+
+- retrieval waste
+- repeated clarification loops
+- unnecessary model escalation
+- unnecessary Pam interventions
+- failed or low-quality agent runs
+- support burden
+- manual repair work
+- implementation rework caused by bad context
+
+That means brain maturity is not just a quality badge. It has a cost profile.
+
+Example production pricing pattern:
+
+```text
+Seedling Brain     standard usage rate
+House-Trained      no discount yet, but progress visible
+Working Brain      5% Brain Efficiency Credit
+Sharp Brain        10% Brain Efficiency Credit
+Trusted Brain      15% Brain Efficiency Credit
+Elder Brain        20% Brain Efficiency Credit
+```
+
+This should usually reduce **usage or overage cost**, not the core platform fee. The platform fee pays for the operating layer. The efficiency credit rewards clients for lowering the cost and risk of their own agent runs.
+
+The credit should be capped, reversible, and earned over time. For example:
+
+- maturity must be sustained for 30 days
+- known critical gaps must be below threshold
+- contradiction count must be low
+- answer failure rate must be improving
+- stale records must stay below threshold
+- management sign-off must remain current
+
+Do not position this as a schoolroom discount for "good behaviour". Position it as shared economics:
+
+> **AstraJax rewards context quality because better context makes AI cheaper, safer, and more useful.**
+
 ### Step 9: The Brain Learns
 
 Users and managers review agent outputs.
@@ -412,6 +595,18 @@ Clive may help reason about the correction.
 Doc writes the approved change.
 
 The context brain improves.
+
+When brain maturity improves, the system should celebrate it.
+
+Example:
+
+```text
+Brain level up: Working Brain -> Sharp Brain
+Reason: 3 QA passes completed, 42 approved records, no unresolved contradictions,
+and the last 20 in-scope answers were marked helpful.
+```
+
+This makes the boring layer visible. It teaches teams that better context creates better agents.
 
 ---
 
@@ -441,15 +636,25 @@ This feels important. Shall we ask Pam to stress-test it before Doc does anythin
 
 Pam should challenge high-stakes reasoning, not every minor interaction. Her job is to prevent agreeable AI drift: the slow slide into a weak plan because every response sounded helpful.
 
-Pam should also have a mandatory checkpoint after a defined number of Clive-only turns in one thread. This is not because Clive is wrong. It is because long, agreeable reasoning can become its own momentum. The checkpoint turns good prompt practice into a product habit.
+Pam should not interrupt productive exploration on a timer. That trains people to find her annoying and they will skip her.
+
+**Mandatory:** Pam at every action gate (approve, create agent, deploy, Doc handoff).
+
+**Optional but calibrated:** contextual Pam suggestions when risk signals appear. User brain makes these more or less sensitive — a newcomer may see more "shall we ask Pam?" moments when scope or evidence wobbles; an expert sees fewer, but the same hard gates still apply.
+
+**Turn-count safety net (action boundary only):** If the user tries to act after a long Clive-only thread, Pam blocks until she has reviewed. This is not a mid-conversation interrupt.
 
 The first version can use a simple rule:
 
 ```text
-After 8 Clive/user turns without Pam, show a Pam checkpoint before approval, agent creation, deployment, or Doc handoff.
+Action gates: Pam required before approval, agent creation, deployment, or Doc handoff — all users.
+
+Contextual suggestions: user brain adjusts sensitivity (new to context work = suggest Pam sooner when scope/evidence wobbles).
+
+Turn-count safety net: only at action boundary, after 12+ Clive/user turns without Pam in the thread. Same threshold for all users. Tunable upward, not downward — if 12 feels annoying, raise it; do not lower it for "new" users.
 ```
 
-The threshold is tunable. The behaviour is not: important work should not drift from helpful chat straight into action without challenge.
+The threshold is tunable. The behaviour is not: important work should not drift from helpful chat straight into action without challenge — but exploration should not be punctured every few turns.
 
 ### Rule 4: AI Disagreement Makes The Human The Judge
 
@@ -489,13 +694,25 @@ Doc is the executor/dispatcher.
 
 Doc should not re-decide the reasoning from scratch. If the brief is unclear, conflicting, or risky, Doc stops and escalates.
 
-### Rule 6: The Runtime Executes, It Does Not Own The Brain
+Implementation workers (Composer via Cursor SDK) must not run without a linked approved brief ID. Doc translates; workers execute.
+
+### Rule 6: Match The Executor To The Action
+
+Not every approved action needs a coding agent.
+
+- **Structured writes** (single context record, status change, log entry) → deterministic Doc tool (Airtable API / MCP). Fast, exact, cheap.
+- **Packages and runtime handoffs** → HyperAgent export / deployment pipeline.
+- **Build and refactor work** (multi-file changes, config generation, interface work) → implementation worker (Composer).
+
+Using a repo agent to create one Airtable row is overkill and harder to govern. Using a direct API write to refactor six TypeScript files is the wrong tool.
+
+### Rule 7: The Runtime Executes, It Does Not Own The Brain
 
 HyperAgent or another runtime can execute agent work.
 
 The context brain should remain in an AstraJax-controlled, tool-agnostic layer so the client is not trapped inside one runtime's memory model.
 
-### Rule 7: Coaching Is Not Surveillance
+### Rule 8: Coaching Is Not Surveillance
 
 The system may track adoption signals, but the framing and controls matter.
 
@@ -515,7 +732,23 @@ Avoid:
 - surveillance
 - productivity policing
 
-### Rule 8: The Paper Trail Matters
+The same rule applies to brain leaderboards. Use leaderboards to celebrate better context and better learning loops, not to shame individuals.
+
+Acceptable:
+
+- "The Sales Brain reached Sharp Brain this week."
+- "Ops closed 12 stale-context gaps."
+- "Customer Success has the best evidence coverage."
+
+Avoid:
+
+- "Sarah is last."
+- "Tom asked the fewest questions."
+- "This person is bad at AI."
+
+If a leaderboard would make a person feel watched rather than helped, the design is wrong.
+
+### Rule 9: The Paper Trail Matters
 
 Any action that changes system state should include:
 
@@ -548,6 +781,57 @@ It should contain:
 - decision logs
 - context packs by team or workflow
 
+It should also carry maturity metadata:
+
+- maturity level
+- domain owner
+- management sign-off status
+- QA pass count
+- last reviewed
+- approved record count
+- draft record count
+- stale record count
+- known gaps
+- contradiction count
+- answer failure rate
+- trusted-for domains
+- next level requirements
+- leaderboard eligibility
+- efficiency credit eligibility
+- current efficiency credit percentage
+- efficiency credit review date
+
+Maturity controls answer authority. A Draft or Seedling Brain should produce caveated answers and more escalations. A Trusted Brain can answer routine in-scope questions with less friction, while still requiring human approval for canonical changes or live actions.
+
+**Brain maturity is earned by human review, not agent confidence.**
+
+Brain maturity may also control commercial incentives in production. Better-reviewed brains should be cheaper to run because they require fewer retrieval calls, fewer high-cost escalations, fewer repair loops, and fewer support interventions.
+
+This creates the right operating incentive:
+
+```text
+Clean context -> better answers -> lower usage cost -> stronger adoption -> cleaner context
+```
+
+The pricing system must not reward teams for bulk-approving weak context. Efficiency credits should depend on quality signals, not volume alone.
+
+### User Brain
+
+The user brain is separate from the business context brain.
+
+It holds the competency and confidence map for each person using the system — what they know, what they are learning, and how Clive and Pam should adapt.
+
+It should contain:
+
+- domain experience scores (AI, context, architecture, coding, commercial, etc.)
+- manager-set coaching flags where relevant (same family of signal as Coach Whit)
+- inferred updates from conversation behaviour
+- Pam checkpoint thresholds per user (contextual sensitivity, not turn-count penalties)
+- Clive interaction preferences (pace, jargon tolerance, explanation depth)
+- history of approvals, corrections, and Pam outcomes
+
+The user brain does not replace human judgement. It calibrates how much support and challenge the system offers before the human decides.
+
 ### Airtable
 
 Airtable is the natural operating layer for the current system.
@@ -561,6 +845,7 @@ It can hold:
 - deployment packages
 - feedback records
 - training and adoption data
+- implementation jobs (approved brief → executor routing → worker output)
 
 ### Git / Markdown
 
@@ -582,27 +867,185 @@ Publicly, AstraJax should avoid making the product depend on one model brand.
 
 Internally, the current instinct is:
 
-- use stronger reasoning models where the job is judgement, trade-offs, and context extraction
-- use stronger coding/implementation models where the job is build, refactor, or structured execution
+- use stronger reasoning models where the job is judgement, trade-offs, and context extraction (**Clive**)
+- use a strong operational model where the job is translating approved briefs into precise execution instructions (**Doc dispatch layer**)
+- use a cost-efficient coding agent where the job is repo work, build, and refactor (**implementation worker**)
 - use HyperAgent for autonomous runtime where it reduces operational burden
-- use Claude/API-style conversational layers where speed and cost matter
+- use direct API/MCP tools for deterministic structured writes
+
+### Current internal assignment (subject to change as models evolve)
+
+| Role | Current instinct | Token profile |
+|------|------------------|---------------|
+| **Clive** | Strong reasoning model (e.g. OpenAI GPT at max for founder/strategy work) | Medium–high during exploration |
+| **Pam** | Same family as Clive or dedicated challenge pass | Low–medium; event-triggered |
+| **Doc dispatch** | Claude Opus-class model for brief → execution prompt translation | **Low** — runs only at action boundary |
+| **Implementation worker** | Cursor Composer via SDK / Cloud Agent | **High** — but cheap per unit; does heavy lifting |
+| **Runtime agents** | HyperAgent | Execution, not brain ownership |
+
+This is not doubling up. Opus does not re-read the whole repo. Composer does not re-decide the brief. Each model runs only where it is strongest.
 
 The public architecture should say:
 
 > **AstraJax uses the right model and runtime for the job, while keeping the human-approved context brain portable.**
 
-Do not oversell "ChatGPT reasons, Claude codes" as permanent truth. Models change quickly. The durable architecture is reasoning vs action, not one vendor vs another.
+Do not oversell "ChatGPT reasons, Claude codes" as permanent truth. Models change quickly. The durable architecture is **reasoning vs challenge vs dispatch vs implementation vs execution**, not one vendor vs another.
 
 ---
 
-## 9. Demo Architecture
+## 9. Production Doc Routing (Opus → Composer)
+
+This section defines how Doc acts in production once a human has approved a brief.
+
+### 9.1 The Production Loop
+
+```text
+Human approves brief (with brief ID)
+        ↓
+Doc dispatch layer (Claude Opus-class)
+  → validate brief completeness
+  → route by action type
+  → if build work: translate brief → Composer-ready execution prompt
+        ↓
+Job queue / webhook fires implementation job
+        ↓
+Composer worker (Cursor SDK or Cloud Agent)
+  → scoped repo / config work
+  → returns diff summary, artifacts, or draft records
+        ↓
+Doc writes log + output to Draft / review queue
+        ↓
+Human confirms publish (where required)
+```
+
+**Principle:** Opus translates judgement into instructions. Composer executes. Neither re-does the other's job.
+
+### 9.2 What Doc Routes Where
+
+| Approved action | Executor | Why |
+|-----------------|----------|-----|
+| Create/update one context record | **Direct Doc tool** (Airtable MCP / API) | Schema-bound, exact, auditable |
+| Change log, approval stamp, status → Draft | **Direct Doc tool** | Deterministic |
+| HyperAgent package from approved config | **Packaging pipeline** | Structured export |
+| Multi-file build, refactor, scaffold, demo route | **Composer worker** | Repo-shaped work |
+| Interface extension / migration script | **Composer worker** | Code-shaped work |
+
+**Rule:** if the action fits in a table schema, do not invoke Composer. If it spans files or code, do not fake it with a single API write.
+
+### 9.3 Doc Dispatch Layer (Opus)
+
+When the approved action is implementation-shaped, Doc uses a strong operational model (current instinct: **Claude Opus 4.8**) to produce a **Composer-ready execution prompt**.
+
+Opus input (small):
+
+- approved brief ID
+- human approver
+- action type
+- scope boundaries
+- affected surfaces (files, tables, packages)
+- success criteria
+- do-not-touch list
+
+Opus output (structured):
+
+```text
+Execution prompt for Composer:
+- Objective:
+- Repo / workspace:
+- Files in scope:
+- Files out of scope:
+- Pattern to follow:
+- Success criteria:
+- Required output (diff summary, record IDs, export path):
+- Stop conditions / escalate if:
+```
+
+Opus token usage stays **low** because it runs once per approved action at the boundary — not during open-ended user chat.
+
+### 9.4 Implementation Worker (Composer)
+
+Composer runs via **Cursor SDK** (local or cloud agent) or equivalent Cursor agent infrastructure — not as a generic external API key plugged into other editors.
+
+Composer input:
+
+- Opus-generated execution prompt
+- linked approved brief ID
+- scoped credentials / workspace
+
+Composer output:
+
+- code or config changes
+- diff summary
+- generated artifacts (e.g. HyperAgent export draft)
+- errors or escalate signals
+
+Composer absorbs the **heavy token load** at a **lower unit cost** than using a reasoning model to do repo work directly.
+
+### 9.5 Trigger Mechanism
+
+"Webhook" is the right concept; implementation is likely:
+
+1. Human approval writes row to **`implementation_jobs`** (or equivalent) in Airtable with status `Approved`.
+2. Worker picks up job (poll, webhook, or queue).
+3. Doc dispatch (Opus) compiles execution prompt if action type = `build`.
+4. Cursor SDK / Cloud Agent runs Composer.
+5. Worker callback updates job: `Running` → `Draft ready` | `Failed` | `Needs review`.
+6. Doc writes **Change Log** with brief ID, prompt hash, executor, diff summary, record links.
+
+Requirements:
+
+- **Idempotency** — same brief ID must not spawn duplicate builds.
+- **Tenant isolation** — per-client repo, env, and credentials.
+- **No orphan runs** — Composer cannot start without `approved_brief_id`.
+
+### 9.6 Guardrails
+
+1. **No Composer without approved brief ID** — Opus cannot freelance a build from chat drift.
+2. **Structured writes skip Composer** — context records go through direct Doc tools.
+3. **Output lands in Draft** — Composer implements; humans publish to canonical.
+4. **Brief + prompt + diff logged** — full paper trail for review and rollback.
+5. **Doc escalates, not guesses** — if brief is vague, job status = `Needs review`, no worker run.
+6. **Users still do not chat with Doc for exploration** — dispatch is backend orchestration surfaced as status, not a second reasoning thread.
+
+### 9.7 Token Economics (Why This Stack)
+
+```text
+Clive/Pam  →  medium–high tokens during thinking (worth it — wrong direction is expensive)
+Opus/Doc   →  low tokens per action (brief translation only)
+Composer   →  high tokens per job (cheap relative to Opus doing repo work)
+Direct API →  negligible tokens (record writes)
+```
+
+AstraJax margin improves when implementation runs through Composer on approved briefs rather than through expensive general reasoning or founder-in-Cursor manual passes — while governance stays intact because humans still approve what becomes true.
+
+### 9.8 Client-Facing Language
+
+> "Your team reasons with Clive, gets challenged by Pam, and you decide. Doc dispatches the approved change — simple records go straight into the brain; build work goes to a governed implementation worker. Nothing live changes without your sign-off."
+
+This is also the **agent-first business** proof for AstraJax: the company runs the same pattern it sells.
+
+### 9.9 Demo vs Production
+
+| Surface | AIE demo | Production |
+|---------|----------|------------|
+| Doc handoff UI | Mock or manual trigger acceptable | Real job queue |
+| Opus → Composer pipeline | Can simulate with founder-in-Cursor | Automated via SDK |
+| Structured writes | Can show seeded Airtable record | Live MCP/API |
+| Composer worker | Optional; Matthew-as-Doc acceptable for demo | Required for client build lane |
+
+The demo must show the **story** of Doc dispatch. Production must show the **routing**.
+
+---
+
+## 10. Demo Architecture
 
 For the AIG / HyperAgent demo, the system should be demo-quality, not production-grade.
 
 ### Must Feel Real
 
+- user brain intake (light competency map)
 - guide selection
-- Clive context interview
+- Clive context interview (adapted to user brain)
 - generated brain brief
 - Pam stress-test moment for an important decision
 - human approval moment
@@ -637,7 +1080,7 @@ The demo may use seeded data, but the underlying method must be tied back to pro
 
 ---
 
-## 10. Relationship To HyperAgent
+## 11. Relationship To HyperAgent
 
 HyperAgent is the first runtime AstraJax services.
 
@@ -661,25 +1104,27 @@ Tool-agnostic means agile and portable. It is not the moat by itself. The moat i
 
 ---
 
-## 11. Relationship To Existing DS Platform Proof
+## 12. Relationship To Existing DS Platform Proof
 
 The Direct Sales platform provides the working proof for the architecture.
 
 Reusable proof patterns:
 
 - **Clive:** friendly guide and context surface.
-- **Doc Albright:** fleet engineer, debug intake, fix pipeline, prompt coaching.
+- **Doc Albright:** fleet engineer, debug intake, fix pipeline.
+- **Coach Whit:** prompt coaching calibrated to user engagement and technical adeptness — downstream of the user brain pattern.
 - **Scorekeeper / KK Kingsford:** adoption momentum, XP, leaderboards.
 - **Bot Fleet:** roster, change logs, fix queues, training analytics.
 - **Build-a-Brain / DS Brains:** context curation and review.
 - **Training hub:** videos, sandboxes, engagement tracking.
+- **Matthew-in-Cursor (founder build):** living proof of the Composer implementation lane — production generalises this as Doc → Opus → Composer dispatch.
 - **Trinity pattern:** link -> propose -> human approves -> execute.
 
 The AstraJax demo should not rebuild all of this. It should generalise the pattern and show the clearest version of the loop.
 
 ---
 
-## 12. Open Questions
+## 13. Open Questions
 
 These need decisions as the build sharpens:
 
@@ -689,13 +1134,16 @@ These need decisions as the build sharpens:
 4. Does HyperAgent receive a generated package manually, through API, or through a mocked export for the first recording?
 5. How much of Scorekeeper/coaching is shown as live UI vs production proof?
 6. What is the first client-ready object: brain brief, agent package, adoption audit, or fleet plan?
+7. What is the first implementation job type to automate via Opus → Composer (demo route, context pack scaffold, HyperAgent export generator)?
+8. Cloud Agent vs local SDK worker for client tenants — data residency and credential model?
+9. Exact `implementation_jobs` schema and idempotency key format?
 
 ---
 
-## 13. Current Architecture Statement
+## 14. Current Architecture Statement
 
 Use this as the simplest explanation:
 
-> **AstraJax helps domain experts build the brain and shape the fleet. Clive reasons with them. Pam Portiscue stress-tests important decisions. Humans approve what becomes true. Doc writes the approved changes and dispatches action. HyperAgent or another runtime executes the agents. Feedback flows back into the brain so the system keeps improving.**
+> **AstraJax maps who the user is, helps domain experts build the business brain and shape the fleet. Clive reasons with them — adapted to their experience. Pam Portiscue stress-tests important decisions — calibrated to where they need challenge. Humans approve what becomes true. Doc routes the approved change: structured writes go direct; build work goes Opus → Composer; runtime agents execute in HyperAgent or elsewhere. Feedback flows back into the brain so the system keeps improving.**
 
 That is the architecture.

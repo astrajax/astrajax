@@ -1,0 +1,18 @@
+---
+description: AstraJax docs structure — where context lives and how to keep it clean
+alwaysApply: true
+---
+
+# AstraJax Context Structure
+
+**Read `docs/START-HERE.md` before working on AstraJax context, positioning, or strategy.** It is the single source of truth for the structure; this rule just enforces the essentials.
+
+Non-negotiables:
+
+1. Canonical truth lives in `docs/business/` — one file per concept. Edit the existing doc; never create a second.
+2. Version with git, not filenames. No `_v2` / `_STRONG` / dated names in live files — those belong in `docs/archive/`.
+3. Three states only: `docs/business/` (canonical) → `docs/initiatives/` (working) → `docs/archive/` (superseded, never brief from here).
+4. `docs/context/` is the live Clive context-engine, not business positioning. Don't conflate or restructure it casually.
+5. Downloads is never source of truth.
+
+If asked to create a doc that duplicates an existing canonical one, flag it and propose editing the original instead. For folder taxonomy and full detail, see `docs/START-HERE.md`.
