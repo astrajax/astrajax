@@ -4,12 +4,12 @@ import { useMemo, useRef, useState } from "react";
 import type { ChatMessage } from "@/lib/clive/types";
 
 const GREETING =
-  "Ask me about AstraJax, the method, offers, or how Clive keeps context clean for agents.";
+  "Ask me about AstraJax, citizen-builders, the adoption loop, or how Clive keeps agent context clean.";
 
 const STARTER_PROMPTS = [
-  "What does AstraJax actually do?",
-  "What is Clive?",
-  "How did Matthew build this without coding?",
+  "What is the adoption operating system?",
+  "Why should domain experts shape agents?",
+  "How does Clive keep agents trustworthy?",
 ];
 
 export function AskClivePanel() {
@@ -131,7 +131,7 @@ export function AskClivePanel() {
           <input
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            placeholder="Ask about AstraJax or Clive…"
+            placeholder="Ask about adoption, context or Clive…"
             maxLength={500}
             disabled={isThinking}
             className="min-w-0 flex-1 rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm text-ink outline-none ring-apricot/30 placeholder:text-ink-muted/70 focus:ring-2 disabled:opacity-60"

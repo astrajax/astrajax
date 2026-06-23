@@ -1,10 +1,10 @@
 const steps = [
-  { num: "01", title: "Diagnose", body: "Find the trapped work." },
-  { num: "02", title: "Boring layer", body: "Clean data, clear flows." },
-  { num: "03", title: "Architects", body: "Judgement → system." },
-  { num: "04", title: "Bounded agents", body: "Approved, audited." },
-  { num: "05", title: "Adoption", body: "Trust, training, value." },
-  { num: "06", title: "Maintain", body: "Context governance." },
+  { num: "01", title: "Pick your guide", body: "Full Story, Light Story or No Story." },
+  { num: "02", title: "Build the brain", body: "Capture context, rules and goals." },
+  { num: "03", title: "Design the fleet", body: "Personality editable, competence locked." },
+  { num: "04", title: "Package & deploy", body: "HyperAgent today, other runtimes tomorrow." },
+  { num: "05", title: "Celebrate & coach", body: "Keep momentum after week one." },
+  { num: "06", title: "The brain learns", body: "Feedback improves the context layer." },
 ];
 
 export function Method() {
@@ -13,11 +13,11 @@ export function Method() {
       <div className="mx-auto max-w-6xl px-6 py-16 lg:py-20">
         <p className="section-label mb-4 text-parchment/60">02 · The method</p>
         <h2 className="font-display max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
-          From mess to a system your team trusts.
+          A closed loop for getting AI used.
         </h2>
         <p className="mt-4 max-w-2xl text-lg leading-relaxed text-parchment/80">
-          Diagnose the mess → build the boring layer → turn experts into architects → add bounded
-          agents → engineer adoption → hand over &amp; maintain.
+          Guide → brain → fleet → runtime → coaching → feedback. Every step keeps the domain
+          expert in charge of what good means.
         </p>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {steps.map((step) => (
@@ -32,11 +32,12 @@ export function Method() {
           ))}
         </div>
         <blockquote className="mt-10 border-l-2 border-apricot pl-5 font-display text-xl italic text-buttermilk">
-          The boring layer makes the exciting layer possible.
+          The personality is editable. The competence is locked.
         </blockquote>
         <p className="mt-4 text-sm text-parchment/60">
-          ~12 months on the boring layer → screens in ~1 month → first agents in ~2 weeks. Built
-          with AI, on clean data — never hand-coded.
+          People get creative control without being allowed to break the machine. That is how
+          citizen-builders stay safe while still feeling ownership. Story mode is configurable:
+          theatre when it helps adoption, restraint when the room needs it.
         </p>
       </div>
     </section>

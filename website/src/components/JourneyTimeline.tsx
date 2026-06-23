@@ -332,7 +332,7 @@ function CloseCard({ close }: { close: JourneyClose }) {
             rel="noopener noreferrer"
             className="btn-primary text-sm"
           >
-            Book a Commercial OS Audit
+            Book an Adoption OS Audit
             <span aria-hidden>→</span>
           </a>
           <Link

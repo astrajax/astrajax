@@ -13,18 +13,14 @@ type NavLink = {
 };
 
 const links: NavLink[] = [
-  { href: "/#method", label: "Method", hint: "How AstraJax works" },
+  { href: "/#method", label: "Loop", hint: "How adoption works" },
+  { href: "/#citizen-builder", label: "Citizen Builder", hint: "Why experts shape the AI" },
+  { href: "/#proof", label: "Proof", hint: "Built in production" },
   {
     href: "/journey",
     label: "Journey",
     featured: true,
     hint: "The Butternut story",
-  },
-  {
-    href: "/seeds-of-promise",
-    label: "Seeds",
-    featured: true,
-    hint: "Proof on the ground",
   },
 ];
 
@@ -161,7 +157,7 @@ export function Nav() {
             rel="noopener noreferrer"
             className="btn-primary hidden shrink-0 text-sm md:inline-flex"
           >
-            Book an Audit
+            Book an Adoption Audit
           </a>
         </div>
       </div>
@@ -196,7 +192,7 @@ export function Nav() {
               className="btn-primary mt-4 w-full justify-center text-sm"
               onClick={closeMenu}
             >
-              Book an Audit
+              Book an Adoption Audit
             </a>
           </div>
         </nav>

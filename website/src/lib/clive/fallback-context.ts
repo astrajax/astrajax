@@ -1,16 +1,16 @@
 import type { ContextBlock } from "./types";
 
-/** Governed fallback when Airtable is unavailable — mirrors approved Context Items as of May 2026. */
+/** Governed fallback when Airtable is unavailable — mirrors approved public context. */
 export const FALLBACK_CONTEXT: ContextBlock[] = [
   {
-    title: "AstraJax turns domain expertise into AI-ready operating systems",
+    title: "AstraJax is the adoption operating system for AI agents",
     category: "Business Definition",
-    text: "AstraJax helps commercial teams turn messy workflows, scattered data, manual admin, and trapped domain knowledge into AI-ready operating systems built with the people who understand the work best.",
+    text: "AstraJax helps domain experts design, run and improve AI agents their teams actually use. It starts with curated context, turns that context into scoped agent fleets, and keeps humans in control of what good means.",
   },
   {
-    title: "Clive is AstraJax's managed context environment",
+    title: "Clive is AstraJax's context brain",
     category: "Business Definition",
-    text: "Clive is the managed context environment for teams already using AI agents, or teams that reach that maturity through AstraJax; AstraJax structures the work, Clive structures the context, and agents use both.",
+    text: "Clive is the managed context brain inside AstraJax: what agents are allowed to know, where that knowledge came from, whether it has been approved, and when it needs updating. AstraJax structures adoption, Clive structures context, and agent runtimes execute the work.",
   },
   {
     title: "Matthew proof claim must include AI and clean data",
@@ -25,12 +25,12 @@ export const FALLBACK_CONTEXT: ContextBlock[] = [
   {
     title: "Method (six steps)",
     category: "Method",
-    text: "1. Diagnose the mess. 2. Build the boring layer (clean data, clear workflows). 3. Turn domain experts into architects. 4. Add bounded agents with human approval. 5. Engineer adoption (trust, training, value, safety). 6. Hand over and maintain (context governance — Clive).",
+    text: "1. Pick your guide. 2. Build the brain through guided context intake. 3. Design the fleet with editable personality and locked competence. 4. Package and deploy into the right runtime, starting with HyperAgent. 5. Celebrate and coach so adoption sticks. 6. Feed expert corrections back into the brain so agents improve.",
   },
   {
     title: "Offers",
     category: "Offers",
-    text: "Commercial OS Audit — diagnostic and roadmap. Commercial OS Sprint — done-with-you first operating layer. Domain Architect Enablement — coaching inside delivery. Clive — context management for teams running agents.",
+    text: "Adoption OS Audit — map where agents will fail on context, ownership, trust and workflow fit. Brain & Fleet Sprint — build the first context brain, agent fleet, approval rules and deployment package. Domain Architect Enablement — coach citizen-builders to shape, test and improve agents. Clive — keep the context brain sourced, current and human-approved.",
   },
   {
     title: "Butternut Box proof (canonical numbers only)",
@@ -42,13 +42,18 @@ export const FALLBACK_CONTEXT: ContextBlock[] = [
     category: "Workflow Rule",
     text: "Agents follow the Trinity pattern: link → propose → human approves → execute. Bounded agents; humans keep judgement.",
   },
+  {
+    title: "Citizen-as-builder",
+    category: "Positioning",
+    text: "AstraJax exists to decodify agent-building for non-technical experts. Citizen-as-builder works because the people closest to the operation know the exceptions, incentives, handoffs and when an answer is quietly wrong. Fast feedback keeps teams engaged and makes the tool better faster.",
+  },
 ];
 
 export const WEBSITE_GUARDRAILS = `
 You are Clive on the public AstraJax website. You answer questions about AstraJax, the method, offers, Clive, and Matthew's proof story.
 
 Rules:
-- Use only the approved context below. If you do not know, say so briefly and suggest starting with a Commercial OS Audit.
+- Use only the approved context below. If you do not know, say so briefly and suggest starting with an Adoption OS Audit.
 - British English. Warm, direct, lightly characterful (a helpful Victorian retriever energy — not a sitcom).
 - No em-dashes. Keep answers under 120 words unless the visitor asks for detail.
 - Do not invent pricing, timelines, client names beyond the published Butternut proof, or confidential details.

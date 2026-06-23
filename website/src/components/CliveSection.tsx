@@ -1,10 +1,10 @@
 import { AskClivePanel } from "@/components/AskClivePanel";
 
 const capabilities = [
-  { title: "Intake", body: "Capture rules, decisions and know-how as they happen." },
-  { title: "Curate", body: "Keep one source of truth — sourced and current." },
-  { title: "Human approval", body: "Nothing enters the knowledge layer unapproved." },
-  { title: "Scan", body: "Flag stale, conflicting or missing context before agents trip on it." },
+  { title: "Intake", body: "Extract the business, rules, goals and judgement calls." },
+  { title: "Curate", body: "Turn raw know-how into scoped, sourced context." },
+  { title: "Human approval", body: "Experts decide what becomes trusted agent knowledge." },
+  { title: "Improve", body: "Fold feedback back into the brain as agents are used." },
 ];
 
 export function CliveSection() {
@@ -12,21 +12,20 @@ export function CliveSection() {
     <section id="clive" className="scroll-mt-24 border-b border-ink/10 bg-white">
       <div className="mx-auto grid max-w-6xl gap-12 px-6 py-16 lg:grid-cols-2 lg:py-20">
         <div>
-          <p className="section-label mb-4">The context product</p>
+          <p className="section-label mb-4">Build the brain</p>
           <h2 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            Clive
+            Clive is the context engine inside AstraJax.
           </h2>
           <p className="mt-3 text-sm font-medium text-apricot">
-            A managed context environment — not a chatbot.
+            Not a chatbot. A human-approved brain for agent fleets.
           </p>
           <blockquote className="mt-6 font-display text-xl italic text-apricot">
-            AstraJax structures the work. Clive structures the context. Agents use both.
+            AstraJax structures adoption. Clive structures context. Agent runtimes execute the work.
           </blockquote>
           <p className="mt-6 text-lg leading-relaxed text-ink-muted">
-            Clive is the system that decides what your agents are allowed to know, where that
-            knowledge came from, and when it needs updating — a human-approved knowledge layer that
-            keeps every agent trustworthy as the business changes. The chat is just one way to ask
-            it questions.
+            Adoption only sticks if the agents actually work. Clive gives them the scoped, sourced
+            and human-approved context they reason from — then keeps that context current as people
+            use the system and correct what it gets wrong.
           </p>
           <dl className="mt-8 grid gap-x-6 gap-y-5 sm:grid-cols-2">
             {capabilities.map((capability) => (
@@ -41,7 +40,7 @@ export function CliveSection() {
         </div>
 
         <div id="ask-clive" className="scroll-mt-24">
-          <p className="section-label mb-3">A small taste — ask the context layer</p>
+          <p className="section-label mb-3">A small taste — ask the brain</p>
           <AskClivePanel />
         </div>
       </div>

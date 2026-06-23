@@ -6,12 +6,13 @@ export function FounderProof() {
       <div className="mx-auto max-w-6xl px-6 py-16 lg:py-20">
         <p className="section-label mb-6">Founder proof</p>
         <blockquote className="font-display max-w-3xl text-2xl leading-snug font-medium italic text-ink sm:text-3xl">
-          Domain experts don&apos;t need to become technical — with AI, they can become architects. A
-          developer builds the tool; a commercial expert knows when its answer is quietly wrong.
+          Domain experts don&apos;t need to become technical — with AI, they can become architects.
+          The person closest to the work knows what the agent needs to understand, and when its
+          answer is quietly wrong.
         </blockquote>
         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-muted">
-          Built by someone who owned the P&amp;L and ran the team it served — a production operating
-          system at scale, with AI, on clean data,{" "}
+          Built by someone who owned the P&amp;L, ran the team, and had to make AI land with real
+          non-technical users — a production agent adoption system at scale, with AI, on clean data,{" "}
           <strong className="font-medium text-ink">never hand-coded</strong>.
         </p>
         <div className="mt-6 flex flex-wrap gap-2">

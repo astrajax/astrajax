@@ -1,23 +1,23 @@
 const offers = [
   {
-    title: "Commercial OS Audit",
-    body: "Diagnose & plan.",
-    detail: "Where you lose time, visibility and leverage — with a roadmap to fix it.",
+    title: "Adoption OS Audit",
+    body: "Find the adoption gap.",
+    detail: "Where agents will fail: context, ownership, trust, workflow fit and feedback loops.",
   },
   {
-    title: "Commercial OS Sprint",
-    body: "Build the first layer.",
-    detail: "A done-with-you build of your first clean, AI-ready operating layer.",
+    title: "Brain & Fleet Sprint",
+    body: "Build the first loop.",
+    detail: "A guided context brain, first agent fleet, approval rules and deployment package.",
   },
   {
     title: "Domain Architect Enablement",
-    body: "Coach the experts.",
-    detail: "Your people learn to shape, run and safely improve the system themselves.",
+    body: "Coach the citizen-builders.",
+    detail: "Your experts learn to shape, test and improve agents without becoming developers.",
   },
   {
     title: "Clive",
-    body: "Keep context clean.",
-    detail: "Keeps the context your agents rely on current, sourced and trustworthy.",
+    body: "Keep the brain clean.",
+    detail: "Keeps agent context current, sourced, human-approved and ready for the runtime.",
     highlight: true,
   },
 ];
@@ -28,7 +28,7 @@ export function Offers() {
       <div className="mx-auto max-w-6xl px-6 py-16 lg:py-20">
         <p className="section-label mb-4">Four ways in</p>
         <h2 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-          Start where it&apos;s safe to start.
+          Start where adoption usually breaks.
         </h2>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {offers.map((offer) => (
@@ -44,7 +44,7 @@ export function Offers() {
         </div>
         <div className="mt-8">
           <a href="#start" className="btn-primary">
-            Start with the Audit
+            Start with the Adoption Audit
             <span aria-hidden>→</span>
           </a>
         </div>

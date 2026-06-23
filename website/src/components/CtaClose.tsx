@@ -1,9 +1,9 @@
 import { BOOKING_URL } from "@/lib/site";
 
 const deliverables = [
-  "Workflow map & data / tool audit",
-  "AI-readiness assessment",
-  "Prioritised roadmap + sprint plan",
+  "Adoption risk map",
+  "Context and agent-readiness assessment",
+  "First brain and fleet sprint plan",
 ];
 
 export function CtaClose() {
@@ -14,10 +14,10 @@ export function CtaClose() {
           <div>
             <p className="section-label mb-4 text-parchment/60">Start with an Audit</p>
             <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-              Your experts don&apos;t need to become technical.
+              Your experts should be shaping the AI already.
             </h2>
             <p className="mt-4 text-lg text-parchment/80">
-              You keep the judgement; agents take the sludge.
+              AstraJax gives them the context, guardrails and adoption loop to do it safely.
             </p>
             <a
               href={BOOKING_URL}
@@ -25,7 +25,7 @@ export function CtaClose() {
               rel="noopener noreferrer"
               className="btn-primary mt-8"
             >
-              Book your Audit
+              Book your Adoption Audit
               <span aria-hidden>→</span>
             </a>
           </div>
