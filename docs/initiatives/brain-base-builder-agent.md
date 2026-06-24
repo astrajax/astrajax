@@ -42,12 +42,11 @@ If the scope ever creeps toward "scaffold arbitrary Airtable bases for arbitrary
 ## 3. Where it fits the existing model
 
 ```text
-Clive reasons -> Pam challenges -> Human approves -> Doc acts -> HyperAgent executes
+Clive reasons -> Pam challenges -> Human approves -> Doc acts -> Composer/Cursor builds (Airtable/code)
+                                                                 -> HyperAgent runs deployed agents (fleet)
 ```
 
-This agent is **inside the "Doc acts" step**, specifically Doc's structured-write lane:
-
-> structured records -> direct Airtable/MCP write   ← Brain Base Builder lives here
+This agent is **inside Doc's build lane** — invoked in Cursor (Composer/Agent mode) after Matthew approves the proposed schema. It is not a HyperAgent runtime agent.
 
 It is **not** the demo, and **not** a runtime agent. It is build-side tooling: it stands up the substrate that the Brain Key API routes (`website/src/app/api/brains/`) then read and write through.
 

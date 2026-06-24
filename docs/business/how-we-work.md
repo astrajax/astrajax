@@ -104,7 +104,8 @@ The AstraJax cast is not a gimmick. It teaches scope:
 - Pam challenges.
 - Humans decide.
 - Doc acts.
-- HyperAgent executes.
+- Composer/Cursor builds what Doc proposed.
+- HyperAgent runs deployed agents.
 
 The visuals help non-technical users understand who does what and where the boundaries are.
 

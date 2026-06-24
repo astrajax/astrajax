@@ -34,8 +34,11 @@ These are the source of truth. One file per concept. If two docs disagree, these
 
 Active initiatives that **point at** the canonical docs — they never copy them.
 
-- `aie-2026-07.md` — the AI Engineer World's Fair sprint (retires after 2 July 2026).
+- `aie-2026-07.md` — the AI Engineer World's Fair sprint brain: story, scope, do-not-build list (retires after 2 July 2026).
+- `aie-build-plan.md` — the day-by-day build plan for the AIE sprint (23 June to 2 July).
 - `tara-lee-visual-brief.md` — visual brief for the founding cast.
+- `character-provenance.md` — character rationale, life goals, and design decisions (founding cast).
+- `doc-minions.md` — Doc (`@doc`) triages build work to minions (Airtable, Vercel).
 
 ## Archive (`docs/archive/`)
 
@@ -64,7 +67,8 @@ Clive reasons.
 Pam challenges.
 Humans decide.
 Doc acts.
-HyperAgent executes.
+Composer/Cursor builds what Doc proposed.
+HyperAgent runs deployed agents.
 
 The brain matures. The team gets coached. The agents get better.
 Better context lowers cost.

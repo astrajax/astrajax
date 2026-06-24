@@ -1,10 +1,8 @@
 ---
 name: doc-airtable-builder
 description: >-
-  Doc-family Airtable builder for Matthew. Two-phase: propose schema in Ask or
-  Agent mode, build via MCP only after explicit approval in Agent mode. Brain
-  Registry/Workshop/Trusted shapes or ops bases (product/sales/marketing). Invoke
-  with @doc-airtable-builder.
+  Doc-family Airtable Minion. Usually reached via @doc. Direct invoke:
+  @doc-airtable-builder. Two-phase propose-then-build via MCP.
 model: inherit
 readonly: false
 is_background: false

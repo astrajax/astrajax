@@ -12,8 +12,9 @@ description: >-
 
 ## Purpose
 
-Operational source of truth for **Doc Airtable Builder** — the build-side lane of
-Doc Albright that scaffolds Airtable structure from plain-language briefs.
+Operational source of truth for **Doc Airtable Builder** — Doc Albright's
+**Airtable Minion** (see `docs/initiatives/doc-minions.md`). Scaffolds Airtable
+structure from plain-language briefs after Doc proposes and Matthew approves.
 
 This agent builds **homes for data**, not approved business truth. It does not
 approve context, promote to Trusted Brain content, deploy HyperAgent agents,
@@ -26,7 +27,8 @@ link via **show-airtable-link**.
 ## Where this fits
 
 ```text
-Clive reasons -> Pam challenges -> Human approves -> Doc acts -> HyperAgent executes
+Clive reasons -> Pam challenges -> Human approves -> Doc acts -> Composer/Cursor builds
+                                                              -> HyperAgent runs deployed agents
                                                       ^
                                            doc-airtable-builder (structure only)
 ```
