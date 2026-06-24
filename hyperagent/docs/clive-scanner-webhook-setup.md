@@ -69,7 +69,7 @@ Interface Designer → Workbench → **Agent Environments** → expose **Trigger
 Release extension after UI changes:
 
 ```bash
-cd interface-extensions/clive-context-workbench && npx block release --remote astrajax
+cd docs/archive/interface-extensions/clive-context-workbench && npx block release --remote astrajax
 ```
 
 ---

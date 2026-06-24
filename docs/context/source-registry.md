@@ -9,10 +9,10 @@
 | Source ID | Title | Type | Owner | Authority | Freshness | Destination |
 |---|---|---|---|---|---|---|
 | `SRC-AJ-POSITIONING` | `docs/business/positioning.md` | Repo doc | Matthew | Canonical | Current | AstraJax Core Positioning (old `astrajax_positioning.md` archived in `docs/archive/`) |
-| `SRC-AJ-OPS` | `astrajax_ops_brief.md` | Repo doc | Matthew | Canonical | Current | AstraJax Core Positioning |
+| `SRC-AJ-OPS` | `docs/business/internal-brief.md` | Repo doc | Matthew | Canonical | Current | Internal priorities and guardrails |
 | `SRC-AJ-AGENTS` | `AGENTS.md` | Repo doc | Matthew | Canonical | Current | AstraJax Core Positioning |
-| `SRC-CLIVE-ARCH-V1` | `clive_context_architecture_v1.md` | Repo doc | Matthew | Canonical | Current | Context Architecture V1 |
-| `SRC-CLIVE-ARCH-V2` | `clive_context_architecture_v2.md` | Repo doc | Matthew | Canonical | Current | Context Architecture V2 |
+| `SRC-CLIVE-ARCH-V1` | `docs/context/context-architecture-v1.md` | Repo doc | Matthew | Canonical | Current | Context Architecture V1 (root `clive_context_architecture_v1.md` archived) |
+| `SRC-CLIVE-ARCH-V2` | `docs/context/context-architecture-v2.md` | Repo doc | Matthew | Canonical | Current | Context Architecture V2 (root `clive_context_architecture_v2.md` archived) |
 | `SRC-CLIVE-SCHEMA-V1` | `hyperagent/context_architecture_schema_v1.json` | Schema file | Matthew | Canonical | Current | Context Architecture V1 |
 | `SRC-CLIVE-APPROVAL` | `docs/context/human-approval-path.md` | Operational doc | Matthew | Canonical | Current | Context Architecture V2 |
 | `SRC-CLIVE-EMAIL-INBOX` | `docs/context/email-inbox-setup.md` | Operational doc | Matthew | Canonical | Current | Clive Operating Rules |
@@ -30,12 +30,12 @@
 | `SRC-CLIVE-RELEASE-SCANNER` | `.cursor/skills/clive-hyperagent-release-scanner/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Clive Operating Rules |
 | `SRC-CLIVE-FACTORY-SKILL` | `.cursor/skills/clive-agent-factory/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Clive Operating Rules |
 
-## Model and strategy docs (repo root)
+## Model and strategy docs (archived — reference only)
 
 | Source ID | Title | Type | Owner | Authority | Freshness | Destination |
 |---|---|---|---|---|---|---|
-| `SRC-MODEL-STACK` | `agent-model-collaboration-stack-notion.md` | Strategy doc | Matthew | Supporting | Current | Model Collaboration |
-| `SRC-CONTEXT-MODELS` | `best-models-for-context-environments-notion.md` | Strategy doc | Matthew | Supporting | Current | Model Collaboration |
+| `SRC-MODEL-STACK` | `docs/archive/strategy-notes/agent-model-collaboration-stack-notion.md` | Strategy doc | Matthew | Archived | Current | Model Collaboration |
+| `SRC-CONTEXT-MODELS` | `docs/archive/strategy-notes/best-models-for-context-environments-notion.md` | Strategy doc | Matthew | Archived | Current | Model Collaboration |
 
 ## Working drafts (not canonical until approved)
 

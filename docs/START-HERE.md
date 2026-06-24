@@ -22,9 +22,12 @@ AstraJax context lives in two distinct places. Mixing them is the main cause of 
 These are the source of truth. One file per concept. If two docs disagree, these win.
 
 - `positioning.md` — what AstraJax is, who it is for, offers, proof, claim-control.
+- `internal-brief.md` — internal priorities, ownership, launch rules, and AI guardrails (not public positioning).
+- `brand-colours.md` — visual identity palette (Nocturne Orchard).
 - `architecture.md` — how the product works: agent roles, user brain, brain maturity, Doc routing.
 - `how-we-work.md` — how the company runs (Cursor as Doc, creative specialists, agent-first).
-- `one-pager.md` — the short marketing version.
+- `one-pager.md` — the short marketing version (product).
+- `investor-one-pager.md` — external investor narrative (company thesis, labour model, proof).
 - `proof.md` — the evidence locker (Butternut build, fleet, validation).
 
 ## Working / time-boxed (`docs/initiatives/`)

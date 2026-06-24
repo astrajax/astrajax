@@ -684,7 +684,7 @@ If a clip sounds like “AI is the future” without proof under it, cut it.
 
 ## 11. Visual / Brand Direction For The Page
 
-Use the brand colour guidance from `astrajax_brand_colours.md`.
+Use the brand colour guidance from `docs/business/brand-colours.md`.
 
 For the Journey page:
 

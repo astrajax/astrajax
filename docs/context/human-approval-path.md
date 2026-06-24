@@ -31,7 +31,7 @@ Open the **Clive // Context Items** interface extension on the AstraJax base.
 - Use search or the agent filter to find items by agent name.
 - **Approve** or **Reject** sets `Confirmed By Human` (logged-in user mapped to Matthew or TL) and `Confirmation Method` → `Interface button`.
 
-Repo: `interface-extensions/clive-context-items/`
+Repo: `docs/archive/interface-extensions/clive-context-items/`
 
 ### 3. Approver script (Matthew terminal only)
 

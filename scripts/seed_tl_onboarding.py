@@ -486,7 +486,7 @@ def main() -> None:
         "progressTableId": progress_id,
         "tableName": ONBOARDING_TABLE,
         "moduleCount": len(MODULES),
-        "interfaceSetup": "Add interface-extensions/tl-onboarding to Interface page pagdg8ciA7vQswXrs",
+        "interfaceSetup": "Add docs/archive/interface-extensions/tl-onboarding to Interface page pagdg8ciA7vQswXrs (archived — reference only)",
     }, indent=2))
 
 

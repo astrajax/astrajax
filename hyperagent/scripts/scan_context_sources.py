@@ -92,7 +92,7 @@ EMBEDDED_CONFIG: dict[str, Any] = {
             ".turbo",
             ".venv",
             "__pycache__",
-            "interface-extensions",
+            "docs/archive/interface-extensions",
             "Interface_Extensions",
             "frontend",
             "components",

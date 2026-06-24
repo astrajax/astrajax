@@ -1,8 +1,8 @@
-# AstraJax - Internal Ops Brief
+# AstraJax — Internal Brief
 
-**Status:** V2 internal execution brief for launch priorities, ownership, claim-control, and AI-assistant rules.
+**Status:** Internal brief for launch priorities, ownership, claim-control, and AI-assistant rules.
 **Audience:** Matthew, TL, and AI assistants working on AstraJax.
-**Companion docs:** `docs/business/positioning.md` (positioning source of truth) and `AGENTS.md` (founder background and proof detail).
+**Companion docs:** `docs/business/positioning.md` (public positioning) and `AGENTS.md` (founder background and proof detail).
 **Last updated:** 29 May 2026
 
 ---
@@ -14,9 +14,10 @@ Use the docs this way:
 | Need | Source |
 |------|--------|
 | What AstraJax is, who it helps, offers, method, proof, and messaging | `docs/business/positioning.md` |
+| External investor narrative (company thesis, labour model) | `docs/business/investor-one-pager.md` |
 | Matthew's background, proof detail, strengths, working style, and sensitive-info guardrails | `AGENTS.md` |
 | Current priorities, ownership, launch rules, and claim-control | this file |
-| TL onboarding reference (HTML modules in Airtable) | **TL Onboarding** table + `interface-extensions/tl-onboarding` |
+| TL onboarding reference (HTML modules in Airtable) | **TL Onboarding** table + `docs/archive/interface-extensions/tl-onboarding` (reference only) |
 | Raw source material | talk track, Butternut planning note, DS platform docs, training hub, bot-flow docs |
 
 Do not copy raw source material into launch docs unless it is deliberately distilled. The goal is enough context to write and decide well, not a giant memory dump.

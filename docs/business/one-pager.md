@@ -4,7 +4,7 @@
 
 Anyone can build an AI agent now. Almost no one gets their team to use one.
 
-AstraJax is the adoption operating system that helps domain experts design, run, and improve AI agents their teams actually trust. It starts with curated context, turns that context into scoped agent fleets, and keeps humans in charge of what "good" means.
+AstraJax is the adoption operating system that helps domain experts design, run, and improve AI agents their teams actually trust. It starts by understanding the human, then builds the business brain, turns that context into scoped agent fleets, and keeps humans in charge of what "good" means.
 
 > **Domain experts don't need to become technical. With AI, they can become architects.**
 
@@ -12,7 +12,7 @@ AstraJax is the adoption operating system that helps domain experts design, run,
 
 ## The Problem
 
-Most AI rollouts stall after the demo. The tool works once, in a clean example, then real life arrives: messy data, unclear ownership, nervous teams, vague prompts, poor context, and no feedback loop. People stop trusting the agent, stop feeding it, and quietly go back to the old way.
+Most AI rollouts stall after the demo. The tool works once, in a clean example, then real life arrives: messy data, unclear ownership, nervous teams, vague prompts, poor/bloated context, and no feedback loop. People stop trusting the agent, it gets expensive, they stop feeding it, poor context is construed as AI limitation. They quietly go back to the old way.
 
 The market has solved agent building. It has not solved adoption.
 
@@ -28,14 +28,27 @@ AstraJax closes that gap by putting the person who knows the work at the centre 
 
 AstraJax turns AI adoption into a guided loop:
 
-1. **Pick your guide.** A persona onboards each user in the tone that fits the team: playful, sober, or somewhere between.
-2. **Build the brain.** Guided intake captures the business, data, goals, rules, examples, edge cases, and what "good" looks like.
-3. **Design the fleet.** Users choose agent characters that match their culture, while the task competence and guardrails stay locked underneath.
-4. **Package and deploy.** The resulting agent package can run in the right runtime: HyperAgent today, other platforms tomorrow.
-5. **Celebrate and coach.** Progress is noticed, prompt habits improve, and people get feedback that makes AI feel learnable rather than threatening.
-6. **The brain learns.** Experts review outputs, correct context, and the system folds that feedback back into the knowledge layer.
+1. **Build the user brain.** Understand who is sitting in the chair: AI experience, coding comfort, commercial judgement, seniority, system-architecture confidence, and where the system should slow down or challenge more.
+2. **Build the business brain.** Guided intake captures goals, crucial information, data, workflows, rules, examples, approval points, and what "good" looks like.
+3. **Challenge the thinking.** Clive gives the constructive read; Pam stress-tests weak assumptions, scope creep, evidence gaps, and action readiness. For high-stakes decisions, the user can take it to Court.
+4. **Human decides.** The system gives context-aware, bias-checked views. The human chooses what becomes approved context.
+5. **Doc acts.** Approved context becomes records, packages, agent briefs, or build work, with a paper trail.
+6. **Runtime executes.** HyperAgent today, other runtimes tomorrow.
+7. **Coach and mature the brain.** Prompt confidence, QA chats, corrections, adoption feedback, and brain maturity improve over time.
 
 The loop closes. Every round makes the agents sharper, and a human stays responsible for what sharper means.
+
+---
+
+## The User Brain Comes First
+
+AstraJax maps the person before it maps the business.
+
+This is not a test. It is how the system adapts to the human. A team lead who is strong commercially but new to context environments needs different support from an operator who already understands prompt design and system architecture.
+
+The user brain tells Clive how much to explain, where to use plain language, and where to move faster. It tells Pam where to challenge more sensitively: thin evidence, vague context, over-broad agent scopes, or important action gates.
+
+The result is not "AI for beginners". It is AI that meets each person at the right level, then coaches them upward.
 
 ---
 
@@ -55,11 +68,31 @@ Citizen-as-builder is not a nice democratic slogan. It is the fastest route to u
 
 AstraJax does not devalue the human by asking AI to decide for them. It does the opposite.
 
-For important decisions, the system gives the expert more than one view: the helpful case, the sceptical case, the evidence, the risk, and the trade-off. Then it makes the ownership explicit:
+For important decisions, the system gives the expert more than one view. Clive gives the constructive case. Pam gives the sceptical case. If the stakes are high, Court Mode brings in multiple role-based perspectives: implementation, evidence quality, stakeholder reaction, and adoption risk.
+
+Then AstraJax makes the ownership explicit:
 
 > **This is your decision. You now have context-aware, bias-checked opinions. You decide.**
 
-That is the point. AI takes the sludge, sharpens the thinking, and removes some of the lonely guesswork. The human keeps the meaning.
+That is the point. AI takes the sludge, sharpens the thinking, and removes some of the lonely guesswork. The human keeps the meaning, and the approved judgement becomes the system truth.
+
+---
+
+## Brains Get More Trustworthy
+
+Brains should not all carry the same authority.
+
+A new brain should caveat more, escalate more, and stay inside low-risk answers. A reviewed brain can answer routine in-scope questions with more confidence. A mature brain can support richer agent work because humans have checked, corrected, and signed off the context over time.
+
+Example maturity path:
+
+```text
+Seedling Brain -> House-Trained Brain -> Working Brain -> Sharp Brain -> Trusted Brain -> Elder Brain
+```
+
+Maturity is earned by human QA, not agent confidence. It should be visible by domain: a brain might be sharp on sales operations and still seedling-level on finance.
+
+Better context is not just safer. It is cheaper to run. Mature brains need fewer repair loops, fewer high-cost escalations, and fewer wasted retrieval calls. In production, AstraJax can reward that with a **Brain Efficiency Credit**: better brains earn lower usage or overage costs because they make AI cheaper, safer, and more useful.
 
 ---
 
@@ -79,7 +112,7 @@ The context layer is the serious bit. Adoption only sticks if the agents work, a
 
 Tool-agnostic by design, AstraJax does not compete with agent runtimes. It lowers the barrier to adopting them. HyperAgent is the first platform AstraJax services because it does this unusually well: clean interface, friendly user experience, and a serious attempt to make agent-building approachable for normal people. AstraJax builds around that strength, while staying agile enough to support citizens through the agent-building platforms and iterations still to come.
 
-Airtable can hold the brain, HyperAgent can run the agents, Claude can handle the conversation, and Vercel can hold the interface. The point is not the stack. The point is getting people to use the system properly.
+Airtable can hold the brain, HyperAgent can run the agents, a reasoning model can support the conversation, and Vercel can hold the interface. The point is not the stack. The point is getting people to use the system properly.
 
 ---
 

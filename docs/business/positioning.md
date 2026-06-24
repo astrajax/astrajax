@@ -55,17 +55,50 @@ AstraJax turns AI adoption into a guided loop:
 User brain -> guide -> business brain -> challenge -> human approval -> Doc dispatch -> runtime execution -> coaching -> brain improves
 ```
 
-1. **Build the user brain.** Map who is in the chair: their experience with AI, context, architecture, commercial judgement — so the system adapts to them.
+1. **Build the user brain.** Map who is in the chair: AI experience, coding comfort, commercial judgement, seniority, system-architecture confidence, context confidence, and where they need support — so the system adapts to them.
 2. **Pick the guide.** Full Story, Light Story, or No Story. The theatre is configurable; the guardrails are not.
 3. **Build the business brain.** Guided intake captures the business, data, goals, rules, examples, edge cases, and what "good" looks like.
-4. **Challenge when it matters.** A sceptical layer stress-tests important reasoning before action.
+4. **Challenge when it matters.** Pam stress-tests important reasoning before action. Court Mode exists for high-stakes decisions.
 5. **Human decides.** The system gives points of view; the person with judgement chooses.
 6. **Doc acts.** Approved briefs become records, packages, or build jobs.
 7. **Runtime executes.** HyperAgent is the first runtime AstraJax services.
-8. **Celebrate and coach.** Adoption feedback keeps people improving.
-9. **The brain learns.** Human feedback improves context, and better context lowers cost.
+8. **Celebrate and coach.** Prompt confidence, QA chats, adoption feedback, and training progress keep people improving.
+9. **The brain matures.** Human feedback improves context, raises answer authority, and can lower usage cost.
 
 For the full architecture (agent roles, user brain, brain maturity, Doc routing), see `docs/business/architecture.md`.
+
+### The User Brain
+
+The first brain AstraJax builds is not the business brain. It is the **user brain**.
+
+That means understanding the person using the system before asking them to shape agents. A senior commercial operator who is new to context environments needs a different interface from someone who already understands prompt design and system architecture. A founder with strong judgement but little coding comfort should not be treated like a beginner at everything. A technical user should not be forced through patronising explanations just because the product is friendly.
+
+The user brain captures:
+
+- AI usage and prompt confidence
+- coding and technical comfort
+- commercial judgement and forecasting confidence
+- seniority and decision authority inside the team
+- system-architecture comfort
+- context-environment experience
+- data quality and evidence confidence
+- team leadership and change experience
+
+This is not a school test. It is how the system adapts to the human before asking the human to adapt to the system.
+
+The user brain controls:
+
+- how Clive explains, paces, and challenges assumptions
+- where Pam should be more sensitive to drift, weak evidence, or over-broad scope
+- which coaching prompts the user sees
+- whether the system should offer more scaffolding or move faster
+- how confident the product should be that the user can approve a given class of change
+
+The user brain is living. It can start from self-report, then improve through Clive's observations, Pam checkpoint outcomes, manager input, approval history, and the user's own corrections.
+
+Product principle:
+
+> **The system adapts to the human before the human adapts to the system.**
 
 ---
 
@@ -74,7 +107,7 @@ For the full architecture (agent roles, user brain, brain maturity, Doc routing)
 > **Clive is the face. Pam is the raised eyebrow. Doc is the hands. Humans keep judgement.**
 
 - **Clive** — reasoning partner. Helps the expert explain the business and shape context. Drafts; does not write canonical truth.
-- **Pam Portiscue** — challenger. Stress-tests important thinking before action. Does not decide.
+- **Pam Portiscue** — challenger. Stress-tests important thinking before action. Calibrated by the user brain. Does not decide.
 - **The human** — judge and approver. Decides what becomes trusted context, policy, or live action.
 - **Doc Albright** — action dispatcher. Routes approved briefs: direct writes, build work, or runtime packages.
 - **HyperAgent** — runtime partner that executes the agents.
@@ -95,11 +128,76 @@ Citizen-as-builder is not a democratic slogan. It is the fastest route to useful
 
 AstraJax does not devalue the human by asking AI to decide for them. It does the opposite.
 
-For important decisions, the system gives the expert more than one view: the helpful case, the sceptical case, the evidence, the risk, and the trade-off. Then it makes ownership explicit:
+For important decisions, the system gives the expert more than one view: the constructive case, the sceptical case, the evidence, the risk, and the trade-off.
+
+Pam is the everyday challenge pattern. She appears at action gates and risky moments: thin evidence, scope creep, strategic decisions, agent creation, deployment, or Doc handoff. Her job is not to interrupt every conversation. Her job is to keep helpful AI from becoming agreeable drift.
+
+Court Mode is the high-stakes version. It gives role-based perspectives before judgement:
+
+- Clive: upside, adoption value, human meaning
+- Pam: weak assumptions, rabbit-hole risk, missing evidence
+- Doc: action readiness, implementation cost, operational risk
+- Iris: evidence quality, data confidence, measurement
+- Vera: stakeholder reaction, narrative risk, human adoption risk
+
+The Court surfaces perspectives. The human gives judgement.
+
+Then AstraJax makes ownership explicit:
 
 > **This is your decision. You now have context-aware, bias-checked opinions. You decide.**
 
-For high-stakes calls, users can escalate into **Court Mode**: a structured multi-agent review where different roles give their takes, the trade-offs are displayed, and the human chooses the judgement to adopt. The Court surfaces perspectives. The human decides.
+The approved judgement becomes system truth. Without that approval, Clive can draft and Pam can challenge, but Doc should not act.
+
+---
+
+## 6A. Brain Maturity And Confidence
+
+Brains should not all carry the same authority.
+
+A new brain is useful, but it should be cautious. It should caveat answers, escalate often, and avoid pretending it knows more than the approved context supports. A mature brain can answer routine in-scope questions with more confidence because humans have reviewed it, corrected it, and signed off its boundaries.
+
+Example maturity path:
+
+```text
+Seedling Brain
+House-Trained Brain
+Working Brain
+Sharp Brain
+Trusted Brain
+Elder Brain
+```
+
+Maturity is earned through human review, not agent confidence.
+
+Signals can include:
+
+- approved context count
+- QA pass count
+- domain owner sign-off
+- stale-context rate
+- contradiction count
+- answer failure rate
+- user corrections
+- manager approval
+- confidence by domain
+
+The important phrase is **confidence by domain**. A brain might be strong on sales operations, weak on finance, and untrusted on legal. Maturity should control answer authority inside each boundary. It should never become a blanket permission slip for the system to act without humans.
+
+An Elder Brain is not a magic autonomous brain. It is a battle-tested context environment with strong human review, low contradiction, clear boundaries, and repeated successful use. It can support more confident answers and smoother workflows, but live changes, publishing, policy, money, client-facing claims, and destructive actions still require human approval.
+
+### Brain Efficiency Credit
+
+Better context is cheaper to run.
+
+Mature brains need fewer retrieval calls, fewer high-cost escalations, fewer repair loops, and fewer support interventions. They should produce sharper answers with less waste.
+
+That gives AstraJax a commercial mechanic:
+
+> **AstraJax rewards context quality because better context makes AI cheaper, safer, and more useful.**
+
+In production, mature brains can earn a **Brain Efficiency Credit**: a usage or overage discount tied to context quality. This should usually reduce variable usage costs, not the base platform fee. The platform fee pays for the operating layer; the credit rewards clients for improving the quality and economics of their own agent runs.
+
+The credit should be earned, capped, reversible, and tied to quality signals. It must not reward teams for bulk-approving weak context. It rewards healthier brains, not more paperwork.
 
 ---
 
@@ -135,7 +233,7 @@ Short version:
 
 ## 9. Relationship To HyperAgent
 
-HyperAgent is the first runtime AstraJax services, and a partner — not a competitor.
+HyperAgent is the first runtime AstraJax services. They are the best current presentation of an agent building platform that is built for non-technical users.
 
 > **HyperAgent makes powerful agents possible. AstraJax makes them adoptable by the teams who know the work.**
 
@@ -195,16 +293,3 @@ What teams need to adopt AI properly:
 - a "buy more AI tools" advisor
 
 The point is not to install tools. The point is to build the conditions where AI gets adopted and does useful work.
-
----
-
-## 14. Claim Control — Read Before Anything Goes Public
-
-The positioning above is safe to use. Two boundaries to hold on the *proof*, because the underlying material is still partly internal:
-
-1. **Public vs. internal.** Anything Airtable has already published — the Airspace talk and recording, the official recap, the "14 agents / zero engineering background" framing, the CEO-adjacent billing, MVP and Founding 500 status — is fair game. Deeper internal Butternut specifics (precise financials, granular operational volumes, and especially the labour-model strategy around employed vs. self-employed salespeople) should be kept at the level the company has already sanctioned, or cleared before they appear on a public page.
-2. **Verify before quoting.** Two lines that circulate in notes — that a planned 30-minute podcast was extended to 60 minutes on the day, and a "most impressive solo build I've ever seen" testimonial — are not yet sourced. Treat them as recollection until a source exists; do not put them in copy.
-
-**Numbers to keep canonical for external use:** 14 agents, 120-person commercial team, three weeks, ~12 months on the foundation, ~£8.1m channel. Pick these and stay consistent — earlier drafts have drifted (11 days / two weeks / three weeks; twelve / fourteen agents).
-
-**Founder framing:** Pair "never written a line of code" with "with AI, on top of clean data." Pair "built fast" with the preceding foundation year. Pair "AI agents" with bounded scope, human approval, and audit trail. Do not present Matthew as an engineer. Keep personal finances and medical specifics out of any shareable doc.

@@ -65,7 +65,7 @@ Matthew or the relevant agent (Publisher when live).
 
 ## Model committee (how to use models, not which to deploy)
 
-Per `agent-model-collaboration-stack-notion.md`:
+Per `docs/archive/strategy-notes/agent-model-collaboration-stack-notion.md`:
 
 - GPT-5.5 — architecture and first config draft (Factory's own deploy model)
 - Claude Opus 4.7 — independent adversarial review (mandatory for High risk)
@@ -219,7 +219,7 @@ Revise, then list what you changed.
 ### Step 7b — Independent Opus review (High risk only)
 Do not self-certify a High-risk agent. Hand the pack to an independent Claude
 Opus 4.7 reviewer (separate Cursor agent/task) with the red-team prompt from
-`agent-model-collaboration-stack-notion.md`. Fold in or explicitly reject each
+`docs/archive/strategy-notes/agent-model-collaboration-stack-notion.md`. Fold in or explicitly reject each
 finding before presenting to Matthew.
 
 ### Step 8 — Present, approve, build

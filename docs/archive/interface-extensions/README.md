@@ -1,3 +1,5 @@
+> **Archived reference only.** This folder lives at `docs/archive/interface-extensions/`. Airtable Interface Extensions are retired; keep this code as a pattern library when building Vercel/React UI (layouts, review queues, workbench patterns).
+
 # AstraJax Interface Extensions — setup (canonical)
 
 Follow the **ds-platform** pattern (`Interface_Extensions/ec-period-dashboard`, `salesperson-dashboard`, `bot-fleet`). Same mental model as Butternut: **repo code → `block release` → existing block on the Interface page → Data access in Designer**.

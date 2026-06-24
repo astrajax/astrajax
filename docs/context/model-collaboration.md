@@ -3,8 +3,8 @@
 **Status:** Bootstrap draft.  
 **Primary destination:** Cursor/GitHub.  
 **Owner:** Matthew.  
-**Primary sources:** `agent-model-collaboration-stack-notion.md`,
-`best-models-for-context-environments-notion.md`.
+**Primary sources:** `docs/archive/strategy-notes/agent-model-collaboration-stack-notion.md`,
+`docs/archive/strategy-notes/best-models-for-context-environments-notion.md`.
 
 ## Purpose
 
@@ -44,5 +44,5 @@ baseline works.
 
 ## Source IDs
 
-- `SRC-MODEL-STACK`: `agent-model-collaboration-stack-notion.md`
-- `SRC-CONTEXT-MODELS`: `best-models-for-context-environments-notion.md`
+- `SRC-MODEL-STACK`: `docs/archive/strategy-notes/agent-model-collaboration-stack-notion.md`
+- `SRC-CONTEXT-MODELS`: `docs/archive/strategy-notes/best-models-for-context-environments-notion.md`
