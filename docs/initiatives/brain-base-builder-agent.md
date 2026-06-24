@@ -1,6 +1,6 @@
 # Brain Base Builder — Agent Plan
 
-**Status:** Track A done (Airtable skills imported). Track B v0.1 **built** — invoke `@doc-airtable-builder` in Cursor. Registry: `agents/cursor/doc/airtable-builder/build-pack-v0.1.md`.
+**Status:** Track A done (Airtable skills imported). Track B v0.1 **built** — invoke `@doc-airtable-minion` in Cursor. Registry: `agents/cursor/doc/airtable-minion/build-pack-v0.1.md`.
 **Owner:** Matthew.
 **Working name:** "Brain Base Builder" (a capability in Doc's family — final name/character is Matthew's call).
 **Read with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (the access model it builds for), [`aie-2026-07.md`](./aie-2026-07.md) (sprint scope and do-not-build list), and `docs/business/architecture.md` (Doc routing, agent roles).

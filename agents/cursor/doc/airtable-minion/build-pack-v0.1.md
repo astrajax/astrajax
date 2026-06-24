@@ -1,18 +1,19 @@
-# Doc Airtable Builder v0.1 — Build Pack
+# Doc's Airtable Minion v0.1 — Build Pack
 
 **Platform:** Cursor (subagent)  
-**Family:** doc  
+**Family:** doc (minion)  
 **Risk tier:** Medium  
 **Owner:** Matthew  
 **Created:** 24 June 2026  
-**Registry:** `agents/cursor/doc/airtable-builder/`
+**Renamed:** 24 June 2026 — `doc-airtable-builder` → `doc-airtable-minion`  
+**Registry:** `agents/cursor/doc/airtable-minion/`
 
 ## Roster decision
 
 **BUILD NEW** — no existing agent covers Airtable base scaffolding under Doc's lane.
 
 Axes summary: Platform Cursor ✓ | Channel Cursor chat ✓ | Audience Matthew/TL ✓ |
-Trigger @ invoke / build brief ✓ | Scope Airtable MCP structure ✓ | Persona Doc ✓
+Trigger @ invoke / build brief ✓ | Scope Airtable MCP structure ✓ | Persona Doc minion ✓
 
 Closest matches: none. Composes imported Airtable skills; does not duplicate Clive
 Intake or Agent Factory.
@@ -26,16 +27,20 @@ plain-language brief, under two-phase human approval, via MCP.
 
 | Artifact | Path |
 |----------|------|
-| Cursor subagent | `.cursor/agents/doc-airtable-builder.md` |
-| Cursor skill | `.cursor/skills/doc-airtable-builder/SKILL.md` |
-| Build pack | `agents/cursor/doc/airtable-builder/build-pack-v0.1.md` |
+| Cursor subagent | `.cursor/agents/doc-airtable-minion.md` |
+| Cursor skill | `.cursor/skills/doc-airtable-minion/SKILL.md` |
+| Build pack | `agents/cursor/doc/airtable-minion/build-pack-v0.1.md` |
 
 No HyperAgent export (Cursor-native build tool only).
 
 ## Invoke
 
+Primary: `@doc` (Doc routes to Airtable Minion).
+
+Direct:
+
 ```text
-@doc-airtable-builder
+@doc-airtable-minion
 Propose a Trusted Brain base for [theme] — schema only, Phase A.
 ```
 
@@ -45,7 +50,7 @@ Phase B: switch to **Agent mode**, then `approved — build it`.
 
 - Track A: Airtable's open-source skills imported to `.cursor/skills/` (overview,
   filters, show-airtable-link, agent-activity-log, product/sales/marketing-ops).
-- Track B: this subagent wraps governed brain builds + composes those skills for
+- Track B: this minion wraps governed brain builds + composes those skills for
   Matthew's workbench.
 - Chapter 1 bases already live via MCP; IDs in `website/src/lib/brains/airtable-ids.ts`.
 - Client-facing Vercel + Claude interface is **out of scope** for v0.1 (post-AIE).

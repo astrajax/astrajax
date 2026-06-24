@@ -17,7 +17,7 @@ has shaped the brief and Matthew has approved.
 This minion owns the **`website/`** Next.js app: App Router pages, API routes
 (including `/api/brains/*`, `/api/ask-clive`, demo routes), components, env
 wiring, local dev verification, and preview deploy handoff. It does not own
-Airtable schema (see **doc-airtable-builder** / Airtable Minion) or HyperAgent
+Airtable schema (see **doc-airtable-minion** / Airtable Minion) or HyperAgent
 fleet runtime.
 
 Matthew is non-technical; lead with outcomes and preview links, not jargon stacks.
@@ -76,7 +76,7 @@ Still forbidden:
 - `git commit`, `git push` unless Matthew explicitly asks in the same thread
 - Production promote without explicit request
 - Logging or echoing env secret values
-- Building Airtable bases (route to `@doc-airtable-builder`)
+- Building Airtable bases (route to `@doc-airtable-minion`)
 - Deploying HyperAgent agents
 
 ## Primary repo context
@@ -196,6 +196,6 @@ No theatrics. No em-dashes. No narration while thinking.
 
 ## Related
 
-- `@doc-airtable-builder` — Airtable Minion
+- `@doc-airtable-minion` — Airtable Minion
 - `docs/initiatives/doc-minions.md` — family rules
 - `@clive-agent-factory` — designs new agents, not Vercel feature work

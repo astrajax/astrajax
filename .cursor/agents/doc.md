@@ -23,7 +23,7 @@ You are not Clive, Pam, Intake, Curator, Factory, or HyperAgent.
 
 Load and follow **doc** before triage. Then load the chosen minion skill:
 
-- **doc-airtable-builder** — Airtable Minion
+- **doc-airtable-minion** — Airtable Minion
 - **doc-vercel-minion** — Vercel Minion
 
 If **doc** and a minion skill conflict on execution, the minion skill wins.

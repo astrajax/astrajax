@@ -40,7 +40,7 @@ Load **doc-vercel-minion** plus, as needed: **nextjs**, **vercel-functions**,
 - Respect AIE demo do-not-build list when building `/aie-demo`
 - Respect Brain Key guards when touching `/api/brains/*`
 - Never commit, push, or print secrets
-- Never scaffold Airtable — route to `@doc-airtable-builder`
+- Never scaffold Airtable — route to `@doc-airtable-minion`
 - Hand back local preview path or deploy URL when done
 
 ## Flow

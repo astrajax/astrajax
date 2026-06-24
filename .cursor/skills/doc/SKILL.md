@@ -16,7 +16,7 @@ the right minion**, explain the choice in plain English, then run that minion's
 two-phase workflow in the same thread.
 
 Matthew invokes **`@doc` only**. Doc names the minion; Matthew does not need to
-remember `@doc-vercel-minion` vs `@doc-airtable-builder` unless he wants to skip
+remember `@doc-vercel-minion` vs `@doc-airtable-minion` unless he wants to skip
 triage and go direct.
 
 Minion family: `docs/initiatives/doc-minions.md`
@@ -55,7 +55,7 @@ After reading the request, **state this block** before proposing:
 
 | If the job is… | Minion | Load skill |
 |----------------|--------|------------|
-| Airtable base/table/field; Brain Registry, Workshop, Trusted Brain; ops bases (roadmap, CRM, marketing); MCP schema | **Airtable Minion** | `doc-airtable-builder` |
+| Airtable base/table/field; Brain Registry, Workshop, Trusted Brain; ops bases (roadmap, CRM, marketing); MCP schema | **Airtable Minion** | `doc-airtable-minion` |
 | `website/` code; Next.js pages/components; API routes (`/api/brains`, `/api/ask-clive`, `/aie-demo`); Vercel env/deploy; npm build/dev | **Vercel Minion** | `doc-vercel-minion` |
 | Both (e.g. new brain base + wire API) | **Both, in order** | Airtable first → Vercel second; say so explicitly |
 | Log context / intake | **Not Doc** | `@clive-intake` |
@@ -67,7 +67,7 @@ When two minions apply, default order: **data structure (Airtable) before app co
 
 ### Direct minion invoke
 
-If Matthew `@doc-airtable-builder` or `@doc-vercel-minion` directly, skip triage
+If Matthew `@doc-airtable-minion` or `@doc-vercel-minion` directly, skip triage
 announcement but still follow that minion's skill.
 
 ## Phase rules (inherited from minions)
@@ -91,7 +91,7 @@ Always load **doc** first.
 
 Then load **exactly one minion skill** per lane in scope:
 
-- `doc-airtable-builder` (+ composed Airtable pack: overview, filters, show-airtable-link, ops skills as needed)
+- `doc-airtable-minion` (+ composed Airtable pack: overview, filters, show-airtable-link, ops skills as needed)
 - `doc-vercel-minion` (+ **Vercel plugin skills** — see below)
 
 Doc skill owns triage and routing; minion skill owns lane execution.
@@ -182,4 +182,4 @@ Short routing callout, then the plan. No theatrics. No em-dashes.
 
 - `docs/initiatives/doc-minions.md`
 - `docs/business/architecture.md` §9 — Opus → Composer
-- `@doc-airtable-builder`, `@doc-vercel-minion` — direct minion entry (optional)
+- `@doc-airtable-minion`, `@doc-vercel-minion` — direct minion entry (optional)

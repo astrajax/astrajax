@@ -5,7 +5,7 @@
 **Last updated:** 24 June 2026  
 **Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance)
 
-Any agent (especially **@doc-airtable-builder**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
+Any agent (especially **@doc-airtable-minion**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
 
 **Live Chapter 1 instance IDs:** [`website/src/lib/brains/airtable-ids.ts`](../../website/src/lib/brains/airtable-ids.ts)
 
@@ -291,4 +291,4 @@ Primary field: **Persona Name** (singleLineText). Approved agent behaviour — n
 
 - [Brain Key wiring](./brain-key-wiring.md) — access model, API routes, credentials
 - [Brain Key build plan](./brain-key-build-plan.md) — application layer QA
-- [Doc Airtable Builder agent](../../.cursor/agents/doc-airtable-builder.md)
+- [Doc's Airtable Minion](../../.cursor/agents/doc-airtable-minion.md)

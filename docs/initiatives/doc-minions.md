@@ -13,7 +13,7 @@
 Doc triages the task, tells you which minion fits and why, then runs that minion's
 two-phase workflow (propose → you approve → build in Agent mode).
 
-Direct minion invoke still works if you already know the lane: `@doc-airtable-builder`, `@doc-vercel-minion`.
+Direct minion invoke still works if you already know the lane: `@doc-airtable-minion`, `@doc-vercel-minion`.
 
 ## Skill sources (two types)
 
@@ -55,7 +55,7 @@ HyperAgent is **not** a minion. HyperAgent runs **deployed fleet agents**. Minio
 | Role | Invoke | Lane | Status |
 |------|--------|------|--------|
 | **Doc** (dispatcher) | `@doc` | Triage + route to minion | v0.1 shipped |
-| **Airtable Minion** | `@doc-airtable-builder` (or via `@doc`) | Brain bases + ops bases via Airtable MCP | v0.1 shipped |
+| **Airtable Minion** | `@doc-airtable-minion` (or via `@doc`) | Brain bases + ops bases via Airtable MCP | v0.1 shipped |
 | **Vercel Minion** | `@doc-vercel-minion` (or via `@doc`) | `website/` Next.js app, API routes, env, deploy | v0.1 shipped |
 
 Future minions (not built): HyperAgent export packager, context scaffold, etc. — only after a minion passes the duplication check in Agent Factory.

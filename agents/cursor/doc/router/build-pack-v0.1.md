@@ -20,7 +20,7 @@ that minion's skill. Opus-class reasoning for routing; Composer for Phase B buil
 
 | Minion | Slug | Skill |
 |--------|------|-------|
-| Airtable Minion | `doc-airtable-builder` | `doc-airtable-builder` |
+| Airtable Minion | `doc-airtable-minion` | `doc-airtable-minion` |
 | Vercel Minion | `doc-vercel-minion` | `doc-vercel-minion` |
 
 ## Invoke
