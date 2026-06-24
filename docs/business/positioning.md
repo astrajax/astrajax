@@ -12,7 +12,7 @@
 
 **AstraJax is the adoption operating system for AI agents.**
 
-It helps the people who know the work — not developers — design, run, and improve AI agents their teams actually use. It starts with curated context, turns that context into scoped agent fleets, and keeps humans in charge of what "good" means.
+It helps the people who know the work — not developers — design, run, and improve AI agents their teams actually use. It starts by understanding the human, then builds the business brain, turns that context into scoped agent fleets, and keeps humans in charge of what "good" means.
 
 The belief underneath everything:
 
@@ -43,6 +43,7 @@ That is the gap AstraJax is built for:
 - Does anyone own the output?
 - Do people keep using it after week one?
 - Can managers improve the system without rebuilding it?
+- Can leaders stop expensive frontier-model usage being wasted on simple work?
 - Can non-technical experts shape the system without breaking it?
 
 ---
@@ -62,7 +63,7 @@ User brain -> guide -> business brain -> challenge -> human approval -> Doc disp
 5. **Human decides.** The system gives points of view; the person with judgement chooses.
 6. **Doc acts.** Approved briefs become records, packages, or build jobs.
 7. **Runtime executes.** HyperAgent is the first runtime AstraJax services.
-8. **Celebrate and coach.** Prompt confidence, QA chats, adoption feedback, and training progress keep people improving.
+8. **Celebrate and coach.** Prompt confidence, QA chats, model usage habits, adoption feedback, and training progress keep people improving.
 9. **The brain matures.** Human feedback improves context, raises answer authority, and can lower usage cost.
 
 For the full architecture (agent roles, user brain, brain maturity, Doc routing), see `docs/business/architecture.md`.
@@ -199,6 +200,28 @@ In production, mature brains can earn a **Brain Efficiency Credit**: a usage or 
 
 The credit should be earned, capped, reversible, and tied to quality signals. It must not reward teams for bulk-approving weak context. It rewards healthier brains, not more paperwork.
 
+### Model Usage Economics
+
+Better context is only one side of AI economics. The other is **model usage**.
+
+When teams do not know what they are doing, they often use the strongest, most expensive model for every task. That feels safe, but it creates waste: frontier reasoning used for admin, formatting, simple record updates, or bounded execution work that a cheaper worker could handle.
+
+AstraJax should be vocal about this:
+
+> **Good AI adoption means knowing which model the job deserves.**
+
+The pattern:
+
+- use heavyweight reasoning for judgement, trade-offs, strategy, and context extraction
+- use Pam or Court Mode when the decision needs challenge before action
+- use Doc to turn approved judgement into precise instructions
+- use bounded minions / implementation workers for cheap, narrow execution
+- use direct tools for simple structured writes
+
+This matters commercially. Without model discipline, AI cost spirals and leaders lose confidence. With good routing, expensive reasoning is reserved for the moments where being wrong is costly, and cheaper workers handle the heavy execution load.
+
+This is not just margin protection for AstraJax. It is part of the client value proposition: fewer wasted tokens, clearer accountability, and a team that learns when to ask for deep reasoning versus when to deploy a minion.
+
 ---
 
 ## 7. Who We Help
@@ -293,3 +316,28 @@ What teams need to adopt AI properly:
 - a "buy more AI tools" advisor
 
 The point is not to install tools. The point is to build the conditions where AI gets adopted and does useful work.
+
+---
+
+## 14. Claim Control — Read Before Anything Goes Public
+
+The positioning above is safe to use. Hold these boundaries on proof and public claims:
+
+1. **Public vs. internal.** Anything Airtable has already published — the Airspace talk and recording, the official recap, the "14 agents / zero engineering background" framing, the CEO-adjacent billing, MVP status, and Founding 500 status — is fair game. Deeper internal Butternut specifics should be kept at the level the company has already sanctioned, or cleared before they appear on a public page.
+2. **Verify before quoting.** Any remembered testimonials, offhand praise, or private conversations should not appear as public copy until there is a source or explicit permission.
+
+Numbers to keep canonical for external use:
+
+- **14 agents**
+- **120-person commercial team**
+- **three weeks** for the first fleet
+- **~12 months** on the foundation
+- **~£8.1m** channel
+
+Founder framing:
+
+- Pair "never handwritten a line of code" with **with AI, on top of clean data**.
+- Pair "built fast" with the preceding foundation year.
+- Pair "AI agents" with bounded scope, human approval, and audit trail.
+- Do not present Matthew as an engineer.
+- Keep personal finances and medical specifics out of shareable docs.

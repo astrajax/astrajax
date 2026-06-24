@@ -228,6 +228,8 @@ Chapter 1 uses the **Brain Key** access model — not one base with Draft/Approv
 
 API routes live in `website/src/app/api/brains/` (request, approve, retrieve, log, promote).
 
+**Front-end build brief:** the Chapter 1 workbench that sits on these routes is specified in [`chapter1-workbench-build-plan.md`](./chapter1-workbench-build-plan.md) (Vercel Minion). It is the approved middle ground: a real governed loop in memory mode, not a static demo and not a platform.
+
 ### Today’s Output
 
 By the end of today, Matthew should have:
@@ -384,6 +386,7 @@ Add a receipts panel showing what Chapter 1 unlocks:
 - Agent fleet proposal
 - HyperAgent-ready package
 - Doc action log
+- Model usage plan: heavyweight reasoning vs bounded minions
 - Scorekeeper / Coach adoption loop
 - Brain maturity path
 - Proof drawer: Butternut / DS pattern
@@ -392,7 +395,7 @@ Optional market-proof receipt from the Microsoft voice notes (internal language 
 
 - agent lifecycle / governance
 - context quality
-- AI cost / token efficiency
+- AI cost / token efficiency / model usage discipline
 - adoption confidence
 
 Definition of done:

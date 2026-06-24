@@ -34,7 +34,7 @@ AstraJax turns AI adoption into a guided loop:
 4. **Human decides.** The system gives context-aware, bias-checked views. The human chooses what becomes approved context.
 5. **Doc acts.** Approved context becomes records, packages, agent briefs, or build work, with a paper trail.
 6. **Runtime executes.** HyperAgent today, other runtimes tomorrow.
-7. **Coach and mature the brain.** Prompt confidence, QA chats, corrections, adoption feedback, and brain maturity improve over time.
+7. **Coach and mature the brain.** Prompt confidence, QA chats, corrections, adoption feedback, model usage habits, and brain maturity improve over time.
 
 The loop closes. Every round makes the agents sharper, and a human stays responsible for what sharper means.
 
@@ -96,6 +96,24 @@ Better context is not just safer. It is cheaper to run. Mature brains need fewer
 
 ---
 
+## Use The Right Model For The Job
+
+AI gets expensive when people do not know what they are doing.
+
+The default beginner pattern is to use the strongest, most expensive model for everything: strategy, drafting, admin, formatting, record updates, and simple execution. That is like sending the CFO to buy the milk because they are clever with numbers.
+
+AstraJax teaches a better pattern:
+
+- heavyweight reasoning for judgement, trade-offs, and high-stakes decisions
+- Pam / Court Mode when challenge is needed before action
+- Doc to translate approved judgement into precise instructions
+- bounded minions / workers for cheap, narrow execution
+- direct tools for simple structured writes
+
+Model usage is part of adoption. Teams need to learn not only **what** to ask AI, but **which level of AI** the job deserves.
+
+---
+
 ## Why It Is Different
 
 Most platforms aim at builders. AstraJax aims at the person who actually knows the work.
@@ -108,7 +126,7 @@ Teams can choose how much story they want: **Full Story Mode**, **Light Story Mo
 
 For high-stakes decisions, users can escalate beyond a simple challenge into **Court Mode**: a structured multi-agent review where different roles give their takes, the trade-offs are displayed, and the human chooses the judgement to adopt. The Court surfaces perspectives. The human decides.
 
-The context layer is the serious bit. Adoption only sticks if the agents work, and agents only work if they reason from curated, scoped, human-approved context. Better context means sharper answers, fewer wasted tokens, fewer hallucinations, and more trust.
+The context layer is the serious bit. Adoption only sticks if the agents work, and agents only work if they reason from curated, scoped, human-approved context. Better context means sharper answers, fewer wasted tokens, fewer unnecessary model escalations, fewer hallucinations, and more trust.
 
 Tool-agnostic by design, AstraJax does not compete with agent runtimes. It lowers the barrier to adopting them. HyperAgent is the first platform AstraJax services because it does this unusually well: clean interface, friendly user experience, and a serious attempt to make agent-building approachable for normal people. AstraJax builds around that strength, while staying agile enough to support citizens through the agent-building platforms and iterations still to come.
 
@@ -118,7 +136,7 @@ Airtable can hold the brain, HyperAgent can run the agents, a reasoning model ca
 
 ## Proof
 
-AstraJax is built from production experience, not a pitch deck.
+AstraJax is built from production experience, not a pitch deck. Full detail and claim-control boundaries live in `docs/business/proof.md` and `docs/business/positioning.md`.
 
 Matthew Hopkinson is a non-technical commercial leader who has never handwritten a line of code. Working with AI on top of clean operational data, he built a production operating layer for Butternut Box Direct Sales: a real commercial function with a real team, real workflows, and real adoption pressure.
 

@@ -1009,14 +1009,26 @@ Requirements:
 
 ### 9.7 Token Economics (Why This Stack)
 
+One of the biggest hidden costs in AI adoption is **model misuse**.
+
+When users do not know what they are doing, the default pattern is to use the strongest model for everything. That feels safe but burns money quickly: expensive reasoning models get used for formatting, simple admin, deterministic writes, and bounded execution work.
+
+AstraJax should teach and enforce a better operating pattern:
+
 ```text
 Clive/Pam  →  medium–high tokens during thinking (worth it — wrong direction is expensive)
 Opus/Doc   →  low tokens per action (brief translation only)
-Composer   →  high tokens per job (cheap relative to Opus doing repo work)
+Minion/Composer → high tokens per job (cheap relative to Opus doing repo work)
 Direct API →  negligible tokens (record writes)
 ```
 
-AstraJax margin improves when implementation runs through Composer on approved briefs rather than through expensive general reasoning or founder-in-Cursor manual passes — while governance stays intact because humans still approve what becomes true.
+The durable rule:
+
+> **Use expensive reasoning for judgement. Deploy minions for bounded execution. Use direct tools for schema-bound writes.**
+
+AstraJax margin improves when implementation runs through bounded workers on approved briefs rather than through expensive general reasoning or founder-in-Cursor manual passes — while governance stays intact because humans still approve what becomes true.
+
+Client value improves for the same reason: lower token waste, fewer unnecessary model escalations, and clearer accountability for which system did what.
 
 ### 9.8 Client-Facing Language
 
