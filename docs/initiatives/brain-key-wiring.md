@@ -5,6 +5,13 @@
 **Last updated:** 24 June 2026  
 **Canonical architecture:** [`docs/business/architecture.md`](../business/architecture.md)
 
+### Naming and surfacing
+
+- **Brain Key** = internal term for the human-approved access grant + server-side credential use. Engineering docs, schema, env vars.
+- **Public / demo language** = “approved context for this task,” “context access,” “Workshop only (Seedling).” Do not lead with “Brain Key” in UI or booth copy.
+- **Maturity gate:** no context-access flow until the brain is at least **Working** (approved rows exist in Trusted Brain). Seedling = Workshop drafts only.
+- **Hard lock** = separate bases (Workshop vs Trusted). **Scope** = retrieval/audit filter inside a grant — not a separate key product per scope area.
+
 ---
 
 ## Purpose

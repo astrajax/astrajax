@@ -7,6 +7,8 @@
 
 Any agent (especially **@doc-airtable-minion**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
 
+**Surfacing:** backstage governance only. Demo and product copy say **approved context for this task**, not Brain Key. Grants apply from **Working Brain** upward; Seedling = Workshop only.
+
 **Live Chapter 1 instance IDs:** [`website/src/lib/brains/airtable-ids.ts`](../../website/src/lib/brains/airtable-ids.ts)
 
 ---

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { deriveBrainKeyUiState, cliveMessageForState } from "./ui-states";
+import { deriveBrainKeyUiState, cliveMessageForState, UI_STATE_LABELS } from "./ui-states";
 import type { AccessGrant, BrainKeyRequest } from "./types";
 
 const baseRequest: BrainKeyRequest = {
@@ -44,11 +44,17 @@ describe("Brain Key UI states", () => {
     expect(deriveBrainKeyUiState({ brainSlug: "astrajax-chapter-1", grant })).toBe("unlocked");
   });
 
-  it("never mentions remembering the key in Clive copy", () => {
+  it("never mentions credentials or keys in Clive copy", () => {
     for (const state of ["locked", "key_requested", "unlocked", "expired"] as const) {
       const msg = cliveMessageForState(state);
       expect(msg.toLowerCase()).not.toContain("api key");
       expect(msg.toLowerCase()).not.toContain("bearer");
+      expect(msg.toLowerCase()).not.toContain("brain key");
     }
+  });
+
+  it("uses approved-context language in public labels", () => {
+    expect(UI_STATE_LABELS.unlocked).toContain("Approved context");
+    expect(UI_STATE_LABELS.locked).toBe("Workshop only");
   });
 });

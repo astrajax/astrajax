@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { RECEIPT_CARDS } from "@/lib/aie-demo/demo-data";
+import { ACCESS_RECEIPT_LINE, RECEIPT_CARDS } from "@/lib/aie-demo/demo-data";
 import type { StepProps } from "@/lib/aie-demo/types";
 
 export function ReceiptsStep({ state, onBack }: StepProps) {
@@ -33,9 +33,13 @@ export function ReceiptsStep({ state, onBack }: StepProps) {
         ))}
       </div>
 
+      {state.grant && (
+        <p className="rounded-lg bg-sage/10 px-4 py-3 text-sm text-ink">{ACCESS_RECEIPT_LINE}</p>
+      )}
+
       {state.promoteReceipt && (
         <p className="rounded-lg bg-sage/10 px-4 py-3 text-sm text-ink">
-          Seedling Brain — first approved context promoted. Next: QA pass, fleet design, HyperAgent
+          Working Brain — first approved context promoted. Next: QA pass, fleet design, HyperAgent
           package.
         </p>
       )}

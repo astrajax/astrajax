@@ -20,7 +20,7 @@ export function PamChallengeStep({ state, onUpdate, onNext, onBack }: StepProps)
         <h2 className="font-display mt-2 text-3xl font-semibold text-ink">Pam&apos;s sniff test</h2>
         <p className="mt-3 max-w-2xl text-lg text-ink-muted">
           Helpful by default, sceptical before action. Pam stress-tests canonical approval and Doc
-          handoff — not routine Brain Key unlock for read access.
+          handoff — not routine context access for read.
           {sensitivity === "high" && " Your profile: contextual Pam sensitivity is high."}
         </p>
       </div>

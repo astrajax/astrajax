@@ -110,7 +110,10 @@ export const CLIVE_INTERVIEW_PROMPTS = [
 ];
 
 export const CLIVE_DRAFT_SUMMARY =
-  "I've drafted a business brain brief from your answers. It stays in the workshop until you approve what becomes trusted. I cannot read approved context without a Brain Key you sign off.";
+  "I've drafted a business brain brief from your answers. It stays in the workshop until you approve what becomes trusted. At Seedling maturity there is no approved context for agents to use yet.";
+
+export const ACCESS_RECEIPT_LINE =
+  "Context access was scoped, time-limited, and logged. (Brain Key is the backstage name for this grant — agents never see credentials.)";
 
 export const RECEIPT_CARDS: ReceiptCard[] = [
   {

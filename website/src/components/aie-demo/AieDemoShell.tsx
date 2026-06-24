@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { Stepper } from "@/components/aie-demo/Stepper";
 import { BusinessBrainStep } from "@/components/aie-demo/steps/BusinessBrainStep";
 import { CliveInterviewStep } from "@/components/aie-demo/steps/CliveInterviewStep";
+import { ContextAccessStep } from "@/components/aie-demo/steps/ContextAccessStep";
 import { DocHandoffStep } from "@/components/aie-demo/steps/DocHandoffStep";
 import { GuideModeStep } from "@/components/aie-demo/steps/GuideModeStep";
 import { HumanDecisionStep } from "@/components/aie-demo/steps/HumanDecisionStep";
@@ -17,8 +18,9 @@ import {
   DEFAULT_PAM_REVIEW,
   DEMO_SCOPE,
 } from "@/lib/aie-demo/demo-data";
-import { LOOP_STEPS, type LoopState, type LoopStep } from "@/lib/aie-demo/types";
+import { LOOP_STEPS, MATURITY_LABELS, type LoopState, type LoopStep } from "@/lib/aie-demo/types";
 import {
+  SEEDLING_HEADER_LABEL,
   UI_STATE_LABELS,
   deriveBrainKeyUiState,
 } from "@/lib/brains/ui-states";
@@ -27,6 +29,7 @@ function createInitialState(): LoopState {
   return {
     sessionId: crypto.randomUUID(),
     currentStep: "user_brain",
+    brainMaturity: "seedling",
     userBrain: null,
     guideMode: null,
     businessBrain: DEFAULT_BUSINESS_BRAIN,
@@ -41,11 +44,19 @@ function createInitialState(): LoopState {
   };
 }
 
+function headerBadge(state: LoopState, accessState: ReturnType<typeof deriveBrainKeyUiState>): string {
+  if (state.brainMaturity === "seedling") {
+    return SEEDLING_HEADER_LABEL;
+  }
+  return `${MATURITY_LABELS.working} · ${UI_STATE_LABELS[accessState]}`;
+}
+
 export function AieDemoShell() {
   const [state, setState] = useState<LoopState>(createInitialState);
 
   const accessState = deriveBrainKeyUiState({
     brainSlug: "astrajax-chapter-1",
+    maturity: state.brainMaturity,
     request: state.keyRequest ?? undefined,
     grant: state.grant ?? undefined,
     promotionPending: false,
@@ -108,6 +119,8 @@ export function AieDemoShell() {
         return <HumanDecisionStep {...stepProps} />;
       case "doc_handoff":
         return <DocHandoffStep {...stepProps} />;
+      case "context_access":
+        return <ContextAccessStep {...stepProps} />;
       case "receipts":
         return <ReceiptsStep {...stepProps} onNext={goNext} />;
       default:
@@ -127,7 +140,7 @@ export function AieDemoShell() {
           </div>
           <div className="flex items-center gap-3">
             <span className="rounded-full bg-ink/5 px-3 py-1 font-mono text-xs text-ink-muted">
-              {UI_STATE_LABELS[accessState]}
+              {headerBadge(state, accessState)}
             </span>
             <button type="button" className="btn-secondary text-sm" onClick={reset}>
               Reset / replay

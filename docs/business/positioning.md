@@ -184,6 +184,8 @@ Signals can include:
 
 The important phrase is **confidence by domain**. A brain might be strong on sales operations, weak on finance, and untrusted on legal. Maturity should control answer authority inside each boundary. It should never become a blanket permission slip for the system to act without humans.
 
+**Maturity gates context access.** At Seedling, the brain is workshop-only — drafts, intake, and review. Agents do not get user-facing “unlock” language because there is not yet approved context worth using. From Working Brain upward, an agent may ask to use **approved context for a bounded task** after human approval. That access is scoped, time-limited, and logged. The internal mechanism may be called a Brain Key in engineering docs; public and demo surfaces say **approved context**, not keys.
+
 An Elder Brain is not a magic autonomous brain. It is a battle-tested context environment with strong human review, low contradiction, clear boundaries, and repeated successful use. It can support more confident answers and smoother workflows, but live changes, publishing, policy, money, client-facing claims, and destructive actions still require human approval.
 
 ### Brain Efficiency Credit

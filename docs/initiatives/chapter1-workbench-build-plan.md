@@ -44,12 +44,14 @@ Narrative step machine the shell owns:
 
 ```text
 user_brain -> guide -> clive_interview -> business_brain
-  -> pam_challenge -> human_decision -> doc_handoff -> receipts
+  -> pam_challenge -> human_decision -> doc_handoff -> context_access -> receipts
 ```
 
-Hard rule: `doc_handoff` cannot run until `human_decision` records an approval. Doc acts only from an approved brief (Rule 5).
+Hard rules:
+- `doc_handoff` cannot run until `human_decision` records an approval. Doc acts only from an approved brief (Rule 5).
+- `context_access` cannot run until Doc promote completes (`brainMaturity: working`). Seedling = Workshop only — no context retrieval in the demo.
 
-The **Brain Key access sub-state** (locked / awaiting_approval / unlocked / expired) is separate from the narrative step. Reuse the existing helpers in `website/src/lib/brains/ui-states.ts` (`deriveBrainKeyUiState`, `UI_STATE_LABELS`, `UI_STATE_COPY`, `cliveMessageForState`). Do not reinvent these strings.
+The **context access sub-state** (locked / awaiting_approval / unlocked / expired) is separate from the narrative step. Reuse helpers in `website/src/lib/brains/ui-states.ts`. User-facing copy says **approved context**, not Brain Key — Brain Key is backstage engineering only.
 
 ---
 
@@ -68,6 +70,7 @@ website/src/components/aie-demo/steps/BusinessBrainStep.tsx
 website/src/components/aie-demo/steps/PamChallengeStep.tsx
 website/src/components/aie-demo/steps/HumanDecisionStep.tsx
 website/src/components/aie-demo/steps/DocHandoffStep.tsx
+website/src/components/aie-demo/steps/ContextAccessStep.tsx
 website/src/components/aie-demo/steps/ReceiptsStep.tsx
 website/src/lib/aie-demo/demo-data.ts                  (seeded client, user brain, drafts, Pam output, receipts)
 website/src/lib/aie-demo/brain-client.ts              (browser client for /api/brains/* + proxies)
@@ -84,11 +87,13 @@ All routes are `POST`, JSON, server-only Airtable. Responses pass through `sanit
 
 | Step action | Route | Notes |
 |-------------|-------|-------|
-| Clive asks to unlock | `POST /api/brains/key/request` | body: brainSlug, persona, purpose, scope, reason, sessionId, requestedExpiryMinutes |
-| Human approves | `POST /api/brains/key/approve` | **admin header** `x-brain-key-admin` — call via server proxy, never from browser |
-| Use approved context | `POST /api/brains/context/retrieve` | body: grantId, sessionId, persona, brainSlug, scope; returns prompt-safe snippets only |
+| *(Seedling — no API)* | — | Clive interview ends in Workshop-only state; no key request |
+| Human approves brief | *(local state only)* | Records approval for Doc handoff — not a Brain Key approve |
+| Doc promotes draft | `POST /api/brains/doc/promote` | **doc header** `x-brain-doc-promote`; sets maturity to Working |
+| Agent asks for context | `POST /api/brains/key/request` | After Working maturity only; body: brainSlug, persona, purpose, scope, reason, sessionId |
+| Human approves access | `POST /api/brains/key/approve` | **admin header** `x-brain-key-admin` — via server proxy |
+| Use approved context | `POST /api/brains/context/retrieve` | body: grantId, sessionId, persona, brainSlug, scope |
 | Log the exchange | `POST /api/brains/interactions/log` | manifest = record IDs + hashes, not full text |
-| Doc promotes draft | `POST /api/brains/doc/promote` | **doc header** `x-brain-doc-promote`; body uses `promotions: [{ draftRecordId, category, scope }]` — call via server proxy |
 
 ### Secret invariant (do not break)
 

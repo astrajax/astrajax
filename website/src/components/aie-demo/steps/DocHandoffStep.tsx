@@ -47,6 +47,7 @@ export function DocHandoffStep({ state, onUpdate, onNext, onBack }: StepProps) {
           executingAgent: "Doc",
           approver: "Matthew",
         },
+        brainMaturity: "working",
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Promote failed");
@@ -119,7 +120,7 @@ export function DocHandoffStep({ state, onUpdate, onNext, onBack }: StepProps) {
         )}
         {state.promoteReceipt && (
           <button type="button" className="btn-primary" onClick={onNext}>
-            See what this unlocks
+            Clive asks to use approved context
             <span aria-hidden>→</span>
           </button>
         )}

@@ -11,10 +11,13 @@ export const LOOP_STEPS = [
   "pam_challenge",
   "human_decision",
   "doc_handoff",
+  "context_access",
   "receipts",
 ] as const;
 
 export type LoopStep = (typeof LOOP_STEPS)[number];
+
+export type BrainMaturity = "seedling" | "working";
 
 export type GuideMode = "full_story" | "light_story" | "no_story";
 
@@ -66,6 +69,7 @@ export interface PromoteReceipt {
 export interface LoopState {
   sessionId: string;
   currentStep: LoopStep;
+  brainMaturity: BrainMaturity;
   userBrain: UserBrainProfile | null;
   guideMode: GuideMode | null;
   businessBrain: BusinessBrainDraft;
@@ -95,5 +99,11 @@ export const STEP_LABELS: Record<LoopStep, string> = {
   pam_challenge: "Pam Challenge",
   human_decision: "Your Decision",
   doc_handoff: "Doc Handoff",
+  context_access: "Use Approved Context",
   receipts: "What This Unlocks",
+};
+
+export const MATURITY_LABELS: Record<BrainMaturity, string> = {
+  seedling: "Seedling Brain",
+  working: "Working Brain",
 };

@@ -805,6 +805,20 @@ Maturity controls answer authority. A Draft or Seedling Brain should produce cav
 
 **Brain maturity is earned by human review, not agent confidence.**
 
+### Context access and maturity
+
+Context access is **maturity-gated**, not available from day one:
+
+| Maturity | Context access |
+|----------|----------------|
+| **Seedling** | Workshop only. Draft intake and review. No approved-context access for agents. |
+| **Working+** | Approved context exists. Agent may ask to use approved context for a bounded task — human approves, access is scoped and logged. |
+| **Trusted / Elder** | Smoother retrieval inside approved domains; live changes still require human approval. |
+
+**Hard lock = base separation.** Registry, Workshop, and Trusted Brain are separate Airtable bases (one Trusted base per brain theme). That physical boundary is the primary lock. A **grant** is permission to query a Trusted Brain for a bounded task. **Scope** is a retrieval and audit filter inside the grant — not a separate user-facing “key per area.”
+
+**Naming:** “Brain Key” is internal governance vocabulary (engineering, schema, credentials). Public product language: **approved context for this task**. Demo and client surfaces should not lead with keys.
+
 Brain maturity may also control commercial incentives in production. Better-reviewed brains should be cheaper to run because they require fewer retrieval calls, fewer high-cost escalations, fewer repair loops, and fewer support interventions.
 
 This creates the right operating incentive:
