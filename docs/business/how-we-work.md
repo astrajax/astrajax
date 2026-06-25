@@ -34,11 +34,15 @@ That is how Matthew uses Cursor:
 - Once a direction is approved, Cursor turns the brief into code, documents, demo routes, and production assets.
 - The output is reviewed, corrected, and folded back into the system.
 
-This is the same pattern AstraJax sells:
+This is the same pattern AstraJax sells — the **Trinity Playbook**:
 
 ```text
-Reason -> Challenge -> Human decides -> Doc acts -> Review -> Improve
+Propose -> Challenge -> Human gate -> Execute
+                         |-> Court Mode, if the stakes are high
+                         |-> Advance, if the owner approves
 ```
+
+Right model for the job. Right spend for the task. Multiple angles before action. Ownership back to the human. Full canonical detail: `docs/business/architecture.md` §3A.
 
 The company is being built by the method it teaches.
 

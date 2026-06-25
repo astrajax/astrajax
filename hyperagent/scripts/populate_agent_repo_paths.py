@@ -26,12 +26,12 @@ AGENTS_TABLE = "Agent Environments"
 
 # Registry build-pack folder per agent (source of truth lives in repo, not Airtable text fields).
 AGENT_REPO_PATHS: dict[str, str] = {
-    "Clive Intake": "agents/hyperagent/clive/intake/",
-    "Clive Curator": "agents/hyperagent/clive/curator/",
-    "Clive Publisher": "agents/hyperagent/clive/publisher/",
-    "Clive Scanner": "agents/cursor/clive/context-scanner/",
-    "Clive Agent Factory": "agents/cursor/clive/agent-factory/",
-    "Clive Hyperagent Release Scanner": "agents/cursor/clive/hyperagent-release-scanner/",
+    "Clive Intake": "agents/registry/hyperagent/clive/intake/",
+    "Clive Curator": "agents/registry/hyperagent/clive/curator/",
+    "Clive Publisher": "agents/registry/hyperagent/clive/publisher/",
+    "Clive Scanner": "agents/registry/cursor/clive/context-scanner/",
+    "Clive Agent Factory": "agents/registry/cursor/clive/agent-factory/",
+    "Clive Hyperagent Release Scanner": "agents/registry/cursor/clive/hyperagent-release-scanner/",
 }
 
 # From migrate_context_architecture_v2.py — re-apply if links were lost.

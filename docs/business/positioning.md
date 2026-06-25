@@ -4,7 +4,7 @@
 **Supersedes:** `astrajax_positioning.md` (29 May), `AstraJax-company-positioning.md` (22 Jun), and `docs/context/astrajax-core-positioning.md`. Those are kept in `docs/archive/` for history only.
 **Companion docs:** `docs/business/architecture.md` (how the product works), `docs/business/how-we-work.md` (how the company runs), `docs/business/proof.md` (evidence locker).
 **Owner:** Matthew.
-**Last updated:** 23 June 2026.
+**Last updated:** 25 June 2026.
 
 ---
 
@@ -113,6 +113,37 @@ Product principle:
 - **Doc Albright** — action dispatcher. Routes approved briefs: direct writes, build work, or runtime packages.
 - **HyperAgent** — runtime partner that executes the agents.
 
+### The Trinity Playbook
+
+The operating pattern should be simple enough for non-technical teams to remember:
+
+```text
+Propose -> Challenge -> Human gate -> Execute
+                         |-> Court Mode, if the stakes are high
+                         |-> Advance, if the owner approves
+```
+
+This is not framed as radical new theory. It is a practical design habit that keeps AI work useful, affordable, and accountable:
+
+- **Use the right model for the right job.** Heavy reasoning for judgement, strategy, and trade-offs; cheaper workers for bounded execution.
+- **Spend the right money for the right task.** Do not burn frontier-model spend on admin, formatting, or simple structured writes.
+- **Get multiple angles before action.** Challenge stops the system getting carried away by one persuasive draft.
+- **Return ownership to the human.** The system can propose and challenge, but the expert decides: *you know the work; you choose what happens next.*
+
+---
+
+## 4A. Believable Characters Earn Trust
+
+AstraJax treats character as product architecture, not brand decoration. The aim is not to make agents cute, funny, or human. It is to make their roles **believable**: a coherent motive, voice, boundary, and behaviour a user can read at a glance.
+
+Believability is how people decide what to trust. This is established craft in storytelling, theatre, and game design; AstraJax applies it to a place that work has largely skipped — functional, governance-bound work agents, the ones teams are most nervous to rely on. (Most character effort in AI goes into companion and entertainment bots, not the agent that touches live operations.)
+
+> If people believe the character, they trust the role. If they trust the role, they use the system.
+
+Believable does not mean pretending the agent is human. It means the role is coherent enough that users know what it is for, what it will challenge, and when to rely on it. Trust is earned by that coherence **and** by the governance underneath it — bounded scope, human approval, and an audit trail — never by manufactured warmth. Believability without governance would be a manipulation risk, not a feature.
+
+The craft is drawn from respected movement, drama, and character-theory lineages, distilled into a reusable design method (see `docs/initiatives/character-provenance.md`). The point is not the founder's background; it is that the method is teachable and repeatable.
+
 ---
 
 ## 5. Why Citizen-As-Builder Wins
@@ -120,6 +151,19 @@ Product principle:
 The best AI tools are shaped closest to the work. The person running the operation knows the awkward exceptions, the real incentives, the messy handoffs, and the moment an answer is quietly wrong. That judgement is usually lost when every change has to travel through a coordinator, operator, product manager, and developer before anything happens.
 
 AstraJax collapses that loop. The domain expert can shape the context, test the agent, spot what broke, and feed the correction back while the work is still warm. That speed makes the tool better faster — and keeps people engaged, because they see their feedback understood and actioned.
+
+Citizen-as-builder also changes the culture of adoption. When the AI champion is a peer inside the function, team, or work area — a founder, sales lead, operations manager, coordinator, or creative operator — the system feels less like something imposed by a technical team and more like something shaped by someone who understands the job. Non-technical users are more likely to trust a workflow when the person introducing it speaks their language, knows their pressure points, and is accountable to the same work.
+
+That gives AstraJax a practical deployment model:
+
+```text
+One AI champion per function, team, or work area
+-> trained to shape the brain and test workflows at the coalface
+-> supported by AstraJax guardrails, challenge, and Doc execution
+-> feeding improvements back while the work is still live
+```
+
+For a solo founder or very small business, the first champion may simply be the founder. As the company grows, the same pattern can spread across functions. Either way, this is faster than a distant build queue. The champion does not wait for every issue to become a formal ticket. They can test, correct, and improve AI workflows where the work actually happens. The result is quicker deployment, tighter feedback, and adoption led by people the team already trusts.
 
 Citizen-as-builder is not a democratic slogan. It is the fastest route to useful AI.
 
@@ -270,7 +314,8 @@ AstraJax stays tool-agnostic so the client's human-approved context brain remain
 
 AstraJax is built from production experience, not a pitch deck. Full detail lives in `docs/business/proof.md`.
 
-- A non-technical commercial leader, working entirely with AI on clean operational data, built a production operating layer for **Butternut Box Direct Sales** — a real commercial function with a real team and real adoption pressure.
+- Matthew Hopkinson: professional actor → London Team Leader → **Head of Sales** at **Butternut Box** (confirmed unicorn) in **seven years** (by July 2026). External reference title: **Director of Sales** (Butternut-sanctioned). The velocity arc is founder-capability evidence — steep learning curve, reinvention under uncertainty — not a logo flex.
+- Working with AI on top of cleaned operational data, Matthew solo-built a production operating layer for the **Direct Sales channel** — an £8m p/y commercial function with a 120 headcount. Real adoption pressure.
 - Roughly **12 months on the boring layer first** (data, workflows, architecture), then the build moved fast — a first agent fleet in weeks because the foundation existed.
 - A characterful agent fleet used by a non-technical team, with bounded scope, human approval, and audit trails.
 - External validation: Airtable **Airspace LA** keynote, Airtable **MVP** status, and **HyperAgent Founding 500**.
@@ -296,7 +341,7 @@ What teams need to adopt AI properly:
 - Clean data first, clever agents second.
 - One job per agent, one clear handoff at a time.
 - Agents take the sludge; humans keep the meaning.
-- Personality is not decoration; it is adoption infrastructure.
+- Personality is not decoration; believable character is adoption infrastructure.
 - The system supports judgement; it does not replace it.
 - Not everyone needs to become technical; domain experts can become architects.
 - Adoption and maintenance are features, not afterthoughts.
@@ -338,6 +383,9 @@ Numbers to keep canonical for external use:
 
 Founder framing:
 
+- **Title:** Head of Sales at Butternut Box; reference as Director of Sales externally (Butternut-sanctioned). Do not revert to "Head of Direct Sales."
+- **Velocity arc:** actor → Head of Sales at a confirmed unicorn in seven years (by July 2026). Frame as capability/thesis evidence, not bragging.
+- **Scope:** operating-layer proof numbers are for the **Direct Sales channel**; do not imply company-wide sales ownership unless explicitly cleared.
 - Pair "never handwritten a line of code" with **with AI, on top of clean data**.
 - Pair "built fast" with the preceding foundation year.
 - Pair "AI agents" with bounded scope, human approval, and audit trail.

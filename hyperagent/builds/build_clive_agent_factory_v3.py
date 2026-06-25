@@ -25,7 +25,7 @@ repo-writing builder; V3 is a sibling Hyperagent runtime.
 Outputs:
 - hyperagent/exports/skills/skill-clive-agent-factory-hyperagent-v3.json
 - hyperagent/exports/agents/agent-clive-agent-factory-v3.json
-- agents/hyperagent/clive/agent-factory/build-pack-v3.md
+- agents/registry/hyperagent/clive/agent-factory/build-pack-v3.md
 """
 
 from __future__ import annotations
@@ -354,7 +354,7 @@ Ask one group at a time. Neutral and Socratic here; do not lead the witness.
 - Clive (context governance) or standalone AstraJax agent?
 - Primary runtime: Hyperagent (web/Slack/schedule) or Cursor subagent?
 
-Registry rule: Hyperagent-deployed -> `agents/hyperagent/<family>/<name>/`; Cursor-native -> `agents/cursor/<family>/<name>/`.
+Registry rule: Hyperagent-deployed -> `agents/registry/hyperagent/<family>/<name>/`; Cursor-native -> `agents/registry/cursor/<family>/<name>/`.
 
 ### Step 2 - Channel and trigger
 - Where does it live? (Hyperagent web, Slack channel, schedule, webhook, Live mode, Cursor chat)
@@ -635,14 +635,16 @@ Red-team (scaled to Medium, plus the High-risk gate it enforces on others):
 
 ## Pre-deploy / import checklist
 
-- [ ] Import `hyperagent/exports/skills/skill-clive-agent-factory-hyperagent-v3.json` first.
-- [ ] Import `hyperagent/exports/agents/agent-clive-agent-factory-v3.json`.
-- [ ] Attach AstraJax GitHub/repo access to the agent (required for roster + platform preload).
-- [ ] Confirm the pinned skill is attached and `skillLoadMode = preload`.
-- [ ] Confirm all four `autoSave*` flags are off and suggestion flags are off.
-- [ ] Pin the "Agent Factory Performance Rubric" (or a V3 equivalent) to a test thread.
-- [ ] Optional: add `["slack"]` + channel assignment if running in a DS Slack channel.
-- [ ] Test: "build me an agent that reads Airtable and posts a daily Slack summary" and confirm Factory runs Step 0, classifies risk, and stays in Phase A until approval.
+- [ ] Import `hyperagent/exports/agents/agent-clive-agent-factory-v3.json` only
+      (embedded skill creates and attaches automatically)
+- [ ] Verify agent → Skills tab shows `clive-agent-factory-hyperagent` attached
+- [ ] Verify `/skills` → skill shows Agents ≥ 1
+- [ ] Attach AstraJax GitHub/repo access to the agent (required for roster + platform preload)
+- [ ] Confirm `skillLoadMode = preload`
+- [ ] Confirm all four `autoSave*` flags are off and suggestion flags are off
+- [ ] Pin the "Agent Factory Performance Rubric" (or a V3 equivalent) to a test thread
+- [ ] Optional: add `["slack"]` + channel assignment if running in a DS Slack channel
+- [ ] Test: "build me an agent that reads Airtable and posts a daily Slack summary" and confirm Factory runs Step 0, classifies risk, and stays in Phase A until approval
 
 ## Relationship to Cursor V2
 

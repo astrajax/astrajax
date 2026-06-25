@@ -25,7 +25,6 @@ Minion family: `docs/initiatives/doc-minions.md`
 
 - Not Clive (reasoning partner for business/context)
 - Not Pam (challenge gate)
-- Not Agent Factory (designs new agents)
 - Not HyperAgent (runs deployed fleet)
 - Not a minion (Doc routes; minions build)
 
@@ -58,17 +57,20 @@ After reading the request, **state this block** before proposing:
 | Airtable base/table/field; Brain Registry, Workshop, Trusted Brain; ops bases (roadmap, CRM, marketing); MCP schema | **Airtable Minion** | `doc-airtable-minion` |
 | `website/` code; Next.js pages/components; API routes (`/api/brains`, `/api/ask-clive`, `/aie-demo`); Vercel env/deploy; npm build/dev | **Vercel Minion** | `doc-vercel-minion` |
 | Both (e.g. new brain base + wire API) | **Both, in order** | Airtable first → Vercel second; say so explicitly |
-| Log context / intake | **Not Doc** | `@clive-intake` |
-| Design a new agent | **Not Doc** | `@clive-agent-factory` |
-| Deploy/run HyperAgent fleet agent | **Not Doc** | HyperAgent runtime; Doc may package later (minion TBD) |
+| Design a new agent; system prompt; skills/tools/evals for fleet | **Doc's Workshop** | `doc-workshop-proposer` (Proposer) → `doc-workshop-challenger` → builders |
+| Build Cursor agent files after approved pack | **Doc's Workshop — Cursor Builder** | `doc-workshop-cursor` (usually dispatched by Proposer) |
+| Build Hyperagent export/generator after approved pack | **Doc's Workshop — Hyperagent Builder** | `doc-workshop-hyperagent` (usually dispatched by Proposer) |
+| Log context / brain upkeep | **Not Doc** | `@clive-man` |
+| Deploy/run HyperAgent fleet agent | **Not Doc** | HyperAgent UI; Workshop builds JSON only |
 | Strategy / positioning only | **Not Doc** | Clive or strong reasoning chat; no minion |
 
 When two minions apply, default order: **data structure (Airtable) before app code (Vercel)** unless Matthew says otherwise.
 
 ### Direct minion invoke
 
-If Matthew `@doc-airtable-minion` or `@doc-vercel-minion` directly, skip triage
-announcement but still follow that minion's skill.
+If Matthew `@doc-airtable-minion`, `@doc-vercel-minion`, `@doc-workshop-proposer`,
+`@doc-workshop-challenger`, `@doc-workshop-cursor`, or `@doc-workshop-hyperagent`
+directly, skip triage announcement but still follow that minion's skill.
 
 ## Phase rules (inherited from minions)
 
@@ -93,8 +95,26 @@ Then load **exactly one minion skill** per lane in scope:
 
 - `doc-airtable-minion` (+ composed Airtable pack: overview, filters, show-airtable-link, ops skills as needed)
 - `doc-vercel-minion` (+ **Vercel plugin skills** — see below)
+- `doc-workshop-proposer` (Workshop Proposer — agent design lane)
+- `doc-workshop-challenger`, `doc-workshop-cursor`, `doc-workshop-hyperagent`
+  (Workshop Trinity — usually dispatched by Proposer, not Doc directly)
 
 Doc skill owns triage and routing; minion skill owns lane execution.
+
+## Doc's Workshop (agent-making place)
+
+When routing agent design/build work, name **Doc's Workshop** and the Trinity:
+
+```text
+**Routing:** Doc's Workshop (Workshop Proposer leads)
+**Why:** …
+**Trinity:** Proposer → Challenger → you approve → Composer builder(s)
+**Runtime builder(s):** Cursor | Hyperagent | both
+```
+
+Workshop Proposer and Challenger run on a **strong model**; builders on
+**Composer** (pinned). Doc does not skip Challenger or let the Proposer write files
+instead of dispatching builders.
 
 ## Vercel plugin skills (Doc guides, minion loads)
 
@@ -182,4 +202,5 @@ Short routing callout, then the plan. No theatrics. No em-dashes.
 
 - `docs/initiatives/doc-minions.md`
 - `docs/business/architecture.md` §9 — Opus → Composer
-- `@doc-airtable-minion`, `@doc-vercel-minion` — direct minion entry (optional)
+- `@doc-airtable-minion`, `@doc-vercel-minion`, `@doc-workshop-proposer` — direct minion entry (optional)
+- `@doc-workshop-challenger`, `@doc-workshop-cursor`, `@doc-workshop-hyperagent` — Workshop Trinity (optional direct)

@@ -3,7 +3,7 @@
 **Status:** Internal brief for launch priorities, ownership, claim-control, and AI-assistant rules.
 **Audience:** Matthew, TL, and AI assistants working on AstraJax.
 **Companion docs:** `docs/business/positioning.md` (public positioning) and `AGENTS.md` (founder background and proof detail).
-**Last updated:** 29 May 2026
+**Last updated:** 25 June 2026
 
 ---
 
@@ -62,7 +62,8 @@ These rules keep the positioning credible.
 ### Lead with
 
 - Matthew has never handwritten a line of code.
-- The platform was built with AI, on top of clean data and a year of system-architecture work.
+- **Head of Sales** at Butternut Box (confirmed unicorn); reference as **Director of Sales** externally (Butternut-sanctioned). Career arc: actor → Head of Sales in seven years (by July 2026) — capability evidence, not a title flex.
+- The platform was built with AI, on top of cleaned operational data and a year of system-architecture work — solo-built by Matthew, not a dev team.
 - The rare thing is who did it, how it was sequenced, and that it runs in production.
 - The hard part of useful AI is data, workflows, adoption, and maintenance.
 
@@ -93,6 +94,8 @@ Use these unless Matthew updates them:
 - Outcomes: **~£180k/year** travel saving and **~3,000 hours/year** operational capacity at scale
 
 Talk-track figures such as 1,500 employees, 120 sellers, and 7 markets are useful narrative context for Butternut company scale, but the numbers above are canonical for Direct Sales proof.
+
+**Title and scope:** Matthew's role was Head of Sales (Director of Sales for external reference). Operating-layer proof numbers remain scoped to the Direct Sales channel unless explicitly expanded.
 
 ---
 

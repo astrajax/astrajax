@@ -3,7 +3,7 @@
 Production runtime: **Cursor subagent**.
 
 ```text
-agents/cursor/<family>/<short-name>/
+agents/registry/cursor/<family>/<short-name>/
   build-pack-v0.1.md
 .cursor/agents/<slug>.md
 .cursor/skills/<skill-name>/SKILL.md

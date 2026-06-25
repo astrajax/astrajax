@@ -2,7 +2,7 @@
 
 **Status:** V0.1 source-of-truth draft  
 **Owner:** Matthew  
-**Last updated:** 23 June 2026  
+**Last updated:** 25 June 2026
 **Purpose:** Define the architecture for the AstraJax adoption operating system: what each agent does, where context lives, where humans approve, and how agent runtimes fit in.
 
 ---
@@ -53,6 +53,38 @@ That is the spine of the adoption operating system.
 
 ---
 
+## 3A. The Trinity Playbook (Canonical)
+
+The spine above should be simple enough for non-technical teams to recall in one breath. AstraJax names it the **Trinity Playbook**:
+
+```text
+Propose -> Challenge -> Human gate -> Execute
+                         |-> Court Mode, if the stakes are high
+                         |-> Advance, if the owner approves
+```
+
+| Stage | Who | Job |
+|-------|-----|-----|
+| **Propose** | Clive (reasoning partner) | Draft the thinking, shape context, surface options. Does not write canonical truth or live state. |
+| **Challenge** | Pam (challenger) | Stress-test assumptions, evidence, scope, and action readiness. Does not decide. |
+| **Human gate** | Domain expert / approver | Choose what becomes trusted context, policy, or live action. Escalate to Court Mode when stakes are high. |
+| **Execute** | Doc (action dispatcher) + runtime | Turn approved briefs into records, packages, build jobs, or agent runs — with a paper trail. |
+
+This is not framed as radical new theory. It is a practical design habit that keeps AI work useful, affordable, and accountable:
+
+- **Use the right model for the right job.** Heavy reasoning for judgement, strategy, and trade-offs; cheaper workers for bounded execution.
+- **Spend the right money for the right task.** Do not burn frontier-model spend on admin, formatting, or simple structured writes.
+- **Get multiple angles before action.** Challenge stops the system getting carried away by one persuasive draft.
+- **Return ownership to the human.** The system can propose and challenge, but the expert decides: *you know the work; you choose what happens next.*
+
+**Court Mode** is the high-stakes branch at the human gate. It surfaces role-based perspectives (implementation, evidence, stakeholder reaction, adoption risk) before the human chooses. The Court does not decide. The human does.
+
+**Hard rule:** without human approval at the gate, Doc must not act and runtimes must not receive live-change authority.
+
+Product messaging for this pattern lives in `docs/business/positioning.md` §4. Investor framing lives in `docs/business/investor-one-pager.md`.
+
+---
+
 ## 4. System Roles
 
 ### 4.1 The Domain Expert
@@ -69,6 +101,17 @@ They know:
 - when an answer is quietly wrong
 
 Their job is not to become a developer. Their job is to become the architect of the AI system around their work.
+
+**Deployment model: one AI champion per function, team, or work area.** In practice, the domain expert is often a peer close to the work — a founder, sales lead, operations manager, coordinator, or creative operator — not a distant technical authority. That matters for adoption: non-technical users trust workflows more when the person introducing them speaks their language, knows the pressure points, and is accountable to the same work.
+
+```text
+One AI champion per function, team, or work area
+-> trained to shape the brain and test workflows at the coalface
+-> supported by AstraJax guardrails, challenge, and Doc execution
+-> feeding improvements back while the work is still live
+```
+
+For a solo founder or very small business, the founder can start as the first champion. As the company grows, the pattern can spread across functions. The point is to embed iteration where the work happens. Champions test, correct, and improve AI workflows close to live work instead of waiting for a central build queue. Product messaging for this pattern lives in `docs/business/positioning.md` §5.
 
 ### 4.2 Clive: Reasoning Partner
 
@@ -712,6 +755,8 @@ HyperAgent or another runtime can execute agent work.
 
 The context brain should remain in an AstraJax-controlled, tool-agnostic layer so the client is not trapped inside one runtime's memory model.
 
+**Durable memory lives in Airtable**, not HyperAgent: Agent bases (character + Persona Memories) and Trusted Brain bases (Brain Context + Brain Memories). Runtimes fetch at session start; they do not accumulate their own memory store. Persona Memories may auto-form in Agent bases without human approval on create; human gates apply at **promotion** to shared or canonical truth, not at every diary entry.
+
 ### Rule 8: Coaching Is Not Surveillance
 
 The system may track adoption signals, but the framing and controls matter.
@@ -869,9 +914,9 @@ An audit mirror is a second copy of the log kept outside Airtable, so the system
 
 ### Runtime Memory
 
-Runtime memory should be treated as execution support, not the canonical brain.
+Runtime memory (HyperAgent `/memories`, thread scratchpads, ephemeral session state) should be treated as execution support, not the canonical brain.
 
-If the runtime learns something useful, it should flow back into the AstraJax context review loop before becoming trusted context.
+If the runtime learns something useful, it should flow into **Persona Memories** or **Brain Memories** in Airtable — or through the context review loop before becoming **Brain Context** — not remain in the runtime store. Governed HyperAgent exports keep `autoSaveMemories = false`; auto-save targets Airtable Agent bases under sanitiser and retire rules (see `brain-key-wiring.md`).
 
 ---
 

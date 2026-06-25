@@ -1,88 +1,97 @@
 # Clive Operating Rules Context Pack
 
-**Status:** Bootstrap draft.  
+**Status:** Operational.  
 **Primary destination:** Cursor/GitHub.  
 **Owner:** Matthew.  
-**Primary sources:** `.cursor/skills/clive-context-intake/SKILL.md`,
-`.cursor/skills/clive-context-curator/SKILL.md`,
-`clive_context_architecture_v1.md`.
 
 ## Purpose
 
-Define agent boundaries, write surfaces, and human approval gates for Clive.
+Define the active Clive context-governance lane after the consolidation into
+Clive's Man.
 
 ## Operating Principle
 
 ```text
-Airtable governs -> Hyperagent captures -> Cursor curates/builds -> GitHub versions -> humans approve
+Clive reasons -> Clive's Man stewards the brain -> Pam challenges high stakes
+-> humans approve truth -> Doc handles non-brain action dispatch
 ```
 
-## Agent Boundaries
+## Active context lane
 
-### Clive Intake
+### Clive's Man
 
-Intake captures one messy submission, classifies it, suggests a destination,
-creates one `Context Intake` record, reads it back, and stops.
+Clive's Man is the visible steward for the Clive brain. He consolidates the
+former Intake, Curator, Publisher, and Context Scanner responsibilities into one
+governed context-upkeep lane.
 
-Intake never approves, publishes, deploys, edits files, creates memories, or
-writes outside `Context Intake`.
+He runs GPT for judgement and orchestration. He uses three Composer minions for
+Trinity:
 
-### Clive Curator
+- Proposer: drafts the likely context action with evidence.
+- Challenger: red-teams the action and scores confidence by decision type.
+- Executor: performs only reversible or explicitly approved actions and logs the
+  paper trail.
 
-**Production:** Hyperagent V5 (scheduled and button-triggered context health
-audits). Live import: `agents/hyperagent/clive/curator/LIVE.md`.
+### What became workflows
 
-Curator reviews intake and canonical context tables, clusters related context,
-exposes conflicts, and creates `Context Items` with `Status = Proposed` only
-after explicit Matthew confirmation.
+- Intake is now Clive's Man intake workflow.
+- Curator is now Clive's Man curation workflow.
+- Publisher is now Clive's Man publish-prep workflow.
+- Context Scanner is now Clive's Man source-scanning/intake workflow.
 
-Curator never approves, rejects, publishes, deploys, writes Change Log entries,
-edits repo files while acting as Curator, or treats proposals as canonical.
+The old active agents are retired from the roster. Their historical artifacts are
+archived. Shared scripts remain available as tools.
 
-Human approval uses V2 paths only — see `human-approval-path.md`.
+## Active non-context-lane agents
 
-### Clive Agent Factory
+### Doc's Workshop
 
-Agent Factory is Cursor-native (agents are built in Cursor). It runs roster-aware,
-risk-tiered design interviews and drafts complete agent config packs with evals
-and tool rationale. It operates in two phases: Phase A design is read-only;
-Phase B build writes versioned repo artifacts only after explicit Matthew
-approval. High-risk builds require an independent Opus 4.7 review pass. It reads
-Agent Environments and Context Packs (read-only on Airtable). It never commits,
-pushes, deploys to Hyperagent, writes Airtable, or writes Change Log entries.
+Agent design and build is a **Doc minion** (`doc-workshop-proposer`), reached via `@doc`
+or `@doc-workshop-proposer`. Clive may help shape the idea; Doc routes approved agent
+build work here.
 
-### Clive Publisher
+### Clive Hyperagent Release Scanner
 
-Publisher is planned. It will read approved Context Items/Packs, prepare exports
-to GitHub/Hyperagent/Notion, append Change Log entries, and stop for Matthew
-approval before any deploy or commit.
+Hyperagent Release Scanner remains active unless explicitly replaced later. It
+protects the curated Hyperagent platform truth used by Doc's Workshop and Clive's
+Man.
 
-### Clive Context Scanner
+## Human approval rule
 
-**Production:** Hyperagent v0.4 (manual or daily schedule; native Slack summary
-after scheduled runs). Live import:
-`agents/hyperagent/clive/context-scanner/LIVE.md`.
+An item is canonical only when:
 
-Scans Airtable **Emails** (excluding Hyperagent Release), dedupes against intake
-and items, and creates **Context Intake** records only after Matthew confirms.
+- `Status = Approved`, and
+- `Confirmed By Human` is set by a human-only path.
 
-Skill: `.cursor/skills/clive-context-scanner/SKILL.md`. A Cursor mirror exists
-for local dev (`.cursor/agents/clive-context-scanner.md`); production is
-Hyperagent.
+Clive's Man and his minions may create draft/proposed work and prepare review
+materials. They may not set `Confirmed By Human`, `Approved`, `Published`, or
+`Deprecated`.
 
-Does not handle Hyperagent Release emails — see Clive Hyperagent Release Scanner
-(Cursor-native).
+## Human-load policy
 
-## Status Gates
+Humans should not approve routine reversible classifications one by one. Clive's
+Man produces digests and escalates exceptions.
 
-- Intake statuses: `New`, `Needs clarification`, `Ready for review`,
-  `Possible duplicate`.
-- Curator create status: `Proposed` only.
-- Human statuses: `Needs decision`, `Approved`, `Rejected`, `Deprecated`.
-- Publisher statuses: `Prepared`, `Published`, `Deployed`, with Change Log.
+Humans must decide:
+
+- canonical approval
+- final publish or merge
+- deletion, deprecation, or overwrite of trusted context
+- agent rules, permissions, deployment, or model-routing changes
+- external claims, clients, money, policy, live users, or sensitive data
+- material Proposer/Challenger disagreement
+
+## Status gates
+
+- Draft / New / Ready for review: agent-created low-authority work.
+- Proposed: agent-proposed durable context, still not canonical.
+- Needs decision: human attention required.
+- Approved / Published / Deprecated: human-only paths.
 
 ## Source IDs
 
-- `SRC-CLIVE-INTAKE-SKILL`: `.cursor/skills/clive-context-intake/SKILL.md`
-- `SRC-CLIVE-CURATOR-SKILL`: `.cursor/skills/clive-context-curator/SKILL.md`
-- `SRC-CLIVE-ARCH-V1`: `clive_context_architecture_v1.md`
+- `SRC-CLIVE-MAN-SKILL`: `.cursor/skills/clive-man/SKILL.md`
+- `SRC-CLIVE-MAN-PROPOSER`: `.cursor/skills/clive-man-proposer/SKILL.md`
+- `SRC-CLIVE-MAN-CHALLENGER`: `.cursor/skills/clive-man-challenger/SKILL.md`
+- `SRC-CLIVE-MAN-EXECUTOR`: `.cursor/skills/clive-man-executor/SKILL.md`
+- `SRC-CLIVE-APPROVAL`: `docs/context/human-approval-path.md`

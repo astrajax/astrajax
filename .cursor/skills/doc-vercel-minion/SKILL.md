@@ -198,4 +198,4 @@ No theatrics. No em-dashes. No narration while thinking.
 
 - `@doc-airtable-minion` — Airtable Minion
 - `docs/initiatives/doc-minions.md` — family rules
-- `@clive-agent-factory` — designs new agents, not Vercel feature work
+- `@doc-workshop-proposer` — designs new agents via Doc's Workshop, not Vercel feature work

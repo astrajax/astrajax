@@ -1,6 +1,6 @@
 ---
 name: clive-hyperagent-release-scanner
-description: Captures Hyperagent release notes from Airtable Emails into an unverified repo log; protects the curated Hyperagent platform doc used by Agent Factory.
+description: Captures Hyperagent release notes from Airtable Emails into an unverified repo log; protects the curated Hyperagent platform doc used by Doc's Workshop.
 ---
 
 # clive-hyperagent-release-scanner
@@ -12,7 +12,7 @@ Operational source of truth for the Hyperagent release scanner.
 All Gmail is captured in Airtable **Emails** via Apps Script webhook. Airtable AI
 categorises each row. This scanner reads only **Hyperagent Release** emails, stores
 raw entries in `docs/context/hyperagent-releases.json`, and keeps `docs/context/hyperagent-platform.md` as the curated platform
-truth that Agent Factory must preload before designing any Hyperagent-deployed agent.
+truth that Doc's Workshop must preload before designing any Hyperagent-deployed agent.
 
 Setup guide: `docs/context/email-inbox-setup.md`
 
@@ -92,14 +92,14 @@ Each new entry includes:
 5. Promote durable platform facts into `docs/context/hyperagent-platform.md`.
 6. Mark Airtable row **Scanner Status = Promoted** when done.
 
-## Agent Factory Preload Contract
+## Doc's Workshop preload contract
 
-Before designing a Hyperagent-deployed agent, Agent Factory must read:
+Before designing a Hyperagent-deployed agent, Doc's Workshop must read:
 
 1. `docs/context/hyperagent-platform.md`
 2. `docs/context/hyperagent-releases.json`
 
-If `last_synced_at` is older than seven days or null, Factory should flag the
+If `last_synced_at` is older than seven days or null, the Workshop Proposer should flag the
 staleness and offer to run the scanner before continuing.
 
 ## Guardrails
@@ -130,7 +130,7 @@ Given a release note, the script does not edit `docs/context/hyperagent-platform
 
 ### HRS-004: Staleness flag
 
-Given `last_synced_at = null` or older than seven days, Factory flags stale
+Given `last_synced_at = null` or older than seven days, Doc's Workshop flags stale
 Hyperagent platform context before designing a Hyperagent agent.
 
 ### HRS-005: Category filter

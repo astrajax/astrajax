@@ -8,5 +8,8 @@ __pycache__/
 *.pyc
 .next/
 
+# Hyperagent runtime noise (not source of truth)
+hyperagent/logs/
+
 # Personal/admin PDFs (do not commit)
 IHT435_*.pdf

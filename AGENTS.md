@@ -7,7 +7,8 @@
 
 ## Who Matthew is (founder)
 
-- Non-technical commercial leader. Ex-professional actor (trained at RADA, lead role in major network TV pilot, West End stage, speaking role in ITV Broadchurch alongside David Tennant & Olivia Colman), then Butternut Box (employee #33) → London Team Leader → Head of Direct Sales.
+- Non-technical commercial leader. Ex-professional actor (trained at RADA, lead role in major network TV pilot, West End stage, speaking role in ITV Broadchurch alongside David Tennant & Olivia Colman), then Butternut Box (employee #33) → London Team Leader → **Head of Sales** (reference as **Director of Sales** externally — Butternut-sanctioned).
+- **Career velocity:** actor → Head of Sales at a confirmed unicorn in **seven years** (by July 2026). Same engine as the AstraJax thesis — steep learning curve, deep domain context, compounding fast. Use as capability evidence for investors, not a title flex.
 - Edge: deep domain context in messy, large-scale commercial operations **plus**
 AI fluency — not engineering. He builds with AI on top of clean data.
 - **Has never handwritten a line of code.** Entirely AI-assisted, he's shipped
@@ -23,9 +24,9 @@ the foundation was already there."*)
 
 ## Flagship proof point — Butternut Box
 
-The Butternut Box Direct Sales story is the canonical proof of the AstraJax thesis:
-a non-technical commercial leader using Airtable + automation + bounded AI agents,
-on clean data, built an operating layer that gave a team real leverage.
+Matthew's role at Butternut was **Head of Sales** (Director of Sales for external reference). The documented operating-layer proof below is scoped to the **Direct Sales channel** — the field-sales function he built and governed.
+
+The Butternut Box Direct Sales story is the canonical proof of the AstraJax thesis: working with AI on top of cleaned operational data, Matthew solo-built a production operating layer for the Direct Sales channel — an £8m p/y commercial function with a 120 headcount. Real adoption pressure.
 
 > From Gmail, WhatsApp, Notion, and Google Sheets to an operating system.
 

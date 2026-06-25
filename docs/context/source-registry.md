@@ -19,6 +19,15 @@
 | `SRC-HYPERAGENT-PLATFORM` | `docs/context/hyperagent-platform.md` | Repo doc | Matthew | Canonical candidate | Current | Hyperagent Platform |
 | `SRC-HYPERAGENT-RELEASES` | `docs/context/hyperagent-releases.json` | Raw log | Agent | Unverified | Rolling | Hyperagent Platform |
 
+## Airtable architecture sources (Chapter 1)
+
+| Source ID | Title | Type | Owner | Authority | Freshness | Destination |
+|---|---|---|---|---|---|---|
+| `SRC-AJ-ARCHITECTURE` | `docs/business/architecture.md` | Repo doc | Matthew | Canonical | Current | Product and governance architecture |
+| `SRC-AJ-BRAIN-WIRING` | `docs/initiatives/brain-key-wiring.md` | Working spec | Matthew | Working current | Current | Brain Key access model, storage boundaries, API contracts |
+| `SRC-AJ-BRAIN-SCHEMA` | `docs/initiatives/brain-key-schema.md` | Schema blueprint | Matthew | Current implementation reference | Current | Replicable Airtable table and field blueprint |
+| `SRC-AJ-BRAIN-IDS` | `website/src/lib/brains/airtable-ids.ts` | Code ID map | Matthew | Live implementation | Current | Live Chapter 1 Airtable base and table IDs |
+
 ## Agent skills (.cursor/skills/)
 
 | Source ID | Title | Type | Owner | Authority | Freshness | Destination |
@@ -28,7 +37,7 @@
 | `SRC-CLIVE-CURATOR-SKILL` | `.cursor/skills/clive-context-curator/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Clive Operating Rules |
 | `SRC-CLIVE-SCANNER-SKILL` | `.cursor/skills/clive-context-scanner/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Clive Operating Rules |
 | `SRC-CLIVE-RELEASE-SCANNER` | `.cursor/skills/clive-hyperagent-release-scanner/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Clive Operating Rules |
-| `SRC-CLIVE-FACTORY-SKILL` | `.cursor/skills/clive-agent-factory/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Clive Operating Rules |
+| `SRC-DOC-WORKSHOP-PROPOSER-SKILL` | `.cursor/skills/doc-workshop-proposer/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Doc minions |
 
 ## Model and strategy docs (archived — reference only)
 

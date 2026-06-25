@@ -2,7 +2,7 @@
 
 **Status:** Replicable schema reference (context-agnostic)  
 **Owner:** Matthew  
-**Last updated:** 24 June 2026  
+**Last updated:** 25 June 2026  
 **Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance)
 
 Any agent (especially **@doc-airtable-minion**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
@@ -13,15 +13,22 @@ Any agent (especially **@doc-airtable-minion**) can recreate or extend Brain Key
 
 ---
 
-## Three-base model
+## Four-base model
 
 | Base shape | Name pattern | Purpose |
 |------------|--------------|---------|
-| **Registry** | `AstraJax Brain Registry` | Index, Brain Key Requests, Access Grants, Change Log. No trusted context text. |
+| **Registry** | `AstraJax Brain Registry` | Index, Brain Key Requests, Access Grants, Change Log, **Agents** index. No trusted context text. |
 | **Workshop** | `AstraJax Brain Workshop` | Draft/propose only. One shared Workshop per environment (not per brain theme). |
-| **Trusted Brain** | `AstraJax Trusted Brain — {Theme Label}` | Approved context + personas. **One base per brain theme** (token scoping). |
+| **Trusted Brain** | `AstraJax Trusted Brain — {Theme Label}` | Approved business context only. **One base per brain theme** (token scoping). |
+| **Agent** | `AstraJax Agent — {Agent Label}` | Character + role memory for one agent. **One base per agent** (token scoping). |
 
 After creating a new Trusted Brain: add a row to Registry **Brains** and update `airtable-ids.ts`.
+
+After creating a new Agent base: add a row to Registry **Agents** and update `airtable-ids.ts`.
+
+**Product agents (Chapter 1):** Clive, Pam, Doc, Clive's Man (`clive-man`). Each gets its own Agent base.
+
+**HyperAgent:** durable memory lives in Airtable Agent and Trusted Brain bases only — not in HyperAgent `/memories`. Runtimes fetch at session start; `autoSaveMemories = false` on governed HyperAgent exports remains the fleet default because HyperAgent must not own the brain. Persona Memories auto-form **into Airtable** under the rules below — that is governed auto-save, not runtime auto-save.
 
 ---
 
@@ -55,6 +62,20 @@ Primary field: **Brain Slug** (singleLineText)
 | Trusted Base ID | singleLineText | `app…` ID |
 | Status | singleSelect | Active, Paused, Retired |
 | Domain Owner | singleLineText | |
+
+### Table: Agents
+
+Primary field: **Agent Slug** (singleLineText). Index of product and fleet agents with Agent bases.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Agent Slug | singleLineText | Primary. e.g. `clive`, `pam`, `doc`, `clive-man` |
+| Agent Name | singleLineText | Display name |
+| Purpose | multilineText | |
+| Agent Base ID | singleLineText | `app…` ID of the Agent base |
+| Repo Path | singleLineText | Canonical build pack / agent definition in repo |
+| Status | singleSelect | Active, Paused, Retired |
+| Owner | singleLineText | |
 
 ### Table: Brain Key Requests
 
@@ -247,33 +268,123 @@ Business Definition, Positioning, Method, Offers, Proof, Workflow Rule, Governan
 
 Per brain theme: document Category and Scope option sets in this file when standing up a new Trusted Brain. New scopes require human adding a select option (governance), not agent free text.
 
-### Table: Personas
+### Table: Brain Memories
 
-Primary field: **Persona Name** (singleLineText). Approved agent behaviour — not business truth.
+Primary field: **Memory Text** (singleLineText). **Working brain recall** — shared across personas when they hold a grant. Not canonical truth.
 
 | Field | Type | Notes |
 |-------|------|-------|
-| Persona Name | singleLineText | Primary. Clive, Pam, Doc |
-| Role | singleSelect | Reason, Challenge, Act, Coach |
+| Memory Text | singleLineText | Primary. Short fact, gap, tension, or retrieval hint |
+| When to Use | multilineText | Trigger line for runtime injection |
+| Scope Area | singleLineText | Optional filter, e.g. `positioning`, `governance` |
+| Status | singleSelect | Active, Stale, Promoted, Retired |
+| Freshness | singleSelect | Current, Review soon, Stale |
+| Last Reviewed | date | ISO date |
+| Proposed By Agent | singleLineText | e.g. clive-man |
+| Source Notes | multilineText | Interaction ID, digest link, or human note |
+
+**Promotion (one direction only):** Brain Memory → Workshop **Draft Brain Context** → Trusted **Brain Context**. Never Persona Memory → Brain Memory without human review at promote boundary.
+
+**Curation:** Clive's Man (or equivalent steward) may quarantine or retire stale Brain Memories without a per-record human approval gate. Human gate applies at **promotion** to canonical truth.
+
+---
+
+## Agent base (one per agent)
+
+Name pattern: `AstraJax Agent — {Agent Label}` (e.g. `AstraJax Agent — Clive`).
+
+**Do not mix agents in one Agent base.** Character state, narrative arch, and persona memories stay isolated so business-truth retrieval never pulls Victorian subtext.
+
+Repo remains canonical for minion **design** (build packs, `.cursor/agents/`). This base holds **runtime roster and operational state**.
+
+### Table: Narrative Arch
+
+Primary field: **Title** (singleLineText). Slow-changing, approved **character spine** — not episodic memory.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Title | singleLineText | Primary. e.g. Super Objective, Inner Attitude |
+| Body | multilineText | Approved narrative / dramaturgical content |
+| Arch Type | singleSelect | Super Objective, Inner Attitude, Relationships, Outer Character, Other |
+| Status | singleSelect | Approved, Retired |
+| Last Reviewed | date | ISO date |
+| Source Notes | multilineText | character-provenance, Lazlo brief, Matthew approval |
+
+Human approves Narrative Arch changes. This is the **bible**, not the diary.
+
+### Table: Persona Config
+
+Primary field: **Config Name** (singleLineText). Approved runtime behaviour contract.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Config Name | singleLineText | Primary. e.g. `Operational v0.1` |
+| Role | singleSelect | Reason, Challenge, Act, Coach, Steward |
 | Operational System Prompt | multilineText | |
 | Rules Section | multilineText | Engineering guardrails |
-| Skin Brain | multilineText | Tone, boundaries |
+| Output Format | multilineText | Slack, plain text, structured tables |
 | Status | singleSelect | Approved, Retired |
+
+Human approves Persona Config changes.
+
+### Table: Persona Memories
+
+Primary field: **Memory Text** (singleLineText). **Non-canonical tier** — episodic role recall. Auto-form; **no human approval on create**.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Memory Text | singleLineText | Primary |
+| When to Use | multilineText | Trigger line for runtime injection |
+| User Scope | singleSelect | Global, User-specific, Session |
+| User Label | singleLineText | When User Scope is not Global |
+| Session ID | singleLineText | When User Scope is Session |
+| Status | singleSelect | Active, Stale, Promoted, Retired |
+| Freshness | singleSelect | Current, Review soon, Stale |
+| Last Reviewed | date | ISO date |
+| Created By | singleSelect | Agent, Matthew, TL, System |
+| Source Notes | multilineText | Interaction ID or trigger — not full trusted text |
+
+**Non-canonical rules:**
+
+- No `Confirmed By Human` field. Creation is autonomous (agent auto-save into Airtable).
+- Human gate applies only at **promotion** (Persona Memory → Brain Memory → Draft Brain Context → Brain Context).
+- Every write passes the same **sanitiser** as client responses (`sanitizeForClient`): no API tokens, grant secrets, raw trusted base IDs, or copied Brain Context text.
+- Steward (Clive's Man) runs **dedup and retire** passes — janitor, not approver on birth.
+- Must never hold canonical business truth long-term. If it became truth, promote it out.
+
+### Table: Minions
+
+Primary field: **Minion Name** (singleLineText). Runtime roster for this agent's Composer subagents.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Minion Name | singleLineText | Primary. e.g. `proposer`, `challenger`, `executor` |
+| Role | singleSelect | Proposer, Challenger, Executor, Builder, Other |
+| Model | singleLineText | e.g. `composer-2.5-fast` |
+| Scope | multilineText | Bounded write surface |
+| Status | singleSelect | Active, Retired |
+| Repo Path | singleLineText | Canonical build pack / `.cursor/agents/` slug |
+
+Empty Minions table is valid (Pam may have zero minions). Shape must be consistent across Agent bases.
 
 ---
 
 ## MCP recreate checklist
 
-1. Create **Registry** base with four tables above (field names must match exactly).
+1. Create **Registry** base with five tables above (field names must match exactly).
 2. Create **Workshop** base with six tables.
-3. Create **Trusted Brain** base for the theme with two tables.
-4. Registry **Brains** row: slug, name, workshop + trusted base IDs, maturity Seedling, status Active.
-5. Seed Trusted **Personas**: Clive, Pam, Doc (structure/placeholders — not client-approved content).
-6. Seed Trusted **Brain Context** with scopes using `read:brain-context:<area>` convention.
-7. Update [`airtable-ids.ts`](../../website/src/lib/brains/airtable-ids.ts) with new `app` / `tbl` IDs.
-8. Create scoped Airtable tokens per base role (see credential map in `brain-key-wiring.md`).
+3. Create **Trusted Brain** base for the theme with **Brain Context** + **Brain Memories** (no Personas table).
+4. Create **Agent** base per agent with four tables: Narrative Arch, Persona Config, Persona Memories, Minions.
+5. Registry **Brains** row: slug, name, workshop + trusted base IDs, maturity Seedling, status Active.
+6. Registry **Agents** row per agent: slug, name, agent base ID, repo path, status Active.
+7. Seed Trusted **Brain Context** with scopes using `read:brain-context:<area>` convention.
+8. Seed Agent bases with structure/placeholders only — not client-approved narrative or business truth.
+9. Update [`airtable-ids.ts`](../../website/src/lib/brains/airtable-ids.ts) with new `app` / `tbl` IDs.
+10. Create scoped Airtable tokens per base role (see credential map in `brain-key-wiring.md`).
 
 **Live Chapter 1 migration (completed 24 Jun 2026):** Workshop `Proposed Category` (singleSelect) added; Trusted `Category` and `Scope` converted to singleSelect; seed rows updated. Delete the two `LEGACY … (delete in UI)` text columns in Airtable when convenient — MCP cannot remove fields.
+
+**Pending migration (25 Jun 2026 architecture):** Trusted Brain Chapter 1 still has legacy **Personas** table (`app6tjzzG0L0lOeVb`). Migrate rows into per-agent Agent bases (Narrative Arch + Persona Config), add **Brain Memories** table, then retire Personas in UI when convenient. MCP cannot remove tables.
 
 ---
 
@@ -286,6 +397,9 @@ Primary field: **Persona Name** (singleLineText). Approved agent behaviour — n
 - **Scope or canonical Category on Workshop drafts** — access control and taxonomy live on Trusted only
 - **Draft / Approved status on Trusted Brain Context** — physical separation replaces status toggles
 - Pam gate on Brain Key Request flow (human approves read access directly)
+- Canonical business truth in Persona Memories or Brain Memories long-term (promote or retire)
+- Copied Brain Context snippets in Persona Memories (sanitiser must reject)
+- HyperAgent `/memories` as system of record for product agents
 
 ---
 

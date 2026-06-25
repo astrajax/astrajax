@@ -21,7 +21,7 @@ PLATFORMS = ("cursor", "hyperagent")
 
 
 def registry_dir(platform: str, family: str, slug: str) -> Path:
-    """Human-readable agent home under agents/<platform>/<family>/<slug>/."""
+    """Human-readable agent home under agents/registry/<platform>/<family>/<slug>/."""
     if platform not in PLATFORMS:
         raise ValueError(f"platform must be one of {PLATFORMS}, got {platform!r}")
-    return AGENTS_DIR / platform / family / slug
+    return AGENTS_DIR / "registry" / platform / family / slug

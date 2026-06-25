@@ -11,6 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 HYPERAGENT_ROOT = REPO_ROOT / "hyperagent"
 EXPORTS_AGENTS_DIR = HYPERAGENT_ROOT / "exports" / "agents"
 AGENTS_DIR = REPO_ROOT / "agents"
+REGISTRY_DIR = AGENTS_DIR / "registry"
 CURSOR_AGENTS_DIR = REPO_ROOT / ".cursor" / "agents"
 CURSOR_SKILLS_DIR = REPO_ROOT / ".cursor" / "skills"
 PLATFORMS = ("cursor", "hyperagent")
@@ -56,9 +57,9 @@ def parse_hyperagent_export(path: Path) -> dict:
 def parse_registry_build_pack(path: Path) -> dict:
     rel = path.relative_to(REPO_ROOT)
     parts = rel.parts
-    platform = parts[1] if len(parts) > 1 else ""
-    family = parts[2] if len(parts) > 2 else ""
-    short_name = parts[3] if len(parts) > 3 else ""
+    platform = parts[2] if len(parts) > 2 else ""
+    family = parts[3] if len(parts) > 3 else ""
+    short_name = parts[4] if len(parts) > 4 else ""
     return {
         "platform": platform,
         "source": "registry_build_pack",
@@ -101,11 +102,11 @@ def parse_cursor_skills() -> list[dict]:
 
 def list_registry(platform: str | None = None) -> list[dict]:
     registry: list[dict] = []
-    if not AGENTS_DIR.exists():
+    if not REGISTRY_DIR.exists():
         return registry
     platforms = [platform] if platform else list(PLATFORMS)
     for plat in platforms:
-        plat_dir = AGENTS_DIR / plat
+        plat_dir = REGISTRY_DIR / plat
         if not plat_dir.exists():
             continue
         for path in sorted(plat_dir.glob("*/*/build-pack-*.md")):

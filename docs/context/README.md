@@ -55,8 +55,11 @@ Items. When in doubt, prefer the pack files and root architecture docs.
 
 ## Live agent deployments
 
-Hyperagent production imports are documented per agent:
+Canonical import guidance: `hyperagent/docs/hyperagent-deploy-playbook.md` (agent JSON
+only for embedded-skill exports; separate skill JSON for updates/shared skills).
 
-- Curator V5: `agents/hyperagent/clive/curator/LIVE.md`
-- Context Scanner v0.4: `agents/hyperagent/clive/context-scanner/LIVE.md`
-- Intake v1: `agents/hyperagent/clive/intake/build-pack-v1.md` (superseded pack; live export is `agent-clive-intake-v1.json`)
+Per-agent build packs and historical wiring:
+
+- Curator V5: `agents/registry/hyperagent/clive/curator/LIVE.md`
+- Context Scanner v0.4: `agents/registry/hyperagent/clive/context-scanner/LIVE.md`
+- Intake v1: `agents/registry/hyperagent/clive/intake/build-pack-v1.md` (superseded pack; live export is `agent-clive-intake-v1.json`)

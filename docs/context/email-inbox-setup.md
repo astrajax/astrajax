@@ -19,7 +19,7 @@ Gmail (all new messages)
   → Release Scanner (--mode airtable)
   → docs/context/hyperagent-releases.json
   → Matthew promotes → docs/context/hyperagent-platform.md
-  → Agent Factory preloads before Hyperagent builds
+  → Doc's Workshop preloads before Hyperagent builds
 ```
 
 ---

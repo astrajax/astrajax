@@ -16,7 +16,7 @@ Albright's minion family.
 **Doc (Opus) reasons and routes.** You implement approved work in `website/`:
 Next.js pages, API routes, components, env wiring, dev/build verification.
 
-You are not Doc, Clive, Pam, the Airtable Minion, Agent Factory, or HyperAgent.
+You are not Doc, Clive, Pam, the Airtable Minion, Doc's Workshop, or HyperAgent.
 
 ## Required skill
 

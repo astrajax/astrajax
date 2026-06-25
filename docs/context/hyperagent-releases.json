@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "last_synced_at": "2026-05-31T09:48:00+00:00",
-  "last_sync_source": "manual_csv_review:/Users/matthewhopkinson/Downloads/Emails-Grid view.csv",
+  "last_synced_at": "2026-06-25T06:18:00+00:00",
+  "last_sync_source": "manual_pdf_review:Hyperagent release emails Jun 4 / Jun 18 / Jun 22 2026",
   "curation_rule": "Scanner entries are unverified until Matthew promotes durable facts into docs/context/hyperagent-platform.md.",
   "releases": [
     {
@@ -178,6 +178,58 @@
       ],
       "raw_excerpt": "Activation email describing Hyperagent's built-in work surface across web research, code, data analysis, files, visualization, and media generation.",
       "promotion_notes": "Durable facts promoted into docs/context/hyperagent-platform.md on 2026-05-31."
+    },
+    {
+      "source_id": "manual-pdf:1867090721977148704",
+      "status": "unverified",
+      "captured_at": "2026-06-25T06:18:00+00:00",
+      "source_type": "pdf_email_export",
+      "source_hint": "/Users/matthewhopkinson/Downloads/AstraJax Systems Mail - Hyperagent_ Live Mode updates + 3 skills to try.pdf",
+      "date": "Thu, Jun 4, 2026",
+      "from": "Andrew Busse",
+      "subject": "Hyperagent: Live Mode updates + 3 skills to try",
+      "gmail_link": "https://mail.google.com/mail/u/0/?view=pt&search=all&permthid=thread-f:1867090721977148704",
+      "extracted_bullets": [
+        "Live mode setup was simplified: always-on agent in one continuous thread, background work, notify only when attention is needed.",
+        "Hyperagent ships downloadable example skills as JSON imports (NYT data viz, app brand generation, claymation podcast clips with Veo).",
+        "New reference video guides cover Agents, Skills, Memories, and related fundamentals."
+      ],
+      "raw_excerpt": "Jun 4 update covering easier Live mode setup and three example marketplace-style skills.",
+      "promotion_notes": "Live mode setup note promoted into docs/context/hyperagent-platform.md on 2026-06-25."
+    },
+    {
+      "source_id": "manual-pdf:1868352153147236162",
+      "status": "unverified",
+      "captured_at": "2026-06-25T06:18:00+00:00",
+      "source_type": "pdf_email_export",
+      "source_hint": "/Users/matthewhopkinson/Downloads/AstraJax Systems Mail - New_ Hyperagent Marketplace (+3 new models).pdf",
+      "date": "Thu, Jun 18, 2026",
+      "from": "Andrew Busse",
+      "subject": "New: Hyperagent Marketplace (+3 new models)",
+      "gmail_link": "https://mail.google.com/mail/u/0/?view=pt&search=all&permthid=thread-f:1868352153147236162",
+      "extracted_bullets": [
+        "Hyperagent Marketplace launched: discover and install community-built agents and skills.",
+        "Example marketplace skills: NYT Data Viz, Swiss Grid Design, Veo + Hyperframes videos.",
+        "Three new agent runtime models: GPT-5.5 (high-stakes reasoning, careful decisions, computer use; more expensive), Kimi K2.6 (visuals — apps, slides, dashboards — and multi-agent coordination; slower, verbose), DeepSeek V4 Pro (large text/code volume; cheap, can over-generate)."
+      ],
+      "raw_excerpt": "Jun 18 update introducing Marketplace and GPT-5.5, Kimi K2.6, and DeepSeek V4 Pro model options.",
+      "promotion_notes": "Marketplace and model additions promoted into docs/context/hyperagent-platform.md on 2026-06-25."
+    },
+    {
+      "source_id": "manual-pdf:1868727154900362802",
+      "status": "unverified",
+      "captured_at": "2026-06-25T06:18:00+00:00",
+      "source_type": "pdf_email_export",
+      "source_hint": "/Users/matthewhopkinson/Downloads/AstraJax Systems Mail - 4 new skills in Hyperagent Marketplace.pdf",
+      "date": "Mon, Jun 22, 2026",
+      "from": "Andrew Busse",
+      "subject": "4 new skills in Hyperagent Marketplace",
+      "gmail_link": "https://mail.google.com/mail/u/0/?view=pt&search=all&permthid=thread-f:1868727154900362802",
+      "extracted_bullets": [
+        "Four new free Marketplace skills with no API keys: SEC EDGAR (filings, structured financials, full-text search), World Bank Indicators (16,000+ development time-series), OpenAlex (scholarly papers, authors, institutions, journals), US National Weather Service (forecasts, conditions, alerts by city/coordinates/zip)."
+      ],
+      "raw_excerpt": "Jun 22 update adding four public-data Marketplace skills.",
+      "promotion_notes": "Public-data Marketplace skills promoted into docs/context/hyperagent-platform.md on 2026-06-25."
     }
   ]
 }

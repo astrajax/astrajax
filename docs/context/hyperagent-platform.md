@@ -1,19 +1,19 @@
 # Hyperagent Platform Context
 
-**Status:** Curated platform reference (Agent Factory preload).  
+**Status:** Curated platform reference (Doc's Workshop preload).  
 **Owner:** Matthew.  
-**Last verified:** 2026-05-31 (logged-in UI pass on Matthew's account, exports, release emails, setup docs).  
+**Last verified:** 2026-06-25 (release emails Jun 4 / Jun 18 / Jun 22 2026; prior UI pass 2026-05-31).  
 **Authenticated UI pass:** Complete on `matt@butternutbox.com` workspace (38 agents; AstraJax Clive Curator/Intake/Scanner exports not yet imported here).  
-**Primary consumer:** Clive Agent Factory when designing Hyperagent-deployed agents.  
+**Primary consumer:** Doc's Workshop when designing Hyperagent-deployed agents.  
 **Raw release log:** `docs/context/hyperagent-releases.json`.
 
 ## Purpose
 
 Keep the current Hyperagent platform reality in one small, versioned place so
-Agent Factory does not design agents from stale model training data or old
+Doc's Workshop does not design agents from stale model training data or old
 assumptions.
 
-Agent Factory must read this file before designing or updating any agent whose
+Doc's Workshop must read this file before designing or updating any agent whose
 primary runtime is Hyperagent.
 
 ## UI verification status (2026-05-31)
@@ -43,7 +43,7 @@ Agents are designed and built in Cursor. Hyperagent runtime artifacts are import
 exports generated from repo scripts.
 
 ```text
-Agent Factory in Cursor
+Doc's Workshop in Cursor
   -> generator script in hyperagent/builds/
   -> Cursor mirror in .cursor/agents/ and .cursor/skills/
   -> optional Hyperagent JSON in hyperagent/exports/
@@ -52,8 +52,8 @@ Agent Factory in Cursor
 
 Registry folders are split by runtime:
 
-- Cursor-native: `agents/cursor/<family>/<agent>/`
-- Hyperagent-deployed: `agents/hyperagent/<family>/<agent>/`
+- Cursor-native: `agents/registry/cursor/<family>/<agent>/`
+- Hyperagent-deployed: `agents/registry/hyperagent/<family>/<agent>/`
 
 ## Product URLs and auth (browser-verified login surface)
 
@@ -73,6 +73,7 @@ Registry folders are split by runtime:
 | `https://hyperagent.com/settings/integrations` | Workspace integrations (**not** `/integrations` — that 404s) |
 | `https://hyperagent.com/settings` | Profile, billing, security, referrals, Manus import |
 | `https://hyperagent.com/skills` | Workspace skill library (reusable agent capabilities) |
+| Hyperagent Marketplace | In-app destination to discover/install community agents and skills (**login required**; exact route verify in UI — announced Jun 18 2026) |
 | `https://hyperagent.com/memories` | Persistent facts and domain notes agents can recall |
 | `https://hyperagent.com/rubrics` | LLM-as-judge quality rubrics and score history |
 | `https://hyperagent.com/library` | Saved thread artifacts (scripts, reports, images) |
@@ -131,7 +132,7 @@ Maps to export fields: `modelId`, `maxThinkingTokens`, `effort`, `maxBudgetUsd`,
 | **Scheduled** | Cron-style schedule + prompt (example: "Every day at 8 and 14") |
 | **Webhook** | **Create webhook** / **Configure** — must be agent-bound with auto-run (AstraJax pattern) |
 | **Email** | **Create email** aliases |
-| **Live mode** | "Always-on agent. Context stays in one continuous thread." — **Set up** |
+| **Live mode** | "Always-on agent. Context stays in one continuous thread." — **Set up** (Jun 2026 release: setup flow simplified; same single-thread, notify-when-needed pattern) |
 
 Scheduled prompts and RRULE from exports still import via JSON; UI also supports plain-language schedule editing.
 
@@ -184,7 +185,7 @@ Settings copy claims **250+** integrations via OAuth at workspace level.
 ## Agent excellence stack (Factory — UI-verified 2026-05-31)
 
 Hyperagent separates **how an agent works** (skills + memories + rubrics) from
-**what it produced** (library artifacts). Agent Factory must design all five
+**what it produced** (library artifacts). Doc's Workshop must design all five
 surfaces deliberately — not treat them as interchangeable "context."
 
 ```text
@@ -211,6 +212,23 @@ domain skills (see Matthew's DS fleet).
 **Purpose:** Building blocks that add specific capabilities to agents and
 threads — not the system prompt itself.
 
+**Hyperagent Marketplace (Jun 2026):** In-app catalogue of community agents and
+skills Matthew can install as copies. **Login required.** Before authoring a
+new skill from scratch, check Marketplace for an existing install (e.g. NYT Data
+Viz, Swiss Grid Design, Veo + Hyperframes). Example skills ship as JSON imports.
+
+**Free public-data Marketplace skills (Jun 22 2026 — no API key):**
+
+| Skill | Use |
+|-------|-----|
+| SEC EDGAR | U.S. public company filings, structured financials, full-text EDGAR search |
+| World Bank Indicators | 16,000+ development time-series (economics, health, education, etc.) |
+| OpenAlex | Scholarly papers, authors, institutions, journals |
+| US National Weather Service | Forecasts, current conditions, alerts by city, coordinates, or zip |
+
+Treat Marketplace skills like any workspace skill: review scope, credentials, and
+governed-agent fit before attaching to production Clive bots.
+
 **Workspace UI (Matthew's account):**
 
 | Control | Behaviour |
@@ -230,7 +248,7 @@ threads — not the system prompt itself.
 | Intake + credentials | `bot-operations-feedback-intake` + `airtable_feedback.py` | `authType = api_key`, `execute-script` on agent |
 | Guardrails | `ds-kpi-guardrails`, `abs-edit-safety-protocol` | Attach to any bot that reports KPIs or writes ABS |
 | Meta | `skill-authoring-best-practices`, `hyperagent-named-agent-design` | Use when Factory designs new agents/skills |
-| Fleet registry | `freedom-project-bot-roster` | Agent Factory duplication check — live-query Bot Ops |
+| Fleet registry | `freedom-project-bot-roster` | Doc's Workshop duplication check — live-query Bot Ops |
 
 **Export / attach fields (from `hyperagent/exports/agents/*.json`):**
 
@@ -425,7 +443,7 @@ Many rubrics show **From conversation** (created via Learning/thread, not hand-a
 
 ### How the five surfaces work together (Factory checklist)
 
-When Agent Factory finishes a Hyperagent build pack, confirm:
+When Doc's Workshop finishes a Hyperagent build pack, confirm:
 
 | # | Check |
 |---|--------|
@@ -667,6 +685,15 @@ Matthew-confirmed release email before relying on those details.
 - Agents can be set to always use the latest Opus or Sonnet model.
 - Supported Claude models use their full 1M-token context window by default;
   the reviewed release says the per-agent toggle was removed.
+- **Jun 18 2026 release** added three non-Claude runtime options (verify exact
+  `modelId` strings in UI before export):
+  - **GPT-5.5** — high-stakes reasoning, careful decisions, computer use; more
+    expensive.
+  - **Kimi K2.6** — visuals (apps, slides, dashboards) and multi-agent
+    coordination; slower, more verbose.
+  - **DeepSeek V4 Pro** — large text/code volume at low cost; can over-generate.
+- **Factory default for governed Clive agents:** stay on latest Opus unless the
+  build pack explicitly justifies a different model for the job.
 
 ## Current Known Constraints
 
@@ -786,13 +813,21 @@ Composio-powered integrations remain **disabled** platform-wide after the May 20
 
 ## Observed Model Identifiers
 
-These appear in current repo exports and should be treated as known observed
-values, not a complete current catalogue:
+These appear in current repo exports and release emails. Treat as known observed
+values, not a complete current catalogue — verify `modelId` in UI before export.
+
+**Claude (repo exports):**
 
 - `claude-opus-4-7`
 - `claude-opus-4-8`
 - `opus-latest`
 - latest Opus / latest Sonnet auto-update setting
+
+**Non-Claude (Jun 18 2026 release email — UI strings not yet confirmed in export):**
+
+- GPT-5.5
+- Kimi K2.6
+- DeepSeek V4 Pro
 
 Downloaded Skill Forge and Agent Factory exports both use:
 
@@ -838,7 +873,24 @@ strip unknown keys):
 
 Skill `data` adds: `tags`, `whenToUse`, `authType`, `credentialSchema`, `skillMdBody`, `scripts[]` (`filename`, `content`, `description`), `references`.
 
-Import order for AstraJax: **skill JSON first**, then **agent JSON**; configure credentials on skill; attach repo/GitHub on agent when needed; enable schedules and webhooks in UI.
+### First-time import (AstraJax default)
+
+Standard agent exports embed full skill objects in `skills[]`. For those builds,
+import **agent JSON only**. Hyperagent creates workspace skill(s) and attaches them.
+
+After import, verify:
+
+1. Agent → **Skills** tab shows attached skill(s)
+2. `/skills` → skill shows **Agents ≥ 1**
+3. Credentials on skill if `authType: api_key` (before first run)
+4. Webhook, repo, Slack attach as needed (see `hyperagent/docs/hyperagent-deploy-playbook.md`)
+
+Import standalone **skill JSON separately** only for skill-only updates, shared
+skills, or optional credential staging. The repo still ships skill JSON for those
+workflows; it is not required for a normal first-time deploy.
+
+**Legacy note:** older text here said skill JSON first, then agent JSON. That was
+conservative fleet guidance for credential-heavy Clive bots, not a platform requirement.
 
 ### Additional DS agent exports reviewed
 
@@ -930,12 +982,12 @@ Promotion rule:
 1. Scanner captures raw release.
 2. Matthew or an agent in review mode checks it.
 3. Durable platform changes are added to this file.
-4. Agent Factory can then rely on the promoted change.
+4. Doc's Workshop can then rely on the promoted change.
 
 ## Staleness Rule
 
 If `hyperagent-releases.json.last_synced_at` is older than seven days when
-designing a Hyperagent-deployed agent, Agent Factory should say so and offer to
+designing a Hyperagent-deployed agent, Doc's Workshop should say so and offer to
 run:
 
 ```bash

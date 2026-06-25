@@ -1,4 +1,4 @@
-const tags = ["Ex-actor, RADA", "Ex-Head of Direct Sales", "Never wrote code"];
+const tags = ["Ex-actor, RADA", "Head of Sales, unicorn", "Never wrote code"];
 
 export function FounderProof() {
   return (

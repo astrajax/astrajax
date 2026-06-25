@@ -1,6 +1,6 @@
 # Brain Base Builder — Agent Plan
 
-**Status:** Track A done (Airtable skills imported). Track B v0.1 **built** — invoke `@doc-airtable-minion` in Cursor. Registry: `agents/cursor/doc/airtable-minion/build-pack-v0.1.md`.
+**Status:** Track A done (Airtable skills imported). Track B v0.1 **built** — invoke `@doc-airtable-minion` in Cursor. Registry: `agents/registry/cursor/doc/airtable-minion/build-pack-v0.1.md`.
 **Owner:** Matthew.
 **Working name:** "Brain Base Builder" (a capability in Doc's family — final name/character is Matthew's call).
 **Read with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (the access model it builds for), [`aie-2026-07.md`](./aie-2026-07.md) (sprint scope and do-not-build list), and `docs/business/architecture.md` (Doc routing, agent roles).
@@ -10,7 +10,7 @@
 
 ## 1. What this agent is (one line)
 
-> **An agent that scaffolds and evolves the Airtable bases a Brain lives in — Registry, Workshop, and Trusted Brains — from a plain-language brief, under human approval.**
+> **An agent that scaffolds and evolves the Airtable bases a Brain and its agents live in — Registry, Workshop, Trusted Brains, and Agent bases — from a plain-language brief, under human approval.**
 
 It is the part of **Doc** that builds the *physical home* for a brain: tables, typed fields, linked records, the Brain Key governance tables. It does not decide what context is true, does not approve, and does not deploy runtime agents.
 
@@ -32,7 +32,7 @@ The one watch-item linking them: Track A skills are generic base-building helper
 AstraJax is explicitly **not an Airtable build shop** (positioning §13, internal-brief §3, AIE brain §3). An agent literally called an "Airtable build agent" is the most drift-prone thing in the fleet. The plan stays on-thesis only if:
 
 - It builds **governed brains** (context homes with the Brain Key model baked in), not generic bases-for-hire.
-- It is **bounded to the AstraJax brain schema** — Registry / Workshop / Trusted Brain shapes — not "describe any base and I'll build it."
+- It is **bounded to the AstraJax brain schema** — Registry / Workshop / Trusted Brain / **Agent** shapes — not "describe any base and I'll build it."
 - Client-facing use (Phase 2) scaffolds **a client's brain inside the AstraJax governance model**, not "we'll build your Airtable for you."
 
 If the scope ever creeps toward "scaffold arbitrary Airtable bases for arbitrary workflows," it has become the thing we said we are not. That is the line to watch.
@@ -60,8 +60,8 @@ It is **not** the demo, and **not** a runtime agent. It is build-side tooling: i
 
 - **Runtime:** Cursor subagent (the build lane), using the Airtable MCP server already wired in this workspace (`project-0-AstraJax-airtable`).
 - **Audience:** Matthew (and TL) only.
-- **Scope of writes:** create/extend tables and fields in the AstraJax brain bases; seed structural records (e.g. a new Brain row in the Registry). Bounded to the three base shapes.
-- **What it does for AIE specifically:** when a new Trusted Brain theme is needed (one base per theme, per `brain-key-wiring.md`), it scaffolds that base to the canonical shape and registers it — minutes, not manual clicking.
+- **Scope of writes:** create/extend tables and fields in the AstraJax brain and agent bases; seed structural records (e.g. a new Brain row or Agents row in the Registry). Bounded to the **four** base shapes.
+- **What it does for AIE specifically:** when a new Trusted Brain theme or Agent base is needed (one base per theme / per agent, per `brain-key-wiring.md`), it scaffolds that base to the canonical shape and registers it — minutes, not manual clicking.
 
 **Important AIE boundary:** this agent is **not part of the recordable demo**. The sprint do-not-build list bans real Airtable writes *in the demo route* — that still holds. This tool operates on the production backbone, off-camera, to support the build. Keep them separate.
 
@@ -91,36 +91,37 @@ Airtable open-sourced a skill pack (`github.com/Airtable/skills`, `plugins/airta
 
 The genuinely reusable insight is the four-layer build model: **schema (via MCP) → native Airtable UX → portals → custom Vercel app**. That mirrors your own stack (Airtable governs → Cursor builds → GitHub versions → humans approve).
 
-What the pack does **not** give you, and you must supply: the Brain Key access model, Registry/Workshop/Trusted separation, scoped credentials, the human approval gate, and the Clive fleet integration.
+What the pack does **not** give you, and you must supply: the Brain Key access model, Registry/Workshop/Trusted/**Agent** separation, scoped credentials, the human approval gate, and the Clive fleet integration.
 
 ---
 
 ## 6. Canonical schema shapes (what it is allowed to build)
 
-Bounded to three shapes, all defined in `brain-key-wiring.md` and already live in `website/src/lib/brains/airtable-ids.ts`:
+Bounded to **four** shapes, all defined in `brain-key-schema.md` and `brain-key-wiring.md`. Live IDs in `website/src/lib/brains/airtable-ids.ts`:
 
-1. **Registry base** — `brains`, `keyRequests`, `accessGrants`, `changeLog`. One per AstraJax (or per client tenant in Phase 2). Index + governance only; never holds trusted context or tokens.
+1. **Registry base** — `brains`, `agents`, `keyRequests`, `accessGrants`, `changeLog`. One per AstraJax (or per client tenant in Phase 2). Index + governance only; never holds trusted context, persona memory, or tokens.
 2. **Workshop base** — `userBrains`, `draftBrainContext`, `brainInteractions`, `pamReviews`, `approvalDecisions`, `docActions`. Draft/propose space.
-3. **Trusted Brain base** — `brainContext`, `personas`. One base per brain theme, scoped credentials. Approved context only.
+3. **Trusted Brain base** — `brainContext`, `brainMemories`. One base per brain theme, scoped credentials. Approved business context + working brain recall only.
+4. **Agent base** — `narrativeArch`, `personaConfig`, `personaMemories`, `minions`. One base per agent (Clive, Pam, Doc, Clive's Man for Chapter 1). Character + role memory; never canonical business truth.
 
-The agent's job is to reproduce these shapes faithfully and register a new brain — not to invent new schemas on the fly. Schema changes to the canonical shapes are a human decision, made in `brain-key-wiring.md` first, then applied.
+The agent's job is to reproduce these shapes faithfully and register a new brain or agent — not to invent new schemas on the fly. Schema changes to the canonical shapes are a human decision, made in `brain-key-schema.md` and `brain-key-wiring.md` first, then applied.
 
 ---
 
 ## 7. Risk tier and guardrails
 
-Per Agent Factory risk classification:
+Per Doc's Workshop risk classification:
 
 - **Phase 1: Medium.** Writes to Airtable, internal audience. Requires: edit-safety protocol, boundary evals, a named human approval gate before any write, and audit to the Change Log.
 - **Phase 2: High.** Client-facing, creates bases, touches client data and credential scoping. Requires: independent Opus red-team, explicit recorded Matthew sign-off, rollback note, and the full Brain Key request→approve→scoped-write→log path with no token ever reaching a model or browser.
 
-**Always forbidden (both phases):** approving context, deploying runtime agents, committing/pushing, writing to a Trusted Brain without a validated grant, exposing or remembering any Airtable token, building outside the three canonical shapes.
+**Always forbidden (both phases):** approving context, deploying runtime agents, committing/pushing, writing to a Trusted Brain without a validated grant, exposing or remembering any Airtable token, building outside the four canonical shapes, storing durable memory in HyperAgent for product agents.
 
 ---
 
 ## 8. How to build it (the right lane for each step)
 
-This is a textbook **Clive Agent Factory** job — don't hand-roll it:
+This is a textbook **Doc's Workshop** job — don't hand-roll it:
 
 1. **Design (Phase A, read-only):** run Factory's interview and roster check; confirm it's a new build vs an extension of Doc. Classify risk (Medium now). Draft the config pack and skill.
 2. **Independent review:** Medium tier needs the self red-team; when Phase 2 (High) is designed, add the Opus review gate.
@@ -133,6 +134,6 @@ Model routing: design/architecture on a strong reasoning model; the actual file/
 
 ## 9. First concrete step
 
-Open Clive Agent Factory and run a Phase‑A design pass for the Phase‑1 (Medium, Cursor-native) version only. The single decision that matters most before any building: **confirm the scope boundary in §2** — that this builds governed brains to fixed shapes, and will not become a general Airtable base builder.
+Open Doc's Workshop via `@doc` and run a Phase‑A design pass for the Phase‑1 (Medium, Cursor-native) version only. The single decision that matters most before any building: **confirm the scope boundary in §2** — that this builds governed brains to fixed shapes, and will not become a general Airtable base builder.
 
 Everything else (which Airtable skill files to adapt, naming, character) is downstream of that boundary decision.

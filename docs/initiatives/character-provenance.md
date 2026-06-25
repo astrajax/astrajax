@@ -32,6 +32,7 @@ Matthew developed the Clive/Pam pairing in voice notes while working with Tara-L
 | Production DS cast | `docs/business/proof.md` §3 | Canonical proof | Butternut fleet lineage |
 | Agent role architecture | `docs/business/architecture.md` §4 | Canonical product | Clive, Pam, Doc, Court |
 | Visual brief | `docs/initiatives/tara-lee-visual-brief.md` | Working | Deliverables and visual specs |
+| Laban-Malmgren craft source | `docs/archive/sources/mirodan-phd-1997-vol1.pdf` | Archive — raw | Character spine: functions, Inner Attitudes; see §14 |
 
 When this document and a canonical doc disagree on **product behaviour**, canonical wins. For **character feel or visual rationale**, use this as the active working reference unless Matthew promotes the decision into canonical.
 
@@ -303,3 +304,84 @@ When a character decision becomes fixed product truth (not just visual feel), Ma
 - `docs/initiatives/tara-lee-visual-brief.md` — if visual specs change
 
 Leave the rationale here; update canonical docs with the outcome only.
+
+---
+
+## 14. Craft source — the Laban-Malmgren system (Mirodan 1997)
+
+**Source:** `docs/archive/sources/mirodan-phd-1997-vol1.pdf` — Vladimir Mirodan, *The Way of Transformation: The Laban-Malmgren System of Dramatic Character Analysis* (PhD, Royal Holloway, University of London, 1997), Volume I. Raw source; decisions live in this document, not the PDF. Volume II (the granular per-attitude manual and Externalized Drives) is not yet in the repo.
+
+This is the codified craft behind §4 (Matthew's character-building method). It gives the founding cast a **spine** (psychology), not just a **skin** (look and manners).
+
+### The four functions
+
+Every character is built from four ways of meeting the world:
+
+- **Sensation** (movement quality: Weight) — "something *is*": present, grounded, takes the world in.
+- **Thinking** (Space) — "*what* a thing is": names and judges. In this system, creative and lateral, not dry logic.
+- **Intuition** (Time) — "where it's *going*": hunches, sees around corners.
+- **Feeling** (Flow) — "what a thing is *worth*": value, accept or reject; the force that sweeps you up.
+
+A character has a **dominant** function plus an **auxiliary** one. The six pairings are the **Inner Attitudes**:
+
+| Inner Attitude | Function pair | One-line character |
+|---|---|---|
+| Near | Sensation + Intuition | Takes everything in; warm, instinctive; doesn't gate |
+| Remote | Thinking + Feeling | The judge: weighs worth, decides what's acceptable, stays cool |
+| Stable | Sensation + Thinking | Grounded, factual, structured, evidence-bound |
+| Mobile | Intuition + Feeling | Fluid, theatrical, reads the room, swept up |
+| Adream | Sensation + Feeling | Sensuous, warm, feeling-led, dreamy |
+| Awake | Thinking + Intuition | Alert strategist; sees patterns and what's coming |
+
+### Inner vs Outer Character
+
+- **Inner Character** = the type (the function pair). The spine.
+- **Outer Character** = the social skin: profession, class, era, manners.
+
+"Victorian gentleman in a smoking jacket" is Clive's *Outer* Character. "Sensation-led, takes the world in warmly" is his *Inner* one. Designing the skin without the spine is how two characters quietly drift into each other.
+
+### Super Objective
+
+The force that animates a character throughout its whole life, regardless of the scene in front of it. This is the craft name for the "overarching life goal" in §4.
+
+### The independent character
+
+Mirodan's central claim: a character is neither the performer nor the script. It is a "third force" that exists outside both and survives every surface. For AstraJax this **is** the argument for "personality is adoption infrastructure" — Clive is not the booth art and not the product copy; he is a thing that stays consistent across every surface.
+
+### Cast diagnosis (against the engine)
+
+| Character | Inner Attitude | Functions |
+|---|---|---|
+| Clive | Near (with Adream warmth) | Sensation + Intuition |
+| Pam | Remote | Thinking + Feeling |
+| Vera | Mobile | Intuition + Feeling |
+| Iris | Stable | Sensation + Thinking |
+| Doc | Stable (Sensation-led) | Sensation + Thinking |
+
+Matthew's own trained type is **Adream/Near, strong Weight** (Sensation-led) — which is why Clive reads as Matthew at the whiteboard.
+
+### Do-not-blur, in craft terms
+
+- **Pam vs Vera:** share **Feeling**. Pam's other half is **Thinking** (judges, stays cool); Vera's is **Intuition** (reads, performs). **Pam scrutinises; Vera is swept up.**
+- **Pam vs Iris:** share **Thinking**. Pam challenges *assumptions and scope*; Iris challenges *facts and data*.
+- **Doc vs Iris:** same attitude (Stable); Doc is **Sensation-dominant** (the doer), Iris is **Thinking-dominant** (the judge of evidence).
+
+**Open seat:** Awake (Thinking + Intuition, the strategist) is currently unclaimed by the cast.
+
+This resolves the §10 open question on the Pam route at the level of *character*: Pam (Remote) is confirmed psychologically distinct from Vera (Mobile), not a rename. Visual treatment remains Tara-Lee's call.
+
+### Why this matters commercially (believability → trust → adoption)
+
+The whole point of this craft is **believability**. A character built from a coherent function pair, super objective, and consistent behaviour reads as *believable* — and believable roles are the ones people trust. The commercial chain:
+
+```text
+Coherent character craft -> believable role -> user trust -> actual usage -> adoption
+```
+
+Three disciplines keep this honest, and they must travel with the claim wherever it appears in canonical or investor docs:
+
+1. **Narrow the wedge.** The differentiator is not "we do characters" — companion and entertainment bots do that well. It is applying rigorous character craft to *functional, governance-bound work agents*, the ones teams are nervous to rely on.
+2. **Pair believability with governance.** Believable role, never fake human. Trust is earned by coherence **and** bounded scope, human approval, and audit trail. Believability without governance is a manipulation risk, not a feature.
+3. **Borrow the principle, not a study.** Believability → trust is proven in storytelling, theatre, and game design. Butternut is supporting signal, not a measured adoption lift. Claim the *application* of the craft, not ownership of the method — cite the source (Mirodan 1997, above).
+
+This is a **supporting** edge, not the lead thesis, and it is framed as a teachable, repeatable method rather than founder magic — which makes it evidence *for* replicability (AI turned a 600-page academic work into a reusable cast tool), not deeper key-person risk.

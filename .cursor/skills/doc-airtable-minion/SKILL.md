@@ -2,7 +2,7 @@
 name: doc-airtable-minion
 description: >-
   Doc's Airtable Minion — Airtable base scaffolding under human approval.
-  Two-phase (propose then build): Brain Registry / Workshop / Trusted Brain shapes
+  Two-phase (propose then build): Brain Registry / Workshop / Trusted Brain / **Agent** shapes
   for AstraJax brains, or Matthew's own ops bases via composed Airtable skills.
   Use when Matthew invokes @doc-airtable-minion, asks to scaffold or extend an
   Airtable base, stand up a brain home, or build tables/fields via MCP.
@@ -94,16 +94,21 @@ Canonical shapes from `docs/initiatives/brain-key-wiring.md` and live IDs in
 
 | Shape | Purpose | Tables (minimum) |
 |-------|---------|------------------|
-| **Registry** | Index + governance | Brains, Brain Key Requests, Access Grants, Change Log |
+| **Registry** | Index + governance | Brains, **Agents**, Brain Key Requests, Access Grants, Change Log |
 | **Workshop** | Draft / propose | User Brains, Draft Brain Context, Brain Interactions, Pam Reviews, Approval Decisions, Doc Actions |
-| **Trusted Brain** | One base per theme | Brain Context, Personas |
+| **Trusted Brain** | One base per theme | Brain Context, Brain Memories |
+| **Agent** | One base per agent | Narrative Arch, Persona Config, Persona Memories, Minions |
+
+Chapter 1 Agent bases: Clive, Pam, Doc, Clive's Man (`clive-man`).
 
 Rules:
 
 - Reproduce these shapes faithfully; do not invent alternate governance models.
-- Schema changes to canonical shapes require an edit to `brain-key-wiring.md` first — propose in Phase A, do not silently drift.
+- Schema changes to canonical shapes require an edit to `brain-key-schema.md` and `brain-key-wiring.md` first — propose in Phase A, do not silently drift.
 - One Trusted Brain base per brain theme (token scoping).
+- One Agent base per agent (token scoping).
 - After creating a new Trusted Brain: register in Registry **Brains** table and update `airtable-ids.ts`.
+- After creating a new Agent base: register in Registry **Agents** table and update `airtable-ids.ts`.
 
 Live Chapter 1 bases (24 Jun 2026 — verify via MCP before assuming):
 
@@ -203,6 +208,6 @@ narration; work silently then report.
 
 ## Related agents
 
-- **clive-agent-factory** — designs new agents; does not replace this builder
+- **doc-workshop-proposer** — designs new agents via Doc's Workshop; does not replace this builder
 - **clive-intake** — logs context proposals; does not scaffold bases
 - Clive/Pam — never invoke this agent as Clive; stay in Doc's lane

@@ -13,7 +13,7 @@
 Doc triages the task, tells you which minion fits and why, then runs that minion's
 two-phase workflow (propose → you approve → build in Agent mode).
 
-Direct minion invoke still works if you already know the lane: `@doc-airtable-minion`, `@doc-vercel-minion`.
+Direct minion invoke still works if you already know the lane: `@doc-airtable-minion`, `@doc-vercel-minion`, `@doc-workshop-proposer`, `@doc-workshop-challenger`, `@doc-workshop-cursor`, `@doc-workshop-hyperagent`.
 
 ## Skill sources (two types)
 
@@ -43,7 +43,7 @@ HyperAgent is **not** a minion. HyperAgent runs **deployed fleet agents**. Minio
 ## Minion rules (all minions)
 
 1. **Two phases:** Phase A propose (Ask or Agent, read-only). Phase B build (Agent mode only, explicit approval).
-2. **One lane each:** A minion does not become Clive, Pam, Factory, or HyperAgent.
+2. **One lane each:** A minion does not become Clive, Pam, Clive's Man, or HyperAgent.
 3. **No canonical truth:** Minions implement structure and code; humans approve what becomes trusted context.
 4. **Paper trail:** Say what changed, what Matthew still does manually, preview/deploy links when relevant.
 5. **Still forbidden unless Matthew asks:** `git commit`, `git push`, production promote, exposing secrets.
@@ -57,19 +57,32 @@ HyperAgent is **not** a minion. HyperAgent runs **deployed fleet agents**. Minio
 | **Doc** (dispatcher) | `@doc` | Triage + route to minion | v0.1 shipped |
 | **Airtable Minion** | `@doc-airtable-minion` (or via `@doc`) | Brain bases + ops bases via Airtable MCP | v0.1 shipped |
 | **Vercel Minion** | `@doc-vercel-minion` (or via `@doc`) | `website/` Next.js app, API routes, env, deploy | v0.1 shipped |
+| **Doc's Workshop** | via `@doc` → `@doc-workshop-proposer` | Agent-making place (Trinity below) | v0.1 shipped |
 
-Future minions (not built): HyperAgent export packager, context scaffold, etc. — only after a minion passes the duplication check in Agent Factory.
+### Doc's Workshop (Trinity)
+
+Agent design and build uses a **Proposer → Challenger → Executor** split (see `docs/context/trinity-agent-flow.md`). Matthew approves between Challenger and Executor.
+
+| Role | Invoke | Model | Job |
+|------|--------|-------|-----|
+| **Workshop Proposer** | `@doc-workshop-proposer` | gpt-5.5-high | Interview, roster, risk, config pack; dispatches Challenger |
+| **Workshop Challenger** | `@doc-workshop-challenger` | gpt-5.5-high | Red-team every pack before Matthew sees it |
+| **Cursor Builder** (Executor) | `@doc-workshop-cursor` | composer-2.5-fast | `.cursor/agents`, `.cursor/skills`, cursor registry |
+| **Hyperagent Builder** (Executor) | `@doc-workshop-hyperagent` | composer-2.5-fast | `hyperagent/builds/`, exports, hyperagent registry; deploy handoff only |
+
+Future runtimes: add another Workshop Executor minion (same Trinity, new runtime lane).
 
 ---
 
 ## Naming
 
-- Doc router registry: `agents/cursor/doc/router/`
-- Minion registry: `agents/cursor/doc/<minion-slug>/`
+- Doc router registry: `agents/registry/cursor/doc/router/`
+- Minion registry: `agents/registry/cursor/doc/<minion-slug>/`
+- Workshop registry: `agents/registry/cursor/doc/workshop-<role>/`
 - Cursor subagents: `.cursor/agents/doc.md`, `.cursor/agents/doc-<lane>-….md`
 - Skills: `.cursor/skills/doc/SKILL.md`, `.cursor/skills/doc-<lane>-…/SKILL.md`
 
-Display names: **Doc Albright**, **Doc's Airtable Minion**, **Doc's Vercel Minion**.
+Display names: **Doc Albright**, **Doc's Airtable Minion**, **Doc's Vercel Minion**, **Doc's Workshop Proposer**, **Doc's Workshop — Challenger / Cursor Builder / Hyperagent Builder**.
 
 ---
 

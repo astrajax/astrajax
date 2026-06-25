@@ -1,6 +1,6 @@
 # Draft Agents
 
-**Status:** Draft design area. Nothing in this folder is live agent policy until Matthew approves it and a build pack is promoted into `agents/cursor/` or `agents/hyperagent/`.
+**Status:** Draft design area. Nothing in this folder is live agent policy until Matthew approves it and a build pack is promoted into `agents/registry/cursor/` or `agents/registry/hyperagent/`.
 
 This folder is for simplifying agent ideas before they become production artifacts.
 
@@ -22,7 +22,7 @@ Drafts do not deploy themselves.
 To promote a draft:
 
 1. Matthew approves the direction.
-2. Clive Agent Factory turns the draft into one or more build packs.
-3. Runtime artifacts are generated under `agents/cursor/` or `agents/hyperagent/`.
+2. Doc's Workshop Proposer turns the draft into one or more build packs.
+3. Runtime artifacts are generated under `agents/registry/cursor/` or `agents/registry/hyperagent/`.
 4. Live policy docs are updated only after the build is accepted.
 

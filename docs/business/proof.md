@@ -2,8 +2,18 @@
 
 **Status:** Canonical proof reference. Detail behind the claims in `docs/business/positioning.md`.
 **Owner:** Matthew.
-**Last updated:** 23 June 2026.
+**Last updated:** 25 June 2026.
 **Read with:** `docs/business/positioning.md` §14 Claim Control before anything goes public.
+
+---
+
+## 0. Founder Context
+
+Matthew Hopkinson joined Butternut Box as employee #33 and progressed **London Team Leader → Head of Sales** at a **confirmed unicorn** in **seven years** (by July 2026). External reference title: **Director of Sales** (Butternut-sanctioned).
+
+The velocity arc — professional actor to senior commercial leadership at scale-up speed — is founder-capability evidence for the AstraJax thesis (domain depth + AI fluency compounds fast). Frame it that way; do not use it as a standalone brag.
+
+The build proof in this document is scoped to the **Direct Sales channel** Matthew governed and built the operating layer for.
 
 ---
 
@@ -11,7 +21,7 @@
 
 > **From Gmail, WhatsApp, Notion, and Google Sheets to an operating system.**
 
-A non-technical commercial leader, working entirely with AI on top of clean data, shipped a production operating layer that gave a real team real leverage.
+Working with AI on top of cleaned operational data, Matthew solo-built a production operating layer for the Direct Sales channel — an £8m p/y commercial function with a 120 headcount. Real adoption pressure.
 
 - an operating system for a **~£8.1m** Direct Sales channel
 - three P&Ls, ~15 office FTE, 120-person commercial team
@@ -54,7 +64,9 @@ A flavour of the team-facing fleet — each narrow, each memorable:
 - **The Scorekeeper (Kingsley)** — gamification: watches engagement, awards XP, celebrates level-ups.
 - **Doc Albright** — the fleet's engineer: read-only on live business data, write-capable only inside bot operations; captures feedback, audits config, sends weekly leadership summaries.
 
-The characters are not fluff; they are an adoption strategy. Bots people are afraid of don't get used. Bots people can laugh at, argue with, and accuse of flirting with the logistics manager do. One team member publicly said of Clive, "I think I fancy him." When the agents developed enough of a social life that the debug bot issued a *public apology* for Clive's behaviour, that was the moment the team started playing — and once people play, they learn far faster.
+The characters are not fluff; they are an adoption strategy. Bots people are afraid of don't get used. Bots people can laugh at, argue with, and accuse of flirting with the logistics manager do. One team member publicly said of Clive, "I think I fancy him." When the agents developed enough of a social life that the debug bot issued a *public apology* for Clive's behaviour, that was the moment the team started playing — and once people play, they learn far faster. (These are signals from one production deployment, not a controlled study — strong supporting evidence for a principle already proven in storytelling and game design, not a measured adoption lift.)
+
+There is a deeper craft source behind this pattern: a body of character-theory work from respected movement, drama, and writing lineages, distilled into a reusable design method (`docs/initiatives/character-provenance.md`, citing Mirodan 1997). The value is not academic; it is translation. AI turns hard-to-absorb artistic knowledge about character, motive, behaviour, and audience response into practical tools for designing **believable** agent roles — the kind teams actually trust. The claim is the *application*, not ownership of the underlying method.
 
 ---
 

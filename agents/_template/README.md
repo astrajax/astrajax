@@ -6,13 +6,13 @@ Choose the platform first, then copy the matching template branch.
 
 | If production runs in… | Registry path | Also create |
 |---|---|---|
-| **Cursor** (subagent) | `agents/cursor/<family>/<name>/` | `.cursor/agents/`, `.cursor/skills/` |
-| **Hyperagent** (web/Slack) | `agents/hyperagent/<family>/<name>/` | `hyperagent/exports/`, optional Cursor mirror |
+| **Cursor** (subagent) | `agents/registry/cursor/<family>/<name>/` | `.cursor/agents/`, `.cursor/skills/` |
+| **Hyperagent** (web/Slack) | `agents/registry/hyperagent/<family>/<name>/` | `hyperagent/exports/`, optional Cursor mirror |
 
 ## 2. Create the folder
 
 ```text
-agents/<platform>/<family>/<short-name>/
+agents/registry/<platform>/<family>/<short-name>/
   build-pack-v0.1.md
   archive/
   evals/          (recommended)

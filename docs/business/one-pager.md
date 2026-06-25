@@ -58,6 +58,8 @@ The best AI tools are shaped closest to the work. The person running the operati
 
 AstraJax collapses that loop. The domain expert can shape the context, test the agent, spot what broke, and feed the correction back into the system while the work is still warm. That speed makes the tool better faster.
 
+Adoption is easier when the AI champion is a **peer close to the work** — a founder, team lead, operator, or creative specialist the users already trust, not an outside technical team. One AI champion per function, team, or work area, trained to shape the brain and test workflows at the coalface, supported by AstraJax guardrails and Doc execution. Faster deployment, tighter feedback, adoption led by people who know the work.
+
 It also changes the team's relationship with failure. When people see their feedback understood and actioned quickly, they stay engaged. They become more tolerant of early imperfections because the system is clearly learning from them. The result is a tool stress-tested in real operation at a pace a distant build team cannot match.
 
 Citizen-as-builder is not a nice democratic slogan. It is the fastest route to useful AI.
@@ -73,6 +75,16 @@ For important decisions, the system gives the expert more than one view. Clive g
 Then AstraJax makes the ownership explicit:
 
 > **This is your decision. You now have context-aware, bias-checked opinions. You decide.**
+
+The habit behind that is simple enough to remember — the **Trinity Playbook**:
+
+```text
+Propose -> Challenge -> Human gate -> Execute
+                         |-> Court Mode, if the stakes are high
+                         |-> Advance, if the owner approves
+```
+
+Right model for the job. Right spend for the task. Multiple angles before action. You are the real expert; you decide.
 
 That is the point. AI takes the sludge, sharpens the thinking, and removes some of the lonely guesswork. The human keeps the meaning, and the approved judgement becomes the system truth.
 
@@ -120,7 +132,7 @@ Most platforms aim at builders. AstraJax aims at the person who actually knows t
 
 To a non-technical user, many agent platforms can feel like the same promise in different clothes: build agents, wire tools, add context, automate work. AstraJax does not try to win by adding another costume to that category. It sits above it, translating the agent-building world into something domain experts can understand, own, and keep using.
 
-The character layer is not decoration. It is how AstraJax makes adoption safe and sticky. A user can choose personality, avatar, tone, and team fit; underneath, the agent keeps the right model, rules, scope, and guardrails for the job. In plain English: people get creative control without being allowed to break the machine.
+The character layer is not decoration. Its job is **believability**. Believable roles are easier to trust, and trusted agents get used. Most character work in AI goes into companion bots; AstraJax applies it to functional work agents — paired with bounded scope and human approval, so trust is earned, not manufactured. A user can choose personality, avatar, tone, and team fit; underneath, the agent keeps the right model, rules, scope, and guardrails for the job. In plain English: people get creative control without being allowed to break the machine.
 
 Teams can choose how much story they want: **Full Story Mode**, **Light Story Mode**, or **No Story Mode**. The theatre is there to keep people engaged and to make agent scopes memorable, not to make the system less serious. Underneath, the same roles, guardrails, approvals, and context rules apply.
 
@@ -138,7 +150,7 @@ Airtable can hold the brain, HyperAgent can run the agents, a reasoning model ca
 
 AstraJax is built from production experience, not a pitch deck. Full detail and claim-control boundaries live in `docs/business/proof.md` and `docs/business/positioning.md`.
 
-Matthew Hopkinson is a non-technical commercial leader who has never handwritten a line of code. Working with AI on top of clean operational data, he built a production operating layer for Butternut Box Direct Sales: a real commercial function with a real team, real workflows, and real adoption pressure.
+Matthew Hopkinson is a non-technical commercial leader who has never handwritten a line of code. He joined Butternut Box as employee #33 and progressed to **Head of Sales** at a confirmed unicorn in seven years (by July 2026). Working with AI on top of cleaned operational data, he solo-built a production operating layer for the Direct Sales channel — an £8m p/y commercial function with a 120 headcount. Real adoption pressure. *(External reference title: Director of Sales — Butternut-sanctioned.)*
 
 The proof:
 

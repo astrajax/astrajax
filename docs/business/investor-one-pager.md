@@ -4,7 +4,7 @@
 **Audience:** Angels, pre-seed/seed investors, strategic partners.  
 **Companion docs:** `docs/business/positioning.md` (product), `docs/business/proof.md` (evidence), `docs/business/internal-brief.md` (claim control).  
 **Owner:** Matthew.  
-**Last updated:** 23 June 2026.
+**Last updated:** 25 June 2026.
 
 ---
 
@@ -45,17 +45,21 @@ The product and the company prove each other. Clients buy adoption. Investors bu
 
 ## Proof It Works (Not a Pitch Deck)
 
-Matthew Hopkinson is a non-technical commercial leader who has **never handwritten a line of code**. Working with AI on top of clean operational data, he built a production operating layer for **Butternut Box Direct Sales** — a real commercial function with a real team and real adoption pressure.
+Matthew Hopkinson is a non-technical commercial leader who has **never handwritten a line of code**. Before AstraJax he was **Head of Sales** at **Butternut Box** — a confirmed unicorn — having joined as employee #33 and progressed from London Team Leader in **seven years** (by July 2026). The arc matters: a professional actor who reached senior commercial leadership at scale-up velocity, then built production software without writing code. That is the AstraJax thesis lived, not theorised.
+
+Working with AI on top of cleaned operational data, he solo-built a production operating layer for the **Direct Sales channel** — an £8m p/y commercial function with a 120 headcount. Real adoption pressure. *(External reference title: Director of Sales — Butternut-sanctioned.)*
 
 **Canonical numbers:**
 
-| Signal | Proof |
-|--------|-------|
-| Scale | **~£8.1m** Direct Sales channel; 3 P&Ls; ~15 office FTE + ~90 field salespeople |
-| Sequencing | **~12 months** boring layer first (data, workflows, architecture) → **~556 TS/React files** in ~1 month → **14 agents in ~3 weeks** |
-| Outcomes | **~£180k/year** travel saving; **~3,000 hours/year** operational capacity at scale |
-| Adoption | Characterful agent fleet used by a non-technical team; training hub, sandboxes, engagement leaderboard, human approval everywhere |
-| External validation | Airtable **Airspace LA** keynote; **Airtable MVP**; **HyperAgent Founding 500** |
+
+| Signal              | Proof                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Scale               | **~£8.1m** Direct Sales channel; 3 P&Ls; ~15 office FTE + ~90 field salespeople                                                     |
+| Sequencing          | **~12 months** boring layer first (data, workflows, architecture) → **~556 TS/React files** in ~1 month → **14 agents in ~3 weeks** |
+| Outcomes            | **~£180k/year** travel saving; **~3,000 hours/year** operational capacity at scale                                                  |
+| Adoption            | Characterful agent fleet used by a non-technical team; training hub, sandboxes, engagement leaderboard, human approval everywhere   |
+| External validation | Airtable **Airspace LA** keynote; **Airtable MVP**; **HyperAgent Founding 500**                                                     |
+
 
 The proof is not founder magic. It is **stubborn execution on clean foundations**: data first, bounded agents, human gates, audit trails, and a governed report → fix → ship → sign-off loop running in production today.
 
@@ -68,20 +72,28 @@ The proof is not founder magic. It is **stubborn execution on clean foundations*
 AstraJax operates on the same pattern it sells:
 
 ```text
-Reason → Challenge → Human decides → Doc acts → Review → Improve
+Propose -> Challenge -> Human gate -> Execute
+                         |-> Court Mode, if the stakes are high
+                         |-> Advance, if the owner approves
 ```
 
-| Role | Who | What they do |
-|------|-----|--------------|
-| **Founder / commercial architect** | Matthew | Direction, client context, adoption culture, approval gates |
-| **Doc layer** | Cursor + agent fleet | Turns approved briefs into code, docs, demos, deploys |
-| **Creative director** | Tara-Lee | Visual identity, agent personas, adoption infrastructure |
-| **Story director** | David | Narrative, pacing, human trust through change |
-| **Runtime** | HyperAgent | Executes bounded agents with human-in-the-loop everywhere |
+That playbook is deliberately easy to recall. It is not sold as a radical new concept; it is good design practice made operational. Use the right model for the right job. Spend the right money for the right task. Get multiple angles before action. Then force ownership back to the human: you are the real expert, you decide.
+
+
+| Role                               | Who                  | What they do                                                |
+| ---------------------------------- | -------------------- | ----------------------------------------------------------- |
+| **Founder / commercial architect** | Matthew              | Direction, client context, adoption culture, approval gates |
+| **Doc layer**                      | Cursor + agent fleet | Turns approved briefs into code, docs, demos, deploys       |
+| **Creative director**              | Tara-Lee             | Visual identity, agent personas, adoption infrastructure    |
+| **Story director**                 | David                | Narrative, pacing, human trust through change               |
+| **Runtime**                        | HyperAgent           | Executes bounded agents with human-in-the-loop everywhere   |
+
 
 Quality, security, architecture, and production risk are not owned by job titles. They live in **prompts, review gates, red-team agents, deployment checks, logs, and human approval loops** — encoded into the operating system, not trapped in one developer's head.
 
 We trailblaze. We also govern. Disruption without rigour is just noise.
+
+A quieter edge worth noting: AstraJax sits where technology, academic craft, and creative practice rarely meet. It can take dense artistic systems — hard to absorb in their original form — and turn them, with AI, into practical tools for designing believable agent roles. Believable roles are easier to trust and adopt. This is a supporting advantage, not the headline, and it is built as a repeatable method rather than a founder trait.
 
 ---
 
@@ -90,6 +102,8 @@ We trailblaze. We also govern. Disruption without rigour is just noise.
 **Lower fixed cost.** No conventional engineering payroll to scale before revenue. High-judgement generalists + AI agents + specialist review where risk demands it.
 
 **Faster iteration.** People closest to the work shape systems without a dev queue. Feedback → fix → ship loops measured in hours, not quarters.
+
+**Embedded AI champions.** The scalable delivery model is one AI champion per function, team, or work area — a founder or peer operator, not a central dev team. Champions test and improve workflows at the coalface, which speeds deployment and makes adoption culturally easier because users trust someone who speaks their language and shares their pressures.
 
 **Repeatable method.** The founder proof is step one. AstraJax productises the coaching path: user brain → business brain → fleet → maturity → efficiency credit. Each client brain makes the method sharper.
 
@@ -110,6 +124,7 @@ Adoption OS Audit  →  Brain & Fleet Sprint  →  Partnership / Platform
 
 - **Who we chase first.** Commercial or operations-heavy teams (£5m–£100m revenue) where one or two operators hold too much context in their heads, earlier AI experiments stalled after the demo, and a commercial leader — not an IT function — owns the budget. Founder-led SMEs, direct-sales and field operations, multi-site service businesses.
 - **Why us, not a consultancy.** The Audit leaves them with a working brain and a bounded fleet, not a slide deck. The method compounds: every client brain we build sharpens the coaching path and the product.
+- **How adoption scales.** Train one AI champion per function, team, or work area — embedded peers who test workflows at the coalface — rather than scaling a large central implementation team. In a solo or very small business, the founder can be the first champion.
 - **Why it becomes a category, not a boutique.** The hands-on partnership funds and de-risks the platform. As the coaching path productises, delivery shifts from founder-led to method-led to self-serve — the consultancy is *how it is delivered today*, not *what it is*.
 
 ---
@@ -121,7 +136,7 @@ Not the stack. Not "we use HyperAgent."
 - **Adoption method** — context discipline, brain maturity, human judgement layer, coaching loops
 - **Founder proof at scale** — production, not slideware; vendor-validated publicly
 - **Operating model as product** — the company shape IS the thesis investors are buying
-- **Personality as adoption infrastructure** — characters, story, and warmth that make non-technical teams actually use the system
+- **Applied character architecture** — AstraJax translates dense character-theory craft into *believable* agent roles: coherent motive, voice, boundary, behaviour. Most character work in AI goes into companion and entertainment bots; AstraJax applies it to functional, governance-bound work agents. Believable roles — paired with bounded scope and human approval — earn trust, and trusted agents get used. Built as a teachable method, not founder magic.
 - **Portable context brains** — tool-agnostic by design; client truth stays portable across runtimes
 
 ---
@@ -143,8 +158,6 @@ We would rather name these than have you guess. The bet is attacking them delibe
 - **External vs internal proof.** Butternut was built as an internal operator. First paying external clients are in progress, not closed. We are converting founder proof into client proof.
 - **Platform dependency.** We build on Airtable, HyperAgent, Cursor, and Vercel. Mitigation is portable, human-approved context brains that move across runtimes — but a platform shipping "adoption" natively, or changing terms, is a live risk we actively watch.
 - **Defensibility timing.** The method is the moat; early on, parts are copyable. The race is to compound context discipline, client brains, and reputation faster than the category fills in.
-
-A founder who can name these is a safer bet than one who pretends they do not exist.
 
 ---
 
@@ -168,7 +181,7 @@ A founder who can name these is a safer bet than one who pretends they do not ex
 
 **Now:** Core narrative, Butternut case study, live AstraJax OS demo, ecosystem relationships, warm outreach to first serious prospects.
 
-**The opportunity for the right investor:** Back a founder who has already proven the thesis inside a unicorn-scale company — running a ~£8.1m commercial channel with zero handwritten code — and is now building the company that turns that method into a category.
+**The opportunity for the right investor:** Back a founder who reached Head of Sales at a confirmed unicorn in seven years — then proved the thesis by running a ~£8.1m commercial channel with zero handwritten code — and is now building the company that turns that method into a category.
 
 ---
 

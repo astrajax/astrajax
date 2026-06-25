@@ -22,7 +22,7 @@ from typing import Any
 # Set in main() via resolve_repo_root(). Default supports local repo runs.
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CHECKS = ("stale", "conflicts", "duplicates", "unsupported", "risky")
-LOCAL_ONLY_TARGETS = frozenset({"curator", "agent-factory", "hyperagent-platform"})
+LOCAL_ONLY_TARGETS = frozenset({"curator", "workshop-proposer", "hyperagent-platform"})
 REPO_MARKER = "AGENTS.md"
 
 TARGET_PATTERNS: dict[str, list[str]] = {
@@ -34,17 +34,17 @@ TARGET_PATTERNS: dict[str, list[str]] = {
         ".cursor/agents/clive-*.md",
         ".cursor/skills/clive-*/SKILL.md",
     ],
-    "agent-factory": [
-        ".cursor/agents/clive-agent-factory.md",
-        ".cursor/skills/clive-agent-factory/SKILL.md",
-        "agents/cursor/clive/agent-factory/**/*.md",
-        "hyperagent/builds/build_clive_agent_factory*.py",
+    "workshop-proposer": [
+        ".cursor/agents/doc-workshop-proposer.md",
+        ".cursor/skills/doc-workshop-proposer/SKILL.md",
+        "agents/registry/cursor/doc/workshop-proposer/**/*.md",
+        "hyperagent/builds/build_doc_workshop_proposer*.py",
     ],
     "curator": [
         ".cursor/agents/clive-curator.md",
         ".cursor/skills/clive-context-curator/SKILL.md",
-        "agents/hyperagent/clive/curator/**/*.md",
-        "agents/cursor/clive/curator/**/*.md",
+        "agents/registry/hyperagent/clive/curator/**/*.md",
+        "agents/registry/cursor/clive/curator/**/*.md",
         "hyperagent/builds/build_clive_curator*.py",
         "hyperagent/exports/agents/agent-clive-curator*.json",
         "hyperagent/exports/skills/skill-clive-context-curator*.json",
@@ -58,8 +58,8 @@ TARGET_PATTERNS: dict[str, list[str]] = {
         "hyperagent/exports/skills/*.json",
     ],
     "context-packs": [
-        "agents/cursor/**/*.md",
-        "agents/hyperagent/**/*.md",
+        "agents/registry/cursor/**/*.md",
+        "agents/registry/hyperagent/**/*.md",
         ".cursor/skills/**/SKILL.md",
     ],
     "approved-context": [
@@ -77,7 +77,7 @@ TARGET_PATTERNS: dict[str, list[str]] = {
 }
 TARGET_PATTERNS["daily"] = (
     TARGET_PATTERNS["clive-core"]
-    + TARGET_PATTERNS["agent-factory"]
+    + TARGET_PATTERNS["workshop-proposer"]
     + TARGET_PATTERNS["curator"]
     + TARGET_PATTERNS["hyperagent-platform"]
 )
@@ -315,7 +315,7 @@ def check_duplicates(sources: list[Source], findings: list[Finding]) -> None:
                 f"{len(grouped)} exports exist for {agent}.",
                 "Multiple exports are acceptable as history, but the live one should be obvious.",
                 "Mark the current export in the build pack or archive older exports.",
-                "Agent Factory",
+                "Doc's Workshop",
                 "Low",
             )
 
@@ -368,7 +368,7 @@ def check_stale(sources: list[Source], findings: list[Finding], now: datetime) -
                     "stale",
                     source.path,
                     "Release log has no last_synced_at.",
-                    "Agent Factory should not rely on an unsynced release log for platform truth.",
+                    "Doc's Workshop should not rely on an unsynced release log for platform truth.",
                     "Run the Hyperagent release scanner or mark the log intentionally unsynced.",
                     "Release Scanner",
                     "Medium",
@@ -433,7 +433,7 @@ def check_risky(sources: list[Source], findings: list[Finding]) -> None:
                 "`autoSaveMemories` appears with `true` nearby.",
                 "Auto-saved memories bypass the deliberate context approval lane.",
                 "Disable auto-save or document why this agent is exempt.",
-                "Agent Factory",
+                "Doc's Workshop",
                 "High",
             )
         if "airtable_write_token" in lowered and "approve" in lowered:
@@ -491,7 +491,7 @@ def check_conflicts(sources: list[Source], findings: list[Finding]) -> None:
                 " | ".join((positive[:2] + negative[:2])),
                 "Contradictory permission language can make agents choose the wrong authority boundary.",
                 "Decide the canonical rule and update or archive the conflicting surface.",
-                "Matthew or Agent Factory",
+                "Matthew or Doc's Workshop",
                 "High",
             )
 
@@ -561,7 +561,7 @@ def markdown_report(target: str, checks: set[str], sources: list[Source], findin
             "",
             "```text",
             "@clive-curator audit target=clive-core checks=stale,conflicts,unsupported,risky",
-            "@clive-curator audit target=agent-factory checks=stale,unsupported,risky",
+            "@clive-curator audit target=workshop-proposer checks=stale,unsupported,risky",
             "@clive-curator audit target=context-packs checks=duplicates,risky",
             "@clive-curator audit target=hyperagent-platform checks=stale,conflicts",
             "@clive-curator cleanup finding=CUR-YYYYMMDD-001",
@@ -571,7 +571,7 @@ def markdown_report(target: str, checks: set[str], sources: list[Source], findin
             "",
             "- Pick any High or Medium finding for cleanup draft.",
             "- Ignore Low findings unless they cluster around the same surface.",
-            "- Route prompt/skill/build fixes to Agent Factory or normal Cursor implementation.",
+            "- Route prompt/skill/build fixes to Doc's Workshop or normal Cursor implementation.",
             "",
         ]
     )

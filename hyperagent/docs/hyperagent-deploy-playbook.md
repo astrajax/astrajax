@@ -1,73 +1,91 @@
-# Hyperagent deploy playbook (stop the delete-and-rewire loop)
+# Hyperagent deploy playbook
 
-Matthew's pain: every fix means delete old agent, import JSON, **new webhook**, re-paste Airtable automation URL, re-test. This doc separates **what actually requires that** from **what you can change in place**.
+Matthew's pain: every fix means delete old agent, import JSON, **new webhook**,
+re-paste Airtable automation URL, re-test. This doc separates **what actually
+requires that** from **what you can change in place**.
 
 ## Golden rule
 
 **Do not delete the Hyperagent agent** unless you are deliberately retiring it.
 
-Deleting the agent destroys the webhook endpoint (new URL + new secret). That is what forces the Airtable nightmare.
+Deleting the agent destroys the webhook endpoint (new URL + new secret). That is
+what forces the Airtable nightmare.
 
 ## What to do instead (by change type)
 
 | You changed | Do this | Delete agent? |
 |-------------|---------|---------------|
-| **Pinned Python script** (audit, scan, create intake) | Re-import **skill JSON only** (`skill-clive-context-curator-v5.json`, etc.). Same skill name overwrites bundled scripts. | No |
+| **Pinned Python script** on a skill | Re-import **skill JSON only**. Same skill name overwrites bundled scripts. | No |
 | **System prompt / skill markdown only** | Hyperagent → agent → **Identity** tab: paste from `.cursor/agents/…` or export JSON `systemPrompt`. Or re-import skill. | No |
-| **Schedule time / schedule prompt** | Hyperagent → **Invocations → Scheduled**: edit in UI (export also sets this on first import). | No |
+| **Schedule time / schedule prompt** | Hyperagent → **Invocations → Scheduled**: edit in UI. | No |
 | **Credentials** (Airtable PAT) | Hyperagent → **Skills** → skill → credentials. Never in git. | No |
 | **Slack channel / repo attach** | Hyperagent UI: Slack **Add to channel**, repo/GitHub attach on agent. | No |
-| **New agent version** (rare) | Import skill, then import agent **with same display name** if Hyperagent offers update/merge. If it only offers duplicate, edit existing agent in UI rather than delete. | Only if unavoidable |
-| **Webhook truly lost** (agent deleted) | Create webhook on agent again → update **one** Airtable field (see below) → secret on automation Secrets tab only. | Was already deleted |
+| **New agent version** (rare) | Import **agent JSON** (embedded skills update with it). If Hyperagent offers update/merge on same display name, use that. Re-import skill JSON separately only for skill-only changes. If it only offers duplicate, edit existing agent in UI rather than delete. | Only if unavoidable |
+| **Webhook truly lost** (agent deleted) | Create webhook on agent again → update Airtable if wired → secret on automation Secrets tab only. | Was already deleted |
 
-## One-time wiring (Workbench automations)
+## Live Hyperagent agent
 
-Put the webhook URL on the **Agent Environments** row, not inside each automation step.
+| Agent | Export | Registry |
+|-------|--------|----------|
+| Clive Agent Factory (Hyperagent) v3 | `hyperagent/exports/agents/agent-clive-agent-factory-v3.json` | `agents/registry/hyperagent/clive/agent-factory/build-pack-v3.md` |
+| Kathryn Goodchild v0.1 | `hyperagent/exports/agents/agent-kathryn-goodchild-v0_1.json` | `agents/registry/hyperagent/astrajax/kathryn-goodchild/build-pack-v0.1.md` |
 
-1. Add field **Hyperagent Webhook URL** on table Agent Environments (URL or single line text).
-2. On row **Clive Curator**, paste Curator `/receive` URL once.
-3. On row **Clive Scanner** (or Clive Context Scanner), paste Scanner `/receive` URL once.
-4. Automations: Run script step **does not need** a hardcoded `webhookUrl` input if the script reads the field from the triggering record (see updated `trigger_*_from_agent_environment.airtable.js`).
+Regenerate Factory: `python3 hyperagent/builds/build_clive_agent_factory_v3.py`  
+Regenerate Kathryn: `python3 hyperagent/builds/build_kathryn_goodchild_v0_1.py`
 
-When Hyperagent gives you a **new** webhook after disaster recovery:
+## Retired context lane
 
-- Update the URL on that agent's row in Agent Environments only.
-- Re-copy secret into Airtable automation **Secrets** tab if Hyperagent rotated it.
-- Do **not** rebuild the automation from scratch.
+Intake, Curator, Scanner, and Publisher Hyperagent agents are **retired**.
+Clive's Man (Cursor) replaced them. Historical exports and webhook wiring docs
+are in:
 
-Optional: run once to create the field via script:
+- `hyperagent/exports/archive/`
+- `hyperagent/docs/archive/`
+- `hyperagent/scripts/archive/`
 
-```bash
-python3 hyperagent/scripts/ensure_agent_environment_webhook_field.py
-```
+Do not re-import archived JSON for production unless you are deliberately
+rolling back (and you accept webhook rewiring).
 
-## Import order (first time only)
+## First-time import (default)
 
-1. Skill JSON  
-2. Agent JSON  
-3. Credentials on skill  
-4. Webhook on agent (auto-run, pass body)  
-5. Paste webhook URL into Agent Environments row  
-6. Attach repo / Slack as needed  
+Standard AstraJax agent exports embed full skill objects in `skills[]`. For those
+builds, import **agent JSON only**. Hyperagent creates the workspace skill(s) and
+attaches them to the agent.
 
-See per-agent: `agents/hyperagent/clive/curator/LIVE.md`, Scanner build pack, Intake build pack.
+1. Import **agent JSON**
+2. Verify agent → **Skills** tab shows attached skill(s)
+3. Verify `/skills` → skill shows **Agents ≥ 1**
+4. Add credentials on skill if `authType: api_key` (before first run)
+5. Create webhook on agent in UI if needed (auto-run, pass body)
+6. Attach repo / Slack as needed
 
-## Smoke test without touching Airtable
+## When to import skill JSON separately
 
-```bash
-# Curator — from .env
-bash hyperagent/scripts/test_curator_webhook.sh
-```
+Import the standalone skill JSON only when:
 
-Scanner: `hyperagent/docs/clive-scanner-webhook-setup.md` curl example.
+- updating scripts or skill markdown **without** re-importing the agent
+- the skill is **shared** across multiple agents
+- you prefer to stage credentials before attaching the agent (optional, not required)
+
+The repo still ships separate skill JSON files for those workflows. They are not
+required for a normal first-time deploy when skills are embedded in the agent export.
+
+**Legacy note:** older AstraJax docs said "skill JSON first, then agent JSON." That
+was conservative guidance for credential-heavy Clive bots. Agent-only import is the
+default for embedded-skill exports.
+
+See also: `docs/context/hyperagent-platform.md` (export schema) and
+`.cursor/skills/doc-workshop-hyperagent/SKILL.md` (Workshop deploy handoff).
 
 ## Why exports do not include webhooks
 
-`webhookEndpoints` is empty in export JSON by design. Hyperagent creates webhooks in the UI after import. That is platform behaviour, not a mistake in our build scripts. The playbook above works **around** it by storing the stable operational URL in Airtable.
+`webhookEndpoints` is empty in export JSON by design. Hyperagent creates
+webhooks in the UI after import. That is platform behaviour, not a mistake in
+our build scripts.
 
 ## When you truly must re-import the agent
 
 - Hyperagent broke and the agent record is gone.  
 - You need a clean room new agent name for testing.  
 
-Treat it like moving house: update Agent Environments URL, confirm secret, one curl smoke test, then tick Workbench once.
+Treat it like moving house: confirm secret, one smoke test, then tick Workbench once.
