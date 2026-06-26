@@ -4,9 +4,9 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Chapter 1 — Build the Brain with Clive",
   description:
-    "Governed brain loop with Clive: user brain, business brain, Pam challenge, human approval, Doc filing.",
+    "Step into Clive's study: map the human, draft the business brain, hear Pam challenge, and decide what becomes trusted.",
 };
 
-export default function AieDemoPage() {
+export default function Chapter1Page() {
   return <AieDemoShell />;
 }

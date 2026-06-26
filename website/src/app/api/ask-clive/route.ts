@@ -1,7 +1,18 @@
-import { buildAnthropicMessages, buildSystemPrompt } from "@/lib/clive/prompt";
+import { anthropic } from "@ai-sdk/anthropic";
+import { streamText } from "ai";
+import {
+  buildAnthropicMessages,
+  buildSystemPrompt,
+} from "@/lib/clive/prompt";
+import { buildLoopContextSummary } from "@/lib/clive/loop-context";
 import { loadCliveContext } from "@/lib/clive/load-context";
+import {
+  buildFallbackStream,
+  getSeededReply,
+} from "@/lib/clive/chapter1-fallback";
 import type { AskCliveRequest, AskCliveResponse, ChatMessage } from "@/lib/clive/types";
 import { CHAPTER1_BRAIN_SLUG } from "@/lib/brains/airtable-ids";
+import { LOOP_STEPS, type LoopStep } from "@/lib/aie-demo/types";
 import { handleInteractionLog } from "@/lib/brains/handlers/interaction-log";
 import { NextResponse } from "next/server";
 
@@ -34,44 +45,40 @@ function resolveSessionId(raw: unknown): string {
   return `web_${Date.now()}`;
 }
 
-async function callClaude(system: string, messages: { role: "user" | "assistant"; content: string }[]) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    throw new Error("Clive is not configured yet. Add ANTHROPIC_API_KEY in Vercel.");
+function wantsStream(request: Request, body: AskCliveRequest): boolean {
+  if (body.stream === true) return true;
+  const accept = request.headers.get("accept") ?? "";
+  return accept.includes("text/plain") || accept.includes("text/event-stream");
+}
+
+async function logReply(params: {
+  sessionId: string;
+  persona: "clive" | "pam";
+  message: string;
+  reply: string;
+  manifest: { recordIds: string[]; hashes: string[] };
+}) {
+  try {
+    await handleInteractionLog({
+      sessionId: params.sessionId,
+      persona: params.persona,
+      brainSlug: CHAPTER1_BRAIN_SLUG,
+      userMessage: params.message,
+      assistantReply: params.reply,
+      manifest: {
+        recordIds: params.manifest.recordIds,
+        hashes: params.manifest.hashes,
+      },
+      channel: "website",
+    });
+  } catch (logError) {
+    console.warn("Ask Clive interaction log failed:", logError);
   }
+}
 
-  const model = process.env.CLIVE_MODEL ?? "claude-sonnet-4-6";
-
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 400,
-      system,
-      messages,
-    }),
-  });
-
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`Clive request failed (${response.status}): ${detail.slice(0, 200)}`);
-  }
-
-  const data = (await response.json()) as {
-    content?: { type: string; text?: string }[];
-  };
-
-  const text = data.content?.find((part) => part.type === "text")?.text?.trim();
-  if (!text) {
-    throw new Error("Clive returned an empty response.");
-  }
-
-  return text;
+function resolveBeat(raw: unknown): LoopStep | undefined {
+  if (typeof raw !== "string") return undefined;
+  return (LOOP_STEPS as readonly string[]).includes(raw) ? (raw as LoopStep) : undefined;
 }
 
 export async function POST(request: Request) {
@@ -96,36 +103,87 @@ export async function POST(request: Request) {
 
   const history = sanitiseHistory(body.history);
   const sessionId = resolveSessionId(body.sessionId);
+  const persona = body.persona === "pam" ? "pam" : "clive";
+  const beat = resolveBeat(body.beat);
+  const loopContext =
+    typeof body.loopContext === "string" && body.loopContext.trim()
+      ? body.loopContext.trim()
+      : beat
+        ? buildLoopContextSummary({ beat })
+        : undefined;
+  const stream = wantsStream(request, body);
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    const reply = getSeededReply(persona, message, beat ?? undefined);
+    if (stream) {
+      return new Response(buildFallbackStream(reply), {
+        headers: { "Content-Type": "text/plain; charset=utf-8", "X-Clive-Fallback": "1" },
+      });
+    }
+    const payload: AskCliveResponse = {
+      reply,
+      contextSource: "fallback",
+      interactionLogged: false,
+      fallback: true,
+    };
+    return NextResponse.json(payload);
+  }
 
   try {
     const { blocks, source, manifest } = await loadCliveContext();
-    const system = buildSystemPrompt(blocks);
+    const system = buildSystemPrompt(blocks, { persona, loopContext });
     const messages = buildAnthropicMessages(history, message);
-    const reply = await callClaude(system, messages);
+    const modelId = process.env.CLIVE_MODEL ?? "claude-sonnet-4-6";
 
-    let interactionLogged = false;
-    try {
-      await handleInteractionLog({
-        sessionId,
-        persona: "clive",
-        brainSlug: CHAPTER1_BRAIN_SLUG,
-        userMessage: message,
-        assistantReply: reply,
-        manifest: {
-          recordIds: manifest.recordIds,
-          hashes: manifest.hashes,
+    const result = streamText({
+      model: anthropic(modelId),
+      system,
+      messages,
+      maxOutputTokens: 400,
+      onFinish: async ({ text }) => {
+        if (text.trim()) {
+          await logReply({ sessionId, persona, message, reply: text.trim(), manifest });
+        }
+      },
+    });
+
+    if (stream) {
+      return result.toTextStreamResponse({
+        headers: {
+          "X-Clive-Context-Source": source,
         },
-        channel: "website",
       });
-      interactionLogged = true;
-    } catch (logError) {
-      console.warn("Ask Clive interaction log failed:", logError);
     }
 
-    const payload: AskCliveResponse = { reply, contextSource: source, interactionLogged };
+    const reply = (await result.text).trim();
+    if (!reply) {
+      throw new Error("Clive returned an empty response.");
+    }
+
+    await logReply({ sessionId, persona, message, reply, manifest });
+
+    const payload: AskCliveResponse = {
+      reply,
+      contextSource: source,
+      interactionLogged: true,
+    };
     return NextResponse.json(payload);
   } catch (error) {
+    const reply = getSeededReply(persona, message, beat ?? undefined);
+    if (stream) {
+      return new Response(buildFallbackStream(reply), {
+        headers: { "Content-Type": "text/plain; charset=utf-8", "X-Clive-Fallback": "1" },
+      });
+    }
     const detail = error instanceof Error ? error.message : "Unknown error";
-    return NextResponse.json({ error: detail }, { status: 503 });
+    console.warn("Ask Clive failed, using fallback:", detail);
+    const payload: AskCliveResponse = {
+      reply,
+      contextSource: "fallback",
+      interactionLogged: false,
+      fallback: true,
+    };
+    return NextResponse.json(payload);
   }
 }

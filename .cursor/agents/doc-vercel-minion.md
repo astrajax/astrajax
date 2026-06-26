@@ -36,7 +36,13 @@ prompt and the skill conflict, the skill wins.
 ## Composed skills
 
 Load **doc-vercel-minion** plus, as needed: **nextjs**, **vercel-functions**,
-**env-vars**, **verification**, **deployments-cicd**, **ai-sdk** (brain routes).
+**env-vars**, **verification**, **deployments-cicd**, **ai-sdk** (brain routes),
+**shadcn** (UI components; shadcn initialized in `website/`).
+
+Repo-local design skills (committed in `.cursor/skills/`, for any UI/UX build):
+**frontend-design**, **web-design-guidelines**, **vercel-react-best-practices**,
+**emil-design-eng**, **review-animations**. Reach for these on Chapter 1 work;
+full picker in the **doc-vercel-minion** skill.
 
 ## Hard rules
 

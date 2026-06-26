@@ -1,9 +1,9 @@
 # Vercel plugin skills — picker for Doc & Vercel Minion
 
 These skills ship with the **Vercel Cursor plugin** (the pills you see in chat:
-Functions, Sandbox, Storage, CLI, Agent, etc.). They are **not** copied into
-`.cursor/skills/` like the Airtable pack — Cursor loads them from the plugin
-when Doc or the Vercel Minion names them.
+Functions, Sandbox, Storage, CLI, Agent, etc.). Some are also vendored under
+`.cursor/skills/` (see `skills-lock.json` at repo root). Cursor loads plugin
+skills by name when Doc or the Vercel Minion names them.
 
 **Rule:** Doc picks skills in Phase A; Vercel Minion **reads the named skill
 files** before Phase B work on that topic. Do not guess Vercel API behaviour when
@@ -36,7 +36,7 @@ a skill exists.
 | **verification** | End-to-end: browser → API → response | "Why isn't it working?" |
 | **ai-sdk** | LLM routes, streaming, tool calling | AI API handlers |
 | **ai-gateway** | Multi-provider routing, failover, cost | Gateway config |
-| **shadcn** | UI components, theming, Tailwind UI | New product UI (not AIE demo minimal) |
+| **shadcn** | UI components, theming, Tailwind UI | Initialised in `website/` (`components.json`); in-scope for Chapter 1 UI |
 | **react-best-practices** | TSX quality pass after multi-file UI edits | Post-build review |
 | **auth** | Clerk / Auth0 / Descope | Auth (AIE demo: **out of scope**) |
 | **vercel-storage** | Blob, Edge Config, Postgres, Redis | Persistent storage on Vercel |
@@ -55,6 +55,27 @@ a skill exists.
 | **knowledge-update** | Stale Vercel platform facts | Auto at session start |
 
 **Skip for AstraJax `website/` unless asked:** next-forge (monorepo template — we use single `website/` app).
+
+---
+
+## Repo-local UI skills
+
+For UI polish, design direction, or review passes, Doc may also name repo skills
+from `.cursor/skills/`:
+
+| Skill | When |
+|-------|------|
+| **frontend-design** | New pages or major visual direction |
+| **emil-design-eng** | Polish, micro-interactions, craft decisions |
+| **web-design-guidelines** | UX/a11y audit pass |
+| **review-animations** | Motion review after UI changes |
+| **vercel-react-best-practices** | Performance pass after multi-file UI edits |
+
+**Plugin ↔ repo mapping:** plugin **react-best-practices** corresponds to repo
+**vercel-react-best-practices** (vendored; also always-on via workspace rule).
+
+**shadcn MCP:** a local shadcn MCP may be configured in gitignored
+`.cursor/mcp.json` for component installs — not required in repo.
 
 ---
 
@@ -85,5 +106,5 @@ Plugin skill paths (local install, may vary by machine):
 
 `~/.cursor/plugins/cache/vercel/vercel-plugin/*/skills/<skill-name>/SKILL.md`
 
-Do not copy plugin skills into the repo unless AstraJax forks them — keep
-plugin updates automatic.
+Do not duplicate plugin skills into the repo unless already vendored in
+`.cursor/skills/` (see `skills-lock.json`) — keep plugin updates automatic.

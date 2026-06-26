@@ -1,5 +1,6 @@
 import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/Hero";
+import { FeatureHub } from "@/components/FeatureHub";
 import { FounderProof } from "@/components/FounderProof";
 import { Problem } from "@/components/Problem";
 import { Method } from "@/components/Method";
@@ -17,6 +18,7 @@ export default function HomePage() {
       <Nav />
       <main>
         <Hero />
+        <FeatureHub />
         <CliveSection />
         <FounderProof />
         <Problem />

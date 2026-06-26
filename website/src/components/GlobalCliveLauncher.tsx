@@ -1,0 +1,111 @@
+"use client";
+
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import { useCallback, useEffect, useId, useState } from "react";
+import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
+
+const HIDDEN_PATHS = ["/chapter-1", "/aie-demo"];
+
+const GREETING =
+  "Ask me about AstraJax, citizen-builders, the adoption loop, or how Clive keeps agent context clean.";
+
+const SESSION_STORAGE_KEY = "astrajax-ask-clive-session";
+
+function createSessionId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `web_${Date.now()}`;
+}
+
+export function GlobalCliveLauncher() {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const panelId = useId();
+
+  useEffect(() => {
+    const existing = window.localStorage.getItem(SESSION_STORAGE_KEY);
+    if (existing?.trim()) {
+      setSessionId(existing.trim());
+      return;
+    }
+    const created = createSessionId();
+    window.localStorage.setItem(SESSION_STORAGE_KEY, created);
+    setSessionId(created);
+  }, []);
+
+  const close = useCallback(() => setOpen(false), []);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [close, open]);
+
+  const ready = sessionId !== null;
+
+  if (HIDDEN_PATHS.some((path) => pathname?.startsWith(path))) {
+    return null;
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        className="global-clive-launcher"
+        aria-expanded={open}
+        aria-controls={panelId}
+        onClick={() => setOpen((value) => !value)}
+      >
+        <Image
+          src="/agent-cast/clive-wigglesworth.png"
+          alt=""
+          width={40}
+          height={40}
+          className="global-clive-launcher__avatar"
+        />
+        <span className="global-clive-launcher__label">Chat with Clive</span>
+      </button>
+
+      {open && ready && (
+        <div className="global-clive-panel" id={panelId} role="dialog" aria-label="Chat with Clive">
+          <header className="global-clive-panel__header">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/agent-cast/clive-wigglesworth.png"
+                alt=""
+                width={36}
+                height={36}
+                className="rounded-full"
+              />
+              <div>
+                <p className="font-display font-semibold text-ink">Clive</p>
+                <p className="text-xs text-ink-muted">Governed context · booth-safe fallback</p>
+              </div>
+            </div>
+            <button type="button" className="btn-secondary px-3 py-1.5 text-sm" onClick={close}>
+              Close
+            </button>
+          </header>
+          <CliveChatSurface
+            greeting={GREETING}
+            sessionId={sessionId}
+            compact
+            placeholder="Ask about adoption, context or Clive…"
+            starterPrompts={[
+              "What is the adoption operating system?",
+              "Why should domain experts shape agents?",
+            ]}
+          />
+        </div>
+      )}
+    </>
+  );
+}

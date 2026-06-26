@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter, Space_Mono, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { GlobalCliveLauncher } from "@/components/GlobalCliveLauncher";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -69,7 +70,10 @@ export default function RootLayout({
       lang="en"
       className={cn(fraunces.variable, inter.variable, spaceMono.variable, "font-sans", geist.variable)}
     >
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        <GlobalCliveLauncher />
+      </body>
     </html>
   );
 }

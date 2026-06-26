@@ -94,6 +94,9 @@ Still forbidden:
 | `website/src/app/` | App Router pages and API routes |
 | `website/src/lib/brains/` | Brain Key server logic (read before touching `/api/brains/*`) |
 | `website/.env.example` | Env var names and documentation |
+| `website/components.json` | shadcn config (aliases, Tailwind paths) |
+| `website/src/components/ui/` | shadcn UI components |
+| `website/src/lib/utils.ts` | shadcn `cn()` helper |
 | `docs/initiatives/aie-build-plan.md` | Demo scope and do-not-build list |
 | `docs/initiatives/brain-key-wiring.md` | API contracts for brain routes |
 
@@ -111,9 +114,9 @@ Load **doc-vercel-minion** first.
 
 ### Vercel plugin skills (via Cursor Vercel plugin)
 
-Matthew's Vercel plugin skills are **not in the repo** — they ship with the
-plugin and show as pills in Cursor chat. Doc names which ones apply; you **read
-and follow** those skills in Phase B.
+Most Vercel plugin skills ship with the plugin and show as pills in Cursor chat.
+Some are also vendored under `.cursor/skills/` (see `skills-lock.json` at repo
+root). Doc names which ones apply; you **read and follow** those skills in Phase B.
 
 **Picker reference (read when planning):**
 `.cursor/skills/doc-vercel-minion/references/vercel-plugin-skills.md`
@@ -128,7 +131,7 @@ and follow** those skills in Phase B.
 | **verification** | After build or "why isn't it working?" |
 | **deployments-cicd** + **vercel-cli** | Preview/production deploy |
 | **ai-sdk** | `/api/brains`, `/api/ask-clive`, LLM routes |
-| **shadcn** | New UI components (skip for minimal AIE demo unless asked) |
+| **shadcn** | UI components — initialised in `website/` (`components.json`); in-scope for Chapter 1 UI |
 
 **How to use plugin skills:**
 
@@ -137,7 +140,24 @@ and follow** those skills in Phase B.
 3. If a skill name appears in the chat skill pills, prefer its guidance over memory.
 4. After non-trivial builds, run **verification** patterns if dev server is up.
 
-Do not copy plugin skills into the repo — keep them plugin-managed.
+Do not duplicate plugin skills into the repo unless already vendored in
+`.cursor/skills/`.
+
+### Repo UI / design skills
+
+For UI polish, design direction, or review passes, Doc may name repo skills in
+Phase A alongside plugin skills:
+
+| Skill | When |
+|-------|------|
+| **shadcn** (plugin) | Adding/configuring shadcn components |
+| **frontend-design** | New pages or major visual direction |
+| **emil-design-eng** | Polish, micro-interactions, craft decisions |
+| **web-design-guidelines** | UX/a11y audit pass |
+| **review-animations** | Motion review after UI changes |
+| **vercel-react-best-practices** | Performance pass (also always-on via workspace rule) |
+
+Read each named repo skill's `SKILL.md` under `.cursor/skills/` before applying it.
 
 ### Airtable plugin skills (contrast)
 
@@ -149,7 +169,9 @@ Route Airtable work to `@doc` → Airtable Minion — not this minion.
 ### Mode 1 — Feature / route (default)
 
 New or changed pages, components, API handlers within an approved brief.
-Match Tailwind + `@/` import conventions already in the repo.
+Match Tailwind + `@/` import conventions already in the repo. Prefer shadcn
+components from `@/components/ui`; read `components.json` before adding
+components; preserve AstraJax brand tokens (apricot/sage/cream).
 
 ### Mode 2 — AIE demo (`website/src/app/aie-demo/`)
 
