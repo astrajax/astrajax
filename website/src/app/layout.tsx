@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter, Space_Mono } from "next/font/google";
+import { Fraunces, Inter, Space_Mono, Geist } from "next/font/google";
 import "./globals.css";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -64,7 +67,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${fraunces.variable} ${inter.variable} ${spaceMono.variable}`}
+      className={cn(fraunces.variable, inter.variable, spaceMono.variable, "font-sans", geist.variable)}
     >
       <body className="antialiased">{children}</body>
     </html>
