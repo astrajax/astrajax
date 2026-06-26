@@ -11,6 +11,7 @@ export async function GET(request: Request) {
     const query: InteractionListQuery = {
       brainSlug: searchParams.get("brainSlug") ?? "",
       limit: searchParams.get("limit") ? Number(searchParams.get("limit")) : undefined,
+      shortlist: searchParams.get("shortlist") === "true",
     };
     const result = await handleInteractionList(query);
     return jsonOk(result);

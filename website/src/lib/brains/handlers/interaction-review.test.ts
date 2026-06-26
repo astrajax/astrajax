@@ -78,6 +78,7 @@ describe("Interaction review (memory mode)", () => {
     });
 
     expect(scored.interaction.suspectedContextIssue).toBe(true);
+    expect(scored.interaction.reviewStatus).toBe("Action proposed");
     expect(scored.interaction.contextFlagged).toBe("Flagged for review");
   });
 });

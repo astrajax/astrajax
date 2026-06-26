@@ -1,5 +1,10 @@
 import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
 import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
+import {
+  buildNeedsReviewFormula,
+  isFallbackManifest,
+  parseManifestRecordIds,
+} from "../interaction-upkeep";
 import { listMemoryInteractions } from "./interaction-memory";
 import type { InteractionListQuery, InteractionSummary, PersonaId } from "../types";
 
@@ -17,9 +22,10 @@ export async function handleInteractionList(query: InteractionListQuery) {
   if (!brainSlug) throw new Error("brainSlug is required.");
 
   const limit = clampLimit(query.limit);
+  const shortlist = Boolean(query.shortlist);
 
   if (useMemoryStore()) {
-    return { interactions: listMemoryInteractions(brainSlug, limit) };
+    return { interactions: listMemoryInteractions(brainSlug, limit, shortlist) };
   }
 
   const workshopBaseId = getWorkshopBaseId();
@@ -31,10 +37,12 @@ export async function handleInteractionList(query: InteractionListQuery) {
     throw new Error("Workshop interaction list is not configured.");
   }
 
-  const formula = encodeURIComponent(`{Brain Slug}='${escapeFormulaValue(brainSlug)}'`);
+  const formula = shortlist
+    ? buildNeedsReviewFormula(brainSlug)
+    : `{Brain Slug}='${escapeFormulaValue(brainSlug)}'`;
   const url =
     `https://api.airtable.com/v0/${workshopBaseId}/${tableId}` +
-    `?filterByFormula=${formula}` +
+    `?filterByFormula=${encodeURIComponent(formula)}` +
     `&maxRecords=${limit}`;
 
   const response = await fetch(url, {
@@ -57,6 +65,9 @@ export async function handleInteractionList(query: InteractionListQuery) {
 function mapAirtableRecord(record: AirtableInteractionRecord): InteractionSummary {
   const fields = record.fields;
   const persona = String(fields.Persona ?? "clive");
+  const manifestRecordIds = parseManifestRecordIds(fields["Manifest Record IDs"]);
+  const grantId = readOptionalString(fields["Grant ID"]);
+
   return {
     recordId: record.id,
     interactionId: String(fields["Interaction ID"] ?? record.id),
@@ -74,6 +85,9 @@ function mapAirtableRecord(record: AirtableInteractionRecord): InteractionSummar
     suspectedContextIssue: Boolean(fields["Suspected Context Issue"]),
     reviewStatus: readOptionalString(fields["Review Status"]) as InteractionSummary["reviewStatus"],
     contextFlagged: readOptionalString(fields["Context Flagged"]) as InteractionSummary["contextFlagged"],
+    manifestRecordIds,
+    grantId,
+    isFallbackContext: manifestRecordIds.length > 0 && isFallbackManifest(manifestRecordIds),
   };
 }
 

@@ -121,11 +121,27 @@ export interface InteractionSummary {
   suspectedContextIssue?: boolean;
   reviewStatus?: InteractionReviewStatus;
   contextFlagged?: InteractionContextFlagged;
+  manifestRecordIds?: string[];
+  grantId?: string;
+  isFallbackContext?: boolean;
 }
 
 export interface InteractionListQuery {
   brainSlug: string;
   limit?: number;
+  /** When true, return only low-score or context-flagged items needing attention. */
+  shortlist?: boolean;
+}
+
+export type InteractionUpkeepAction = "propose" | "dismiss";
+
+export interface InteractionActionBody {
+  recordId: string;
+  brainSlug: string;
+  action: InteractionUpkeepAction;
+  actor?: string;
+  /** When proposing, use Quarantine proposed instead of Flagged for review. */
+  quarantine?: boolean;
 }
 
 export interface InteractionScoreBody {

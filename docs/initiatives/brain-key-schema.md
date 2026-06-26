@@ -210,7 +210,7 @@ Primary field: **Interaction ID** (singleLineText)
 | Context Flagged | singleSelect | None, Flagged for review, Quarantine proposed, Resolved |
 
 New interactions default to **Review Status = New** and **Context Flagged = None** at log time.
-Client scoring sets **Review Status = Reviewed** and updates **Context Flagged** when the suspected-context checkbox is used.
+Client scoring normally sets **Review Status = Reviewed** and updates **Context Flagged** when the suspected-context checkbox is used. The thin Brain Upkeep loop reuses these existing fields: scores 1-2 set **Review Status = Action proposed** and **Context Flagged = Flagged for review** or **Quarantine proposed**. No extra Airtable fields are required.
 
 ### Table: Pam Reviews
 

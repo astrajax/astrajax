@@ -1,3 +1,7 @@
+import {
+  isFallbackManifest,
+  matchesNeedsReviewShortlist,
+} from "../interaction-upkeep";
 import type {
   InteractionContextFlagged,
   InteractionLogBody,
@@ -6,9 +10,7 @@ import type {
 } from "../types";
 
 interface MemoryInteraction extends InteractionSummary {
-  manifestRecordIds?: string;
   manifestHashes?: string;
-  grantId?: string;
 }
 
 const memoryInteractions = new Map<string, MemoryInteraction>();
@@ -20,6 +22,7 @@ function nextMemoryId(): string {
 export function addMemoryInteraction(entry: InteractionLogBody): MemoryInteraction {
   const recordId = nextMemoryId();
   const interactionId = `int_${Date.now()}`;
+  const manifestRecordIds = entry.manifest?.recordIds ?? [];
   const stored: MemoryInteraction = {
     recordId,
     interactionId,
@@ -32,17 +35,31 @@ export function addMemoryInteraction(entry: InteractionLogBody): MemoryInteracti
     createdAt: new Date().toISOString(),
     reviewStatus: "New",
     contextFlagged: "None",
-    manifestRecordIds: (entry.manifest?.recordIds ?? []).join(", "),
-    manifestHashes: (entry.manifest?.hashes ?? []).join(", "),
+    manifestRecordIds,
     grantId: entry.manifest?.grantId,
+    isFallbackContext: manifestRecordIds.length > 0 && isFallbackManifest(manifestRecordIds),
+    manifestHashes: (entry.manifest?.hashes ?? []).join(", "),
   };
   memoryInteractions.set(recordId, stored);
   return stored;
 }
 
-export function listMemoryInteractions(brainSlug: string, limit: number): InteractionSummary[] {
+export function listMemoryInteractions(
+  brainSlug: string,
+  limit: number,
+  shortlist = false,
+): InteractionSummary[] {
   return [...memoryInteractions.values()]
     .filter((row) => row.brainSlug === brainSlug)
+    .filter((row) =>
+      shortlist
+        ? matchesNeedsReviewShortlist({
+            qualityScore: row.qualityScore,
+            suspectedContextIssue: row.suspectedContextIssue,
+            reviewStatus: row.reviewStatus,
+          })
+        : true,
+    )
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, limit)
     .map(toSummary);
@@ -56,6 +73,8 @@ export function scoreMemoryInteraction(
     reviewer: string;
     reviewNotes?: string;
     suspectedContextIssue?: boolean;
+    reviewStatus: InteractionReviewStatus;
+    contextFlagged: InteractionContextFlagged;
   },
 ): InteractionSummary {
   const row = memoryInteractions.get(recordId);
@@ -67,8 +86,26 @@ export function scoreMemoryInteraction(
   row.reviewNotes = patch.reviewNotes?.trim() || undefined;
   row.reviewedAt = new Date().toISOString();
   row.suspectedContextIssue = Boolean(patch.suspectedContextIssue);
-  row.reviewStatus = "Reviewed";
-  row.contextFlagged = patch.suspectedContextIssue ? "Flagged for review" : "None";
+  row.reviewStatus = patch.reviewStatus;
+  row.contextFlagged = patch.contextFlagged;
+
+  return toSummary(row);
+}
+
+export function actionMemoryInteraction(
+  recordId: string,
+  brainSlug: string,
+  patch: {
+    reviewStatus: InteractionReviewStatus;
+    contextFlagged: InteractionContextFlagged;
+  },
+): InteractionSummary {
+  const row = memoryInteractions.get(recordId);
+  if (!row) throw new Error("Interaction not found.");
+  if (row.brainSlug !== brainSlug) throw new Error("Brain does not match this interaction.");
+
+  row.reviewStatus = patch.reviewStatus;
+  row.contextFlagged = patch.contextFlagged;
 
   return toSummary(row);
 }
@@ -89,8 +126,11 @@ function toSummary(row: MemoryInteraction): InteractionSummary {
     reviewNotes: row.reviewNotes,
     reviewedAt: row.reviewedAt,
     suspectedContextIssue: row.suspectedContextIssue,
-    reviewStatus: row.reviewStatus as InteractionReviewStatus | undefined,
-    contextFlagged: row.contextFlagged as InteractionContextFlagged | undefined,
+    reviewStatus: row.reviewStatus,
+    contextFlagged: row.contextFlagged,
+    manifestRecordIds: row.manifestRecordIds,
+    grantId: row.grantId,
+    isFallbackContext: row.isFallbackContext,
   };
 }
 

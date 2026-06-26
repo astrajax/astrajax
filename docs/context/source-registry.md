@@ -30,6 +30,7 @@
 | `SRC-AJ-BRAIN-BUILDER` | `docs/initiatives/brain-base-builder-agent.md` | Working spec | Matthew | Current implementation reference | Current | Brain Base Builder / Doc Airtable Minion status, runbook, credential notes |
 | `SRC-AJ-DOC-MINIONS` | `docs/initiatives/doc-minions.md` | Working spec | Matthew | Current implementation reference | Current | Doc minion roster, two-phase build rule, mandatory Clive's Man handoff |
 | `SRC-AJ-INTERACTION-REVIEW` | `website/src/app/brain/review/page.tsx`; `website/src/components/brain/InteractionReviewShell.tsx`; `website/src/app/api/brains/interactions/list/route.ts`; `website/src/app/api/brains/interactions/score/route.ts`; `website/src/lib/brains/handlers/interaction-list.ts`; `website/src/lib/brains/handlers/interaction-score.ts`; `website/src/lib/brains/handlers/interaction-memory.ts` | Website UI / API implementation | Matthew | Live implementation | Current | Client-facing Brain Interactions review and scoring surface; review signal only, not canonical approval |
+| `SRC-AJ-BRAIN-UPKEEP` | `docs/initiatives/brain-upkeep.md`; `website/src/lib/brains/interaction-upkeep.ts`; `website/src/app/api/brains/interactions/action/route.ts`; `website/src/lib/brains/handlers/interaction-action.ts`; `website/src/lib/brains/handlers/interaction-upkeep.test.ts` | Working spec / Website API implementation | Matthew | Current implementation reference | Current | Thin Brain Upkeep loop: Needs Review shortlist and Workshop-only propose/dismiss actions |
 
 ## Character and roster sources
 

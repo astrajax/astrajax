@@ -233,7 +233,7 @@ New rows default **Review Status** to `New` and **Context Flagged** to `None`.
 
 ### `GET /api/brains/interactions/list`
 
-Query: `brainSlug` (required), `limit` (optional, max 50).
+Query: `brainSlug` (required), `limit` (optional, max 50), `shortlist=true` (optional Needs Review shortlist).
 
 ```json
 {
@@ -249,11 +249,21 @@ Query: `brainSlug` (required), `limit` (optional, max 50).
       "channel": "website",
       "createdAt": "ISO8601",
       "qualityScore": 4,
-      "reviewStatus": "Reviewed"
+      "reviewer": "Client name",
+      "reviewNotes": "Optional",
+      "reviewedAt": "ISO8601",
+      "suspectedContextIssue": false,
+      "reviewStatus": "Reviewed",
+      "contextFlagged": "None",
+      "manifestRecordIds": ["rec..."],
+      "grantId": "grt_...",
+      "isFallbackContext": false
     }
   ]
 }
 ```
+
+When `shortlist=true`, returns only interactions with **Quality Score** <= 2 or **Suspected Context Issue** checked, excluding rows where **Review Status** = `No action`. Fallback manifest IDs (`fallback-*`) are surfaced as fallback context and are not treated as trusted hash alarms.
 
 Server-side Workshop token only — never exposed to browser.
 
@@ -270,9 +280,27 @@ Server-side Workshop token only — never exposed to browser.
 }
 ```
 
-Sets **Review Status** to `Reviewed`, **Reviewed At** to now, and **Context Flagged** to `Flagged for review` when `suspectedContextIssue` is true.
+Sets **Reviewed At** to now. Scores 3-5 set **Review Status** to `Reviewed`; if `suspectedContextIssue` is true they set **Context Flagged** to `Flagged for review`. Scores 1-2 auto-propose review in Workshop only: **Review Status** = `Action proposed` and **Context Flagged** = `Flagged for review`, or `Quarantine proposed` when score = 1 and `suspectedContextIssue` is true.
+
+Response includes `interaction` and `autoProposed` (`true` when `qualityScore <= 2`).
 
 Client UI: `/brain/review` (Chapter 1 brain slug by default).
+
+### `POST /api/brains/interactions/action`
+
+Workshop-only upkeep action for the `/brain/review` Needs Review shortlist. Does not write Trusted Brain Truth, Brain Memories, freshness, category, scope, authority, or canonical text.
+
+```json
+{
+  "recordId": "rec...",
+  "brainSlug": "astrajax-chapter-1",
+  "action": "propose",
+  "actor": "Client name",
+  "quarantine": false
+}
+```
+
+`action: "propose"` sets **Review Status** to `Action proposed` and **Context Flagged** to `Flagged for review` or `Quarantine proposed` when `quarantine` is true. `action: "dismiss"` sets **Review Status** to `No action` and **Context Flagged** to `None`.
 
 ### `POST /api/brains/doc/promote`
 
@@ -333,6 +361,7 @@ Automated in [`website/src/lib/brains/guards.ts`](../../website/src/lib/brains/g
 
 - [AIE build plan](./aie-build-plan.md)
 - [Architecture](../business/architecture.md) — Clive drafts, Pam challenges, human approves, Doc acts
+- [Brain upkeep](./brain-upkeep.md) — thin propose-only Needs Review loop
 
 ---
 

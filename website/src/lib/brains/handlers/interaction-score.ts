@@ -1,9 +1,6 @@
-import {
-  BRAIN_INTERACTION_CONTEXT_FLAGGED,
-  BRAIN_INTERACTION_REVIEW_STATUS,
-  BRAIN_WORKSHOP_TABLES,
-} from "../airtable-ids";
+import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
 import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
+import { resolveReviewFieldsAfterScore } from "../interaction-upkeep";
 import { assertSafeForPersistence } from "../secrets";
 import { scoreMemoryInteraction } from "./interaction-memory";
 import type { InteractionScoreBody, InteractionSummary } from "../types";
@@ -28,6 +25,10 @@ export async function handleInteractionScore(body: InteractionScoreBody) {
 
   const suspectedContextIssue = Boolean(body.suspectedContextIssue);
   const reviewNotes = body.reviewNotes?.trim();
+  const { reviewStatus, contextFlagged } = resolveReviewFieldsAfterScore(
+    qualityScore,
+    suspectedContextIssue,
+  );
 
   if (useMemoryStore()) {
     const interaction = scoreMemoryInteraction(recordId, brainSlug, {
@@ -35,8 +36,10 @@ export async function handleInteractionScore(body: InteractionScoreBody) {
       reviewer,
       reviewNotes,
       suspectedContextIssue,
+      reviewStatus,
+      contextFlagged,
     });
-    return { interaction };
+    return { interaction, autoProposed: qualityScore <= 2 };
   }
 
   const workshopBaseId = getWorkshopBaseId();
@@ -49,9 +52,6 @@ export async function handleInteractionScore(body: InteractionScoreBody) {
   }
 
   const reviewedAt = new Date().toISOString();
-  const contextFlagged = suspectedContextIssue
-    ? BRAIN_INTERACTION_CONTEXT_FLAGGED.flaggedForReview
-    : BRAIN_INTERACTION_CONTEXT_FLAGGED.none;
 
   const url = `https://api.airtable.com/v0/${workshopBaseId}/${tableId}`;
   const response = await fetch(url, {
@@ -70,7 +70,7 @@ export async function handleInteractionScore(body: InteractionScoreBody) {
             "Review Notes": reviewNotes ?? "",
             "Reviewed At": reviewedAt,
             "Suspected Context Issue": suspectedContextIssue,
-            "Review Status": BRAIN_INTERACTION_REVIEW_STATUS.reviewed,
+            "Review Status": reviewStatus,
             "Context Flagged": contextFlagged,
           },
         },
@@ -103,9 +103,9 @@ export async function handleInteractionScore(body: InteractionScoreBody) {
     reviewNotes,
     reviewedAt,
     suspectedContextIssue,
-    reviewStatus: BRAIN_INTERACTION_REVIEW_STATUS.reviewed,
+    reviewStatus,
     contextFlagged,
   };
 
-  return { interaction };
+  return { interaction, autoProposed: qualityScore <= 2 };
 }

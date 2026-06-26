@@ -136,6 +136,20 @@ Use digests instead of per-record human gates. The digest should include:
 - a small sample for spot-checking
 - exact next decisions needed from Matthew or TL
 
+### Brain interaction upkeep workflow (thin scope)
+
+Use when Brain Interactions scoring surfaces low-quality answers or suspected context issues.
+Canonical scope: `docs/initiatives/brain-upkeep.md`.
+
+1. **Shortlist triage** — Needs Review items: Quality Score ≤ 2 or Suspected Context Issue; exclude No action.
+2. **Proposer** — Name suspect context via Manifest Record IDs when grant-backed. Skip hash checks for fallback IDs (`fallback-*`). Missing manifest is not an alarm.
+3. **Challenger** — Verify propose-only: no Trusted Brain writes, no Freshness auto-touch, no phantom fallback alarms.
+4. **Executor** — Write Workshop Brain Interactions only: set **Review Status** = Action proposed and **Context Flagged** = Flagged for review or Quarantine proposed. Never edit Trusted Brain Truth or Brain Memories unless an explicit, Pam-approved write credential already exists (today: propose-only for Memories).
+
+**Low score auto-propose:** When an interaction is scored 1–2, the score path may set Action proposed automatically — still Workshop-only, still not Trusted truth.
+
+**Hard stop:** Do not use `BRAIN_DOC_PROMOTE_TOKEN` or any Trusted write for upkeep. Human promote remains the only Trusted edit path.
+
 ## Human-load policy
 
 Do not ask humans to rubber-stamp routine reversible classification. Human

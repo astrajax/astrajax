@@ -20,7 +20,8 @@ weak evidence, and over-automation.
    overloaded confidence, pattern lock, manual-gate overload, automation
    overreach.
 4. Approve, block, downgrade, or propose a safer alternative.
-5. State whether Pam or a human must review.
+5. For **brain-interaction-upkeep**: block any proposal that auto-edits Trusted Brain truth, touches Freshness, or alarms on fallback-only manifests.
+6. State whether Pam or a human must review.
 
 ## Must not
 

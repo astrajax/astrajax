@@ -8,8 +8,14 @@ import type { InteractionSummary } from "@/lib/brains/types";
 
 const REVIEWER_STORAGE_KEY = "astrajax-interaction-reviewer";
 
-async function fetchInteractions(brainSlug: string): Promise<InteractionSummary[]> {
+type ReviewView = "all" | "needsReview";
+
+async function fetchInteractions(
+  brainSlug: string,
+  view: ReviewView,
+): Promise<InteractionSummary[]> {
   const params = new URLSearchParams({ brainSlug, limit: "25" });
+  if (view === "needsReview") params.set("shortlist", "true");
   const response = await fetch(`/api/brains/interactions/list?${params.toString()}`);
   const data = (await response.json()) as { interactions?: InteractionSummary[]; error?: string };
   if (!response.ok) throw new Error(data.error ?? "Could not load interactions.");
@@ -23,15 +29,36 @@ async function submitScore(payload: {
   reviewer: string;
   reviewNotes?: string;
   suspectedContextIssue?: boolean;
-}): Promise<InteractionSummary> {
+}): Promise<{ interaction: InteractionSummary; autoProposed?: boolean }> {
   const response = await fetch("/api/brains/interactions/score", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-  const data = (await response.json()) as { interaction?: InteractionSummary; error?: string };
+  const data = (await response.json()) as {
+    interaction?: InteractionSummary;
+    autoProposed?: boolean;
+    error?: string;
+  };
   if (!response.ok) throw new Error(data.error ?? "Could not save score.");
   if (!data.interaction) throw new Error("Score saved but no interaction returned.");
+  return { interaction: data.interaction, autoProposed: data.autoProposed };
+}
+
+async function submitUpkeepAction(payload: {
+  recordId: string;
+  brainSlug: string;
+  action: "propose" | "dismiss";
+  quarantine?: boolean;
+}): Promise<InteractionSummary> {
+  const response = await fetch("/api/brains/interactions/action", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const data = (await response.json()) as { interaction?: InteractionSummary; error?: string };
+  if (!response.ok) throw new Error(data.error ?? "Could not save action.");
+  if (!data.interaction) throw new Error("Action saved but no interaction returned.");
   return data.interaction;
 }
 
@@ -52,6 +79,123 @@ function personaLabel(persona: string): string {
   return "Clive";
 }
 
+function statusBadge(interaction: InteractionSummary): string | null {
+  if (interaction.reviewStatus === "Action proposed") return "Action proposed";
+  if (interaction.reviewStatus === "No action") return "Dismissed";
+  if (interaction.suspectedContextIssue) return "Context flagged";
+  if (interaction.qualityScore && interaction.qualityScore <= 2) return "Low score";
+  return null;
+}
+
+function ManifestBlock({ interaction }: { interaction: InteractionSummary }) {
+  const ids = interaction.manifestRecordIds ?? [];
+  if (ids.length === 0) {
+    return (
+      <p className="mt-3 text-xs text-ink-muted">
+        No grant-backed context manifest — answer may have used public fallback snippets only.
+      </p>
+    );
+  }
+
+  if (interaction.isFallbackContext) {
+    return (
+      <div className="mt-3 rounded-xl border border-ink/10 bg-cream-deep/30 px-3 py-2 text-xs text-ink-muted">
+        <p className="font-medium text-ink">Fallback context (not Trusted Brain rows)</p>
+        <p className="mt-1">{ids.join(", ")}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 rounded-xl border border-ink/10 bg-cream-deep/30 px-3 py-2 text-xs">
+      <p className="section-label mb-1">Context records used</p>
+      <ul className="list-inside list-disc text-ink-muted">
+        {ids.map((id) => (
+          <li key={id}>{id}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+interface UpkeepActionsProps {
+  interaction: InteractionSummary;
+  brainSlug: string;
+  onUpdated: (updated: InteractionSummary) => void;
+}
+
+function UpkeepActions({ interaction, brainSlug, onUpdated }: UpkeepActionsProps) {
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const alreadyProposed = interaction.reviewStatus === "Action proposed";
+  const dismissed = interaction.reviewStatus === "No action";
+
+  const runAction = async (action: "propose" | "dismiss", quarantine?: boolean) => {
+    setSaving(true);
+    setError(null);
+    try {
+      const updated = await submitUpkeepAction({
+        recordId: interaction.recordId,
+        brainSlug,
+        action,
+        quarantine,
+      });
+      onUpdated(updated);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Action failed.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (dismissed) {
+    return <p className="mt-3 text-sm text-ink-muted">Marked as no action needed.</p>;
+  }
+
+  return (
+    <div className="mt-4 rounded-2xl border border-apricot/20 bg-apricot/5 p-4">
+      <p className="section-label mb-2">Upkeep actions</p>
+      <p className="text-xs leading-relaxed text-ink-muted">
+        Propose sends a review item to Clive&apos;s Man — Workshop only, never auto-edits Trusted
+        truth. Dismiss clears this from the shortlist.
+      </p>
+      {alreadyProposed ? (
+        <p className="mt-2 text-sm text-sage">
+          Context review already proposed ({interaction.contextFlagged}).
+        </p>
+      ) : null}
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={saving || alreadyProposed}
+          onClick={() => void runAction("propose")}
+          className="btn-primary py-2 text-xs disabled:opacity-60"
+        >
+          Propose context review
+        </button>
+        <button
+          type="button"
+          disabled={saving || alreadyProposed}
+          onClick={() => void runAction("propose", true)}
+          className="btn-secondary py-2 text-xs disabled:opacity-60"
+        >
+          Propose quarantine
+        </button>
+        <button
+          type="button"
+          disabled={saving}
+          onClick={() => void runAction("dismiss")}
+          className="btn-secondary py-2 text-xs disabled:opacity-60"
+        >
+          Dismiss — no action
+        </button>
+      </div>
+      {error ? <p className="mt-2 text-sm text-red-700">{error}</p> : null}
+    </div>
+  );
+}
+
 interface ScoreFormProps {
   interaction: InteractionSummary;
   brainSlug: string;
@@ -66,6 +210,7 @@ function ScoreForm({ interaction, brainSlug, reviewer, onSaved }: ScoreFormProps
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(Boolean(interaction.qualityScore));
+  const [autoProposedNote, setAutoProposedNote] = useState<string | null>(null);
 
   const submit = async () => {
     if (!reviewer.trim()) {
@@ -79,8 +224,9 @@ function ScoreForm({ interaction, brainSlug, reviewer, onSaved }: ScoreFormProps
 
     setSaving(true);
     setError(null);
+    setAutoProposedNote(null);
     try {
-      const updated = await submitScore({
+      const result = await submitScore({
         recordId: interaction.recordId,
         brainSlug,
         qualityScore: score,
@@ -88,8 +234,13 @@ function ScoreForm({ interaction, brainSlug, reviewer, onSaved }: ScoreFormProps
         reviewNotes: notes.trim() || undefined,
         suspectedContextIssue: flagContext,
       });
-      onSaved(updated);
+      onSaved(result.interaction);
       setSaved(true);
+      if (result.autoProposed) {
+        setAutoProposedNote(
+          "Low score — Clive's Man has proposed a context review in Workshop (Trusted truth untouched).",
+        );
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Save failed.");
     } finally {
@@ -143,7 +294,8 @@ function ScoreForm({ interaction, brainSlug, reviewer, onSaved }: ScoreFormProps
       </label>
 
       {error ? <p className="mt-3 text-sm text-red-700">{error}</p> : null}
-      {saved && !error ? (
+      {autoProposedNote ? <p className="mt-3 text-sm text-sage">{autoProposedNote}</p> : null}
+      {saved && !error && !autoProposedNote ? (
         <p className="mt-3 text-sm text-sage">Score saved — thank you.</p>
       ) : null}
 
@@ -163,10 +315,21 @@ interface InteractionCardProps {
   interaction: InteractionSummary;
   brainSlug: string;
   reviewer: string;
+  view: ReviewView;
   onSaved: (updated: InteractionSummary) => void;
+  onUpdated: (updated: InteractionSummary) => void;
 }
 
-function InteractionCard({ interaction, brainSlug, reviewer, onSaved }: InteractionCardProps) {
+function InteractionCard({
+  interaction,
+  brainSlug,
+  reviewer,
+  view,
+  onSaved,
+  onUpdated,
+}: InteractionCardProps) {
+  const badge = statusBadge(interaction);
+
   return (
     <article className="rounded-3xl border border-ink/10 bg-white p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -183,6 +346,11 @@ function InteractionCard({ interaction, brainSlug, reviewer, onSaved }: Interact
               Awaiting review
             </span>
           )}
+          {badge ? (
+            <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
+              {badge}
+            </span>
+          ) : null}
         </div>
         <time className="text-xs text-ink-muted" dateTime={interaction.createdAt}>
           {formatWhen(interaction.createdAt)}
@@ -196,11 +364,17 @@ function InteractionCard({ interaction, brainSlug, reviewer, onSaved }: Interact
         </div>
         <div>
           <p className="section-label mb-1">Answer</p>
-          <p className="text-sm leading-relaxed text-ink-muted whitespace-pre-wrap">
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink-muted">
             {interaction.assistantReply}
           </p>
         </div>
       </div>
+
+      <ManifestBlock interaction={interaction} />
+
+      {view === "needsReview" ? (
+        <UpkeepActions interaction={interaction} brainSlug={brainSlug} onUpdated={onUpdated} />
+      ) : null}
 
       <ScoreForm
         interaction={interaction}
@@ -215,6 +389,7 @@ function InteractionCard({ interaction, brainSlug, reviewer, onSaved }: Interact
 export function InteractionReviewShell() {
   const brainSlug = CHAPTER1_BRAIN_SLUG;
   const [reviewer, setReviewer] = useState("");
+  const [view, setView] = useState<ReviewView>("needsReview");
   const [interactions, setInteractions] = useState<InteractionSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -232,14 +407,14 @@ export function InteractionReviewShell() {
     setLoading(true);
     setError(null);
     try {
-      const rows = await fetchInteractions(brainSlug);
+      const rows = await fetchInteractions(brainSlug, view);
       setInteractions(rows);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not load interactions.");
     } finally {
       setLoading(false);
     }
-  }, [brainSlug]);
+  }, [brainSlug, view]);
 
   useEffect(() => {
     void load();
@@ -256,6 +431,15 @@ export function InteractionReviewShell() {
     );
   };
 
+  const handleUpdated = (updated: InteractionSummary) => {
+    setInteractions((prev) => {
+      if (view === "needsReview" && updated.reviewStatus === "No action") {
+        return prev.filter((row) => row.recordId !== updated.recordId);
+      }
+      return prev.map((row) => (row.recordId === updated.recordId ? updated : row));
+    });
+  };
+
   return (
     <>
       <Nav />
@@ -266,9 +450,36 @@ export function InteractionReviewShell() {
         </h1>
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-ink-muted">
           Review past Clive and Pam interactions for your brain. Score each answer 1–5,
-          add notes, and flag anything that looks like a context problem. Scores write
-          straight back to your Brain Interactions log.
+          add notes, and flag anything that looks like a context problem. The{" "}
+          <strong className="font-medium text-ink">Needs review</strong> tab shows a Pam
+          shortlist — low scores and suspected context issues — so you are not asked to triage
+          everything.
         </p>
+
+        <div className="mt-6 flex gap-2">
+          <button
+            type="button"
+            onClick={() => setView("needsReview")}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              view === "needsReview"
+                ? "bg-apricot text-white"
+                : "border border-ink/15 bg-white text-ink hover:border-apricot"
+            }`}
+          >
+            Needs review
+          </button>
+          <button
+            type="button"
+            onClick={() => setView("all")}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              view === "all"
+                ? "bg-apricot text-white"
+                : "border border-ink/15 bg-white text-ink hover:border-apricot"
+            }`}
+          >
+            All interactions
+          </button>
+        </div>
 
         <div className="mt-6 rounded-2xl border border-ink/10 bg-white p-4">
           <label className="block">
@@ -285,7 +496,8 @@ export function InteractionReviewShell() {
             <span>Brain: {brainSlug}</span>
             {!loading ? (
               <span>
-                {interactions.length} loaded · {pendingCount} awaiting score
+                {interactions.length} loaded
+                {view === "all" ? ` · ${pendingCount} awaiting score` : " in shortlist"}
               </span>
             ) : null}
             <button type="button" onClick={() => void load()} className="btn-secondary py-2 text-xs">
@@ -299,8 +511,9 @@ export function InteractionReviewShell() {
 
         {!loading && !error && interactions.length === 0 ? (
           <p className="mt-8 rounded-2xl border border-dashed border-ink/15 bg-white p-6 text-sm text-ink-muted">
-            No interactions logged yet for this brain. Ask Clive or Pam a question first —
-            then come back here to score the answer.
+            {view === "needsReview"
+              ? "Nothing on the shortlist right now — no low scores or context flags awaiting attention."
+              : "No interactions logged yet for this brain. Ask Clive or Pam a question first — then come back here to score the answer."}
           </p>
         ) : null}
 
@@ -311,7 +524,9 @@ export function InteractionReviewShell() {
               interaction={interaction}
               brainSlug={brainSlug}
               reviewer={reviewer}
+              view={view}
               onSaved={handleSaved}
+              onUpdated={handleUpdated}
             />
           ))}
         </div>

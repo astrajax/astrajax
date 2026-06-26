@@ -14,13 +14,14 @@ to Challenger.
 
 ## Method
 
-1. Identify the decision type: intake, curation, quarantine, publish-prep, or
+1. Identify the decision type: intake, curation, quarantine, publish-prep, brain-interaction-upkeep, or
    escalation.
 2. Read only the needed sources.
 3. State the proposed action in one sentence.
 4. List evidence with paths, record IDs, or links.
 5. Flag missing reads or uncertainty.
-6. Produce the handoff.
+6. For **brain-interaction-upkeep**: cite Manifest Record IDs when grant-backed; note fallback IDs (`fallback-*`) as non-Trusted; do not treat missing manifest as primary evidence.
+7. Produce the handoff.
 
 ## Must not
 

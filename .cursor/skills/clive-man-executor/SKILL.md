@@ -27,6 +27,16 @@ Proposer and Challenger handoff.
 - Quarantine to draft/review where an approved policy exists.
 - Run publish dry-runs or prepare bundle previews.
 - Append non-final activity or prepared logs where the tool permits.
+- **Brain interaction upkeep (Workshop only):** PATCH Brain Interactions — Review Status, Context Flagged. Low score → Action proposed + Flagged for review (or Quarantine proposed). Never Trusted Brain writes.
+
+## Brain interaction upkeep — propose-only
+
+When executing upkeep from a scored interaction:
+
+- **May write:** Brain Workshop → Brain Interactions (`tblNqNSuIJ2akHyA1`) review fields only.
+- **Must not write:** Trusted Brain Truth, Brain Memories, Freshness, or any canonical field — unless a separate Pam-approved credential already exists (Memories auto-curate is **not** wired today).
+- **Skip:** hash-mismatch checks when manifest IDs are fallback placeholders (`fallback-*`).
+- **Policy source:** `docs/initiatives/brain-upkeep.md`
 
 ## Must not
 
