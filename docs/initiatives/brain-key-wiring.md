@@ -286,6 +286,18 @@ Response includes `interaction` and `autoProposed` (`true` when `qualityScore <=
 
 Client UI: `/brain/review` (Chapter 1 brain slug by default).
 
+### Website public Clive channel (`POST /api/ask-clive`)
+
+Homepage **Ask Clive** uses the same Trusted Brain retrieval helper as grant-backed answers (`retrieveTrustedSnippets` in `website/src/lib/brains/trusted-truth.ts`) for the public positioning scope (`read:brain-truth:positioning`). There is **no per-session Brain Key grant** on this route — it is a server-side read for the marketing website channel only. When Trusted Brain tokens are not configured, it falls back to `FALLBACK_TRUSTED_SNIPPETS` (placeholder manifest IDs such as `fallback-positioning`).
+
+Every Ask Clive exchange is logged to **Brain Interactions** via `POST /api/brains/interactions/log` with:
+
+- `persona: clive`, `brainSlug: astrajax-chapter-1`, `channel: website`
+- manifest record IDs + hashes from the snippets used (no grant ID on this channel)
+- `sessionId` from the browser (stable per device via localStorage)
+
+This replaces the legacy single-base Context Items loader (`appYv601Oq7fKTCj0`). Review and score homepage Clive answers at `/brain/review`.
+
 ### `POST /api/brains/interactions/action`
 
 Workshop-only upkeep action for the `/brain/review` Needs Review shortlist. Does not write Trusted Brain Truth, Brain Memories, freshness, category, scope, authority, or canonical text.

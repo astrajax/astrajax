@@ -50,6 +50,7 @@ async function submitUpkeepAction(payload: {
   brainSlug: string;
   action: "propose" | "dismiss";
   quarantine?: boolean;
+  actor?: string;
 }): Promise<InteractionSummary> {
   const response = await fetch("/api/brains/interactions/action", {
     method: "POST",
@@ -121,10 +122,11 @@ function ManifestBlock({ interaction }: { interaction: InteractionSummary }) {
 interface UpkeepActionsProps {
   interaction: InteractionSummary;
   brainSlug: string;
+  reviewer: string;
   onUpdated: (updated: InteractionSummary) => void;
 }
 
-function UpkeepActions({ interaction, brainSlug, onUpdated }: UpkeepActionsProps) {
+function UpkeepActions({ interaction, brainSlug, reviewer, onUpdated }: UpkeepActionsProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -140,6 +142,7 @@ function UpkeepActions({ interaction, brainSlug, onUpdated }: UpkeepActionsProps
         brainSlug,
         action,
         quarantine,
+        actor: reviewer.trim() || undefined,
       });
       onUpdated(updated);
     } catch (err) {
@@ -373,7 +376,12 @@ function InteractionCard({
       <ManifestBlock interaction={interaction} />
 
       {view === "needsReview" ? (
-        <UpkeepActions interaction={interaction} brainSlug={brainSlug} onUpdated={onUpdated} />
+        <UpkeepActions
+          interaction={interaction}
+          brainSlug={brainSlug}
+          reviewer={reviewer}
+          onUpdated={onUpdated}
+        />
       ) : null}
 
       <ScoreForm
@@ -451,9 +459,8 @@ export function InteractionReviewShell() {
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-ink-muted">
           Review past Clive and Pam interactions for your brain. Score each answer 1–5,
           add notes, and flag anything that looks like a context problem. The{" "}
-          <strong className="font-medium text-ink">Needs review</strong> tab shows a Pam
-          shortlist — low scores and suspected context issues — so you are not asked to triage
-          everything.
+          <strong className="font-medium text-ink">Needs review</strong> tab shows low scores
+          and suspected context issues — so you are not asked to triage everything.
         </p>
 
         <div className="mt-6 flex gap-2">

@@ -8,6 +8,8 @@ export const ROUTE_IDS = {
   INTERACTION_LOG: "/api/brains/interactions/log",
   INTERACTION_LIST: "/api/brains/interactions/list",
   INTERACTION_SCORE: "/api/brains/interactions/score",
+  INTERACTION_ACTION: "/api/brains/interactions/action",
+  ASK_CLIVE: "/api/ask-clive",
 } as const;
 
 export type RouteId = (typeof ROUTE_IDS)[keyof typeof ROUTE_IDS];

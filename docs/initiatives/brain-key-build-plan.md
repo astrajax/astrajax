@@ -1,10 +1,6 @@
 # Brain Key — Composer Build Plan (QA fixes 1–9)
 
-**Status:** Ready to hand to Composer  
-**Owner:** Matthew (approves); Composer (implements)  
-**Lane:** Cursor Composer — mechanical build on an approved brief. No strategy decisions.  
-**Repo:** `/Users/matthewhopkinson/Documents/AstraJax/website`  
-**Specs to honour:** [`brain-key-wiring.md`](./brain-key-wiring.md), [`../business/architecture.md`](../business/architecture.md)
+**Status:** Complete (26 Jun 2026) — QA fixes 1–9 shipped; 42 automated tests in `npm run test:brain-key`.
 
 ---
 
@@ -18,12 +14,12 @@ Close the nine QA findings on the Brain Key layer. Turn an in-memory demo state 
 2. No persona (Clive/Pam/Doc) ever receives the Brain Key credential. Personas request; humans approve; server uses credentials.
 3. Pam is **not** part of the Brain Key unlock flow. Do not reintroduce a Pam gate on read access.
 4. A Trusted Brain credential must never be writable by a Clive/Pam chat route.
-5. Keep all 15 existing tests green and the Next.js build clean. Add tests; don't delete coverage.
+5. Keep all brain-key tests green and the Next.js build clean. Add tests; don't delete coverage.
 6. Structured Airtable writes go through deterministic REST calls (field names allowed on the REST API). Do not pull in heavy SDKs.
 
 ## Definition of done
 
-- `npm run test:brain-key` passes with new tests for findings 1–4, 6, 9.
+- `npm run test:brain-key` passes with 42 automated tests covering Brain Key, upkeep, and Ask Clive context loading.
 - `npm run build` is clean.
 - With real tokens set and `BRAIN_KEY_USE_MEMORY=false`, the full flow (request → approve → retrieve → promote) persists to Airtable and survives a process restart.
 - With no tokens set (`BRAIN_KEY_USE_MEMORY=true`), local dev still works exactly as today.

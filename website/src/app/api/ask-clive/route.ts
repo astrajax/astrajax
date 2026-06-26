@@ -1,6 +1,8 @@
 import { buildAnthropicMessages, buildSystemPrompt } from "@/lib/clive/prompt";
 import { loadCliveContext } from "@/lib/clive/load-context";
 import type { AskCliveRequest, AskCliveResponse, ChatMessage } from "@/lib/clive/types";
+import { CHAPTER1_BRAIN_SLUG } from "@/lib/brains/airtable-ids";
+import { handleInteractionLog } from "@/lib/brains/handlers/interaction-log";
 import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
@@ -25,6 +27,11 @@ function sanitiseHistory(raw: unknown): ChatMessage[] {
       role: item.role,
       content: item.content.trim().slice(0, MAX_MESSAGE_LENGTH),
     }));
+}
+
+function resolveSessionId(raw: unknown): string {
+  if (typeof raw === "string" && raw.trim()) return raw.trim().slice(0, 128);
+  return `web_${Date.now()}`;
 }
 
 async function callClaude(system: string, messages: { role: "user" | "assistant"; content: string }[]) {
@@ -88,14 +95,34 @@ export async function POST(request: Request) {
   }
 
   const history = sanitiseHistory(body.history);
+  const sessionId = resolveSessionId(body.sessionId);
 
   try {
-    const { blocks, source } = await loadCliveContext();
+    const { blocks, source, manifest } = await loadCliveContext();
     const system = buildSystemPrompt(blocks);
     const messages = buildAnthropicMessages(history, message);
     const reply = await callClaude(system, messages);
 
-    const payload: AskCliveResponse = { reply, contextSource: source };
+    let interactionLogged = false;
+    try {
+      await handleInteractionLog({
+        sessionId,
+        persona: "clive",
+        brainSlug: CHAPTER1_BRAIN_SLUG,
+        userMessage: message,
+        assistantReply: reply,
+        manifest: {
+          recordIds: manifest.recordIds,
+          hashes: manifest.hashes,
+        },
+        channel: "website",
+      });
+      interactionLogged = true;
+    } catch (logError) {
+      console.warn("Ask Clive interaction log failed:", logError);
+    }
+
+    const payload: AskCliveResponse = { reply, contextSource: source, interactionLogged };
     return NextResponse.json(payload);
   } catch (error) {
     const detail = error instanceof Error ? error.message : "Unknown error";

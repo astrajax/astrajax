@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:brain-key": "vitest run --dir src/lib/brains"
+    "test:brain-key": "vitest run src/lib/brains src/lib/clive"
   },
   "dependencies": {
     "@vercel/blob": "^2.4.0",

@@ -1,94 +1,32 @@
+import { CHAPTER1_BRAIN_SLUG } from "@/lib/brains/airtable-ids";
+import { isFallbackManifest } from "@/lib/brains/interaction-upkeep";
+import {
+  DEMO_SCOPES,
+  FALLBACK_TRUSTED_SNIPPETS,
+  retrieveTrustedSnippets,
+} from "@/lib/brains/trusted-truth";
 import { FALLBACK_CONTEXT } from "./fallback-context";
 import type { ContextBlock } from "./types";
 
-const BASE_ID = "appYv601Oq7fKTCj0";
-const CONTEXT_ITEMS_TABLE = "tblisiZJQmQuBqEef";
-const CACHE_TTL_MS = 5 * 60 * 1000;
+export type CliveContextSource = "trusted" | "fallback";
 
-type AirtableRecord = {
-  fields?: {
-    Title?: string;
-    "Canonical Text"?: string;
-    Category?: string;
-    "Applies To"?: string[];
-    Status?: string;
-  };
-};
-
-let cachedBlocks: ContextBlock[] | null = null;
-let cachedAt = 0;
-let cachedSource: "airtable" | "fallback" = "fallback";
-
-function isWebsiteRelevant(fields: NonNullable<AirtableRecord["fields"]>): boolean {
-  const applies = fields["Applies To"] ?? [];
-  return applies.some((tag) => tag === "AstraJax" || tag === "Clive");
+export interface CliveContextManifest {
+  recordIds: string[];
+  hashes: string[];
 }
 
-function mapRecord(record: AirtableRecord): ContextBlock | null {
-  const fields = record.fields;
-  if (!fields?.Title || !fields["Canonical Text"]) return null;
-  return {
-    title: fields.Title,
-    text: fields["Canonical Text"],
-    category: fields.Category,
-  };
-}
-
-async function fetchApprovedFromAirtable(token: string): Promise<ContextBlock[]> {
-  const formula = encodeURIComponent("{Status}='Approved'");
-  const fieldParams = ["Title", "Canonical Text", "Category", "Applies To", "Status"]
-    .map((name) => `fields[]=${encodeURIComponent(name)}`)
-    .join("&");
-  const url = `https://api.airtable.com/v0/${BASE_ID}/${CONTEXT_ITEMS_TABLE}?filterByFormula=${formula}&${fieldParams}&pageSize=100`;
-
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` },
-    next: { revalidate: 300 },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Airtable ${response.status}`);
-  }
-
-  const data = (await response.json()) as { records?: AirtableRecord[] };
-  const blocks = (data.records ?? [])
-    .filter((record) => record.fields && isWebsiteRelevant(record.fields))
-    .map(mapRecord)
-    .filter((block): block is ContextBlock => block !== null);
-
-  return blocks.length > 0 ? blocks : FALLBACK_CONTEXT;
-}
-
-export async function loadCliveContext(): Promise<{
+export interface CliveContextLoadResult {
   blocks: ContextBlock[];
-  source: "airtable" | "fallback";
-}> {
-  const now = Date.now();
-  if (cachedBlocks && now - cachedAt < CACHE_TTL_MS) {
-    return { blocks: cachedBlocks, source: cachedSource };
-  }
-
-  const token = process.env.AIRTABLE_READ_TOKEN;
-  if (!token) {
-    cachedBlocks = FALLBACK_CONTEXT;
-    cachedSource = "fallback";
-    cachedAt = now;
-    return { blocks: cachedBlocks, source: cachedSource };
-  }
-
-  try {
-    const blocks = await fetchApprovedFromAirtable(token);
-    cachedBlocks = blocks;
-    cachedSource = "airtable";
-    cachedAt = now;
-    return { blocks, source: "airtable" };
-  } catch {
-    cachedBlocks = FALLBACK_CONTEXT;
-    cachedSource = "fallback";
-    cachedAt = now;
-    return { blocks: cachedBlocks, source: cachedSource };
-  }
+  source: CliveContextSource;
+  manifest: CliveContextManifest;
 }
+
+/**
+ * Public website scope — server-side trusted read for homepage Ask Clive.
+ * No per-session Brain Key grant; uses the same Trusted Brain retrieval path
+ * as grant-backed answers, with fallback when Trusted is not wired.
+ */
+const WEBSITE_PUBLIC_SCOPE = DEMO_SCOPES[0];
 
 export function formatContextForPrompt(blocks: ContextBlock[]): string {
   return blocks
@@ -97,4 +35,42 @@ export function formatContextForPrompt(blocks: ContextBlock[]): string {
         `### ${block.title}${block.category ? ` (${block.category})` : ""}\n${block.text}`,
     )
     .join("\n\n");
+}
+
+export async function loadCliveContext(): Promise<CliveContextLoadResult> {
+  const snippets = await retrieveTrustedSnippets({
+    brainSlug: CHAPTER1_BRAIN_SLUG,
+    scope: WEBSITE_PUBLIC_SCOPE,
+  });
+
+  const recordIds = snippets.map((snippet) => snippet.recordId);
+  const hashes = snippets.map((snippet) => snippet.contentHash);
+
+  if (snippets.length === 0 || isFallbackManifest(recordIds)) {
+    const blocks =
+      FALLBACK_CONTEXT.length > 0
+        ? FALLBACK_CONTEXT
+        : FALLBACK_TRUSTED_SNIPPETS.map((snippet) => ({
+            title: snippet.title,
+            text: snippet.text,
+          }));
+
+    return {
+      blocks,
+      source: "fallback",
+      manifest: {
+        recordIds: FALLBACK_TRUSTED_SNIPPETS.map((snippet) => snippet.recordId),
+        hashes: FALLBACK_TRUSTED_SNIPPETS.map((snippet) => snippet.contentHash),
+      },
+    };
+  }
+
+  return {
+    blocks: snippets.map((snippet) => ({
+      title: snippet.title,
+      text: snippet.text,
+    })),
+    source: "trusted",
+    manifest: { recordIds, hashes },
+  };
 }

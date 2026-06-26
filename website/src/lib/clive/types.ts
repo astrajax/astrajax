@@ -8,11 +8,14 @@ export type ChatMessage = {
 export type AskCliveRequest = {
   message: string;
   history?: ChatMessage[];
+  /** Stable browser session for Brain Interactions logging. */
+  sessionId?: string;
 };
 
 export type AskCliveResponse = {
   reply: string;
-  contextSource: "airtable" | "fallback";
+  contextSource: "trusted" | "fallback";
+  interactionLogged?: boolean;
 };
 
 export type ContextBlock = {

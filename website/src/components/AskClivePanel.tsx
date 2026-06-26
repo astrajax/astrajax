@@ -6,6 +6,20 @@ import type { ChatMessage } from "@/lib/clive/types";
 const GREETING =
   "Ask me about AstraJax, citizen-builders, the adoption loop, or how Clive keeps agent context clean.";
 
+const SESSION_STORAGE_KEY = "astrajax-ask-clive-session";
+
+function getOrCreateSessionId(): string {
+  if (typeof window === "undefined") return `web_${Date.now()}`;
+  const existing = window.localStorage.getItem(SESSION_STORAGE_KEY);
+  if (existing?.trim()) return existing.trim();
+  const created =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `web_${Date.now()}`;
+  window.localStorage.setItem(SESSION_STORAGE_KEY, created);
+  return created;
+}
+
 const STARTER_PROMPTS = [
   "What is the adoption operating system?",
   "Why should domain experts shape agents?",
@@ -40,6 +54,7 @@ export function AskClivePanel() {
         body: JSON.stringify({
           message,
           history: messages,
+          sessionId: getOrCreateSessionId(),
         }),
       });
 

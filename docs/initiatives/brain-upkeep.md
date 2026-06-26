@@ -12,7 +12,7 @@ Client answer scoring landed first (`/brain/review`). Brain Upkeep adds a **Pam 
 ### Part 1 — Needs Review shortlist (lite)
 
 - **Surface:** `/brain/review` — **Needs review** tab (default view).
-- **Filter:** Quality Score ≤ 2 **or** Suspected Context Issue = true; excludes Review Status = No action.
+- **Filter:** Quality Score ≤ 2 **or** Suspected Context Issue = true; excludes Review Status = No action. (Pam auto-triage is deferred — this is a filter, not an agent scan.)
 - **API:** `GET /api/brains/interactions/list?brainSlug=…&shortlist=true`
 - **Each item shows:** question, answer, persona, Manifest Record IDs (when present), fallback notice when manifest is public fallback only.
 - **Actions:** Propose context review · Propose quarantine · Dismiss (no action).
@@ -56,3 +56,4 @@ Client answer scoring landed first (`/brain/review`). Brain Upkeep adds a **Pam 
 | Score handler (auto-propose on 1–2) | `website/src/lib/brains/handlers/interaction-score.ts` |
 | Propose/dismiss handler | `website/src/lib/brains/handlers/interaction-action.ts` |
 | Review UI | `website/src/components/brain/InteractionReviewShell.tsx` |
+| Homepage Ask Clive (Brain Key context + log) | `website/src/lib/clive/load-context.ts`, `website/src/app/api/ask-clive/route.ts` |

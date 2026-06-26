@@ -77,7 +77,9 @@ website/src/lib/aie-demo/brain-client.ts              (browser client for /api/b
 website/src/lib/aie-demo/types.ts                      (loop state, step ids)
 ```
 
-No changes to `website/src/lib/brains/*` server logic. If a gap appears there, stop and route back to Doc.
+No changes to `website/src/lib/brains/*` server logic during the original workbench build. If a gap appears there, stop and route back to Doc.
+
+**Post-workbench extension (26 Jun 2026):** Brain Upkeep and client interaction scoring extended `website/src/lib/brains/` (interaction list/score/action handlers, `interaction-upkeep.ts`) and added `/brain/review`. Homepage Ask Clive was later unified onto the same Trusted Brain retrieval path and interaction log — see `brain-key-wiring.md` § Website public Clive channel.
 
 ---
 
@@ -155,7 +157,14 @@ This is your decision. You now have context-aware, bias-checked opinions. You de
 
 ### Slice 7 — Verification pass
 - Run `verification` patterns with dev server up; confirm the full click-through and the reset control.
-- Run `npm run test:brain-key` if any brain lib was touched (it should not be).
+- Run `npm run test:brain-key` if any brain lib was touched.
+
+---
+
+## Post-delivery extensions (26 Jun 2026)
+
+- **`/brain/review`** — client interaction scoring and thin Brain Upkeep (Needs review shortlist, propose-only loop). See [`brain-upkeep.md`](./brain-upkeep.md).
+- **Homepage Ask Clive** — unified onto Brain Key trusted retrieval + Brain Interactions logging (see `brain-key-wiring.md` § Website public Clive channel).
 
 ---
 

@@ -31,8 +31,13 @@ export async function handleInteractionAction(body: InteractionActionBody) {
             : BRAIN_INTERACTION_CONTEXT_FLAGGED.flaggedForReview,
         };
 
+  const actor = body.actor?.trim();
+
   if (useMemoryStore()) {
-    const interaction = actionMemoryInteraction(recordId, brainSlug, fields);
+    const interaction = actionMemoryInteraction(recordId, brainSlug, {
+      ...fields,
+      reviewer: actor,
+    });
     return { interaction };
   }
 
@@ -59,6 +64,7 @@ export async function handleInteractionAction(body: InteractionActionBody) {
           fields: {
             "Review Status": fields.reviewStatus,
             "Context Flagged": fields.contextFlagged,
+            ...(actor ? { Reviewer: actor } : {}),
           },
         },
       ],
@@ -90,7 +96,8 @@ export async function handleInteractionAction(body: InteractionActionBody) {
         ? record.fields["Quality Score"]
         : undefined,
     reviewer:
-      typeof record.fields.Reviewer === "string" ? record.fields.Reviewer : undefined,
+      actor ??
+      (typeof record.fields.Reviewer === "string" ? record.fields.Reviewer : undefined),
     reviewNotes:
       typeof record.fields["Review Notes"] === "string"
         ? record.fields["Review Notes"]

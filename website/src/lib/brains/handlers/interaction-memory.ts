@@ -98,6 +98,7 @@ export function actionMemoryInteraction(
   patch: {
     reviewStatus: InteractionReviewStatus;
     contextFlagged: InteractionContextFlagged;
+    reviewer?: string;
   },
 ): InteractionSummary {
   const row = memoryInteractions.get(recordId);
@@ -106,6 +107,7 @@ export function actionMemoryInteraction(
 
   row.reviewStatus = patch.reviewStatus;
   row.contextFlagged = patch.contextFlagged;
+  if (patch.reviewer) row.reviewer = patch.reviewer;
 
   return toSummary(row);
 }

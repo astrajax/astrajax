@@ -22,6 +22,11 @@ const links: NavLink[] = [
     featured: true,
     hint: "The Butternut story",
   },
+  {
+    href: "/brain/review",
+    label: "Brain review",
+    hint: "Score agent answers and flag stale context",
+  },
 ];
 
 const featuredLinks = links.filter((link) => link.featured);
