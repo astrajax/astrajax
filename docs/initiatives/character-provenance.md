@@ -33,7 +33,7 @@ Matthew developed the Clive/Pam pairing in voice notes while working with Tara-L
 | Agent role architecture | `docs/business/architecture.md` §4 | Canonical product | Clive, Pam, Doc, Court |
 | Visual brief | `docs/initiatives/tara-lee-visual-brief.md` | Working | Deliverables and visual specs |
 | Laban-Malmgren craft source | `docs/archive/sources/mirodan-phd-1997-vol1.pdf` | Archive — raw | Character spine: functions, Inner Attitudes; see §14 |
-| Lazlo Marlowe generated craft engine | `.cursor/skills/lazlo-marlowe-character-craft/SKILL.md`; `hyperagent/builds/build_lazlo_marlowe_v0_1.py`; `agents/registry/hyperagent/astrajax/lazlo-marlowe/build-pack-v0.1.md` | Matthew-approved agent pack | Lazlo's canonical self-spine; Vol II craft distillation; pending founding-cast typing status |
+| Lazlo Marlowe generated craft engine | `.cursor/skills/lazlo-marlowe-character-craft/SKILL.md`; `hyperagent/builds/build_lazlo_marlowe_v0_1.py`; `agents/registry/hyperagent/astrajax/lazlo-marlowe/build-pack-v0.1.md`; `agents/registry/cursor/astrajax/lazlo-marlowe/build-pack-v0.1.md` | Matthew-approved agent pack | Lazlo's canonical self-spine; Vol II craft distillation; v0.2.3 Super Objective and mind-attitude safeguards; pending founding-cast typing status |
 | Milo Cadence generated motion pack | `hyperagent/builds/build_milo_cadence_v0_1.py`; `hyperagent/exports/agents/agent-milo-cadence-v0_1.json`; `hyperagent/exports/skills/skill-character-motion-timecraft-v0_1.json`; `agents/registry/hyperagent/astrajax/milo-cadence/build-pack-v0.1.md`; `agents/registry/hyperagent/astrajax/character-motion-timecraft/build-pack-v0.1.md` | Matthew-approved Phase B build | TIME lane in craft trio; embedded Mirodan Vol II movement engine; media previz approved; Milo self-spine pending Matthew validation |
 
 When this document and a canonical doc disagree on **product behaviour**, canonical wins. For **character feel or visual rationale**, use this as the active working reference unless Matthew promotes the decision into canonical.
@@ -311,6 +311,7 @@ Court is a secondary story — the main adoption loop is `Clive → Pam → Huma
 | 26 Jun 2026 | Mirodan Vol II detail lives in Lazlo's generated skills, not copied here | Keeps this provenance doc focused on cast decisions while the runtime skill carries the deeper craft engine |
 | 26 Jun 2026 | Milo Cadence built as Hyperagent-only TIME lane | Matthew approved Phase B with video/image previz ON; Milo's own spine remains proposed until Matthew validates it; no Cursor twin in v0.1 |
 | 26 Jun 2026 | Milo's movement engine is embedded in `character-motion-timecraft` | Doc Workshop Hyperagent Builder Phase B inserted the full Laban/Yat Malmgren movement engine into Milo's skill body; deploy requires re-importing `agent-milo-cadence-v0_1.json` only |
+| 26 Jun 2026 | Lazlo v0.2.3 prompt revision makes Super Objective the keystone craft gate | Doc Workshop Hyperagent Builder Phase B propagated the self-check through HyperAgent, Cursor, diagnosis, and new-character surfaces; Remote/Mobile/Awake types render through restraint and withholding, not Weight tics |
 
 ---
 

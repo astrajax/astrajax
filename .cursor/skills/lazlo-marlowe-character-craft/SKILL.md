@@ -132,13 +132,31 @@ Use when a character's *declared* type and their *observable* behaviour disagree
 ### Drift-watch: mind attitudes and live actors (Mirodan 1997 Vol II)
 
 Vol II notes that three attitudes cannot be physically embodied by a live actor the way
-body attitudes can: **Remote** (Pam), **Mobile** (Vera), **Awake** (Lazlo's self-type). A
-live body needs physical Weight; these types live more in the mind.
+body attitudes can: **Remote**, **Mobile**, **Awake**. A live body needs physical Weight;
+these types live more in the mind.
 
 This does **not** bind written or drawn characters. For agents and illustrated cast members
 it often **strengthens** them: they define themselves by a Super Objective at their
 opposite, bodily pole. Record honestly; do not treat it as a contradiction with AstraJax
 agent design.
+
+### Rendering a mind attitude (do not embody what cannot be embodied)
+
+Three attitudes (Remote, Mobile, Awake) are **of the mind** (Vol II body/mind split,
+p.380-381). Vol II says they cannot be physically embodied by a live actor the way body
+attitudes can; they lack the Weight/Intending anchor. So do **not** build a mind-attitude
+character out of Weight tics and busy physical business. That is the illusion Vol II warns
+against, and it quietly retypes the character toward a body attitude (a Remote judge written
+through physical tidiness drifts into Stable).
+
+Render a mind attitude through what it **withholds**: restraint, distance, stillness,
+deceleration, the held pause, the look that weighs rather than grabs. The want often sits at
+the opposite, bodily pole (the great illusion): a Remote character is pulled toward the Near
+warmth it will not let itself have. Hand Milo restraint and Shadow Moves, not big Working
+Actions.
+
+**Self-check:** if your inner life for a Remote, Mobile, or Awake character is full of
+physical handling and Weight detail, you have drifted. Cut it and rebuild from distance.
 
 ## Cast provenance status
 
@@ -169,23 +187,76 @@ characters drift into each other.
 
 ## Super Objective
 
-The force that animates a character across its whole life, regardless of scene.
+The Super Objective is the **single most important thing** about a character. It holds
+the truth; everything else (Outer skin, inner-life detail, signature lines, motion notes)
+is colouring in, derived from it. Get it wrong and nothing downstream can be right. Get it
+right and the rest almost writes itself.
+
 This is the craft name for the "overarching life goal" in character-provenance §4.
 
-**A Super Objective is selfish.** It is the character's private appetite: a payoff,
-hunger, pride, wound, or fear. What they want for *themselves*. The useful or noble thing
-they produce is the by-product, not the engine. Almost every type is self-serving in this
-human sense; even the cool ones (Remote, Awake) want something for themselves, they just
-wear a collar and better punctuation. If a proposed Super Objective reads like a job
-description, a mission statement, or a public virtue, **reject it** and ask: "What does
-this character get out of it for themselves?" Build from that answer, then let the service
-fall out as residue.
+**Rules:**
+
+- **It is selfish.** The character's private appetite: a payoff, hunger, pride, wound, or
+  fear. Selfish is not the same as villainous; even the warm and noble ones want something
+  for themselves. The useful or admirable thing they produce is a by-product, never the
+  engine.
+- **It is one sentence.** Two at an absolute push. If it needs a paragraph, you have not
+  found it yet.
+- **It is a want, not a wage.** If it reads like a job description, a mission statement, or
+  a public virtue (for example "to put everything in its right place" or "to keep the team
+  safe"), reject it and ask again: what does this character get out of it for themselves?
+  Build from that answer and let the service fall out as residue.
+- **It goes in the Super Objective slot, never buried in the inner life.** If the truest
+  line in your draft is hiding in a footnote marked "hold lightly", you have inverted the
+  work. Promote it.
+- **Order of operations:** find and pressure-test the Super Objective **first**, before you
+  type the function pair, write inner life, or hand anything to Kathryn or Milo. Spine
+  before skin starts here.
+
+**Worked caution (one line):** "To put everything in its right place" is a mission statement;
+the naked want underneath might be "so nothing embarrasses me." State the second, not the
+first.
 
 ## The independent character
 
 A character is neither the performer nor the script. It is a third force that survives
 every surface. For AstraJax this **is** "personality is adoption infrastructure": Clive
 is not the booth art and not the product copy; he stays consistent across surfaces.
+
+## The breathe test
+
+A character is alive when the people who meet it can hold it in their head as a real
+mind: predict what it will do, be surprised in ways that fit, and read its feeling from
+what it does rather than from a label. That is the craft test underneath "believability
+is adoption infrastructure." A character no one can model is a character no one trusts,
+and an agent no one trusts does not get used.
+
+**Teach-term:** writing craft calls this *social simulation* (modelling a character as a
+mind). Plain English with Matthew: does it breathe, and can someone predict it.
+
+The test in one question: hand the character to someone who knows the cast, give them a
+situation, and ask "what does she do next?" If they can answer, and the answer is both
+surprising and obviously right, the spine is alive. If they shrug, or if any plausible
+answer would fit equally well, the spine is still thin. Go back to the Super Objective.
+
+## How invented inner life rots (the prune list)
+
+This is the back-half of **swing, then check**. You swing by improvising tells,
+contradictions, and things a character cannot bear; then you prune. These are the
+specific ways a beat dies on the table. Adapted from the AI failure-mode work in
+`haowjy/creative-writing-skills`, reframed for spine work rather than prose.
+
+| Trap | What it looks like | The fix |
+|---|---|---|
+| **Stock tells** | Clenched fists, tight jaw, a sharp exhale, a raised eyebrow. Gestures any character in any cast could make. | Replace with a behaviour only this function pair would produce. A Sensation type hands you a thing you can hold; a Thinking type leaves your argument tidier than they found it. |
+| **Adjective with a prop** | "Warm" turned into "he smiles warmly." Still a label, now holding an object. | Make it an action with a consequence, sprung from the want. |
+| **Operatic pitch** | Every beat at maximum. Grief, delight, and mild irritation all played fortissimo. | Dial down. Understatement lands harder; one true small thing beats three big ones. |
+| **Commentary** | A line that explains the feeling, or its significance, after the beat already showed it. | Cut the explanation. Trust the beat to carry. |
+| **Premature resolution** | A beat that tidies away a tension the character is meant to keep carrying. | Let it persist. A character defined partly by an unhealed thing should not be healed in an aside. |
+| **Furnishing past the brief** | Fifteen beats when six were asked for, because more felt safer. | Write the brief, stop at the brief. Hand five or six beats to the human, not a warehouse. |
+
+Rule of thumb: if swapping in another cast member would not change the beat, it is
+wallpaper. Cut it.
 
 ## Voice contract
 

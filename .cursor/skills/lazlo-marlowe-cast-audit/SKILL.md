@@ -42,6 +42,25 @@ Load `lazlo-marlowe-character-craft` and `lazlo-marlowe-diagnosis` first.
 - Visual brief treating Pam as Vera rename (reject; cite §5 character-provenance)
 - Childish or mascot energy creeping into challenger role
 
+## What makes a flag worth filing
+
+A flag that says "this is fine" without digging is worse than no flag: it manufactures
+false confidence right before a cast lock. Every flag should be:
+
+- **Specific.** Name the character, the line, the section. "The cast feels samey" is not
+  a flag.
+- **Reasoned.** Say what it costs, not just that it exists. A blur is only worth raising
+  if you can name the adoption cost: two agents the team cannot tell apart, or a
+  challenger who reads as bureaucracy.
+- **Directable.** Matthew should know what to do next: the paste-ready edit, or the
+  decision he has to make.
+- **Non-obvious.** Skip what a glance already catches. You are here for drift that only
+  shows when you hold two spines side by side.
+
+Lead with the flags that cost trust (blur, a challenger who feels like process, a spine
+with no stated want); let smaller notes follow. Adapted from adversarial-critique craft
+in `haowjy/creative-writing-skills`.
+
 ## Output format
 
 ```text

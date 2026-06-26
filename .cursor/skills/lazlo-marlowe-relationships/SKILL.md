@@ -32,6 +32,23 @@ in `architecture.md`.
 
 Pam is **not** the villain. She is a hero who does the job nobody else wants.
 
+## The distinctness test
+
+A pairing earns its place only if it could not be any other pairing. The test: if Clive's
+dynamic with Pam feels like Clive's dynamic with Iris, one of those relationships is
+idle. Each pair needs its own power balance, its own history, its own thing they fight
+about.
+
+Conflict has to spring from who these two specifically are, not generic friction. "They
+clash" is not a dynamic. Clive and Pam clash because her Thinking judges his Feeling-led
+sprawl, and there is history in it: she bullies, he accepts it. Swap either spine and the
+clash changes shape. If a conflict would read the same with two other characters dropped
+in, it is generic; find the one only these two could have.
+
+Use this on every row of the counterpart worksheet, and on Court angles: each character's
+Court perspective should be one only their function pair would take. Adapted from
+relationship-dynamics craft in `haowjy/creative-writing-skills`.
+
 ## Court Mode (character context)
 
 High-stakes branch; human decides. Character perspectives:

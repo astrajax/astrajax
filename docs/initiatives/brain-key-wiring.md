@@ -3,7 +3,7 @@
 **Status:** Working spec for AIE Chapter 1  
 **Owner:** Matthew  
 **Last updated:** 26 June 2026  
-**Canonical architecture:** [`docs/business/architecture.md`](../business/architecture.md)
+**Canonical architecture:** `[docs/business/architecture.md](../business/architecture.md)`
 
 ### Naming and surfacing
 
@@ -22,12 +22,14 @@ Clive and Pam can **request** access to a trusted Brain. They are **blind** to t
 
 ## Storage boundaries
 
-| Base | Role | Holds | Never holds |
-|------|------|-------|-------------|
-| **Brain Registry** | Index + governance | Brain metadata, **agent metadata**, maturity, workshop/trusted/agent base IDs, Brain Key Requests, Access Grants, Change Log | Trusted context text, persona memory text, API tokens |
-| **Brain Workshop** | Draft / propose | Draft Brain Truth, Brain Interactions, Pam Reviews, pending Approval Decisions, Doc Actions, User Brains | Approved canonical context, persona memories |
-| **Trusted Brain** (one per Brain theme) | Canonical business truth | Approved Brain Truth, Brain Memories (working shared recall) | Draft or quarantined records, character narrative, Personas (deprecated — moved to Agent bases) |
-| **Agent** (one per agent) | Character + role memory | Narrative Arch, Persona Config, Persona Memories, Minions | Canonical business truth, other agents' state |
+
+| Base                                    | Role                     | Holds                                                                                                                        | Never holds                                                                                     |
+| --------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| **Brain Registry**                      | Index + governance       | Brain metadata, **agent metadata**, maturity, workshop/trusted/agent base IDs, Brain Key Requests, Access Grants, Change Log | Trusted context text, persona memory text, API tokens                                           |
+| **Brain Workshop**                      | Draft / propose          | Draft Brain Truth, Brain Interactions, Pam Reviews, pending Approval Decisions, Doc Actions, User Brains                     | Approved canonical context, persona memories                                                    |
+| **Trusted Brain** (one per Brain theme) | Canonical business truth | Approved Brain Truth, Brain Memories (working shared recall)                                                                 | Draft or quarantined records, character narrative, Personas (deprecated — moved to Agent bases) |
+| **Agent** (one per agent)               | Character + role memory  | Narrative Arch, Persona Config, Persona Memories, Minions                                                                    | Canonical business truth, other agents' state                                                   |
+
 
 Strictest practical rules:
 
@@ -39,22 +41,24 @@ Strictest practical rules:
 
 ## Credential map
 
-| Credential (Vercel env) | Read | Write | Used by |
-|-------------------------|------|-------|---------|
-| `BRAIN_REGISTRY_READ_TOKEN` | Registry | — | Public routes (metadata only) |
-| `BRAIN_WORKSHOP_WRITE_TOKEN` | Workshop | Workshop | Clive/Pam interaction log, draft writes |
-| `BRAIN_WORKSHOP_READ_TOKEN` | Workshop | — | Admin workbench |
-| `BRAIN_TRUSTED_{SLUG}_READ_TOKEN` | That Trusted Brain | — | Brain Truth retrieve (after grant validation) |
-| `BRAIN_DOC_PROMOTE_TOKEN` | Workshop + Trusted | Trusted + Registry Change Log | Doc promote route only |
-| `BRAIN_KEY_ADMIN_TOKEN` | Registry | Registry (grants) | Human approve route |
-| `BRAIN_AGENT_{SLUG}_READ_TOKEN` | That Agent base | — | Server loads Narrative Arch + Persona Config + Persona Memories + Minions for that persona |
-| `BRAIN_AGENT_{SLUG}_WRITE_TOKEN` | That Agent base | That Agent base (Persona Memories, Minions state only) | Server-side persona auto-save; never browser or model prompt |
+
+| Credential (Vercel env)           | Read               | Write                                                  | Used by                                                                                    |
+| --------------------------------- | ------------------ | ------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| `BRAIN_REGISTRY_READ_TOKEN`       | Registry           | —                                                      | Public routes (metadata only)                                                              |
+| `BRAIN_WORKSHOP_WRITE_TOKEN`      | Workshop           | Workshop                                               | Clive/Pam interaction log, draft writes                                                    |
+| `BRAIN_WORKSHOP_READ_TOKEN`       | Workshop           | —                                                      | Admin workbench                                                                            |
+| `BRAIN_TRUSTED_{SLUG}_READ_TOKEN` | That Trusted Brain | —                                                      | Brain Truth retrieve (after grant validation)                                              |
+| `BRAIN_DOC_PROMOTE_TOKEN`         | Workshop + Trusted | Trusted + Registry Change Log                          | Doc promote route only                                                                     |
+| `BRAIN_KEY_ADMIN_TOKEN`           | Registry           | Registry (grants)                                      | Human approve route                                                                        |
+| `BRAIN_AGENT_{SLUG}_READ_TOKEN`   | That Agent base    | —                                                      | Server loads Narrative Arch + Persona Config + Persona Memories + Minions for that persona |
+| `BRAIN_AGENT_{SLUG}_WRITE_TOKEN`  | That Agent base    | That Agent base (Persona Memories, Minions state only) | Server-side persona auto-save; never browser or model prompt                               |
+
 
 **Invariant:** No env var used by Clive/Pam chat routes may write to a Trusted Brain base.
 
 **Invariant:** No env var used by Clive/Pam chat routes may read another agent's Agent base.
 
-Browser and model prompts never receive these values. See [`website/src/lib/brains/secrets.ts`](../../website/src/lib/brains/secrets.ts).
+Browser and model prompts never receive these values. See `[website/src/lib/brains/secrets.ts](../../website/src/lib/brains/secrets.ts)`.
 
 ---
 
@@ -83,7 +87,7 @@ Persona Memories are **non-canonical** and may auto-form without human approval 
 
 Guards (same spirit as no-memory rule, applied to writes):
 
-- Persona Memory writes pass **`sanitizeForClient`** — no tokens, grant secrets, raw trusted base IDs, or copied Brain Truth text.
+- Persona Memory writes pass `**sanitizeForClient`** — no tokens, grant secrets, raw trusted base IDs, or copied Brain Truth text.
 - Persona Memories hold the agent's **own recall**, not a cache of business truth.
 - Human gate applies at **promotion** only: Persona Memory → Brain Memory → Draft Brain Truth → Brain Truth.
 - Steward (Clive's Man) may dedupe and retire stale Persona Memories without approving their birth.
@@ -94,7 +98,7 @@ This is **not** HyperAgent `autoSaveMemories`. Governed fleet exports keep `auto
 
 ## Registry tables
 
-Full field-level blueprint: [`brain-key-schema.md`](./brain-key-schema.md).
+Full field-level blueprint: `[brain-key-schema.md](./brain-key-schema.md)`.
 
 Summary: **Brains**, **Agents**, **Brain Key Requests**, **Access Grants**, **Change Log**.
 
@@ -102,19 +106,19 @@ Summary: **Brains**, **Agents**, **Brain Key Requests**, **Access Grants**, **Ch
 
 ## Workshop tables
 
-Full blueprint: [`brain-key-schema.md`](./brain-key-schema.md).
+Full blueprint: `[brain-key-schema.md](./brain-key-schema.md)`.
 
 Summary: **User Brains**, **Draft Brain Truth**, **Brain Interactions**, **Pam Reviews**, **Approval Decisions**, **Doc Actions**.
 
 ## Trusted Brain tables (per theme)
 
-Full blueprint: [`brain-key-schema.md`](./brain-key-schema.md).
+Full blueprint: `[brain-key-schema.md](./brain-key-schema.md)`.
 
 Summary: **Brain Truth** (approved only), **Brain Memories** (working shared recall).
 
 ## Agent base tables (one per agent)
 
-Full blueprint: [`brain-key-schema.md`](./brain-key-schema.md).
+Full blueprint: `[brain-key-schema.md](./brain-key-schema.md)`.
 
 Summary: **Narrative Arch**, **Persona Config**, **Persona Memories**, **Minions**.
 
@@ -263,7 +267,7 @@ Query: `brainSlug` (required), `limit` (optional, max 50), `shortlist=true` (opt
 }
 ```
 
-When `shortlist=true`, returns only interactions with **Quality Score** <= 2 or **Suspected Context Issue** checked, excluding rows where **Review Status** = `No action`. Fallback manifest IDs (`fallback-*`) are surfaced as fallback context and are not treated as trusted hash alarms.
+When `shortlist=true`, returns only interactions with **Quality Score** <= 2 or **Suspected Context Issue** checked, excluding rows where **Review Status** = `No action`. Fallback manifest IDs (`fallback-`*) are surfaced as fallback context and are not treated as trusted hash alarms.
 
 Server-side Workshop token only — never exposed to browser.
 
@@ -340,28 +344,30 @@ Reads draft **Title** and **Canonical Text** from Workshop only. **Category** an
 
 ## Chapter 1 UI states
 
-| State | User sees | Clive/Pam see | Trusted access |
-|-------|-----------|---------------|----------------|
-| **locked** | Brain name, maturity; “trusted context locked” | Workshop + public fallback only | None |
-| **key_requested** | Agent asked to unlock; approval card with brain, scope, reason, expiry | “Waiting for you to approve the Brain Key” | None |
-| **awaiting_approval** | Approve / Reject buttons (admin) | Waiting | None |
-| **unlocked** | “Brain unlocked for this task” + countdown | Approved snippets for current scope | Grant-validated retrieve |
-| **expired** | “Key expired — request again” | Blind again | None |
-| **promotion_pending** | Doc handoff status | N/A | Doc route only |
+
+| State                 | User sees                                                              | Clive/Pam see                              | Trusted access           |
+| --------------------- | ---------------------------------------------------------------------- | ------------------------------------------ | ------------------------ |
+| **locked**            | Brain name, maturity; “trusted context locked”                         | Workshop + public fallback only            | None                     |
+| **key_requested**     | Agent asked to unlock; approval card with brain, scope, reason, expiry | “Waiting for you to approve the Brain Key” | None                     |
+| **awaiting_approval** | Approve / Reject buttons (admin)                                       | Waiting                                    | None                     |
+| **unlocked**          | “Brain unlocked for this task” + countdown                             | Approved snippets for current scope        | Grant-validated retrieve |
+| **expired**           | “Key expired — request again”                                          | Blind again                                | None                     |
+| **promotion_pending** | Doc handoff status                                                     | N/A                                        | Doc route only           |
+
 
 `pam_challenge` exists elsewhere in Chapter 1 (canonical approval, Doc handoff) — **not** on Brain Key unlock.
 
-State machine lives in [`website/src/lib/brains/ui-states.ts`](../../website/src/lib/brains/ui-states.ts).
+State machine lives in `[website/src/lib/brains/ui-states.ts](../../website/src/lib/brains/ui-states.ts)`.
 
 ---
 
 ## Acceptance checks
 
-Automated in [`website/src/lib/brains/guards.ts`](../../website/src/lib/brains/guards.ts) + `npm run test:brain-key`:
+Automated in `[website/src/lib/brains/guards.ts](../../website/src/lib/brains/guards.ts)` + `npm run test:brain-key`:
 
 1. Clive/Pam routes cannot call trusted Airtable without `validateGrant()` passing.
 2. `sanitizeForClient()` strips token-like strings from all API responses.
-3. Interaction log rejects payloads containing `Bearer ` or env token patterns.
+3. Interaction log rejects payloads containing `Bearer`  or env token patterns.
 4. Retrieve without grant → 403.
 5. Expired or over-used grant → 403.
 6. Wrong `session_id` or `persona` on grant → 403.
@@ -379,22 +385,24 @@ Automated in [`website/src/lib/brains/guards.ts`](../../website/src/lib/brains/g
 
 ## Live Airtable bases (MCP-created 24–25 Jun 2026)
 
-| Base | ID | Purpose |
-|------|-----|---------|
-| **AstraJax Brain Registry** | `appbdTVHevH6Bl5ZZ` | Brains, **Agents**, Brain Key Requests, Access Grants, Change Log |
-| **AstraJax Brain Workshop** | `appL2fdnGmhA02WXd` | Draft Brain Truth, interactions, Pam reviews, approvals, Doc queue |
-| **AstraJax Trusted Brain — Chapter 1** | `app6tjzzG0L0lOeVb` | Brain Truth, Brain Memories (+ legacy Personas — delete in UI) |
-| **AstraJax Agent — Clive** | `appBd9tudgvOSrhSX` | Narrative Arch, Persona Config, Persona Memories, Minions |
-| **AstraJax Agent — Pam** | `appH7NeSSNntuKRL4` | same |
-| **AstraJax Agent — Doc** | `appI5tpwsKNwjfrqR` | same |
-| **AstraJax Agent — Clive's Man** | `appZ71CSKBlhnb4hR` | same |
 
-**Schema blueprint (replicate from scratch):** [`brain-key-schema.md`](./brain-key-schema.md)  
-**Live table IDs:** [`website/src/lib/brains/airtable-ids.ts`](../../website/src/lib/brains/airtable-ids.ts)  
-**Builder initiative (status + runbook):** [`brain-base-builder-agent.md`](./brain-base-builder-agent.md)
+| Base                                   | ID                  | Purpose                                                            |
+| -------------------------------------- | ------------------- | ------------------------------------------------------------------ |
+| **AstraJax Brain Registry**            | `appbdTVHevH6Bl5ZZ` | Brains, **Agents**, Brain Key Requests, Access Grants, Change Log  |
+| **AstraJax Brain Workshop**            | `appL2fdnGmhA02WXd` | Draft Brain Truth, interactions, Pam reviews, approvals, Doc queue |
+| **AstraJax Trusted Brain — Chapter 1** | `app6tjzzG0L0lOeVb` | Brain Truth, Brain Memories (+ legacy Personas — delete in UI)     |
+| **AstraJax Agent — Clive**             | `appBd9tudgvOSrhSX` | Narrative Arch, Persona Config, Persona Memories, Minions          |
+| **AstraJax Agent — Pam**               | `appH7NeSSNntuKRL4` | same                                                               |
+| **AstraJax Agent — Doc**               | `appI5tpwsKNwjfrqR` | same                                                               |
+| **AstraJax Agent — Clive's Man**       | `appZ71CSKBlhnb4hR` | same                                                               |
+
+
+**Schema blueprint (replicate from scratch):** `[brain-key-schema.md](./brain-key-schema.md)`  
+**Live table IDs:** `[website/src/lib/brains/airtable-ids.ts](../../website/src/lib/brains/airtable-ids.ts)`  
+**Builder initiative (status + runbook):** `[brain-base-builder-agent.md](./brain-base-builder-agent.md)`
 
 **Seeded:** Chapter 1 registry row, Brain Truth seed records, four Agent bases (persona config + narrative arch), Clive's Man minions, Doc airtable-minion minion row, Brain Memories table.
 
 **Matthew manual:** delete legacy Personas table; mint scoped PATs → Vercel env (see `brain-base-builder-agent.md` §11); add `doc` to Brain Key Requests Persona select if needed.
 
-**Repo follow-up:** wire `website/src/lib/brains/` to Agent bases for runtime persona memory (env vars `BRAIN_AGENT_{SLUG}_*`).
+**Repo follow-up:** wire `website/src/lib/brains/` to Agent bases for runtime persona memory (env vars `BRAIN_AGENT_{SLUG}_`*).
