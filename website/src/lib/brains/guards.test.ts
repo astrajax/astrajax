@@ -15,7 +15,7 @@ import {
   getGrant,
   resetMemoryStoreForTests,
 } from "./grants-store";
-import { handleContextRetrieve } from "./handlers/context-retrieve";
+import { handleTruthRetrieve } from "./handlers/truth-retrieve";
 import { handleKeyRequest } from "./handlers/key-request";
 import { handleInteractionLog, clearMemoryInteractionLogsForTests } from "./handlers/interaction-log";
 import { handleDocPromote, clearMemoryPromotionsForTests } from "./handlers/doc-promote";
@@ -41,11 +41,11 @@ describe("Brain Key guards", () => {
 
   it("blocks trusted read routes except retrieve", () => {
     expect(() => assertRouteMayReadTrusted(ROUTE_IDS.KEY_REQUEST)).toThrow(/not permitted/);
-    expect(() => assertRouteMayReadTrusted(ROUTE_IDS.CONTEXT_RETRIEVE)).not.toThrow();
+    expect(() => assertRouteMayReadTrusted(ROUTE_IDS.TRUTH_RETRIEVE)).not.toThrow();
   });
 
   it("blocks promote routes except doc promote", () => {
-    expect(() => assertRouteMayPromote(ROUTE_IDS.CONTEXT_RETRIEVE)).toThrow(/not permitted/);
+    expect(() => assertRouteMayPromote(ROUTE_IDS.TRUTH_RETRIEVE)).toThrow(/not permitted/);
     expect(() => assertRouteMayPromote(ROUTE_IDS.DOC_PROMOTE)).not.toThrow();
   });
 
@@ -56,12 +56,12 @@ describe("Brain Key guards", () => {
 
   it("rejects retrieve without a grant", async () => {
     await expect(
-      handleContextRetrieve({
+      handleTruthRetrieve({
         grantId: "grt_missing",
         sessionId: SESSION,
         persona: "clive",
         brainSlug: "astrajax-chapter-1",
-        scope: "read:brain-context:pricing",
+        scope: "read:brain-truth:pricing",
       }),
     ).rejects.toBeInstanceOf(GrantValidationError);
   });
@@ -71,7 +71,7 @@ describe("Brain Key guards", () => {
       brainSlug: "astrajax-chapter-1",
       persona: "clive",
       purpose: "test",
-      scope: "read:brain-context:pricing",
+      scope: "read:brain-truth:pricing",
       reason: "test",
       sessionId: SESSION,
     });
@@ -84,7 +84,7 @@ describe("Brain Key guards", () => {
         sessionId: "wrong-session",
         persona: "clive",
         brainSlug: "astrajax-chapter-1",
-        scope: "read:brain-context:pricing",
+        scope: "read:brain-truth:pricing",
       }),
     ).toThrow(/Session does not match/);
   });
@@ -94,7 +94,7 @@ describe("Brain Key guards", () => {
       brainSlug: "astrajax-chapter-1",
       persona: "clive",
       purpose: "booth",
-      scope: "read:brain-context:pricing",
+      scope: "read:brain-truth:pricing",
       reason: "demo",
       sessionId: SESSION,
     });
@@ -104,22 +104,22 @@ describe("Brain Key guards", () => {
       grantMaxUses: 1,
     }))!;
 
-    const first = await handleContextRetrieve({
+    const first = await handleTruthRetrieve({
       grantId: grant.grantId,
       sessionId: SESSION,
       persona: "clive",
       brainSlug: "astrajax-chapter-1",
-      scope: "read:brain-context:pricing",
+      scope: "read:brain-truth:pricing",
     });
     expect(first.snippets.length).toBeGreaterThan(0);
 
     await expect(
-      handleContextRetrieve({
+      handleTruthRetrieve({
         grantId: grant.grantId,
         sessionId: SESSION,
         persona: "clive",
         brainSlug: "astrajax-chapter-1",
-        scope: "read:brain-context:pricing",
+        scope: "read:brain-truth:pricing",
       }),
     ).rejects.toBeInstanceOf(GrantValidationError);
 
@@ -165,7 +165,7 @@ describe("Doc promote", () => {
           {
             draftRecordId: "recDraft1",
             category: "Positioning",
-            scope: "read:brain-context:positioning",
+            scope: "read:brain-truth:positioning",
           },
         ],
         approver: "Matthew",
@@ -182,7 +182,7 @@ describe("Persona validation on handlers", () => {
         brainSlug: "astrajax-chapter-1",
         persona: "ceo" as "clive",
         purpose: "test",
-        scope: "read:brain-context:positioning",
+        scope: "read:brain-truth:positioning",
         reason: "test",
         sessionId: SESSION,
       }),

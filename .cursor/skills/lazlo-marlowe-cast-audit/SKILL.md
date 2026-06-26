@@ -30,7 +30,8 @@ Load `lazlo-marlowe-character-craft` and `lazlo-marlowe-diagnosis` first.
 4. **Volume hierarchy** — Clive and Pam lead; Court characters not shouting over main loop?
 5. **Skin/spine alignment** — any visual direction that contradicts Inner Attitude?
    (Flag for Kathryn; do not redesign.)
-6. **Open seats** — Awake unclaimed; note if a new character accidentally occupies it.
+6. **Open seats** — Awake is **canonical** for Lazlo Marlowe; no other cast member holds
+   it yet. Note if a new character accidentally occupies it without Matthew's sign-off.
 7. **Name collisions** — Lazlo Marlowe ≠ Marlowe Vance (DS/public); note if confusion risk.
 
 ## Drift signals

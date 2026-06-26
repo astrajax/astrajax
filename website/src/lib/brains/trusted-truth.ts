@@ -7,15 +7,15 @@ import {
 } from "./config";
 
 /**
- * Canonical Brain context scope format: read:brain-context:<area>
+ * Canonical Brain truth scope format: read:brain-truth:<area>
  *
  * Demo scopes aligned with Trusted Brain seed rows (exact-match filtering):
- * - read:brain-context:positioning
- * - read:brain-context:governance
+ * - read:brain-truth:positioning
+ * - read:brain-truth:governance
  */
 export const DEMO_SCOPES = [
-  "read:brain-context:positioning",
-  "read:brain-context:governance",
+  "read:brain-truth:positioning",
+  "read:brain-truth:governance",
 ] as const;
 
 export type DemoScope = (typeof DEMO_SCOPES)[number];
@@ -65,7 +65,7 @@ export async function retrieveTrustedSnippets(input: {
   scope: string;
 }): Promise<ContextSnippet[]> {
   const config = getTrustedBrainConfig(input.brainSlug);
-  if (!config?.contextTableId) {
+  if (!config?.truthTableId) {
     return FALLBACK_TRUSTED_SNIPPETS;
   }
 
@@ -76,7 +76,7 @@ export async function retrieveTrustedSnippets(input: {
 
   const records = await fetchAirtableRecords(
     config.baseId,
-    config.contextTableId,
+    config.truthTableId,
     token,
     input.scope,
   );

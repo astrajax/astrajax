@@ -46,13 +46,15 @@ Propose a Trusted Brain base for [theme] — schema only, Phase A.
 
 Phase B: switch to **Agent mode**, then `approved — build it`.
 
-## Context from design thread (24 Jun 2026)
+## Context from design thread
 
 - Track A: Airtable's open-source skills imported to `.cursor/skills/` (overview,
   filters, show-airtable-link, agent-activity-log, product/sales/marketing-ops).
 - Track B: this minion wraps governed brain builds + composes those skills for
   Matthew's workbench.
-- Chapter 1 bases already live via MCP; IDs in `website/src/lib/brains/airtable-ids.ts`.
+- Chapter 1 four-base model **Phase B complete** (25 Jun 2026); IDs in
+  `website/src/lib/brains/airtable-ids.ts`. Status runbook:
+  `docs/initiatives/brain-base-builder-agent.md`.
 - Client-facing Vercel + Claude interface is **out of scope** for v0.1 (post-AIE).
 
 ## Positioning guardrail

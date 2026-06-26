@@ -12,7 +12,7 @@ export interface TrustedBrainConfig {
   slug: string;
   baseId: string;
   readTokenEnvKey: string;
-  contextTableId?: string;
+  truthTableId?: string;
 }
 
 const DEFAULT_GRANT_MINUTES = 15;
@@ -64,7 +64,15 @@ export function getBrainKeyAdminSecret(): string | undefined {
   return process.env.BRAIN_KEY_ADMIN_SECRET;
 }
 
-/** Parse BRAIN_TRUSTED_BRAINS JSON: [{ "slug", "baseId", "readTokenEnvKey", "contextTableId?" }] */
+function resolveTrustedTruthTableId(): string {
+  return (
+    process.env.BRAIN_TRUSTED_TRUTH_TABLE_ID ??
+    process.env.BRAIN_TRUSTED_CONTEXT_TABLE_ID ??
+    BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth
+  );
+}
+
+/** Parse BRAIN_TRUSTED_BRAINS JSON: [{ "slug", "baseId", "readTokenEnvKey", "truthTableId?" }] */
 export function getTrustedBrainConfigs(): TrustedBrainConfig[] {
   const raw = process.env.BRAIN_TRUSTED_BRAINS;
   if (!raw) {
@@ -76,14 +84,21 @@ export function getTrustedBrainConfigs(): TrustedBrainConfig[] {
         slug,
         baseId,
         readTokenEnvKey: "BRAIN_TRUSTED_READ_TOKEN",
-        contextTableId:
-          process.env.BRAIN_TRUSTED_CONTEXT_TABLE_ID ?? BRAIN_TRUSTED_CHAPTER1_TABLES.brainContext,
+        truthTableId: resolveTrustedTruthTableId(),
       },
     ];
   }
   try {
-    const parsed = JSON.parse(raw) as TrustedBrainConfig[];
-    return Array.isArray(parsed) ? parsed : [];
+    const parsed = JSON.parse(raw) as Array<
+      TrustedBrainConfig & { contextTableId?: string }
+    >;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((entry) => ({
+      slug: entry.slug,
+      baseId: entry.baseId,
+      readTokenEnvKey: entry.readTokenEnvKey,
+      truthTableId: entry.truthTableId ?? entry.contextTableId,
+    }));
   } catch {
     return [];
   }

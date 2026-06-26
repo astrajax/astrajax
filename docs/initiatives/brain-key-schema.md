@@ -2,7 +2,7 @@
 
 **Status:** Replicable schema reference (context-agnostic)  
 **Owner:** Matthew  
-**Last updated:** 25 June 2026  
+**Last updated:** 26 June 2026  
 **Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance)
 
 Any agent (especially **@doc-airtable-minion**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
@@ -34,10 +34,10 @@ After creating a new Agent base: add a row to Registry **Agents** and update `ai
 
 ## Scope convention (exact match)
 
-Trusted **Brain Context** `Scope` field uses:
+Trusted **Brain Truth** `Scope` field uses:
 
 ```text
-read:brain-context:<area>
+read:brain-truth:<area>
 ```
 
 Grant `Scope` must match a Trusted row **exactly** for retrieve to return it.
@@ -121,7 +121,7 @@ Primary field: **Entry ID** (singleLineText). App-generated.
 |-------|------|-------|
 | Entry ID | singleLineText | Primary |
 | Change Summary | multilineText | |
-| Change Type | singleSelect | Context Promote, Grant Issued, Grant Revoked, Persona Update, Other |
+| Change Type | singleSelect | Truth Promote, Grant Issued, Grant Revoked, Persona Update, Other |
 | Changed By | singleLineText | |
 | Approved By | singleLineText | |
 | Executing Agent | singleLineText | e.g. Doc |
@@ -150,7 +150,7 @@ Primary field: **User Label** (singleLineText)
 | Context Environment Confidence | singleSelect | New, Comfortable, Expert |
 | Notes | multilineText | |
 
-### Table: Draft Brain Context
+### Table: Draft Brain Truth
 
 Primary field: **Title** (singleLineText). **Workshop only** — never approved canonical truth.
 
@@ -164,7 +164,7 @@ Primary field: **Title** (singleLineText). **Workshop only** — never approved 
 | Proposed By Agent | singleLineText | e.g. clive |
 | Created By | singleSelect | Matthew, Agent, Website, TL |
 
-**Workshop Draft Brain Context — Proposed Category options (Chapter 1 / AstraJax):**  
+**Workshop Draft Brain Truth — Proposed Category options (Chapter 1 / AstraJax):**  
 Business Definition, Positioning, Method, Offers, Proof, Workflow Rule, Governance
 
 **Do not add to Workshop drafts:** `Scope`, `Category`, `Authority`, `Freshness`, or any Trusted-only field. Those are set on **new Trusted rows** at Doc promote.
@@ -177,7 +177,7 @@ Doc promote is a **copy-out**, not a status flip on one table.
 
 1. Human approves via **Approval Decisions** (+ Pam at action gate if required).
 2. Doc route reads draft **Title** and **Canonical Text** from Workshop only.
-3. Doc **creates a new row** in Trusted **Brain Context** with human-specified **Category** and **Scope** (from promote payload — not from draft fields).
+3. Doc **creates a new row** in Trusted **Brain Truth** with human-specified **Category** and **Scope** (from promote payload — not from draft fields).
 4. Workshop draft **Status → Quarantined** (consumed proposal, not “Approved”).
 5. **Change Log** + grant revoke on Registry.
 
@@ -201,6 +201,16 @@ Primary field: **Interaction ID** (singleLineText)
 | Manifest Record IDs | multilineText | When grant used — not full trusted text |
 | Manifest Hashes | multilineText | |
 | Grant ID | singleLineText | |
+| Quality Score | number | Client rating 1–5 |
+| Reviewer | singleLineText | Who scored the interaction |
+| Review Notes | multilineText | Optional client notes |
+| Reviewed At | dateTime | When the score was submitted |
+| Suspected Context Issue | checkbox | Client flagged possible context problem |
+| Review Status | singleSelect | New, Reviewed, Action proposed, No action |
+| Context Flagged | singleSelect | None, Flagged for review, Quarantine proposed, Resolved |
+
+New interactions default to **Review Status = New** and **Context Flagged = None** at log time.
+Client scoring sets **Review Status = Reviewed** and updates **Context Flagged** when the suspected-context checkbox is used.
 
 ### Table: Pam Reviews
 
@@ -237,7 +247,7 @@ Primary field: **Action ID** (singleLineText)
 |-------|------|-------|
 | Action ID | singleLineText | Primary |
 | Approval Decision ID | singleLineText | Required for promote |
-| Action Type | singleSelect | Context write, Brain context promote, Prompt update, Implementation job |
+| Action Type | singleSelect | Context write, Brain truth promote, Prompt update, Implementation job |
 | Status | singleSelect | Draft, Ready, Dispatched, Needs review, Failed, Complete |
 | Reason | multilineText | |
 | Output Summary | multilineText | |
@@ -246,7 +256,7 @@ Primary field: **Action ID** (singleLineText)
 
 ## Trusted Brain base (per theme)
 
-### Table: Brain Context
+### Table: Brain Truth
 
 Primary field: **Title** (singleLineText). **Approved rows only** — if it is in this table, it is canonical. No Draft status field.
 
@@ -255,16 +265,16 @@ Primary field: **Title** (singleLineText). **Approved rows only** — if it is i
 | Title | singleLineText | Primary |
 | Canonical Text | multilineText | |
 | Category | singleSelect | Canonical taxonomy — set at promote, not copied from draft |
-| Scope | singleSelect | Grant match key — Trusted only. Format: `read:brain-context:<area>` |
+| Scope | singleSelect | Grant match key — Trusted only. Format: `read:brain-truth:<area>` |
 | Authority | singleLineText | Approver or source doc |
 | Freshness | singleSelect | Current, Review soon, Stale |
 | Last Reviewed | date | ISO date |
 
-**Trusted Brain Context — Category options (Chapter 1 / AstraJax):**  
+**Trusted Brain Truth — Category options (Chapter 1 / AstraJax):**  
 Business Definition, Positioning, Method, Offers, Proof, Workflow Rule, Governance
 
-**Trusted Brain Context — Scope options (Chapter 1 demo):**  
-`read:brain-context:positioning`, `read:brain-context:governance`
+**Trusted Brain Truth — Scope options (Chapter 1 demo):**  
+`read:brain-truth:positioning`, `read:brain-truth:governance`
 
 Per brain theme: document Category and Scope option sets in this file when standing up a new Trusted Brain. New scopes require human adding a select option (governance), not agent free text.
 
@@ -283,7 +293,7 @@ Primary field: **Memory Text** (singleLineText). **Working brain recall** — sh
 | Proposed By Agent | singleLineText | e.g. clive-man |
 | Source Notes | multilineText | Interaction ID, digest link, or human note |
 
-**Promotion (one direction only):** Brain Memory → Workshop **Draft Brain Context** → Trusted **Brain Context**. Never Persona Memory → Brain Memory without human review at promote boundary.
+**Promotion (one direction only):** Brain Memory → Workshop **Draft Brain Truth** → Trusted **Brain Truth**. Never Persona Memory → Brain Memory without human review at promote boundary.
 
 **Curation:** Clive's Man (or equivalent steward) may quarantine or retire stale Brain Memories without a per-record human approval gate. Human gate applies at **promotion** to canonical truth.
 
@@ -295,7 +305,7 @@ Name pattern: `AstraJax Agent — {Agent Label}` (e.g. `AstraJax Agent — Clive
 
 **Do not mix agents in one Agent base.** Character state, narrative arch, and persona memories stay isolated so business-truth retrieval never pulls Victorian subtext.
 
-Repo remains canonical for minion **design** (build packs, `.cursor/agents/`). This base holds **runtime roster and operational state**.
+**This base is the authoring surface for the agent** (decision 25 Jun 2026; canonical statement in [`architecture.md`](../business/architecture.md) §7 → "Agent Authoring Surface"). HyperAgent is the primary runtime, so humans author the agent **here**: character backstory in **Narrative Arch**, system prompt / rules / output format in **Persona Config**, and the agent's **skills** here too (a skill is just text + a `whenToUse` trigger + a pinned/load flag, the same shape as the memory rows). A generator (a script that reads Airtable and writes out the agent files — the `hyperagent/builds/build_*.py` pattern, run by Doc) then emits **both** the HyperAgent export JSON and the Cursor `.cursor/agents/*.md` + `.cursor/skills/*/SKILL.md` files. The repo `.cursor/` files and build packs are **generated artifacts, not hand-authored sources of truth**. Skills authored here pass the **same human-approval gate** as Narrative Arch and Persona Config before generation or publish.
 
 ### Table: Narrative Arch
 
@@ -347,8 +357,8 @@ Primary field: **Memory Text** (singleLineText). **Non-canonical tier** — epis
 **Non-canonical rules:**
 
 - No `Confirmed By Human` field. Creation is autonomous (agent auto-save into Airtable).
-- Human gate applies only at **promotion** (Persona Memory → Brain Memory → Draft Brain Context → Brain Context).
-- Every write passes the same **sanitiser** as client responses (`sanitizeForClient`): no API tokens, grant secrets, raw trusted base IDs, or copied Brain Context text.
+- Human gate applies only at **promotion** (Persona Memory → Brain Memory → Draft Brain Truth → Brain Truth).
+- Every write passes the same **sanitiser** as client responses (`sanitizeForClient`): no API tokens, grant secrets, raw trusted base IDs, or copied Brain Truth text.
 - Steward (Clive's Man) runs **dedup and retire** passes — janitor, not approver on birth.
 - Must never hold canonical business truth long-term. If it became truth, promote it out.
 
@@ -373,18 +383,18 @@ Empty Minions table is valid (Pam may have zero minions). Shape must be consiste
 
 1. Create **Registry** base with five tables above (field names must match exactly).
 2. Create **Workshop** base with six tables.
-3. Create **Trusted Brain** base for the theme with **Brain Context** + **Brain Memories** (no Personas table).
+3. Create **Trusted Brain** base for the theme with **Brain Truth** + **Brain Memories** (no Personas table).
 4. Create **Agent** base per agent with four tables: Narrative Arch, Persona Config, Persona Memories, Minions.
 5. Registry **Brains** row: slug, name, workshop + trusted base IDs, maturity Seedling, status Active.
 6. Registry **Agents** row per agent: slug, name, agent base ID, repo path, status Active.
-7. Seed Trusted **Brain Context** with scopes using `read:brain-context:<area>` convention.
+7. Seed Trusted **Brain Truth** with scopes using `read:brain-truth:<area>` convention.
 8. Seed Agent bases with structure/placeholders only — not client-approved narrative or business truth.
 9. Update [`airtable-ids.ts`](../../website/src/lib/brains/airtable-ids.ts) with new `app` / `tbl` IDs.
 10. Create scoped Airtable tokens per base role (see credential map in `brain-key-wiring.md`).
 
-**Live Chapter 1 migration (completed 24 Jun 2026):** Workshop `Proposed Category` (singleSelect) added; Trusted `Category` and `Scope` converted to singleSelect; seed rows updated. Delete the two `LEGACY … (delete in UI)` text columns in Airtable when convenient — MCP cannot remove fields.
+**Live Chapter 1 migration (completed 24 Jun 2026):** Workshop `Proposed Category` (singleSelect) added; Trusted `Category` and `Scope` converted to singleSelect; seed rows updated. Delete the two `LEGACY ... (delete in UI)` text columns in Airtable when convenient — MCP cannot remove fields.
 
-**Pending migration (25 Jun 2026 architecture):** Trusted Brain Chapter 1 still has legacy **Personas** table (`app6tjzzG0L0lOeVb`). Migrate rows into per-agent Agent bases (Narrative Arch + Persona Config), add **Brain Memories** table, then retire Personas in UI when convenient. MCP cannot remove tables.
+**Live Chapter 1 four-base migration (completed 25 Jun 2026):** Trusted Brain Chapter 1 now has **Brain Memories** and the legacy **Personas** rows have been migrated into per-agent Agent bases (Narrative Arch + Persona Config). The legacy Personas table remains in Airtable only as a manual UI cleanup item (`app6tjzzG0L0lOeVb` / `tblBV7XSiTYdqSOWH`) because MCP cannot delete tables.
 
 ---
 
@@ -393,12 +403,12 @@ Empty Minions table is valid (Pam may have zero minions). Shape must be consiste
 - API tokens or PAT values
 - Approved business truth (client canonical content) in Trusted Brain during scaffold
 - `Context Packs` table (deprecated naming)
-- Draft rows in Trusted Brain Context
+- Draft rows in Trusted Brain Truth
 - **Scope or canonical Category on Workshop drafts** — access control and taxonomy live on Trusted only
-- **Draft / Approved status on Trusted Brain Context** — physical separation replaces status toggles
+- **Draft / Approved status on Trusted Brain Truth** — physical separation replaces status toggles
 - Pam gate on Brain Key Request flow (human approves read access directly)
 - Canonical business truth in Persona Memories or Brain Memories long-term (promote or retire)
-- Copied Brain Context snippets in Persona Memories (sanitiser must reject)
+- Copied Brain Truth snippets in Persona Memories (sanitiser must reject)
 - HyperAgent `/memories` as system of record for product agents
 
 ---

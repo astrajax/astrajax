@@ -19,7 +19,7 @@ import type { DocPromoteBody, DocPromoteItem } from "../types";
 
 const memoryPromotions: DocPromoteBody[] = [];
 
-const TRUSTED_SCOPE_PATTERN = /^read:brain-context:[a-z0-9-]+$/;
+const TRUSTED_SCOPE_PATTERN = /^read:brain-truth:[a-z0-9-]+$/;
 
 type DraftFields = {
   Title?: string;
@@ -81,8 +81,9 @@ export async function handleDocPromote(body: DocPromoteBody) {
 
   const trustedBaseId = process.env.BRAIN_TRUSTED_BASE_ID ?? BRAIN_TRUSTED_CHAPTER1_BASE_ID;
   const trustedTableId =
+    process.env.BRAIN_TRUSTED_TRUTH_TABLE_ID ??
     process.env.BRAIN_TRUSTED_CONTEXT_TABLE_ID ??
-    BRAIN_TRUSTED_CHAPTER1_TABLES.brainContext;
+    BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth;
 
   const promotedRecordIds: string[] = [];
   const today = new Date().toISOString().slice(0, 10);
@@ -90,7 +91,7 @@ export async function handleDocPromote(body: DocPromoteBody) {
   for (const { draftRecordId, category, scope } of body.promotions) {
     const draft = await airtableFindOne(
       workshopBaseId,
-      BRAIN_WORKSHOP_TABLES.draftBrainContext,
+      BRAIN_WORKSHOP_TABLES.draftBrainTruth,
       docToken,
       `RECORD_ID()='${draftRecordId}'`,
     );
@@ -122,7 +123,7 @@ export async function handleDocPromote(body: DocPromoteBody) {
 
     await airtableUpdate(
       workshopBaseId,
-      BRAIN_WORKSHOP_TABLES.draftBrainContext,
+      BRAIN_WORKSHOP_TABLES.draftBrainTruth,
       docToken,
       draftRecordId,
       { Status: "Quarantined" },
@@ -131,7 +132,7 @@ export async function handleDocPromote(body: DocPromoteBody) {
 
   await appendChangeLog({
     changeSummary: `Promoted ${promotedRecordIds.length} draft(s) to Trusted Brain`,
-    changeType: "Context Promote",
+    changeType: "Truth Promote",
     changedBy: body.approver.trim(),
     approvedBy: body.approver.trim(),
     executingAgent: "Doc",

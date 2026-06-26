@@ -1,10 +1,10 @@
 import { GrantValidationError, assertRouteMayReadTrusted, validateGrant, ROUTE_IDS } from "../guards";
 import { consumeGrantUse, getGrant } from "../grants-store";
-import { retrieveTrustedSnippets } from "../trusted-context";
-import type { ContextRetrieveBody, RetrievalManifest } from "../types";
+import { retrieveTrustedSnippets } from "../trusted-truth";
+import type { TruthRetrieveBody, RetrievalManifest } from "../types";
 
-export async function handleContextRetrieve(body: ContextRetrieveBody) {
-  assertRouteMayReadTrusted(ROUTE_IDS.CONTEXT_RETRIEVE);
+export async function handleTruthRetrieve(body: TruthRetrieveBody) {
+  assertRouteMayReadTrusted(ROUTE_IDS.TRUTH_RETRIEVE);
 
   if (!body.grantId?.trim()) throw new Error("grantId is required.");
   if (!body.sessionId?.trim()) throw new Error("sessionId is required.");

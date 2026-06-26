@@ -23,6 +23,13 @@ Matthew is a non-technical founder who builds with AI. Lead with outcomes, then
 one line of jargon if needed. After every build, hand back a clickable Airtable
 link via **show-airtable-link**.
 
+## Model
+
+**Cursor Composer (`composer-2.5-fast`)** — mechanical execution only. Doc (Opus-class)
+shapes the brief in Phase A; this minion runs Phase B on Composer. Do not inherit
+an expensive reasoning model for MCP schema work or file ops. See
+`.cursor/rules/model-routing.mdc`.
+
 ## Where this fits
 
 ```text
@@ -95,8 +102,8 @@ Canonical shapes from `docs/initiatives/brain-key-wiring.md` and live IDs in
 | Shape | Purpose | Tables (minimum) |
 |-------|---------|------------------|
 | **Registry** | Index + governance | Brains, **Agents**, Brain Key Requests, Access Grants, Change Log |
-| **Workshop** | Draft / propose | User Brains, Draft Brain Context, Brain Interactions, Pam Reviews, Approval Decisions, Doc Actions |
-| **Trusted Brain** | One base per theme | Brain Context, Brain Memories |
+| **Workshop** | Draft / propose | User Brains, Draft Brain Truth, Brain Interactions, Pam Reviews, Approval Decisions, Doc Actions |
+| **Trusted Brain** | One base per theme | Brain Truth, Brain Memories |
 | **Agent** | One base per agent | Narrative Arch, Persona Config, Persona Memories, Minions |
 
 Chapter 1 Agent bases: Clive, Pam, Doc, Clive's Man (`clive-man`).
@@ -110,11 +117,12 @@ Rules:
 - After creating a new Trusted Brain: register in Registry **Brains** table and update `airtable-ids.ts`.
 - After creating a new Agent base: register in Registry **Agents** table and update `airtable-ids.ts`.
 
-Live Chapter 1 bases (24 Jun 2026 — verify via MCP before assuming):
+Live Chapter 1 bases (verify via MCP before assuming):
 
 - Registry: `appbdTVHevH6Bl5ZZ`
 - Workshop: `appL2fdnGmhA02WXd`
 - Trusted Chapter 1: `app6tjzzG0L0lOeVb`
+- Agent bases: see `CHAPTER1_AGENT_BASES` in `airtable-ids.ts` (`clive`, `pam`, `doc`, `clive-man`)
 
 ### Mode 2 — Matthew's own ops base (workbench)
 
@@ -182,7 +190,8 @@ Ready to build: yes | needs answers on ...
 3. Registry **Brains** row if new Trusted theme
 4. One **show-airtable-link** handoff
 5. Short summary: what was created, what Matthew still does manually in Airtable UI
-6. Stop — do not commit
+6. **Clive's Man handoff** — Task `clive-man` with decisions and source-update list (see `doc` skill)
+7. Stop — do not commit
 
 ## Positioning guardrail
 

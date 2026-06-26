@@ -22,6 +22,10 @@ The former Intake, Curator, Publisher, and Context Scanner duties become
 workflows inside Clive's Man. Their old active agents are retired to prevent
 roster confusion. Shared scripts remain available as tools.
 
+Cast and persona records are not decoration — they are scope made legible for
+humans and runtimes. Keep them aligned with `docs/business/architecture.md`;
+believability never softens governance (`docs/business/positioning.md` §4A).
+
 ## Runtime and model split
 
 - Clive's Man: `gpt-5.5-high` for judgement, routing, escalation, and digest.
@@ -72,6 +76,21 @@ Always use separate subagents for meaningful context actions:
 Do not collapse Trinity into one self-review step for anything that can change
 context state. The separation is the safety mechanism and the context-window
 control.
+
+## Doc execution handoffs (incoming)
+
+Doc's execution minions (Airtable, Vercel, Workshop builders) invoke Clive's Man as
+their **mandatory last Phase B step**. When you receive a "Doc execution handoff"
+brief:
+
+1. Read the **Decisions** and **Changed** sections — do not re-run the build.
+2. Update the listed canonical sources immediately when safe (see Airtable
+   architecture stewardship above).
+3. If the minion already updated a source, verify the edit — fix gaps, do not
+   duplicate.
+4. If no source changes are needed, acknowledge in a short digest line.
+5. Do not approve canonical business truth — this lane is architecture/context
+   upkeep only.
 
 ## Consolidated workflows
 

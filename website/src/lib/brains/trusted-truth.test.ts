@@ -3,9 +3,9 @@ import {
   DEMO_SCOPES,
   FALLBACK_TRUSTED_SNIPPETS,
   retrieveTrustedSnippets,
-} from "./trusted-context";
+} from "./trusted-truth";
 
-describe("Trusted context scope filtering", () => {
+describe("Trusted truth scope filtering", () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
@@ -20,8 +20,8 @@ describe("Trusted context scope filtering", () => {
   });
 
   it("documents demo scopes for exact-match retrieval", () => {
-    expect(DEMO_SCOPES).toContain("read:brain-context:positioning");
-    expect(DEMO_SCOPES).toContain("read:brain-context:governance");
+    expect(DEMO_SCOPES).toContain("read:brain-truth:positioning");
+    expect(DEMO_SCOPES).toContain("read:brain-truth:governance");
   });
 
   it("returns seeded snippets for a matching demo scope", async () => {
@@ -35,7 +35,7 @@ describe("Trusted context scope filtering", () => {
               fields: {
                 Title: "Positioning headline",
                 "Canonical Text": "Canonical positioning copy from Trusted Brain.",
-                Scope: "read:brain-context:positioning",
+                Scope: "read:brain-truth:positioning",
               },
             },
           ],
@@ -46,7 +46,7 @@ describe("Trusted context scope filtering", () => {
 
     const snippets = await retrieveTrustedSnippets({
       brainSlug: "astrajax-chapter-1",
-      scope: "read:brain-context:positioning",
+      scope: "read:brain-truth:positioning",
     });
 
     expect(snippets).toHaveLength(1);
@@ -55,7 +55,7 @@ describe("Trusted context scope filtering", () => {
     expect(snippets[0]).not.toEqual(FALLBACK_TRUSTED_SNIPPETS[0]);
 
     const calledUrl = String(mockFetch.mock.calls[0]?.[0]);
-    expect(calledUrl).toContain("read%3Abrain-context%3Apositioning");
+    expect(calledUrl).toContain("read%3Abrain-truth%3Apositioning");
     expect(calledUrl).toContain("%7BScope%7D%3D");
   });
 
@@ -67,7 +67,7 @@ describe("Trusted context scope filtering", () => {
 
     const snippets = await retrieveTrustedSnippets({
       brainSlug: "astrajax-chapter-1",
-      scope: "read:brain-context:nonexistent",
+      scope: "read:brain-truth:nonexistent",
     });
 
     expect(snippets).toEqual(FALLBACK_TRUSTED_SNIPPETS);

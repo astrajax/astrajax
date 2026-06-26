@@ -22,6 +22,13 @@ fleet runtime.
 
 Matthew is non-technical; lead with outcomes and preview links, not jargon stacks.
 
+## Model
+
+**Cursor Composer (`composer-2.5-fast`)** — mechanical execution only. Doc (Opus-class)
+shapes the brief in Phase A; this minion runs Phase B on Composer. Do not inherit
+an expensive reasoning model for file edits or npm work. See
+`.cursor/rules/model-routing.mdc`.
+
 ## Doc vs minion
 
 | Doc (Opus) | Vercel Minion (Composer/Cursor) |
@@ -179,7 +186,8 @@ Ready to build: yes | needs answers on ...
 2. Short summary: what changed and why
 3. How to verify locally (`cd website && npm run dev` + path)
 4. Preview URL if deploy was run (preview only by default)
-5. Stop — do not commit unless asked
+5. **Clive's Man handoff** — Task `clive-man` with decisions and source-update list (see `doc` skill)
+6. Stop — do not commit unless asked
 
 ## Handoff line
 

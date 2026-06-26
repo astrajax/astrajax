@@ -46,7 +46,8 @@ HyperAgent is **not** a minion. HyperAgent runs **deployed fleet agents**. Minio
 2. **One lane each:** A minion does not become Clive, Pam, Clive's Man, or HyperAgent.
 3. **No canonical truth:** Minions implement structure and code; humans approve what becomes trusted context.
 4. **Paper trail:** Say what changed, what Matthew still does manually, preview/deploy links when relevant.
-5. **Still forbidden unless Matthew asks:** `git commit`, `git push`, production promote, exposing secrets.
+5. **Clive's Man (executors only):** After Phase B, invoke `@clive-man` with build decisions so canonical context sources stay in sync (`doc` skill — Clive's Man handoff).
+6. **Still forbidden unless Matthew asks:** `git commit`, `git push`, production promote, exposing secrets.
 
 ---
 

@@ -22,15 +22,20 @@ first; use `lazlo-marlowe-diagnosis` to validate distinctness before handoff.
 
 ### 1. Super Objective
 
-Ask: what force animates this character regardless of scene?
+Ask: what *selfish* force animates this character regardless of scene? Start from the
+private appetite, not the service. The useful thing they do for the cast is the residue
+of the want, not the want itself.
 
-Examples from founding cast:
+Examples from founding cast (stated as wants, not duties). All **pending** — Lazlo-proposed,
+not Matthew-validated:
 
-- Clive: accumulate and share knowledge
-- Pam: everything in order, precise, controlled
-- Vera: tell the truth about how things land
+- Clive (pending): to be needed and to gather knowledge he can give away
+- Pam (pending): to keep everything in order so nothing embarrasses her
+- Vera (pending): to be the one who says the true thing out loud first
 
-State it in one plain sentence before anything else.
+Reject the mission-statement version. If the line could go on a business card, it is the
+job description, not the engine. Ask "what do they get out of it for themselves?" and
+state the want in one plain sentence before anything else.
 
 ### 2. Function pair
 

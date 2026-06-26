@@ -1,7 +1,12 @@
-import { getWorkshopBaseId, getWorkshopWriteToken } from "../config";
-import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
+import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
+import {
+  BRAIN_INTERACTION_CONTEXT_FLAGGED,
+  BRAIN_INTERACTION_REVIEW_STATUS,
+  BRAIN_WORKSHOP_TABLES,
+} from "../airtable-ids";
 import { validatePersona } from "../guards";
 import { sanitizeInteractionForPersistence } from "../secrets";
+import { addMemoryInteraction, clearMemoryInteractionsForTests } from "./interaction-memory";
 import type { InteractionLogBody } from "../types";
 
 const memoryLogs: InteractionLogBody[] = [];
@@ -30,21 +35,39 @@ export async function handleInteractionLog(body: InteractionLogBody) {
     channel: body.channel ?? "website",
   };
 
+  if (useMemoryStore()) {
+    const stored = addMemoryInteraction(entry);
+    memoryLogs.push(entry);
+    return {
+      logged: true,
+      storedManifestOnly: Boolean(entry.manifest?.grantId),
+      interactionId: stored.interactionId,
+      recordId: stored.recordId,
+    };
+  }
+
   const workshopBaseId = getWorkshopBaseId();
   const workshopToken = getWorkshopWriteToken();
   const tableId =
     process.env.BRAIN_WORKSHOP_INTERACTIONS_TABLE_ID ?? BRAIN_WORKSHOP_TABLES.brainInteractions;
 
   if (workshopBaseId && workshopToken && tableId) {
-    await writeToWorkshop(workshopBaseId, tableId, workshopToken, entry);
-  } else {
-    memoryLogs.push(entry);
+    const recordId = await writeToWorkshop(workshopBaseId, tableId, workshopToken, entry);
+    return {
+      logged: true,
+      storedManifestOnly: Boolean(entry.manifest?.grantId),
+      interactionId: `int_${Date.now()}`,
+      recordId,
+    };
   }
 
+  memoryLogs.push(entry);
+  const stored = addMemoryInteraction(entry);
   return {
     logged: true,
     storedManifestOnly: Boolean(entry.manifest?.grantId),
-    interactionId: `int_${Date.now()}`,
+    interactionId: stored.interactionId,
+    recordId: stored.recordId,
   };
 }
 
@@ -53,7 +76,8 @@ async function writeToWorkshop(
   tableId: string,
   token: string,
   entry: InteractionLogBody,
-): Promise<void> {
+): Promise<string> {
+  const interactionId = `int_${Date.now()}`;
   const url = `https://api.airtable.com/v0/${baseId}/${tableId}`;
   const response = await fetch(url, {
     method: "POST",
@@ -63,6 +87,7 @@ async function writeToWorkshop(
     },
     body: JSON.stringify({
       fields: {
+        "Interaction ID": interactionId,
         "Session ID": entry.sessionId,
         Persona: entry.persona,
         "Brain Slug": entry.brainSlug,
@@ -72,6 +97,8 @@ async function writeToWorkshop(
         "Manifest Record IDs": (entry.manifest?.recordIds ?? []).join(", "),
         "Manifest Hashes": (entry.manifest?.hashes ?? []).join(", "),
         "Grant ID": entry.manifest?.grantId ?? "",
+        "Review Status": BRAIN_INTERACTION_REVIEW_STATUS.new,
+        "Context Flagged": BRAIN_INTERACTION_CONTEXT_FLAGGED.none,
       },
     }),
   });
@@ -79,12 +106,14 @@ async function writeToWorkshop(
   if (!response.ok) {
     throw new Error(`Workshop interaction log failed (${response.status})`);
   }
-}
 
-export function getMemoryInteractionLogsForTests(): InteractionLogBody[] {
-  return [...memoryLogs];
+  const data = (await response.json()) as { records?: Array<{ id: string }> };
+  const recordId = data.records?.[0]?.id;
+  if (!recordId) throw new Error("Workshop interaction log returned no record id.");
+  return recordId;
 }
 
 export function clearMemoryInteractionLogsForTests(): void {
   memoryLogs.length = 0;
+  clearMemoryInteractionsForTests();
 }

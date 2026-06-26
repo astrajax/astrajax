@@ -74,7 +74,7 @@ export interface KeyApproveBody {
   notes?: string;
 }
 
-export interface ContextRetrieveBody {
+export interface TruthRetrieveBody {
   grantId: string;
   sessionId: string;
   persona: PersonaId;
@@ -90,6 +90,51 @@ export interface InteractionLogBody {
   assistantReply: string;
   manifest?: Partial<RetrievalManifest>;
   channel?: "website" | "booth" | "admin" | "test";
+}
+
+export type InteractionReviewStatus =
+  | "New"
+  | "Reviewed"
+  | "Action proposed"
+  | "No action";
+
+export type InteractionContextFlagged =
+  | "None"
+  | "Flagged for review"
+  | "Quarantine proposed"
+  | "Resolved";
+
+export interface InteractionSummary {
+  recordId: string;
+  interactionId: string;
+  sessionId: string;
+  persona: PersonaId;
+  brainSlug: string;
+  userMessage: string;
+  assistantReply: string;
+  channel: string;
+  createdAt: string;
+  qualityScore?: number;
+  reviewer?: string;
+  reviewNotes?: string;
+  reviewedAt?: string;
+  suspectedContextIssue?: boolean;
+  reviewStatus?: InteractionReviewStatus;
+  contextFlagged?: InteractionContextFlagged;
+}
+
+export interface InteractionListQuery {
+  brainSlug: string;
+  limit?: number;
+}
+
+export interface InteractionScoreBody {
+  recordId: string;
+  brainSlug: string;
+  qualityScore: number;
+  reviewer: string;
+  reviewNotes?: string;
+  suspectedContextIssue?: boolean;
 }
 
 export interface DocPromoteItem {

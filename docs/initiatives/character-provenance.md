@@ -33,6 +33,8 @@ Matthew developed the Clive/Pam pairing in voice notes while working with Tara-L
 | Agent role architecture | `docs/business/architecture.md` §4 | Canonical product | Clive, Pam, Doc, Court |
 | Visual brief | `docs/initiatives/tara-lee-visual-brief.md` | Working | Deliverables and visual specs |
 | Laban-Malmgren craft source | `docs/archive/sources/mirodan-phd-1997-vol1.pdf` | Archive — raw | Character spine: functions, Inner Attitudes; see §14 |
+| Lazlo Marlowe generated craft engine | `.cursor/skills/lazlo-marlowe-character-craft/SKILL.md`; `hyperagent/builds/build_lazlo_marlowe_v0_1.py`; `agents/registry/hyperagent/astrajax/lazlo-marlowe/build-pack-v0.1.md` | Matthew-approved agent pack | Lazlo's canonical self-spine; Vol II craft distillation; pending founding-cast typing status |
+| Milo Cadence generated motion pack | `hyperagent/builds/build_milo_cadence_v0_1.py`; `hyperagent/exports/agents/agent-milo-cadence-v0_1.json`; `hyperagent/exports/skills/skill-character-motion-timecraft-v0_1.json`; `agents/registry/hyperagent/astrajax/milo-cadence/build-pack-v0.1.md`; `agents/registry/hyperagent/astrajax/character-motion-timecraft/build-pack-v0.1.md` | Matthew-approved Phase B build | TIME lane in craft trio; embedded Mirodan Vol II movement engine; media previz approved; Milo self-spine pending Matthew validation |
 
 When this document and a canonical doc disagree on **product behaviour**, canonical wins. For **character feel or visual rationale**, use this as the active working reference unless Matthew promotes the decision into canonical.
 
@@ -57,6 +59,8 @@ The cast solves three jobs:
 If Pam looks like a compliance officer, people skip her. If Pam looks like someone clever teams *want* in the room before they embarrass themselves, the product works.
 
 **Production proof:** Butternut Direct Sales — ~90 field sellers, non-technical, characterful fleet at scale. One team member on record: "I think I fancy him" (Clive). When the debug bot issued a public apology for Clive's behaviour, the team started *playing* — and once people play, they learn fast. Canonical numbers and cast list: `docs/business/proof.md` §3.
+
+For the full product frame — prompt practice, configuration, economics — see `docs/business/positioning.md` §4A.
 
 ---
 
@@ -86,6 +90,25 @@ The Butternut Direct Sales fleet proved the model in production. AstraJax produc
 | Vera Vinegar-Toes | Vera — narrative risk (Court Mode) | Same character; **not** Pam |
 
 **Important (June 2026 decision):** Existing DS agent cards (`website/public/agent-cast/*.png`) are operational references for Clive, Doc, Iris, and Vera. Pam does not exist yet. For speed, Pam's visual may borrow DNA from Vera or Iris — but Pam is a **new** product character in the main flow (`Clive → Pam → Human → Doc`), not a rename of either.
+
+---
+
+## 5A. Craft trio beside the product loop
+
+The craft trio supports character believability. It sits beside the product loop rather than inside the governance chain:
+
+```text
+Lazlo locks spine -> Kathryn locks skin -> Milo shapes how it moves in time ->
+Matthew and TL decide
+```
+
+| Lane | Agent | Owns | Status |
+|---|---|---|---|
+| SPINE | Lazlo Marlowe | Super Objective, Inner Attitude, function pair, relationships | Hyperagent + Cursor; Lazlo's own spine approved |
+| SKIN | Kathryn Goodchild | Palette, silhouette, costume, still art direction | Cursor skill; TL/Matthew visual judgement |
+| TIME | Milo Cadence | Motion briefs, effort qualities, keyframes, timing, loops, rough previz | Hyperagent only v0.1; Phase B approved 26 Jun 2026 |
+
+Milo does not approve canon, publish assets, alter psychology, or design skin. He translates approved spine and visual input into motion, and generated media must stay labelled rough previz until Matthew or TL decide. The movement engine lives inside Milo's embedded `character-motion-timecraft` skill for v0.1, not as a separate portable skill. Kathryn owns Effort Cube colour mapping; Milo may cross-reference that handoff but must not invent palette decisions.
 
 ---
 
@@ -269,6 +292,8 @@ Court is a secondary story — the main adoption loop is `Clive → Pam → Huma
 | Real-world Pam analogue | **Open** | Matthew | Precision/OCD vibe; warmth underneath |
 | Clive visual refresh | Optional | TL | Existing DS card may suffice |
 | Doc/Iris/Vera style cohesion pass | Optional | TL | After Clive/Pam locked |
+| Founding-cast Inner Attitude validation | **Open** | Matthew | Current Clive/Pam/Vera/Iris/Doc typings are Lazlo-proposed, not Matthew-validated |
+| Awake seat in product cast | **Open** | Matthew | Lazlo is canonically Awake, but he sits beside the product loop; no founding product-loop character owns Awake yet |
 
 ---
 
@@ -281,6 +306,11 @@ Court is a secondary story — the main adoption loop is `Clive → Pam → Huma
 | Jun 2026 | Clive life goal = accumulate knowledge; Pam = order/precision | Actor-style character method |
 | Jun 2026 | Vera brashness earned by reporter type | Hero must be likable; not feel like being told off |
 | Jun 2026 | May borrow DS visual DNA for Pam speed; third option welcome | TL bandwidth; AIE deadline |
+| 26 Jun 2026 | Lazlo Marlowe's own spine is canonical: Awake, Thinking + Intuition | Matthew approved the Lazlo v0.1/v0.2 Hyperagent build brief directly in-thread |
+| 26 Jun 2026 | Founding-cast Inner Attitudes remain pending until Matthew validates them | Lazlo proposed Clive/Pam/Vera/Iris/Doc typing for craft use; do not present it as settled product truth |
+| 26 Jun 2026 | Mirodan Vol II detail lives in Lazlo's generated skills, not copied here | Keeps this provenance doc focused on cast decisions while the runtime skill carries the deeper craft engine |
+| 26 Jun 2026 | Milo Cadence built as Hyperagent-only TIME lane | Matthew approved Phase B with video/image previz ON; Milo's own spine remains proposed until Matthew validates it; no Cursor twin in v0.1 |
+| 26 Jun 2026 | Milo's movement engine is embedded in `character-motion-timecraft` | Doc Workshop Hyperagent Builder Phase B inserted the full Laban/Yat Malmgren movement engine into Milo's skill body; deploy requires re-importing `agent-milo-cadence-v0_1.json` only |
 
 ---
 
@@ -309,7 +339,7 @@ Leave the rationale here; update canonical docs with the outcome only.
 
 ## 14. Craft source — the Laban-Malmgren system (Mirodan 1997)
 
-**Source:** `docs/archive/sources/mirodan-phd-1997-vol1.pdf` — Vladimir Mirodan, *The Way of Transformation: The Laban-Malmgren System of Dramatic Character Analysis* (PhD, Royal Holloway, University of London, 1997), Volume I. Raw source; decisions live in this document, not the PDF. Volume II (the granular per-attitude manual and Externalized Drives) is not yet in the repo.
+**Source:** `docs/archive/sources/mirodan-phd-1997-vol1.pdf` — Vladimir Mirodan, *The Way of Transformation: The Laban-Malmgren System of Dramatic Character Analysis* (PhD, Royal Holloway, University of London, 1997), Volume I. Raw source; decisions live in this document, not the PDF. Mirodan 1997 Volume II insights are distilled in `lazlo-marlowe-character-craft`; do not duplicate the granular manual here unless Matthew promotes a cast decision that belongs in provenance.
 
 This is the codified craft behind §4 (Matthew's character-building method). It gives the founding cast a **spine** (psychology), not just a **skin** (look and manners).
 
@@ -350,13 +380,17 @@ Mirodan's central claim: a character is neither the performer nor the script. It
 
 ### Cast diagnosis (against the engine)
 
-| Character | Inner Attitude | Functions |
-|---|---|---|
-| Clive | Near (with Adream warmth) | Sensation + Intuition |
-| Pam | Remote | Thinking + Feeling |
-| Vera | Mobile | Intuition + Feeling |
-| Iris | Stable | Sensation + Thinking |
-| Doc | Stable (Sensation-led) | Sensation + Thinking |
+**Status rule, 26 Jun 2026:** Lazlo Marlowe's own spine is canonical because Matthew approved that agent build. Founding-cast Inner Attitudes below are **Lazlo-proposed** and remain **pending** until Matthew validates them. Product roles and guardrails remain canonical in `docs/business/architecture.md`.
+
+| Character | Inner Attitude | Functions | Provenance status |
+|---|---|---|---|
+| Clive | Near (with Adream warmth) | Sensation + Intuition | Pending — Lazlo-proposed |
+| Pam | Remote | Thinking + Feeling | Pending — Lazlo-proposed |
+| Vera | Mobile | Intuition + Feeling | Pending — Lazlo-proposed |
+| Iris | Stable | Sensation + Thinking | Pending — Lazlo-proposed |
+| Doc | Stable (Sensation-led) | Sensation + Thinking | Pending — Lazlo-proposed |
+| Lazlo Marlowe | Awake | Thinking + Intuition | **Canonical** — Matthew-approved self-spine |
+| Milo Cadence | Mobile | Intuition + Feeling | Proposed — Doc Workshop Phase B; pending Matthew validation |
 
 Matthew's own trained type is **Adream/Near, strong Weight** (Sensation-led) — which is why Clive reads as Matthew at the whiteboard.
 
@@ -366,9 +400,9 @@ Matthew's own trained type is **Adream/Near, strong Weight** (Sensation-led) —
 - **Pam vs Iris:** share **Thinking**. Pam challenges *assumptions and scope*; Iris challenges *facts and data*.
 - **Doc vs Iris:** same attitude (Stable); Doc is **Sensation-dominant** (the doer), Iris is **Thinking-dominant** (the judge of evidence).
 
-**Open seat:** Awake (Thinking + Intuition, the strategist) is currently unclaimed by the cast.
+**Open seat:** Awake (Thinking + Intuition, the strategist) is canonical for Lazlo Marlowe, who sits beside the founding cast as character-craft partner. No founding product-loop character currently owns Awake; keep that product-cast seat open unless Matthew validates a product character as Awake.
 
-This resolves the §10 open question on the Pam route at the level of *character*: Pam (Remote) is confirmed psychologically distinct from Vera (Mobile), not a rename. Visual treatment remains Tara-Lee's call.
+This offers a Lazlo-proposed answer to the §10 Pam route at the level of *character*: Pam (Remote) is psychologically distinct from Vera (Mobile), not a rename. Treat that as pending until Matthew validates it. Visual treatment remains Tara-Lee's call.
 
 ### Why this matters commercially (believability → trust → adoption)
 

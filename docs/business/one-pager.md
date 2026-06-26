@@ -144,6 +144,8 @@ Tool-agnostic by design, AstraJax does not compete with agent runtimes. It lower
 
 Airtable can hold the brain, HyperAgent can run the agents, a reasoning model can support the conversation, and Vercel can hold the interface. The point is not the stack. The point is getting people to use the system properly.
 
+> **The brain stays legible: one champion opens the grid per function — everyone else uses the platform, not a stack of Airtable seats.**
+
 ---
 
 ## Proof

@@ -2,7 +2,7 @@
 
 **Status:** V0.1 source-of-truth draft  
 **Owner:** Matthew  
-**Last updated:** 25 June 2026
+**Last updated:** 26 June 2026
 **Purpose:** Define the architecture for the AstraJax adoption operating system: what each agent does, where context lives, where humans approve, and how agent runtimes fit in.
 
 ---
@@ -494,6 +494,9 @@ Principle:
 
 > **The personality is editable. The competence is locked.**
 
+Character is how scope becomes legible for humans and models — see
+`docs/business/positioning.md` §4A. Legibility does not replace governance.
+
 ### Step 7: Package And Deploy
 
 AstraJax prepares the agent package.
@@ -639,6 +642,8 @@ Doc writes the approved change.
 
 The context brain improves.
 
+Chapter 1's first concrete review surface is the client-facing Brain Interactions review flow (`/brain/review`). Client scores and suspected-context flags create review signals in the Workshop base; they do not approve, publish, quarantine, or promote context by themselves.
+
 When brain maturity improves, the system should celebrate it.
 
 Example:
@@ -755,7 +760,7 @@ HyperAgent or another runtime can execute agent work.
 
 The context brain should remain in an AstraJax-controlled, tool-agnostic layer so the client is not trapped inside one runtime's memory model.
 
-**Durable memory lives in Airtable**, not HyperAgent: Agent bases (character + Persona Memories) and Trusted Brain bases (Brain Context + Brain Memories). Runtimes fetch at session start; they do not accumulate their own memory store. Persona Memories may auto-form in Agent bases without human approval on create; human gates apply at **promotion** to shared or canonical truth, not at every diary entry.
+**Durable memory lives in Airtable**, not HyperAgent: Agent bases (character + Persona Memories) and Trusted Brain bases (Brain Truth + Brain Memories). Runtimes fetch at session start; they do not accumulate their own memory store. Persona Memories may auto-form in Agent bases without human approval on create; human gates apply at **promotion** to shared or canonical truth, not at every diary entry.
 
 ### Rule 8: Coaching Is Not Surveillance
 
@@ -893,7 +898,7 @@ The user brain does not replace human judgement. It calibrates how much support 
 
 ### Airtable
 
-Airtable is the natural operating layer for the current system.
+Airtable is the natural operating layer for the current system. For the buyer/founder answer on *why* Airtable — legibility for non-technical champions, cost model, ceiling, and governance — see `docs/business/positioning.md` §5A.
 
 It can hold:
 
@@ -916,7 +921,30 @@ An audit mirror is a second copy of the log kept outside Airtable, so the system
 
 Runtime memory (HyperAgent `/memories`, thread scratchpads, ephemeral session state) should be treated as execution support, not the canonical brain.
 
-If the runtime learns something useful, it should flow into **Persona Memories** or **Brain Memories** in Airtable — or through the context review loop before becoming **Brain Context** — not remain in the runtime store. Governed HyperAgent exports keep `autoSaveMemories = false`; auto-save targets Airtable Agent bases under sanitiser and retire rules (see `brain-key-wiring.md`).
+If the runtime learns something useful, it should flow into **Persona Memories** or **Brain Memories** in Airtable — or through the context review loop before becoming **Brain Truth** — not remain in the runtime store. Governed HyperAgent exports keep `autoSaveMemories = false`; auto-save targets Airtable Agent bases under sanitiser and retire rules (see `brain-key-wiring.md`).
+
+### Agent Authoring Surface (Canonical)
+
+**Decision, 25 June 2026.** HyperAgent is the **primary client-facing runtime** for AstraJax agents (Clive, Pam, Doc, Clive's Man, and the rest of the fleet). The Cursor-native agents (`@clive` and friends, defined in `.cursor/agents/` and `.cursor/skills/`) are used only **rarely** with clients; they are mostly internal and developer surfaces.
+
+Because HyperAgent leads, **Airtable is the canonical place a human authors an agent**, not the repo. Each agent's Agent base holds the authored source:
+
+- **Character backstory** is authored in the **Narrative Arch** table.
+- **System prompt, rules, and output format** are authored in the **Persona Config** table.
+- **Skills** are authored in Airtable too. A HyperAgent skill is just text plus a `whenToUse` trigger (the line that tells the runtime when to load it) and a pinned/load flag, so it has the same shape as the memory rows already in the Agent base.
+
+A **generator** (a script that reads Airtable and writes out the agent files, using the existing `hyperagent/builds/build_*.py` pattern and run by Doc) then emits **both**:
+
+- the HyperAgent export JSON (`hyperagent/exports/...`), and
+- the Cursor `.cursor/agents/*.md` and `.cursor/skills/*/SKILL.md` files.
+
+Cursor loads agents and skills from files on disk when they are invoked; it cannot read from Airtable. So the generated files are what keeps the Cursor surface working. The takeaway: **Airtable plus the generator are canonical. The repo `.cursor/` files and build packs are generated artifacts, not hand-authored sources of truth.**
+
+**Governance is unchanged and reaffirmed.** Authoring changes still flow through the existing human-approval gates: a human approves Narrative Arch changes and Persona Config changes, and skills authored in Airtable pass the **same human approval** before anything is generated or published.
+
+**Trade-off accepted.** Authoring long skill text in Airtable cells is harder to review than a file change in git, where edits are easy to see line by line. Matthew accepted this because HyperAgent is the primary runtime and the Cursor surface is rare.
+
+This **supersedes** the earlier note in `docs/initiatives/brain-key-schema.md` that the repo stays canonical for agent design.
 
 ---
 

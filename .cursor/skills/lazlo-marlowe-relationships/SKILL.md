@@ -19,6 +19,9 @@ hierarchy. Load `lazlo-marlowe-character-craft` first.
 
 ## Clive and Pam (central pairing)
 
+Founding cast typing below is **pending** (Lazlo-proposed). Product roles remain canonical
+in `architecture.md`.
+
 | | Clive | Pam |
 |---|---|---|
 | Life goal | Accumulate and share knowledge | Everything in order, precise, controlled |

@@ -30,6 +30,12 @@ Load and follow **doc-workshop-cursor** before every build. Skill wins on confli
 - Primary outputs: `.cursor/agents/`, `.cursor/skills/`, `agents/registry/cursor/`.
 - Optional: `hyperagent/builds/build_*.py` generator for the agent.
 
+## Final step — Clive's Man handoff (mandatory after Phase B)
+
+After the build summary, invoke **@clive-man** (Task `clive-man`) with: files changed,
+agent/skill decisions, and which canonical sources need updates. Do not stop until
+handoff is sent or Matthew explicitly declines.
+
 ## Forbidden
 
 - Building without Trinity-cleared brief

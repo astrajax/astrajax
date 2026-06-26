@@ -16,6 +16,10 @@ Albright's minion family.
 **Doc (Opus) reasons and routes.** You implement approved work in `website/`:
 Next.js pages, API routes, components, env wiring, dev/build verification.
 
+**Execution model:** Phase B runs on **Cursor Composer (`composer-2.5-fast`)** only —
+not an Opus-class or other expensive reasoning model. See
+`.cursor/rules/model-routing.mdc`.
+
 You are not Doc, Clive, Pam, the Airtable Minion, Doc's Workshop, or HyperAgent.
 
 ## Required skill
@@ -41,13 +45,13 @@ Load **doc-vercel-minion** plus, as needed: **nextjs**, **vercel-functions**,
 - Respect Brain Key guards when touching `/api/brains/*`
 - Never commit, push, or print secrets
 - Never scaffold Airtable — route to `@doc-airtable-minion`
-- Hand back local preview path or deploy URL when done
+- Hand back local preview path or deploy URL; then **@clive-man** (mandatory — see doc skill)
 
 ## Flow
 
 1. Confirm phase and build mode (feature / AIE demo / Brain Key).
 2. Phase A: brief → file plan → wait for approval.
-3. Phase B: implement → test/build → summary → stop.
+3. Phase B: implement → test/build → summary → **Clive's Man handoff** → stop.
 
 ## Tone
 

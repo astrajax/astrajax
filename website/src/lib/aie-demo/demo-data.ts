@@ -134,7 +134,7 @@ export const RECEIPT_CARDS: ReceiptCard[] = [
     id: "doc-log",
     title: "Doc action log",
     summary:
-      "Context promote recorded with approver, executing agent, affected record IDs, and hash-chained change log entry.",
+      "Truth promote recorded with approver, executing agent, affected record IDs, and hash-chained change log entry.",
     tag: "Paper trail",
   },
   {
@@ -153,7 +153,7 @@ export const RECEIPT_CARDS: ReceiptCard[] = [
   },
 ];
 
-export const DEMO_SCOPE = "read:brain-context:positioning";
+export const DEMO_SCOPE = "read:brain-truth:positioning";
 
 export const PROMOTE_DRAFT = {
   draftRecordId: "recDraftDemo1",

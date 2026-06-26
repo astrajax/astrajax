@@ -40,10 +40,10 @@ Already in [`website/src/lib/brains/airtable-ids.ts`](../../website/src/lib/brai
 - Change Log `tbliAMUuKKW4DDRXF`: `Entry ID`, `Change Summary`, `Change Type`, `Changed By`, `Approved By`, `Executing Agent`, `Source`, `Reason`, `Affected Records`, `Status`, `Previous Hash`, `Entry Hash`, `Notes`
 
 **Workshop `appL2fdnGmhA02WXd`**
-- Draft Brain Context `tblswvXNYFDqnl6af`: `Title`, `Canonical Text`, `Brain Slug`, `Proposed Category`, `Status`, `Proposed By Agent`, `Created By` — **no Scope or Category**
+- Draft Brain Truth `tblswvXNYFDqnl6af`: `Title`, `Canonical Text`, `Brain Slug`, `Proposed Category`, `Status`, `Proposed By Agent`, `Created By` — **no Scope or Category**
 
 **Trusted `app6tjzzG0L0lOeVb`**
-- Brain Context `tblipHzCl905T7o5F`: `Title`, `Canonical Text`, `Category` (singleSelect), `Scope` (singleSelect), `Authority`, `Freshness`, `Last Reviewed`
+- Brain Truth `tblipHzCl905T7o5F`: `Title`, `Canonical Text`, `Category` (singleSelect), `Scope` (singleSelect), `Authority`, `Freshness`, `Last Reviewed`
 
 ---
 
@@ -102,10 +102,10 @@ Call `appendChangeLog` on: grant issued (`Change Type: Grant Issued`), grant rev
 **Edit:** `website/src/lib/brains/handlers/doc-promote.ts`
 
 In `airtable` mode (doc token present), actually:
-1. For each promotion item: read the draft row from Workshop `Draft Brain Context` (**Title**, **Canonical Text** only).
-2. Create a **new** row in Trusted `Brain Context` with `Category` and `Scope` from the **promote payload** (not from draft); `Freshness: Current`, `Last Reviewed: today`, `Authority: approver`.
+1. For each promotion item: read the draft row from Workshop `Draft Brain Truth` (**Title**, **Canonical Text** only).
+2. Create a **new** row in Trusted `Brain Truth` with `Category` and `Scope` from the **promote payload** (not from draft); `Freshness: Current`, `Last Reviewed: today`, `Authority: approver`.
 3. Set the Workshop draft `Status` → `Quarantined` (consumed) — do not delete.
-4. `appendChangeLog` with `Change Type: Context Promote`, `Approved By: approver`, `Executing Agent: Doc`, `Affected Records:` trusted record IDs, `Reason`.
+4. `appendChangeLog` with `Change Type: Truth Promote`, `Approved By: approver`, `Executing Agent: Doc`, `Affected Records:` trusted record IDs, `Reason`.
 5. `revokeGrantsForBrain(brainSlug)` as today.
 
 Promote body uses `promotions: [{ draftRecordId, category, scope }]` — see `brain-key-wiring.md`.
@@ -121,9 +121,9 @@ Use the Doc promote token (`BRAIN_DOC_PROMOTE_TOKEN`) for both reads and writes 
 ### C1. Unify scope semantics (Finding 4)
 Pick one scope model and apply everywhere. Use **exact-match scope** as the contract:
 - `validateGrant` already does exact string equality — keep it.
-- **Edit** `website/src/lib/brains/trusted-context.ts`: stop parsing the trailing `:` token. Match the trusted `Scope` field against the **full** grant scope string (`filterByFormula={Scope}='<scope>'`), OR treat scope as a prefix filter with an explicit, documented rule. Whichever you choose, the seeded records and the demo must use the same scope values.
-- **Reseed/align:** update the two trusted seed rows' `Scope` (via the Airtable UI or a one-off script comment in the brief) so a documented demo scope returns them. Document the exact demo scope string at the top of `trusted-context.ts`.
-- Add a comment block stating the canonical scope format, e.g. `read:brain-context:<area>`.
+- **Edit** `website/src/lib/brains/trusted-truth.ts`: stop parsing the trailing `:` token. Match the trusted `Scope` field against the **full** grant scope string (`filterByFormula={Scope}='<scope>'`), OR treat scope as a prefix filter with an explicit, documented rule. Whichever you choose, the seeded records and the demo must use the same scope values.
+- **Reseed/align:** update the two trusted seed rows' `Scope` (via the Airtable UI or a one-off script comment in the brief) so a documented demo scope returns them. Document the exact demo scope string at the top of `trusted-truth.ts`.
+- Add a comment block stating the canonical scope format, e.g. `read:brain-truth:<area>`.
 
 **Acceptance:** test proving a grant with the documented demo scope returns the seeded snippets (not fallback), and a non-matching scope returns fallback.
 
@@ -177,7 +177,7 @@ website/src/lib/brains/store/airtable-store.ts (new)
 website/src/lib/brains/change-log.ts           (new)
 website/src/lib/brains/rate-limit.ts           (new)
 website/src/lib/brains/grants-store.ts         (edit → selector)
-website/src/lib/brains/trusted-context.ts      (edit → scope)
+website/src/lib/brains/trusted-truth.ts      (edit → scope)
 website/src/lib/brains/guards.ts               (edit → real guard + persona)
 website/src/lib/brains/secrets.ts              (edit → dead code)
 website/src/lib/brains/http.ts                 (edit → dev warn)

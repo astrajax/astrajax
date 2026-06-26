@@ -1,16 +1,18 @@
 import type { AccessGrant, PersonaId } from "./types";
 
 export const ROUTE_IDS = {
-  CONTEXT_RETRIEVE: "/api/brains/context/retrieve",
+  TRUTH_RETRIEVE: "/api/brains/truth/retrieve",
   DOC_PROMOTE: "/api/brains/doc/promote",
   KEY_REQUEST: "/api/brains/key/request",
   KEY_APPROVE: "/api/brains/key/approve",
   INTERACTION_LOG: "/api/brains/interactions/log",
+  INTERACTION_LIST: "/api/brains/interactions/list",
+  INTERACTION_SCORE: "/api/brains/interactions/score",
 } as const;
 
 export type RouteId = (typeof ROUTE_IDS)[keyof typeof ROUTE_IDS];
 
-const TRUSTED_READ_ROUTES = new Set<RouteId>([ROUTE_IDS.CONTEXT_RETRIEVE]);
+const TRUSTED_READ_ROUTES = new Set<RouteId>([ROUTE_IDS.TRUTH_RETRIEVE]);
 const PROMOTE_ROUTES = new Set<RouteId>([ROUTE_IDS.DOC_PROMOTE]);
 
 const VALID_PERSONAS = new Set<PersonaId>(["clive", "pam", "doc"]);
@@ -88,7 +90,7 @@ export function assertPersonaMayRequestKey(persona: PersonaId): void {
 
 export function assertRouteMayReadTrusted(routeId: RouteId): void {
   if (!TRUSTED_READ_ROUTES.has(routeId)) {
-    throw new Error(`Route ${routeId} is not permitted to read trusted Brain context.`);
+    throw new Error(`Route ${routeId} is not permitted to read trusted Brain truth.`);
   }
 }
 

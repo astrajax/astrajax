@@ -36,9 +36,40 @@ Minion family: `docs/initiatives/doc-minions.md`
 3. Wait       — Matthew approves explicitly
 4. Phase B    — same thread, minion executes (Agent mode only)
 5. Handoff    — summary, link, what Matthew does next
+6. Clive's Man — executor invokes @clive-man with decisions (mandatory after Phase B)
 ```
 
 Always tell Matthew which step you are in.
+
+## Clive's Man handoff (mandatory after Phase B)
+
+Execution minions — Airtable, Vercel, Workshop Cursor/Hyperagent builders — must
+**not** close Phase B until Clive's Man has been invoked to sync canonical context.
+
+**Who invokes:** the minion that executed Phase B (or Doc, if still orchestrating
+the same thread after the minion summary).
+
+**How:** Task tool with `subagent_type: clive-man`, or ask Matthew to `@clive-man`
+in-thread with the brief below if Task is unavailable.
+
+**Brief template (no secrets):**
+
+```text
+Doc execution handoff — [minion name]
+Approved: [what Matthew approved]
+Changed: [repo paths, base/table IDs, routes — not token values]
+Decisions: [governance/architecture choices made in this build]
+Sources already updated: [files the minion edited]
+Sources for Clive's Man: [architecture.md | brain-key-wiring.md | brain-key-schema.md | airtable-ids.ts | source-registry.md | none]
+```
+
+Clive's Man applies source discipline per `clive-man` skill — updates canonical files
+or records pending items in a digest.
+
+**Skip when:** Phase A only; routed away from Doc lane; or Matthew explicitly declines
+context sync in-thread.
+
+**Not for:** Workshop Proposer or Challenger (design/red-team only — no execution handoff).
 
 ## Triage — pick the minion
 
@@ -86,6 +117,10 @@ directly, skip triage announcement but still follow that minion's skill.
 - After explicit approval (`approved`, `build it`, …)
 - Doc continues in same thread **as the chosen minion** (load that skill fully)
 - If Ask mode when approved → refuse; ask Matthew to switch to Agent mode
+- **Execution model:** Phase B and minion dispatch **must** run on **Cursor Composer
+  (`composer-2.5-fast`)** — mechanical repo/MCP/file work. Do **not** use an
+  Opus-class or other expensive reasoning model for BUILD/EXECUTE. See
+  `.cursor/rules/model-routing.mdc`.
 
 ## Composed skills
 
@@ -113,8 +148,8 @@ When routing agent design/build work, name **Doc's Workshop** and the Trinity:
 ```
 
 Workshop Proposer and Challenger run on a **strong model**; builders on
-**Composer** (pinned). Doc does not skip Challenger or let the Proposer write files
-instead of dispatching builders.
+**Composer (`composer-2.5-fast`)** (pinned). Doc does not skip Challenger or let the
+Proposer write files instead of dispatching builders.
 
 ## Vercel plugin skills (Doc guides, minion loads)
 
@@ -177,6 +212,7 @@ I'll draft the plan (Phase A). You approve; then we build in Agent mode.
 **Changed:** …
 **You:** open [link or path] / run …
 **Not done:** … (manual steps)
+**Clive's Man:** invoked | Matthew declined | pending — [one line]
 ```
 
 ## Forbidden (Doc + all minions)
@@ -189,9 +225,10 @@ I'll draft the plan (Phase A). You approve; then we build in Agent mode.
 
 ## Model note
 
-Doc's triage and brief-shaping work best on a **strong reasoning model** (Opus-class
-per `docs/business/architecture.md` §9). Minion execution (Phase B) is
-Composer/Cursor Agent mode — repo and MCP hands.
+Doc's triage and brief-shaping (Phase A) work best on a **strong reasoning model**
+(Opus-class per `docs/business/architecture.md` §9). Minion execution (Phase B) is
+**Cursor Composer (`composer-2.5-fast`)** only — repo and MCP hands; never an
+Opus-class model for mechanical build work. See `.cursor/rules/model-routing.mdc`.
 
 ## Tone
 

@@ -19,15 +19,19 @@ from cast neighbours, and do-not-blur tests. Load `lazlo-marlowe-character-craft
 
 ## Cast diagnosis reference
 
-| Character | Inner Attitude | Functions |
-|---|---|---|
-| Clive | Near (with Adream warmth) | Sensation + Intuition |
-| Pam | Remote | Thinking + Feeling |
-| Vera | Mobile | Intuition + Feeling |
-| Iris | Stable | Sensation + Thinking |
-| Doc | Stable (Sensation-led) | Sensation + Thinking |
+Agent-proposed typing — all **pending** until Matthew validates (see character-craft
+cast provenance table). Lazlo Marlowe alone is **canonical**.
 
-**Open seat:** Awake (Thinking + Intuition) is currently unclaimed.
+| Character | Inner Attitude | Functions | Status |
+|---|---|---|---|
+| Clive | Near (with Adream warmth) | Sensation + Intuition | pending |
+| Pam | Remote | Thinking + Feeling | pending |
+| Vera | Mobile | Intuition + Feeling | pending |
+| Iris | Stable | Sensation + Thinking | pending |
+| Doc | Stable (Sensation-led) | Sensation + Thinking | pending |
+| Lazlo Marlowe | Awake | Thinking + Intuition | **canonical** |
+
+**Open seat:** Awake (Thinking + Intuition) is claimed by Lazlo; no other cast member yet.
 
 ## Do-not-blur tests (craft terms)
 
@@ -40,7 +44,9 @@ from cast neighbours, and do-not-blur tests. Load `lazlo-marlowe-character-craft
 
 ## Diagnosis workflow
 
-1. **Name the Super Objective** — what force animates this character across their life?
+1. **Name the Super Objective** — what *selfish* force animates this character across
+   their life? Their private appetite or payoff, not their job description. If it sounds
+   like a mission statement, ask "what do they get out of it for themselves?" and try again.
 2. **Propose function pair** — dominant + auxiliary; name the Inner Attitude.
 3. **State Outer skin** — era, profession, manners (brief; defer visual execution to Kathryn).
 4. **Run blur test** — which cast neighbour could this drift toward? Why not?

@@ -1,6 +1,7 @@
 /**
  * Live Airtable IDs for Chapter 1 Brain Key bases (Phase B, 25 Jun 2026).
  * Replicable schema blueprint: docs/initiatives/brain-key-schema.md
+ * Builder status + PAT/env guidance: docs/initiatives/brain-base-builder-agent.md
  * Override via env vars in production; scoped tokens still required per base.
  */
 
@@ -18,17 +19,52 @@ export const BRAIN_WORKSHOP_BASE_ID = "appL2fdnGmhA02WXd";
 
 export const BRAIN_WORKSHOP_TABLES = {
   userBrains: "tblm6MqTYRPk8sA9o",
-  draftBrainContext: "tblswvXNYFDqnl6af",
+  draftBrainTruth: "tblswvXNYFDqnl6af",
   brainInteractions: "tblNqNSuIJ2akHyA1",
   pamReviews: "tblMsU9nQTB1TuigK",
   approvalDecisions: "tblJExsLJghdI01XX",
   docActions: "tblimAjCOdFEcl52x",
 } as const;
 
+/** Brain Interactions table — client review / scoring fields (26 Jun 2026). */
+export const BRAIN_WORKSHOP_INTERACTION_FIELDS = {
+  interactionId: "fldPYqbMfMMfnhUY1",
+  sessionId: "fldlx9xv78p5FzgWl",
+  persona: "fldeJlSq1FZV4rjd4",
+  brainSlug: "fldloZIUkRIHtbfQg",
+  userMessage: "fld6zsgDpsXaajowO",
+  assistantReply: "fldeTgHNF7i74IEl6",
+  channel: "fldE6LoZEyY45GQx1",
+  manifestRecordIds: "fldlFt3qR1unSDImq",
+  manifestHashes: "fld1J0G2XRBNLIHkF",
+  grantId: "fldu6eDbPn3xoT7kN",
+  qualityScore: "fld9KAwriVWN3tCwC",
+  reviewer: "fldMK745iAt4wSnl8",
+  reviewNotes: "fldldE7GBguR5aNR5",
+  reviewedAt: "fldZIfZIdfPFZMQKA",
+  suspectedContextIssue: "fld5EI2euzVYnmlze",
+  reviewStatus: "fldk0PaNuCRiWJfC2",
+  contextFlagged: "flduYD4mnl27MTcRW",
+} as const;
+
+export const BRAIN_INTERACTION_REVIEW_STATUS = {
+  new: "New",
+  reviewed: "Reviewed",
+  actionProposed: "Action proposed",
+  noAction: "No action",
+} as const;
+
+export const BRAIN_INTERACTION_CONTEXT_FLAGGED = {
+  none: "None",
+  flaggedForReview: "Flagged for review",
+  quarantineProposed: "Quarantine proposed",
+  resolved: "Resolved",
+} as const;
+
 export const BRAIN_TRUSTED_CHAPTER1_BASE_ID = "app6tjzzG0L0lOeVb";
 
 export const BRAIN_TRUSTED_CHAPTER1_TABLES = {
-  brainContext: "tblipHzCl905T7o5F",
+  brainTruth: "tblipHzCl905T7o5F",
   brainMemories: "tbl5clS3OPwuABsGC",
   /** Legacy — migrated to Agent bases Phase B; delete table in Airtable UI when ready */
   personas: "tblBV7XSiTYdqSOWH",

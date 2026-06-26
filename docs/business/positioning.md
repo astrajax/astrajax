@@ -4,7 +4,7 @@
 **Supersedes:** `astrajax_positioning.md` (29 May), `AstraJax-company-positioning.md` (22 Jun), and `docs/context/astrajax-core-positioning.md`. Those are kept in `docs/archive/` for history only.
 **Companion docs:** `docs/business/architecture.md` (how the product works), `docs/business/how-we-work.md` (how the company runs), `docs/business/proof.md` (evidence locker).
 **Owner:** Matthew.
-**Last updated:** 25 June 2026.
+**Last updated:** 26 June 2026.
 
 ---
 
@@ -134,13 +134,20 @@ This is not framed as radical new theory. It is a practical design habit that ke
 
 ## 4A. Believable Characters Earn Trust
 
-AstraJax treats character as product architecture, not brand decoration. The aim is not to make agents cute, funny, or human. It is to make their roles **believable**: a coherent motive, voice, boundary, and behaviour a user can read at a glance.
+AstraJax treats character as product architecture, not brand decoration. The aim is not to make agents cute, funny, or human. It is to make their roles **believable**: a coherent motive, voice, boundary, and behaviour a user can read at a glance. **Personality is how scope becomes legible — for humans and for models.**
+
+That legibility serves four linked purposes:
+
+- **Adoption infrastructure** — users accept agent limits more readily when boundaries read as coherent role behaviour (Pam pushes back, Clive stays read-only) rather than opaque policy or permission errors.
+- **Good prompt practice** — a clear character gives the model a stable instruction frame: what it is for, what it refuses, how it speaks, when it hands off.
+- **Agent configuration** — personality is an interface for scope; role shape controls tool shape (Clive reasons, Pam challenges, Doc acts).
+- **Agent economics** — tighter scopes mean cheaper, faster, safer agents; narrow lane agents instead of one expensive generalist doing everything badly.
 
 Believability is how people decide what to trust. This is established craft in storytelling, theatre, and game design; AstraJax applies it to a place that work has largely skipped — functional, governance-bound work agents, the ones teams are most nervous to rely on. (Most character effort in AI goes into companion and entertainment bots, not the agent that touches live operations.)
 
 > If people believe the character, they trust the role. If they trust the role, they use the system.
 
-Believable does not mean pretending the agent is human. It means the role is coherent enough that users know what it is for, what it will challenge, and when to rely on it. Trust is earned by that coherence **and** by the governance underneath it — bounded scope, human approval, and an audit trail — never by manufactured warmth. Believability without governance would be a manipulation risk, not a feature.
+Believable does not mean pretending the agent is human. It means the role is coherent enough that users know what it is for, what it will challenge, and when to rely on it. Trust is earned by that coherence **and** by the governance underneath it — bounded scope, human approval, and an audit trail — never by manufactured warmth. **Believability does not replace governance:** personality makes the same guardrails readable; charm never overrides limits or replaces rules. Believability without governance would be a manipulation risk, not a feature.
 
 The craft is drawn from respected movement, drama, and character-theory lineages, distilled into a reusable design method (see `docs/initiatives/character-provenance.md`). The point is not the founder's background; it is that the method is teachable and repeatable.
 
@@ -166,6 +173,24 @@ One AI champion per function, team, or work area
 For a solo founder or very small business, the first champion may simply be the founder. As the company grows, the same pattern can spread across functions. Either way, this is faster than a distant build queue. The champion does not wait for every issue to become a formal ticket. They can test, correct, and improve AI workflows where the work actually happens. The result is quicker deployment, tighter feedback, and adoption led by people the team already trusts.
 
 Citizen-as-builder is not a democratic slogan. It is the fastest route to useful AI.
+
+---
+
+## 5A. The Legible Data Layer
+
+AstraJax targets **non-technical domain experts** as architects of their own operating systems. That only works if the data layer is as inspectable and user-friendly as the rest of the product. A locked Postgres or ORM layer — data hidden behind code only developers can read — breaks the promise.
+
+**Airtable is the correct substrate** for the operating and context layer. Not because it is trendy. Because legibility is the product.
+
+**Champions can open the grid.** They can see why an agent said what it said, inspect the context behind an answer, and fix a wrong row without filing a ticket to engineering. Transparency is adoption infrastructure, not a compromise for non-technical users.
+
+**The cost model fits the champion pattern.** The platform runs on Vercel. Each function gets **one Airtable editor seat** — the champion who owns the brain. Everyone else accesses through the hosted platform via a service token, not a stack of per-user Airtable seats.
+
+**There is a ceiling — name it before buyers do.** Airtable is the operating and context layer, not infinite-scale transactional infrastructure. Record limits and API rate limits are real. A gateway pattern plus Vercel caching (Runtime Cache / Edge Config) sits in front for busy reads. When a client genuinely needs high-volume transactional workloads, a real database goes behind the layer — but the champion-facing brain stays legible.
+
+**Governance makes openness safe.** Read-transparency without write-chaos: grants, hash chain, git audit mirror, and draft → proposed → trusted separation. Users can pick every piece apart. Changing canonical truth still goes through human approval.
+
+This complements the agent authoring decision in `docs/business/architecture.md` §7: HyperAgent runs the agents; Airtable is where humans author them and where the brain lives inspectably.
 
 ---
 

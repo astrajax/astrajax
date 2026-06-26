@@ -1,5 +1,5 @@
 import type {
-  ContextRetrieveBody,
+  TruthRetrieveBody,
   DocPromoteBody,
   InteractionLogBody,
   KeyApproveBody,
@@ -38,12 +38,12 @@ export function approveBrainKey(body: KeyApproveBody) {
   }>("/aie-demo/approve", body);
 }
 
-export function retrieveContext(body: ContextRetrieveBody) {
+export function retrieveContext(body: TruthRetrieveBody) {
   return postJson<{
     snippets: { recordId: string; title: string; text: string; contentHash: string }[];
     manifest: { recordIds: string[]; hashes: string[]; grantId: string; retrievedAt: string };
     remainingUses: number;
-  }>("/api/brains/context/retrieve", body);
+  }>("/api/brains/truth/retrieve", body);
 }
 
 export function logInteraction(body: InteractionLogBody) {

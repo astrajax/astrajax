@@ -35,7 +35,7 @@ describe("Doc promote (airtable mode)", () => {
           {
             draftRecordId: "recDraft1",
             category: "Positioning",
-            scope: "read:brain-context:positioning",
+            scope: "read:brain-truth:positioning",
           },
         ],
         approver: "Matthew",
@@ -48,7 +48,7 @@ describe("Doc promote (airtable mode)", () => {
       const url = String(input);
       const method = init?.method ?? "GET";
 
-      if (method === "GET" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainContext)) {
+      if (method === "GET" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
         return new Response(
           JSON.stringify({
             records: [
@@ -67,11 +67,11 @@ describe("Doc promote (airtable mode)", () => {
         );
       }
 
-      if (method === "POST" && url.includes(BRAIN_TRUSTED_CHAPTER1_TABLES.brainContext)) {
+      if (method === "POST" && url.includes(BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth)) {
         return new Response(JSON.stringify({ id: "recTrusted1", fields: {} }), { status: 200 });
       }
 
-      if (method === "PATCH" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainContext)) {
+      if (method === "PATCH" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
         const body = JSON.parse(String(init?.body)) as { fields: Record<string, string> };
         expect(body.fields.Status).toBe("Quarantined");
         return new Response(JSON.stringify({ id: "recDraft1", fields: body.fields }), {
@@ -85,7 +85,7 @@ describe("Doc promote (airtable mode)", () => {
 
       if (method === "POST" && url.includes(BRAIN_REGISTRY_TABLES.changeLog)) {
         const body = JSON.parse(String(init?.body)) as { fields: Record<string, string> };
-        expect(body.fields["Change Type"]).toBe("Context Promote");
+        expect(body.fields["Change Type"]).toBe("Truth Promote");
         expect(body.fields["Executing Agent"]).toBe("Doc");
         return new Response(JSON.stringify({ id: "recLog", fields: body.fields }), { status: 200 });
       }
@@ -104,7 +104,7 @@ describe("Doc promote (airtable mode)", () => {
         {
           draftRecordId: "recDraft1",
           category: "Positioning",
-          scope: "read:brain-context:positioning",
+          scope: "read:brain-truth:positioning",
         },
       ],
       approver: "Matthew",
@@ -116,7 +116,7 @@ describe("Doc promote (airtable mode)", () => {
 
     const trustedCreate = mockFetch.mock.calls.find(
       ([url, init]) =>
-        String(url).includes(BRAIN_TRUSTED_CHAPTER1_TABLES.brainContext) && init?.method === "POST",
+        String(url).includes(BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth) && init?.method === "POST",
     );
     expect(trustedCreate).toBeDefined();
 
@@ -124,7 +124,7 @@ describe("Doc promote (airtable mode)", () => {
       fields: Record<string, string>;
     };
     expect(createBody.fields.Category).toBe("Positioning");
-    expect(createBody.fields.Scope).toBe("read:brain-context:positioning");
+    expect(createBody.fields.Scope).toBe("read:brain-truth:positioning");
     expect(createBody.fields.Authority).toBe("Matthew");
   });
 
@@ -133,7 +133,7 @@ describe("Doc promote (airtable mode)", () => {
       handleDocPromote({
         approvalDecisionId: "apd_test123",
         brainSlug: "astrajax-chapter-1",
-        promotions: [{ draftRecordId: "recDraft1", category: "", scope: "read:brain-context:positioning" }],
+        promotions: [{ draftRecordId: "recDraft1", category: "", scope: "read:brain-truth:positioning" }],
         approver: "Matthew",
         reason: "approved brief",
       }),

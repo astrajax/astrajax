@@ -92,7 +92,7 @@ All routes are `POST`, JSON, server-only Airtable. Responses pass through `sanit
 | Doc promotes draft | `POST /api/brains/doc/promote` | **doc header** `x-brain-doc-promote`; sets maturity to Working |
 | Agent asks for context | `POST /api/brains/key/request` | After Working maturity only; body: brainSlug, persona, purpose, scope, reason, sessionId |
 | Human approves access | `POST /api/brains/key/approve` | **admin header** `x-brain-key-admin` — via server proxy |
-| Use approved context | `POST /api/brains/context/retrieve` | body: grantId, sessionId, persona, brainSlug, scope |
+| Use approved context | `POST /api/brains/truth/retrieve` | body: grantId, sessionId, persona, brainSlug, scope |
 | Log the exchange | `POST /api/brains/interactions/log` | manifest = record IDs + hashes, not full text |
 
 ### Secret invariant (do not break)

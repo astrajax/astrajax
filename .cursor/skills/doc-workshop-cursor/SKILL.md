@@ -101,7 +101,8 @@ report what changed. Never commit, push, or deploy.
 1. All brief paths written; errors reported verbatim on failure.
 2. Generator run (if applicable) succeeded.
 3. Short summary: files created/changed, version, what Matthew does next.
-4. Stop — do not commit.
+4. **Clive's Man handoff** — Task `clive-man` with roster/skill decisions (see `doc` skill)
+5. Stop — do not commit.
 
 ## Risk tier
 
