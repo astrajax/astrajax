@@ -142,53 +142,34 @@ body {
   min-height: calc(100svh - 4rem);
   place-items: center;
   overflow: hidden;
-  border-bottom: 1px solid color-mix(in srgb, #120d08 58%, transparent);
-  background-color: #342614;
-  background-image:
-    radial-gradient(circle at 50% 7%, color-mix(in srgb, var(--color-buttermilk) 18%, transparent) 0 9rem, transparent 24rem),
-    radial-gradient(ellipse at 20% 52%, color-mix(in srgb, var(--color-apricot) 15%, transparent) 0 11rem, transparent 31rem),
-    radial-gradient(ellipse at 78% 48%, color-mix(in srgb, var(--color-sage) 14%, transparent) 0 11rem, transparent 33rem),
-    linear-gradient(180deg, #4b311b 0%, #2f311f 54%, #251b10 100%);
+  border-bottom: 1px solid #160f08;
+  /* Deep-moss fallback sits under the wall photo while it loads. */
+  background-color: #1c2417;
   color: var(--color-cream);
 }
 
-.hero-victorian-wall::before,
-.hero-victorian-wall::after {
-  content: "";
+/* The generated Victorian study wall photo IS the wall — full-bleed cover. */
+.hero-victorian-wall__bg {
+  z-index: 0;
+  object-fit: cover;
+  object-position: center 36%;
+}
+
+/* Restrained depth pass over the photo: a warm lift under the centre light pool
+   and a soft edge vignette. Kept low-opacity so the photograph dominates. */
+.hero-victorian-wall__lighting {
   position: absolute;
   inset: 0;
+  z-index: 1;
   pointer-events: none;
-}
-
-.hero-victorian-wall::before {
-  z-index: -2;
-  opacity: 0.62;
-  background-image:
-    radial-gradient(ellipse at 50% 50%, transparent 0 18%, color-mix(in srgb, #0d0a07 20%, transparent) 68%, color-mix(in srgb, #0d0a07 54%, transparent) 100%),
-    repeating-linear-gradient(
-      90deg,
-      transparent 0 5.8rem,
-      color-mix(in srgb, var(--color-buttermilk) 8%, transparent) 5.8rem calc(5.8rem + 1px),
-      color-mix(in srgb, #140d08 28%, transparent) calc(5.8rem + 1px) calc(5.8rem + 2px),
-      transparent calc(5.8rem + 2px) 11.6rem
-    ),
-    repeating-radial-gradient(
-      circle at 50% 42%,
-      color-mix(in srgb, var(--color-parchment) 10%, transparent) 0 1px,
-      transparent 1px 1.35rem
-    );
-  mix-blend-mode: multiply;
-}
-
-.hero-victorian-wall::after {
-  z-index: -1;
-  opacity: 0.55;
   background:
-    linear-gradient(90deg, color-mix(in srgb, #0c0805 48%, transparent), transparent 18%, transparent 82%, color-mix(in srgb, #0c0805 48%, transparent)),
-    linear-gradient(180deg, color-mix(in srgb, var(--color-buttermilk) 12%, transparent), transparent 26%, color-mix(in srgb, #0c0805 30%, transparent));
+    radial-gradient(58% 42% at 50% 26%, color-mix(in srgb, var(--color-buttermilk) 14%, transparent), transparent 72%),
+    radial-gradient(135% 120% at 50% 40%, transparent 52%, rgba(7, 6, 3, 0.55) 100%);
 }
 
 .hero-victorian-wall__stage {
+  position: relative;
+  z-index: 2;
   width: min(100%, 104rem);
   padding: clamp(1.25rem, 3.5vw, 3.25rem) clamp(1rem, 4vw, 4rem);
 }
@@ -204,99 +185,110 @@ body {
 }
 
 .hero-triptych-wall__desktop {
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.32fr) minmax(0, 0.95fr);
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.34fr) minmax(0, 0.92fr);
   align-items: center;
-  gap: clamp(1.15rem, 2.3vw, 2.6rem);
-  min-height: min(47rem, calc(100svh - 9rem));
+  justify-items: center;
+  gap: clamp(1.5rem, 3vw, 3.5rem);
+  min-height: min(38rem, calc(100svh - 9rem));
 }
 
 .hero-triptych-wall__slot {
   position: relative;
   display: flex;
+  width: 100%;
   justify-content: center;
 }
 
-.hero-triptych-wall__slot::before {
-  content: "";
-  position: absolute;
-  top: -0.8rem;
-  left: 50%;
-  z-index: 2;
-  width: 0.55rem;
-  height: 0.55rem;
-  border-radius: 9999px;
-  background: radial-gradient(circle, #f1d28a 0 28%, #9b6a2d 56%, #3c2610 100%);
-  box-shadow:
-    0 2px 5px color-mix(in srgb, #120d08 52%, transparent),
-    0 0 0 1px color-mix(in srgb, #f6dc9c 28%, transparent);
-  transform: translateX(-50%);
-}
-
+/* Hand-hung variation: subtle vertical offset and < 1deg tilt so the wall reads
+   human, not machine-aligned. The centre piece stays level under the light. */
 .hero-triptych-wall__slot--doc {
-  transform: translateY(1.5rem) rotate(-1.4deg);
+  transform: translateY(2rem) rotate(-0.8deg);
 }
 
 .hero-triptych-wall__slot--clive {
-  transform: translateY(-0.75rem);
+  transform: translateY(-1.25rem);
+  z-index: 3;
 }
 
 .hero-triptych-wall__slot--pam {
-  transform: translateY(2.2rem) rotate(1.2deg);
+  transform: translateY(2.75rem) rotate(0.8deg);
 }
 
+/* Portrait = artwork (with its own baked-in gold frame) + hanging hardware. */
+.hero-portrait {
+  position: relative;
+  width: 100%;
+}
+
+.hero-portrait--side {
+  max-width: min(25.5rem, 27vw);
+}
+
+.hero-portrait--clive {
+  max-width: min(35rem, 37vw);
+}
+
+.hero-portrait__hanger {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 5.25rem;
+  height: auto;
+  transform: translateX(-50%);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.hero-triptych-wall__slot--clive .hero-portrait__hanger {
+  opacity: 0.78;
+}
+
+/* No second frame, mat, or card — just the soft directional shadow that mounts
+   the painting on the wall. Light source is top / top-centre. */
 .hero-portrait-frame {
   position: relative;
-  isolation: isolate;
+  display: block;
   overflow: hidden;
   width: 100%;
-  border-radius: 0.22rem;
-  padding: clamp(0.2rem, 0.38vw, 0.42rem);
-  background:
-    linear-gradient(135deg, #f4d98d 0%, #a36f2e 34%, #e0b967 62%, #6e431b 100%);
+  border-radius: 3px;
+  background: transparent;
   box-shadow:
-    0 2.4rem 4.8rem color-mix(in srgb, #0b0805 42%, transparent),
-    0 0.8rem 1.8rem color-mix(in srgb, #0b0805 34%, transparent),
-    inset 0 0 0 1px color-mix(in srgb, #fff4bf 34%, transparent),
-    inset 0 0 0 0.28rem color-mix(in srgb, #3a230d 32%, transparent);
+    0 1.65rem 2.9rem rgba(6, 5, 3, 0.46),
+    0 0.45rem 0.95rem rgba(6, 5, 3, 0.3);
 }
 
-.hero-portrait-frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, color-mix(in srgb, white 24%, transparent), transparent 28%, transparent 72%, color-mix(in srgb, #3a230d 24%, transparent)),
-    radial-gradient(ellipse at 50% 5%, color-mix(in srgb, white 18%, transparent), transparent 46%);
-  mix-blend-mode: soft-light;
+.hero-triptych-wall__slot--doc .hero-portrait-frame {
+  box-shadow:
+    -0.2rem 1.55rem 2.9rem rgba(6, 5, 3, 0.46),
+    0 0.45rem 0.95rem rgba(6, 5, 3, 0.3);
 }
 
-.hero-portrait-frame--side {
-  max-width: min(25rem, 27vw);
+.hero-triptych-wall__slot--pam .hero-portrait-frame {
+  box-shadow:
+    0.2rem 1.55rem 2.9rem rgba(6, 5, 3, 0.46),
+    0 0.45rem 0.95rem rgba(6, 5, 3, 0.3);
 }
 
-.hero-portrait-frame--clive {
-  max-width: min(34rem, 36vw);
-}
-
-.hero-portrait-frame > img,
-.hero-portrait-frame > video {
-  position: relative;
-  z-index: 1;
-  border-radius: 0.08rem;
-  background: #120d08;
-  box-shadow: 0 0 0 1px color-mix(in srgb, #100a04 42%, transparent);
+.hero-portrait-frame__media {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 3px;
 }
 
 .hero-triptych-wall__mobile {
-  max-width: 32rem;
+  max-width: 30rem;
   margin: 0 auto;
-  padding: 1.25rem 0 2rem;
+  padding: 0.5rem 0 1.5rem;
 }
 
-.hero-triptych-wall__mobile .hero-portrait-frame {
+.hero-triptych-wall__mobile .hero-portrait {
   max-width: none;
+}
+
+/* Hanging hardware is a desktop nicety; the mobile stack stays clean. */
+.hero-triptych-wall__mobile .hero-portrait__hanger {
+  display: none;
 }
 
 @media (min-width: 640px) {
@@ -311,7 +303,7 @@ body {
   }
 
   .hero-victorian-wall__stage {
-    padding-top: clamp(1rem, 5vw, 2rem);
+    padding-top: clamp(1.25rem, 5vw, 2.25rem);
     padding-bottom: clamp(1.5rem, 7vw, 3rem);
   }
 }
