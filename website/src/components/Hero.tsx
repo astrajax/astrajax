@@ -1,53 +1,56 @@
-import Link from "next/link";
+import Image from "next/image";
 import { AgentFleetVideo } from "@/components/AgentFleetVideo";
 import { BOOKING_URL } from "@/lib/site";
 
 export function Hero() {
   return (
-    <section id="story" className="border-b border-ink/10">
-      <div className="mx-auto grid max-w-[96rem] gap-10 px-6 py-20 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.48fr)] lg:items-stretch lg:gap-8 lg:py-28">
-        <div className="flex flex-col justify-between gap-10 lg:min-h-[34rem]">
-          <div className="space-y-8">
-            <p className="section-label">The adoption operating system for AI agents</p>
-            <h1 className="font-display text-4xl leading-[1.08] font-semibold tracking-tight text-ink sm:text-5xl lg:text-[3.25rem]">
-              For the people who know the work — not the developers.
-            </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-ink-muted">
-              Anyone can build an agent now. AstraJax helps teams actually adopt them — starting
-              with curated context, turning domain experts into agent architects, and building
-              fleets people trust, use and keep improving.
+    <section id="story" className="border-b border-ink/10 bg-cream">
+      <div className="mx-auto grid max-w-[96rem] gap-12 px-6 py-20 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.48fr)] lg:items-stretch lg:gap-10 lg:py-28">
+        <div className="flex flex-col justify-center gap-10 lg:min-h-[34rem] lg:gap-12 lg:pr-2 xl:pr-6">
+          <div className="flex flex-col items-center justify-center text-center lg:items-start lg:text-left">
+            <Image
+              src="/astrajax-logo.png"
+              alt="AstraJax"
+              width={112}
+              height={112}
+              priority
+              className="h-20 w-20 shrink-0 sm:h-24 sm:w-24 lg:h-28 lg:w-28"
+            />
+            <p className="mt-5 font-body text-xs font-medium tracking-[0.38em] text-ink uppercase sm:text-sm">
+              ASTRAJAX
             </p>
-            <div className="flex flex-wrap gap-4">
-              <a
-                href={BOOKING_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary"
-              >
-                Start with an Adoption Audit
-                <span aria-hidden>→</span>
-              </a>
-              <Link href="/journey" className="btn-secondary">
-                See the Butternut story
-              </Link>
-            </div>
           </div>
 
-          <a
-            href="#ask-clive"
-            className="font-display text-xl italic text-ink transition hover:text-apricot sm:text-2xl"
-          >
-            Ask Clive about the adoption OS ↓
-          </a>
+          <div className="space-y-4 text-center lg:text-left">
+            <h1 className="text-balance font-display text-3xl leading-[1.12] font-semibold tracking-tight text-ink sm:text-4xl lg:text-[2.75rem]">
+              The AI Adoption
+              <span className="block">Operating System</span>
+            </h1>
+            <p className="text-base leading-relaxed text-ink-muted sm:text-lg">
+              Building is commoditised. Adoption is the moat.
+            </p>
+            <a
+              href={BOOKING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-primary mt-2 inline-flex"
+            >
+              Start with an Adoption Audit
+              <span aria-hidden>→</span>
+            </a>
+          </div>
         </div>
 
         <div
           id="agent-cast"
-          className="flex min-h-0 scroll-mt-24 flex-col justify-center lg:min-h-[34rem] xl:min-w-0 xl:pr-0"
+          className="flex min-h-0 scroll-mt-24 flex-col justify-center lg:min-h-[34rem] xl:min-w-0"
         >
-          <h2 className="font-display text-3xl leading-tight font-medium text-ink italic sm:text-4xl lg:text-[2.75rem]">
+          <p
+            aria-hidden="true"
+            className="font-display text-3xl leading-tight font-medium text-ink italic sm:text-4xl lg:text-[2.75rem]"
+          >
             Proof that personality drives adoption
-          </h2>
+          </p>
           <div className="mt-4 w-full lg:mt-5">
             <AgentFleetVideo />
           </div>

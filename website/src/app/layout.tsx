@@ -29,18 +29,16 @@ const logoImage = "/astrajax-logo.png";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://astrajax.com"),
-  title: "AstraJax — The adoption operating system for AI agents",
-  description:
-    "AstraJax helps domain experts design, run and improve AI agents their teams actually use — starting with curated context, adoption loops and human judgement.",
+  title: "AstraJax — The AI Adoption Operating System",
+  description: "Building is commoditised. Adoption is the moat.",
   icons: {
     icon: [{ url: logoImage, type: "image/png", sizes: "596x597" }],
     shortcut: [logoImage],
     apple: [{ url: logoImage, type: "image/png", sizes: "596x597" }],
   },
   openGraph: {
-    title: "AstraJax — The adoption operating system for AI agents",
-    description:
-      "For the people who know the work, not the developers. Context-centred, adoption-led and built for citizen-builders.",
+    title: "AstraJax — The AI Adoption Operating System",
+    description: "Building is commoditised. Adoption is the moat.",
     type: "website",
     images: [
       {
@@ -53,9 +51,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "AstraJax — The adoption operating system for AI agents",
-    description:
-      "For the people who know the work, not the developers. Context-centred, adoption-led and built for citizen-builders.",
+    title: "AstraJax — The AI Adoption Operating System",
+    description: "Building is commoditised. Adoption is the moat.",
     images: [logoImage],
   },
 };
