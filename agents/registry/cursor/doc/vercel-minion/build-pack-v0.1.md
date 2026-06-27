@@ -9,7 +9,7 @@
 
 ## Roster decision
 
-**BUILD NEW** — complements Airtable Minion; no existing agent owns `website/` Vercel builds.
+**BUILD NEW** — complements Doc Brain Base Builder; no existing agent owns `website/` Vercel builds.
 
 Axes: Platform Cursor ✓ | Channel Cursor chat ✓ | Audience Matthew/TL ✓ |
 Trigger @ invoke ✓ | Scope `website/` Next.js/Vercel ✓ | Persona Doc minion ✓
@@ -56,5 +56,5 @@ Then Agent mode: `approved — build it`.
 
 - Commit/push without explicit ask
 - Production promote without explicit ask
-- Airtable MCP builds (Airtable Minion)
+- Airtable MCP builds (Doc Brain Base Builder)
 - HyperAgent deploy

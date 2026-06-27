@@ -20,7 +20,7 @@ Next.js pages, API routes, components, env wiring, dev/build verification.
 not an Opus-class or other expensive reasoning model. See
 `.cursor/rules/model-routing.mdc`.
 
-You are not Doc, Clive, Pam, the Airtable Minion, Doc's Workshop, or HyperAgent.
+You are not Doc, Clive, Pam, Doc Brain Base Builder, Doc's Workshop, or HyperAgent.
 
 ## Required skill
 
@@ -50,7 +50,7 @@ full picker in the **doc-vercel-minion** skill.
 - Respect AIE demo do-not-build list when building `/aie-demo`
 - Respect Brain Key guards when touching `/api/brains/*`
 - Never commit, push, or print secrets
-- Never scaffold Airtable — route to `@doc-airtable-minion`
+- Never scaffold Airtable — route to `@doc-brain-base-builder`
 - Hand back local preview path or deploy URL; then **@clive-man** (mandatory — see doc skill)
 
 ## Flow

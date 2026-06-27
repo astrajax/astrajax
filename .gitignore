@@ -13,3 +13,4 @@ hyperagent/logs/
 
 # Personal/admin PDFs (do not commit)
 IHT435_*.pdf
+.vercel

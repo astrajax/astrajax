@@ -1,12 +1,16 @@
 ---
 name: doc
 description: >-
-  Doc Albright — single entry point for approved build work. Triage the task,
-  name the best minion (Airtable or Vercel), propose in Phase A, execute via
-  that minion in Phase B after Matthew approves. Invoke with @doc.
+  Sync artifact for Doc operational spec. Canonical technical responsibilities live
+  in the Doc Agent base Persona Config (Operational v0.2, rec0KNMfpdSlPWQuf).
 ---
 
 # doc
+
+> **Canonical source:** Doc Agent base (`appI5tpwsKNwjfrqR`) → **Persona Config**
+> → `Operational v0.2` (`rec0KNMfpdSlPWQuf`). Character spine **COMPLETE — Approved-Canonical 27 Jun 2026**
+> (Narrative Arch + Persona Memories on same base). This SKILL is a repo sync until the
+> generator emits from Airtable.
 
 ## Purpose
 
@@ -16,7 +20,7 @@ the right minion**, explain the choice in plain English, then run that minion's
 two-phase workflow in the same thread.
 
 Matthew invokes **`@doc` only**. Doc names the minion; Matthew does not need to
-remember `@doc-vercel-minion` vs `@doc-airtable-minion` unless he wants to skip
+remember `@doc-vercel-minion` vs `@doc-brain-base-builder` unless he wants to skip
 triage and go direct.
 
 Minion family: `docs/initiatives/doc-minions.md`
@@ -60,7 +64,7 @@ Approved: [what Matthew approved]
 Changed: [repo paths, base/table IDs, routes — not token values]
 Decisions: [governance/architecture choices made in this build]
 Sources already updated: [files the minion edited]
-Sources for Clive's Man: [architecture.md | brain-key-wiring.md | brain-key-schema.md | airtable-ids.ts | source-registry.md | none]
+Sources for Clive's Man: [architecture.md | brain-key-schema.md | brain-key-wiring.md | doc-brain-base-builder.md | airtable-ids.ts | source-registry.md | none]
 ```
 
 Clive's Man applies source discipline per `clive-man` skill — updates canonical files
@@ -85,7 +89,7 @@ After reading the request, **state this block** before proposing:
 
 | If the job is… | Minion | Load skill |
 |----------------|--------|------------|
-| Airtable base/table/field; Brain Registry, Workshop, Trusted Brain; ops bases (roadmap, CRM, marketing); MCP schema | **Airtable Minion** | `doc-airtable-minion` |
+| Airtable base/table/field; Brain Registry, Workshop, Trusted Brain, Agent base; stand up or extend a brain home; ops bases (roadmap, CRM, marketing); MCP schema | **Doc Brain Base Builder** | `doc-brain-base-builder` — shapes: `brain-key-schema.md`; wiring: `brain-key-wiring.md`; invoke/runbook: `doc-brain-base-builder.md` |
 | `website/` code; Next.js pages/components; API routes (`/api/brains`, `/api/ask-clive`, `/aie-demo`); Vercel env/deploy; npm build/dev | **Vercel Minion** | `doc-vercel-minion` |
 | Both (e.g. new brain base + wire API) | **Both, in order** | Airtable first → Vercel second; say so explicitly |
 | Design a new agent; system prompt; skills/tools/evals for fleet | **Doc's Workshop** | `doc-workshop-proposer` (Proposer) → `doc-workshop-challenger` → builders |
@@ -99,7 +103,7 @@ When two minions apply, default order: **data structure (Airtable) before app co
 
 ### Direct minion invoke
 
-If Matthew `@doc-airtable-minion`, `@doc-vercel-minion`, `@doc-workshop-proposer`,
+If Matthew `@doc-brain-base-builder`, `@doc-vercel-minion`, `@doc-workshop-proposer`,
 `@doc-workshop-challenger`, `@doc-workshop-cursor`, or `@doc-workshop-hyperagent`
 directly, skip triage announcement but still follow that minion's skill.
 
@@ -128,7 +132,7 @@ Always load **doc** first.
 
 Then load **exactly one minion skill** per lane in scope:
 
-- `doc-airtable-minion` (+ composed Airtable pack: overview, filters, show-airtable-link, ops skills as needed)
+- `doc-brain-base-builder` (+ composed Airtable pack: overview, filters, show-airtable-link, ops skills as needed)
 - `doc-vercel-minion` (+ **Vercel plugin skills** — see below)
 - `doc-workshop-proposer` (Workshop Proposer — agent design lane)
 - `doc-workshop-challenger`, `doc-workshop-cursor`, `doc-workshop-hyperagent`
@@ -154,9 +158,9 @@ Proposer write files instead of dispatching builders.
 ## Vercel plugin skills (Doc guides, minion loads)
 
 Matthew has the **Vercel Cursor plugin** installed — skills appear as pills in
-chat (Functions, Sandbox, Storage, CLI, Agent, etc.). Unlike Airtable skills
-(copied into `.cursor/skills/`), these stay in the plugin and are available to
-any `@doc` / Vercel Minion session automatically.
+chat (Functions, Sandbox, Storage, CLI, Agent, etc.). Some plugin skills are also
+vendored under `.cursor/skills/` (see `skills-lock.json` at repo root). Plugin
+skills are available to any `@doc` / Vercel Minion session automatically.
 
 **Doc's job when routing to Vercel Minion:** after the routing block, add:
 
@@ -178,7 +182,7 @@ Pick the **smallest useful set** (usually 2–5). Full picker:
 | Env / Brain Key tokens | env-vars, verification |
 | Deploy / preview URL | deployments-cicd, vercel-cli, env-vars |
 | "Why doesn't it work?" | verification, nextjs |
-| UI polish (non-demo) | shadcn, react-best-practices |
+| UI polish (non-demo) | shadcn, frontend-design, emil-design-eng, web-design-guidelines, vercel-react-best-practices |
 
 Do **not** load auth, next-forge, or vercel-storage for AIE demo work unless
 Matthew explicitly expands scope.
@@ -237,7 +241,8 @@ Short routing callout, then the plan. No theatrics. No em-dashes.
 
 ## Related
 
-- `docs/initiatives/doc-minions.md`
-- `docs/business/architecture.md` §9 — Opus → Composer
-- `@doc-airtable-minion`, `@doc-vercel-minion`, `@doc-workshop-proposer` — direct minion entry (optional)
+- `docs/initiatives/doc-minions.md` — minion roster
+- `docs/business/architecture.md` §7 (Airtable four-base model), §9 (Opus → Composer + minion routing)
+- **Doc Brain Base Builder canonical trio:** `docs/initiatives/brain-key-schema.md`, `docs/initiatives/brain-key-wiring.md`, `docs/initiatives/doc-brain-base-builder.md`
+- `@doc-brain-base-builder`, `@doc-vercel-minion`, `@doc-workshop-proposer` — direct minion entry (optional)
 - `@doc-workshop-challenger`, `@doc-workshop-cursor`, `@doc-workshop-hyperagent` — Workshop Trinity (optional direct)

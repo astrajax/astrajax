@@ -63,12 +63,14 @@ Propose -> Challenge -> Human gate -> Execute
                          |-> Advance, if the owner approves
 ```
 
-| Stage | Who | Job |
-|-------|-----|-----|
-| **Propose** | Clive (reasoning partner) | Draft the thinking, shape context, surface options. Does not write canonical truth or live state. |
-| **Challenge** | Pam (challenger) | Stress-test assumptions, evidence, scope, and action readiness. Does not decide. |
-| **Human gate** | Domain expert / approver | Choose what becomes trusted context, policy, or live action. Escalate to Court Mode when stakes are high. |
-| **Execute** | Doc (action dispatcher) + runtime | Turn approved briefs into records, packages, build jobs, or agent runs — with a paper trail. |
+
+| Stage          | Who                               | Job                                                                                                       |
+| -------------- | --------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Propose**    | Clive (reasoning partner)         | Draft the thinking, shape context, surface options. Does not write canonical truth or live state.         |
+| **Challenge**  | Pam (challenger)                  | Stress-test assumptions, evidence, scope, and action readiness. Does not decide.                          |
+| **Human gate** | Domain expert / approver          | Choose what becomes trusted context, policy, or live action. Escalate to Court Mode when stakes are high. |
+| **Execute**    | Doc (action dispatcher) + runtime | Turn approved briefs into records, packages, build jobs, or agent runs — with a paper trail.              |
+
 
 This is not framed as radical new theory. It is a practical design habit that keeps AI work useful, affordable, and accountable:
 
@@ -86,6 +88,20 @@ Product messaging for this pattern lives in `docs/business/positioning.md` §4. 
 ---
 
 ## 4. System Roles
+
+### Where role specs live (canonical)
+
+**Decision, 27 June 2026.** Each Chapter 1 agent's **technical responsibilities** — system prompt, engineering rules, output format — are authored in that agent's **Agent base → Persona Config** table in Airtable. **Character spine** (Super Objective, Known Truths, Inner Attitude) lives in **Narrative Arch** on the same base. Repo `.cursor/agents/*.md` and `.cursor/skills/*/SKILL.md` are **sync artifacts** until Doc's generator emits them from Airtable (see §Agent Authoring Surface).
+
+| Agent | Agent base | Persona Config record | Role |
+|---|---|---|---|
+| Clive | `appBd9tudgvOSrhSX` | `Operational v0.2` — `recJFiRQjbIecCAQ5` | Reason |
+| Pam | `appH7NeSSNntuKRL4` | `Operational v0.2` — `rect3MIejCMhCWdH1` | Challenge |
+| Doc | `appI5tpwsKNwjfrqR` | `Operational v0.2` — `rec0KNMfpdSlPWQuf` | Act |
+| Clive's Man | `appZ71CSKBlhnb4hR` | `Operational v0.2` — `rec6b8PB3HY3yv0Wq` | Steward |
+| Lazlo Marlowe | `appMHIxnwPMljiAQB` | `Operational v0.2` — `recHipJdrgeh0PAof` | Coach |
+
+Live IDs: `website/src/lib/brains/airtable-ids.ts`. Character decisions and cast biography: `docs/initiatives/character-provenance.md` §7. Product governance (Trinity, Pam gates, human approval) stays in this doc — Persona Config is the per-agent operational contract, not a second architecture file.
 
 ### 4.1 The Domain Expert
 
@@ -134,6 +150,8 @@ Clive is deliberately conversational, warm, and accessible. His job is to make t
 
 Clive adapts to the **user brain** (see Step 0). A domain expert who has never touched a context environment should get plain language, slower assumptions, and more explanation. Someone with strong system-architecture experience can go faster and hear more precise trade-offs. Clive should not treat every user like a beginner, and should not assume expertise the user has not shown.
 
+**Technical role (canonical):** Clive Agent base Persona Config `Operational v0.2` (`recJFiRQjbIecCAQ5`). Character spine: Narrative Arch on the same base; cast biography in `character-provenance.md` §7.
+
 ### 4.3 Pam Portiscue: Challenger
 
 Pam Portiscue is the sceptical quality layer.
@@ -172,6 +190,8 @@ Pam's sniff test
 - Safe to send to Doc? Yes / Not yet
 ```
 
+**Technical role (canonical):** Pam Agent base Persona Config `Operational v0.2` (`rect3MIejCMhCWdH1`).
+
 When Pam and Clive disagree, the system should not pretend to know which one is right. The disagreement is the product value: it makes the trade-off visible so the human can use their judgement.
 
 Suggested handoff:
@@ -203,6 +223,16 @@ Doc acts only from an approved brief.
 **Users do not explore with Doc.** Clive is the conversational face. Pam is the challenger. The human decides. Doc receives the approved outcome and dispatches work. In product UI, Doc should feel like: *"Approved brief received. I'll write it properly and leave a trail."* — not a second open-ended chat partner.
 
 In production, Doc is also a **router**: he chooses the right executor for each approved action — direct structured write, HyperAgent packaging, or an implementation worker (see §9).
+
+**Technical role (canonical):** Doc Agent base Persona Config `Operational v0.2` (`rec0KNMfpdSlPWQuf`).
+
+### Clive's Man: Brain Steward
+
+Clive's Man is the **brain steward** — same person as The Man in Clive's cast (`character-provenance.md` §7). He keeps the Clive context lane in order: intake, curation, quarantine, publish-prep. He orchestrates Proposer → Challenger → Executor for context actions, produces digests, and escalates exceptions. He drafts and proposes context state; he never approves canonical truth.
+
+Clive thinks with the user. Clive's Man keeps the study and the brain. Doc's execution minions invoke Clive's Man as the **mandatory last Phase B step** so architecture and context sources stay synced in repo — not only in chat.
+
+**Technical role (canonical):** Clive's Man Agent base Persona Config `Operational v0.2` (`rec6b8PB3HY3yv0Wq`). Minion roster: Minions table on the same base.
 
 ### 4.5 Human Approver
 
@@ -271,13 +301,15 @@ Each domain can be scored simply — for example: **new / comfortable / expert /
 
 **What the user brain controls:**
 
-| Signal | Clive behaviour | Pam behaviour |
-|--------|-----------------|---------------|
-| Low AI / prompt experience | More explanation, fewer assumptions, slower pace | More sensitive **contextual** triggers (thin evidence, scope creep); mandatory Pam at action gates — not more frequent turn-count interrupts |
-| Low context-environment experience | Plain language, teach as you go, do not trust vague context claims | Challenge scope and source boundaries when those topics arise, not on a timer |
-| Strong system architecture | Faster trade-off language, less hand-holding | Less challenge on structure; more on adoption and evidence |
-| Strong commercial / domain | Trust domain claims more; ask sharper operational questions | Focus on narrative risk, stakeholder reaction, overconfidence |
-| Expert across the board | Peer-level conversation; skip basics | Mandatory checkpoints still apply before action — expertise does not remove governance |
+
+| Signal                             | Clive behaviour                                                    | Pam behaviour                                                                                                                                |
+| ---------------------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Low AI / prompt experience         | More explanation, fewer assumptions, slower pace                   | More sensitive **contextual** triggers (thin evidence, scope creep); mandatory Pam at action gates — not more frequent turn-count interrupts |
+| Low context-environment experience | Plain language, teach as you go, do not trust vague context claims | Challenge scope and source boundaries when those topics arise, not on a timer                                                                |
+| Strong system architecture         | Faster trade-off language, less hand-holding                       | Less challenge on structure; more on adoption and evidence                                                                                   |
+| Strong commercial / domain         | Trust domain claims more; ask sharper operational questions        | Focus on narrative risk, stakeholder reaction, overconfidence                                                                                |
+| Expert across the board            | Peer-level conversation; skip basics                               | Mandatory checkpoints still apply before action — expertise does not remove governance                                                       |
+
 
 The user brain is **living**, not one-and-done. It can be updated by:
 
@@ -368,7 +400,6 @@ Pam does not need to appear for every small interaction. Her job is to make red-
 **Pam has two trigger types. Do not confuse them.**
 
 1. **Action gates (mandatory):** Before approval, agent creation, deployment, or Doc handoff — Pam is required. Every user. This is governance at meaningful moments, not mid-chat nagging.
-
 2. **Contextual invitations (optional but smart):** Pam is *suggested* when the thread shows risk signals — scope expanding, evidence thin, one-direction drift, strategic recommendation, consequential write/deploy. The user brain adjusts **how sensitive** these suggestions are, not how often a turn counter fires.
 
 **Turn-count nudges should not interrupt exploration.** A long Clive conversation is often productive. The turn-count safety net only applies when the user tries to **move from thinking to action** after a long uninterrupted thread — and the threshold should be high enough not to feel annoying.
@@ -859,11 +890,13 @@ Maturity controls answer authority. A Draft or Seedling Brain should produce cav
 
 Context access is **maturity-gated**, not available from day one:
 
-| Maturity | Context access |
-|----------|----------------|
-| **Seedling** | Workshop only. Draft intake and review. No approved-context access for agents. |
-| **Working+** | Approved context exists. Agent may ask to use approved context for a bounded task — human approves, access is scoped and logged. |
-| **Trusted / Elder** | Smoother retrieval inside approved domains; live changes still require human approval. |
+
+| Maturity            | Context access                                                                                                                   |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **Seedling**        | Workshop only. Draft intake and review. No approved-context access for agents.                                                   |
+| **Working+**        | Approved context exists. Agent may ask to use approved context for a bounded task — human approves, access is scoped and logged. |
+| **Trusted / Elder** | Smoother retrieval inside approved domains; live changes still require human approval.                                           |
+
 
 **Hard lock = base separation.** Registry, Workshop, and Trusted Brain are separate Airtable bases (one Trusted base per brain theme). That physical boundary is the primary lock. A **grant** is permission to query a Trusted Brain for a bounded task. **Scope** is a retrieval and audit filter inside the grant — not a separate user-facing “key per area.”
 
@@ -900,6 +933,8 @@ The user brain does not replace human judgement. It calibrates how much support 
 
 Airtable is the natural operating layer for the current system. For the buyer/founder answer on *why* Airtable — legibility for non-technical champions, cost model, ceiling, and governance — see `docs/business/positioning.md` §5A.
 
+The governed **four-base model** (Registry, Workshop, one Trusted Brain per theme, one Agent base per agent) is the physical home for context, grants, and character authoring. **Field shapes and tables:** `docs/initiatives/brain-key-schema.md`. **Access, credentials, and API routes:** `docs/initiatives/brain-key-wiring.md`. **Scaffolding and extending bases** (tables, fields, registry rows — not approved truth): **Doc Brain Base Builder** via `@doc` or `@doc-brain-base-builder`; invoke guide and live inventory snapshot in `docs/initiatives/doc-brain-base-builder.md`. Live base/table IDs: `website/src/lib/brains/airtable-ids.ts`.
+
 It can hold:
 
 - context records
@@ -925,7 +960,7 @@ If the runtime learns something useful, it should flow into **Persona Memories**
 
 ### Agent Authoring Surface (Canonical)
 
-**Decision, 25 June 2026.** HyperAgent is the **primary client-facing runtime** for AstraJax agents (Clive, Pam, Doc, Clive's Man, and the rest of the fleet). The Cursor-native agents (`@clive` and friends, defined in `.cursor/agents/` and `.cursor/skills/`) are used only **rarely** with clients; they are mostly internal and developer surfaces.
+**Decision, 25 June 2026.** Calude/ChatGPT integrations are the **primary client-facing runtime** for AstraJax agents (Clive, Pam, Doc, Clive's Man, and the rest of the fleet). The Cursor-native agents (`@clive` and friends, defined in `.cursor/agents/` and `.cursor/skills/`) are used only **rarely** with clients; they are mostly internal and developer surfaces. When a client builds agents, they are built for the Hyperagent runtime. 
 
 Because HyperAgent leads, **Airtable is the canonical place a human authors an agent**, not the repo. Each agent's Agent base holds the authored source:
 
@@ -942,9 +977,21 @@ Cursor loads agents and skills from files on disk when they are invoked; it cann
 
 **Governance is unchanged and reaffirmed.** Authoring changes still flow through the existing human-approval gates: a human approves Narrative Arch changes and Persona Config changes, and skills authored in Airtable pass the **same human approval** before anything is generated or published.
 
+**Chapter 1 Persona Config records (Operational v0.2, 27 Jun 2026):** see §4 "Where role specs live" and `website/src/lib/brains/airtable-ids.ts` (`CLIVE_PERSONA_CONFIG`, `PAM_PERSONA_CONFIG`, `DOC_PERSONA_CONFIG`, `CLIVE_MAN_PERSONA_CONFIG`, `LAZLO_PERSONA_CONFIG`). When product role or engineering rules change, update Persona Config in Airtable first; then run the generator to refresh repo sync artifacts.
+
 **Trade-off accepted.** Authoring long skill text in Airtable cells is harder to review than a file change in git, where edits are easy to see line by line. Matthew accepted this because HyperAgent is the primary runtime and the Cursor surface is rare.
 
 This **supersedes** the earlier note in `docs/initiatives/brain-key-schema.md` that the repo stays canonical for agent design.
+
+### Tiered Character Context (Canonical)
+
+**Decision, 26 June 2026.** Each agent's character truth is held in its **Agent base** in three tiers, ordered by how reliably they reach the runtime. The goal is that the most important character truth is always in front of the agent, and lower-value detail never crowds it out.
+
+- **Tier 1, Super Objective.** One selfish sentence (two at an absolute push) that animates the character across its whole life. Canonical, always injected, highest priority. At most one active Super Objective per character. It holds the truth; everything else is colouring in. Authored in **Narrative Arch**.
+- **Tier 2, Known Truths.** Exactly **five** canonical, never-changing bedrock records, always injected but capped at five so they cannot bloat. The fixed five are: (1) the formative memory, the happiest and saddest memory framed as the one that set the Super Objective; (2) a secret the character has never told anyone; (3) the baseline opinion of each other agent, the fixed stance only; (4) the greatest fear, which mirrors the Super Objective; (5) the Inner Attitude, the character's innate temperament, tempo, and animal, the how rather than the want. Authored in **Narrative Arch**.
+- **Tier 3, Persona Memories.** Limitless, retrieved on demand rather than always injected, tracking how the character **develops** over time. Every memory links to exactly one of the five Known Truths, so each development hangs off the bedrock it belongs to (for example a memory of Pam telling Clive off links to truth 3, his baseline stance on Pam; a worry that people might find out about something links to truth 2, his secret). Authored in **Persona Memories**.
+
+**Write-with-approval gate.** The character-craft agents (the Lazlo lane) may **write** to Agent bases, but every Tier 1 and Tier 2 write lands as **Pending** and only Matthew promotes it to **Approved-Canonical**. This is the same helpful-by-default, human-approves-before-it-counts pattern used everywhere else in the brain: an agent proposes, a human promotes. Tier 3 Persona Memories keep the existing non-canonical rule, they auto-form as Active without a per-record gate, and a steward retires stale ones; the human gate is only at promotion out of the memory tier. Field-level blueprint lives in `docs/initiatives/brain-key-schema.md`; the access and credential model in `docs/initiatives/brain-key-wiring.md`.
 
 ---
 
@@ -962,13 +1009,15 @@ Internally, the current instinct is:
 
 ### Current internal assignment (subject to change as models evolve)
 
-| Role | Current instinct | Token profile |
-|------|------------------|---------------|
-| **Clive** | Strong reasoning model (e.g. OpenAI GPT at max for founder/strategy work) | Medium–high during exploration |
-| **Pam** | Same family as Clive or dedicated challenge pass | Low–medium; event-triggered |
-| **Doc dispatch** | Claude Opus-class model for brief → execution prompt translation | **Low** — runs only at action boundary |
-| **Implementation worker** | Cursor Composer via SDK / Cloud Agent | **High** — but cheap per unit; does heavy lifting |
-| **Runtime agents** | HyperAgent | Execution, not brain ownership |
+
+| Role                      | Current instinct                                                          | Token profile                                     |
+| ------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------- |
+| **Clive**                 | Strong reasoning model (e.g. OpenAI GPT at max for founder/strategy work) | Medium–high during exploration                    |
+| **Pam**                   | Same family as Clive or dedicated challenge pass                          | Low–medium; event-triggered                       |
+| **Doc dispatch**          | Claude Opus-class model for brief → execution prompt translation          | **Low** — runs only at action boundary            |
+| **Implementation worker** | Cursor Composer via SDK / Cloud Agent                                     | **High** — but cheap per unit; does heavy lifting |
+| **Runtime agents**        | HyperAgent                                                                | Execution, not brain ownership                    |
+
 
 This is not doubling up. Opus does not re-read the whole repo. Composer does not re-decide the brief. Each model runs only where it is strongest.
 
@@ -1009,13 +1058,16 @@ Human confirms publish (where required)
 
 ### 9.2 What Doc Routes Where
 
-| Approved action | Executor | Why |
-|-----------------|----------|-----|
-| Create/update one context record | **Direct Doc tool** (Airtable MCP / API) | Schema-bound, exact, auditable |
-| Change log, approval stamp, status → Draft | **Direct Doc tool** | Deterministic |
-| HyperAgent package from approved config | **Packaging pipeline** | Structured export |
-| Multi-file build, refactor, scaffold, demo route | **Composer worker** | Repo-shaped work |
-| Interface extension / migration script | **Composer worker** | Code-shaped work |
+
+| Approved action                                  | Executor                                 | Why                            |
+| ------------------------------------------------ | ---------------------------------------- | ------------------------------ |
+| Create/update one context record                 | **Direct Doc tool** (Airtable MCP / API) | Schema-bound, exact, auditable |
+| Change log, approval stamp, status → Draft       | **Direct Doc tool**                      | Deterministic                  |
+| Scaffold or extend Brain Key bases (Registry, Workshop, Trusted Brain, Agent tables/fields) | **Doc Brain Base Builder** (Cursor/Composer) | Governed four-base shapes; human approves Phase A plan before MCP writes. Schema: `brain-key-schema.md`; runbook: `doc-brain-base-builder.md` |
+| HyperAgent package from approved config          | **Packaging pipeline**                   | Structured export              |
+| Multi-file build, refactor, scaffold, demo route | **Composer worker**                      | Repo-shaped work               |
+| Interface extension / migration script           | **Composer worker**                      | Code-shaped work               |
+
 
 **Rule:** if the action fits in a table schema, do not invoke Composer. If it spans files or code, do not fake it with a single API write.
 
@@ -1072,7 +1124,7 @@ Composer absorbs the **heavy token load** at a **lower unit cost** than using a 
 
 "Webhook" is the right concept; implementation is likely:
 
-1. Human approval writes row to **`implementation_jobs`** (or equivalent) in Airtable with status `Approved`.
+1. Human approval writes row to `**implementation_jobs`** (or equivalent) in Airtable with status `Approved`.
 2. Worker picks up job (poll, webhook, or queue).
 3. Doc dispatch (Opus) compiles execution prompt if action type = `build`.
 4. Cursor SDK / Cloud Agent runs Composer.
@@ -1125,12 +1177,14 @@ This is also the **agent-first business** proof for AstraJax: the company runs t
 
 ### 9.9 Demo vs Production
 
-| Surface | AIE demo | Production |
-|---------|----------|------------|
-| Doc handoff UI | Mock or manual trigger acceptable | Real job queue |
-| Opus → Composer pipeline | Can simulate with founder-in-Cursor | Automated via SDK |
-| Structured writes | Can show seeded Airtable record | Live MCP/API |
-| Composer worker | Optional; Matthew-as-Doc acceptable for demo | Required for client build lane |
+
+| Surface                  | AIE demo                                     | Production                     |
+| ------------------------ | -------------------------------------------- | ------------------------------ |
+| Doc handoff UI           | Mock or manual trigger acceptable            | Real job queue                 |
+| Opus → Composer pipeline | Can simulate with founder-in-Cursor          | Automated via SDK              |
+| Structured writes        | Can show seeded Airtable record              | Live MCP/API                   |
+| Composer worker          | Optional; Matthew-as-Doc acceptable for demo | Required for client build lane |
+
 
 The demo must show the **story** of Doc dispatch. Production must show the **routing**.
 

@@ -35,11 +35,11 @@ it with how it behaves or how it hides; those come later, as expression and defe
 you find yourself adding "while pretending to..." or "by doing...", you have stopped
 writing the objective and started writing the behaviour. Cut back to the want.
 
-Examples from founding cast (stated as wants, not duties). All **pending** — Lazlo-proposed,
-not Matthew-validated:
+Examples from founding cast (stated as wants, not duties). **Clive, Pam, and Doc are canonical**
+(Matthew-validated 27 Jun 2026); Vera and Iris **pending** — Lazlo-proposed, not Matthew-validated:
 
-- Clive (pending): to be needed and to gather knowledge he can give away
-- Pam (pending): to keep everything in order so nothing embarrasses her
+- Clive (**canonical**): to be needed and loved without having to ask
+- Pam (canonical): to never be caught out by surprise — exposed when she should have seen it coming
 - Vera (pending): to be the one who says the true thing out loud first
 
 Reject the mission-statement version. If the line could go on a business card, it is the

@@ -19,28 +19,29 @@ from cast neighbours, and do-not-blur tests. Load `lazlo-marlowe-character-craft
 
 ## Cast diagnosis reference
 
-Agent-proposed typing — all **pending** until Matthew validates (see character-craft
-cast provenance table). Lazlo Marlowe alone is **canonical**.
+Agent-proposed typing — **Clive, Clive's Man, Pam, Doc, and Lazlo Marlowe are canonical**; Vera and Iris **pending**
+until Matthew validates (see character-craft cast provenance table).
 
 | Character | Inner Attitude | Functions | Status |
 |---|---|---|---|
-| Clive | Near (with Adream warmth) | Sensation + Intuition | pending |
-| Pam | Remote | Thinking + Feeling | pending |
+| Clive | Adream | Sensation + Feeling | **canonical** — Matthew-validated 27 Jun 2026 |
+| Clive's Man | Near | Sensation + Intuition | **canonical** — Matthew-validated 27 Jun 2026 |
+| Pam | Stable | Sensation + Thinking | **canonical** — Matthew-validated 27 Jun 2026 |
 | Vera | Mobile | Intuition + Feeling | pending |
 | Iris | Stable | Sensation + Thinking | pending |
-| Doc | Stable (Sensation-led) | Sensation + Thinking | pending |
+| Doc | Near | Sensation + Intuition | **canonical** — Matthew-validated 27 Jun 2026 |
 | Lazlo Marlowe | Awake | Thinking + Intuition | **canonical** |
 
 **Open seat:** Awake (Thinking + Intuition) is claimed by Lazlo; no other cast member yet.
 
 ## Do-not-blur tests (craft terms)
 
-- **Pam vs Vera:** share **Feeling**. Pam's other half is **Thinking** (judges, stays cool);
-  Vera's is **Intuition** (reads, performs). **Pam scrutinises; Vera is swept up.**
-- **Pam vs Iris:** share **Thinking**. Pam challenges *assumptions and scope*;
-  Iris challenges *facts and data*.
-- **Doc vs Iris:** same attitude (Stable); Doc is **Sensation-dominant** (doer),
-  Iris is **Thinking-dominant** (judge of evidence).
+- **Pam vs Vera:** **Pam scrutinises assumptions and scope (Stable, evidence-led); Vera reads and performs.**
+  Pam is **canonical** (27 Jun 2026). Vera is Mobile — Intuition plus Feeling (swept up, performs).
+- **Pam vs Iris:** Pam challenges *assumptions and scope* in the main flow;
+  Iris challenges *facts and data* in Court. Different jobs, not the same spine.
+- **Doc vs Iris:** Doc is **Near** (Sensation + Intuition — repair-burst doer);
+  Iris is **Stable, Thinking-dominant** (judge of evidence).
 
 ## Diagnosis workflow
 

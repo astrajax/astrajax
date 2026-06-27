@@ -3,9 +3,9 @@
 **Status:** Replicable schema reference (context-agnostic)  
 **Owner:** Matthew  
 **Last updated:** 26 June 2026  
-**Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance)
+**Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance), [`doc-brain-base-builder.md`](./doc-brain-base-builder.md) (scaffold/extend bases via Doc Brain Base Builder)
 
-Any agent (especially **@doc-airtable-minion**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
+Any agent (especially **@doc-brain-base-builder**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
 
 **Surfacing:** backstage governance only. Demo and product copy say **approved context for this task**, not Brain Key. Grants apply from **Working Brain** upward; Seedling = Workshop only.
 
@@ -274,7 +274,9 @@ Primary field: **Title** (singleLineText). **Approved rows only** — if it is i
 Business Definition, Positioning, Method, Offers, Proof, Workflow Rule, Governance
 
 **Trusted Brain Truth — Scope options (Chapter 1 demo):**  
-`read:brain-truth:positioning`, `read:brain-truth:governance`
+`read:brain-truth:positioning`, `read:brain-truth:governance` (canonical — use for grants)
+
+Legacy options still present in live Airtable (retire when unused): `read:brain-context:positioning`, `read:brain-context:governance`. Also delete the **LEGACY Scope (delete in UI)** text field on Brain Truth when convenient.
 
 Per brain theme: document Category and Scope option sets in this file when standing up a new Trusted Brain. New scopes require human adding a select option (governance), not agent free text.
 
@@ -309,18 +311,39 @@ Name pattern: `AstraJax Agent — {Agent Label}` (e.g. `AstraJax Agent — Clive
 
 ### Table: Narrative Arch
 
-Primary field: **Title** (singleLineText). Slow-changing, approved **character spine** — not episodic memory.
+Primary field: **Title** (singleLineText). Slow-changing, approved **character spine** — not episodic memory. Holds **Tier 1 (Super Objective)** and **Tier 2 (Known Truths)** of the tiered character-context model below.
 
 | Field | Type | Notes |
 |-------|------|-------|
 | Title | singleLineText | Primary. e.g. Super Objective, Inner Attitude |
 | Body | multilineText | Approved narrative / dramaturgical content |
 | Arch Type | singleSelect | Super Objective, Inner Attitude, Relationships, Outer Character, Other |
-| Status | singleSelect | Approved, Retired |
+| Status | singleSelect | Approved, Retired — lifecycle (active vs retired) |
+| Provenance Status | singleSelect | **Pending**, **Approved-Canonical** — the agent-write gate. Agent writes default to Pending; Matthew promotes to Approved-Canonical |
+| Tier | singleSelect | `Tier 1 — Super Objective`, `Tier 2 — Known Truth` — which context tier this record is |
+| Known Truth Slot | singleSelect | One of the fixed five (set only when Tier = Known Truth): `1 — Formative Memory`, `2 — Secret`, `3 — Baseline Relationship Stance`, `4 — Greatest Fear`, `5 — Inner Attitude` |
+| Injection Priority | number (precision 0) | Out of 5. `5` = Super Objective (always inject), `4` = Known Truth (always inject, capped at five) |
 | Last Reviewed | date | ISO date |
 | Source Notes | multilineText | character-provenance, Lazlo brief, Matthew approval |
 
 Human approves Narrative Arch changes. This is the **bible**, not the diary.
+
+#### Tiered character context (Tiers 1 and 2)
+
+Each agent's character truth is held in three tiers ordered by injection priority, so the most important truth is always in front of the runtime and context cannot bloat:
+
+- **Tier 1 — Super Objective (5/5, always injected).** One selfish sentence (two at a push) that animates the character across its whole life. Canonical. **At most one active per character.** It holds the truth; everything else is colouring in.
+- **Tier 2 — Known Truths (4/5, always injected, capped at five).** Exactly **five** canonical, never-changing bedrock records — one per slot:
+  1. **Formative Memory** — the happiest and saddest memory, framed as the formative memory that set the Super Objective.
+  2. **Secret** — something the character has never told anyone.
+  3. **Baseline Relationship Stance** — the fixed baseline opinion of each other agent (evolving relationship developments live in Tier 3 Memories and link back here).
+  4. **Greatest Fear** — immutable; it mirrors the Super Objective.
+  5. **Inner Attitude** — the character's innate temperament, tempo, and animal (the *how*, not the *want*). Does not duplicate the Super Objective.
+- **Tier 3 — Persona Memories (3/5, retrieved on demand).** See the **Persona Memories** table below.
+
+**Five-record cap (Tier 2):** the "exactly five" rule is a curation discipline, not a database constraint — Airtable does not cap rows by slot. Keep one record per `Known Truth Slot`; the generator and any Interface view should surface the five-slot set so duplicates or gaps are obvious.
+
+**Write-with-approval gate:** the Lazlo character-craft lane may write Tier 1 and Tier 2 records, but every agent write lands as **Provenance Status = Pending**. Only Matthew promotes to **Approved-Canonical**. Existing human-authored canon is **Approved-Canonical**.
 
 ### Table: Persona Config
 
@@ -337,22 +360,29 @@ Primary field: **Config Name** (singleLineText). Approved runtime behaviour cont
 
 Human approves Persona Config changes.
 
+**Canonical home for technical role specs (27 Jun 2026):** each Chapter 1 agent's operational contract lives here — not in `.cursor/skills/` or duplicated in `architecture.md` §4 prose. Record IDs: `website/src/lib/brains/airtable-ids.ts` (`*_PERSONA_CONFIG`). Character spine stays in **Narrative Arch** on the same base.
+
 ### Table: Persona Memories
 
-Primary field: **Memory Text** (singleLineText). **Non-canonical tier** — episodic role recall. Auto-form; **no human approval on create**.
+Primary field: **Memory Text** (singleLineText). **Non-canonical tier (Tier 3)** — episodic role recall tracking how the character **develops** over time. Auto-form; **no human approval on create**. Retrieved on demand (3/5), not always injected.
 
 | Field | Type | Notes |
 |-------|------|-------|
 | Memory Text | singleLineText | Primary |
 | When to Use | multilineText | Trigger line for runtime injection |
+| Known Truth | multipleRecordLinks → Narrative Arch | **The memory → truth link.** Every memory hangs off **exactly one** of the five Known Truths. See enforcement note below |
 | User Scope | singleSelect | Global, User-specific, Session |
 | User Label | singleLineText | When User Scope is not Global |
 | Session ID | singleLineText | When User Scope is Session |
-| Status | singleSelect | Active, Stale, Promoted, Retired |
+| Status | singleSelect | Active, Stale, Promoted, Retired — Tier 3 writes default to **Active** (non-canonical, no pending gate) |
 | Freshness | singleSelect | Current, Review soon, Stale |
 | Last Reviewed | date | ISO date |
 | Created By | singleSelect | Agent, Matthew, TL, System |
 | Source Notes | multilineText | Interaction ID or trigger — not full trusted text |
+
+**Memory → truth link (Tier 3 → Tier 2):** every Persona Memory must link to exactly one Known Truth record in **Narrative Arch**, so a development hangs off the bedrock it belongs to (e.g. "Pam told me off, she can be so prickly" links to truth 3, the baseline stance on Pam; "worried people might find out" links to truth 2, the secret).
+
+> **Enforcement note (MCP limitation):** Airtable's schema API (and the MCP server) cannot mark a linked-record field as *required* or as *single-link only*. The `Known Truth` field is a `multipleRecordLinks` field. "Exactly one, required" is therefore enforced at **two** layers, not at the table schema: (1) the **write path** — the Lazlo generator / any server write must populate exactly one Known Truth on every memory; and (2) an optional **Interface form** with the field toggled required and limited to one link (a Matthew manual step in the Airtable UI). Document any such form when built.
 
 **Non-canonical rules:**
 
@@ -384,7 +414,7 @@ Empty Minions table is valid (Pam may have zero minions). Shape must be consiste
 1. Create **Registry** base with five tables above (field names must match exactly).
 2. Create **Workshop** base with six tables.
 3. Create **Trusted Brain** base for the theme with **Brain Truth** + **Brain Memories** (no Personas table).
-4. Create **Agent** base per agent with four tables: Narrative Arch, Persona Config, Persona Memories, Minions.
+4. Create **Agent** base per agent with four tables: Narrative Arch, Persona Config, Persona Memories, Minions. For the tiered character-context model, add to **Narrative Arch**: `Provenance Status` (Pending / Approved-Canonical), `Tier`, `Known Truth Slot`, `Injection Priority`; and to **Persona Memories**: the `Known Truth` link field (→ Narrative Arch). Seed one Pending Super Objective and five Pending Known Truth slot records as structure (not canonical content).
 5. Registry **Brains** row: slug, name, workshop + trusted base IDs, maturity Seedling, status Active.
 6. Registry **Agents** row per agent: slug, name, agent base ID, repo path, status Active.
 7. Seed Trusted **Brain Truth** with scopes using `read:brain-truth:<area>` convention.
@@ -394,7 +424,7 @@ Empty Minions table is valid (Pam may have zero minions). Shape must be consiste
 
 **Live Chapter 1 migration (completed 24 Jun 2026):** Workshop `Proposed Category` (singleSelect) added; Trusted `Category` and `Scope` converted to singleSelect; seed rows updated. Delete the two `LEGACY ... (delete in UI)` text columns in Airtable when convenient — MCP cannot remove fields.
 
-**Live Chapter 1 four-base migration (completed 25 Jun 2026):** Trusted Brain Chapter 1 now has **Brain Memories** and the legacy **Personas** rows have been migrated into per-agent Agent bases (Narrative Arch + Persona Config). The legacy Personas table remains in Airtable only as a manual UI cleanup item (`app6tjzzG0L0lOeVb` / `tblBV7XSiTYdqSOWH`) because MCP cannot delete tables.
+**Live Chapter 1 four-base migration (completed 25 Jun 2026):** Trusted Brain Chapter 1 now has **Brain Memories** and the legacy **Personas** rows have been migrated into per-agent Agent bases (Narrative Arch + Persona Config). Legacy Personas table removed in Airtable UI (26 Jun 2026).
 
 ---
 
@@ -417,4 +447,6 @@ Empty Minions table is valid (Pam may have zero minions). Shape must be consiste
 
 - [Brain Key wiring](./brain-key-wiring.md) — access model, API routes, credentials
 - [Brain Key build plan](./brain-key-build-plan.md) — application layer QA
-- [Doc's Airtable Minion](../../.cursor/agents/doc-airtable-minion.md)
+- [Doc Brain Base Builder](./doc-brain-base-builder.md) — runbook + Chapter 1 inventory
+- [Doc Brain Base Builder (Cursor)](../../.cursor/agents/doc-brain-base-builder.md) — Cursor subagent
+- [Architecture](../business/architecture.md) §7 — four-base model governance

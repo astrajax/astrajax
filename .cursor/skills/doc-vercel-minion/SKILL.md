@@ -17,7 +17,7 @@ has shaped the brief and Matthew has approved.
 This minion owns the **`website/`** Next.js app: App Router pages, API routes
 (including `/api/brains/*`, `/api/ask-clive`, demo routes), components, env
 wiring, local dev verification, and preview deploy handoff. It does not own
-Airtable schema (see **doc-airtable-minion** / Airtable Minion) or HyperAgent
+Airtable schema (see **doc-brain-base-builder** / Doc Brain Base Builder) or HyperAgent
 fleet runtime.
 
 Matthew is non-technical; lead with outcomes and preview links, not jargon stacks.
@@ -83,7 +83,7 @@ Still forbidden:
 - `git commit`, `git push` unless Matthew explicitly asks in the same thread
 - Production promote without explicit request
 - Logging or echoing env secret values
-- Building Airtable bases (route to `@doc-airtable-minion`)
+- Building Airtable bases (route to `@doc-brain-base-builder`)
 - Deploying HyperAgent agents
 
 ## Primary repo context
@@ -162,7 +162,7 @@ Read each named repo skill's `SKILL.md` under `.cursor/skills/` before applying 
 ### Airtable plugin skills (contrast)
 
 Airtable skills live in `.cursor/skills/` (airtable-overview, product-ops, etc.).
-Route Airtable work to `@doc` → Airtable Minion — not this minion.
+Route Airtable work to `@doc` → Doc Brain Base Builder — not this minion.
 
 ## Build modes
 
@@ -226,6 +226,6 @@ No theatrics. No em-dashes. No narration while thinking.
 
 ## Related
 
-- `@doc-airtable-minion` — Airtable Minion
+- `@doc-brain-base-builder` — Doc Brain Base Builder
 - `docs/initiatives/doc-minions.md` — family rules
 - `@doc-workshop-proposer` — designs new agents via Doc's Workshop, not Vercel feature work

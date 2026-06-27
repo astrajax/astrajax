@@ -27,14 +27,14 @@ Clive and Pam can **request** access to a trusted Brain. They are **blind** to t
 | --------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | **Brain Registry**                      | Index + governance       | Brain metadata, **agent metadata**, maturity, workshop/trusted/agent base IDs, Brain Key Requests, Access Grants, Change Log | Trusted context text, persona memory text, API tokens                                           |
 | **Brain Workshop**                      | Draft / propose          | Draft Brain Truth, Brain Interactions, Pam Reviews, pending Approval Decisions, Doc Actions, User Brains                     | Approved canonical context, persona memories                                                    |
-| **Trusted Brain** (one per Brain theme) | Canonical business truth | Approved Brain Truth, Brain Memories (working shared recall)                                                                 | Draft or quarantined records, character narrative, Personas (deprecated — moved to Agent bases) |
+| **Trusted Brain** (one per Brain theme) | Canonical business truth | Approved Brain Truth, Brain Memories (working shared recall)                                                                 | Draft or quarantined records, character narrative, persona config |
 | **Agent** (one per agent)               | Character + role memory  | Narrative Arch, Persona Config, Persona Memories, Minions                                                                    | Canonical business truth, other agents' state                                                   |
 
 
 Strictest practical rules:
 
 - **One Trusted Brain base per Brain theme** — token scoping for business truth.
-- **One Agent base per agent** — token scoping for character and persona memory (Clive, Pam, Doc, Clive's Man for Chapter 1).
+- **One Agent base per agent** — token scoping for character and persona memory (Clive, Pam, Doc, Clive's Man for Chapter 1). **Clive's Man** is the same cast member as The Man in `character-provenance.md` §7 — brain steward and full character, not a separate metaphor.
 - **HyperAgent does not store durable memory** for product agents. Runtimes fetch from Agent + Trusted bases at session start.
 
 ---
@@ -94,6 +94,8 @@ Guards (same spirit as no-memory rule, applied to writes):
 
 This is **not** HyperAgent `autoSaveMemories`. Governed fleet exports keep `autoSaveMemories = false` because HyperAgent must not own the brain. Auto-save targets **Airtable Agent bases** under sanitiser + retire discipline.
 
+**Tier 1 and Tier 2 are different from auto-save.** Persona Memories (Tier 3) auto-form without a per-record gate. **Super Objective (Tier 1) and Known Truths (Tier 2)** are canonical character bedrock, so character-craft agent writes there default to **Provenance Status = Pending** and only Matthew promotes them to **Approved-Canonical**. Same spirit as the no-memory and promotion rules: an agent proposes, a human promotes before it counts.
+
 ---
 
 ## Registry tables
@@ -123,6 +125,18 @@ Full blueprint: `[brain-key-schema.md](./brain-key-schema.md)`.
 Summary: **Narrative Arch**, **Persona Config**, **Persona Memories**, **Minions**.
 
 Chapter 1 agents: `clive`, `pam`, `doc`, `clive-man`.
+
+### Tiered character context (Narrative Arch + Persona Memories)
+
+Character truth lives in three tiers ordered by injection priority, so the most important truth is always in front of the runtime and context cannot bloat:
+
+| Tier | Lives in | Injection | Governance |
+|------|----------|-----------|------------|
+| **1 — Super Objective** | Narrative Arch (`Tier = Tier 1 — Super Objective`) | 5/5, always injected. One selfish sentence; at most one active per character | Canonical. Agent writes land **Pending**; Matthew promotes to **Approved-Canonical** |
+| **2 — Known Truths** | Narrative Arch (`Tier = Tier 2 — Known Truth`) | 4/5, always injected, **capped at five** (one per `Known Truth Slot`) | Canonical bedrock, never-changing. Agent writes land **Pending**; Matthew promotes |
+| **3 — Persona Memories** | Persona Memories table | 3/5, **retrieved on demand**, limitless | Non-canonical. Auto-form as **Active**, no per-record gate. Each memory links to **exactly one** Known Truth |
+
+The five Known Truth slots: formative memory, secret, baseline relationship stance, greatest fear, Inner Attitude. The memory → truth link (Tier 3 → Tier 2) is a `multipleRecordLinks` field; "exactly one, required" is enforced at the write path and an optional Interface form, not at the table schema (see schema doc enforcement note). The approval gate field on Tiers 1 and 2 is **Provenance Status** (Pending / Approved-Canonical).
 
 ---
 
@@ -378,7 +392,8 @@ Automated in `[website/src/lib/brains/guards.ts](../../website/src/lib/brains/gu
 ## Related
 
 - [AIE build plan](./aie-build-plan.md)
-- [Architecture](../business/architecture.md) — Clive drafts, Pam challenges, human approves, Doc acts
+- [Architecture](../business/architecture.md) — Clive drafts, Pam challenges, human approves, Doc acts; §7 four-base model; §9.2 minion routing
+- [Doc Brain Base Builder](./doc-brain-base-builder.md) — runbook + live inventory
 - [Brain upkeep](./brain-upkeep.md) — thin propose-only Needs Review loop
 
 ---
@@ -390,7 +405,7 @@ Automated in `[website/src/lib/brains/guards.ts](../../website/src/lib/brains/gu
 | -------------------------------------- | ------------------- | ------------------------------------------------------------------ |
 | **AstraJax Brain Registry**            | `appbdTVHevH6Bl5ZZ` | Brains, **Agents**, Brain Key Requests, Access Grants, Change Log  |
 | **AstraJax Brain Workshop**            | `appL2fdnGmhA02WXd` | Draft Brain Truth, interactions, Pam reviews, approvals, Doc queue |
-| **AstraJax Trusted Brain — Chapter 1** | `app6tjzzG0L0lOeVb` | Brain Truth, Brain Memories (+ legacy Personas — delete in UI)     |
+| **AstraJax Trusted Brain — Chapter 1** | `app6tjzzG0L0lOeVb` | Brain Truth, Brain Memories                                        |
 | **AstraJax Agent — Clive**             | `appBd9tudgvOSrhSX` | Narrative Arch, Persona Config, Persona Memories, Minions          |
 | **AstraJax Agent — Pam**               | `appH7NeSSNntuKRL4` | same                                                               |
 | **AstraJax Agent — Doc**               | `appI5tpwsKNwjfrqR` | same                                                               |
@@ -399,10 +414,10 @@ Automated in `[website/src/lib/brains/guards.ts](../../website/src/lib/brains/gu
 
 **Schema blueprint (replicate from scratch):** `[brain-key-schema.md](./brain-key-schema.md)`  
 **Live table IDs:** `[website/src/lib/brains/airtable-ids.ts](../../website/src/lib/brains/airtable-ids.ts)`  
-**Builder initiative (status + runbook):** `[brain-base-builder-agent.md](./brain-base-builder-agent.md)`
+**Builder initiative (status + runbook):** `[doc-brain-base-builder.md](./doc-brain-base-builder.md)`
 
-**Seeded:** Chapter 1 registry row, Brain Truth seed records, four Agent bases (persona config + narrative arch), Clive's Man minions, Doc airtable-minion minion row, Brain Memories table.
+**Seeded:** Chapter 1 registry row, Brain Truth seed records, four Agent bases (persona config + narrative arch), Clive's Man minions, Doc Agent base minion row **`doc-brain-base-builder`**, Brain Memories table.
 
-**Matthew manual:** delete legacy Personas table; mint scoped PATs → Vercel env (see `brain-base-builder-agent.md` §11); add `doc` to Brain Key Requests Persona select if needed.
+**Matthew manual:** mint scoped PATs → Vercel env (see `doc-brain-base-builder.md` §11); add `doc` to Brain Key Requests Persona select if needed; delete **LEGACY Scope (delete in UI)** on Trusted Brain Truth when convenient.
 
 **Repo follow-up:** wire `website/src/lib/brains/` to Agent bases for runtime persona memory (env vars `BRAIN_AGENT_{SLUG}_`*).

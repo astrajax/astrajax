@@ -1,9 +1,9 @@
-# Brain Base Builder — Agent Plan
+# Doc Brain Base Builder — Agent Plan
 
-**Status:** Track A done (Airtable skills imported). Track B v0.1 **shipped** — `@doc-airtable-minion` (via `@doc`). Chapter 1 **four-base model Phase B complete** (25 Jun 2026): Registry Agents table, Trusted Brain Memories, four Agent bases seeded, `airtable-ids.ts` updated. Registry: `agents/registry/cursor/doc/airtable-minion/build-pack-v0.1.md`.
+**Status:** Track A done (Airtable skills imported). Track B v0.1 **shipped** — `@doc-brain-base-builder` (via `@doc`). Chapter 1 **four-base model Phase B complete** (25 Jun 2026): Registry Agents table, Trusted Brain Memories, four Agent bases seeded, `airtable-ids.ts` updated. **26 Jun 2026:** Brain Interactions review fields live; Clive Agent tier scaffold live (`CLIVE_NARRATIVE_ARCH_TIER_FIELDS` in `airtable-ids.ts`); legacy Trusted Personas table removed in Airtable UI. **26 Jun 2026:** renamed from `doc-airtable-minion` / Brain Base Builder → **`doc-brain-base-builder`**. Registry: `agents/registry/cursor/doc/doc-brain-base-builder/build-pack-v0.1.md`.
 **Owner:** Matthew.
-**Working name:** "Brain Base Builder" (a capability in Doc's family — final name/character is Matthew's call).
-**Read with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (the access model it builds for), [`aie-2026-07.md`](./aie-2026-07.md) (sprint scope and do-not-build list), and `docs/business/architecture.md` (Doc routing, agent roles).
+**Character name:** **Doc Brain Base Builder** (`doc-brain-base-builder`).
+**Read with (canonical trio):** [`brain-key-schema.md`](./brain-key-schema.md) (field shapes — source of truth for tables/fields), [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + credentials), [`architecture.md`](../business/architecture.md) (governance + Doc routing). Sprint scope: [`aie-2026-07.md`](./aie-2026-07.md). Minion family: [`doc-minions.md`](./doc-minions.md).
 **Front door:** [`docs/START-HERE.md`](../START-HERE.md).
 
 ---
@@ -14,7 +14,7 @@
 
 It is the part of **Doc** that builds the *physical home* for a brain: tables, typed fields, linked records, the Brain Key governance tables. It does not decide what context is true, does not approve, and does not deploy runtime agents.
 
-The Registry, Workshop, Trusted Chapter 1, and four Chapter 1 Agent bases were first scaffolded via MCP (24–25 Jun 2026). **Doc's Airtable Minion** turns that one-off into a repeatable, governed, audited build — same shapes, same handoff, every time.
+The Registry, Workshop, Trusted Chapter 1, and four Chapter 1 Agent bases were first scaffolded via MCP (24–25 Jun 2026). **Doc Brain Base Builder** turns that one-off into a repeatable, governed, audited build — same shapes, same handoff, every time.
 
 ---
 
@@ -23,7 +23,7 @@ The Registry, Workshop, Trusted Chapter 1, and four Chapter 1 Agent bases were f
 The "Airtable build agent" idea splits cleanly. Both are valid; only one touches the guardrail.
 
 - **Track A — Matthew's own workbench (done).** Matthew still builds a lot directly on Airtable (DS platform, AstraJax's own bases). Airtable's open-source skill pack is authored *by Airtable* and ships in the exact `SKILL.md` format Cursor uses, so it imports as-is and rides the Airtable MCP already wired here. Imported into `.cursor/skills/` on 24 Jun: `airtable-overview`, `airtable-filters`, `show-airtable-link`, `agent-activity-log`, `product-ops`, `sales-ops`, `marketing-ops` (skipped `airtable-cli` — it assumes the `@airtable/mcp-cli` npm tool). These are **Doc-family build skills** (Doc acts/builds; Clive reasons), kept under their original names so the skills' cross-references stay intact, with Airtable authorship preserved in frontmatter. The build-shop guardrail does **not** apply here — this is tooling Matthew uses, not the product.
-- **Track B — the governed Brain Base Builder (this plan).** The client-facing capability that scaffolds governed brains under the Brain Key model. This is where §2 and the governance below apply.
+- **Track B — Doc Brain Base Builder (this plan).** The client-facing capability that scaffolds governed brains under the Brain Key model. This is where §2 and the governance below apply.
 
 The one watch-item linking them: Track A skills are generic base-building helpers. Use them freely for your own speed; do not let "I imported Airtable's generic skills" quietly become "this is the AstraJax offering."
 
@@ -97,14 +97,16 @@ What the pack does **not** give you, and you must supply: the Brain Key access m
 
 ## 6. Canonical schema shapes (what it is allowed to build)
 
-Bounded to **four** shapes, all defined in `brain-key-schema.md` and `brain-key-wiring.md`. Live IDs in `website/src/lib/brains/airtable-ids.ts`:
+Bounded to **four** shapes. **Do not duplicate field-level schemas here** — they live in [`brain-key-schema.md`](./brain-key-schema.md). Access rules and credentials: [`brain-key-wiring.md`](./brain-key-wiring.md). Live IDs: [`airtable-ids.ts`](../../website/src/lib/brains/airtable-ids.ts).
 
-1. **Registry base** — `brains`, `agents`, `keyRequests`, `accessGrants`, `changeLog`. One per AstraJax (or per client tenant in Phase 2). Index + governance only; never holds trusted context, persona memory, or tokens.
-2. **Workshop base** — `userBrains`, `draftBrainTruth`, `brainInteractions`, `pamReviews`, `approvalDecisions`, `docActions`. Draft/propose space.
-3. **Trusted Brain base** — `brainTruth`, `brainMemories`. One base per brain theme, scoped credentials. Approved business context + working brain recall only.
-4. **Agent base** — `narrativeArch`, `personaConfig`, `personaMemories`, `minions`. One base per agent (Clive, Pam, Doc, Clive's Man for Chapter 1). Character + role memory; never canonical business truth.
+| Shape | Table keys (in `airtable-ids.ts`) | One-liner |
+|-------|-----------------------------------|-----------|
+| **Registry** | `brains`, `agents`, `keyRequests`, `accessGrants`, `changeLog` | Index + governance only |
+| **Workshop** | `userBrains`, `draftBrainTruth`, `brainInteractions`, `pamReviews`, `approvalDecisions`, `docActions` | Draft / propose |
+| **Trusted Brain** | `brainTruth`, `brainMemories` | One base per brain theme — approved business context |
+| **Agent** | `narrativeArch`, `personaConfig`, `personaMemories`, `minions` | One base per agent — character + role memory |
 
-The agent's job is to reproduce these shapes faithfully and register a new brain or agent — not to invent new schemas on the fly. Schema changes to the canonical shapes are a human decision, made in `brain-key-schema.md` and `brain-key-wiring.md` first, then applied.
+The minion reproduces these shapes faithfully and registers new brains or agents — it does not invent schemas on the fly. Shape changes are a human decision in `brain-key-schema.md` and `brain-key-wiring.md` first, then applied in Phase B.
 
 ---
 
@@ -134,17 +136,19 @@ Model routing: design/architecture on a strong reasoning model; the actual file/
 
 ## 9. Implementation (shipped v0.1)
 
-The Brain Base Builder is **not a separate character** — it is **Mode 1** of Doc's Airtable Minion.
+Doc Brain Base Builder is a **named minion** in Doc's family. **Mode 1** (brain) is its governed lane; **Mode 2** (ops) composes Matthew's Airtable workbench skills in the same minion.
 
 | Artifact | Path |
 |----------|------|
-| Front door | `@doc` → routes to Airtable Minion when the job is base scaffolding |
-| Cursor subagent | `.cursor/agents/doc-airtable-minion.md` |
-| Cursor skill | `.cursor/skills/doc-airtable-minion/SKILL.md` |
-| Build pack | `agents/registry/cursor/doc/airtable-minion/build-pack-v0.1.md` |
+| Front door | `@doc` → routes to Doc Brain Base Builder when the job is base scaffolding |
+| Cursor subagent | `.cursor/agents/doc-brain-base-builder.md` |
+| Cursor skill | `.cursor/skills/doc-brain-base-builder/SKILL.md` |
+| Build pack | `agents/registry/cursor/doc/doc-brain-base-builder/build-pack-v0.1.md` |
 | Live ID map | `website/src/lib/brains/airtable-ids.ts` |
 | Schema blueprint | `docs/initiatives/brain-key-schema.md` |
 | Access + credentials | `docs/initiatives/brain-key-wiring.md` |
+| Governance + Doc routing | `docs/business/architecture.md` §7, §9 |
+| Minion family | `docs/initiatives/doc-minions.md` |
 
 **Invoke (typical):**
 
@@ -158,7 +162,7 @@ After review, switch to **Agent mode** and say `approved — build it`. Doc disp
 Direct lane (skip triage when you already know):
 
 ```text
-@doc-airtable-minion
+@doc-brain-base-builder
 Extend Registry Agents table — Phase A.
 ```
 
@@ -166,23 +170,27 @@ Extend Registry Agents table — Phase A.
 
 ---
 
-## 10. Live Chapter 1 inventory (25 Jun 2026)
+## 10. Live Chapter 1 inventory (26 Jun 2026)
 
 Canonical IDs live in code — **do not duplicate IDs in other docs** except this initiative's snapshot. When IDs change, update `airtable-ids.ts` first; other docs link there.
+
+**Scope:** Chapter 1 product agents only (`clive`, `pam`, `doc`, `clive-man`). Other Agent bases (e.g. Lazlo Marlowe) are out of this snapshot — register in Registry **Agents** + `airtable-ids.ts` when they enter the governed fleet.
 
 | Shape | Airtable name | Base ID | Tables (keys in `airtable-ids.ts`) |
 |-------|---------------|---------|-------------------------------------|
 | Registry | AstraJax Brain Registry | `appbdTVHevH6Bl5ZZ` | `brains`, `agents`, `keyRequests`, `accessGrants`, `changeLog` |
 | Workshop | AstraJax Brain Workshop | `appL2fdnGmhA02WXd` | `userBrains`, `draftBrainTruth`, `brainInteractions`, `pamReviews`, `approvalDecisions`, `docActions` |
-| Trusted Brain | AstraJax Trusted Brain — Chapter 1 | `app6tjzzG0L0lOeVb` | `brainTruth`, `brainMemories` (+ legacy `personas` — retire in UI) |
-| Agent | AstraJax Agent — Clive | `appBd9tudgvOSrhSX` | `narrativeArch`, `personaConfig`, `personaMemories`, `minions` |
-| Agent | AstraJax Agent — Pam | `appH7NeSSNntuKRL4` | same four tables |
-| Agent | AstraJax Agent — Doc | `appI5tpwsKNwjfrqR` | same four tables |
-| Agent | AstraJax Agent — Clive's Man | `appZ71CSKBlhnb4hR` | same four tables |
+| Trusted Brain | AstraJax Trusted Brain — Chapter 1 | `app6tjzzG0L0lOeVb` | `brainTruth`, `brainMemories` |
+| Agent | AstraJax Agent — Clive | `appBd9tudgvOSrhSX` | `narrativeArch`, `personaConfig`, `personaMemories`, `minions` (+ tier fields — see below) |
+| Agent | AstraJax Agent — Pam | `appH7NeSSNntuKRL4` | same four tables (tier fields not yet rolled out) |
+| Agent | AstraJax Agent — Doc | `appI5tpwsKNwjfrqR` | same four tables (tier fields not yet rolled out) |
+| Agent | AstraJax Agent — Clive's Man | `appZ71CSKBlhnb4hR` | same four tables (tier fields not yet rolled out) |
 
 Registry **Agents** rows link slugs `clive`, `pam`, `doc`, `clive-man` to Agent base IDs and repo paths.
 
-**Seeded in Phase B:** Narrative Arch + Persona Config for Clive/Pam/Doc (migrated from legacy Trusted Personas); Clive's Man scaffold + three minions (proposer, challenger, executor); Doc minion row (`airtable-minion`); Trusted **Brain Memories** table (empty, ready for promotion path).
+**Tiered character context (26 Jun 2026):** only the **Clive** Agent base has Narrative Arch tier fields (`Provenance Status`, `Tier`, `Known Truth Slot`, `Injection Priority`) and the Persona Memories → Known Truth link. Pam, Doc, and Clive's Man are pending rollout — see `CLIVE_NARRATIVE_ARCH_TIER_FIELDS` in `airtable-ids.ts` and [`brain-key-schema.md`](./brain-key-schema.md) (Tiered character context).
+
+**Seeded in Phase B:** Narrative Arch + Persona Config for Clive/Pam/Doc (migrated from legacy Trusted Personas); Clive's Man scaffold + three minions (proposer, challenger, executor); Doc Agent base minion row **`doc-brain-base-builder`** (synced in Airtable via MCP, 26 Jun 2026); Trusted **Brain Memories** table (empty, ready for promotion path); Clive tier scaffold (Pending Super Objective + five Pending Known Truth slots).
 
 ---
 
@@ -194,7 +202,7 @@ PATs are **created in Airtable** ([airtable.com/create/tokens](https://airtable.
 |-------|-----|
 | **Vercel** → Project → Settings → Environment Variables | Production and Preview for deployed `website/` Brain Key routes |
 | **`website/.env.local`** | Local dev (never commit) |
-| **HyperAgent / Cursor MCP** | Separate MCP PAT with write access for `@doc-airtable-minion` Phase B builds |
+| **HyperAgent / Cursor MCP** | Separate MCP PAT with write access for `@doc-brain-base-builder` Phase B builds |
 
 After real tokens are set in Vercel, set `BRAIN_KEY_USE_MEMORY=false` so grants and requests persist in Airtable instead of the in-memory demo store.
 
@@ -230,8 +238,9 @@ You do not need every token on day one. Minimum for Brain Key unlock testing: Re
 
 **Matthew manual (Airtable UI):**
 
-- Delete legacy **Personas** table in Trusted Chapter 1 when satisfied with Agent-base migration (MCP cannot delete tables).
 - Add `doc` to Brain Key Requests **Persona** single-select if grant flows need Doc as requester.
+- On Trusted **Brain Truth**: delete **LEGACY Scope (delete in UI)** text field (still present live as of 26 Jun); retire legacy `read:brain-context:*` Scope options when no grants use them (canonical scopes are `read:brain-truth:positioning` and `read:brain-truth:governance`).
+- Roll out tier fields to Pam / Doc / Clive's Man Agent bases when ready (Clive is the reference — see `CLIVE_NARRATIVE_ARCH_TIER_FIELDS` in `airtable-ids.ts`).
 - Mint scoped PATs per base; add to Vercel per §11.
 
 **Repo / product (separate briefs — not the minion's job unless Matthew asks):**
@@ -255,8 +264,8 @@ You do not need every token on day one. Minimum for Brain Key unlock testing: Re
 
 ## 13. What's next
 
-For **new brain themes or agents**, invoke `@doc` or `@doc-airtable-minion` — Phase A propose, then Phase B build in Agent mode. Scope stays §2: governed shapes only.
+For **new brain themes or agents**, invoke `@doc` or `@doc-brain-base-builder` — Phase A propose, then Phase B build in Agent mode. Scope stays §2: governed shapes only.
 
-For **website Brain Key + memory wiring**, invoke `@doc` → **Vercel Minion** (or a dedicated brief) — that lane owns `website/src/lib/brains/`, not the Airtable Minion.
+For **website Brain Key + memory wiring**, invoke `@doc` → **Vercel Minion** (or a dedicated brief) — that lane owns `website/src/lib/brains/`, not Doc Brain Base Builder.
 
 The positioning decision in §2 is **closed for v0.1**: Mode 1 builds fixed brain shapes; Mode 2 is Matthew's workbench only. Revisit only if client-facing Phase 2 scope is opened.

@@ -14,19 +14,35 @@ hierarchy. Load `lazlo-marlowe-character-craft` first.
 ## When to use
 
 - Clive↔Pam relationship work
+- Clive↔Clive's Man house pairing
 - Court Mode character angles
 - "Who bounces off whom?" / volume balance across a scene or asset brief
 
+## Clive and Clive's Man (house pairing)
+
+Same person in canon as `@clive-man` — full cast member, not a metaphor. Private partnership
+with Clive stays closed-door; steward voice never exposes it (`character-provenance.md` §7).
+
+| | Clive | Clive's Man |
+|---|---|---|
+| Super Objective | To be needed and loved without having to ask | To be the one person Clive cannot do without |
+| Inner Attitude | Adream — Sensation + Feeling | Near — Sensation + Intuition |
+| How it shows | Gives knowledge away; performs to be needed; goes quiet with The Man | Anticipates inward; maintenance as devotion; done before asked |
+| Dynamic | Clive scatters; The Man holds the study and the brain in order | Protective devotion through upkeep, not declaration |
+| Product rhyme | Clive proposes and drafts | Man stewards context — never approves canonical truth |
+| Do-not-blur | Adream gatherer vs Near anticipator; romantic silence beats live in Clive's canon | Never duplicate Clive's romantic silence in steward copy |
+
 ## Clive and Pam (central pairing)
 
-Founding cast typing below is **pending** (Lazlo-proposed). Product roles remain canonical
-in `architecture.md`.
+Founding cast typing: **Clive, Clive's Man, and Pam are canonical** (Matthew-validated 27 Jun 2026); Vera and Iris
+remain **pending** (Lazlo-proposed). Product roles remain canonical in `architecture.md`.
 
 | | Clive | Pam |
 |---|---|---|
-| Life goal | Accumulate and share knowledge | Everything in order, precise, controlled |
-| How it shows | Chaos of ideas, enthusiastic collaboration | Sharp questions, scope control, evidence checks |
-| User feeling | "I can explore safely here" | "Someone competent is protecting me from my own momentum" |
+| Super Objective | To be needed and loved without having to ask | To never be caught out by surprise — exposed when she should have seen it coming |
+| Inner Attitude | Adream — Sensation + Feeling | Stable — Sensation + Thinking |
+| How it shows | Gives knowledge away; agreeable warmth until Pam tightens scope | Sharp questions, scope control, evidence checks |
+| User feeling | "I could ask him anything and not feel stupid" | "Someone competent is protecting me from my own momentum" |
 | Dynamic | Clive gets bullied by Pam and accepts it; Pam tolerates Clive; there is history |
 | Visual pairing note | Soft/rumpled vs sharp/composed — defer execution to Kathryn |
 
@@ -40,8 +56,10 @@ idle. Each pair needs its own power balance, its own history, its own thing they
 about.
 
 Conflict has to spring from who these two specifically are, not generic friction. "They
-clash" is not a dynamic. Clive and Pam clash because her Thinking judges his Feeling-led
-sprawl, and there is history in it: she bullies, he accepts it. Swap either spine and the
+clash" is not a dynamic. Clive and Pam clash because she scrutinises his agreeable drift
+while he gives knowledge away to be needed, and there is history in it: she bullies, he
+accepts it. Swap either
+spine and the
 clash changes shape. If a conflict would read the same with two other characters dropped
 in, it is generic; find the one only these two could have.
 
@@ -70,6 +88,7 @@ Do not make every character equally loud:
 | Character | Visual volume | Context |
 |---|---|---|
 | Clive | High warmth, medium theatricality | Face of the product |
+| Clive's Man | Low–medium warmth, low theatricality | Steward — competence, not performance; always present, rarely loud |
 | Pam | High precision, medium theatricality | Second focus — eyebrow, not shout |
 | Vera | High theatricality | Court only |
 | Iris | Low–medium theatricality | Court only |

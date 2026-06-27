@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "skill",
-  "exportedAt": "2026-06-26T12:36:38.000Z",
+  "exportedAt": "2026-06-27T07:27:41.000Z",
   "data": {
     "name": "lazlo-marlowe-cast-audit",
     "description": "Cast-wide drift and blur audit with paste-ready proposed edits for character-provenance.",

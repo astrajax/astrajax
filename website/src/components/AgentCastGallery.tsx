@@ -1,67 +1,18 @@
 import Image from "next/image";
+import { castHeroSrc, dsFleetGalleryCharacters } from "@/lib/agent-cast-assets";
 
-export const agents = [
-  {
-    name: "Professor Iris Mortimer",
-    role: "Context Curator",
-    tag: "Query",
-    image: "/agent-cast/professor-iris-mortimer.png",
-  },
-  {
-    name: "Juan Vasquez",
-    role: "Staffing System Support",
-    tag: "Query",
-    image: "/agent-cast/juan-vasquez.png",
-  },
-  {
-    name: "Marcel Beaujolais",
-    role: "Booking System Editor",
-    tag: "Operational",
-    image: "/agent-cast/marcel-beaujolais.png",
-  },
-  {
-    name: "KK Kingsford",
-    role: "XP Engine - Scorekeeper",
-    tag: "Gamification",
-    image: "/agent-cast/kk-kingsford.png",
-  },
-  {
-    name: "Reggie Bramble",
-    role: "Payroll Processing",
-    tag: "Operational",
-    image: "/agent-cast/reggie-bramble.png",
-  },
-  {
-    name: "Marlowe Vance",
-    role: "Ops Action Proposer",
-    tag: "Intake",
-    image: "/agent-cast/marlowe-vance.png",
-  },
-  {
-    name: "Doc Albright",
-    role: "Agent Engineer",
-    tag: "Engineering",
-    image: "/agent-cast/doc-albright.png",
-  },
-  {
-    name: "Brother Tashi",
-    role: "Email Linker",
-    tag: "Intake",
-    image: "/agent-cast/brother-tashi.png",
-  },
-  {
-    name: "Vera Vinegar-Toes",
-    role: "Weekly Reporter",
-    tag: "Reporting",
-    image: "/agent-cast/vera-vinegar-toes.png",
-  },
-  {
-    name: "Clive Wigglesworth",
-    role: "Platform Coach",
-    tag: "Query",
-    image: "/agent-cast/clive-wigglesworth.png",
-  },
-];
+export const agents = dsFleetGalleryCharacters
+  .map((character) => {
+    const image = castHeroSrc(character.slug);
+    if (!image) return null;
+    return {
+      name: character.name,
+      role: character.role,
+      tag: character.tag!,
+      image,
+    };
+  })
+  .filter((agent): agent is NonNullable<typeof agent> => agent !== null);
 
 export function AgentCastGallery() {
   return (

@@ -2,7 +2,7 @@
 
 **Status:** working spec for Doc's specialised build subagents.  
 **Owner:** Matthew.  
-**Read with:** [`docs/business/architecture.md`](../business/architecture.md) §9 (Opus → Composer routing), [`brain-base-builder-agent.md`](./brain-base-builder-agent.md) (Airtable minion context).
+**Read with:** [`docs/business/architecture.md`](../business/architecture.md) §7 (four-base Airtable model), §9 (Opus → Composer routing), [`brain-key-schema.md`](./brain-key-schema.md) + [`brain-key-wiring.md`](./brain-key-wiring.md) (canonical shapes), [`doc-brain-base-builder.md`](./doc-brain-base-builder.md) (Doc Brain Base Builder runbook).
 
 ---
 
@@ -13,13 +13,13 @@
 Doc triages the task, tells you which minion fits and why, then runs that minion's
 two-phase workflow (propose → you approve → build in Agent mode).
 
-Direct minion invoke still works if you already know the lane: `@doc-airtable-minion`, `@doc-vercel-minion`, `@doc-workshop-proposer`, `@doc-workshop-challenger`, `@doc-workshop-cursor`, `@doc-workshop-hyperagent`.
+Direct minion invoke still works if you already know the lane: `@doc-brain-base-builder`, `@doc-vercel-minion`, `@doc-workshop-proposer`, `@doc-workshop-challenger`, `@doc-workshop-cursor`, `@doc-workshop-hyperagent`.
 
 ## Skill sources (two types)
 
 | Source | Where | Who picks |
 |--------|-------|-----------|
-| **Airtable pack** | `.cursor/skills/` in repo (copied from Airtable open-source) | Doc → Airtable Minion |
+| **Airtable pack** | `.cursor/skills/` in repo (copied from Airtable open-source) | Doc → Doc Brain Base Builder |
 | **Vercel pack** | Vercel Cursor **plugin** (pills in chat — Functions, CLI, Storage, etc.) | **Doc names them**; Vercel Minion reads & applies |
 
 Doc does not need every Vercel skill every time — Doc picks the smallest set and
@@ -56,7 +56,9 @@ HyperAgent is **not** a minion. HyperAgent runs **deployed fleet agents**. Minio
 | Role | Invoke | Lane | Status |
 |------|--------|------|--------|
 | **Doc** (dispatcher) | `@doc` | Triage + route to minion | v0.1 shipped |
-| **Airtable Minion** | `@doc-airtable-minion` (or via `@doc`) | Brain bases + ops bases via Airtable MCP | v0.1 shipped |
+| **Doc Brain Base Builder** | `@doc-brain-base-builder` (or via `@doc`) | Brain bases + ops bases via Airtable MCP | v0.1 shipped |
+
+**Doc Brain Base Builder canonical sources (Mode 1 — brain):** `brain-key-schema.md` (fields) → `brain-key-wiring.md` (access) → `doc-brain-base-builder.md` (invoke + inventory) → `airtable-ids.ts` (live IDs). Do not treat the initiative doc as a second schema — it is the runbook.
 | **Vercel Minion** | `@doc-vercel-minion` (or via `@doc`) | `website/` Next.js app, API routes, env, deploy | v0.1 shipped |
 | **Doc's Workshop** | via `@doc` → `@doc-workshop-proposer` | Agent-making place (Trinity below) | v0.1 shipped |
 
@@ -83,7 +85,7 @@ Future runtimes: add another Workshop Executor minion (same Trinity, new runtime
 - Cursor subagents: `.cursor/agents/doc.md`, `.cursor/agents/doc-<lane>-….md`
 - Skills: `.cursor/skills/doc/SKILL.md`, `.cursor/skills/doc-<lane>-…/SKILL.md`
 
-Display names: **Doc Albright**, **Doc's Airtable Minion**, **Doc's Vercel Minion**, **Doc's Workshop Proposer**, **Doc's Workshop — Challenger / Cursor Builder / Hyperagent Builder**.
+Display names: **Doc Albright**, **Doc Brain Base Builder**, **Doc's Vercel Minion**, **Doc's Workshop Proposer**, **Doc's Workshop — Challenger / Cursor Builder / Hyperagent Builder**.
 
 ---
 

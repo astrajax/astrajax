@@ -1,7 +1,7 @@
 /**
  * Live Airtable IDs for Chapter 1 Brain Key bases (Phase B, 25 Jun 2026).
  * Replicable schema blueprint: docs/initiatives/brain-key-schema.md
- * Builder status + PAT/env guidance: docs/initiatives/brain-base-builder-agent.md
+ * Builder status + PAT/env guidance: docs/initiatives/doc-brain-base-builder.md
  * Override via env vars in production; scoped tokens still required per base.
  */
 
@@ -66,8 +66,6 @@ export const BRAIN_TRUSTED_CHAPTER1_BASE_ID = "app6tjzzG0L0lOeVb";
 export const BRAIN_TRUSTED_CHAPTER1_TABLES = {
   brainTruth: "tblipHzCl905T7o5F",
   brainMemories: "tbl5clS3OPwuABsGC",
-  /** Legacy — migrated to Agent bases Phase B; delete table in Airtable UI when ready */
-  personas: "tblBV7XSiTYdqSOWH",
 } as const;
 
 /** Shared table shape across all Chapter 1 Agent bases (IDs differ per base). */
@@ -86,6 +84,65 @@ export const CLIVE_AGENT_TABLES = {
   minions: "tblFy6D5f4NoPMf1e",
 } as const satisfies AgentBaseTables;
 
+/**
+ * Tiered character-context model fields (Phase B, 26 Jun 2026).
+ * Reference implementation on the Clive Agent base; the same fields roll out to
+ * pam / doc / clive-man bases when ready. Schema + governance:
+ * docs/initiatives/brain-key-schema.md (Tiered character context).
+ */
+export const CLIVE_NARRATIVE_ARCH_TIER_FIELDS = {
+  /** singleSelect: Pending | Approved-Canonical — the agent-write approval gate (Tier 1 + 2). */
+  provenanceStatus: "fldJojz3esjGO2klY",
+  /** singleSelect: Tier 1 — Super Objective | Tier 2 — Known Truth. */
+  tier: "fldRUW0s4RR8R1Rq1",
+  /** singleSelect: the fixed five Known Truth slots. */
+  knownTruthSlot: "fldQteQIJTrsOGCxu",
+  /** number (0dp): 5 = Super Objective, 4 = Known Truth; Persona Memories are 3 (on demand). */
+  injectionPriority: "fldPp4QgTSe7FbL78",
+  /** auto-created inverse of Persona Memories → Known Truth link. */
+  personaMemoriesLink: "fld8PHQR2aRgqM0oi",
+} as const;
+
+export const CLIVE_PERSONA_MEMORIES_TIER_FIELDS = {
+  /** multipleRecordLinks → Narrative Arch. Memory → Known Truth link (Tier 3 → Tier 2). */
+  knownTruthLink: "fldjselBA3YHpPuqf",
+} as const;
+
+/** Agent writes default to "Pending"; Matthew promotes to "Approved-Canonical". */
+export const CHARACTER_PROVENANCE_STATUS = {
+  pending: "Pending",
+  approvedCanonical: "Approved-Canonical",
+} as const;
+
+export const CHARACTER_TIER = {
+  superObjective: "Tier 1 — Super Objective",
+  knownTruth: "Tier 2 — Known Truth",
+} as const;
+
+/** The fixed five Known Truths (Tier 2). Keep one record per slot. */
+export const KNOWN_TRUTH_SLOTS = {
+  formativeMemory: "1 — Formative Memory",
+  secret: "2 — Secret",
+  baselineRelationshipStance: "3 — Baseline Relationship Stance",
+  greatestFear: "4 — Greatest Fear",
+  innerAttitude: "5 — Inner Attitude",
+} as const;
+
+/** Seed record IDs for the Clive tier scaffold (Approved-Canonical 27 Jun 2026). */
+export const CLIVE_TIER_SEED_RECORDS = {
+  superObjective: "recFs4640A6yFOEyo",
+  knownTruth1FormativeMemory: "reccUyF8mxj3Uv0mO",
+  knownTruth2Secret: "recsOW1Wy3KCumXXY",
+  knownTruth3BaselineRelationshipStance: "rec2nihSPX2qdkO85",
+  knownTruth4GreatestFear: "recV0BWeKhQ2pZYyv",
+  knownTruth5InnerAttitude: "recx18KnKU2IlcRdT",
+} as const;
+
+/** Clive Persona Config — Approved Operational v0.2 (27 Jun 2026). Canonical technical role spec. */
+export const CLIVE_PERSONA_CONFIG = {
+  operationalV02: "recJFiRQjbIecCAQ5",
+} as const;
+
 export const PAM_AGENT_BASE_ID = "appH7NeSSNntuKRL4";
 export const PAM_AGENT_TABLES = {
   narrativeArch: "tblPMfpSZ7VTp87Pk",
@@ -93,6 +150,42 @@ export const PAM_AGENT_TABLES = {
   personaMemories: "tbl3k3On8UuDGJVQX",
   minions: "tbltMuegBZx6kv33M",
 } as const satisfies AgentBaseTables;
+
+/** Pam Persona Config — Approved Operational v0.2 (27 Jun 2026). Canonical technical role spec. */
+export const PAM_PERSONA_CONFIG = {
+  operationalV02: "rect3MIejCMhCWdH1",
+} as const;
+
+export const PAM_NARRATIVE_ARCH_TIER_FIELDS = {
+  /** singleSelect: Pending | Approved-Canonical — the agent-write approval gate (Tier 1 + 2). */
+  provenanceStatus: "flddl8JkJENLwnC23",
+  /** singleSelect: Tier 1 — Super Objective | Tier 2 — Known Truth. */
+  tier: "fldN4aR8fLOuDnLX2",
+  /** singleSelect: the fixed five Known Truth slots. */
+  knownTruthSlot: "fldKc2L1MbdsfrC9J",
+  /** number (0dp): 5 = Super Objective, 4 = Known Truth; Persona Memories are 3 (on demand). */
+  injectionPriority: "fldCUYg0D05mrVqK0",
+  /** auto-created inverse of Persona Memories → Known Truth link. */
+  personaMemoriesLink: "fldgZCxhAm2LoCqsT",
+} as const;
+
+export const PAM_PERSONA_MEMORIES_TIER_FIELDS = {
+  /** multipleRecordLinks → Narrative Arch. Memory → Known Truth link (Tier 3 → Tier 2). */
+  knownTruthLink: "fldd9z8GQfvWQQH76",
+} as const;
+
+/** Seed record IDs for the Pam tier scaffold (Approved-Canonical 27 Jun 2026). */
+export const PAM_TIER_SEED_RECORDS = {
+  superObjective: "recnVuOKPFSNXWLf1",
+  knownTruth1FormativeMemory: "recK6tBC6EbOsBh5r",
+  knownTruth2Secret: "recAYK11M0E8ommqK",
+  knownTruth3BaselineRelationshipStance: "recnEZOvX1dhagdkz",
+  knownTruth4GreatestFear: "reca4YJ6JLhkSGI9q",
+  knownTruth5InnerAttitude: "rec1rxEXErbCEofhK",
+  memoryAssumptionLine: "recF8rTlRLwECCZFh",
+  memoryCliveIntervention: "recHlOsDin7RkS1Up",
+  memoryRewriteRitual: "recDLKZDzdJ3hEolv",
+} as const;
 
 export const DOC_AGENT_BASE_ID = "appI5tpwsKNwjfrqR";
 export const DOC_AGENT_TABLES = {
@@ -102,6 +195,43 @@ export const DOC_AGENT_TABLES = {
   minions: "tblgDsH08xfozFleP",
 } as const satisfies AgentBaseTables;
 
+export const DOC_NARRATIVE_ARCH_TIER_FIELDS = {
+  /** singleSelect: Pending | Approved-Canonical — the agent-write approval gate (Tier 1 + 2). */
+  provenanceStatus: "flduGiK3cqdoN74VA",
+  /** singleSelect: Tier 1 — Super Objective | Tier 2 — Known Truth. */
+  tier: "fldaVL2mvSaaYE8pK",
+  /** singleSelect: the fixed five Known Truth slots. */
+  knownTruthSlot: "fldrmw8VkB0idsoSX",
+  /** number (0dp): 5 = Super Objective, 4 = Known Truth; Persona Memories are 3 (on demand). */
+  injectionPriority: "fldeTvKy7rsfjYEz9",
+  /** auto-created inverse of Persona Memories → Known Truth link. */
+  personaMemoriesLink: "fldDTdVG2GxixvW6a",
+} as const;
+
+export const DOC_PERSONA_MEMORIES_TIER_FIELDS = {
+  /** multipleRecordLinks → Narrative Arch. Memory → Known Truth link (Tier 3 → Tier 2). */
+  knownTruthLink: "fld8cm0Z2JKmPl4Kg",
+} as const;
+
+/** Seed record IDs for the Doc tier scaffold (Approved-Canonical 27 Jun 2026). */
+export const DOC_TIER_SEED_RECORDS = {
+  superObjective: "recrXhowUHQG2bUEo",
+  knownTruth1FormativeMemory: "recjSiBULOVjt6usO",
+  knownTruth2Secret: "recPSfNwon3i1Ockx",
+  knownTruth3BaselineRelationshipStance: "recmp7wUF7tRNkBxS",
+  knownTruth4GreatestFear: "recKCW7Oz1C2otcuh",
+  knownTruth5InnerAttitude: "recA5qCNI8CJJRJK2",
+  memoryActually: "recNSZnCEWrJG9s1M",
+  memoryCliveNo: "recO8PJWhU4y8YE0V",
+  memoryHumanFine: "rec1vB1NxNARCHupz",
+  memoryFoundIt: "recgZKuvyBNuaQLG8",
+} as const;
+
+/** Doc Persona Config — Approved Operational v0.2 (27 Jun 2026). Canonical technical role spec. */
+export const DOC_PERSONA_CONFIG = {
+  operationalV02: "rec0KNMfpdSlPWQuf",
+} as const;
+
 export const CLIVE_MAN_AGENT_BASE_ID = "appZ71CSKBlhnb4hR";
 export const CLIVE_MAN_AGENT_TABLES = {
   narrativeArch: "tblfFteVzoqJTyNkE",
@@ -110,11 +240,70 @@ export const CLIVE_MAN_AGENT_TABLES = {
   minions: "tblqvGSnKOKReBX41",
 } as const satisfies AgentBaseTables;
 
+/** Clive's Man Persona Config — Approved Operational v0.2 (27 Jun 2026). Canonical technical role spec. */
+export const CLIVE_MAN_PERSONA_CONFIG = {
+  operationalV02: "rec6b8PB3HY3yv0Wq",
+} as const;
+
+/** Clive's Man spine record IDs — Approved-Canonical 27 Jun 2026 (legacy Narrative Arch schema; tier fields not yet on this base). */
+export const CLIVE_MAN_LEGACY_SPINE_RECORDS = {
+  superObjective: "rec3hPQ2xwvWmd5JC",
+  knownTruth1FormativeMemory: "rec4FjN3r4cmp0KyN",
+  knownTruth2Secret: "recn5rxBfxcCihK8D",
+  knownTruth3BaselineRelationshipStance: "recfvCe3arVkIroha",
+  knownTruth4GreatestFear: "recSQPTGY6s0gAfX0",
+  knownTruth5InnerAttitude: "recSyxXYqlFQC79nT",
+  memoryTea: "recCGM8TMH73TNwPv",
+  memoryFootsteps: "recjIo6EnGZqZ2KEk",
+} as const;
+
+export const LAZLO_AGENT_BASE_ID = "appMHIxnwPMljiAQB";
+export const LAZLO_AGENT_TABLES = {
+  narrativeArch: "tblJcvP73HhrO3Gyf",
+  personaConfig: "tblR0Fdc8FXzRwQ76",
+  personaMemories: "tbliOr32bEi6ZytVF",
+  minions: "tblOgliPGTR9PvJkY",
+} as const satisfies AgentBaseTables;
+
+export const LAZLO_NARRATIVE_ARCH_TIER_FIELDS = {
+  /** singleSelect: Pending | Approved-Canonical — the agent-write approval gate (Tier 1 + 2). */
+  provenanceStatus: "fldcJ2VPje38KTum3",
+  /** singleSelect: Tier 1 — Super Objective | Tier 2 — Known Truth. */
+  tier: "fldyqFtbVJyxPZz3Z",
+  /** singleSelect: the fixed five Known Truth slots. */
+  knownTruthSlot: "fld0yKsN1JZAeO431",
+  /** number (0dp): 5 = Super Objective, 4 = Known Truth; Persona Memories are 3 (on demand). */
+  injectionPriority: "fldCPUrH6okfbgfh5",
+  /** auto-created inverse of Persona Memories → Known Truth link. */
+  personaMemoriesLink: "fldoQDykyFRR3RvY5",
+} as const;
+
+export const LAZLO_PERSONA_MEMORIES_TIER_FIELDS = {
+  /** multipleRecordLinks → Narrative Arch. Memory → Known Truth link (Tier 3 → Tier 2). */
+  knownTruthLink: "fldt2hNFjYUwD07dQ",
+} as const;
+
+/** Seed record IDs for the Lazlo tier scaffold (all Provenance Status = Pending). */
+export const LAZLO_TIER_SEED_RECORDS = {
+  superObjective: "recwsVH8T8rmyWHR3",
+  knownTruth1FormativeMemory: "recvUHuhYDer9RB5v",
+  knownTruth2Secret: "recg8JRKfhfhqm1i7",
+  knownTruth3BaselineRelationshipStance: "recqtOrXLQ499ZQ5Z",
+  knownTruth4GreatestFear: "recRqtv2C8L17XRP3",
+  knownTruth5InnerAttitude: "recNIJYiQgkQAxXgE",
+} as const;
+
+/** Lazlo Marlowe Persona Config — Approved Operational v0.2 (27 Jun 2026). Canonical technical role spec. */
+export const LAZLO_PERSONA_CONFIG = {
+  operationalV02: "recHipJdrgeh0PAof",
+} as const;
+
 export const CHAPTER1_AGENT_BASES = {
   clive: { baseId: CLIVE_AGENT_BASE_ID, tables: CLIVE_AGENT_TABLES },
   pam: { baseId: PAM_AGENT_BASE_ID, tables: PAM_AGENT_TABLES },
   doc: { baseId: DOC_AGENT_BASE_ID, tables: DOC_AGENT_TABLES },
   "clive-man": { baseId: CLIVE_MAN_AGENT_BASE_ID, tables: CLIVE_MAN_AGENT_TABLES },
+  "lazlo-marlowe": { baseId: LAZLO_AGENT_BASE_ID, tables: LAZLO_AGENT_TABLES },
 } as const;
 
 export type Chapter1AgentSlug = keyof typeof CHAPTER1_AGENT_BASES;

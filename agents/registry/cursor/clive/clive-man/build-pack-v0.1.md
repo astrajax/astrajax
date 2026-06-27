@@ -55,7 +55,7 @@ Axes:
 - Audience: Matthew/TL and future context operators.
 - Trigger: on-demand, later digest/schedule possible.
 - Scope: consolidated context upkeep.
-- Persona: Clive-family backstage steward.
+- Persona: Clive's Man — full cast member (same person as The Man in Clive's biography); brain steward; Near spine per `character-provenance.md` §7.
 
 The old agents matched on scope but were stage-specific and created roster
 confusion. The new agent owns the lane; old logic becomes workflows.
@@ -115,6 +115,7 @@ Escalate consequential challenge to Pam or a stronger review pass.
 - [x] No old active context skills remain in `.cursor/skills/`.
 - [x] Hyperagent legacy context exports are archived from active exports.
 - [x] Roster docs point to Clive's Man for context upkeep.
-- [ ] Matthew chooses final character name if `Clive's Man` evolves.
+- [x] Matthew confirmed: Clive's Man = The Man = steward — one cast member (`character-provenance.md` §7, 27 Jun 2026).
+- [x] Full spine COMPLETE 27 Jun 2026 — Narrative Arch + Persona Memories on `appZ71CSKBlhnb4hR` Approved (legacy schema; tier rollout pending on base).
 - [ ] Future v0.2 decides whether any low-risk context can auto-promote beyond
       Draft/Proposed. v0.1 does not change V2 human approval semantics.
