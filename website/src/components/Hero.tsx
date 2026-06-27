@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { AgentFleetVideo } from "@/components/AgentFleetVideo";
+import { FoundingCastHero } from "@/components/FoundingCastHero";
 import { BOOKING_URL } from "@/lib/site";
 
 export function Hero() {
@@ -52,7 +52,7 @@ export function Hero() {
             Proof that personality drives adoption
           </p>
           <div className="mt-4 w-full lg:mt-5">
-            <AgentFleetVideo />
+            <FoundingCastHero />
           </div>
           <p className="mt-4 text-sm leading-relaxed text-ink-muted/70 italic sm:text-base">
             A real operational agent fleet with names, jobs and just enough theatre to make people

@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "updated": "2026-06-27",
+  "convention": {
+    "root": "website/public/agent-cast",
+    "hero": "{slug}/hero.png",
+    "heroLegacy": "{slug}.png",
+    "animations": "{slug}/animations/{variant-id}.mp4",
+    "animationNaming": "kebab-case variant id matching filename without extension, e.g. idle-loop.mp4"
+  },
+  "characters": [
+    {
+      "slug": "clive-wigglesworth",
+      "name": "Clive Wigglesworth",
+      "foundingCast": true,
+      "productSlug": "clive",
+      "heroStatus": "canonical",
+      "heroLegacyPath": "clive-wigglesworth.png",
+      "animations": []
+    },
+    {
+      "slug": "pam-portiscue",
+      "name": "Pam Portiscue",
+      "foundingCast": true,
+      "productSlug": "pam",
+      "heroStatus": "canonical",
+      "heroLegacyPath": null,
+      "animations": []
+    },
+    {
+      "slug": "doc-albright",
+      "name": "Doc Albright",
+      "foundingCast": true,
+      "productSlug": "doc",
+      "heroStatus": "canonical",
+      "heroLegacyPath": "doc-albright.png",
+      "animations": []
+    },
+    {
+      "slug": "professor-iris-mortimer",
+      "name": "Professor Iris Mortimer",
+      "foundingCast": true,
+      "productSlug": "iris",
+      "heroStatus": "legacy",
+      "heroLegacyPath": "professor-iris-mortimer.png",
+      "animations": []
+    },
+    {
+      "slug": "vera-vinegar-toes",
+      "name": "Vera Vinegar-Toes",
+      "foundingCast": true,
+      "productSlug": "vera",
+      "heroStatus": "legacy",
+      "heroLegacyPath": "vera-vinegar-toes.png",
+      "animations": []
+    },
+    {
+      "slug": "juan-vasquez",
+      "name": "Juan Vasquez",
+      "foundingCast": false,
+      "heroStatus": "legacy",
+      "heroLegacyPath": "juan-vasquez.png",
+      "animations": []
+    },
+    {
+      "slug": "marcel-beaujolais",
+      "name": "Marcel Beaujolais",
+      "foundingCast": false,
+      "heroStatus": "legacy",
+      "heroLegacyPath": "marcel-beaujolais.png",
+      "animations": []
+    },
+    {
+      "slug": "kk-kingsford",
+      "name": "KK Kingsford",
+      "foundingCast": false,
+      "heroStatus": "legacy",
+      "heroLegacyPath": "kk-kingsford.png",
+      "animations": []
+    },
+    {
+      "slug": "reggie-bramble",
+      "name": "Reggie Bramble",
+      "foundingCast": false,
+      "heroStatus": "legacy",
+      "heroLegacyPath": "reggie-bramble.png",
+      "animations": []
+    },
+    {
+      "slug": "marlowe-vance",
+      "name": "Marlowe Vance",
+      "foundingCast": false,
+      "heroStatus": "legacy",
+      "heroLegacyPath": "marlowe-vance.png",
+      "animations": []
+    },
+    {
+      "slug": "brother-tashi",
+      "name": "Brother Tashi",
+      "foundingCast": false,
+      "heroStatus": "legacy",
+      "heroLegacyPath": "brother-tashi.png",
+      "animations": []
+    }
+  ]
+}
