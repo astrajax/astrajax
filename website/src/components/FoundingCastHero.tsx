@@ -116,20 +116,20 @@ export function FoundingCastHero() {
       </figcaption>
 
       {/* Desktop: Doc | Clive | Pam — distinct frames on a gallery wall */}
-      <div className="hidden w-full items-end justify-center gap-4 lg:flex xl:gap-6">
-        <div className="w-[27%] shrink-0 self-end">
+      <div className="hidden w-full items-end gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.26fr)_minmax(0,1fr)] lg:gap-4 xl:gap-5 2xl:gap-6">
+        <div className="self-end">
           <PortraitFrame
             posterSrc={doc.src}
             videoSrc={doc.videoSrc}
             ariaLabel={HERO_ALT[doc.slug]}
             width={640}
             height={800}
-            sizes="(min-width: 1280px) 18vw, (min-width: 1024px) 22vw"
+            sizes="(min-width: 1280px) 24vw, (min-width: 1024px) 21vw"
             className="object-bottom"
             prefersReducedMotion={prefersReducedMotion}
           />
         </div>
-        <div className="w-[34%] shrink-0 self-end">
+        <div className="self-end">
           <PortraitFrame
             posterSrc={clive.src}
             videoSrc={clive.videoSrc}
@@ -137,19 +137,19 @@ export function FoundingCastHero() {
             width={768}
             height={960}
             priority
-            sizes="(min-width: 1280px) 24vw, (min-width: 1024px) 28vw"
+            sizes="(min-width: 1280px) 30vw, (min-width: 1024px) 26vw"
             className="object-bottom"
             prefersReducedMotion={prefersReducedMotion}
           />
         </div>
-        <div className="w-[27%] shrink-0 self-end">
+        <div className="self-end">
           <PortraitFrame
             posterSrc={pam.src}
             videoSrc={pam.videoSrc}
             ariaLabel={HERO_ALT[pam.slug]}
             width={640}
             height={800}
-            sizes="(min-width: 1280px) 18vw, (min-width: 1024px) 22vw"
+            sizes="(min-width: 1280px) 24vw, (min-width: 1024px) 21vw"
             className="object-bottom"
             prefersReducedMotion={prefersReducedMotion}
           />

@@ -5,8 +5,8 @@ import { BOOKING_URL } from "@/lib/site";
 export function Hero() {
   return (
     <section id="story" className="border-b border-ink/10 bg-cream">
-      <div className="mx-auto grid max-w-[96rem] gap-12 px-6 py-20 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.48fr)] lg:items-stretch lg:gap-10 lg:py-28">
-        <div className="flex flex-col justify-center gap-10 lg:min-h-[34rem] lg:gap-12 lg:pr-2 xl:pr-6">
+      <div className="mx-auto grid max-w-[104rem] gap-12 px-6 py-20 lg:grid-cols-[minmax(17rem,0.58fr)_minmax(0,1.72fr)] lg:items-stretch lg:gap-8 lg:py-28 xl:gap-10">
+        <div className="flex flex-col justify-center gap-10 lg:min-h-[34rem] lg:gap-12">
           <div className="flex flex-col items-center justify-center text-center lg:items-start lg:text-left">
             <Image
               src="/astrajax-logo.png"
