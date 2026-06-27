@@ -42,6 +42,7 @@ function PortraitFrame({
   sizes,
   priority,
   className,
+  frameClassName,
   prefersReducedMotion,
 }: {
   posterSrc: string;
@@ -52,6 +53,7 @@ function PortraitFrame({
   sizes: string;
   priority?: boolean;
   className?: string;
+  frameClassName?: string;
   prefersReducedMotion: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -75,7 +77,7 @@ function PortraitFrame({
   }, [showVideo]);
 
   return (
-    <div className={frameClass}>
+    <div className={`${frameClass} ${frameClassName ?? ""}`}>
       {showVideo ? (
         <video
           ref={videoRef}
@@ -115,21 +117,22 @@ export function FoundingCastHero() {
       </figcaption>
 
       <div className="hero-triptych-wall__gallery relative z-10">
-        {/* Desktop: Doc | Clive | Pam — distinct frames on a gallery wall */}
-        <div className="hidden w-full items-end gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.26fr)_minmax(0,1fr)] lg:gap-4 xl:gap-5 2xl:gap-6">
-          <div className="self-end">
+        {/* Desktop: Doc | Clive | Pam - hung directly on the wall */}
+        <div className="hero-triptych-wall__desktop hidden lg:grid">
+          <div className="hero-triptych-wall__slot hero-triptych-wall__slot--doc">
             <PortraitFrame
               posterSrc={doc.src}
               videoSrc={doc.videoSrc}
               ariaLabel={HERO_ALT[doc.slug]}
               width={640}
               height={800}
-              sizes="(min-width: 1280px) 24vw, (min-width: 1024px) 21vw"
+              sizes="(min-width: 1536px) 24vw, (min-width: 1280px) 25vw, (min-width: 1024px) 24vw"
               className="object-bottom"
+              frameClassName="hero-portrait-frame--side"
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
-          <div className="self-end">
+          <div className="hero-triptych-wall__slot hero-triptych-wall__slot--clive">
             <PortraitFrame
               posterSrc={clive.src}
               videoSrc={clive.videoSrc}
@@ -137,27 +140,29 @@ export function FoundingCastHero() {
               width={768}
               height={960}
               priority
-              sizes="(min-width: 1280px) 30vw, (min-width: 1024px) 26vw"
+              sizes="(min-width: 1536px) 32vw, (min-width: 1280px) 34vw, (min-width: 1024px) 32vw"
               className="object-bottom"
+              frameClassName="hero-portrait-frame--clive"
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
-          <div className="self-end">
+          <div className="hero-triptych-wall__slot hero-triptych-wall__slot--pam">
             <PortraitFrame
               posterSrc={pam.src}
               videoSrc={pam.videoSrc}
               ariaLabel={HERO_ALT[pam.slug]}
               width={640}
               height={800}
-              sizes="(min-width: 1280px) 24vw, (min-width: 1024px) 21vw"
+              sizes="(min-width: 1536px) 24vw, (min-width: 1280px) 25vw, (min-width: 1024px) 24vw"
               className="object-bottom"
+              frameClassName="hero-portrait-frame--side"
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
         </div>
 
         {/* Mobile: Clive prominent, Pam + Doc in a row below */}
-        <div className="flex w-full flex-col gap-4 lg:hidden">
+        <div className="hero-triptych-wall__mobile flex w-full flex-col gap-4 lg:hidden">
           <PortraitFrame
             posterSrc={clive.src}
             videoSrc={clive.videoSrc}
@@ -167,6 +172,7 @@ export function FoundingCastHero() {
             priority
             sizes="100vw"
             className="object-center"
+            frameClassName="hero-portrait-frame--clive"
             prefersReducedMotion={prefersReducedMotion}
           />
           <div className="grid grid-cols-2 gap-3">
@@ -178,6 +184,7 @@ export function FoundingCastHero() {
               height={800}
               sizes="50vw"
               className="object-bottom"
+              frameClassName="hero-portrait-frame--side"
               prefersReducedMotion={prefersReducedMotion}
             />
             <PortraitFrame
@@ -188,6 +195,7 @@ export function FoundingCastHero() {
               height={800}
               sizes="50vw"
               className="object-bottom"
+              frameClassName="hero-portrait-frame--side"
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
