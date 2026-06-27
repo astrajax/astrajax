@@ -43,21 +43,9 @@ export function Hero() {
 
         <div
           id="agent-cast"
-          className="flex min-h-0 scroll-mt-24 flex-col justify-center lg:min-h-[34rem] xl:min-w-0"
+          className="flex min-h-0 scroll-mt-24 items-center justify-center lg:min-h-[38rem] xl:min-w-0"
         >
-          <p
-            aria-hidden="true"
-            className="font-display text-3xl leading-tight font-medium text-ink italic sm:text-4xl lg:text-[2.75rem]"
-          >
-            Proof that personality drives adoption
-          </p>
-          <div className="mt-4 w-full lg:mt-5">
-            <FoundingCastHero />
-          </div>
-          <p className="mt-4 text-sm leading-relaxed text-ink-muted/70 italic sm:text-base">
-            A real operational agent fleet with names, jobs and just enough theatre to make people
-            actually use it.
-          </p>
+          <FoundingCastHero />
         </div>
       </div>
     </section>
