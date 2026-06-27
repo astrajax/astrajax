@@ -180,6 +180,13 @@ export function getCastByProduct(slug: FoundingCastProductSlug): CastCharacterAs
   return castBySlug.get(PRODUCT_TO_ASSET_SLUG[slug])!;
 }
 
+/** Founding triptych characters with delivered hero loop videos. */
+const HERO_VIDEO_SLUGS = new Set<CastAssetSlug>([
+  "clive-wigglesworth",
+  "pam-portiscue",
+  "doc-albright",
+]);
+
 /** Public URL for a character's hero still, or undefined when not yet delivered. */
 export function castHeroSrc(slug: CastAssetSlug): string | undefined {
   const character = getCastCharacter(slug);
@@ -190,6 +197,14 @@ export function castHeroSrc(slug: CastAssetSlug): string | undefined {
   }
 
   return `${AGENT_CAST_BASE}/${slug}.png`;
+}
+
+/** Public URL for a character's homepage hero loop video, when available. */
+export function castHeroVideoSrc(slug: CastAssetSlug): string | undefined {
+  if (!HERO_VIDEO_SLUGS.has(slug)) return undefined;
+  const character = getCastCharacter(slug);
+  if (!character || character.heroStatus !== "canonical") return undefined;
+  return `${AGENT_CAST_BASE}/${slug}/hero.mp4`;
 }
 
 export function castHeroByProduct(slug: FoundingCastProductSlug): string | undefined {
@@ -232,21 +247,26 @@ export const FOUNDING_CAST_HERO_TRIPTYCH_ORDER: FoundingCastProductSlug[] = [
 export type FoundingCastHeroEntry = {
   slug: CastAssetSlug;
   name: string;
+  /** Poster still — hero.png */
   src: string;
+  /** Looping hero video — hero.mp4, when delivered */
+  videoSrc?: string;
   role: string;
 };
 
 export function foundingCastHeroTriptych(): FoundingCastHeroEntry[] {
   return FOUNDING_CAST_HERO_TRIPTYCH_ORDER.map((productSlug) => {
     const character = getCastByProduct(productSlug);
+    const assetSlug = PRODUCT_TO_ASSET_SLUG[productSlug];
     const src = castHeroByProduct(productSlug);
     if (!src) {
       throw new Error(`Missing hero still for founding cast: ${productSlug}`);
     }
     return {
-      slug: PRODUCT_TO_ASSET_SLUG[productSlug],
+      slug: assetSlug,
       name: character.name,
       src,
+      videoSrc: castHeroVideoSrc(assetSlug),
       role: character.role,
     };
   });
