@@ -3,8 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
-import { BOOKING_URL } from "@/lib/site";
-
 type NavLink = {
   href: string;
   label: string;
@@ -136,7 +134,7 @@ export function Nav({ immersive = false }: NavProps) {
         </Link>
 
         <nav
-          className="hidden flex-1 items-center justify-center gap-8 md:flex"
+          className="hidden flex-1 items-center justify-center gap-10 lg:gap-12 md:flex"
           aria-label="Main"
         >
           {links.map((link) => (
@@ -162,26 +160,16 @@ export function Nav({ immersive = false }: NavProps) {
           ))}
         </nav>
 
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-          <button
-            type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink transition hover:border-ink/30 md:hidden"
-            aria-expanded={menuOpen}
-            aria-controls={panelId}
-            aria-label={menuOpen ? "Close menu" : "Open menu"}
-            onClick={() => setMenuOpen((open) => !open)}
-          >
-            <MenuIcon open={menuOpen} />
-          </button>
-          <a
-            href={BOOKING_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-primary hidden shrink-0 text-sm md:inline-flex"
-          >
-            Book an Adoption Audit
-          </a>
-        </div>
+        <button
+          type="button"
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ink/15 text-ink transition hover:border-ink/30 md:hidden"
+          aria-expanded={menuOpen}
+          aria-controls={panelId}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <MenuIcon open={menuOpen} />
+        </button>
       </div>
 
       {menuOpen ? (
@@ -203,15 +191,6 @@ export function Nav({ immersive = false }: NavProps) {
                 </li>
               ))}
             </ul>
-            <a
-              href={BOOKING_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary mt-4 w-full justify-center text-sm"
-              onClick={closeMenu}
-            >
-              Book an Adoption Audit
-            </a>
           </div>
         </nav>
       ) : null}
