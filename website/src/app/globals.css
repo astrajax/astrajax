@@ -141,6 +141,8 @@ body {
 .hero-immersive-room {
   position: relative;
   --hero-nav-height: 3.75rem;
+  --hero-rail-height: 0.5625rem;
+  --hero-gallery-gap: clamp(1.25rem, 3.5vh, 2.75rem);
 }
 
 @media (min-width: 768px) {
@@ -156,7 +158,6 @@ body {
 
 .hero-nav-band {
   position: relative;
-  padding-bottom: 0.5625rem;
   border-bottom: none;
   background: linear-gradient(
     180deg,
@@ -166,14 +167,13 @@ body {
   box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--color-ink) 6%, transparent);
 }
 
-/* Wooden picture rail — sits flush under the wainscoting nav band. */
-.hero-nav-band::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 0.5625rem;
+/* Wooden picture rail — own band directly under nav, in front of the wall. */
+.hero-picture-rail {
+  position: relative;
+  z-index: 40;
+  flex-shrink: 0;
+  width: 100%;
+  height: var(--hero-rail-height);
   pointer-events: none;
   background:
     linear-gradient(
@@ -211,11 +211,11 @@ body {
   color: var(--color-cream);
 }
 
-/* Pull the gallery wall up behind the nav band so the photo rail meets the CSS rail. */
+/* Immersive hero fills the viewport below nav + rail — wall starts under the rail. */
 .hero-immersive-room .hero-victorian-wall {
-  margin-top: calc(-1 * var(--hero-nav-height) - 0.5625rem);
-  padding-top: calc(var(--hero-nav-height) + 0.5625rem);
-  min-height: calc(100svh + var(--hero-nav-height) + 0.5625rem);
+  min-height: calc(
+    100svh - var(--hero-nav-height) - var(--hero-rail-height)
+  );
 }
 
 /* The generated Victorian study wall photo IS the wall — full-bleed cover. */
@@ -226,8 +226,8 @@ body {
 }
 
 .hero-immersive-room .hero-victorian-wall__bg {
-  /* Picture rail in victorian-wall.png sits ~17% from the image top — align it under the nav band. */
-  object-position: center calc(var(--hero-nav-height) + 0.5625rem - 17%);
+  /* Moss wall below the built-in photo rail — CSS rail handles the band above. */
+  object-position: center 22%;
 }
 
 /* Restrained depth pass over the photo: a warm lift under the centre light pool
@@ -249,6 +249,10 @@ body {
   padding: clamp(0.75rem, 2vw, 1.75rem) clamp(0.75rem, 3vw, 2.5rem);
 }
 
+.hero-immersive-room .hero-victorian-wall__stage {
+  padding-top: var(--hero-gallery-gap);
+}
+
 /* Asymmetric founding-cast composition on the Victorian wall. */
 .hero-asymmetric-wall {
   position: relative;
@@ -259,7 +263,7 @@ body {
 .hero-asymmetric-wall__composition {
   position: relative;
   width: 100%;
-  min-height: min(54rem, calc(100svh - 5.5rem));
+  min-height: min(52rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 6rem));
   max-width: 118rem;
   margin: 0 auto;
 }
@@ -271,29 +275,29 @@ body {
   align-items: center;
 }
 
-/* Pam — upper-left, smaller side piece */
+/* Pam — upper-left, smaller side piece — tucked into the corner with clearance from Clive */
 .hero-asymmetric-wall__slot--pam {
-  top: clamp(0.25rem, 2.5vh, 2rem);
-  left: clamp(0.25rem, 2.5vw, 3.5rem);
-  width: min(20vw, 18.5rem);
+  top: clamp(0.5rem, 2vh, 1.25rem);
+  left: clamp(1rem, 4vw, 5rem);
+  width: min(17vw, 16.5rem);
   z-index: 2;
   transform: rotate(-0.65deg);
 }
 
-/* Clive — centre, dominant landscape piece */
+/* Clive — centre, dominant landscape piece — slightly smaller with vertical offset for side breathing room */
 .hero-asymmetric-wall__slot--clive {
-  top: 50%;
+  top: 54%;
   left: 50%;
-  width: min(64vw, 58rem);
-  z-index: 3;
-  transform: translate(-50%, -46%);
+  width: min(56vw, 52rem);
+  z-index: 1;
+  transform: translate(-50%, -44%);
 }
 
-/* Doc — lower-right, smaller side piece */
+/* Doc — lower-right, smaller side piece — tucked into the corner with clearance from Clive */
 .hero-asymmetric-wall__slot--doc {
-  right: clamp(0.25rem, 2.5vw, 3.5rem);
-  bottom: clamp(0.25rem, 3vh, 2rem);
-  width: min(20vw, 18.5rem);
+  right: clamp(1rem, 4vw, 5rem);
+  bottom: clamp(0.75rem, 4vh, 2.5rem);
+  width: min(17vw, 16.5rem);
   z-index: 2;
   transform: rotate(0.65deg);
 }
@@ -385,18 +389,26 @@ body {
 
 @media (min-width: 1280px) {
   .hero-asymmetric-wall__slot--clive {
-    width: min(68vw, 62rem);
+    width: min(58vw, 54rem);
   }
 
   .hero-asymmetric-wall__slot--pam,
   .hero-asymmetric-wall__slot--doc {
-    width: min(18vw, 19.5rem);
+    width: min(16vw, 17.5rem);
   }
 }
 
 @media (min-width: 1536px) {
   .hero-asymmetric-wall__composition {
-    min-height: min(58rem, calc(100svh - 5rem));
+    min-height: min(56rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5rem));
+  }
+
+  .hero-asymmetric-wall__slot--pam {
+    left: clamp(1.5rem, 5vw, 6.5rem);
+  }
+
+  .hero-asymmetric-wall__slot--doc {
+    right: clamp(1.5rem, 5vw, 6.5rem);
   }
 }
 

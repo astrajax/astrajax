@@ -19,6 +19,7 @@ export default function HomePage() {
         <div className="hero-immersive-room__nav">
           <Nav immersive />
         </div>
+        <div className="hero-picture-rail" aria-hidden />
         <Hero />
       </div>
       <main>
