@@ -146,8 +146,8 @@ body {
   gap: 0;
   --hero-nav-height: 3.75rem;
   /* Ornate picture rail — moulding overlaps nav wainscoting; moss wall starts below */
-  --hero-rail-height: clamp(28px, 3.2vh, 40px);
-  --hero-rail-overlap: clamp(10px, 1.2vh, 16px);
+  --hero-rail-height: clamp(36px, 4.5vh, 56px);
+  --hero-rail-overlap: clamp(14px, 1.6vh, 22px);
   --hero-gallery-gap: clamp(0.35rem, 1vh, 0.85rem);
 }
 
@@ -167,27 +167,53 @@ body {
   flex-shrink: 0;
   border-bottom: none;
   overflow: hidden;
-  background-color: var(--color-cream-paper);
+  background-color: var(--color-cream);
   background-image:
+    /* faint damask medallion — aged study wallpaper, not flat SaaS bar */
+    url("data:image/svg+xml,%3Csvg width='120' height='120' viewBox='0 0 120 120' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23EAE2CC' stroke-width='0.6' opacity='0.22'%3E%3Cellipse cx='60' cy='60' rx='22' ry='14'/%3E%3Cellipse cx='60' cy='60' rx='14' ry='22'/%3E%3Cpath d='M60 38c8 0 14 6 14 14s-6 14-14 14-14-6-14-14 6-14 14-14z'/%3E%3C/g%3E%3C/svg%3E"),
     /* subtle paper grain */
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"),
-    /* wainscoting panel hint — vertical centre seam */
-    linear-gradient(
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.055'/%3E%3C/svg%3E"),
+    /* wainscoting panel seams — soft vertical lines */
+    repeating-linear-gradient(
       90deg,
-      color-mix(in srgb, var(--color-cream-inset) 18%, transparent) 0%,
-      transparent 18%,
-      transparent 82%,
-      color-mix(in srgb, var(--color-cream-inset) 18%, transparent) 100%
+      color-mix(in srgb, var(--color-cream-inset) 14%, transparent) 0,
+      color-mix(in srgb, var(--color-cream-inset) 14%, transparent) 1px,
+      transparent 1px,
+      transparent calc(25% - 0.5px),
+      color-mix(in srgb, var(--color-cream-inset) 10%, transparent) calc(25% - 0.5px),
+      color-mix(in srgb, var(--color-cream-inset) 10%, transparent) calc(25% + 0.5px),
+      transparent calc(25% + 0.5px),
+      transparent calc(50% - 0.5px),
+      color-mix(in srgb, var(--color-cream-inset) 16%, transparent) calc(50% - 0.5px),
+      color-mix(in srgb, var(--color-cream-inset) 16%, transparent) calc(50% + 0.5px),
+      transparent calc(50% + 0.5px),
+      transparent calc(75% - 0.5px),
+      color-mix(in srgb, var(--color-cream-inset) 10%, transparent) calc(75% - 0.5px),
+      color-mix(in srgb, var(--color-cream-inset) 10%, transparent) calc(75% + 0.5px),
+      transparent calc(75% + 0.5px),
+      transparent 100%
     ),
+    /* edge patina — warm yellowing at sides and lower band */
+    radial-gradient(ellipse 90% 120% at 0% 100%, color-mix(in srgb, var(--color-cream-inset) 38%, transparent), transparent 58%),
+    radial-gradient(ellipse 90% 120% at 100% 100%, color-mix(in srgb, var(--color-cream-inset) 38%, transparent), transparent 58%),
+    radial-gradient(ellipse 140% 90% at 50% 0%, var(--color-cream-paper) 0%, transparent 62%),
     linear-gradient(
       180deg,
-      var(--color-cream-paper) 0%,
-      color-mix(in srgb, var(--color-cream-paper) 92%, var(--color-cream)) 48%,
-      color-mix(in srgb, var(--color-cream) 82%, var(--color-cream-deep)) 100%
+      color-mix(in srgb, var(--color-cream-paper) 94%, var(--color-cream)) 0%,
+      var(--color-cream) 42%,
+      color-mix(in srgb, var(--color-cream) 88%, var(--color-cream-inset)) 100%
     );
+  background-size:
+    120px 120px,
+    200px 200px,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%,
+    100% 100%;
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 60%, transparent),
-    inset 0 -12px 20px color-mix(in srgb, var(--color-cream-deep) 22%, transparent);
+    inset 0 1px 0 color-mix(in srgb, var(--color-cream-paper) 70%, white),
+    inset 0 -14px 22px color-mix(in srgb, var(--color-cream-inset) 28%, transparent);
 }
 
 .hero-nav-band::after {
@@ -196,12 +222,12 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  height: clamp(10px, 1.1vh, 16px);
+  height: clamp(12px, 1.3vh, 18px);
   pointer-events: none;
   background: linear-gradient(
     180deg,
     transparent,
-    color-mix(in srgb, var(--color-cream-inset) 35%, transparent)
+    color-mix(in srgb, var(--color-cream-inset) 42%, transparent)
   );
 }
 
@@ -218,11 +244,45 @@ body {
   background-color: #2a1a10;
   background-image: url(/agent-cast/victorian-rail.png);
   background-repeat: no-repeat;
-  background-size: 100% 100%;
+  /* Preserve vertical moulding detail — crop from top rather than squash ridges */
+  background-size: 100% auto;
   background-position: center top;
   box-shadow:
-    0 2px 4px rgba(22, 15, 8, 0.45),
-    0 5px 14px rgba(22, 15, 8, 0.22);
+    inset 0 2px 1px rgba(255, 238, 210, 0.42),
+    inset 0 -2px 4px rgba(12, 8, 5, 0.35),
+    0 3px 6px rgba(22, 15, 8, 0.55),
+    0 8px 18px rgba(22, 15, 8, 0.32);
+}
+
+/* Top-edge highlight — light pool from ceiling above */
+.hero-picture-rail::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 248, 232, 0.38) 0%,
+    rgba(255, 242, 218, 0.12) 22%,
+    transparent 48%
+  );
+}
+
+/* Shadow cast downward onto moss wall under the rail */
+.hero-picture-rail::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: clamp(10px, 1.2vh, 18px);
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(6, 5, 3, 0.62) 0%,
+    rgba(6, 5, 3, 0.22) 45%,
+    transparent 100%
+  );
 }
 
 /* Baseboard — top moulding from source, flipped to the bottom edge. */
@@ -245,8 +305,15 @@ body {
 }
 
 .hero-nav-band__menu {
-  border-top: 1px solid color-mix(in srgb, var(--color-ink) 8%, transparent);
-  background: var(--color-cream-paper);
+  border-top: 1px solid color-mix(in srgb, var(--color-cream-inset) 55%, transparent);
+  background-color: var(--color-cream);
+  background-image:
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"),
+    linear-gradient(
+      180deg,
+      var(--color-cream-paper) 0%,
+      color-mix(in srgb, var(--color-cream) 92%, var(--color-cream-inset)) 100%
+    );
 }
 
 .hero-victorian-wall {
@@ -292,6 +359,20 @@ body {
   pointer-events: none;
   background:
     radial-gradient(58% 42% at 50% 26%, color-mix(in srgb, var(--color-buttermilk) 14%, transparent), transparent 72%),
+    radial-gradient(135% 120% at 50% 40%, transparent 52%, rgba(7, 6, 3, 0.55) 100%);
+}
+
+/* Immersive hero — brighter top-centre light pool + rail shadow band at wall top */
+.hero-immersive-room .hero-victorian-wall__lighting {
+  background:
+    radial-gradient(42% 24% at 50% 4%, color-mix(in srgb, var(--color-buttermilk) 26%, transparent), transparent 72%),
+    linear-gradient(
+      180deg,
+      rgba(255, 244, 225, 0.08) 0%,
+      rgba(255, 244, 225, 0.03) 6%,
+      transparent 14%
+    ),
+    radial-gradient(58% 42% at 50% 26%, color-mix(in srgb, var(--color-buttermilk) 16%, transparent), transparent 72%),
     radial-gradient(135% 120% at 50% 40%, transparent 52%, rgba(7, 6, 3, 0.55) 100%);
 }
 
