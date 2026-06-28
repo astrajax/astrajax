@@ -13,6 +13,13 @@ const HERO_ALT: Record<string, string> = {
     "Pam Portiscue — grey cat with a map and compass, challenger at the chart table",
 };
 
+/** Editorial role lines for the hero captions (mockup-approved). */
+const HERO_ROLE: Record<string, string> = {
+  "clive-wigglesworth": "The Thought Campion",
+  "pam-portiscue": "The Challenger",
+  "doc-albright": "The Executor",
+};
+
 const triptych = foundingCastHeroTriptych();
 const [doc, clive, pam] = triptych;
 
@@ -31,27 +38,20 @@ function usePrefersReducedMotion() {
   return prefersReducedMotion;
 }
 
-/**
- * Hanging hardware — a brass hook on the picture rail with twin cords down to
- * the frame top. Anchored to the frame (sits directly above it), so the hang
- * reads correctly regardless of how the wall photo is cover-cropped.
- */
-function FrameHanger() {
+function PortraitCaption({
+  name,
+  role,
+  srOnly,
+}: {
+  name: string;
+  role: string;
+  srOnly?: boolean;
+}) {
   return (
-    <svg
-      className="hero-portrait__hanger"
-      viewBox="0 0 88 48"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path d="M44 8 26 48" stroke="#100b06" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
-      <path d="M44 8 62 48" stroke="#100b06" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
-      <path d="M44 8 26 48" stroke="#e9cd92" strokeWidth="0.55" strokeLinecap="round" opacity="0.32" />
-      <path d="M44 8 62 48" stroke="#e9cd92" strokeWidth="0.55" strokeLinecap="round" opacity="0.32" />
-      <circle cx="44" cy="7" r="3.6" fill="#9c6f31" />
-      <circle cx="44" cy="7" r="3.6" fill="none" stroke="#33210e" strokeWidth="0.8" opacity="0.7" />
-      <circle cx="42.7" cy="5.7" r="1.1" fill="#f6e1a6" opacity="0.9" />
-    </svg>
+    <figcaption className={srOnly ? "sr-only" : "hero-portrait-caption"}>
+      <span className="hero-portrait-caption__name font-display">{name}</span>
+      <span className="hero-portrait-caption__role">{role}</span>
+    </figcaption>
   );
 }
 
@@ -63,7 +63,6 @@ function PortraitFrame({
   height,
   sizes,
   priority,
-  portraitClassName,
   prefersReducedMotion,
 }: {
   posterSrc: string;
@@ -73,7 +72,6 @@ function PortraitFrame({
   height: number;
   sizes: string;
   priority?: boolean;
-  portraitClassName?: string;
   prefersReducedMotion: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -97,40 +95,71 @@ function PortraitFrame({
   }, [showVideo]);
 
   return (
-    <div className={`hero-portrait ${portraitClassName ?? ""}`}>
-      <FrameHanger />
-      {/* The ornate gold frame is baked into the artwork itself — no second
-          frame, mat, or card. We only mount it on the wall with a soft shadow. */}
-      <div className="hero-portrait-frame">
-        {showVideo ? (
-          <video
-            ref={videoRef}
-            className="hero-portrait-frame__media"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster={posterSrc}
-            width={width}
-            height={height}
-            aria-label={ariaLabel}
-          >
-            <source src={videoSrc} type="video/mp4" />
-          </video>
-        ) : (
-          <Image
-            src={posterSrc}
-            alt={ariaLabel}
-            width={width}
-            height={height}
-            priority={priority}
-            sizes={sizes}
-            className="hero-portrait-frame__media"
-          />
-        )}
-      </div>
+    <div className="hero-portrait-frame">
+      {showVideo ? (
+        <video
+          ref={videoRef}
+          className="hero-portrait-frame__media"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          poster={posterSrc}
+          width={width}
+          height={height}
+          aria-label={ariaLabel}
+        >
+          <source src={videoSrc} type="video/mp4" />
+        </video>
+      ) : (
+        <Image
+          src={posterSrc}
+          alt={ariaLabel}
+          width={width}
+          height={height}
+          priority={priority}
+          sizes={sizes}
+          className="hero-portrait-frame__media"
+        />
+      )}
     </div>
+  );
+}
+
+type CastEntry = (typeof triptych)[number];
+
+function CastPortrait({
+  entry,
+  displayName,
+  sizes,
+  priority,
+  captionSrOnly,
+  prefersReducedMotion,
+}: {
+  entry: CastEntry;
+  displayName: string;
+  sizes: string;
+  priority?: boolean;
+  captionSrOnly?: boolean;
+  prefersReducedMotion: boolean;
+}) {
+  const role = HERO_ROLE[entry.slug] ?? entry.role;
+
+  return (
+    <figure className="hero-portrait">
+      <PortraitFrame
+        posterSrc={entry.src}
+        videoSrc={entry.videoSrc}
+        ariaLabel={HERO_ALT[entry.slug]}
+        width={1024}
+        height={entry.slug === "doc-albright" ? 686 : 571}
+        sizes={sizes}
+        priority={priority}
+        prefersReducedMotion={prefersReducedMotion}
+      />
+      <PortraitCaption name={displayName} role={role} srOnly={captionSrOnly} />
+    </figure>
   );
 }
 
@@ -138,90 +167,68 @@ export function FoundingCastHero() {
   const prefersReducedMotion = usePrefersReducedMotion();
 
   return (
-    <figure className="hero-triptych-wall w-full">
-      <figcaption className="sr-only">
+    <div className="hero-asymmetric-wall w-full" aria-label="Founding cast portraits">
+      <p className="sr-only">
         Founding cast: {triptych.map((c) => c.name).join(", ")}
-      </figcaption>
+      </p>
 
-      <div className="hero-triptych-wall__gallery relative z-10">
-        {/* Desktop: Doc | Clive | Pam — hung directly on the wall */}
-        <div className="hero-triptych-wall__desktop hidden lg:grid">
-          <div className="hero-triptych-wall__slot hero-triptych-wall__slot--doc">
-            <PortraitFrame
-              posterSrc={doc.src}
-              videoSrc={doc.videoSrc}
-              ariaLabel={HERO_ALT[doc.slug]}
-              width={1024}
-              height={686}
-              sizes="(min-width: 1536px) 24vw, (min-width: 1024px) 26vw, 40vw"
-              portraitClassName="hero-portrait--side"
+      {/* Desktop: asymmetric composition — Pam upper-left, Clive centre, Doc lower-right */}
+      <div className="hero-asymmetric-wall__desktop hidden lg:block">
+        <div className="hero-asymmetric-wall__composition">
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
+            <CastPortrait
+              entry={pam}
+              displayName={pam.name}
+              sizes="(min-width: 1536px) 18vw, (min-width: 1024px) 20vw, 40vw"
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
-          <div className="hero-triptych-wall__slot hero-triptych-wall__slot--clive">
-            <PortraitFrame
-              posterSrc={clive.src}
-              videoSrc={clive.videoSrc}
-              ariaLabel={HERO_ALT[clive.slug]}
-              width={1024}
-              height={571}
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--clive">
+            <CastPortrait
+              entry={clive}
+              displayName="Clive Wigglesworth Esq."
+              sizes="(min-width: 1536px) 58vw, (min-width: 1024px) 62vw, 92vw"
               priority
-              sizes="(min-width: 1536px) 34vw, (min-width: 1024px) 36vw, 92vw"
-              portraitClassName="hero-portrait--clive"
+              captionSrOnly
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
-          <div className="hero-triptych-wall__slot hero-triptych-wall__slot--pam">
-            <PortraitFrame
-              posterSrc={pam.src}
-              videoSrc={pam.videoSrc}
-              ariaLabel={HERO_ALT[pam.slug]}
-              width={1024}
-              height={571}
-              sizes="(min-width: 1536px) 24vw, (min-width: 1024px) 26vw, 40vw"
-              portraitClassName="hero-portrait--side"
-              prefersReducedMotion={prefersReducedMotion}
-            />
-          </div>
-        </div>
-
-        {/* Mobile: Clive prominent, Pam + Doc in a row below */}
-        <div className="hero-triptych-wall__mobile flex w-full flex-col gap-5 lg:hidden">
-          <PortraitFrame
-            posterSrc={clive.src}
-            videoSrc={clive.videoSrc}
-            ariaLabel={HERO_ALT[clive.slug]}
-            width={1024}
-            height={571}
-            priority
-            sizes="92vw"
-            portraitClassName="hero-portrait--clive"
-            prefersReducedMotion={prefersReducedMotion}
-          />
-          <div className="grid grid-cols-2 gap-4">
-            <PortraitFrame
-              posterSrc={pam.src}
-              videoSrc={pam.videoSrc}
-              ariaLabel={HERO_ALT[pam.slug]}
-              width={1024}
-              height={571}
-              sizes="46vw"
-              portraitClassName="hero-portrait--side"
-              prefersReducedMotion={prefersReducedMotion}
-            />
-            <PortraitFrame
-              posterSrc={doc.src}
-              videoSrc={doc.videoSrc}
-              ariaLabel={HERO_ALT[doc.slug]}
-              width={1024}
-              height={686}
-              sizes="46vw"
-              portraitClassName="hero-portrait--side"
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc">
+            <CastPortrait
+              entry={doc}
+              displayName={doc.name}
+              sizes="(min-width: 1536px) 18vw, (min-width: 1024px) 20vw, 40vw"
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
         </div>
       </div>
-    </figure>
+
+      {/* Mobile: Clive dominant, Pam + Doc below with captions */}
+      <div className="hero-asymmetric-wall__mobile flex w-full flex-col gap-6 lg:hidden">
+        <CastPortrait
+          entry={clive}
+          displayName="Clive Wigglesworth Esq."
+          sizes="94vw"
+          priority
+          captionSrOnly
+          prefersReducedMotion={prefersReducedMotion}
+        />
+        <div className="grid grid-cols-2 gap-4 sm:gap-5">
+          <CastPortrait
+            entry={pam}
+            displayName={pam.name}
+            sizes="46vw"
+            prefersReducedMotion={prefersReducedMotion}
+          />
+          <CastPortrait
+            entry={doc}
+            displayName={doc.name}
+            sizes="46vw"
+            prefersReducedMotion={prefersReducedMotion}
+          />
+        </div>
+      </div>
+    </div>
   );
 }

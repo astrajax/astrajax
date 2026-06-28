@@ -170,81 +170,66 @@ body {
 .hero-victorian-wall__stage {
   position: relative;
   z-index: 2;
-  width: min(100%, 104rem);
-  padding: clamp(1.25rem, 3.5vw, 3.25rem) clamp(1rem, 4vw, 4rem);
+  width: 100%;
+  padding: clamp(0.75rem, 2vw, 1.75rem) clamp(0.75rem, 3vw, 2.5rem);
 }
 
-.hero-triptych-wall {
+/* Asymmetric founding-cast composition on the Victorian wall. */
+.hero-asymmetric-wall {
   position: relative;
   isolation: isolate;
   overflow: visible;
 }
 
-.hero-triptych-wall__gallery {
-  width: 100%;
-}
-
-.hero-triptych-wall__desktop {
-  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.34fr) minmax(0, 0.92fr);
-  align-items: center;
-  justify-items: center;
-  gap: clamp(1.5rem, 3vw, 3.5rem);
-  min-height: min(38rem, calc(100svh - 9rem));
-}
-
-.hero-triptych-wall__slot {
+.hero-asymmetric-wall__composition {
   position: relative;
-  display: flex;
   width: 100%;
-  justify-content: center;
+  min-height: min(54rem, calc(100svh - 5.5rem));
+  max-width: 118rem;
+  margin: 0 auto;
 }
 
-/* Hand-hung variation: subtle vertical offset and < 1deg tilt so the wall reads
-   human, not machine-aligned. The centre piece stays level under the light. */
-.hero-triptych-wall__slot--doc {
-  transform: translateY(2rem) rotate(-0.8deg);
+.hero-asymmetric-wall__slot {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.hero-triptych-wall__slot--clive {
-  transform: translateY(-1.25rem);
+/* Pam — upper-left, smaller side piece */
+.hero-asymmetric-wall__slot--pam {
+  top: clamp(0.25rem, 2.5vh, 2rem);
+  left: clamp(0.25rem, 2.5vw, 3.5rem);
+  width: min(20vw, 18.5rem);
+  z-index: 2;
+  transform: rotate(-0.65deg);
+}
+
+/* Clive — centre, dominant landscape piece */
+.hero-asymmetric-wall__slot--clive {
+  top: 50%;
+  left: 50%;
+  width: min(64vw, 58rem);
   z-index: 3;
+  transform: translate(-50%, -46%);
 }
 
-.hero-triptych-wall__slot--pam {
-  transform: translateY(2.75rem) rotate(0.8deg);
+/* Doc — lower-right, smaller side piece */
+.hero-asymmetric-wall__slot--doc {
+  right: clamp(0.25rem, 2.5vw, 3.5rem);
+  bottom: clamp(0.25rem, 3vh, 2rem);
+  width: min(20vw, 18.5rem);
+  z-index: 2;
+  transform: rotate(0.65deg);
 }
 
-/* Portrait = artwork (with its own baked-in gold frame) + hanging hardware. */
 .hero-portrait {
   position: relative;
   width: 100%;
+  margin: 0;
 }
 
-.hero-portrait--side {
-  max-width: min(25.5rem, 27vw);
-}
-
-.hero-portrait--clive {
-  max-width: min(35rem, 37vw);
-}
-
-.hero-portrait__hanger {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  width: 5.25rem;
-  height: auto;
-  transform: translateX(-50%);
-  opacity: 0.6;
-  pointer-events: none;
-}
-
-.hero-triptych-wall__slot--clive .hero-portrait__hanger {
-  opacity: 0.78;
-}
-
-/* No second frame, mat, or card — just the soft directional shadow that mounts
-   the painting on the wall. Light source is top / top-centre. */
+/* Baked-in gold frame only — soft wall shadow, no second mat or card. */
 .hero-portrait-frame {
   position: relative;
   display: block;
@@ -253,20 +238,26 @@ body {
   border-radius: 3px;
   background: transparent;
   box-shadow:
-    0 1.65rem 2.9rem rgba(6, 5, 3, 0.46),
-    0 0.45rem 0.95rem rgba(6, 5, 3, 0.3);
+    0 1.75rem 3.1rem rgba(6, 5, 3, 0.5),
+    0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-.hero-triptych-wall__slot--doc .hero-portrait-frame {
+.hero-asymmetric-wall__slot--doc .hero-portrait-frame {
   box-shadow:
-    -0.2rem 1.55rem 2.9rem rgba(6, 5, 3, 0.46),
-    0 0.45rem 0.95rem rgba(6, 5, 3, 0.3);
+    -0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
+    0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-.hero-triptych-wall__slot--pam .hero-portrait-frame {
+.hero-asymmetric-wall__slot--pam .hero-portrait-frame {
   box-shadow:
-    0.2rem 1.55rem 2.9rem rgba(6, 5, 3, 0.46),
-    0 0.45rem 0.95rem rgba(6, 5, 3, 0.3);
+    0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
+    0 0.5rem 1rem rgba(6, 5, 3, 0.32);
+}
+
+.hero-asymmetric-wall__slot--clive .hero-portrait-frame {
+  box-shadow:
+    0 2rem 3.75rem rgba(6, 5, 3, 0.55),
+    0 0.65rem 1.25rem rgba(6, 5, 3, 0.36);
 }
 
 .hero-portrait-frame__media {
@@ -276,19 +267,62 @@ body {
   border-radius: 3px;
 }
 
-.hero-triptych-wall__mobile {
-  max-width: 30rem;
+/* Parchment / gold captions — warm ink on wall, not UI labels */
+.hero-portrait-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  margin-top: clamp(0.45rem, 0.9vw, 0.7rem);
+  text-align: center;
+  text-shadow:
+    0 1px 2px rgba(8, 6, 3, 0.55),
+    0 0 12px rgba(8, 6, 3, 0.35);
+}
+
+.hero-portrait-caption__name {
+  font-size: clamp(0.8125rem, 1.1vw, 0.9375rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--color-parchment) 92%, var(--color-buttermilk));
+}
+
+.hero-portrait-caption__role {
+  font-family: var(--font-display);
+  font-size: clamp(0.75rem, 0.95vw, 0.875rem);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  color: color-mix(in srgb, var(--color-buttermilk) 78%, var(--color-parchment));
+  opacity: 0.88;
+}
+
+.hero-asymmetric-wall__mobile {
+  max-width: 42rem;
   margin: 0 auto;
-  padding: 0.5rem 0 1.5rem;
+  padding: 0.25rem 0 1.75rem;
 }
 
-.hero-triptych-wall__mobile .hero-portrait {
+.hero-asymmetric-wall__mobile .hero-portrait:first-child {
   max-width: none;
+  width: 100%;
 }
 
-/* Hanging hardware is a desktop nicety; the mobile stack stays clean. */
-.hero-triptych-wall__mobile .hero-portrait__hanger {
-  display: none;
+@media (min-width: 1280px) {
+  .hero-asymmetric-wall__slot--clive {
+    width: min(68vw, 62rem);
+  }
+
+  .hero-asymmetric-wall__slot--pam,
+  .hero-asymmetric-wall__slot--doc {
+    width: min(18vw, 19.5rem);
+  }
+}
+
+@media (min-width: 1536px) {
+  .hero-asymmetric-wall__composition {
+    min-height: min(58rem, calc(100svh - 5rem));
+  }
 }
 
 @media (min-width: 640px) {
