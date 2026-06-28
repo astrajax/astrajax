@@ -222,16 +222,16 @@ body {
   );
 }
 
-/* The generated Victorian study wall photo IS the wall — full-bleed cover. */
+/* The generated Victorian study wall photo IS the wall — full-bleed cover.
+   PNG is cropped below the baked-in rail; moss starts at the top edge. */
 .hero-victorian-wall__bg {
   z-index: 0;
   object-fit: cover;
-  object-position: center 36%;
+  object-position: center top;
 }
 
 .hero-immersive-room .hero-victorian-wall__bg {
-  /* Crop the photo's baked-in molding — moss texture starts right under the CSS rail. */
-  object-position: center 32%;
+  object-position: center top;
 }
 
 /* Restrained depth pass over the photo: a warm lift under the centre light pool
@@ -382,10 +382,10 @@ body {
   opacity: 0.92;
 }
 
-/* ── Wall brand wordmark — upper-left, separate from the nav ── */
+/* ── Wall brand wordmark — upper-left on moss, below the CSS picture rail ── */
 .hero-wall-brand {
   position: absolute;
-  top: clamp(0.35rem, 1.2vh, 0.85rem);
+  top: clamp(0.5rem, 1.6vh, 1.1rem);
   left: clamp(1rem, 2.5vw, 2.5rem);
   z-index: 3;
   display: inline-flex;
