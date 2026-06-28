@@ -8,6 +8,7 @@
   --color-cream: #f3eddb;
   --color-cream-paper: #faf7ed;
   --color-cream-deep: #ebe4d8;
+  --color-cream-inset: #eae2cc;
   --hero-nav-height: 3.75rem;
   --color-ink: #171a18;
   --color-ink-muted: #4a4f4c;
@@ -144,8 +145,9 @@ body {
   flex-direction: column;
   gap: 0;
   --hero-nav-height: 3.75rem;
-  /* Ornate picture rail — flush under nav, moss wall starts below */
-  --hero-rail-height: clamp(15px, 1.9vh, 24px);
+  /* Ornate picture rail — moulding overlaps nav wainscoting; moss wall starts below */
+  --hero-rail-height: clamp(28px, 3.2vh, 40px);
+  --hero-rail-overlap: clamp(10px, 1.2vh, 16px);
   --hero-gallery-gap: clamp(0.35rem, 1vh, 0.85rem);
 }
 
@@ -157,29 +159,60 @@ body {
 
 .hero-immersive-room__nav {
   position: relative;
-  z-index: 50;
+  z-index: 20;
 }
 
 .hero-nav-band {
   position: relative;
   flex-shrink: 0;
   border-bottom: none;
-  background: linear-gradient(
-    180deg,
-    var(--color-cream-paper) 0%,
-    color-mix(in srgb, var(--color-cream-paper) 88%, var(--color-cream)) 100%
-  );
-  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--color-ink) 6%, transparent);
+  overflow: hidden;
+  background-color: var(--color-cream-paper);
+  background-image:
+    /* subtle paper grain */
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E"),
+    /* wainscoting panel hint — vertical centre seam */
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-cream-inset) 18%, transparent) 0%,
+      transparent 18%,
+      transparent 82%,
+      color-mix(in srgb, var(--color-cream-inset) 18%, transparent) 100%
+    ),
+    linear-gradient(
+      180deg,
+      var(--color-cream-paper) 0%,
+      color-mix(in srgb, var(--color-cream-paper) 92%, var(--color-cream)) 48%,
+      color-mix(in srgb, var(--color-cream) 82%, var(--color-cream-deep)) 100%
+    );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 60%, transparent),
+    inset 0 -12px 20px color-mix(in srgb, var(--color-cream-deep) 22%, transparent);
 }
 
-/* Picture rail — bottom moulding from source, flipped; flush under nav. */
+.hero-nav-band::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(10px, 1.1vh, 16px);
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--color-cream-inset) 35%, transparent)
+  );
+}
+
+/* Picture rail — ornate moulding mounted over wainscoting; moss wall starts below. */
 .hero-picture-rail {
   position: relative;
-  z-index: 40;
+  z-index: 30;
   flex-shrink: 0;
   width: 100%;
-  height: clamp(15px, 1.9vh, 24px);
-  margin: 0;
+  height: var(--hero-rail-height);
+  margin: calc(-1 * var(--hero-rail-overlap)) 0 0;
   padding: 0;
   pointer-events: none;
   background-color: #2a1a10;
@@ -187,6 +220,9 @@ body {
   background-repeat: no-repeat;
   background-size: 100% 100%;
   background-position: center top;
+  box-shadow:
+    0 2px 4px rgba(22, 15, 8, 0.45),
+    0 5px 14px rgba(22, 15, 8, 0.22);
 }
 
 /* Baseboard — top moulding from source, flipped to the bottom edge. */
@@ -228,14 +264,15 @@ body {
   color: var(--color-cream);
 }
 
-/* Immersive hero fills the viewport below nav + rail — wall starts under the rail. */
+/* Immersive hero fills the viewport below nav + rail — overlap reduces chrome height. */
 .hero-immersive-room .hero-victorian-wall {
   min-height: calc(
-    100svh - var(--hero-nav-height) - var(--hero-rail-height)
+    100svh - var(--hero-nav-height) - var(--hero-rail-height) + var(--hero-rail-overlap)
   );
 }
 
-/* Victorian moss wall — cropped clean of both mouldings; full-bleed cover. */
+/* The generated Victorian study wall photo IS the wall — full-bleed cover.
+   PNG is cropped below the baked-in rail; moss starts at the top edge. */
 .hero-victorian-wall__bg {
   z-index: 0;
   object-fit: cover;
@@ -279,7 +316,7 @@ body {
 .hero-asymmetric-wall__composition {
   position: relative;
   width: 100%;
-  min-height: min(52rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 6rem));
+  min-height: min(52rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) + var(--hero-rail-overlap) - 6rem));
   max-width: 118rem;
   margin: 0 auto;
 }
