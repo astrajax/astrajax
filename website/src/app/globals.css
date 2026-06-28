@@ -279,30 +279,30 @@ body {
   align-items: center;
 }
 
-/* Pam — lower-left, ~38% of Clive width, overlapping his bottom-left corner */
+/* Pam — lower-left, ~38% of Clive width, clear gap from Clive (SC1: no overlap) */
 .hero-asymmetric-wall__slot--pam {
-  bottom: clamp(0.5rem, 3vh, 1.75rem);
-  left: clamp(5rem, 14vw, 18rem);
+  bottom: clamp(0.75rem, 4vh, 2.5rem);
+  left: clamp(0.75rem, 2.5vw, 3.5rem);
   width: min(20vw, 22rem);
-  z-index: 3;
+  z-index: 2;
   transform: rotate(-0.65deg);
 }
 
-/* Clive — centre, ~50% gallery width (not viewport-dominating) */
+/* Clive — centre, ~48–50% gallery width */
 .hero-asymmetric-wall__slot--clive {
-  top: 52%;
+  top: 54%;
   left: 50%;
   width: min(50vw, 46rem);
   z-index: 1;
-  transform: translate(-50%, -42%);
+  transform: translate(-50%, -44%);
 }
 
-/* Doc — upper-right, ~38% of Clive width, overlapping his top-right corner */
+/* Doc — upper-right, ~38% of Clive width, clear gap from Clive (SC1: no overlap) */
 .hero-asymmetric-wall__slot--doc {
-  right: clamp(5rem, 14vw, 18rem);
-  top: clamp(1.25rem, 6vh, 3.25rem);
+  right: clamp(0.75rem, 2.5vw, 3.5rem);
+  top: clamp(0.25rem, 1.5vh, 1rem);
   width: min(20vw, 22rem);
-  z-index: 3;
+  z-index: 2;
   transform: rotate(0.65deg);
 }
 
@@ -513,11 +513,11 @@ body {
   }
 
   .hero-asymmetric-wall__slot--pam {
-    left: clamp(6rem, 16vw, 20rem);
+    left: clamp(1rem, 3vw, 4.5rem);
   }
 
   .hero-asymmetric-wall__slot--doc {
-    right: clamp(6rem, 16vw, 20rem);
+    right: clamp(1rem, 3vw, 4.5rem);
   }
 
   .hero-asymmetric-wall__slot--clive {
