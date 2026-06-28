@@ -23,21 +23,24 @@ export function Hero() {
           src="/astrajax-logo.png"
           alt=""
           aria-hidden
-          width={48}
-          height={48}
+          width={60}
+          height={60}
           className="hero-wall-brand__mark"
         />
-        <span className="hero-wall-brand__word">AstraJax</span>
+        <span className="hero-wall-brand__word">ASTRAJAX</span>
       </a>
 
       <div id="agent-cast" className="hero-victorian-wall__stage scroll-mt-24">
         <FoundingCastHero />
       </div>
 
-      {/* The single visible page heading — lower-right on the wall. */}
-      <h1 className="hero-wall-headline font-display">
-        The AI Adoption Operating System
-      </h1>
+      <h1 className="sr-only">The AI Adoption Operating System</h1>
+      {/* Visible page heading — lower-right on the wall, two lines. */}
+      <p className="hero-wall-headline font-display" aria-hidden="true">
+        The AI Adoption
+        <br />
+        Operating System
+      </p>
     </section>
   );
 }

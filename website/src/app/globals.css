@@ -144,8 +144,8 @@ body {
   flex-direction: column;
   gap: 0;
   --hero-nav-height: 3.75rem;
-  /* Thin bronze rail — SC1 border between cream nav and moss wall */
-  --hero-rail-height: 0.3125rem;
+  /* Ornate picture rail — flush under nav, moss wall starts below */
+  --hero-rail-height: clamp(15px, 1.9vh, 24px);
   --hero-gallery-gap: clamp(0.35rem, 1vh, 0.85rem);
 }
 
@@ -172,23 +172,21 @@ body {
   box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--color-ink) 6%, transparent);
 }
 
-/* Picture rail — thin bronze line flush under nav; moss wall starts below. */
+/* Picture rail — ornate strip flush under nav; moss wall starts below. */
 .hero-picture-rail {
   position: relative;
   z-index: 40;
   flex-shrink: 0;
   width: 100%;
-  height: var(--hero-rail-height);
+  height: clamp(15px, 1.9vh, 24px);
   margin: 0;
   padding: 0;
   pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    #5c4030 0%,
-    #3d2818 55%,
-    #2a1a10 100%
-  );
-  box-shadow: 0 1px 0 color-mix(in srgb, #6b4a32 45%, transparent);
+  background-color: #2a1a10;
+  background-image: url(/agent-cast/victorian-rail.png);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: center top;
 }
 
 .hero-nav-band__inner {
@@ -279,29 +277,29 @@ body {
   align-items: center;
 }
 
-/* Pam — lower-left, ~38% of Clive width, clear gap from Clive (SC1: no overlap) */
+/* Pam — lower-left, clear gap from Clive (no overlap) */
 .hero-asymmetric-wall__slot--pam {
   bottom: clamp(0.75rem, 4vh, 2.5rem);
   left: clamp(0.75rem, 2.5vw, 3.5rem);
-  width: min(20vw, 22rem);
+  width: min(28vw, 27rem);
   z-index: 2;
   transform: rotate(-0.65deg);
 }
 
-/* Clive — centre, ~48–50% gallery width */
+/* Clive — centre, dominant portrait */
 .hero-asymmetric-wall__slot--clive {
-  top: 54%;
+  top: 45%;
   left: 50%;
-  width: min(50vw, 46rem);
+  width: min(40vw, 42rem);
   z-index: 1;
-  transform: translate(-50%, -44%);
+  transform: translate(-50%, -45%);
 }
 
-/* Doc — upper-right, ~38% of Clive width, clear gap from Clive (SC1: no overlap) */
+/* Doc — upper-right, clear gap from Clive (no overlap) */
 .hero-asymmetric-wall__slot--doc {
   right: clamp(0.75rem, 2.5vw, 3.5rem);
   top: clamp(0.25rem, 1.5vh, 1rem);
-  width: min(20vw, 22rem);
+  width: min(26vw, 25rem);
   z-index: 2;
   transform: rotate(0.65deg);
 }
@@ -389,14 +387,15 @@ body {
   left: clamp(1rem, 2.5vw, 2.5rem);
   z-index: 3;
   display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.25rem, 0.6vh, 0.45rem);
   pointer-events: auto;
   text-decoration: none;
 }
 
 .hero-wall-brand__mark {
-  width: clamp(2rem, 3vw, 2.75rem);
+  width: clamp(2.5rem, 4.2vw, 3.75rem);
   height: auto;
   filter: drop-shadow(0 1px 3px rgba(8, 6, 3, 0.55));
 }
@@ -433,8 +432,8 @@ body {
   font-weight: 500;
   line-height: 1.08;
   letter-spacing: -0.01em;
-  /* Parchment Dim — main warm text on the dark wall */
-  color: var(--color-parchment);
+  /* Buttermilk — warm headline on the dark wall */
+  color: var(--color-buttermilk);
   text-shadow:
     0 1px 3px rgba(8, 6, 3, 0.6),
     0 0 18px rgba(8, 6, 3, 0.4);
@@ -498,12 +497,17 @@ body {
 
 @media (min-width: 1280px) {
   .hero-asymmetric-wall__slot--clive {
-    width: min(48vw, 44rem);
+    width: min(40vw, 42rem);
+    top: 45%;
+    transform: translate(-50%, -45%);
   }
 
-  .hero-asymmetric-wall__slot--pam,
+  .hero-asymmetric-wall__slot--pam {
+    width: min(28vw, 27rem);
+  }
+
   .hero-asymmetric-wall__slot--doc {
-    width: min(19vw, 21.5rem);
+    width: min(26vw, 25rem);
   }
 }
 
@@ -521,12 +525,17 @@ body {
   }
 
   .hero-asymmetric-wall__slot--clive {
-    width: min(46vw, 42rem);
+    width: min(40vw, 42rem);
+    top: 46%;
+    transform: translate(-50%, -46%);
   }
 
-  .hero-asymmetric-wall__slot--pam,
+  .hero-asymmetric-wall__slot--pam {
+    width: min(28vw, 27rem);
+  }
+
   .hero-asymmetric-wall__slot--doc {
-    width: min(18vw, 20.5rem);
+    width: min(26vw, 25rem);
   }
 }
 
