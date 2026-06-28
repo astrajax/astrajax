@@ -15,9 +15,13 @@ import { Footer } from "@/components/Footer";
 export default function HomePage() {
   return (
     <>
-      <Nav />
-      <main>
+      <div className="hero-immersive-room">
+        <div className="hero-immersive-room__nav">
+          <Nav immersive />
+        </div>
         <Hero />
+      </div>
+      <main>
         <FeatureHub />
         <CliveSection />
         <FounderProof />

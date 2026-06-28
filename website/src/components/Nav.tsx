@@ -70,7 +70,12 @@ function MenuIcon({ open }: { open: boolean }) {
   );
 }
 
-export function Nav() {
+type NavProps = {
+  /** Homepage hero: wainscoting band on the Victorian wall — not a floating SaaS bar. */
+  immersive?: boolean;
+};
+
+export function Nav({ immersive = false }: NavProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const panelId = useId();
 
@@ -98,9 +103,21 @@ export function Nav() {
 
   const closeMenu = () => setMenuOpen(false);
 
+  const headerClass = immersive
+    ? "sticky top-0 z-50 hero-nav-band"
+    : "sticky top-0 z-50 border-b border-ink/10 bg-cream/95 backdrop-blur-md";
+
+  const innerClass = immersive
+    ? "hero-nav-band__inner mx-auto flex h-[var(--hero-nav-height)] max-w-6xl items-center gap-3 px-4 sm:gap-4 sm:px-6"
+    : "mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 md:py-4";
+
+  const menuPanelClass = immersive
+    ? "hero-nav-band__menu md:hidden"
+    : "border-t border-ink/10 bg-cream md:hidden";
+
   return (
-    <header className="sticky top-0 z-50 border-b border-ink/10 bg-cream/95 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 md:py-4">
+    <header className={headerClass}>
+      <div className={innerClass}>
         <Link
           href="/"
           aria-label="AstraJax home"
@@ -168,11 +185,7 @@ export function Nav() {
       </div>
 
       {menuOpen ? (
-        <nav
-          id={panelId}
-          aria-label="More"
-          className="border-t border-ink/10 bg-cream md:hidden"
-        >
+        <nav id={panelId} aria-label="More" className={menuPanelClass}>
           <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
             <ul className="grid gap-1">
               {secondaryLinks.map((link) => (

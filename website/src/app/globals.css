@@ -6,7 +6,9 @@
 
 @theme {
   --color-cream: #f3eddb;
+  --color-cream-paper: #faf7ed;
   --color-cream-deep: #ebe4d8;
+  --hero-nav-height: 3.75rem;
   --color-ink: #171a18;
   --color-ink-muted: #4a4f4c;
   --color-apricot: #d77545;
@@ -135,11 +137,72 @@ body {
   background: color-mix(in srgb, var(--color-ink) 20%, transparent);
 }
 
+/* Homepage immersive room — nav band + picture rail + damask gallery in one scene. */
+.hero-immersive-room {
+  position: relative;
+  --hero-nav-height: 3.75rem;
+}
+
+@media (min-width: 768px) {
+  .hero-immersive-room {
+    --hero-nav-height: 4.25rem;
+  }
+}
+
+.hero-immersive-room__nav {
+  position: relative;
+  z-index: 50;
+}
+
+.hero-nav-band {
+  position: relative;
+  padding-bottom: 0.5625rem;
+  border-bottom: none;
+  background: linear-gradient(
+    180deg,
+    var(--color-cream-paper) 0%,
+    color-mix(in srgb, var(--color-cream-paper) 88%, var(--color-cream)) 100%
+  );
+  box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--color-ink) 6%, transparent);
+}
+
+/* Wooden picture rail — sits flush under the wainscoting nav band. */
+.hero-nav-band::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0.5625rem;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      #4a3424 0%,
+      #6b4a32 18%,
+      #3d2818 42%,
+      #2a1a10 72%,
+      #1a1008 100%
+    );
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #8b6344 55%, transparent),
+    0 0.2rem 0.35rem rgba(8, 5, 2, 0.35);
+}
+
+.hero-nav-band__inner {
+  min-height: var(--hero-nav-height);
+}
+
+.hero-nav-band__menu {
+  border-top: 1px solid color-mix(in srgb, var(--color-ink) 8%, transparent);
+  background: var(--color-cream-paper);
+}
+
 .hero-victorian-wall {
   position: relative;
   isolation: isolate;
   display: grid;
-  min-height: calc(100svh - 4rem);
+  min-height: 100svh;
   place-items: center;
   overflow: hidden;
   border-bottom: 1px solid #160f08;
@@ -148,11 +211,23 @@ body {
   color: var(--color-cream);
 }
 
+/* Pull the gallery wall up behind the nav band so the photo rail meets the CSS rail. */
+.hero-immersive-room .hero-victorian-wall {
+  margin-top: calc(-1 * var(--hero-nav-height) - 0.5625rem);
+  padding-top: calc(var(--hero-nav-height) + 0.5625rem);
+  min-height: calc(100svh + var(--hero-nav-height) + 0.5625rem);
+}
+
 /* The generated Victorian study wall photo IS the wall — full-bleed cover. */
 .hero-victorian-wall__bg {
   z-index: 0;
   object-fit: cover;
   object-position: center 36%;
+}
+
+.hero-immersive-room .hero-victorian-wall__bg {
+  /* Picture rail in victorian-wall.png sits ~17% from the image top — align it under the nav band. */
+  object-position: center calc(var(--hero-nav-height) + 0.5625rem - 17%);
 }
 
 /* Restrained depth pass over the photo: a warm lift under the centre light pool
@@ -322,12 +397,6 @@ body {
 @media (min-width: 1536px) {
   .hero-asymmetric-wall__composition {
     min-height: min(58rem, calc(100svh - 5rem));
-  }
-}
-
-@media (min-width: 640px) {
-  .hero-victorian-wall {
-    min-height: calc(100svh - 4.5rem);
   }
 }
 
