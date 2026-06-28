@@ -187,7 +187,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={pam}
               displayName={pam.name}
-              sizes="(min-width: 1536px) 18vw, (min-width: 1024px) 20vw, 40vw"
+              sizes="(min-width: 1536px) 18vw, (min-width: 1024px) 19vw, 40vw"
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
@@ -195,7 +195,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={clive}
               displayName="Clive Wigglesworth Esq."
-              sizes="(min-width: 1536px) 58vw, (min-width: 1024px) 62vw, 92vw"
+              sizes="(min-width: 1536px) 46vw, (min-width: 1024px) 48vw, 92vw"
               priority
               prefersReducedMotion={prefersReducedMotion}
             />
@@ -204,7 +204,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={doc}
               displayName={doc.name}
-              sizes="(min-width: 1536px) 18vw, (min-width: 1024px) 20vw, 40vw"
+              sizes="(min-width: 1536px) 18vw, (min-width: 1024px) 19vw, 40vw"
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
