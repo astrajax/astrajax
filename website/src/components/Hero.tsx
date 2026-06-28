@@ -4,8 +4,6 @@ import { FoundingCastHero } from "@/components/FoundingCastHero";
 export function Hero() {
   return (
     <section id="story" className="hero-victorian-wall">
-      <h1 className="sr-only">AstraJax: The AI Adoption Operating System</h1>
-
       {/* The generated Victorian study wall is the wall — full-bleed, edge to edge. */}
       <Image
         src="/agent-cast/victorian-wall.png"
@@ -19,9 +17,27 @@ export function Hero() {
       {/* Restrained depth pass layered over the photo: warm centre lift + edge vignette. */}
       <div className="hero-victorian-wall__lighting" aria-hidden />
 
+      {/* Brand wordmark hung on the wall — upper-left, separate from the nav, links home. */}
+      <a href="/" aria-label="AstraJax — home" className="hero-wall-brand">
+        <Image
+          src="/astrajax-logo.png"
+          alt=""
+          aria-hidden
+          width={48}
+          height={48}
+          className="hero-wall-brand__mark"
+        />
+        <span className="hero-wall-brand__word">AstraJax</span>
+      </a>
+
       <div id="agent-cast" className="hero-victorian-wall__stage scroll-mt-24">
         <FoundingCastHero />
       </div>
+
+      {/* The single visible page heading — lower-right on the wall. */}
+      <h1 className="hero-wall-headline font-display">
+        The AI Adoption Operating System
+      </h1>
     </section>
   );
 }

@@ -1,8 +1,16 @@
 "use client";
 
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { foundingCastHeroTriptych } from "@/lib/agent-cast-assets";
+
+/** Caption fade-in order (left-to-right): Pam, then Clive, then Doc — quick staggered. */
+const CAPTION_DELAY: Record<string, string> = {
+  "pam-portiscue": "0.3s",
+  "clive-wigglesworth": "0.65s",
+  "doc-albright": "1s",
+};
 
 const HERO_ALT: Record<string, string> = {
   "doc-albright":
@@ -41,14 +49,16 @@ function usePrefersReducedMotion() {
 function PortraitCaption({
   name,
   role,
-  srOnly,
+  delay,
 }: {
   name: string;
   role: string;
-  srOnly?: boolean;
+  delay?: string;
 }) {
+  const style = delay ? ({ "--caption-delay": delay } as CSSProperties) : undefined;
+
   return (
-    <figcaption className={srOnly ? "sr-only" : "hero-portrait-caption"}>
+    <figcaption className="hero-portrait-caption" style={style}>
       <span className="hero-portrait-caption__name font-display">{name}</span>
       <span className="hero-portrait-caption__role">{role}</span>
     </figcaption>
@@ -134,14 +144,12 @@ function CastPortrait({
   displayName,
   sizes,
   priority,
-  captionSrOnly,
   prefersReducedMotion,
 }: {
   entry: CastEntry;
   displayName: string;
   sizes: string;
   priority?: boolean;
-  captionSrOnly?: boolean;
   prefersReducedMotion: boolean;
 }) {
   const role = HERO_ROLE[entry.slug] ?? entry.role;
@@ -158,7 +166,7 @@ function CastPortrait({
         priority={priority}
         prefersReducedMotion={prefersReducedMotion}
       />
-      <PortraitCaption name={displayName} role={role} srOnly={captionSrOnly} />
+      <PortraitCaption name={displayName} role={role} delay={CAPTION_DELAY[entry.slug]} />
     </figure>
   );
 }
@@ -172,7 +180,7 @@ export function FoundingCastHero() {
         Founding cast: {triptych.map((c) => c.name).join(", ")}
       </p>
 
-      {/* Desktop: asymmetric composition — Pam upper-left, Clive centre, Doc lower-right */}
+      {/* Desktop: asymmetric composition — Clive centre, Pam lower-left, Doc upper-right */}
       <div className="hero-asymmetric-wall__desktop hidden lg:block">
         <div className="hero-asymmetric-wall__composition">
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
@@ -189,7 +197,6 @@ export function FoundingCastHero() {
               displayName="Clive Wigglesworth Esq."
               sizes="(min-width: 1536px) 58vw, (min-width: 1024px) 62vw, 92vw"
               priority
-              captionSrOnly
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
@@ -211,7 +218,6 @@ export function FoundingCastHero() {
           displayName="Clive Wigglesworth Esq."
           sizes="94vw"
           priority
-          captionSrOnly
           prefersReducedMotion={prefersReducedMotion}
         />
         <div className="grid grid-cols-2 gap-4 sm:gap-5">

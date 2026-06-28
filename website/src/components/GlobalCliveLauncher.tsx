@@ -51,7 +51,7 @@ export function GlobalCliveLauncher() {
 
   const ready = sessionId !== null;
 
-  if (HIDDEN_PATHS.some((path) => pathname?.startsWith(path))) {
+  if (pathname === "/" || HIDDEN_PATHS.some((path) => pathname?.startsWith(path))) {
     return null;
   }
 
