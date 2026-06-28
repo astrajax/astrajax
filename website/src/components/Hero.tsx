@@ -34,6 +34,9 @@ export function Hero() {
         <FoundingCastHero />
       </div>
 
+      {/* Baseboard rail — thin top moulding swapped to the bottom of the wall. */}
+      <div className="hero-baseboard-rail" aria-hidden />
+
       <h1 className="sr-only">The AI Adoption Operating System</h1>
       {/* Visible page heading — lower-right on the wall, two lines. */}
       <p className="hero-wall-headline font-display" aria-hidden="true">

@@ -172,7 +172,7 @@ body {
   box-shadow: inset 0 -1px 0 color-mix(in srgb, var(--color-ink) 6%, transparent);
 }
 
-/* Picture rail — ornate strip flush under nav; moss wall starts below. */
+/* Picture rail — bottom moulding from source, flipped; flush under nav. */
 .hero-picture-rail {
   position: relative;
   z-index: 40;
@@ -187,6 +187,21 @@ body {
   background-repeat: no-repeat;
   background-size: 100% 100%;
   background-position: center top;
+}
+
+/* Baseboard — top moulding from source, flipped to the bottom edge. */
+.hero-baseboard-rail {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 3;
+  height: clamp(10px, 1.2vh, 18px);
+  pointer-events: none;
+  background-color: #160f08;
+  background-image: url(/agent-cast/victorian-baseboard-rail.png);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-position: center bottom;
 }
 
 .hero-nav-band__inner {
@@ -220,13 +235,11 @@ body {
   );
 }
 
-/* The generated Victorian study wall photo IS the wall — full-bleed cover.
-   PNG is cropped below the baked-in rail; moss starts at the top edge. */
+/* Victorian moss wall — cropped clean of both mouldings; full-bleed cover. */
 .hero-victorian-wall__bg {
   z-index: 0;
   object-fit: cover;
   object-position: center top;
-  transform: scaleY(-1);
 }
 
 .hero-immersive-room .hero-victorian-wall__bg {
