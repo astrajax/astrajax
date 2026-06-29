@@ -1,9 +1,19 @@
 import Image from "next/image";
 import { FoundingCastHero } from "@/components/FoundingCastHero";
+import { castHeroVideoSrc } from "@/lib/agent-cast-assets";
+
+const docHeroVideoSrc = castHeroVideoSrc("doc-albright");
+const pamHeroVideoSrc = castHeroVideoSrc("pam-portiscue");
 
 export function Hero() {
   return (
     <section id="story" className="hero-victorian-wall">
+      {docHeroVideoSrc ? (
+        <link rel="preload" href={docHeroVideoSrc} as="video" type="video/mp4" />
+      ) : null}
+      {pamHeroVideoSrc ? (
+        <link rel="preload" href={pamHeroVideoSrc} as="video" type="video/mp4" />
+      ) : null}
       {/* The generated Victorian study wall is the wall — full-bleed, edge to edge. */}
       <Image
         src="/agent-cast/victorian-wall.png"

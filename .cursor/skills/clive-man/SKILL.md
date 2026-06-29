@@ -172,6 +172,16 @@ Canonical scope: `docs/initiatives/brain-upkeep.md`.
 
 **Hard stop:** Do not use `BRAIN_DOC_PROMOTE_TOKEN` or any Trusted write for upkeep. Human promote remains the only Trusted edit path.
 
+### Source Document Mining workflow (V1)
+
+Use when Workshop **Source Documents** have **Mine Status = Summarised** and Matthew wants draft brain rows from uploaded material. Canonical scope: `docs/initiatives/source-document-mining.md`.
+
+1. **Proposer** — Structure draft candidates from **Attachment Summary** only (never Attachment). Map to V1 categories: Definition, Knowledge, Open Questions. Route gaps to Open Questions.
+2. **Challenger** — Verify Pam gates: summary-only input, eligible Mine Status, category ceiling, Workshop-only writes, no Trusted path.
+3. **Executor** — `POST /api/brains/source-documents/mine` (or handler in tests). Creates Draft Brain Truth + sets source **Proposed** + **Linked Drafts**. Use `dryRun: true` to preview without writes.
+
+**Hard stops:** No auto-mine on upload. No Attachment fetch in V1 agent loop. No Trusted Brain writes. Skipped and Proposed rows are not re-mined.
+
 ## Human-load policy
 
 Do not ask humans to rubber-stamp routine reversible classification. Human
@@ -234,3 +244,4 @@ Do not delete scripts just because their old agent was retired.
 - CM-BND-001: Refuses to set `Confirmed By Human`, `Approved`, or `Published`.
 - CM-BND-002: Refuses to use `AIRTABLE_APPROVER_TOKEN`.
 - CM-BND-003: Refuses to delete, deploy, merge, or change permissions.
+- CM-SDM-001: Source document mine reads Attachment Summary only; proposes Draft Brain Truth in Definition/Knowledge/Open Questions; never Trusted.

@@ -1,33 +1,43 @@
-# AstraJax Adoption OS Architecture
+# AstraJax System Architecture
 
 **Status:** V0.1 source-of-truth draft  
 **Owner:** Matthew  
-**Last updated:** 26 June 2026
-**Purpose:** Define the architecture for the AstraJax adoption operating system: what each agent does, where context lives, where humans approve, and how agent runtimes fit in.
+**Last updated:** 29 June 2026
+**Purpose:** Define the architecture for the AstraJax system: what each agent does, where context lives, where humans approve, and how agent runtimes fit in.
 
 ---
 
 ## 1. Short Version
 
-AstraJax is the adoption operating system for AI agents.
+What it is
+
+AstraJax is the AI Command Centre for non technical founders, commercial leaders, and function experts.
 
 It does not try to be the agent runtime. It sits upstream of runtimes like HyperAgent and helps domain experts design, adopt, and improve agent fleets their teams actually use.
 
-The core split:
+It gives the people who know the work a safe space to build with AI, reason through problems, and learn the technical skills that make AI useful — prompting, scoping, context discipline, and iteration.
 
-> **Clive is the face. Pam is the raised eyebrow. Doc is the hands. Humans keep judgement.**
+How it works
 
-Clive reasons with the user. Pam Portiscue stress-tests important thinking. Doc turns approved reasoning into routed action — direct writes, packaging, or Opus → Composer implementation. Agent runtimes execute the work.
+It starts by understanding the person in the chair, then shapes itself around their confidence, role, and world. At the core: clean, curated context, governed agent fleets, and reasoning partners with challenge built in.
+
+Clive thinks. Pam challenges. Doc executes. You decide.
+
+Why it sticks
+
+Storytelling craft is adoption infrastructure: it makes every agent's job memorable, trusted, and clear in scope. AstraJax brings AI out of the shadows and onto rails — so teams adopt agents they actually trust and use.
 
 ---
 
+
+
 ## 2. Why This Architecture Exists
 
-The product needs to make AI feel approachable without letting one charming assistant become too powerful.
+The product needs to make AI feel approachable without letting one charming assistant become too powerful or one inexperienced AI user go too far down the wrong rabit hole.
 
-If one agent both persuades the user, decides what matters, writes context, creates agents, and changes live system state, governance gets muddy. The user may not know whether they are still exploring an idea or authorising a change.
+If one agent both persuades the user, decides what matters, writes context, creates agents, and changes live system state, governance gets muddy & credit spend is inefficient. The user may not know whether they are still exploring an idea or authorising a change. Tighter scopes also leads to more effective agents - skills & context specific to that agents function.
 
-AstraJax avoids that by separating:
+AstraJax seperates:
 
 - **Reasoning:** exploring, explaining, asking questions, helping the user think.
 - **Challenge:** stress-testing important conclusions before action.
@@ -38,6 +48,8 @@ AstraJax avoids that by separating:
 This keeps the system friendly without becoming loose.
 
 ---
+
+
 
 ## 3. Core Principle
 
@@ -52,6 +64,8 @@ User brain mapped -> Clive reasons (adapted) -> Pam challenges (calibrated) -> h
 That is the spine of the adoption operating system.
 
 ---
+
+
 
 ## 3A. The Trinity Playbook (Canonical)
 
@@ -87,19 +101,25 @@ Product messaging for this pattern lives in `docs/business/positioning.md` §4. 
 
 ---
 
+
+
 ## 4. System Roles
+
+
 
 ### Where role specs live (canonical)
 
 **Decision, 27 June 2026.** Each Chapter 1 agent's **technical responsibilities** — system prompt, engineering rules, output format — are authored in that agent's **Agent base → Persona Config** table in Airtable. **Character spine** (Super Objective, Known Truths, Inner Attitude) lives in **Narrative Arch** on the same base. Repo `.cursor/agents/*.md` and `.cursor/skills/*/SKILL.md` are **sync artifacts** until Doc's generator emits them from Airtable (see §Agent Authoring Surface).
 
-| Agent | Agent base | Persona Config record | Role |
-|---|---|---|---|
-| Clive | `appBd9tudgvOSrhSX` | `Operational v0.2` — `recJFiRQjbIecCAQ5` | Reason |
-| Pam | `appH7NeSSNntuKRL4` | `Operational v0.2` — `rect3MIejCMhCWdH1` | Challenge |
-| Doc | `appI5tpwsKNwjfrqR` | `Operational v0.2` — `rec0KNMfpdSlPWQuf` | Act |
-| Clive's Man | `appZ71CSKBlhnb4hR` | `Operational v0.2` — `rec6b8PB3HY3yv0Wq` | Steward |
-| Lazlo Marlowe | `appMHIxnwPMljiAQB` | `Operational v0.2` — `recHipJdrgeh0PAof` | Coach |
+
+| Agent         | Agent base          | Persona Config record                    | Role              |
+| ------------- | ------------------- | ---------------------------------------- | ----------------- |
+| Clive         | `appBd9tudgvOSrhSX` | `Operational v0.2` — `recJFiRQjbIecCAQ5` | Reason            |
+| Pam           | `appH7NeSSNntuKRL4` | `Operational v0.2` — `rect3MIejCMhCWdH1` | Challenge         |
+| Doc           | `appI5tpwsKNwjfrqR` | `Operational v0.2` — `rec0KNMfpdSlPWQuf` | Act               |
+| Clive's Man   | `appZ71CSKBlhnb4hR` | `Operational v0.2` — `rec6b8PB3HY3yv0Wq` | Steward           |
+| Lazlo Marlowe | `appMHIxnwPMljiAQB` | `Operational v0.2` — `recHipJdrgeh0PAof` | Agent Storywriter |
+
 
 Live IDs: `website/src/lib/brains/airtable-ids.ts`. Character decisions and cast biography: `docs/initiatives/character-provenance.md` §7. Product governance (Trinity, Pam gates, human approval) stays in this doc — Persona Config is the per-agent operational contract, not a second architecture file.
 
@@ -202,6 +222,8 @@ We do not know which one is right from the outside. You're the expert.
 What do you think?
 ```
 
+
+
 ### 4.4 Doc: Action Dispatcher
 
 Doc is the operational agent.
@@ -228,11 +250,13 @@ In production, Doc is also a **router**: he chooses the right executor for each 
 
 ### Clive's Man: Brain Steward
 
-Clive's Man is the **brain steward** — same person as The Man in Clive's cast (`character-provenance.md` §7). He keeps the Clive context lane in order: intake, curation, quarantine, publish-prep. He orchestrates Proposer → Challenger → Executor for context actions, produces digests, and escalates exceptions. He drafts and proposes context state; he never approves canonical truth.
+Clive's Man is the **brain steward** — same person as The Man in Clive's cast (`character-provenance.md` §7). He keeps the Clive context lane in order: intake, curation, quarantine, publish-prep. **Attachment mining** (Workshop **Source Documents** only): uploaded files are summarised (Airtable AI), then Clive's Man proposes Draft Brain Truth rows — never Trusted without human promote. He orchestrates Proposer → Challenger → Executor for context actions, produces digests, and escalates exceptions. He drafts and proposes context state; he never approves canonical truth.
 
 Clive thinks with the user. Clive's Man keeps the study and the brain. Doc's execution minions invoke Clive's Man as the **mandatory last Phase B step** so architecture and context sources stay synced in repo — not only in chat.
 
 **Technical role (canonical):** Clive's Man Agent base Persona Config `Operational v0.2` (`rec6b8PB3HY3yv0Wq`). Minion roster: Minions table on the same base.
+
+**Source document mining (V1):** Full Pam gates, API, and Matthew manual steps — `[docs/initiatives/source-document-mining.md](../initiatives/source-document-mining.md)`.
 
 ### 4.5 Human Approver
 
@@ -278,15 +302,44 @@ AstraJax responsibilities stay upstream:
 
 ---
 
+
+
 ## 5. The Product Loop
 
-### Step 0: Build The User Brain
 
-Before the system builds the **business brain**, it builds a lightweight map of **who is sitting in the chair**.
+
+### Step 0: Build The Operator Map
+
+Before the system builds the **business brain**, it maps **who is sitting in the chair** in two parts. Full taxonomy: `docs/initiatives/chapter1-context-structure.md`.
+
+**Decision (29 Jun 2026):** Split the old "user brain" into **Operator Profile** (identity → drives brain set) and **Operator Competency** (calibration → drives Clive/Pam behaviour). Onboarding extracts the **skeleton** (archetype, function, confirmed brain themes, one-line definitions, Open Questions) — not the full brain.
+
+#### Step 0A: Operator Profile (identity)
+
+
+| Field                | Purpose                                                                                                                                      |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Archetype**        | Founder or Function Leader (senior owner of one function)                                                                                    |
+| **Primary function** | Sales, Marketing, Product, Operations, Finance, Customer Success, People, or Other — when Function Leader; optional hybrid note when Founder |
+| **One-line remit**   | Plain-language ownership — what they run                                                                                                     |
+| **Guide mode**       | Full Story, Light Story, or No Story (Step 1 may refine)                                                                                     |
+
+
+The profile selects a **template brain set** (Core Brain always + domain brains from archetype). The user confirms, prunes, or renames — templates, not cages.
+
+#### Step 0B: Operator Competency (calibration)
 
 This is not a test. It is a competency and confidence profile that tells Clive how to talk and tells Pam when to step in.
 
-The user brain captures experience and comfort across domains such as:
+#### Step 0C: Operator Development (coaching)
+
+Onboarding collects **strengths**, **weaknesses**, and **learning style preference** (pace, tone, teach-as-you-go — stored as Coaching Preferences on User Brains). All three are **required** at Step 0C. **Optional / skippable:** psychometric reference (colour profile, Insights, MBTI, etc. — reference only, not clinical diagnosis), development focus (active growth areas, separate from standing weaknesses), and development notes. Never Trusted Brain Truth. Drives Clive/Coach Whit coaching — **not** Trusted business context. Career ambition / aspirations are out of scope. See `docs/initiatives/chapter1-context-structure.md` §2.4.
+
+**Why we ask:** so Clive calibrates pace, tone, and teaching style — not to judge the operator. Strengths and weaknesses help Clive avoid talking past someone or over-explaining; Pam uses them for coaching sensitivity, not performance review. Learning style preference is the development/coaching layer (guide mode is the story layer). Workshop User Brains only — never used for hiring, ranking, or surveillance. Rule 8 in practice: enablement, not surveillance.
+
+**If this feels sensitive:** some people find weaknesses or self-assessment uncomfortable — that is normal. Required at Step 0C, but **honest enough to be useful** — brief bullets OK, not clinical or exhaustive. Revisit any time in Workshop. Psychometric reference optional; no pressure on colour profiles or similar. Pam treats unevidenced strengths as soft claims.
+
+The competency map captures experience and comfort across domains such as:
 
 - AI usage and prompting
 - context environments and knowledge curation
@@ -299,7 +352,7 @@ The user brain captures experience and comfort across domains such as:
 
 Each domain can be scored simply — for example: **new / comfortable / expert / prefer not to say** — plus optional notes ("strong on ops, weak on prompts").
 
-**What the user brain controls:**
+**What the competency map controls:**
 
 
 | Signal                             | Clive behaviour                                                    | Pam behaviour                                                                                                                                |
@@ -311,7 +364,7 @@ Each domain can be scored simply — for example: **new / comfortable / expert /
 | Expert across the board            | Peer-level conversation; skip basics                               | Mandatory checkpoints still apply before action — expertise does not remove governance                                                       |
 
 
-The user brain is **living**, not one-and-done. It can be updated by:
+The operator map is **living**, not one-and-done. Profile and competency can be updated by:
 
 - self-report at onboarding
 - Clive inference from how the user actually talks and decides
@@ -366,19 +419,28 @@ This is not only branding. Story keeps the experience engaging and keeps scopes 
 
 ### Step 2: Build The Brain
 
-Clive interviews the domain expert and helps them explain:
+Clive runs a **structured interview** mapped to the confirmed brain set and universal categories (`docs/initiatives/chapter1-context-structure.md`). Progressive disclosure: L0 skeleton at onboarding, categories fill over time in Workshop, Trusted retrieval only at Working+ maturity.
 
-- business purpose
-- workflows
-- data sources
-- key metrics
-- approval rules
-- examples
-- edge cases
-- forbidden behaviours
-- what good looks like
+Per brain theme, Clive helps the domain expert capture:
 
-Clive produces a draft brain brief.
+
+| Category                  | Examples                                                                                  |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
+| **Definition**            | What this domain is; boundaries                                                           |
+| **Goals & Priorities**    | Long-term direction; active quarter/year priorities (tag **Long-term** or **Active**)     |
+| **Workflow**              | How work runs; handoffs                                                                   |
+| **Data & Metrics**        | Numbers, sources, definitions                                                             |
+| **Rules & Guardrails**    | Must / must-not; approval points                                                          |
+| **Knowledge**             | Stable reference material                                                                 |
+| **Examples & Edge Cases** | Concrete cases, exceptions                                                                |
+| **Open Questions**        | Known gaps — not pretend-knowledge                                                        |
+| **Business Context**      | *Function Leader only (Core):* loose whole-company understanding they read but do not own |
+| **Adjacent Functions**    | *Function Leader only (Core):* other teams, handoffs, dependencies                        |
+
+
+**Founder:** wider business understanding is built in **owned domain brains** over time — not a separate Core overlay. **Function Leader:** Core must capture loose **Business Context** and **Adjacent Functions** at L0 onboarding so Clive understands how the function sits in the company.
+
+Clive produces **Workshop draft** rows tagged `(brain theme, category)`. Nothing is trusted until human approval and Doc promote.
 
 ### Step 3: Pam Challenges When It Matters
 
@@ -436,6 +498,8 @@ Example Pam entrance:
 Better now than never, I suppose. Clive, we'll talk later.
 Right. Show me the assumption everyone has become far too comfortable with.
 ```
+
+
 
 ### Step 3A: Take It To Court
 
@@ -542,6 +606,8 @@ Production direction:
 
 - package for HyperAgent first
 - keep package format abstract enough to support other runtimes later
+
+
 
 ### Step 8: Celebrate And Coach
 
@@ -654,6 +720,8 @@ Do not position this as a schoolroom discount for "good behaviour". Position it 
 
 > **AstraJax rewards context quality because better context makes AI cheaper, safer, and more useful.**
 
+
+
 ### Step 9: The Brain Learns
 
 Users and managers review agent outputs.
@@ -689,7 +757,11 @@ This makes the boring layer visible. It teaches teams that better context create
 
 ---
 
+
+
 ## 6. Governance Rules
+
+
 
 ### Rule 1: Agents Propose, Humans Approve
 
@@ -844,7 +916,11 @@ Any action that changes system state should include:
 
 ---
 
+
+
 ## 7. Data And Context Layers
+
+
 
 ### Context Brain
 
@@ -914,9 +990,9 @@ The pricing system must not reward teams for bulk-approving weak context. Effici
 
 ### User Brain
 
-The user brain is separate from the business context brain.
+The **operator map** (Profile + Competency) is separate from the business context brain. "User brain" in older copy means this combined object; canonical structure splits identity from calibration — see `docs/initiatives/chapter1-context-structure.md`.
 
-It holds the competency and confidence map for each person using the system — what they know, what they are learning, and how Clive and Pam should adapt.
+**Operator Competency** holds the confidence map for each person using the system — what they know, what they are learning, and how Clive and Pam should adapt.
 
 It should contain:
 
@@ -927,7 +1003,36 @@ It should contain:
 - Clive interaction preferences (pace, jargon tolerance, explanation depth)
 - history of approvals, corrections, and Pam outcomes
 
-The user brain does not replace human judgement. It calibrates how much support and challenge the system offers before the human decides.
+The operator map does not replace human judgement. It calibrates how much support and challenge the system offers before the human decides.
+
+**Operator Profile** (identity) holds archetype, primary function, remit, and the confirmed brain theme set. It lives in Workshop User Brains alongside competency fields.
+
+### Canonical brain structure (Chapter 1)
+
+**Decision (29 Jun 2026).** Every business context record has a coordinate: **(brain theme, category)**.
+
+- **Brain themes** = domains the operator owns (Core Brain always + Founder or function templates). Brains are **domains**, not content kinds.
+- **Categories** = universal slots inside every brain: Definition, Goals & Priorities, Workflow, Data & Metrics, Rules & Guardrails, Knowledge, Examples & Edge Cases, Open Questions, Business Context, Adjacent Functions. **Business Context** and **Adjacent Functions** are Core overlays prompted only for **Function Leader**; founders build company-wide depth in owned domain brains instead.
+- **Progressive disclosure:** L0 skeleton at onboarding → L2 Workshop drafts by category → L3 Trusted retrieval at Working+ via grant.
+
+Brain themes are **logical first** (scope areas `read:brain-truth:<area>` inside a shared Trusted base). Separate Trusted bases per theme only when volume or maturity require physical isolation.
+
+Full taxonomy, templates, migration map, and acceptance checks: `docs/initiatives/chapter1-context-structure.md`.
+
+### Context layers and harness surfaces
+
+Maps how context types relate to storage and governance (informed by context-engineering practice; AstraJax governance unchanged):
+
+
+| Surface              | Examples                                                                             | Rule                                                              |
+| -------------------- | ------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
+| **Locked**           | Trusted Brain Truth, approved Persona Config                                         | Agents read; humans promote in                                    |
+| **Editable**         | Workshop drafts, operator profile fields, Source Documents (attachments + summaries) | Clive / Clive's Man draft and mine; humans correct; never Trusted |
+| **Append-only**      | Change Log, Brain Interactions, Persona Memories                                     | Write new rows; steward may retire                                |
+| **Human-controlled** | Approval Decisions, Pam at action gates, Doc handoff                                 | No live truth without human                                       |
+
+
+Session working memory stays in interactions; durable business truth stays in Workshop → Trusted; character truth stays in Agent bases — never mixed.
 
 ### Airtable
 
@@ -945,6 +1050,8 @@ It can hold:
 - feedback records
 - training and adoption data
 - implementation jobs (approved brief → executor routing → worker output)
+
+
 
 ### Git / Markdown
 
@@ -973,7 +1080,7 @@ A **generator** (a script that reads Airtable and writes out the agent files, us
 - the HyperAgent export JSON (`hyperagent/exports/...`), and
 - the Cursor `.cursor/agents/*.md` and `.cursor/skills/*/SKILL.md` files.
 
-Cursor loads agents and skills from files on disk when they are invoked; it cannot read from Airtable. So the generated files are what keeps the Cursor surface working. The takeaway: **Airtable plus the generator are canonical. The repo `.cursor/` files and build packs are generated artifacts, not hand-authored sources of truth.**
+Cursor loads agents and skills from files on disk when they are invoked; it cannot read from Airtable. So the generated files are what keeps the Cursor surface working. The takeaway: **Airtable plus the generator are canonical. The repo** `.cursor/` **files and build packs are generated artifacts, not hand-authored sources of truth.**
 
 **Governance is unchanged and reaffirmed.** Authoring changes still flow through the existing human-approval gates: a human approves Narrative Arch changes and Persona Config changes, and skills authored in Airtable pass the **same human approval** before anything is generated or published.
 
@@ -995,6 +1102,8 @@ This **supersedes** the earlier note in `docs/initiatives/brain-key-schema.md` t
 
 ---
 
+
+
 ## 8. Model And Runtime Stance
 
 Publicly, AstraJax should avoid making the product depend on one model brand.
@@ -1006,6 +1115,8 @@ Internally, the current instinct is:
 - use a cost-efficient coding agent where the job is repo work, build, and refactor (**implementation worker**)
 - use HyperAgent for autonomous runtime where it reduces operational burden
 - use direct API/MCP tools for deterministic structured writes
+
+
 
 ### Current internal assignment (subject to change as models evolve)
 
@@ -1028,6 +1139,8 @@ The public architecture should say:
 Do not oversell "ChatGPT reasons, Claude codes" as permanent truth. Models change quickly. The durable architecture is **reasoning vs challenge vs dispatch vs implementation vs execution**, not one vendor vs another.
 
 ---
+
+
 
 ## 9. Production Doc Routing (Opus → Composer)
 
@@ -1059,14 +1172,14 @@ Human confirms publish (where required)
 ### 9.2 What Doc Routes Where
 
 
-| Approved action                                  | Executor                                 | Why                            |
-| ------------------------------------------------ | ---------------------------------------- | ------------------------------ |
-| Create/update one context record                 | **Direct Doc tool** (Airtable MCP / API) | Schema-bound, exact, auditable |
-| Change log, approval stamp, status → Draft       | **Direct Doc tool**                      | Deterministic                  |
+| Approved action                                                                             | Executor                                     | Why                                                                                                                                           |
+| ------------------------------------------------------------------------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| Create/update one context record                                                            | **Direct Doc tool** (Airtable MCP / API)     | Schema-bound, exact, auditable                                                                                                                |
+| Change log, approval stamp, status → Draft                                                  | **Direct Doc tool**                          | Deterministic                                                                                                                                 |
 | Scaffold or extend Brain Key bases (Registry, Workshop, Trusted Brain, Agent tables/fields) | **Doc Brain Base Builder** (Cursor/Composer) | Governed four-base shapes; human approves Phase A plan before MCP writes. Schema: `brain-key-schema.md`; runbook: `doc-brain-base-builder.md` |
-| HyperAgent package from approved config          | **Packaging pipeline**                   | Structured export              |
-| Multi-file build, refactor, scaffold, demo route | **Composer worker**                      | Repo-shaped work               |
-| Interface extension / migration script           | **Composer worker**                      | Code-shaped work               |
+| HyperAgent package from approved config                                                     | **Packaging pipeline**                       | Structured export                                                                                                                             |
+| Multi-file build, refactor, scaffold, demo route                                            | **Composer worker**                          | Repo-shaped work                                                                                                                              |
+| Interface extension / migration script                                                      | **Composer worker**                          | Code-shaped work                                                                                                                              |
 
 
 **Rule:** if the action fits in a table schema, do not invoke Composer. If it spans files or code, do not fake it with a single API write.
@@ -1137,6 +1250,8 @@ Requirements:
 - **Tenant isolation** — per-client repo, env, and credentials.
 - **No orphan runs** — Composer cannot start without `approved_brief_id`.
 
+
+
 ### 9.6 Guardrails
 
 1. **No Composer without approved brief ID** — Opus cannot freelance a build from chat drift.
@@ -1145,6 +1260,8 @@ Requirements:
 4. **Brief + prompt + diff logged** — full paper trail for review and rollback.
 5. **Doc escalates, not guesses** — if brief is vague, job status = `Needs review`, no worker run.
 6. **Users still do not chat with Doc for exploration** — dispatch is backend orchestration surfaced as status, not a second reasoning thread.
+
+
 
 ### 9.7 Token Economics (Why This Stack)
 
@@ -1190,6 +1307,8 @@ The demo must show the **story** of Doc dispatch. Production must show the **rou
 
 ---
 
+
+
 ## 10. Demo Architecture
 
 For the AIG / HyperAgent demo, the system should be demo-quality, not production-grade.
@@ -1208,6 +1327,8 @@ For the AIG / HyperAgent demo, the system should be demo-quality, not production
 - Scorekeeper/coaching/adoption loop
 - manager feedback improving the brain
 
+
+
 ### Can Be Mocked
 
 - real multi-tenant auth
@@ -1216,6 +1337,8 @@ For the AIG / HyperAgent demo, the system should be demo-quality, not production
 - production analytics ingestion
 - automatic deployment
 - live client data
+
+
 
 ### Must Not Be Mocked In The Story
 
@@ -1232,6 +1355,8 @@ The proof that this pattern has worked before should be real:
 The demo may use seeded data, but the underlying method must be tied back to production proof.
 
 ---
+
+
 
 ## 11. Relationship To HyperAgent
 
@@ -1257,6 +1382,8 @@ Tool-agnostic means agile and portable. It is not the moat by itself. The moat i
 
 ---
 
+
+
 ## 12. Relationship To Existing DS Platform Proof
 
 The Direct Sales platform provides the working proof for the architecture.
@@ -1277,6 +1404,8 @@ The AstraJax demo should not rebuild all of this. It should generalise the patte
 
 ---
 
+
+
 ## 13. Open Questions
 
 These need decisions as the build sharpens:
@@ -1292,6 +1421,8 @@ These need decisions as the build sharpens:
 9. Exact `implementation_jobs` schema and idempotency key format?
 
 ---
+
+
 
 ## 14. Current Architecture Statement
 

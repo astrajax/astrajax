@@ -36,6 +36,8 @@ Active initiatives that **point at** the canonical docs — they never copy them
 
 - `aie-2026-07.md` — the AI Engineer World's Fair sprint brain: story, scope, do-not-build list (retires after 2 July 2026).
 - `aie-build-plan.md` — the day-by-day build plan for the AIE sprint (23 June to 2 July).
+- `chapter1-context-structure.md` — Chapter 1 canonical operator profile, brain themes, categories, onboarding disclosure levels (29 Jun 2026).
+- `source-document-mining.md` — Clive's Man V1: Workshop Source Documents → summarise → propose Draft Brain Truth (Pam gates, 29 Jun 2026).
 - `tara-lee-visual-brief.md` — visual brief for the founding cast.
 - `character-provenance.md` — character rationale, life goals, and design decisions (founding cast).
 - `doc-minions.md` — Doc (`@doc`) triages build work to minions (Airtable, Vercel).

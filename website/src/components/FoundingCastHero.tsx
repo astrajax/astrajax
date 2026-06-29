@@ -73,6 +73,7 @@ function PortraitFrame({
   height,
   sizes,
   priority,
+  eagerPreload,
   prefersReducedMotion,
 }: {
   posterSrc: string;
@@ -82,6 +83,8 @@ function PortraitFrame({
   height: number;
   sizes: string;
   priority?: boolean;
+  /** Homepage landing: fetch full video immediately, not metadata-only. */
+  eagerPreload?: boolean;
   prefersReducedMotion: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -101,8 +104,12 @@ function PortraitFrame({
 
     tryPlay();
     video.addEventListener("loadeddata", tryPlay);
-    return () => video.removeEventListener("loadeddata", tryPlay);
-  }, [showVideo]);
+    video.addEventListener("canplay", tryPlay);
+    return () => {
+      video.removeEventListener("loadeddata", tryPlay);
+      video.removeEventListener("canplay", tryPlay);
+    };
+  }, [showVideo, videoSrc]);
 
   return (
     <div className="hero-portrait-frame">
@@ -114,7 +121,7 @@ function PortraitFrame({
           muted
           loop
           playsInline
-          preload="metadata"
+          preload={eagerPreload ? "auto" : "metadata"}
           poster={posterSrc}
           width={width}
           height={height}
@@ -144,12 +151,14 @@ function CastPortrait({
   displayName,
   sizes,
   priority,
+  eagerPreload,
   prefersReducedMotion,
 }: {
   entry: CastEntry;
   displayName: string;
   sizes: string;
   priority?: boolean;
+  eagerPreload?: boolean;
   prefersReducedMotion: boolean;
 }) {
   const role = HERO_ROLE[entry.slug] ?? entry.role;
@@ -164,6 +173,7 @@ function CastPortrait({
         height={entry.slug === "doc-albright" ? 686 : 571}
         sizes={sizes}
         priority={priority}
+        eagerPreload={eagerPreload}
         prefersReducedMotion={prefersReducedMotion}
       />
       <PortraitCaption name={displayName} role={role} delay={CAPTION_DELAY[entry.slug]} />
@@ -188,6 +198,7 @@ export function FoundingCastHero() {
               entry={pam}
               displayName={pam.name}
               sizes="(min-width: 1536px) 28vw, (min-width: 1024px) 28vw, 40vw"
+              eagerPreload
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
@@ -205,6 +216,7 @@ export function FoundingCastHero() {
               entry={doc}
               displayName={doc.name}
               sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 40vw"
+              eagerPreload
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
@@ -225,12 +237,14 @@ export function FoundingCastHero() {
             entry={pam}
             displayName={pam.name}
             sizes="46vw"
+            eagerPreload
             prefersReducedMotion={prefersReducedMotion}
           />
           <CastPortrait
             entry={doc}
             displayName={doc.name}
             sizes="46vw"
+            eagerPreload
             prefersReducedMotion={prefersReducedMotion}
           />
         </div>

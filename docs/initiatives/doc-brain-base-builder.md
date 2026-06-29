@@ -1,6 +1,6 @@
 # Doc Brain Base Builder — Agent Plan
 
-**Status:** Track A done (Airtable skills imported). Track B v0.1 **shipped** — `@doc-brain-base-builder` (via `@doc`). Chapter 1 **four-base model Phase B complete** (25 Jun 2026): Registry Agents table, Trusted Brain Memories, four Agent bases seeded, `airtable-ids.ts` updated. **26 Jun 2026:** Brain Interactions review fields live; Clive Agent tier scaffold live (`CLIVE_NARRATIVE_ARCH_TIER_FIELDS` in `airtable-ids.ts`); legacy Trusted Personas table removed in Airtable UI. **26 Jun 2026:** renamed from `doc-airtable-minion` / Brain Base Builder → **`doc-brain-base-builder`**. Registry: `agents/registry/cursor/doc/doc-brain-base-builder/build-pack-v0.1.md`.
+**Status:** Track A done (Airtable skills imported). Track B v0.1 **shipped** — `@doc-brain-base-builder` (via `@doc`). Chapter 1 **four-base model Phase B complete** (25 Jun 2026): Registry Agents table, Trusted Brain Memories, four Agent bases seeded, `airtable-ids.ts` updated. **26 Jun 2026:** Brain Interactions review fields live; Clive Agent tier scaffold live (`CLIVE_NARRATIVE_ARCH_TIER_FIELDS` in `airtable-ids.ts`); legacy Trusted Personas table removed in Airtable UI. **26 Jun 2026:** renamed from `doc-airtable-minion` / Brain Base Builder → **`doc-brain-base-builder`**. **29 Jun 2026:** Workshop **Source Documents** table (Clive's Man attachment mining V1 — Workshop only, no seed rows). Registry: `agents/registry/cursor/doc/doc-brain-base-builder/build-pack-v0.1.md`.
 **Owner:** Matthew.
 **Character name:** **Doc Brain Base Builder** (`doc-brain-base-builder`).
 **Read with (canonical trio):** [`brain-key-schema.md`](./brain-key-schema.md) (field shapes — source of truth for tables/fields), [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + credentials), [`architecture.md`](../business/architecture.md) (governance + Doc routing). Sprint scope: [`aie-2026-07.md`](./aie-2026-07.md). Minion family: [`doc-minions.md`](./doc-minions.md).
@@ -102,7 +102,7 @@ Bounded to **four** shapes. **Do not duplicate field-level schemas here** — th
 | Shape | Table keys (in `airtable-ids.ts`) | One-liner |
 |-------|-----------------------------------|-----------|
 | **Registry** | `brains`, `agents`, `keyRequests`, `accessGrants`, `changeLog` | Index + governance only |
-| **Workshop** | `userBrains`, `draftBrainTruth`, `brainInteractions`, `pamReviews`, `approvalDecisions`, `docActions` | Draft / propose |
+| **Workshop** | `userBrains`, `draftBrainTruth`, `sourceDocuments`, `brainInteractions`, `pamReviews`, `approvalDecisions`, `docActions` | Draft / propose (+ attachment mining) |
 | **Trusted Brain** | `brainTruth`, `brainMemories` | One base per brain theme — approved business context |
 | **Agent** | `narrativeArch`, `personaConfig`, `personaMemories`, `minions` | One base per agent — character + role memory |
 
@@ -170,7 +170,7 @@ Extend Registry Agents table — Phase A.
 
 ---
 
-## 10. Live Chapter 1 inventory (26 Jun 2026)
+## 10. Live Chapter 1 inventory (29 Jun 2026)
 
 Canonical IDs live in code — **do not duplicate IDs in other docs** except this initiative's snapshot. When IDs change, update `airtable-ids.ts` first; other docs link there.
 
@@ -179,7 +179,7 @@ Canonical IDs live in code — **do not duplicate IDs in other docs** except thi
 | Shape | Airtable name | Base ID | Tables (keys in `airtable-ids.ts`) |
 |-------|---------------|---------|-------------------------------------|
 | Registry | AstraJax Brain Registry | `appbdTVHevH6Bl5ZZ` | `brains`, `agents`, `keyRequests`, `accessGrants`, `changeLog` |
-| Workshop | AstraJax Brain Workshop | `appL2fdnGmhA02WXd` | `userBrains`, `draftBrainTruth`, `brainInteractions`, `pamReviews`, `approvalDecisions`, `docActions` |
+| Workshop | AstraJax Brain Workshop | `appL2fdnGmhA02WXd` | `userBrains`, `draftBrainTruth`, `sourceDocuments`, `brainInteractions`, `pamReviews`, `approvalDecisions`, `docActions` |
 | Trusted Brain | AstraJax Trusted Brain — Chapter 1 | `app6tjzzG0L0lOeVb` | `brainTruth`, `brainMemories` |
 | Agent | AstraJax Agent — Clive | `appBd9tudgvOSrhSX` | `narrativeArch`, `personaConfig`, `personaMemories`, `minions` (+ tier fields — see below) |
 | Agent | AstraJax Agent — Pam | `appH7NeSSNntuKRL4` | same four tables (tier fields not yet rolled out) |
@@ -190,7 +190,9 @@ Registry **Agents** rows link slugs `clive`, `pam`, `doc`, `clive-man` to Agent 
 
 **Tiered character context (26 Jun 2026):** only the **Clive** Agent base has Narrative Arch tier fields (`Provenance Status`, `Tier`, `Known Truth Slot`, `Injection Priority`) and the Persona Memories → Known Truth link. Pam, Doc, and Clive's Man are pending rollout — see `CLIVE_NARRATIVE_ARCH_TIER_FIELDS` in `airtable-ids.ts` and [`brain-key-schema.md`](./brain-key-schema.md) (Tiered character context).
 
-**Seeded in Phase B:** Narrative Arch + Persona Config for Clive/Pam/Doc (migrated from legacy Trusted Personas); Clive's Man scaffold + three minions (proposer, challenger, executor); Doc Agent base minion row **`doc-brain-base-builder`** (synced in Airtable via MCP, 26 Jun 2026); Trusted **Brain Memories** table (empty, ready for promotion path); Clive tier scaffold (Pending Super Objective + five Pending Known Truth slots).
+**Seeded in Phase B:** Narrative Arch + Persona Config for Clive/Pam/Doc (migrated from legacy Trusted Personas); Clive's Man scaffold + three minions (proposer, challenger, executor); Doc Agent base minion row **`doc-brain-base-builder`** (synced in Airtable via MCP, 26 Jun 2026); Trusted **Brain Memories** table (empty, ready for promotion path); Clive tier scaffold (Pending Super Objective + five Pending Known Truth slots). **Source Documents:** table live, no seed rows (29 Jun 2026).
+
+**Source Documents (29 Jun 2026):** Workshop-only attachment mining for Clive's Man. Mine Status: Pending → Summarised → Proposed → Skipped. **Linked Drafts** links to Draft Brain Truth (inverse on drafts auto-created). Field IDs: `BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS` in `airtable-ids.ts`. Schema detail: [`brain-key-schema.md`](./brain-key-schema.md) § Source Documents.
 
 ---
 
@@ -238,6 +240,7 @@ You do not need every token on day one. Minimum for Brain Key unlock testing: Re
 
 **Matthew manual (Airtable UI):**
 
+- Workshop **Source Documents:** convert **Attachment Summary** from multilineText to Airtable AI summarise field (source = **Attachment**). MCP cannot create `aiText` — see [`brain-key-schema.md`](./brain-key-schema.md) § Source Documents.
 - Add `doc` to Brain Key Requests **Persona** single-select if grant flows need Doc as requester.
 - On Trusted **Brain Truth**: delete **LEGACY Scope (delete in UI)** text field (still present live as of 26 Jun); retire legacy `read:brain-context:*` Scope options when no grants use them (canonical scopes are `read:brain-truth:positioning` and `read:brain-truth:governance`).
 - Roll out tier fields to Pam / Doc / Clive's Man Agent bases when ready (Clive is the reference — see `CLIVE_NARRATIVE_ARCH_TIER_FIELDS` in `airtable-ids.ts`).

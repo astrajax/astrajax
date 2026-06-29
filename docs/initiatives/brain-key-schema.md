@@ -2,14 +2,14 @@
 
 **Status:** Replicable schema reference (context-agnostic)  
 **Owner:** Matthew  
-**Last updated:** 26 June 2026  
-**Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance), [`doc-brain-base-builder.md`](./doc-brain-base-builder.md) (scaffold/extend bases via Doc Brain Base Builder)
+**Last updated:** 29 June 2026  
+**Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance), [`chapter1-context-structure.md`](./chapter1-context-structure.md) (canonical brain themes + categories), [`doc-brain-base-builder.md`](./doc-brain-base-builder.md) (scaffold/extend bases via Doc Brain Base Builder)
 
 Any agent (especially **@doc-brain-base-builder**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
 
 **Surfacing:** backstage governance only. Demo and product copy say **approved context for this task**, not Brain Key. Grants apply from **Working Brain** upward; Seedling = Workshop only.
 
-**Live Chapter 1 instance IDs:** [`website/src/lib/brains/airtable-ids.ts`](../../website/src/lib/brains/airtable-ids.ts)
+**Live Chapter 1 field IDs:** exported constants in [`website/src/lib/brains/airtable-ids.ts`](../../website/src/lib/brains/airtable-ids.ts) (`BRAIN_REGISTRY_*_FIELDS`, `BRAIN_WORKSHOP_*_FIELDS`, `BRAIN_TRUSTED_*_FIELDS`). Update after schema changes.
 
 ---
 
@@ -32,6 +32,21 @@ After creating a new Agent base: add a row to Registry **Agents** and update `ai
 
 ---
 
+## Harness surfaces (governance)
+
+**Decision (29 Jun 2026).** Every table sits on one of four surfaces. Agents must not write locked truth; humans control promotion.
+
+| Surface | Tables / records | Agent rule |
+|---------|------------------|------------|
+| **Locked** | Trusted Brain Truth; approved Persona Config; Approved-Canonical Narrative Arch | Read only; Doc promote creates new Trusted rows |
+| **Editable** | Workshop Draft Brain Truth; User Brains profile/competency fields; Source Documents (attachments + summaries) | Clive drafts; Clive's Man mines attachments → proposes drafts; human corrects |
+| **Append-only** | Change Log; Brain Interactions; Brain Memories; Persona Memories | Append; steward may retire stale |
+| **Human-controlled** | Approval Decisions; Pam Reviews at action gates; Doc Actions awaiting dispatch | Human decides; Doc acts from approved brief |
+
+See `docs/initiatives/chapter1-context-structure.md` §6 for the full context-layer map.
+
+---
+
 ## Scope convention (exact match)
 
 Trusted **Brain Truth** `Scope` field uses:
@@ -42,7 +57,7 @@ read:brain-truth:<area>
 
 Grant `Scope` must match a Trusted row **exactly** for retrieve to return it.
 
-Chapter 1 demo areas: `positioning`, `governance`.
+Chapter 1 demo areas (legacy): `positioning`, `governance`. Logical brain themes: see `chapter1-context-structure.md` §3 and Scope options under Trusted Brain Truth.
 
 ---
 
@@ -57,6 +72,8 @@ Primary field: **Brain Slug** (singleLineText)
 | Brain Slug | singleLineText | Primary. e.g. `astrajax-chapter-1` |
 | Brain Name | singleLineText | Display name |
 | Purpose | multilineText | |
+| Brain Type | singleSelect | Core, Domain — Core always present; Domain from operator template |
+| Scope Area | singleLineText | Logical retrieval key slug, e.g. `core-governance`, `sales-forecasting`. Grants use `read:brain-truth:<area>` |
 | Maturity | singleSelect | Seedling, House-Trained, Working, Sharp, Trusted, Elder |
 | Workshop Base ID | singleLineText | `app…` ID |
 | Trusted Base ID | singleLineText | `app…` ID |
@@ -144,11 +161,23 @@ Primary field: **User Label** (singleLineText)
 | Field | Type | Notes |
 |-------|------|-------|
 | User Label | singleLineText | Primary |
-| Role Domain | singleLineText | |
+| Archetype | singleSelect | Founder, Function Leader |
+| Primary Function | singleSelect | Sales, Marketing, Product, Operations, Finance, Customer Success, People, Other |
+| Brain Set | multilineText | JSON or structured text: confirmed brain theme slugs from template |
+| One Line Remit | multilineText | Plain-language ownership |
+| Role Domain | singleLineText | Legacy free-text; prefer Archetype + Primary Function |
 | Guide Mode | singleSelect | Full Story, Light Story, No Story |
 | AI Confidence | singleSelect | New, Comfortable, Expert |
 | Context Environment Confidence | singleSelect | New, Comfortable, Expert |
-| Notes | multilineText | |
+| Strengths | multilineText | **Required at Step 0C.** Self- or manager-reported; brief evidence encouraged |
+| Weaknesses | multilineText | **Required at Step 0C.** Standing gaps or areas they want support — not duplicate of Development Focus |
+| Coaching Preferences | multilineText | **Required at Step 0C.** Learning style preference — pace, tone, teach-as-you-go, how they learn |
+| Development Focus | multilineText | Optional. 1–2 active growth areas (time-bound; may overlap a weakness) |
+| Development Notes | multilineText | Optional Coach Whit context |
+| Psychometric Reference | multilineText | Optional. Link/note/upload (Insights, MBTI, colour profile, etc.) — reference only, not clinical diagnosis |
+| Notes | multilineText | Competency notes, hybrid remit, etc. |
+
+**Operator Development — why and sensitivity (29 Jun 2026):** Strengths, Weaknesses, and Coaching Preferences exist so Clive calibrates pace, tone, and teaching style and Pam tunes coaching sensitivity — not to judge, rank, hire, or surveil. Workshop only; never Trusted Brain Truth. Required at Step 0C with bar **honest enough to be useful** (brief bullets OK). Psychometric Reference optional — no pressure. Pam treats unevidenced self-reports as soft claims. Full framing: `chapter1-context-structure.md` §2.4; product loop: `architecture.md` Step 0C.
 
 ### Table: Draft Brain Truth
 
@@ -159,15 +188,50 @@ Primary field: **Title** (singleLineText). **Workshop only** — never approved 
 | Title | singleLineText | Primary |
 | Canonical Text | multilineText | Proposed content only |
 | Brain Slug | singleLineText | |
-| Proposed Category | singleSelect | Workshop sorting only — not access control. See options below. |
+| Brain Theme | singleLineText | Logical theme slug, e.g. `core`, `sales-forecasting` |
+| Proposed Category | singleSelect | Workshop sorting only — not access control. See universal set below. |
 | Status | singleSelect | Draft, Quarantined |
 | Proposed By Agent | singleLineText | e.g. clive |
 | Created By | singleSelect | Matthew, Agent, Website, TL |
 
-**Workshop Draft Brain Truth — Proposed Category options (Chapter 1 / AstraJax):**  
+**Workshop Draft Brain Truth — Proposed Category options (canonical, 29 Jun 2026):**  
+Definition, Goals & Priorities, Workflow, Data & Metrics, Rules & Guardrails, Knowledge, Examples & Edge Cases, Open Questions, Business Context, Adjacent Functions
+
+Optional field (Goals rows): **Horizon** — Long-term, Active
+
+**Legacy options (Chapter 1 — retire in Airtable UI when unused):**  
 Business Definition, Positioning, Method, Offers, Proof, Workflow Rule, Governance
 
+Mapping: `docs/initiatives/chapter1-context-structure.md` §4.2.
+
 **Do not add to Workshop drafts:** `Scope`, `Category`, `Authority`, `Freshness`, or any Trusted-only field. Those are set on **new Trusted rows** at Doc promote.
+
+### Table: Source Documents
+
+Primary field: **Title** (singleLineText). **Workshop only** — uploaded source files for Clive's Man attachment mining. Not approved canonical truth.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Title | singleLineText | Primary |
+| Attachment | attachment | Source file |
+| Attachment Summary | aiText OR multilineText | Native Airtable AI summarise of Attachment (manual UI conversion if MCP created multilineText placeholder) |
+| Mine Status | singleSelect | Pending, Summarised, Proposed, Skipped |
+| Brain Slug | singleLineText | Default `astrajax-chapter-1` |
+| Proposed By Agent | singleLineText | Default `clive-man` |
+| Created By | singleSelect | Matthew, Agent, Website, TL |
+| Notes | multilineText | Optional sensitivity or source note |
+| Linked Drafts | link → Draft Brain Truth | Draft rows proposed from this source |
+
+**Mine Status workflow:**
+
+- **Pending** — uploaded, awaiting summary
+- **Summarised** — summary populated (Airtable AI or manual)
+- **Proposed** — Clive's Man created draft rows
+- **Skipped** — human opted out
+
+**Manual UI follow-up (Phase B):** MCP cannot create `aiText` fields. Convert **Attachment Summary** from multilineText to Airtable AI summarise (source: **Attachment**). Set field defaults for **Brain Slug** and **Proposed By Agent** if desired.
+
+Field IDs: `BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS` in `airtable-ids.ts`.
 
 ---
 
@@ -266,17 +330,28 @@ Primary field: **Title** (singleLineText). **Approved rows only** — if it is i
 | Canonical Text | multilineText | |
 | Category | singleSelect | Canonical taxonomy — set at promote, not copied from draft |
 | Scope | singleSelect | Grant match key — Trusted only. Format: `read:brain-truth:<area>` |
+| Brain Theme | singleLineText | Logical theme slug matching Registry Brains / operator brain set |
 | Authority | singleLineText | Approver or source doc |
 | Freshness | singleSelect | Current, Review soon, Stale |
 | Last Reviewed | date | ISO date |
 
-**Trusted Brain Truth — Category options (Chapter 1 / AstraJax):**  
+**Trusted Brain Truth — Category options (canonical, 29 Jun 2026):**  
+Definition, Goals & Priorities, Workflow, Data & Metrics, Rules & Guardrails, Knowledge, Examples & Edge Cases, Open Questions, Business Context, Adjacent Functions
+
+Optional field (Goals rows): **Horizon** — Long-term, Active
+
+**Legacy options (Chapter 1 — retire in Airtable UI when unused):**  
 Business Definition, Positioning, Method, Offers, Proof, Workflow Rule, Governance
 
-**Trusted Brain Truth — Scope options (Chapter 1 demo):**  
-`read:brain-truth:positioning`, `read:brain-truth:governance` (canonical — use for grants)
+**Trusted Brain Truth — Scope options (Chapter 1 demo, legacy):**  
+`read:brain-truth:positioning`, `read:brain-truth:governance` (canonical — use for grants until Core logical areas migrate)
+
+**Scope options (logical brain themes — add via Airtable UI as templates roll out):**  
+`read:brain-truth:core-identity`, `read:brain-truth:core-principles`, `read:brain-truth:core-governance`, `read:brain-truth:core-people`, `read:brain-truth:core-glossary`, `read:brain-truth:core-direction`, `read:brain-truth:core-business-context` (Function Leader overlay), `read:brain-truth:core-adjacent-functions` (Function Leader overlay), plus domain slugs from `chapter1-context-structure.md` §3.3
 
 Legacy options still present in live Airtable (retire when unused): `read:brain-context:positioning`, `read:brain-context:governance`. Also delete the **LEGACY Scope (delete in UI)** text field on Brain Truth when convenient.
+
+**Manual UI follow-up (Phase B):** MCP `update_field` cannot bulk-add singleSelect choices. Universal Category options and logical Scope options were only partially applied — add any missing choices and retire legacy options in the Airtable UI (not via MCP).
 
 Per brain theme: document Category and Scope option sets in this file when standing up a new Trusted Brain. New scopes require human adding a select option (governance), not agent free text.
 
@@ -412,7 +487,7 @@ Empty Minions table is valid (Pam may have zero minions). Shape must be consiste
 ## MCP recreate checklist
 
 1. Create **Registry** base with five tables above (field names must match exactly).
-2. Create **Workshop** base with six tables.
+2. Create **Workshop** base with seven tables (includes **Source Documents** for Clive's Man attachment mining).
 3. Create **Trusted Brain** base for the theme with **Brain Truth** + **Brain Memories** (no Personas table).
 4. Create **Agent** base per agent with four tables: Narrative Arch, Persona Config, Persona Memories, Minions. For the tiered character-context model, add to **Narrative Arch**: `Provenance Status` (Pending / Approved-Canonical), `Tier`, `Known Truth Slot`, `Injection Priority`; and to **Persona Memories**: the `Known Truth` link field (→ Narrative Arch). Seed one Pending Super Objective and five Pending Known Truth slot records as structure (not canonical content).
 5. Registry **Brains** row: slug, name, workshop + trusted base IDs, maturity Seedling, status Active.
@@ -425,6 +500,10 @@ Empty Minions table is valid (Pam may have zero minions). Shape must be consiste
 **Live Chapter 1 migration (completed 24 Jun 2026):** Workshop `Proposed Category` (singleSelect) added; Trusted `Category` and `Scope` converted to singleSelect; seed rows updated. Delete the two `LEGACY ... (delete in UI)` text columns in Airtable when convenient — MCP cannot remove fields.
 
 **Live Chapter 1 four-base migration (completed 25 Jun 2026):** Trusted Brain Chapter 1 now has **Brain Memories** and the legacy **Personas** rows have been migrated into per-agent Agent bases (Narrative Arch + Persona Config). Legacy Personas table removed in Airtable UI (26 Jun 2026).
+
+**Live Chapter 1 Phase B migration (completed 29 Jun 2026):** Registry Brains `Brain Type` + `Scope Area`; Workshop User Brains identity + Operator Development fields; Draft/Trusted `Brain Theme` + `Horizon`. Field IDs in `airtable-ids.ts`. Manual UI: universal Category/Scope select options + LEGACY Scope field delete — see Trusted Brain Truth section above.
+
+**Live Chapter 1 Source Documents (completed 29 Jun 2026):** Workshop **Source Documents** table for Clive's Man attachment mining. Field IDs in `BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS`. Manual UI: convert **Attachment Summary** to Airtable AI summarise field.
 
 ---
 

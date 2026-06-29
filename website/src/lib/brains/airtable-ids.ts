@@ -15,15 +15,88 @@ export const BRAIN_REGISTRY_TABLES = {
   changeLog: "tbliAMUuKKW4DDRXF",
 } as const;
 
+/** Registry Brains table — Chapter 1 context structure fields (Phase B, 29 Jun 2026). */
+export const BRAIN_REGISTRY_BRAINS_FIELDS = {
+  brainSlug: "fldXw8rDWqzrIDcGA",
+  brainName: "fldXpuQ9VpksGlrqk",
+  purpose: "fldw3C7bMEqWWbjjf",
+  brainType: "fldJcvtVv8WrCOEsj",
+  scopeArea: "fldITnNzA3TqiSXVy",
+  maturity: "fldr4LEJPGzh5X9Zi",
+  workshopBaseId: "fldNOk4DJUhqbY37l",
+  trustedBaseId: "fldwfZ0MRyjvCG9S5",
+  status: "fldlqAv7M40Fw4v9p",
+  domainOwner: "fld6A4WeBjLGMc7Kw",
+} as const;
+
 export const BRAIN_WORKSHOP_BASE_ID = "appL2fdnGmhA02WXd";
 
 export const BRAIN_WORKSHOP_TABLES = {
   userBrains: "tblm6MqTYRPk8sA9o",
   draftBrainTruth: "tblswvXNYFDqnl6af",
+  sourceDocuments: "tblfWdhwbq4QsCjUf",
   brainInteractions: "tblNqNSuIJ2akHyA1",
   pamReviews: "tblMsU9nQTB1TuigK",
   approvalDecisions: "tblJExsLJghdI01XX",
   docActions: "tblimAjCOdFEcl52x",
+} as const;
+
+/** Workshop User Brains — identity + operator development (Phase B, 29 Jun 2026). */
+export const BRAIN_WORKSHOP_USER_BRAINS_FIELDS = {
+  userLabel: "fldi06frit7tJGBqZ",
+  archetype: "fldK3PP8kdgLwcjPd",
+  primaryFunction: "fldN5rZRjgEgzBWT4",
+  brainSet: "fldRa47ySX1yWui2A",
+  oneLineRemit: "fldEgPO6TXmBpDVaI",
+  roleDomain: "fldjO5b8ZkZ6fLUrw",
+  guideMode: "fldtkpb76WqRX4KDb",
+  aiConfidence: "fldxhhjBkFsI1AnPk",
+  contextEnvironmentConfidence: "fldM4WRnlbuzynXR2",
+  strengths: "fldPn5Bv0ouRgCi0T",
+  weaknesses: "fldFoXvkSAF1EYfqS",
+  coachingPreferences: "fldbMUmiaKHSP4UNb",
+  developmentFocus: "fldAGVdVxp0JFe4BL",
+  developmentNotes: "fldWWPyNMYAVzfLtO",
+  psychometricReference: "fldYF3O7dFOJTHWUt",
+  notes: "fldTn2QCcji7c3cPv",
+} as const;
+
+/** Matthew demo row — Workshop User Brains (Phase B seed). */
+export const BRAIN_WORKSHOP_USER_BRAINS_DEMO = {
+  matthew: "recj9eQY8y6lqxEV9",
+} as const;
+
+/** Workshop Source Documents — Clive's Man attachment mining (Phase B, 29 Jun 2026). */
+export const BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS = {
+  title: "fldXZjXfaINi0GsBF",
+  attachment: "fld2Arp3c9y8DvwN6",
+  attachmentSummary: "fld9kNTVmyyejfdko",
+  mineStatus: "fld9YeXtmbLFBSxir",
+  brainSlug: "fldbpIC2Ekte9LB1v",
+  proposedByAgent: "fldlxdJ7vHV76XYK6",
+  createdBy: "fldj4gdpDTJICpU7B",
+  notes: "fldE4bLBTpbfzdHwh",
+  linkedDrafts: "fldm0dA2jtyU0V3Vl",
+} as const;
+
+export const BRAIN_WORKSHOP_SOURCE_DOCUMENTS_MINE_STATUS = {
+  pending: "Pending",
+  summarised: "Summarised",
+  proposed: "Proposed",
+  skipped: "Skipped",
+} as const;
+
+/** Workshop Draft Brain Truth — Chapter 1 context structure (Phase B, 29 Jun 2026). */
+export const BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS = {
+  title: "fld8BVmRBSsVuXD8I",
+  canonicalText: "fld95ls0LG26rCNx4",
+  brainSlug: "flddfROfNcP1u6gCy",
+  brainTheme: "fld8wdl04NOs8CwpX",
+  proposedCategory: "fldD4gLnHeihH7yCd",
+  horizon: "fldEgLQcvc6L4c9p1",
+  status: "fldiMCxuBITyZIOXW",
+  proposedByAgent: "flde1d1sda9lWwrj9",
+  createdBy: "fldEonKVeEsrbiwkm",
 } as const;
 
 /** Brain Interactions table — client review / scoring fields (26 Jun 2026). */
@@ -66,6 +139,25 @@ export const BRAIN_TRUSTED_CHAPTER1_BASE_ID = "app6tjzzG0L0lOeVb";
 export const BRAIN_TRUSTED_CHAPTER1_TABLES = {
   brainTruth: "tblipHzCl905T7o5F",
   brainMemories: "tbl5clS3OPwuABsGC",
+} as const;
+
+/** Trusted Brain Truth — Chapter 1 context structure (Phase B, 29 Jun 2026). */
+export const BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS = {
+  title: "fldVxNhopdtZTjR6n",
+  canonicalText: "fldX79BWrIGBUccHT",
+  category: "fld4gG1ZjH3ETmqa3",
+  scope: "fldtQVETmrrHUiYMw",
+  brainTheme: "fldFGVJhAUHTq7Xco",
+  horizon: "fldU57ic2fZWwFmlU",
+  authority: "fldX0V2cpvYlwiWxh",
+  freshness: "fld0eIdJ9UEjSbstx",
+  lastReviewed: "fldvBsrSKoy6YKjUf",
+  legacyScopeText: "fldIo20j7jpJNL03f",
+} as const;
+
+/** Chapter 1 Registry Brains row (Phase B — Brain Type = Core). */
+export const BRAIN_REGISTRY_CHAPTER1_BRAIN = {
+  recordId: "recT9PuelzCg7LuPC",
 } as const;
 
 /** Shared table shape across all Chapter 1 Agent bases (IDs differ per base). */

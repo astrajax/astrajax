@@ -1,6 +1,6 @@
 # Context Bootstrap Source Registry
 
-**Status:** Current inventory (updated 26 Jun 2026).
+**Status:** Current inventory (updated 29 Jun 2026).
 **Owner:** Matthew.  
 **Purpose:** Source inventory for Clive context surfaces — bootstrap packs, skills, and operational docs.
 
@@ -25,12 +25,14 @@
 |---|---|---|---|---|---|---|
 | `SRC-AJ-ARCHITECTURE` | `docs/business/architecture.md` | Repo doc | Matthew | Canonical | Current | Product and governance architecture |
 | `SRC-AJ-BRAIN-WIRING` | `docs/initiatives/brain-key-wiring.md` | Working spec | Matthew | Working current | Current | Brain Key access model, storage boundaries, API contracts |
-| `SRC-AJ-BRAIN-SCHEMA` | `docs/initiatives/brain-key-schema.md` | Schema blueprint | Matthew | Current implementation reference | Current | Replicable Airtable table and field blueprint |
-| `SRC-AJ-BRAIN-IDS` | `website/src/lib/brains/airtable-ids.ts` | Code ID map | Matthew | Live implementation | Current | Live Chapter 1 Airtable base, table, and field IDs; Clive + Clive's Man + Pam + Doc spines Approved-Canonical 27 Jun 2026 |
+| `SRC-AJ-BRAIN-SCHEMA` | `docs/initiatives/brain-key-schema.md` | Schema blueprint | Matthew | Current implementation reference | Current | Replicable Airtable table and field blueprint; Workshop **Source Documents** (Clive's Man attachment mining, 29 Jun 2026) |
+| `SRC-AJ-CONTEXT-STRUCTURE` | `docs/initiatives/chapter1-context-structure.md` | Working spec | Matthew | Working current | Current | Chapter 1 canonical operator profile, brain themes, universal categories, progressive disclosure L0–L3 |
+| `SRC-AJ-BRAIN-IDS` | `website/src/lib/brains/airtable-ids.ts` | Code ID map | Matthew | Live implementation | Current | Live Chapter 1 Airtable base, table, and field IDs; `BRAIN_WORKSHOP_SOURCE_DOCUMENTS_*` (29 Jun 2026); Clive + Clive's Man + Pam + Doc spines Approved-Canonical 27 Jun 2026 |
 | `SRC-AJ-BRAIN-BUILDER` | `docs/initiatives/doc-brain-base-builder.md` | Working spec | Matthew | Current implementation reference | Current | Doc Brain Base Builder status, runbook, credential notes |
 | `SRC-AJ-DOC-MINIONS` | `docs/initiatives/doc-minions.md` | Working spec | Matthew | Current implementation reference | Current | Doc minion roster, two-phase build rule, mandatory Clive's Man handoff |
 | `SRC-AJ-INTERACTION-REVIEW` | `website/src/app/brain/review/page.tsx`; `website/src/components/brain/InteractionReviewShell.tsx`; `website/src/app/api/brains/interactions/list/route.ts`; `website/src/app/api/brains/interactions/score/route.ts`; `website/src/lib/brains/handlers/interaction-list.ts`; `website/src/lib/brains/handlers/interaction-score.ts`; `website/src/lib/brains/handlers/interaction-memory.ts` | Website UI / API implementation | Matthew | Live implementation | Current | Client-facing Brain Interactions review and scoring surface; review signal only, not canonical approval |
 | `SRC-AJ-BRAIN-UPKEEP` | `docs/initiatives/brain-upkeep.md`; `website/src/lib/brains/interaction-upkeep.ts`; `website/src/app/api/brains/interactions/action/route.ts`; `website/src/lib/brains/handlers/interaction-action.ts`; `website/src/lib/brains/handlers/interaction-upkeep.test.ts` | Working spec / Website API implementation | Matthew | Current implementation reference | Current | Thin Brain Upkeep loop: Needs Review shortlist and Workshop-only propose/dismiss actions |
+| `SRC-AJ-SOURCE-DOC-MINE` | `docs/initiatives/source-document-mining.md`; `website/src/lib/brains/source-document-mining.ts`; `website/src/lib/brains/source-document-mining.test.ts`; `website/src/lib/brains/handlers/source-document-mine.ts`; `website/src/app/api/brains/source-documents/mine/route.ts` | Working spec / Website API implementation | Matthew | Current implementation reference | Current | Clive's Man V1: Workshop Source Documents summary-only mine → Draft Brain Truth proposals; Pam category ceiling; never Trusted |
 
 ## Character and roster sources
 

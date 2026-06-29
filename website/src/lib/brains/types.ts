@@ -166,3 +166,28 @@ export interface DocPromoteBody {
   approver: string;
   reason: string;
 }
+
+export interface SourceDocumentMineBody {
+  brainSlug: string;
+  /** When true, return structured proposals without writing Draft Brain Truth or updating Mine Status. */
+  dryRun?: boolean;
+  limit?: number;
+  actor?: string;
+}
+
+export interface SourceDocumentMineResult {
+  mode: "memory" | "airtable";
+  brainSlug: string;
+  dryRun: boolean;
+  eligibleCount: number;
+  proposals: Array<{
+    title: string;
+    canonicalText: string;
+    proposedCategory: "Definition" | "Knowledge" | "Open Questions";
+    brainSlug: string;
+    brainTheme?: string;
+    sourceDocumentRecordId: string;
+  }>;
+  draftRecordIds: string[];
+  minedSourceDocumentIds: string[];
+}

@@ -45,7 +45,7 @@ Strictest practical rules:
 | Credential (Vercel env)           | Read               | Write                                                  | Used by                                                                                    |
 | --------------------------------- | ------------------ | ------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
 | `BRAIN_REGISTRY_READ_TOKEN`       | Registry           | —                                                      | Public routes (metadata only)                                                              |
-| `BRAIN_WORKSHOP_WRITE_TOKEN`      | Workshop           | Workshop                                               | Clive/Pam interaction log, draft writes                                                    |
+| `BRAIN_WORKSHOP_WRITE_TOKEN`      | Workshop           | Workshop                                               | Clive/Pam interaction log, draft writes, Clive's Man source-document mine                  |
 | `BRAIN_WORKSHOP_READ_TOKEN`       | Workshop           | —                                                      | Admin workbench                                                                            |
 | `BRAIN_TRUSTED_{SLUG}_READ_TOKEN` | That Trusted Brain | —                                                      | Brain Truth retrieve (after grant validation)                                              |
 | `BRAIN_DOC_PROMOTE_TOKEN`         | Workshop + Trusted | Trusted + Registry Change Log                          | Doc promote route only                                                                     |
@@ -110,7 +110,7 @@ Summary: **Brains**, **Agents**, **Brain Key Requests**, **Access Grants**, **Ch
 
 Full blueprint: `[brain-key-schema.md](./brain-key-schema.md)`.
 
-Summary: **User Brains**, **Draft Brain Truth**, **Brain Interactions**, **Pam Reviews**, **Approval Decisions**, **Doc Actions**.
+Summary: **User Brains**, **Draft Brain Truth**, **Source Documents**, **Brain Interactions**, **Pam Reviews**, **Approval Decisions**, **Doc Actions**.
 
 ## Trusted Brain tables (per theme)
 
@@ -331,6 +331,23 @@ Workshop-only upkeep action for the `/brain/review` Needs Review shortlist. Does
 ```
 
 `action: "propose"` sets **Review Status** to `Action proposed` and **Context Flagged** to `Flagged for review` or `Quarantine proposed` when `quarantine` is true. `action: "dismiss"` sets **Review Status** to `No action` and **Context Flagged** to `None`.
+
+### `POST /api/brains/source-documents/mine`
+
+Clive's Man V1 attachment mining — Workshop only. Reads **Attachment Summary** on **Source Documents** rows where **Mine Status = Summarised**; creates **Draft Brain Truth** proposals; sets source row to **Proposed** + **Linked Drafts**. Never reads Attachment bytes; never writes Trusted Brain. Pam gates: [`source-document-mining.md`](./source-document-mining.md).
+
+```json
+{
+  "brainSlug": "astrajax-chapter-1",
+  "limit": 5,
+  "dryRun": false,
+  "actor": "Matthew"
+}
+```
+
+**Response:** `{ mode, brainSlug, dryRun, eligibleCount, proposals[], draftRecordIds[], minedSourceDocumentIds[] }`
+
+Server-side `BRAIN_WORKSHOP_WRITE_TOKEN` only.
 
 ### `POST /api/brains/doc/promote`
 
