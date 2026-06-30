@@ -9,6 +9,9 @@ import type {
 export const BOOTH_HEADLINE =
   "AstraJax turns a domain expert's messy knowledge into a governed brain that agents can safely use.";
 
+export const BOOTH_SUBHEAD =
+  "Chapter 1 — map the human, build the business brain, challenge before action, you decide what becomes true.";
+
 export const OWNERSHIP_LINE =
   "This is your decision. You now have context-aware, bias-checked opinions. You decide.";
 

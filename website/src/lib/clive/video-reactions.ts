@@ -7,6 +7,12 @@ export type CliveReaction = "idle" | "listen" | "think" | "pleased" | "sigh" | "
 
 const CLIVE_ANIMATIONS_BASE = "/agent-cast/clive-wigglesworth/animations";
 
+/** Beat 1 welcome narration — legacy single talking loop (kept for reference). */
+export const CLIVE_WELCOME_BEAT_1_TALKING = `${CLIVE_ANIMATIONS_BASE}/welcome-beat-1-talking.mp4`;
+
+/** Beat 1 welcome — seven micro-clips stitched in order; plays once, holds last frame. */
+export const CLIVE_WELCOME_BEAT_1_STITCHED = `${CLIVE_ANIMATIONS_BASE}/welcome-beat-1-stitched.mp4`;
+
 /** Ambient idle playlist — cycled during the welcome cinematic and default idle reel. */
 export const CLIVE_IDLE_REEL: readonly string[] = [
   `${CLIVE_ANIMATIONS_BASE}/idle-blinking.mp4`,

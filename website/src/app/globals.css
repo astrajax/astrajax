@@ -1728,6 +1728,98 @@ body {
   background: color-mix(in srgb, var(--color-parchment) 8%, transparent);
 }
 
+/* ── Clive study hub (four-book desk) ── */
+.clive-study-hub {
+  display: flex;
+  min-height: 100dvh;
+  flex-direction: column;
+  background: linear-gradient(165deg, var(--color-moss) 0%, #2a3424 45%, var(--color-moss) 100%);
+  color: var(--color-parchment);
+}
+
+.clive-study-hub__header {
+  padding: 1.25rem 1.5rem 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-parchment) 12%, transparent);
+}
+
+.clive-study-hub__label {
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.clive-study-hub__subtitle {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--color-parchment) 72%, transparent);
+}
+
+.clive-study-hub__desk {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.25rem 2rem;
+  max-width: 72rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.clive-study-hub__surface {
+  position: relative;
+  width: 100%;
+  max-width: 56rem;
+}
+
+.clive-study-hub__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(70dvh, 42rem);
+  object-fit: contain;
+  border-radius: 0.5rem;
+  box-shadow:
+    0 1.5rem 3rem color-mix(in srgb, var(--color-ink) 35%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--color-parchment) 8%, transparent);
+}
+
+.clive-study-hub__book {
+  position: absolute;
+  border: 2px solid transparent;
+  border-radius: 0.375rem;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    filter 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.clive-study-hub__book:hover {
+  border-color: color-mix(in srgb, var(--color-buttermilk) 55%, transparent);
+  filter: brightness(1.08);
+  transform: scale(1.02);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-buttermilk) 18%, transparent);
+}
+
+.clive-study-hub__book:focus-visible {
+  outline: none;
+  border-color: var(--color-buttermilk);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-buttermilk) 35%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clive-study-hub__book {
+    transition: none;
+  }
+
+  .clive-study-hub__book:hover {
+    transform: none;
+  }
+}
+
 /* ── Command centre room shells (generalises clive-study) ── */
 .room-shell {
   position: relative;

@@ -226,6 +226,22 @@ export function Chapter1Conversation({
       )}
 
       <div className="chapter1-conversation__actions">
+        {(state.currentStep === "context_importance" ||
+          state.currentStep === "brains_intro") && (
+          <div className="chapter1-conversation__beat">
+            <div className="chapter1-conversation__nav">
+              {onBack && (
+                <button type="button" className="study-stage__ghost-btn" onClick={onBack}>
+                  Back
+                </button>
+              )}
+              <button type="button" className="btn-primary chapter1-conversation__primary" onClick={onNext}>
+                Continue
+              </button>
+            </div>
+          </div>
+        )}
+
         {state.currentStep === "user_brain" && (
           <div className="chapter1-conversation__beat">
             <p className="chapter1-conversation__prompt">Pick who sits in the chair:</p>

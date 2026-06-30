@@ -7,6 +7,7 @@ import {
   CLIVE_WELCOME_BEATS,
   estimateReadingMs,
 } from "@/lib/clive/welcome-sequence";
+import { CLIVE_WELCOME_BEAT_1_STITCHED } from "@/lib/clive/video-reactions";
 
 const CAPTION_ENTER_DELAY_MS = 1500;
 const FADE_MS = 700;
@@ -96,6 +97,7 @@ export function CliveWelcomeSequence({
     clearTimers();
     stopAudio();
     videoRef?.current?.stopIdleReel();
+    videoRef?.current?.returnToIdle();
     onComplete();
   }, [clearTimers, onComplete, stopAudio, videoRef]);
 
@@ -211,6 +213,12 @@ export function CliveWelcomeSequence({
       clearTimers();
       stopAudio();
 
+      if (index === 0) {
+        videoRef?.current?.playClip(CLIVE_WELCOME_BEAT_1_STITCHED, false, true);
+      } else {
+        videoRef?.current?.startIdleReel();
+      }
+
       const revealMonologue = () => showMonologue(beat.monologue);
       const revealCaption = () => showCaption(beat.caption);
 
@@ -271,20 +279,20 @@ export function CliveWelcomeSequence({
       showCaption,
       showMonologue,
       stopAudio,
+      videoRef,
     ],
   );
 
   useEffect(() => {
     cancelledRef.current = false;
     beatIndexRef.current = 0;
-    const reelTimer = setTimeout(() => videoRef?.current?.startIdleReel(), 100);
 
     return () => {
       cancelledRef.current = true;
-      clearTimeout(reelTimer);
       clearTimers();
       stopAudio();
       videoRef?.current?.stopIdleReel();
+      videoRef?.current?.returnToIdle();
     };
   }, [clearTimers, stopAudio, videoRef]);
 

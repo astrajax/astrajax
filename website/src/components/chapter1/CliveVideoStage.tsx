@@ -25,8 +25,11 @@ type LayerIndex = 0 | 1;
 
 export type CliveVideoStageHandle = {
   playReaction: (reaction: CliveReaction) => void;
+  /** Play an arbitrary clip; when loop is true, runs until stopIdleReel/returnToIdle. */
+  playClip: (src: string, loop?: boolean, holdOnEnd?: boolean) => void;
   startIdleReel: () => void;
   stopIdleReel: () => void;
+  returnToIdle: () => void;
 };
 
 type CliveVideoStageProps = {
@@ -73,6 +76,10 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
     const idleReelActiveRef = useRef(false);
     const idleReelIndexRef = useRef(0);
     const idleReelPendingRef = useRef(false);
+    const pendingClipRef = useRef<{ src: string; loop: boolean; holdOnEnd: boolean } | null>(
+      null,
+    );
+    const videoReadyRef = useRef(false);
     const endedHandlerRef = useRef<(() => void) | null>(null);
 
     const setActive = useCallback((layer: LayerIndex) => {
@@ -160,8 +167,49 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
 
     const stopIdleReel = useCallback(() => {
       idleReelActiveRef.current = false;
+      idleReelPendingRef.current = false;
+      pendingClipRef.current = null;
       clearEndedHandler();
+      actionPlayingRef.current = false;
     }, [clearEndedHandler]);
+
+    const playClip = useCallback(
+      async (src: string, loop = false, holdOnEnd = false) => {
+        if (prefersReducedMotion || !src) return;
+
+        if (!videoReadyRef.current) {
+          pendingClipRef.current = { src, loop, holdOnEnd };
+          idleReelPendingRef.current = false;
+          return;
+        }
+
+        pendingClipRef.current = null;
+        idleReelActiveRef.current = false;
+        clearEndedHandler();
+        actionPlayingRef.current = true;
+
+        try {
+          const nextVideo = await crossfadeToClip(src, loop);
+          if (!nextVideo) {
+            actionPlayingRef.current = false;
+            return;
+          }
+
+          if (loop || holdOnEnd) return;
+
+          const onEnded = () => {
+            nextVideo.removeEventListener("ended", onEnded);
+            endedHandlerRef.current = null;
+            void returnToIdle();
+          };
+          endedHandlerRef.current = onEnded;
+          nextVideo.addEventListener("ended", onEnded);
+        } catch {
+          actionPlayingRef.current = false;
+        }
+      },
+      [clearEndedHandler, crossfadeToClip, prefersReducedMotion, returnToIdle],
+    );
 
     const playReaction = useCallback(
       async (reaction: CliveReaction) => {
@@ -201,8 +249,8 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
 
     useImperativeHandle(
       ref,
-      () => ({ playReaction, startIdleReel, stopIdleReel }),
-      [playReaction, startIdleReel, stopIdleReel],
+      () => ({ playReaction, playClip, startIdleReel, stopIdleReel, returnToIdle }),
+      [playClip, playReaction, returnToIdle, startIdleReel, stopIdleReel],
     );
 
     useEffect(() => {
@@ -216,8 +264,13 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
       loadAndPlay(video, CLIVE_REACTION_CLIPS.idle, true)
         .then(() => {
           if (!cancelled) {
+            videoReadyRef.current = true;
             setVideoReady(true);
-            if (idleReelPendingRef.current && idleReelActiveRef.current) {
+            const pendingClip = pendingClipRef.current;
+            if (pendingClip) {
+              pendingClipRef.current = null;
+              void playClip(pendingClip.src, pendingClip.loop, pendingClip.holdOnEnd);
+            } else if (idleReelPendingRef.current && idleReelActiveRef.current) {
               idleReelPendingRef.current = false;
               void playIdleReelClip();
             }
@@ -231,7 +284,7 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
         cancelled = true;
         stopIdleReel();
       };
-    }, [layerRefs, playIdleReelClip, prefersReducedMotion, stopIdleReel]);
+    }, [layerRefs, playClip, playIdleReelClip, prefersReducedMotion, stopIdleReel]);
 
     const rootClass = ["clive-video-stage", className].filter(Boolean).join(" ");
 
