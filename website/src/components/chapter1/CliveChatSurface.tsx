@@ -13,8 +13,13 @@ type CliveChatSurfaceProps = {
   placeholder?: string;
   starterPrompts?: string[];
   compact?: boolean;
+  /** Calm study rail — full names, lighter chrome. */
+  studyMode?: boolean;
+  /** Label for the human side of the conversation (Chapter 1: "The Architect"). */
+  userLabel?: string;
   onUserMessage?: (message: string) => void;
   onAssistantMessage?: (message: string) => void;
+  onThinkingChange?: (thinking: boolean) => void;
   disabled?: boolean;
   /** When set, renders as read-only transcript without input. */
   transcriptOnly?: boolean;
@@ -48,8 +53,11 @@ export function CliveChatSurface({
   placeholder = "Talk to Clive…",
   starterPrompts = [],
   compact = false,
+  studyMode = false,
+  userLabel = "You",
   onUserMessage,
   onAssistantMessage,
+  onThinkingChange,
   disabled = false,
   transcriptOnly = false,
   initialMessages = [],
@@ -70,6 +78,10 @@ export function CliveChatSurface({
   useEffect(() => {
     scrollToBottom();
   }, [messages, streamingText, scrollToBottom]);
+
+  useEffect(() => {
+    onThinkingChange?.(isThinking);
+  }, [isThinking, onThinkingChange]);
 
   const sendMessage = useCallback(
     async (raw: string) => {
@@ -140,94 +152,95 @@ export function CliveChatSurface({
     void sendMessage(input);
   }
 
-  const speakerName = persona === "pam" ? "Pam" : "Clive";
+  const speakerName = studyMode
+    ? persona === "pam"
+      ? "Pam Portiscue"
+      : "Clive Wigglesworth"
+    : persona === "pam"
+      ? "Pam"
+      : "Clive";
   const portraitSrc =
     persona === "pam" ? null : "/agent-cast/clive-wigglesworth.png";
 
-  return (
-    <div className={`clive-chat ${compact ? "clive-chat--compact" : ""}`}>
-      <div ref={listRef} className="clive-chat__messages">
-        {greeting && messages.length === 0 && !streamingText && (
-          <div className="clive-chat__bubble clive-chat__bubble--assistant">
-            {portraitSrc && (
-              <Image
-                src={portraitSrc}
-                alt=""
-                width={36}
-                height={36}
-                className="clive-chat__avatar"
-              />
-            )}
-            {persona === "pam" && (
-              <div className="clive-chat__avatar clive-chat__avatar--pam" aria-hidden>
-                P
-              </div>
-            )}
-            <p>
-              <span className="clive-chat__speaker">{speakerName}:</span> {greeting}
-            </p>
-          </div>
-        )}
+  const chatClassName = [
+    "clive-chat",
+    compact ? "clive-chat--compact" : "",
+    studyMode ? "clive-chat--study" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-        {messages.map((turn, index) => (
+  function renderTurn(
+    role: "assistant" | "user",
+    content: string,
+    key: string,
+    options?: { muted?: boolean },
+  ) {
+    const isAssistant = role === "assistant";
+    const label = isAssistant ? speakerName : userLabel;
+
+    if (studyMode) {
+      return (
+        <div
+          key={key}
+          className={`clive-chat__turn ${
+            isAssistant ? "clive-chat__turn--assistant" : "clive-chat__turn--user"
+          }`}
+        >
+          <p className="clive-chat__turn-label">{label}</p>
           <div
-            key={`${turn.role}-${index}`}
             className={`clive-chat__bubble ${
-              turn.role === "assistant" ? "clive-chat__bubble--assistant" : "clive-chat__bubble--user"
+              isAssistant ? "clive-chat__bubble--assistant" : "clive-chat__bubble--user"
             }`}
           >
-            {turn.role === "assistant" && portraitSrc && (
-              <Image
-                src={portraitSrc}
-                alt=""
-                width={36}
-                height={36}
-                className="clive-chat__avatar"
-              />
-            )}
-            {turn.role === "assistant" && persona === "pam" && (
-              <div className="clive-chat__avatar clive-chat__avatar--pam" aria-hidden>
-                P
-              </div>
-            )}
-            <p>
-              <span className="clive-chat__speaker">
-                {turn.role === "assistant" ? speakerName : "You"}:
-              </span>{" "}
-              {turn.content}
-            </p>
+            <p className={options?.muted ? "text-parchment/70" : undefined}>{content}</p>
           </div>
-        ))}
+        </div>
+      );
+    }
 
-        {streamingText && (
-          <div className="clive-chat__bubble clive-chat__bubble--assistant">
-            {portraitSrc && (
-              <Image
-                src={portraitSrc}
-                alt=""
-                width={36}
-                height={36}
-                className="clive-chat__avatar"
-              />
-            )}
-            {persona === "pam" && (
-              <div className="clive-chat__avatar clive-chat__avatar--pam" aria-hidden>
-                P
-              </div>
-            )}
-            <p>
-              <span className="clive-chat__speaker">{speakerName}:</span> {streamingText}
-            </p>
+    return (
+      <div
+        key={key}
+        className={`clive-chat__bubble ${
+          isAssistant ? "clive-chat__bubble--assistant" : "clive-chat__bubble--user"
+        }`}
+      >
+        {isAssistant && portraitSrc && (
+          <Image
+            src={portraitSrc}
+            alt=""
+            width={36}
+            height={36}
+            className="clive-chat__avatar"
+          />
+        )}
+        {isAssistant && persona === "pam" && (
+          <div className="clive-chat__avatar clive-chat__avatar--pam" aria-hidden>
+            P
           </div>
         )}
+        <p className={options?.muted ? "text-ink-muted" : undefined}>
+          <span className="clive-chat__speaker">{label}:</span> {content}
+        </p>
+      </div>
+    );
+  }
 
-        {isThinking && !streamingText && (
-          <div className="clive-chat__bubble clive-chat__bubble--assistant">
-            <p className="text-ink-muted">
-              <span className="clive-chat__speaker">{speakerName}:</span> Thinking…
-            </p>
-          </div>
+  return (
+    <div className={chatClassName}>
+      <div ref={listRef} className="clive-chat__messages">
+        {greeting && messages.length === 0 && !streamingText &&
+          renderTurn("assistant", greeting, "greeting")}
+
+        {messages.map((turn, index) =>
+          renderTurn(turn.role, turn.content, `${turn.role}-${index}`),
         )}
+
+        {streamingText && renderTurn("assistant", streamingText, "streaming")}
+
+        {isThinking && !streamingText &&
+          renderTurn("assistant", "Thinking…", "thinking", { muted: true })}
       </div>
 
       {!transcriptOnly && (
