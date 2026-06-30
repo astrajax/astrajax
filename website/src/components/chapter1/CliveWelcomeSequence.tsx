@@ -1,19 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import type { CliveVideoStageHandle } from "@/components/chapter1/CliveVideoStage";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
-import type { ChatMessage } from "@/lib/clive/types";
 import {
   CLIVE_WELCOME_BEATS,
   estimateReadingMs,
 } from "@/lib/clive/welcome-sequence";
 
 const CAPTION_ENTER_DELAY_MS = 1500;
-const CAPTION_FADE_MS = 700;
+const FADE_MS = 700;
 
-type CaptionPhase = "hidden" | "entering" | "visible" | "exiting";
+type FadePhase = "hidden" | "entering" | "visible" | "exiting";
 
 type CliveWelcomeSequenceProps = {
   sessionId: string;
@@ -30,8 +28,18 @@ async function audioFileExists(src: string): Promise<boolean> {
   }
 }
 
+function fadeClass(base: string, phase: FadePhase): string {
+  return [
+    base,
+    phase === "visible" ? `${base}--visible` : "",
+    phase === "entering" ? `${base}--entering` : "",
+    phase === "exiting" ? `${base}--exiting` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
 export function CliveWelcomeSequence({
-  sessionId,
   onComplete,
   videoRef,
 }: CliveWelcomeSequenceProps) {
@@ -40,6 +48,7 @@ export function CliveWelcomeSequence({
   const beatIndexRef = useRef(0);
   const readingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const captionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const monologueTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelledRef = useRef(false);
   const mutedRef = useRef(false);
   const readingStartedAtRef = useRef<number | null>(null);
@@ -47,9 +56,10 @@ export function CliveWelcomeSequence({
   const lastStartedBeatRef = useRef<number | null>(null);
 
   const [beatIndex, setBeatIndex] = useState(0);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [caption, setCaption] = useState<string | null>(null);
-  const [captionPhase, setCaptionPhase] = useState<CaptionPhase>("hidden");
+  const [captionPhase, setCaptionPhase] = useState<FadePhase>("hidden");
+  const [monologue, setMonologue] = useState<string | null>(null);
+  const [monologuePhase, setMonologuePhase] = useState<FadePhase>("hidden");
   const [muted, setMuted] = useState(false);
   const [paused, setPaused] = useState(false);
   const [usingReadingTimer, setUsingReadingTimer] = useState(false);
@@ -65,6 +75,10 @@ export function CliveWelcomeSequence({
     if (captionTimerRef.current) {
       clearTimeout(captionTimerRef.current);
       captionTimerRef.current = null;
+    }
+    if (monologueTimerRef.current) {
+      clearTimeout(monologueTimerRef.current);
+      monologueTimerRef.current = null;
     }
   }, []);
 
@@ -85,38 +99,76 @@ export function CliveWelcomeSequence({
     onComplete();
   }, [clearTimers, onComplete, stopAudio, videoRef]);
 
-  const showCaption = useCallback(
-    (text: string) => {
-      setCaption(text);
+  const revealFade = useCallback(
+    (
+      setText: (value: string) => void,
+      setPhase: (value: FadePhase) => void,
+      text: string,
+      timerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
+    ) => {
+      setText(text);
       if (prefersReducedMotion) {
-        setCaptionPhase("visible");
+        setPhase("visible");
         return;
       }
-      setCaptionPhase("entering");
-      captionTimerRef.current = setTimeout(() => {
-        setCaptionPhase("visible");
-      }, CAPTION_FADE_MS);
+      setPhase("entering");
+      timerRef.current = setTimeout(() => {
+        setPhase("visible");
+      }, FADE_MS);
     },
     [prefersReducedMotion],
   );
 
-  const hideCaption = useCallback(
-    (onHidden?: () => void) => {
+  const hideFade = useCallback(
+    (
+      setText: (value: string | null) => void,
+      setPhase: (value: FadePhase) => void,
+      timerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
+      onHidden?: () => void,
+    ) => {
       if (prefersReducedMotion) {
-        setCaption(null);
-        setCaptionPhase("hidden");
+        setText(null);
+        setPhase("hidden");
         onHidden?.();
         return;
       }
 
-      setCaptionPhase("exiting");
-      captionTimerRef.current = setTimeout(() => {
-        setCaption(null);
-        setCaptionPhase("hidden");
+      setPhase("exiting");
+      timerRef.current = setTimeout(() => {
+        setText(null);
+        setPhase("hidden");
         onHidden?.();
-      }, CAPTION_FADE_MS);
+      }, FADE_MS);
     },
     [prefersReducedMotion],
+  );
+
+  const showCaption = useCallback(
+    (text: string) => {
+      revealFade(setCaption, setCaptionPhase, text, captionTimerRef);
+    },
+    [revealFade],
+  );
+
+  const hideCaption = useCallback(
+    (onHidden?: () => void) => {
+      hideFade(setCaption, setCaptionPhase, captionTimerRef, onHidden);
+    },
+    [hideFade],
+  );
+
+  const showMonologue = useCallback(
+    (text: string) => {
+      revealFade(setMonologue, setMonologuePhase, text, monologueTimerRef);
+    },
+    [revealFade],
+  );
+
+  const hideMonologue = useCallback(
+    (onHidden?: () => void) => {
+      hideFade(setMonologue, setMonologuePhase, monologueTimerRef, onHidden);
+    },
+    [hideFade],
   );
 
   const advanceBeat = useCallback(() => {
@@ -159,44 +211,52 @@ export function CliveWelcomeSequence({
       clearTimers();
       stopAudio();
 
-      setChatMessages((prev) => [...prev, { role: "assistant", content: beat.monologue }]);
-
+      const revealMonologue = () => showMonologue(beat.monologue);
       const revealCaption = () => showCaption(beat.caption);
 
       if (index === 0) {
+        revealMonologue();
         captionTimerRef.current = setTimeout(revealCaption, CAPTION_ENTER_DELAY_MS);
       } else {
+        hideMonologue(revealMonologue);
         hideCaption(revealCaption);
       }
 
-      if (beat.audioSrc && (await audioFileExists(beat.audioSrc))) {
-        const audio = audioRef.current ?? new Audio();
-        audioRef.current = audio;
-        audio.src = beat.audioSrc;
-        audio.muted = mutedRef.current;
-        audio.preload = "auto";
+      if (beat.audioSrc) {
+        const hasAudio = await audioFileExists(beat.audioSrc);
+        if (cancelledRef.current) return;
 
-        const onEnded = () => {
-          audio.removeEventListener("ended", onEnded);
-          audio.removeEventListener("error", onError);
-          advanceBeat();
-        };
+        if (hasAudio) {
+          const audio = audioRef.current ?? new Audio();
+          audioRef.current = audio;
+          audio.src = beat.audioSrc;
+          audio.muted = mutedRef.current;
+          audio.preload = "auto";
 
-        const onError = () => {
-          audio.removeEventListener("ended", onEnded);
-          audio.removeEventListener("error", onError);
-          scheduleReadingAdvance(estimateReadingMs(beat.monologue));
-        };
+          const onEnded = () => {
+            audio.removeEventListener("ended", onEnded);
+            audio.removeEventListener("error", onError);
+            advanceBeat();
+          };
 
-        audio.addEventListener("ended", onEnded);
-        audio.addEventListener("error", onError);
+          const onError = () => {
+            audio.removeEventListener("ended", onEnded);
+            audio.removeEventListener("error", onError);
+            scheduleReadingAdvance(estimateReadingMs(beat.monologue));
+          };
 
-        try {
-          await audio.play();
-        } catch {
-          onError();
+          audio.addEventListener("ended", onEnded);
+          audio.addEventListener("error", onError);
+
+          try {
+            await audio.play();
+            if (cancelledRef.current) return;
+          } catch {
+            if (cancelledRef.current) return;
+            onError();
+          }
+          return;
         }
-        return;
       }
 
       scheduleReadingAdvance(estimateReadingMs(beat.monologue));
@@ -206,8 +266,10 @@ export function CliveWelcomeSequence({
       clearTimers,
       finishSequence,
       hideCaption,
+      hideMonologue,
       scheduleReadingAdvance,
       showCaption,
+      showMonologue,
       stopAudio,
     ],
   );
@@ -279,31 +341,27 @@ export function CliveWelcomeSequence({
   }, [advanceBeat, clearTimers, usingReadingTimer]);
 
   const currentBeat = CLIVE_WELCOME_BEATS[beatIndex];
-  const captionClass = [
-    "clive-welcome-caption",
-    captionPhase === "visible" ? "clive-welcome-caption--visible" : "",
-    captionPhase === "entering" ? "clive-welcome-caption--entering" : "",
-    captionPhase === "exiting" ? "clive-welcome-caption--exiting" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
 
   return (
     <div className="clive-welcome">
       {caption ? (
-        <p className={captionClass} aria-live="polite">
+        <p className={fadeClass("clive-welcome-caption", captionPhase)} aria-live="polite">
           {caption}
         </p>
       ) : null}
 
-      <CliveChatSurface
-        key={`welcome-chat-${chatMessages.length}`}
-        sessionId={sessionId}
-        transcriptOnly
-        studyMode
-        userLabel="The Architect"
-        initialMessages={chatMessages}
-      />
+      <div className="clive-welcome-monologue" aria-live="polite">
+        <p className="clive-welcome-monologue__label">Clive Wigglesworth</p>
+        {monologue ? (
+          <p className={fadeClass("clive-welcome-monologue__text", monologuePhase)}>
+            {monologue}
+          </p>
+        ) : (
+          <p className="clive-welcome-monologue__text clive-welcome-monologue__text--placeholder">
+            &nbsp;
+          </p>
+        )}
+      </div>
 
       <div className="clive-welcome__controls" role="toolbar" aria-label="Welcome sequence controls">
         <button type="button" className="study-stage__ghost-btn" onClick={finishSequence}>
