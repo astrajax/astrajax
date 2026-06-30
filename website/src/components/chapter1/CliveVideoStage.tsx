@@ -233,10 +233,9 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
       };
     }, [layerRefs, playIdleReelClip, prefersReducedMotion, stopIdleReel]);
 
-    const showVideo = videoReady && !prefersReducedMotion;
     const rootClass = ["clive-video-stage", className].filter(Boolean).join(" ");
 
-    if (!showVideo) {
+    if (prefersReducedMotion) {
       return (
         <div className={rootClass}>
           <Image
@@ -253,12 +252,22 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
 
     return (
       <div className={rootClass}>
+        {!videoReady ? (
+          <Image
+            src={POSTER_SRC}
+            alt=""
+            fill
+            priority
+            sizes="(min-width: 1024px) 58vw, 100vw"
+            className="clive-video-stage__poster"
+          />
+        ) : null}
         {([0, 1] as const).map((index) => (
           <video
             key={index}
             ref={layerRefs[index]}
             className={`clive-video-stage__layer ${
-              activeLayer === index
+              videoReady && activeLayer === index
                 ? "clive-video-stage__layer--active"
                 : "clive-video-stage__layer--inactive"
             }`}
