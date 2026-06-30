@@ -1029,7 +1029,7 @@ The operator map does not replace human judgement. It calibrates how much suppor
 - **Categories** = universal slots inside every brain: Definition, Goals & Priorities, Workflow, Data & Metrics, Rules & Guardrails, Knowledge, Examples & Edge Cases, Open Questions, Business Context, Adjacent Functions. **Business Context** and **Adjacent Functions** are Core overlays prompted only for **Function Leader**; founders build company-wide depth in owned domain brains instead.
 - **Progressive disclosure:** L0 skeleton at onboarding → L2 Workshop drafts by category → L3 Trusted retrieval at Working+ via grant.
 
-Brain themes are **logical first** (scope areas `read:brain-truth:<area>` inside a shared Trusted base). Separate Trusted bases per theme only when volume or maturity require physical isolation.
+Brain themes are **physically separated by default**: the Core Brain and each confirmed domain brain get their own Trusted Brain base. Scope areas such as `read:brain-truth:<area>` remain the grant and retrieval keys inside the relevant Trusted Brain.
 
 Full taxonomy, templates, migration map, and acceptance checks: `docs/initiatives/chapter1-context-structure.md`.
 
@@ -1052,7 +1052,7 @@ Session working memory stays in interactions; durable business truth stays in Wo
 
 Airtable is the natural operating layer for the current system. For the buyer/founder answer on *why* Airtable — legibility for non-technical champions, cost model, ceiling, and governance — see `docs/business/positioning.md` §5A.
 
-The governed **four-base model** (Registry, Workshop, one Trusted Brain per theme, one Agent base per agent) is the physical home for context, grants, and character authoring. **Field shapes and tables:** `docs/initiatives/brain-key-schema.md`. **Access, credentials, and API routes:** `docs/initiatives/brain-key-wiring.md`. **Scaffolding and extending bases** (tables, fields, registry rows — not approved truth): **Doc Brain Base Builder** via `@doc` or `@doc-brain-base-builder`; invoke guide and live inventory snapshot in `docs/initiatives/doc-brain-base-builder.md`. Live base/table IDs: `website/src/lib/brains/airtable-ids.ts`.
+The governed **base pattern** (Registry, Workshop, one Trusted Brain per theme, one Agent base per agent) is the physical home for context, grants, and character authoring. **Field shapes and tables:** `docs/initiatives/brain-key-schema.md`. **Access, credentials, and API routes:** `docs/initiatives/brain-key-wiring.md`. **Scaffolding and extending bases** (tables, fields, registry rows — not approved truth): **Doc Brain Base Builder** via `@doc` or `@doc-brain-base-builder`; invoke guide and live inventory snapshot in `docs/initiatives/doc-brain-base-builder.md`. Live base/table IDs: `website/src/lib/brains/airtable-ids.ts`.
 
 It can hold:
 

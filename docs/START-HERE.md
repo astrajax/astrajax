@@ -13,7 +13,7 @@ AstraJax context lives in two distinct places. Mixing them is the main cause of 
 | System | Location | What it is |
 |--------|----------|------------|
 | **Business brain** | `docs/business/` | The current AstraJax direction: what the business is, how the product works, how the company runs. **Start here for positioning, strategy, product, and pitch work.** |
-| **Clive context-engine** | `docs/context/` | The live operational machinery for the Clive context-curation agents (Intake, Curator, Publisher, Scanner). Governed by Airtable + the source registry. **Do not treat as business positioning. Do not restructure without care — live agents read it.** |
+| **Clive context-engine** | `docs/context/` | The live operational machinery for Clive's Man's context workflows: intake, curation, quarantine, publish-prep, and source registry upkeep. The old Intake, Curator, Publisher, and Scanner agents are retired as active owners; their duties now sit inside Clive's Man. Governed by Airtable + the source registry. **Do not treat as business positioning. Do not restructure without care — live agents read it.** |
 
 ---
 

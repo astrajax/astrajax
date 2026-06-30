@@ -81,41 +81,47 @@ It should:
 
 For current Clive context work, the Executor may create or update agent-allowed records, but it must not mark context as human-approved.
 
-## Where The Scanner Fits
+## Where Source Scanning Fits
 
-The Scanner is upstream of the Trinity. It is the discovery layer, not the decision layer.
+Source scanning is upstream of the Trinity. It is the discovery layer, not the decision layer.
 
 ```text
-Scanner finds candidate material -> Trinity decides what to do with it
+Source scan finds candidate material -> Trinity decides what to do with it
 ```
 
-A scanner does not need its own full Trinity unless it is making a decision with real consequences. If it is only surfacing possible material, the Trinity starts after discovery.
+A scan does not need its own full Trinity unless it is making a decision with real consequences. If it is only surfacing possible material, the Trinity starts after discovery.
+
+**Current owner:** Clive's Man source-scanning / intake workflow (formerly Context Scanner).
 
 ## Context Intake Pattern
 
 For context intake, the flow is:
 
 ```text
-Scanner -> Intake Proposer -> Intake Challenger -> Intake Executor -> review queue
+Source scan -> Intake Proposer -> Intake Challenger -> Intake Executor -> review queue
 ```
 
-The Scanner finds possible new context. The Proposer turns it into a candidate record or action. The Challenger checks whether it is genuinely useful, duplicated, stale, risky, or missing source evidence. The Executor creates the allowed record and records the reasoning.
+The scan finds possible new context. The Proposer turns it into a candidate record or action. The Challenger checks whether it is genuinely useful, duplicated, stale, risky, or missing source evidence. The Executor creates the allowed record and records the reasoning.
 
-Current Clive rule:
+**Current owner:** Clive's Man intake workflow (formerly Intake).
 
-- Agents may create `Context Intake` records and `Context Items` with `Status = Proposed` where the relevant skill allows it.
-- Agents must not set `Confirmed By Human`, `Approved`, `Published`, or `Deprecated`.
-- Canonical context still requires Matthew or TL approval through the V2 human approval path.
+Current rule:
 
-## Context Curator Pattern
+- Clive's Man and his minions may create `Context Intake` records and `Context Items` with `Status = Proposed` where the relevant skill allows it.
+- They must not set `Confirmed By Human`, `Approved`, `Published`, or `Deprecated`.
+- Canonical context still requires Matthew or TL approval through the human approval gates in `clive-operating-rules.md` and `docs/business/architecture.md`.
+
+## Context Curation Pattern
 
 For curation, the flow is:
 
 ```text
-Curator scan -> Curator Proposer -> Curator Challenger -> Curator Executor -> human decision if needed
+Curation scan -> Curation Proposer -> Curation Challenger -> Curation Executor -> human decision if needed
 ```
 
-The Curator scan finds possible issues across existing context:
+**Current owner:** Clive's Man curation workflow (formerly Curator).
+
+The curation scan finds possible issues across existing context:
 
 - Duplicate records.
 - Stale context.
@@ -192,7 +198,7 @@ The Claude chat highlighted these risks:
 - **Context mismatch:** the Proposer and Challenger may not be looking at the same source set.
 - **Novelty suppression:** the Challenger may reject something valuable because it does not match previous patterns.
 - **Overloaded confidence:** one confidence score can hide very different kinds of risk.
-- **Pattern lock:** the Curator can keep enforcing old assumptions after the business changes.
+- **Pattern lock:** the curation workflow can keep enforcing old assumptions after the business changes.
 - **Manual gate overload:** too many human review gates make the system slow and easy to ignore.
 - **Automation overreach:** removing human review too early can turn tidy automation into quiet drift.
 
@@ -200,16 +206,16 @@ Mitigation:
 
 - Share source links and reasoning between steps.
 - Score by decision type.
-- Periodically ask the Curator to reconsider old decisions with fresh context.
+- Periodically ask Clive's Man to reconsider old decisions with fresh context.
 - Keep human review for irreversible, external, or policy-setting changes.
 
 ## Current Policy Boundary
 
-This document is a reference pattern, not a replacement for `context-architecture-v2.md` or `human-approval-path.md`.
+This document is a reference pattern, not a replacement for `docs/business/architecture.md` or `docs/context/clive-operating-rules.md`.
 
 Until Matthew changes the operating policy, the live rule remains:
 
 ```text
-Agents propose. Humans approve. Publisher publishes.
+Clive's Man proposes. Humans approve. Clive's Man publish-prep bundles approved exports.
 ```
 

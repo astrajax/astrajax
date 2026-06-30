@@ -134,6 +134,10 @@ export const BRAIN_INTERACTION_CONTEXT_FLAGGED = {
   resolved: "Resolved",
 } as const;
 
+/** Chapter 1 demo Trusted Brain. Canonical model is one Trusted Brain per theme;
+ *  add per-theme base IDs here (or Registry-driven lookup) when additional theme
+ *  bases are provisioned beyond this demo base.
+ */
 export const BRAIN_TRUSTED_CHAPTER1_BASE_ID = "app6tjzzG0L0lOeVb";
 
 export const BRAIN_TRUSTED_CHAPTER1_TABLES = {

@@ -1,8 +1,14 @@
 # Context Bootstrap Source Registry
 
-**Status:** Current inventory (updated 29 Jun 2026).
+**Status:** Current inventory (updated 30 Jun 2026).
 **Owner:** Matthew.  
 **Purpose:** Source inventory for Clive context surfaces — bootstrap packs, skills, and operational docs.
+
+**Current steward:** Clive's Man owns the context lane. The former Clive Intake,
+Curator, Publisher, and Context Scanner agents are retired as active owners; their
+duties now run as workflows inside Clive's Man. Historical skills and scripts may
+remain in the repo as shared tools or reference material, but do not treat them as
+the current roster.
 
 ## Canonical packs (docs/context/)
 
@@ -11,10 +17,10 @@
 | `SRC-AJ-POSITIONING` | `docs/business/positioning.md` | Repo doc | Matthew | Canonical | Current | AstraJax Core Positioning (old `astrajax_positioning.md` archived in `docs/archive/`) |
 | `SRC-AJ-OPS` | `docs/business/internal-brief.md` | Repo doc | Matthew | Canonical | Current | Internal priorities and guardrails |
 | `SRC-AJ-AGENTS` | `AGENTS.md` | Repo doc | Matthew | Canonical | Current | AstraJax Core Positioning |
-| `SRC-CLIVE-ARCH-V1` | `docs/context/context-architecture-v1.md` | Repo doc | Matthew | Canonical | Current | Context Architecture V1 (root `clive_context_architecture_v1.md` archived) |
-| `SRC-CLIVE-ARCH-V2` | `docs/context/context-architecture-v2.md` | Repo doc | Matthew | Canonical | Current | Context Architecture V2 (root `clive_context_architecture_v2.md` archived) |
-| `SRC-CLIVE-SCHEMA-V1` | `hyperagent/context_architecture_schema_v1.json` | Schema file | Matthew | Canonical | Current | Context Architecture V1 |
-| `SRC-CLIVE-APPROVAL` | `docs/context/human-approval-path.md` | Operational doc | Matthew | Canonical | Current | Context Architecture V2 |
+| `SRC-CLIVE-ARCH-V1` | `docs/archive/context-architecture-v1.md` | Repo doc | Matthew | Archived reference | Historical | Context Architecture V1 tables and lifecycle; superseded by `docs/business/architecture.md` for live product truth |
+| `SRC-CLIVE-ARCH-V2` | `docs/archive/context-architecture-v2.md` | Repo doc | Matthew | Archived reference | Historical | V2 approval enforcement; live gates in `clive-operating-rules.md` and `docs/business/architecture.md` |
+| `SRC-CLIVE-SCHEMA-V1` | `hyperagent/context_architecture_schema_v1.json` | Schema file | Matthew | Archived reference | Historical | Context Architecture V1 schema file |
+| `SRC-CLIVE-APPROVAL` | `docs/context/clive-operating-rules.md` § Human approval rule; `docs/business/architecture.md` §4–§7 | Operational doc | Matthew | Canonical | Current | Human approval gates after Clive's Man consolidation |
 | `SRC-CLIVE-EMAIL-INBOX` | `docs/context/email-inbox-setup.md` | Operational doc | Matthew | Canonical | Current | Clive Operating Rules |
 | `SRC-HYPERAGENT-PLATFORM` | `docs/context/hyperagent-platform.md` | Repo doc | Matthew | Canonical candidate | Current | Hyperagent Platform |
 | `SRC-HYPERAGENT-RELEASES` | `docs/context/hyperagent-releases.json` | Raw log | Agent | Unverified | Rolling | Hyperagent Platform |
@@ -46,10 +52,10 @@
 
 | Source ID | Title | Type | Owner | Authority | Freshness | Destination |
 |---|---|---|---|---|---|---|
-| `SRC-CLIVE-INTAKE-SKILL` | `.cursor/skills/clive-context-intake/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Clive Operating Rules |
-| `SRC-CLIVE-INTAKE-SLACK` | `.cursor/skills/clive-context-intake-slack-blocks/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Clive Operating Rules |
-| `SRC-CLIVE-CURATOR-SKILL` | `.cursor/skills/clive-context-curator/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Clive Operating Rules |
-| `SRC-CLIVE-SCANNER-SKILL` | `.cursor/skills/clive-context-scanner/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Clive Operating Rules |
+| `SRC-CLIVE-INTAKE-SKILL` | `.cursor/skills/clive-context-intake/SKILL.md` | Cursor skill | Matthew | Retired workflow reference | Historical | Intake workflow now owned by Clive's Man; keep only as reference/shared tool if still useful |
+| `SRC-CLIVE-INTAKE-SLACK` | `.cursor/skills/clive-context-intake-slack-blocks/SKILL.md` | Cursor skill | Matthew | Retired workflow reference | Historical | Slack intake workflow now owned by Clive's Man; keep only as reference/shared tool if still useful |
+| `SRC-CLIVE-CURATOR-SKILL` | `.cursor/skills/clive-context-curator/SKILL.md` | Cursor skill | Matthew | Retired workflow reference | Historical | Curation workflow now owned by Clive's Man; keep only as reference/shared tool if still useful |
+| `SRC-CLIVE-SCANNER-SKILL` | `.cursor/skills/clive-context-scanner/SKILL.md` | Cursor skill | Matthew | Retired workflow reference | Historical | Scanner workflow now owned by Clive's Man; keep only as reference/shared tool if still useful |
 | `SRC-CLIVE-RELEASE-SCANNER` | `.cursor/skills/clive-hyperagent-release-scanner/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Clive Operating Rules |
 | `SRC-CLIVE-OPS` | Clive Agent base Persona Config `Operational v0.2` (`recJFiRQjbIecCAQ5`, `appBd9tudgvOSrhSX`) | Airtable Persona Config | Matthew | Canonical | Current | Clive technical role — system prompt, rules, output format |
 | `SRC-CLIVE-SKILL` | `.cursor/skills/clive/SKILL.md` | Cursor skill | Matthew | Sync artifact | Current | Repo copy until generator syncs from Persona Config |
@@ -86,5 +92,5 @@
 - **Agent technical role specs** live in each Agent base **Persona Config** (`Operational v0.2`), not in repo skills. See `SRC-*-OPS` rows above and `docs/business/architecture.md` §4.
 - This registry is not a replacement for Airtable source links on Context Items.
 - Context Items created from bootstrap should cite these source IDs in `Source Notes`.
-- Conflicts between sources should be surfaced in Curator review and decided by Matthew before approval.
-- Working drafts live in `docs/context/` for convenience until Publisher exists or Matthew approves them as Context Items.
+- Conflicts between sources should be surfaced in Clive's Man curation review and decided by Matthew before approval.
+- Working drafts live in `docs/context/` for convenience until Clive's Man publish-prep bundles them or Matthew approves them as Context Items.

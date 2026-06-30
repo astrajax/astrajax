@@ -94,4 +94,4 @@ Humans must decide:
 - `SRC-CLIVE-MAN-PROPOSER`: `.cursor/skills/clive-man-proposer/SKILL.md`
 - `SRC-CLIVE-MAN-CHALLENGER`: `.cursor/skills/clive-man-challenger/SKILL.md`
 - `SRC-CLIVE-MAN-EXECUTOR`: `.cursor/skills/clive-man-executor/SKILL.md`
-- `SRC-CLIVE-APPROVAL`: `docs/context/human-approval-path.md`
+- `SRC-CLIVE-APPROVAL`: `docs/context/clive-operating-rules.md` § Human approval rule; `docs/business/architecture.md` §4–§7

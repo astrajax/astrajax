@@ -4,23 +4,23 @@
 **Supersedes:** `astrajax_positioning.md` (29 May), `AstraJax-company-positioning.md` (22 Jun), and `docs/context/astrajax-core-positioning.md`. Those are kept in `docs/archive/` for history only.
 **Companion docs:** `docs/business/architecture.md` (how the product works), `docs/business/how-we-work.md` (how the company runs), `docs/business/proof.md` (evidence locker).
 **Owner:** Matthew.
-**Last updated:** 26 June 2026.
+**Last updated:** 30 June 2026.
 
 ---
 
 ## 1. The Short Version
 
-**AstraJax is the adoption operating system for AI agents.**
+**AstraJax is the AI command centre for operators.**
 
-It helps the people who know the work — not developers — design, run, and improve AI agents their teams actually use. It starts by understanding the human, then builds the business brain, turns that context into scoped agent fleets, and keeps humans in charge of what "good" means.
+It helps non-technical founders, commercial leaders, and function experts build with AI, reason with AI, and adopt agent fleets their teams actually use. It starts by understanding the person in the chair, then builds the business brain, turns that context into scoped agent fleets, and keeps humans in charge of what "good" means.
 
 The belief underneath everything:
 
-> **Domain experts do not need to become technical. With AI, they can become architects.**
+> **The best AI outcomes come when operators become Architects of the systems around their own work.**
 
 The practical promise:
 
-> **Anyone can build an agent now. AstraJax helps teams adopt them.**
+> **AstraJax gives operators a safe, governed space to build, reason, and learn the technical habits that make AI useful.**
 
 Public line:
 
@@ -32,14 +32,15 @@ Public line:
 
 The market has solved agent *building*. It has not solved *adoption*.
 
-Most AI rollouts stall after the demo. The tool works once, in a clean example, then real life arrives: messy data, unclear ownership, nervous teams, vague prompts, poor context, and no feedback loop. People stop trusting the agent, stop feeding it, and quietly go back to the old way.
+Most AI rollouts stall after the demo. The tool works once, in a clean example, then real life arrives: messy data, unclear ownership, nervous teams, vague prompts, bloated context, weak approval rules, and no feedback loop. People stop trusting the system, costs climb, and the team quietly goes back to the old way.
 
-Most agent tools are still built by developers, for people who think like builders. Even the better no-code platforms carry the assumptions, language, and workflows of the technical tribe that made them. Non-technical experts are told they can build, but the experience still makes them feel like guests in someone else's world.
+Most agent tools are still built by developers, for people who think like builders. Even friendly no-code platforms carry the assumptions, language, and workflows of the technical tribe that made them. Non-technical experts are told they can build, but the experience still makes them feel like guests in someone else's world.
 
 That is the gap AstraJax is built for:
 
+- Can operators build inside rails instead of in shadow AI?
 - Does the team trust the agent?
-- Does the agent have the right context?
+- Does the agent have the right context, source boundaries, and approval rules?
 - Does anyone own the output?
 - Do people keep using it after week one?
 - Can managers improve the system without rebuilding it?
@@ -50,32 +51,34 @@ That is the gap AstraJax is built for:
 
 ## 3. What AstraJax Is
 
-AstraJax turns AI adoption into a guided loop:
+AstraJax turns AI adoption into a guided operating loop:
 
 ```text
-User brain -> guide -> business brain -> challenge -> human approval -> Doc dispatch -> runtime execution -> coaching -> brain improves
+operator map -> guide -> business brain -> agent fleet -> challenge -> human approval -> Doc dispatch -> runtime execution -> coaching -> brain improves
 ```
 
-1. **Build the user brain.** Map who is in the chair: AI experience, coding comfort, commercial judgement, seniority, system-architecture confidence, context confidence, and where they need support — so the system adapts to them.
+1. **Map the operator.** Understand who is in the chair: role, function, confidence, AI fluency, context skill, system-architecture comfort, and where the system should teach, scaffold, or challenge more.
 2. **Pick the guide.** Full Story, Light Story, or No Story. The theatre is configurable; the guardrails are not.
-3. **Build the business brain.** Guided intake captures the business, data, goals, rules, examples, edge cases, and what "good" looks like.
-4. **Challenge when it matters.** Pam stress-tests important reasoning before action. Court Mode exists for high-stakes decisions.
-5. **Human decides.** The system gives points of view; the person with judgement chooses.
-6. **Doc acts.** Approved briefs become records, packages, or build jobs.
-7. **Runtime executes.** HyperAgent is the first runtime AstraJax services.
-8. **Celebrate and coach.** Prompt confidence, QA chats, model usage habits, adoption feedback, and training progress keep people improving.
-9. **The brain matures.** Human feedback improves context, raises answer authority, and can lower usage cost.
+3. **Build the business brain.** Guided intake captures the business, data, goals, workflows, rules, examples, edge cases, open questions, and what "good" looks like.
+4. **Shape the fleet.** The operator designs task-scoped agents with clear jobs, source boundaries, model choices, approval rules, and team-facing personalities.
+5. **Challenge when it matters.** Pam stress-tests important reasoning before action. Court Mode exists for high-stakes decisions.
+6. **The Architect decides.** The system gives points of view; the person with judgement chooses what becomes trusted context, policy, or live action.
+7. **Doc executes.** Approved briefs become records, runtime packages, direct writes, or build jobs.
+8. **Runtime executes.** HyperAgent is the first runtime AstraJax services.
+9. **Celebrate and coach.** Prompt confidence, QA chats, model usage habits, adoption feedback, and training progress keep people improving.
+10. **The brain matures.** Human feedback improves context, raises answer authority, and can lower usage cost.
 
-For the full architecture (agent roles, user brain, brain maturity, Doc routing), see `docs/business/architecture.md`.
+For the full architecture (agent roles, operator map, brain maturity, Doc routing), see `docs/business/architecture.md`.
 
-### The User Brain
+### The Operator Map
 
-The first brain AstraJax builds is not the business brain. It is the **user brain**.
+The first thing AstraJax maps is not the business. It is the **operator**.
 
 That means understanding the person using the system before asking them to shape agents. A senior commercial operator who is new to context environments needs a different interface from someone who already understands prompt design and system architecture. A founder with strong judgement but little coding comfort should not be treated like a beginner at everything. A technical user should not be forced through patronising explanations just because the product is friendly.
 
-The user brain captures:
+The operator map captures:
 
+- role, function, and one-line remit
 - AI usage and prompt confidence
 - coding and technical comfort
 - commercial judgement and forecasting confidence
@@ -87,7 +90,7 @@ The user brain captures:
 
 This is not a school test. It is how the system adapts to the human before asking the human to adapt to the system.
 
-The user brain controls:
+The operator map controls:
 
 - how Clive explains, paces, and challenges assumptions
 - where Pam should be more sensitive to drift, weak evidence, or over-broad scope
@@ -95,7 +98,9 @@ The user brain controls:
 - whether the system should offer more scaffolding or move faster
 - how confident the product should be that the user can approve a given class of change
 
-The user brain is living. It can start from self-report, then improve through Clive's observations, Pam checkpoint outcomes, manager input, approval history, and the user's own corrections.
+The operator map is living. It can start from self-report, then improve through Clive's observations, Pam checkpoint outcomes, manager input, approval history, and the user's own corrections.
+
+Operator development is a product outcome, not a side effect. Through guided use, operators build fluency in prompting, scoping, context discipline, iteration, and model choice inside a governed space.
 
 Product principle:
 
@@ -105,11 +110,11 @@ Product principle:
 
 ## 4. The Agent Split
 
-> **Clive is the face. Pam is the raised eyebrow. Doc is the hands. Humans keep judgement.**
+> **Clive reasons. Pam challenges. The Architect decides. Doc executes.**
 
-- **Clive** — reasoning partner. Helps the expert explain the business and shape context. Drafts; does not write canonical truth.
-- **Pam Portiscue** — challenger. Stress-tests important thinking before action. Calibrated by the user brain. Does not decide.
-- **The human** — judge and approver. Decides what becomes trusted context, policy, or live action.
+- **Clive** — reasoning partner. Helps the operator explain the business and shape context. Drafts; does not write canonical truth.
+- **Pam Portiscue** — challenger. Stress-tests important thinking before action. Calibrated by the operator map. Does not decide.
+- **The Architect** — human judge and approver. Decides what becomes trusted context, policy, or live action.
 - **Doc Albright** — action dispatcher. Routes approved briefs: direct writes, build work, or runtime packages.
 - **HyperAgent** — runtime partner that executes the agents.
 
@@ -140,7 +145,7 @@ That legibility serves four linked purposes:
 
 - **Adoption infrastructure** — users accept agent limits more readily when boundaries read as coherent role behaviour (Pam pushes back, Clive stays read-only) rather than opaque policy or permission errors.
 - **Good prompt practice** — a clear character gives the model a stable instruction frame: what it is for, what it refuses, how it speaks, when it hands off.
-- **Agent configuration** — personality is an interface for scope; role shape controls tool shape (Clive reasons, Pam challenges, Doc acts).
+- **Agent configuration** — personality is an interface for scope; role shape controls tool shape (Clive reasons, Pam challenges, The Architect decides, Doc executes).
 - **Agent economics** — tighter scopes mean cheaper, faster, safer agents; narrow lane agents instead of one expensive generalist doing everything badly.
 
 Believability is how people decide what to trust. This is established craft in storytelling, theatre, and game design; AstraJax applies it to a place that work has largely skipped — functional, governance-bound work agents, the ones teams are most nervous to rely on. (Most character effort in AI goes into companion and entertainment bots, not the agent that touches live operations.)
@@ -153,40 +158,40 @@ The craft is drawn from respected movement, drama, and character-theory lineages
 
 ---
 
-## 5. Why Citizen-As-Builder Wins
+## 5. Why Operators Become Architects
 
-The best AI tools are shaped closest to the work. The person running the operation knows the awkward exceptions, the real incentives, the messy handoffs, and the moment an answer is quietly wrong. That judgement is usually lost when every change has to travel through a coordinator, operator, product manager, and developer before anything happens.
+The best AI systems are shaped closest to the work. The person running the operation knows the awkward exceptions, the real incentives, the messy handoffs, and the moment an answer is quietly wrong. That judgement is usually lost when every change has to travel through a distant technical team before anything happens.
 
-AstraJax collapses that loop. The domain expert can shape the context, test the agent, spot what broke, and feed the correction back while the work is still warm. That speed makes the tool better faster — and keeps people engaged, because they see their feedback understood and actioned.
+AstraJax collapses that loop. The operator can shape the context, test the agent, spot what broke, and feed the correction back while the work is still warm. That speed makes the tool better faster — and keeps people engaged, because they see their feedback understood and actioned.
 
-Citizen-as-builder also changes the culture of adoption. When the AI champion is a peer inside the function, team, or work area — a founder, sales lead, operations manager, coordinator, or creative operator — the system feels less like something imposed by a technical team and more like something shaped by someone who understands the job. Non-technical users are more likely to trust a workflow when the person introducing it speaks their language, knows their pressure points, and is accountable to the same work.
+The Architect pattern also changes the culture of adoption. When the person shaping the AI is a peer inside the function, team, or work area — a founder, sales lead, operations manager, coordinator, or creative operator — the system feels less like something imposed by a technical team and more like something shaped by someone who understands the job. Non-technical users are more likely to trust a workflow when the person introducing it speaks their language, knows their pressure points, and is accountable to the same work.
 
 That gives AstraJax a practical deployment model:
 
 ```text
-One AI champion per function, team, or work area
+One Architect per function, team, or work area
 -> trained to shape the brain and test workflows at the coalface
--> supported by AstraJax guardrails, challenge, and Doc execution
+-> supported by AstraJax rails, Pam challenge, and Doc dispatch
 -> feeding improvements back while the work is still live
 ```
 
-For a solo founder or very small business, the first champion may simply be the founder. As the company grows, the same pattern can spread across functions. Either way, this is faster than a distant build queue. The champion does not wait for every issue to become a formal ticket. They can test, correct, and improve AI workflows where the work actually happens. The result is quicker deployment, tighter feedback, and adoption led by people the team already trusts.
+For a solo founder or very small business, the first Architect may simply be the founder. As the company grows, the same pattern can spread across functions. Either way, this is faster than a distant build queue. The Architect does not wait for every issue to become a formal ticket. They can test, correct, and improve AI workflows where the work actually happens. The result is quicker deployment, tighter feedback, and adoption led by people the team already trusts.
 
-Citizen-as-builder is not a democratic slogan. It is the fastest route to useful AI.
+The point is not to turn every operator into a developer. It is to help them become confident owners of the AI systems around their work.
 
 ---
 
 ## 5A. The Legible Data Layer
 
-AstraJax targets **non-technical domain experts** as architects of their own operating systems. That only works if the data layer is as inspectable and user-friendly as the rest of the product. A locked Postgres or ORM layer — data hidden behind code only developers can read — breaks the promise.
+AstraJax targets **non-technical operators** as Architects of their own AI systems. That only works if the data layer is as inspectable and user-friendly as the rest of the product. A locked Postgres or ORM layer — data hidden behind code only developers can read — breaks the promise.
 
 **Airtable is the correct substrate** for the operating and context layer. Not because it is trendy. Because legibility is the product.
 
-**Champions can open the grid.** They can see why an agent said what it said, inspect the context behind an answer, and fix a wrong row without filing a ticket to engineering. Transparency is adoption infrastructure, not a compromise for non-technical users.
+**Architects can open the grid.** They can see why an agent said what it said, inspect the context behind an answer, and fix a wrong row without filing a ticket to engineering. Transparency is adoption infrastructure, not a compromise for non-technical users.
 
-**The cost model fits the champion pattern.** The platform runs on Vercel. Each function gets **one Airtable editor seat** — the champion who owns the brain. Everyone else accesses through the hosted platform via a service token, not a stack of per-user Airtable seats.
+**The cost model fits the Architect pattern.** The platform runs on Vercel. Each function gets **one Airtable editor seat** — the Architect who owns the brain. Everyone else accesses through the hosted platform via a service token, not a stack of per-user Airtable seats.
 
-**There is a ceiling — name it before buyers do.** Airtable is the operating and context layer, not infinite-scale transactional infrastructure. Record limits and API rate limits are real. A gateway pattern plus Vercel caching (Runtime Cache / Edge Config) sits in front for busy reads. When a client genuinely needs high-volume transactional workloads, a real database goes behind the layer — but the champion-facing brain stays legible.
+**There is a ceiling — name it before buyers do.** Airtable is the operating and context layer, not infinite-scale transactional infrastructure. Record limits and API rate limits are real. A gateway pattern plus Vercel caching (Runtime Cache / Edge Config) sits in front for busy reads. When a client genuinely needs high-volume transactional workloads, a real database goes behind the layer — but the Architect-facing brain stays legible.
 
 **Governance makes openness safe.** Read-transparency without write-chaos: grants, hash chain, git audit mirror, and draft → proposed → trusted separation. Users can pick every piece apart. Changing canonical truth still goes through human approval.
 
@@ -305,6 +310,7 @@ Best-fit clients are commercial or operations-heavy teams that want AI their peo
 
 - the team wants AI but does not yet trust the data or workflows
 - one or two operators hold too much context in their heads
+- non-technical leaders want to build with AI but need a safer space to learn
 - earlier AI experiments stalled after the demo
 - leaders need adoption, not just another tool
 - the work is high-value but coordination-heavy
@@ -315,9 +321,9 @@ Best-fit clients are commercial or operations-heavy teams that want AI their peo
 
 **Platform-led, partnership-supported.**
 
-- **Adoption OS Audit** — a diagnostic of where AI adoption is stalling: context readiness, trust gaps, workflow fit, and an adoption roadmap.
+- **Adoption Readiness Audit** — a diagnostic of where AI adoption is stalling: context readiness, trust gaps, workflow fit, model usage, and an adoption roadmap.
 - **Brain & Fleet Sprint** — a done-with-you build of the first context brain, agent fleet, approval rules, and deployment package.
-- **Partnership** — the premium tier: hands-on architecture, champion training, context design, and adoption support for teams that want to move faster.
+- **Partnership** — the premium tier: hands-on architecture, Architect training, context design, and adoption support for teams that want to move faster.
 
 Short version:
 
@@ -340,8 +346,9 @@ AstraJax stays tool-agnostic so the client's human-approved context brain remain
 AstraJax is built from production experience, not a pitch deck. Full detail lives in `docs/business/proof.md`.
 
 - Matthew Hopkinson: professional actor → London Team Leader → **Head of Sales** at **Butternut Box** (confirmed unicorn) in **seven years** (by July 2026). External reference title: **Director of Sales** (Butternut-sanctioned). The velocity arc is founder-capability evidence — steep learning curve, reinvention under uncertainty — not a logo flex.
-- Working with AI on top of cleaned operational data, Matthew solo-built a production operating layer for the **Direct Sales channel** — an £8m p/y commercial function with a 120 headcount. Real adoption pressure.
-- Roughly **12 months on the boring layer first** (data, workflows, architecture), then the build moved fast — a first agent fleet in weeks because the foundation existed.
+- Working with AI on top of cleaned operational data, Matthew solo-built a production operating layer for the **Direct Sales channel** — a ~£8.1m annual commercial function with a 120-person team. Real adoption pressure.
+- Roughly **12 months on the boring layer first** (data, workflows, architecture), then the build moved fast — the first **14-agent fleet** was built in **three weeks** because the foundation existed.
+- The system handed back **~3,000 hours/year** of operational capacity at scale.
 - A characterful agent fleet used by a non-technical team, with bounded scope, human approval, and audit trails.
 - External validation: Airtable **Airspace LA** keynote, Airtable **MVP** status, and **HyperAgent Founding 500**.
 
@@ -366,9 +373,10 @@ What teams need to adopt AI properly:
 - Clean data first, clever agents second.
 - One job per agent, one clear handoff at a time.
 - Agents take the sludge; humans keep the meaning.
-- Personality is not decoration; believable character is adoption infrastructure.
+- Storytelling craft is adoption infrastructure: believable character makes agent jobs memorable, trusted, and clear in scope.
 - The system supports judgement; it does not replace it.
-- Not everyone needs to become technical; domain experts can become architects.
+- Not everyone needs to become technical; operators can become Architects.
+- A safe command centre beats shadow AI in the wild.
 - Adoption and maintenance are features, not afterthoughts.
 - Lead with the founder's zero-code-to-production story — but always pair it with **with AI, on top of clean data.**
 
@@ -405,6 +413,7 @@ Numbers to keep canonical for external use:
 - **three weeks** for the first fleet
 - **~12 months** on the foundation
 - **~£8.1m** channel
+- **~3,000 hours/year** operational capacity handed back at scale
 
 Founder framing:
 

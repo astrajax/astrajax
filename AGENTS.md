@@ -127,7 +127,7 @@ separate "AI culture coaching" product.
 and `docs/business/internal-brief.md` §3). Do not drift into pet
 businesses, generic lead-gen, broad AI consulting, or "Matthew builds Airtable bases".
 - Default framing: *AstraJax helps commercial teams turn domain expertise into
-AI-ready operating systems; Clive maintains the context environment they rely on.*
+AI-ready operating systems; Clive reasons, and Clive's Man stewards the context lane they rely on.*
 - Keep personal finances (savings, inheritance, options, salary) and medical
 specifics **out of this file and any shareable/committed doc**. The behavioural
 takeaway is enough: Matthew works best where effort maps directly to outcomes, and

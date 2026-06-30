@@ -67,7 +67,7 @@ function PortraitDoorInline({
   return (
     <div
       ref={rootRef}
-      className={`portrait-entry ${transitioning ? "portrait-entry--leaving" : ""}`}
+      className={`portrait-entry portrait-entry--study ${transitioning ? "portrait-entry--leaving" : ""}`}
       aria-live="polite"
     >
       <div className="portrait-entry__frame">

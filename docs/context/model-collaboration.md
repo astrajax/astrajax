@@ -38,9 +38,9 @@ Ingest wide -> retrieve carefully -> curate aggressively -> package cleanly -> v
 
 ## V1 Rule
 
-Curator V1 should run as a strong single agent. The model committee is a design
-policy, not a requirement to activate multi-model orchestration before the
-baseline works.
+Clive's Man curation should run as a strong single steward with Trinity minions for
+meaningful context actions. The model committee is a design policy, not a
+requirement to activate multi-model orchestration before the baseline works.
 
 ## Source IDs
 

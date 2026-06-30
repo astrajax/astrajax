@@ -57,7 +57,7 @@ read:brain-truth:<area>
 
 Grant `Scope` must match a Trusted row **exactly** for retrieve to return it.
 
-Chapter 1 demo areas (legacy): `positioning`, `governance`. Logical brain themes: see `chapter1-context-structure.md` §3 and Scope options under Trusted Brain Truth.
+Chapter 1 demo areas (legacy): `positioning`, `governance`. Brain theme scope areas: see `chapter1-context-structure.md` §3 and Scope options under Trusted Brain Truth.
 
 ---
 
@@ -73,7 +73,7 @@ Primary field: **Brain Slug** (singleLineText)
 | Brain Name | singleLineText | Display name |
 | Purpose | multilineText | |
 | Brain Type | singleSelect | Core, Domain — Core always present; Domain from operator template |
-| Scope Area | singleLineText | Logical retrieval key slug, e.g. `core-governance`, `sales-forecasting`. Grants use `read:brain-truth:<area>` |
+| Scope Area | singleLineText | Retrieval key slug, e.g. `core-governance`, `sales-forecasting`. Grants use `read:brain-truth:<area>` |
 | Maturity | singleSelect | Seedling, House-Trained, Working, Sharp, Trusted, Elder |
 | Workshop Base ID | singleLineText | `app…` ID |
 | Trusted Base ID | singleLineText | `app…` ID |
@@ -188,7 +188,7 @@ Primary field: **Title** (singleLineText). **Workshop only** — never approved 
 | Title | singleLineText | Primary |
 | Canonical Text | multilineText | Proposed content only |
 | Brain Slug | singleLineText | |
-| Brain Theme | singleLineText | Logical theme slug, e.g. `core`, `sales-forecasting` |
+| Brain Theme | singleLineText | Theme slug, e.g. `core`, `sales-forecasting` |
 | Proposed Category | singleSelect | Workshop sorting only — not access control. See universal set below. |
 | Status | singleSelect | Draft, Quarantined |
 | Proposed By Agent | singleLineText | e.g. clive |
@@ -330,7 +330,7 @@ Primary field: **Title** (singleLineText). **Approved rows only** — if it is i
 | Canonical Text | multilineText | |
 | Category | singleSelect | Canonical taxonomy — set at promote, not copied from draft |
 | Scope | singleSelect | Grant match key — Trusted only. Format: `read:brain-truth:<area>` |
-| Brain Theme | singleLineText | Logical theme slug matching Registry Brains / operator brain set |
+| Brain Theme | singleLineText | Theme slug matching Registry Brains / operator brain set |
 | Authority | singleLineText | Approver or source doc |
 | Freshness | singleSelect | Current, Review soon, Stale |
 | Last Reviewed | date | ISO date |
@@ -344,14 +344,14 @@ Optional field (Goals rows): **Horizon** — Long-term, Active
 Business Definition, Positioning, Method, Offers, Proof, Workflow Rule, Governance
 
 **Trusted Brain Truth — Scope options (Chapter 1 demo, legacy):**  
-`read:brain-truth:positioning`, `read:brain-truth:governance` (canonical — use for grants until Core logical areas migrate)
+`read:brain-truth:positioning`, `read:brain-truth:governance` (canonical — use for grants until Core scope areas migrate)
 
-**Scope options (logical brain themes — add via Airtable UI as templates roll out):**  
+**Scope options (brain theme areas — add via Airtable UI as templates roll out):**  
 `read:brain-truth:core-identity`, `read:brain-truth:core-principles`, `read:brain-truth:core-governance`, `read:brain-truth:core-people`, `read:brain-truth:core-glossary`, `read:brain-truth:core-direction`, `read:brain-truth:core-business-context` (Function Leader overlay), `read:brain-truth:core-adjacent-functions` (Function Leader overlay), plus domain slugs from `chapter1-context-structure.md` §3.3
 
 Legacy options still present in live Airtable (retire when unused): `read:brain-context:positioning`, `read:brain-context:governance`. Also delete the **LEGACY Scope (delete in UI)** text field on Brain Truth when convenient.
 
-**Manual UI follow-up (Phase B):** MCP `update_field` cannot bulk-add singleSelect choices. Universal Category options and logical Scope options were only partially applied — add any missing choices and retire legacy options in the Airtable UI (not via MCP).
+**Manual UI follow-up (Phase B):** MCP `update_field` cannot bulk-add singleSelect choices. Universal Category options and Scope options were only partially applied — add any missing choices and retire legacy options in the Airtable UI (not via MCP).
 
 Per brain theme: document Category and Scope option sets in this file when standing up a new Trusted Brain. New scopes require human adding a select option (governance), not agent free text.
 

@@ -457,29 +457,18 @@ body {
   padding-top: 0;
 }
 
-/* Brand — Pam vertical centre × Doc horizontal centre, on the wall between portraits */
+/* Brand — top-left of the wall, above the portrait grid */
 .hero-asymmetric-wall__brand-float {
   position: absolute;
   inset: 0;
   z-index: 4;
-  display: grid;
-  grid-template-columns:
-    minmax(0, var(--hero-flank-col))
-    minmax(0, var(--hero-center-col))
-    minmax(0, var(--hero-flank-col));
-  column-gap: var(--hero-col-gap);
   pointer-events: none;
 }
 
 .hero-asymmetric-wall__brand-float .hero-wall-brand {
   position: absolute;
-  grid-column: 3;
-  justify-self: center;
-  top: calc(
-    100% - clamp(0.75rem, 4vh, 2.5rem) - clamp(1.65rem, 3.2vw, 2.5rem) -
-      clamp(6rem, 19vw, 8.75rem)
-  );
-  transform: translateY(-50%);
+  top: clamp(0.25rem, 1.5vh, 1rem);
+  left: clamp(0.5rem, 1.5vw, 1.25rem);
   pointer-events: auto;
 }
 
@@ -1851,49 +1840,6 @@ body {
   border: 1px solid color-mix(in srgb, var(--color-parchment) 12%, transparent);
   background: color-mix(in srgb, var(--color-moss) 50%, black);
   padding: 1rem;
-}
-
-.story-mode-toggle {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.story-mode-toggle__options {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  border-radius: 9999px;
-  border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
-  background: color-mix(in srgb, white 70%, var(--color-cream));
-  padding: 0.25rem;
-}
-
-.hero-nav-band .story-mode-toggle__options {
-  border-color: color-mix(in srgb, var(--color-ink) 18%, transparent);
-  background: color-mix(in srgb, var(--color-cream-paper) 85%, white);
-}
-
-.story-mode-toggle__btn {
-  border-radius: 9999px;
-  padding: 0.35rem 0.75rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--color-ink-muted);
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.story-mode-toggle__btn:hover {
-  color: var(--color-ink);
-}
-
-.story-mode-toggle__btn--active {
-  background: var(--color-ink);
-  color: var(--color-cream-paper);
-}
-
-.story-mode-toggle__btn--active:hover {
-  color: var(--color-cream-paper);
 }
 
 ::view-transition-old(root),

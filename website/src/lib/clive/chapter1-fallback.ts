@@ -3,14 +3,20 @@ import type { ChatMessage } from "./types";
 export type ClivePersona = "clive" | "pam";
 
 export const CHAPTER1_CLIVE_GREETING =
-  "Good — you've found the chair. Before we map the business brain, tell me who you are in this room: commercial expert, team leader, or systems architect?";
+  "Now we create your User Brain. Before I ask anything that can feel a bit personal, here is why: I use it to calibrate pace, tone, and support. It is not a scorecard, and it is not surveillance. Who is sitting in the chair today?";
 
 export const CHAPTER1_PAM_GREETING =
   "Better now than never. I've read the draft. Show me the assumption everyone has become far too comfortable with.";
 
 const CLIVE_FALLBACK_REPLIES: Record<string, string> = {
   default:
-    "Splendid question. At Seedling maturity we work from workshop drafts only — nothing becomes trusted until you approve it. Shall we map who sits in the chair first?",
+    "Splendid question. The important part is this: context stays human. I can help structure it, Pam can challenge it, and Doc can file it, but The Architect decides what becomes true.",
+  welcome:
+    "You're The Architect because you know the work. AstraJax gives you structure, agents, and a paper trail; it does not take ownership of your context away from you.",
+  context:
+    "We start with a function or focused startup scope because context bloat makes agents vague. Specific ownership makes answers sharper and safer.",
+  brains:
+    "A BRAIN is governed context: Workshop drafts first, Trusted Brain after human approval. It is structure, memory, and restraint in one place.",
   profile:
     "Noted. I'll adapt my pace to your profile — plain language where you need it, sharper where you're already expert. Ready to build the business brain?",
   draft:
@@ -34,6 +40,7 @@ export function getSeededReply(
   beat?: string,
 ): string {
   const lower = message.toLowerCase();
+  const hasBeat = Boolean(beat);
 
   if (persona === "pam") {
     if (beat === "pam_challenge" || lower.includes("challenge")) {
@@ -44,6 +51,15 @@ export function getSeededReply(
 
   if (beat === "user_brain" || lower.includes("profile") || lower.includes("chair")) {
     return CLIVE_FALLBACK_REPLIES.profile;
+  }
+  if (beat === "welcome" || (!hasBeat && lower.includes("architect"))) {
+    return CLIVE_FALLBACK_REPLIES.welcome;
+  }
+  if (beat === "context_importance" || (!hasBeat && lower.includes("context"))) {
+    return CLIVE_FALLBACK_REPLIES.context;
+  }
+  if (beat === "brains_intro") {
+    return CLIVE_FALLBACK_REPLIES.brains;
   }
   if (beat === "business_brain" || lower.includes("draft") || lower.includes("brain")) {
     return CLIVE_FALLBACK_REPLIES.draft;

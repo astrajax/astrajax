@@ -8,9 +8,11 @@ Use this after changes to the homepage command centre, story modes, or brain rev
 
 ## Story modes
 
+Default is **Full story** (portrait doors + **All platform surfaces** heading). There is no nav toggle — alternate modes are set via browser localStorage key `astrajax-story-mode` (`full` | `light` | `no-story`), then hard-refresh.
+
 - [ ] **Full story (default):** Homepage hero shows three portrait doors. Platform section heading reads **All platform surfaces**.
-- [ ] **Light story:** Use the Story mode toggle in the nav → **Light story**. Heading switches to **Core features** and room chips appear (Clive's study, Doc's workshop, Pam's desk).
-- [ ] **No story:** Toggle to **No story** — same flat directory as Light story (no portrait navigation on click).
+- [ ] **Light story:** Set localStorage to `light`, refresh. Heading switches to **Core features** and room chips appear (Clive's study, Doc's workshop, Pam's desk).
+- [ ] **No story:** Set localStorage to `no-story`, refresh — same flat directory as Light story (no portrait navigation on click).
 
 ---
 

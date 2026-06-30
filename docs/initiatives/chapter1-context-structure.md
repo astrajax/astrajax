@@ -5,7 +5,7 @@
 **Purpose:** Define the canonical structure every operator and business brain fits into — operator identity, brain themes, universal categories, progressive disclosure, and governance surfaces.  
 **Use with:** [`architecture.md`](../business/architecture.md) §5 Step 0–2 and §7, [`brain-key-schema.md`](./brain-key-schema.md), [`brain-key-wiring.md`](./brain-key-wiring.md)
 
-**Decision (29 Jun 2026):** Chapter 1 onboarding and brain curation use **templates, not cages**. Brains are **domains** (Sales, Product, Core…). Categories are **kinds of context inside every brain**. Onboarding extracts the **skeleton** (L0–L1), not the full brain. Brains are **logical first** (scope areas); separate Trusted bases only when volume or maturity justify it.
+**Decision (29 Jun 2026):** Chapter 1 onboarding and brain curation use **templates, not cages**. Brains are **domains** (Sales, Product, Core…). Categories are **kinds of context inside every brain**. Onboarding extracts the **skeleton** (L0–L1), not the full brain. Each confirmed brain theme gets its own Trusted Brain base; scope areas remain the grant and retrieval keys inside that brain.
 
 **Influence only (not canonical truth):** [Agent Skills for Context Engineering](https://github.com/muratcankoylan/agent-skills-for-context-engineering) — progressive disclosure, memory layers, context partitioning, harness surfaces. See §8.
 
@@ -99,7 +99,7 @@ A **brain theme** is a domain the operator owns — not a kind of content. Workf
 
 ### 3.1 Core Brain (always one)
 
-Every operator gets exactly one Core Brain. Scope prefix: `read:brain-truth:core-*` (logical areas below).
+Every operator gets exactly one Core Brain. Scope prefix: `read:brain-truth:core-*` (scope areas below).
 
 | Logical area | Typical content |
 |--------------|-----------------|
@@ -163,14 +163,15 @@ User **confirms, prunes, or renames** — never locked to a rigid count.
 
 **Other functions** (Marketing, Product, Operations, …): same pattern — author templates when a client vertical needs them; do not pre-build all seven in Airtable on day one.
 
-### 3.4 Logical vs physical brains
+### 3.4 Trusted Brain base model
 
-| Stage | What it means |
-|-------|----------------|
-| **Logical** | Brain theme = named scope area inside the shared Chapter 1 Trusted base (`read:brain-truth:<area>`) |
-| **Physical** | Separate Trusted Brain base per theme — only when token isolation, maturity, or volume require it |
+| Layer | Canonical model |
+|-------|-----------------|
+| **Brain theme** | A confirmed domain such as Core, New Business, Product, or Money & Runway gets its own Trusted Brain base |
+| **Scope area** | `read:brain-truth:<area>` remains the grant and retrieval key inside the relevant Trusted Brain |
+| **Category** | Universal content type inside that brain, e.g. Definition, Workflow, Rules & Guardrails, Open Questions |
 
-Default for Chapter 1 and new clients: **logical**. Graduate to physical when justified.
+Default for Chapter 1 and new clients: **one Trusted Brain per confirmed theme**. Keep onboarding light by confirming and pruning the brain set before creating domain depth; do not collapse separate themes into one shared Trusted base.
 
 ---
 
@@ -257,6 +258,60 @@ Onboarding does **not** extract the full brain. It extracts enough structure for
 
 Clive Persona Config (`Operational v0.2`) owns interview behaviour; this doc owns the taxonomy it must populate.
 
+### 5.2 Clive's study beat map (V1)
+
+Chapter 1 should feel like a conversation in Clive's study, not a form. The user is named **The Architect** because the product is teaching them to shape the context system their agents will rely on. Clive speaks first, explains why the questions matter, and only then begins the User Brain setup.
+
+V1 stays chat-first. A voiced avatar is a later polish layer; do not make voiceover a dependency for the core loop.
+
+1. **Welcome / name the Architect**
+   - Clive welcomes the user into the study.
+   - Explain AstraJax in one plain line: AstraJax helps domain experts turn messy team knowledge into a governed brain agents can safely use.
+   - Explain why the user is called The Architect: they know the work and the context; AstraJax gives structure, agents, and paper trail, but they decide what becomes true.
+   - Set scope honestly: this works best for a specific function inside an SME, or for a startup founder shaping an early operating system. Whole-company enterprise context from day one creates context bloat and weak answers.
+
+2. **Why context matters**
+   - Explain that context is the scarce human asset. Models will get cheaper and stronger, but someone still has to decide what is true, current, approved, uncertain, and useful.
+   - Message to preserve: "It is the one thing that will have to remain truly human. Getting it right now unlocks value for teams. It is a big job, but we are here to make it easier and give you control over it - not hand it to a distant person who is not the expert in your context like you are."
+   - Be sensitive where self-assessment or weaknesses come up: we ask only so Clive can calibrate pace, tone, and support. This is enablement, not judgement or surveillance.
+
+3. **The AstraJax way: BRAINS**
+   - Explain the storage model lightly: AstraJax creates and maintains BRAINS.
+   - Brain = structured context for a role, function, or business domain.
+   - Workshop = draft space where Clive proposes.
+   - Trusted Brain = approved context humans have signed off.
+   - Pam challenges before promotion; Doc files after approval.
+   - Keep it warm: "because we like to make things a little fun."
+
+4. **Create the User Brain**
+   - Ask who is sitting in the chair.
+   - Capture enough about the operator to calibrate Clive and Pam before asking business questions.
+   - If anything feels sensitive, say why it is being asked before asking it.
+
+5. **Guide mode**
+   - Let the user choose how much story/personality they want.
+   - Keep the same governance underneath regardless of tone.
+
+6. **Clive interview**
+   - Ask what the team actually does day to day, where context lives now, who owns it, what good answers sound like, and what agents must never say.
+   - Extract skeleton context, not the full brain.
+
+7. **Workshop draft**
+   - Show the draft business brain as a document in the study.
+   - Make clear it is Workshop-only until approved.
+
+8. **Pam challenge**
+   - Pam reviews the draft: strongest part, weakest assumption, missing evidence, rabbit-hole risk, and whether it is safe to send to Doc.
+
+9. **Human decision / Doc filing**
+   - The Architect decides what becomes trusted.
+   - Doc promotes approved snippets and leaves the paper trail.
+
+10. **Use approved context / receipts**
+   - Clive requests scoped access to approved context.
+   - The user approves access for the bounded task.
+   - Finish with receipts: what was created, challenged, approved, filed, and unlocked.
+
 ---
 
 ## 6. Context layers (AstraJax mapping)
@@ -300,7 +355,7 @@ Maps context-engineering anatomy to governed storage (see §8 for external influ
 - **Context partitioning** — domain brain themes
 - **Memory layers** — Workshop vs Trusted vs Agent bases
 - **Harness surfaces** — locked / editable / append-only / human-controlled
-- **Start simple** — logical brains before physical bases
+- **Start simple** — templates before depth; create only confirmed brain themes
 
 Do **not** import: their 15-skill taxonomy as business categories, Digital Brain's personal-OS modules as Founder brain names, or autonomous vector/graph memory frameworks. AstraJax stays Airtable + human approval + Trinity.
 
@@ -310,7 +365,7 @@ Do **not** import: their 15-skill taxonomy as business categories, Digital Brain
 
 | Track | Work | Owner lane |
 |-------|------|------------|
-| **Airtable** | **Done (Phase B, 29 Jun 2026).** Schema live — see [`brain-key-schema.md`](./brain-key-schema.md). Field IDs: `website/src/lib/brains/airtable-ids.ts`. **Manual UI follow-ups:** add remaining universal Category + logical Scope select options (MCP cannot bulk-update choices); retire legacy Category/Scope options; delete LEGACY Scope text field on Trusted Brain Truth. | — |
+| **Airtable** | **Done (Phase B, 29 Jun 2026).** Schema live — see [`brain-key-schema.md`](./brain-key-schema.md). Field IDs: `website/src/lib/brains/airtable-ids.ts`. **Manual UI follow-ups:** add remaining universal Category + Scope select options (MCP cannot bulk-update choices); retire legacy Category/Scope options; delete LEGACY Scope text field on Trusted Brain Truth. | — |
 | **Code** | `website/src/lib/brains/context-structure.ts` — types, templates, categories | Doc → Composer after brief approved |
 | **Demo UI** | `aie-demo` steps: archetype → brain set → category skeleton | Doc → Composer |
 | **Clive** | Persona Config interview rules | Matthew in Airtable → generator sync |
@@ -346,7 +401,7 @@ Before calling this structure "live" in product:
 5. **Onboarding test:** L0 completes in under 10 minutes without Trusted writes.
 6. **Development test:** Step 0C blocks completion without strengths, weaknesses, and learning style preference (Coaching Preferences); psychometric reference, development focus, and development notes remain skippable.
 7. **Pam test:** Open Questions populated where evidence is thin — no false-confidence Definition or Adjacent Functions rows.
-8. **Grant test:** Each logical scope area used in demo has a matching `read:brain-truth:<area>` option before Working+ retrieval.
+8. **Grant test:** Each scope area used in demo has a matching `read:brain-truth:<area>` option before Working+ retrieval.
 
 ---
 
@@ -355,8 +410,5 @@ Before calling this structure "live" in product:
 - [Architecture §5 Step 0–2](../business/architecture.md) — product loop
 - [Architecture §7](../business/architecture.md) — data and context layers
 - [Brain Key schema](./brain-key-schema.md) — Airtable field blueprint
-- [Brain Key wiring](./brain-key-wiring.md) — grants and API
-- [Doc Brain Base Builder](./doc-brain-base-builder.md) — schema migration runbook
-irtable field blueprint
 - [Brain Key wiring](./brain-key-wiring.md) — grants and API
 - [Doc Brain Base Builder](./doc-brain-base-builder.md) — schema migration runbook
