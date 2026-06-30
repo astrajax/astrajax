@@ -1,6 +1,9 @@
 import type { LoopStep } from "@/lib/aie-demo/types";
 
 const BEAT_LABELS: Record<LoopStep, string> = {
+  welcome: "Welcome to Clive's study",
+  context_importance: "Why context matters",
+  brains_intro: "AstraJax BRAINS",
   user_brain: "Who sits in the chair",
   guide: "Pick your guide",
   clive_interview: "Build the business brain",

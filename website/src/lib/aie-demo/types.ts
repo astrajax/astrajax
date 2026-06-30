@@ -4,6 +4,9 @@ import type { BrainKeyUiState } from "@/lib/brains/types";
 export const DEMO_BRAIN_SLUG = "astrajax-chapter-1";
 
 export const LOOP_STEPS = [
+  "welcome",
+  "context_importance",
+  "brains_intro",
   "user_brain",
   "guide",
   "clive_interview",
@@ -92,6 +95,9 @@ export interface StepProps {
 }
 
 export const STEP_LABELS: Record<LoopStep, string> = {
+  welcome: "Welcome",
+  context_importance: "Why Context Matters",
+  brains_intro: "BRAINS",
   user_brain: "User Brain",
   guide: "Guide Mode",
   clive_interview: "Clive Interview",
