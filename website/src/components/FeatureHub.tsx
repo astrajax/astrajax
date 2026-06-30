@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useStoryMode } from "@/components/command-centre/StoryModeProvider";
 
 type FeatureStatus = "live" | "coming";
 
@@ -28,8 +31,9 @@ const FEATURES: FeatureEntry[] = [
   {
     title: "Chat with Clive",
     description: "Ask Clive from anywhere — same governed context, booth-safe fallback.",
+    href: "/command/clive#ask-clive",
     status: "live",
-    cta: "Use the launcher",
+    cta: "Open chat",
   },
   {
     title: "Agent Bases — conversation review + memories",
@@ -89,18 +93,47 @@ const FEATURES: FeatureEntry[] = [
   },
 ];
 
+const COMMAND_LINKS = [
+  { href: "/command/clive", label: "Clive's study" },
+  { href: "/command/doc", label: "Doc's workshop" },
+  { href: "/command/pam", label: "Pam's desk" },
+] as const;
+
 export function FeatureHub() {
+  const { portraitDoorsEnabled } = useStoryMode();
+
   return (
     <section id="platform" className="border-t border-ink/10 bg-cream-deep/40 py-16 sm:py-20">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <p className="section-label">Platform</p>
         <h2 className="font-display mt-3 text-3xl font-semibold text-ink sm:text-4xl">
-          Core features
+          {portraitDoorsEnabled ? "All platform surfaces" : "Core features"}
         </h2>
         <p className="mt-4 max-w-2xl text-lg text-ink-muted">
-          The adoption operating system — live where it exists, honest &quot;coming&quot; where it
-          doesn&apos;t. No fake screens.
+          {portraitDoorsEnabled ? (
+            <>
+              Step into a room through the portraits above — or use this full index to jump straight
+              to any surface.
+            </>
+          ) : (
+            <>
+              The adoption operating system — live where it exists, honest &quot;coming&quot; where it
+              doesn&apos;t. No fake screens.
+            </>
+          )}
         </p>
+
+        {!portraitDoorsEnabled ? (
+          <ul className="mt-6 flex flex-wrap gap-3">
+            {COMMAND_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link href={link.href} className="btn-secondary text-sm">
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : null}
 
         <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {FEATURES.map((feature) => (

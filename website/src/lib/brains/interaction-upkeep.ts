@@ -78,6 +78,12 @@ export function matchesNeedsReviewShortlist(input: {
   return lowScore || contextFlagged;
 }
 
+export function matchesActionProposedShortlist(input: {
+  reviewStatus?: InteractionReviewStatus;
+}): boolean {
+  return input.reviewStatus === BRAIN_INTERACTION_REVIEW_STATUS.actionProposed;
+}
+
 export function buildNeedsReviewFormula(brainSlug: string): string {
   const slug = escapeFormulaValue(brainSlug);
   return (
@@ -85,6 +91,16 @@ export function buildNeedsReviewFormula(brainSlug: string): string {
     `{Brain Slug}='${slug}',` +
     `OR({Quality Score}<=2,{Suspected Context Issue}),` +
     `{Review Status}!='${BRAIN_INTERACTION_REVIEW_STATUS.noAction}'` +
+    `)`
+  );
+}
+
+export function buildActionProposedFormula(brainSlug: string): string {
+  const slug = escapeFormulaValue(brainSlug);
+  return (
+    `AND(` +
+    `{Brain Slug}='${slug}',` +
+    `{Review Status}='${BRAIN_INTERACTION_REVIEW_STATUS.actionProposed}'` +
     `)`
   );
 }

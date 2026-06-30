@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useId, useState } from "react";
+import { StoryModeToggle } from "@/components/command-centre/StoryModeToggle";
 type NavLink = {
   href: string;
   label: string;
@@ -172,6 +173,12 @@ export function Nav({ immersive = false }: NavProps) {
         >
           <MenuIcon open={menuOpen} />
         </button>
+
+        {immersive ? (
+          <div className="hidden shrink-0 md:block">
+            <StoryModeToggle compact />
+          </div>
+        ) : null}
       </div>
 
       {menuOpen ? (
@@ -193,6 +200,11 @@ export function Nav({ immersive = false }: NavProps) {
                 </li>
               ))}
             </ul>
+            {immersive ? (
+              <div className="mt-4 border-t border-ink/10 pt-4">
+                <StoryModeToggle />
+              </div>
+            ) : null}
           </div>
         </nav>
       ) : null}

@@ -397,13 +397,17 @@ body {
 .hero-asymmetric-wall__composition {
   --hero-flank-col: 0.88fr;
   --hero-center-col: 1.12fr;
+  --hero-flank-fr: 0.88;
+  --hero-center-fr: 1.12;
+  --hero-col-gap: clamp(0.625rem, 2.1vw, 2.125rem);
   --hero-flank-portrait-scale: 1.045;
+  position: relative;
   display: grid;
   grid-template-columns:
     minmax(0, var(--hero-flank-col))
     minmax(0, var(--hero-center-col))
     minmax(0, var(--hero-flank-col));
-  column-gap: clamp(0.625rem, 2.1vw, 2.125rem);
+  column-gap: var(--hero-col-gap);
   align-items: stretch;
   width: 100%;
   min-height: min(
@@ -444,14 +448,39 @@ body {
   padding-block: clamp(1.5rem, 6vh, 4rem);
 }
 
-/* Doc — upper-right column; brand flush to top band above portrait */
+/* Doc — upper-right column */
 .hero-asymmetric-wall__slot--doc {
   align-self: start;
   justify-content: flex-start;
   z-index: 2;
   transform: rotate(0.65deg);
-  gap: clamp(0.2rem, 0.45vh, 0.4rem);
   padding-top: 0;
+}
+
+/* Brand — Pam vertical centre × Doc horizontal centre, on the wall between portraits */
+.hero-asymmetric-wall__brand-float {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: grid;
+  grid-template-columns:
+    minmax(0, var(--hero-flank-col))
+    minmax(0, var(--hero-center-col))
+    minmax(0, var(--hero-flank-col));
+  column-gap: var(--hero-col-gap);
+  pointer-events: none;
+}
+
+.hero-asymmetric-wall__brand-float .hero-wall-brand {
+  position: absolute;
+  grid-column: 3;
+  justify-self: center;
+  top: calc(
+    100% - clamp(0.75rem, 4vh, 2.5rem) - clamp(1.65rem, 3.2vw, 2.5rem) -
+      clamp(6rem, 19vw, 8.75rem)
+  );
+  transform: translateY(-50%);
+  pointer-events: auto;
 }
 
 .hero-portrait {
@@ -545,7 +574,56 @@ body {
   opacity: 0.92;
 }
 
-/* ── Wall brand wordmark — upper-right band, parallel to Doc's column ── */
+/* ── Command centre portrait doors ── */
+.hero-portrait-door-wrap {
+  display: block;
+  border-radius: 0.35rem;
+  text-decoration: none;
+  outline-offset: 4px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hero-portrait-door-wrap:hover .hero-portrait-frame,
+.hero-portrait-door-wrap:focus-visible .hero-portrait-frame {
+  box-shadow:
+    0 0 0 2px color-mix(in srgb, var(--color-buttermilk) 55%, transparent),
+    0 20px 40px color-mix(in srgb, black 35%, transparent);
+}
+
+.hero-portrait-door-wrap:focus-visible {
+  outline: 2px solid var(--color-buttermilk);
+}
+
+.hero-portrait-door-wrap:active {
+  transform: scale(1.02);
+}
+
+.hero-command-centre-hint {
+  margin: 0 auto 1rem;
+  max-width: 36rem;
+  padding: 0 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: color-mix(in srgb, var(--color-parchment) 80%, white);
+}
+
+.hero-command-centre-fallback {
+  margin: 0.75rem auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem 1.25rem;
+  padding: 0 1rem;
+  list-style: none;
+}
+
+.hero-command-centre-fallback a {
+  color: var(--color-parchment);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ── Wall brand wordmark — carved into the moss wall ── */
 .hero-wall-brand {
   position: relative;
   z-index: 3;
@@ -555,14 +633,7 @@ body {
   gap: clamp(0.25rem, 0.6vh, 0.45rem);
   pointer-events: auto;
   text-decoration: none;
-  align-self: center;
   flex-shrink: 0;
-}
-
-.hero-asymmetric-wall__slot--doc .hero-wall-brand {
-  margin-top: 0;
-  margin-bottom: clamp(0.1rem, 0.35vh, 0.25rem);
-  align-self: center;
 }
 
 .hero-wall-brand__mark {
@@ -580,13 +651,16 @@ body {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  /* Lighter carved bronze — wordmark set into the moss wall */
-  color: color-mix(in srgb, var(--color-parchment) 62%, #6b4a2e);
+  /* Deep Victorian carved bronze — dramatic recessed letterpress into moss wall */
+  color: color-mix(in srgb, var(--color-parchment) 58%, #8b5e2b);
   text-shadow:
-    -1px -1px 0 rgba(8, 6, 3, 0.55),
-    1px 1px 0 rgba(228, 211, 163, 0.18),
-    0 1px 3px rgba(8, 6, 3, 0.35);
-  opacity: 0.94;
+    -3px -3px 0 rgba(8, 6, 3, 0.9),
+    -1.5px -1.5px 0 rgba(8, 6, 3, 0.65),
+    2.5px 2.5px 0 rgba(228, 211, 163, 0.6),
+    1px 1px 0 rgba(228, 211, 163, 0.38),
+    0 4px 9px rgba(8, 6, 3, 0.5),
+    3px 3px 7px rgba(8, 6, 3, 0.32);
+  opacity: 0.96;
 }
 
 .hero-wall-brand:focus-visible {
@@ -608,14 +682,16 @@ body {
   font-weight: 500;
   line-height: 1.08;
   letter-spacing: -0.01em;
-  /* Deep copper/bronze — reads as wall material, not overlay */
-  color: color-mix(in srgb, var(--color-parchment) 48%, #7a5230);
+  /* Deep Victorian carved bronze — dramatic recessed letterpress into moss wall */
+  color: color-mix(in srgb, var(--color-parchment) 52%, #8c5f35);
   text-shadow:
-    -1px -1px 0 rgba(8, 6, 3, 0.78),
-    -2px -2px 3px rgba(8, 6, 3, 0.38),
-    1px 1px 0 rgba(228, 211, 163, 0.28),
-    2px 2px 5px rgba(228, 211, 163, 0.1);
-  opacity: 0.94;
+    -4px -4px 0 rgba(8, 6, 3, 0.92),
+    -2px -2px 0 rgba(8, 6, 3, 0.68),
+    3px 3px 0 rgba(228, 211, 163, 0.65),
+    1.5px 1.5px 0 rgba(228, 211, 163, 0.42),
+    0 5px 12px rgba(8, 6, 3, 0.55),
+    4px 4px 10px rgba(8, 6, 3, 0.35);
+  opacity: 0.96;
   pointer-events: none;
 }
 
@@ -700,7 +776,7 @@ body {
 @media (min-width: 1280px) {
   .hero-asymmetric-wall__composition {
     --hero-flank-portrait-scale: 1.05;
-    column-gap: clamp(0.75rem, 2.35vw, 2.5rem);
+    --hero-col-gap: clamp(0.75rem, 2.35vw, 2.5rem);
   }
 
   .hero-asymmetric-wall__slot--clive {
@@ -712,9 +788,11 @@ body {
   .hero-asymmetric-wall__composition {
     --hero-flank-col: 0.9fr;
     --hero-center-col: 1.1fr;
+    --hero-flank-fr: 0.9;
+    --hero-center-fr: 1.1;
     --hero-flank-portrait-scale: 1.055;
     min-height: min(56rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5rem));
-    column-gap: clamp(0.875rem, 2.45vw, 2.75rem);
+    --hero-col-gap: clamp(0.875rem, 2.45vw, 2.75rem);
   }
 }
 
@@ -1080,6 +1158,240 @@ body {
   background: color-mix(in srgb, var(--color-parchment) 8%, transparent);
 }
 
+/* ── Command centre room shells (generalises clive-study) ── */
+.room-shell {
+  position: relative;
+  color: var(--color-parchment);
+}
+
+.room-shell--clive {
+  background: linear-gradient(165deg, var(--color-moss) 0%, #2a3424 45%, var(--color-moss) 100%);
+}
+
+.room-shell--doc {
+  background: linear-gradient(160deg, var(--color-moss) 0%, #1f2a1c 40%, #243028 100%);
+}
+
+.room-shell--pam {
+  background: linear-gradient(155deg, #1e2619 0%, var(--color-moss) 42%, #2a2418 100%);
+}
+
+.room-shell__ambient {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.room-shell__lamp {
+  position: absolute;
+  top: -8rem;
+  left: 50%;
+  width: 32rem;
+  height: 32rem;
+  transform: translateX(-50%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-buttermilk) 22%, transparent), transparent 70%);
+}
+
+.room-shell--clive .room-shell__lamp {
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-apricot) 18%, transparent), transparent 70%);
+}
+
+.room-shell--pam .room-shell__lamp {
+  background: radial-gradient(circle, color-mix(in srgb, #a95a2e 16%, transparent), transparent 68%);
+}
+
+.room-shell__shelf {
+  position: absolute;
+  bottom: 0;
+  width: 8rem;
+  height: 40%;
+  opacity: 0.15;
+  background: linear-gradient(to top, var(--color-ink), transparent);
+}
+
+.room-shell__shelf--left {
+  left: 0;
+}
+
+.room-shell__shelf--right {
+  right: 0;
+}
+
+.room-shell__workbench {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: min(48rem, 90%);
+  height: 28%;
+  transform: translateX(-50%);
+  opacity: 0.12;
+  background: linear-gradient(to top, color-mix(in srgb, var(--color-sage) 35%, black), transparent);
+}
+
+.room-shell__chart-glow {
+  position: absolute;
+  right: 8%;
+  bottom: 18%;
+  width: 14rem;
+  height: 14rem;
+  border-radius: 9999px;
+  background: radial-gradient(circle, color-mix(in srgb, #a95a2e 14%, transparent), transparent 70%);
+}
+
+.room-shell__header {
+  position: relative;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-parchment) 12%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.room-shell__ghost-btn {
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-parchment) 25%, transparent);
+  padding: 0.4rem 0.875rem;
+  font-size: 0.8125rem;
+  color: var(--color-parchment);
+  transition: border-color 0.15s ease, background 0.15s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.room-shell__ghost-btn:hover {
+  border-color: color-mix(in srgb, var(--color-parchment) 45%, transparent);
+  background: color-mix(in srgb, var(--color-parchment) 8%, transparent);
+}
+
+.room-stations__grid {
+  display: grid;
+  gap: 1rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .room-stations__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .room-stations__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .room-shell--doc .room-stations__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.room-station-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  border-radius: 0.875rem;
+  border: 1px solid color-mix(in srgb, var(--color-parchment) 14%, transparent);
+  background: color-mix(in srgb, var(--color-ink) 35%, transparent);
+  padding: 1.25rem;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.room-station-card:hover {
+  border-color: color-mix(in srgb, var(--color-parchment) 28%, transparent);
+  transform: translateY(-2px);
+}
+
+.room-station-card__badge {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: 0.75rem;
+  border-radius: 9999px;
+  padding: 0.2rem 0.625rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: color-mix(in srgb, var(--color-sage) 22%, transparent);
+  color: var(--color-sage);
+}
+
+.room-shell--pam .room-station-card__badge {
+  background: color-mix(in srgb, #a95a2e 22%, transparent);
+  color: color-mix(in srgb, var(--color-parchment) 90%, #a95a2e);
+}
+
+.room-station-card__cta {
+  margin-top: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-buttermilk);
+  text-decoration: none;
+}
+
+.room-station-card__cta:hover {
+  color: white;
+}
+
+.room-ask-clive__surface {
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, var(--color-parchment) 12%, transparent);
+  background: color-mix(in srgb, var(--color-moss) 50%, black);
+  padding: 1rem;
+}
+
+.story-mode-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.story-mode-toggle__options {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+  background: color-mix(in srgb, white 70%, var(--color-cream));
+  padding: 0.25rem;
+}
+
+.hero-nav-band .story-mode-toggle__options {
+  border-color: color-mix(in srgb, var(--color-ink) 18%, transparent);
+  background: color-mix(in srgb, var(--color-cream-paper) 85%, white);
+}
+
+.story-mode-toggle__btn {
+  border-radius: 9999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-ink-muted);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.story-mode-toggle__btn:hover {
+  color: var(--color-ink);
+}
+
+.story-mode-toggle__btn--active {
+  background: var(--color-ink);
+  color: var(--color-cream-paper);
+}
+
+.story-mode-toggle__btn--active:hover {
+  color: var(--color-cream-paper);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.9s;
+  animation-timing-function: ease;
+}
+
 /* ── Chat surface ── */
 .clive-chat {
   position: relative;
@@ -1397,6 +1709,19 @@ body {
   .portrait-entry,
   .portrait-entry--leaving {
     transition: none;
+  }
+
+  .hero-portrait-door-wrap,
+  .hero-portrait-door-wrap:active,
+  .room-station-card,
+  .room-station-card:hover {
+    transform: none;
+    transition: none;
+  }
+
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
   }
 
   .global-clive-launcher:hover {

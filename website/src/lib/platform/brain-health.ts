@@ -112,6 +112,47 @@ export interface LevelUpCelebration {
 
 export type BrainMemoryStatus = "draft" | "active" | "promoted";
 
+export type BrainMemoryLifecycle = "draft" | "working" | "trusted" | "retired";
+
+export type MemoryImportance = 1 | 2 | 3 | 4 | 5;
+
+export type RiskTolerance = "conservative" | "balanced" | "assertive";
+
+export const LIFECYCLE_LABELS: Record<BrainMemoryLifecycle, string> = {
+  draft: "Draft",
+  working: "Working",
+  trusted: "Trusted",
+  retired: "Retired",
+};
+
+export const MEMORY_STATUS_DISPLAY: Record<BrainMemoryStatus, string> = {
+  draft: "Draft",
+  active: "Working",
+  promoted: "Promoted",
+};
+
+export const RISK_TOLERANCE_OPTIONS: {
+  value: RiskTolerance;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: "conservative",
+    label: "Conservative",
+    description: "Propose-only except obvious retire candidates.",
+  },
+  {
+    value: "balanced",
+    label: "Balanced",
+    description: "May tighten low-importance Working Memory with audit trail.",
+  },
+  {
+    value: "assertive",
+    label: "Assertive",
+    description: "May auto-tighten and auto-retire low-importance records — still no Trusted Truth promotion.",
+  },
+];
+
 export interface BrainTruthRow {
   id: string;
   title: string;
@@ -126,6 +167,10 @@ export interface BrainMemoryRow {
   summary: string;
   linkedTruthTitle?: string;
   status: BrainMemoryStatus;
+  importance: MemoryImportance;
+  lifecycle: BrainMemoryLifecycle;
+  lastReferencedAt?: string;
+  retireEligibleAt?: string;
   source: string;
   capturedAt: string;
 }
@@ -146,6 +191,7 @@ export interface BrainHealthSnapshot {
   metrics: BrainMetrics;
   currentCreditPercent: number;
   eligibility: EfficiencyEligibility;
+  riskTolerance: RiskTolerance;
   leaderboard: LeaderboardEntry[];
   recentLevelUp: LevelUpCelebration | null;
   truths: BrainTruthRow[];
@@ -177,6 +223,7 @@ export const DEFAULT_BRAIN_HEALTH: BrainHealthSnapshot = {
     ],
   },
   currentCreditPercent: 5,
+  riskTolerance: "balanced",
   eligibility: {
     sustainedDays: 18,
     sustainedDaysRequired: 30,
@@ -250,6 +297,9 @@ export const DEFAULT_BRAIN_HEALTH: BrainHealthSnapshot = {
         "Clive answered with caveats and pointed to the guardrail truth. Human approved the escalation path.",
       linkedTruthTitle: "Off-script discount guardrail",
       status: "active",
+      importance: 4,
+      lifecycle: "working",
+      lastReferencedAt: "2026-06-26T09:30:00.000Z",
       source: "Chapter 1 study session",
       capturedAt: "2026-06-20T11:15:00.000Z",
     },
@@ -260,6 +310,9 @@ export const DEFAULT_BRAIN_HEALTH: BrainHealthSnapshot = {
         "Regional lead flagged a one-rep weekend event. Memory captured for promote review.",
       linkedTruthTitle: "Event staffing minimums",
       status: "active",
+      importance: 3,
+      lifecycle: "working",
+      lastReferencedAt: "2026-06-25T14:10:00.000Z",
       source: "Brain interaction review",
       capturedAt: "2026-06-22T16:40:00.000Z",
     },
@@ -268,11 +321,87 @@ export const DEFAULT_BRAIN_HEALTH: BrainHealthSnapshot = {
       title: "Ireland rep asked for local pricing",
       summary: "No trusted Ireland variant yet — answer stayed in workshop with clear gap flag.",
       status: "draft",
+      importance: 2,
+      lifecycle: "draft",
       source: "Ask Clive panel",
       capturedAt: "2026-06-23T10:05:00.000Z",
     },
+    {
+      id: "mem-old-promo-banner",
+      title: "Summer promo banner wording from May workshop",
+      summary:
+        "Transient campaign note — superseded by June pricing refresh. Not referenced in 18 days.",
+      status: "active",
+      importance: 1,
+      lifecycle: "working",
+      lastReferencedAt: "2026-06-10T08:00:00.000Z",
+      retireEligibleAt: "2026-06-24T08:00:00.000Z",
+      source: "Workshop capture",
+      capturedAt: "2026-05-28T12:00:00.000Z",
+    },
+    {
+      id: "mem-legacy-footfall",
+      title: "Legacy footfall estimate for pilot store",
+      summary:
+        "One-off pilot figure from Q1 — low importance, unused since rollout ended.",
+      status: "active",
+      importance: 1,
+      lifecycle: "working",
+      lastReferencedAt: "2026-06-08T16:20:00.000Z",
+      retireEligibleAt: "2026-06-22T16:20:00.000Z",
+      source: "Brain interaction review",
+      capturedAt: "2026-03-15T10:00:00.000Z",
+    },
+    {
+      id: "mem-retired-sample",
+      title: "Old event category label (retired)",
+      summary: "Archived after taxonomy cleanup — kept in paper trail only.",
+      status: "active",
+      importance: 1,
+      lifecycle: "retired",
+      lastReferencedAt: "2026-05-01T11:00:00.000Z",
+      source: "Clive's Man curation pass",
+      capturedAt: "2026-02-10T09:00:00.000Z",
+    },
   ],
 };
+
+export function getImportanceDistribution(
+  memories: BrainMemoryRow[],
+): Record<MemoryImportance, number> {
+  const counts: Record<MemoryImportance, number> = {
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+  };
+  for (const memory of memories) {
+    if (memory.lifecycle !== "retired") {
+      counts[memory.importance] += 1;
+    }
+  }
+  return counts;
+}
+
+export function getRetireCandidates(memories: BrainMemoryRow[]): BrainMemoryRow[] {
+  const now = Date.now();
+  return memories.filter((memory) => {
+    if (memory.lifecycle === "retired" || memory.lifecycle === "draft") return false;
+    if (memory.importance > 1) return false;
+    if (memory.retireEligibleAt) {
+      return new Date(memory.retireEligibleAt).getTime() <= now;
+    }
+    if (!memory.lastReferencedAt) return false;
+    const daysSinceRef =
+      (now - new Date(memory.lastReferencedAt).getTime()) / (1000 * 60 * 60 * 24);
+    return daysSinceRef >= 14;
+  });
+}
+
+export function countActiveMemories(memories: BrainMemoryRow[]): number {
+  return memories.filter((m) => m.lifecycle !== "retired").length;
+}
 
 export function maturityLabel(level: MaturityLevel): string {
   return MATURITY_LADDER.find((step) => step.level === level)?.label ?? level;

@@ -2,7 +2,7 @@
 
 **Status:** V0.1 source-of-truth draft  
 **Owner:** Matthew  
-**Last updated:** 29 June 2026
+**Last updated:** 29 June 2026 (command centre product UI)
 **Purpose:** Define the architecture for the AstraJax system: what each agent does, where context lives, where humans approve, and how agent runtimes fit in.
 
 ---
@@ -33,11 +33,11 @@ Storytelling craft is adoption infrastructure: it makes every agent's job memora
 
 ## 2. Why This Architecture Exists
 
-The product needs to make AI feel approachable without letting one charming assistant become too powerful or one inexperienced AI user go too far down the wrong rabit hole.
+The product needs to make AI feel approachable without letting one charming assistant become too powerful or one inexperienced AI user go too far down the wrong rabbit hole.
 
 If one agent both persuades the user, decides what matters, writes context, creates agents, and changes live system state, governance gets muddy & credit spend is inefficient. The user may not know whether they are still exploring an idea or authorising a change. Tighter scopes also leads to more effective agents - skills & context specific to that agents function.
 
-AstraJax seperates:
+AstraJax separates:
 
 - **Reasoning:** exploring, explaining, asking questions, helping the user think.
 - **Challenge:** stress-testing important conclusions before action.
@@ -61,7 +61,7 @@ In practice:
 User brain mapped -> Clive reasons (adapted) -> Pam challenges (calibrated) -> human approves -> Doc routes -> [direct write | Opus -> Composer | package] -> runtime executes -> humans review -> brain improves
 ```
 
-That is the spine of the adoption operating system.
+That is the spine of the AI command centre's adoption loop.
 
 ---
 
@@ -212,6 +212,8 @@ Pam's sniff test
 
 **Technical role (canonical):** Pam Agent base Persona Config `Operational v0.2` (`rect3MIejCMhCWdH1`).
 
+**Product UI (command centre, 29 Jun 2026):** On the public website, **Pam fronts the brain-bases room** — health meter, **Context Health** (importance mix, risk tolerance, retire queue), review queue, outstanding actions — as the challenger voice ("this looks stale or thin; stress-test before you fix it"). **Clive's Man remains the steward** who proposes repairs and upkeep behind that surface; Pam does not write Trusted truth or replace the stewardship lane. Visual brief: `docs/initiatives/command-centre-visual-brief.md`.
+
 When Pam and Clive disagree, the system should not pretend to know which one is right. The disagreement is the product value: it makes the trade-off visible so the human can use their judgement.
 
 Suggested handoff:
@@ -257,6 +259,18 @@ Clive thinks with the user. Clive's Man keeps the study and the brain. Doc's exe
 **Technical role (canonical):** Clive's Man Agent base Persona Config `Operational v0.2` (`rec6b8PB3HY3yv0Wq`). Minion roster: Minions table on the same base.
 
 **Source document mining (V1):** Full Pam gates, API, and Matthew manual steps — `[docs/initiatives/source-document-mining.md](../initiatives/source-document-mining.md)`.
+
+### 4.4A Command centre (product UI)
+
+**Decision (29 Jun 2026).** The AstraJax website homepage hero is the **command centre**: three founding portraits (Pam, Clive centre, Doc) on cream paper. In **Full Story mode**, each portrait is a door that widens into that character's **night-mode room** — moss immersive surfaces that front existing platform routes, not a replacement card grid.
+
+| Door | Room | Fronts |
+| ---- | ---- | ------ |
+| Clive | Study | Chapter 1 loop, Ask Clive, brain review |
+| Doc | Workshop | Fleet design, deploy, dispatch, agent bases |
+| Pam | Desk + brain bases | Brain health, **Context Health tab**, review queue, agent bases (challenge framing) |
+
+**Story modes:** Full Story = portrait doors (default). Light Story and No Story = flat `#platform` FeatureHub directory (accessible fallback). Implementation: `website/src/components/command-centre/`, routes `/command/clive`, `/command/doc`, `/command/pam`.
 
 ### 4.5 Human Approver
 
@@ -624,7 +638,7 @@ The system should show:
 
 This must be framed as enablement, not staff surveillance.
 
-Brain maturity should also be visible and engaging. The system should make context quality feel like progress, not admin.
+Brain maturity should also be visible and engaging. The system should make context quality feel like progress, not admin. The internal discipline behind this is **Context Health**: a lightweight routine for spotting bloat, tightening useful memories, retiring stale material, and promoting only human-approved truth.
 
 Example brain levels:
 
@@ -1067,7 +1081,7 @@ If the runtime learns something useful, it should flow into **Persona Memories**
 
 ### Agent Authoring Surface (Canonical)
 
-**Decision, 25 June 2026.** Calude/ChatGPT integrations are the **primary client-facing runtime** for AstraJax agents (Clive, Pam, Doc, Clive's Man, and the rest of the fleet). The Cursor-native agents (`@clive` and friends, defined in `.cursor/agents/` and `.cursor/skills/`) are used only **rarely** with clients; they are mostly internal and developer surfaces. When a client builds agents, they are built for the Hyperagent runtime. 
+**Decision, 25 June 2026.** Claude/ChatGPT integrations are the **primary client-facing runtime** for AstraJax agents (Clive, Pam, Doc, Clive's Man, and the rest of the fleet). The Cursor-native agents (`@clive` and friends, defined in `.cursor/agents/` and `.cursor/skills/`) are used only **rarely** with clients; they are mostly internal and developer surfaces. When a client builds agents, they are built for the Hyperagent runtime. 
 
 Because HyperAgent leads, **Airtable is the canonical place a human authors an agent**, not the repo. Each agent's Agent base holds the authored source:
 
@@ -1099,6 +1113,83 @@ This **supersedes** the earlier note in `docs/initiatives/brain-key-schema.md` t
 - **Tier 3, Persona Memories.** Limitless, retrieved on demand rather than always injected, tracking how the character **develops** over time. Every memory links to exactly one of the five Known Truths, so each development hangs off the bedrock it belongs to (for example a memory of Pam telling Clive off links to truth 3, his baseline stance on Pam; a worry that people might find out about something links to truth 2, his secret). Authored in **Persona Memories**.
 
 **Write-with-approval gate.** The character-craft agents (the Lazlo lane) may **write** to Agent bases, but every Tier 1 and Tier 2 write lands as **Pending** and only Matthew promotes it to **Approved-Canonical**. This is the same helpful-by-default, human-approves-before-it-counts pattern used everywhere else in the brain: an agent proposes, a human promotes. Tier 3 Persona Memories keep the existing non-canonical rule, they auto-form as Active without a per-record gate, and a steward retires stale ones; the human gate is only at promotion out of the memory tier. Field-level blueprint lives in `docs/initiatives/brain-key-schema.md`; the access and credential model in `docs/initiatives/brain-key-wiring.md`.
+
+### Context Health (Internal Curation Discipline)
+
+Context Health is the operating discipline that keeps brains useful as AI usage increases. It is internal architecture language, not the public headline. Public copy can say "clean context" or "context discipline"; this section defines how the system prevents context bloat in practice.
+
+The problem is simple: as agents and users capture more context, not all of it remains useful. Some records are gold, some are noise, and some were true last month but dangerous now. If nobody owns that routine, output quality degrades, retrieval gets noisier, costs rise, and users blame the AI instead of the context environment.
+
+The Architect owns context health for their function because they are closest to the operational truth. Engineers should not become the permanent middle layer for deciding which sales, operations, marketing, or finance details matter. Engineering builds the rails; the Architect keeps the brain truthful inside those rails.
+
+Core lifecycle:
+
+```text
+Draft Memory -> Working Memory -> Trusted Truth
+                         |-> Retired / Archived
+```
+
+- **Draft Memory** — captured or proposed context. Useful signal, not trusted truth.
+- **Working Memory** — low-risk, scoped, reversible context that agents may use with caveats inside its boundary.
+- **Trusted Truth** — human-promoted canonical context. Agents can read it, but they cannot promote into it.
+- **Retired / Archived** — removed from retrieval but kept in the paper trail unless a human approves deletion.
+
+**Hard rule:** agent automation may help with Draft and Working Memory. It must not promote anything into Trusted Truth. Trusted Truth remains a human gate.
+
+Importance scoring should live on Brain Memories, not Trusted Truth:
+
+| Importance | Meaning | Automation stance |
+| ---------- | ------- | ----------------- |
+| **1** | Low-value or highly transient | Candidate for auto-retire if unused |
+| **2-3** | Useful but bounded / low-risk | Agents may tighten wording or propose Working Memory changes within risk tolerance |
+| **4** | Important operational context | Agent may propose, human reviews before promotion or major change |
+| **5** | Load-bearing rule, policy, public claim, money, client impact, or live-user consequence | Human review required; Pam gate where appropriate |
+
+Risk tolerance should be configurable per brain and should scale with maturity:
+
+| Mode | Use when | Curator latitude |
+| ---- | -------- | ---------------- |
+| **Conservative** | new brain, sensitive domain, weak evidence, or low user confidence | propose-only except obvious retire candidates |
+| **Balanced** | Working Brain with routine usage and clear owner | may update 1-3 importance Working Memory, with audit trail |
+| **Assertive** | mature brain, low-risk domain, strong feedback loops | may auto-tighten and auto-retire low-importance records, still no Trusted Truth promotion |
+
+The curation loop:
+
+1. **Capture** — new context enters as Draft Memory, Source Document summary, Brain Interaction signal, or human note.
+2. **Score** — assign importance, domain, freshness, and risk.
+3. **Tighten** — improve wording, source links, examples, and scope boundaries.
+4. **Retire** — remove stale or low-value material from retrieval; keep archive/audit trail.
+5. **Promote** — only a human promotes to Trusted Truth.
+
+Agent telemetry should support the routine. When an agent uses context to answer, the system should record which Brain Memory or Trusted Truth rows were touched. Brain Interactions should be able to show:
+
+- response ID
+- agent / persona
+- brain slug and scope
+- memory or truth records touched
+- user score or feedback
+- suspected context issue
+- proposed curation action
+
+Poor user feedback should not directly rewrite trusted context. It should trigger a curation workflow: identify the likely bad context, propose a fix, and route the action based on importance and risk. For low-importance Working Memory, the Curator may tighten or retire inside the configured tolerance. For Trusted Truth, load-bearing records, or uncertain fixes, the item goes to human review.
+
+Auto-retire is allowed only below the trust line. A sensible default:
+
+```text
+If an importance-1 Working Memory has not been referenced, amended, or positively reinforced for 14 days,
+move it out of retrieval into Retired / Archived, with source, reason, timestamp, and rollback route.
+```
+
+Do not use "delete forever" as the system behaviour for context bloat. Retirement removes bloat from retrieval while preserving reviewability.
+
+Implementation notes:
+
+- **Product surface (Phase 1, demo data):** `/brain/health#context-health` tab and Pam desk station expose importance mix, per-brain risk tolerance (session-only in demo), and a retire queue with propose-only + paper trail. `/command/pam` shows an inline bloat summary in Pam's challenger voice. Types and demo seed: `website/src/lib/platform/brain-health.ts`; UI: `BrainHealthShell`, `PamDeskRoom`.
+- Clive's Man owns the stewardship lane and orchestrates Proposer -> Challenger -> Executor for context-health actions.
+- One tightly scoped Curator may exist per brain theme or brain base, but it should be treated as a Clive's Man lane/minion unless Matthew approves a separate product agent.
+- Any schema work for memory usage telemetry belongs in `docs/initiatives/brain-key-schema.md`.
+- Any credential, grant, or runtime permission change belongs in `docs/initiatives/brain-key-wiring.md`.
+- Context Health must respect Rule 1 (Agents Propose, Humans Approve), Rule 7 (runtime does not own the brain), and Rule 9 (paper trail matters).
 
 ---
 

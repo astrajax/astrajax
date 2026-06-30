@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { InteractionReviewShell } from "@/components/brain/InteractionReviewShell";
 import type { Metadata } from "next";
 
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function BrainReviewPage() {
-  return <InteractionReviewShell />;
+  return (
+    <Suspense fallback={<p className="p-10 text-sm text-ink-muted">Loading review…</p>}>
+      <InteractionReviewShell />
+    </Suspense>
+  );
 }

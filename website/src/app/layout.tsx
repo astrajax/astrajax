@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { GlobalCliveLauncher } from "@/components/GlobalCliveLauncher";
+import { StoryModeProvider } from "@/components/command-centre/StoryModeProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -50,8 +51,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(inter.variable, "font-sans")}>
       <body className={cn(inter.className, "antialiased")}>
-        {children}
-        <GlobalCliveLauncher />
+        <StoryModeProvider>
+          {children}
+          <GlobalCliveLauncher />
+        </StoryModeProvider>
       </body>
     </html>
   );

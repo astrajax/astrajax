@@ -2,7 +2,7 @@
 
 **Status:** Replicable schema reference (context-agnostic)  
 **Owner:** Matthew  
-**Last updated:** 29 June 2026  
+**Last updated:** 29 June 2026 (Context Health Phase 2 schema pending)  
 **Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance), [`chapter1-context-structure.md`](./chapter1-context-structure.md) (canonical brain themes + categories), [`doc-brain-base-builder.md`](./doc-brain-base-builder.md) (scaffold/extend bases via Doc Brain Base Builder)
 
 Any agent (especially **@doc-brain-base-builder**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
@@ -369,6 +369,29 @@ Primary field: **Memory Text** (singleLineText). **Working brain recall** — sh
 | Last Reviewed | date | ISO date |
 | Proposed By Agent | singleLineText | e.g. clive-man |
 | Source Notes | multilineText | Interaction ID, digest link, or human note |
+
+**Phase 2 — Context Health fields (pending, 29 Jun 2026):** Not yet in live Airtable. Phase 1 product UI uses demo data only (`website/src/lib/platform/brain-health.ts`). Add via `@doc-brain-base-builder` when Matthew approves schema work:
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Importance | number (1–5) | Curation score — see `architecture.md` §7 Context Health |
+| Lifecycle | singleSelect | Draft, Working, Trusted, Retired — maps to §7 lifecycle (display "Working" for legacy Active rows) |
+| Last Referenced At | dateTime | Agent telemetry — when memory was last used in a response |
+| Retire Eligible At | dateTime | Optional — when auto-retire rule first flagged the row |
+| Usage Count | number (integer) | Times referenced in agent responses (telemetry) |
+
+**Registry Brains — Phase 2 pending:**
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Risk Tolerance | singleSelect | Conservative, Balanced, Assertive — curator latitude per brain |
+
+**Brain Interactions — Phase 2 pending (telemetry):**
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Memory Records Touched | multilineText | Comma-separated Brain Memory record IDs used in the response |
+| Truth Records Touched | multilineText | Comma-separated Trusted Brain Truth record IDs used in the response |
 
 **Promotion (one direction only):** Brain Memory → Workshop **Draft Brain Truth** → Trusted **Brain Truth**. Never Persona Memory → Brain Memory without human review at promote boundary.
 

@@ -1,5 +1,6 @@
 import {
   isFallbackManifest,
+  matchesActionProposedShortlist,
   matchesNeedsReviewShortlist,
 } from "../interaction-upkeep";
 import type {
@@ -44,22 +45,34 @@ export function addMemoryInteraction(entry: InteractionLogBody): MemoryInteracti
   return stored;
 }
 
+type MemoryInteractionListFilter = {
+  shortlist?: boolean;
+  actionProposed?: boolean;
+};
+
 export function listMemoryInteractions(
   brainSlug: string,
   limit: number,
-  shortlist = false,
+  filter: MemoryInteractionListFilter | boolean = false,
 ): InteractionSummary[] {
+  const { shortlist = false, actionProposed = false } =
+    typeof filter === "boolean" ? { shortlist: filter } : filter;
+
   return [...memoryInteractions.values()]
     .filter((row) => row.brainSlug === brainSlug)
-    .filter((row) =>
-      shortlist
-        ? matchesNeedsReviewShortlist({
-            qualityScore: row.qualityScore,
-            suspectedContextIssue: row.suspectedContextIssue,
-            reviewStatus: row.reviewStatus,
-          })
-        : true,
-    )
+    .filter((row) => {
+      if (actionProposed) {
+        return matchesActionProposedShortlist({ reviewStatus: row.reviewStatus });
+      }
+      if (shortlist) {
+        return matchesNeedsReviewShortlist({
+          qualityScore: row.qualityScore,
+          suspectedContextIssue: row.suspectedContextIssue,
+          reviewStatus: row.reviewStatus,
+        });
+      }
+      return true;
+    })
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
     .slice(0, limit)
     .map(toSummary);

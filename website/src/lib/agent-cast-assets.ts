@@ -211,6 +211,10 @@ export function castHeroByProduct(slug: FoundingCastProductSlug): string | undef
   return castHeroSrc(PRODUCT_TO_ASSET_SLUG[slug]);
 }
 
+export function castHeroVideoByProduct(slug: FoundingCastProductSlug): string | undefined {
+  return castHeroVideoSrc(PRODUCT_TO_ASSET_SLUG[slug]);
+}
+
 /** Public URL for a named animation variant, when registered. */
 export function castAnimationSrc(
   slug: CastAssetSlug,

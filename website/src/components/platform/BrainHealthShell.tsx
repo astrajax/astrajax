@@ -1,22 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { PlatformNav } from "@/components/platform/PlatformNav";
 import {
   DEFAULT_BRAIN_HEALTH,
   EFFICIENCY_CREDIT_TABLE,
+  getImportanceDistribution,
+  getRetireCandidates,
+  LIFECYCLE_LABELS,
   MATURITY_LADDER,
   maturityIndex,
   maturityLabel,
+  MEMORY_STATUS_DISPLAY,
+  RISK_TOLERANCE_OPTIONS,
   type BrainHealthSnapshot,
+  type BrainMemoryLifecycle,
   type BrainMemoryRow,
+  type MemoryImportance,
   type PaperTrailLine,
+  type RiskTolerance,
 } from "@/lib/platform/brain-health";
 
-type HealthTab = "overview" | "truths-memories";
+type HealthTab = "overview" | "truths-memories" | "context-health";
 
 function formatWhen(iso: string): string {
   try {
@@ -27,6 +35,38 @@ function formatWhen(iso: string): string {
   } catch {
     return iso;
   }
+}
+
+function MemoryMetaPills({
+  importance,
+  lifecycle,
+  status,
+}: {
+  importance: MemoryImportance;
+  lifecycle: BrainMemoryLifecycle;
+  status: BrainMemoryRow["status"];
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="status-pill status-pill--pending" title="Importance score (1–5)">
+        Importance {importance}/5
+      </span>
+      <span
+        className={`status-pill ${
+          lifecycle === "retired"
+            ? "status-pill--pending"
+            : lifecycle === "trusted"
+              ? "status-pill--live"
+              : "status-pill--clean"
+        }`}
+      >
+        {LIFECYCLE_LABELS[lifecycle]}
+      </span>
+      {status !== "draft" ? (
+        <span className="text-xs text-ink-muted">{MEMORY_STATUS_DISPLAY[status]}</span>
+      ) : null}
+    </div>
+  );
 }
 
 function PaperTrailList({ lines }: { lines: PaperTrailLine[] }) {
@@ -96,7 +136,11 @@ function MemoryPromoteRow({
   if (memory.status === "draft") {
     return (
       <article className="card p-4 opacity-80">
-        <span className="status-pill status-pill--pending">Draft memory</span>
+        <MemoryMetaPills
+          importance={memory.importance}
+          lifecycle={memory.lifecycle}
+          status={memory.status}
+        />
         <h3 className="mt-2 font-display font-semibold text-ink">{memory.title}</h3>
         <p className="mt-1 text-sm text-ink-muted">{memory.summary}</p>
         <p className="mt-2 text-xs text-ink-muted">Not yet eligible for promote; resolve workshop status first.</p>
@@ -107,7 +151,12 @@ function MemoryPromoteRow({
   if (promoted) {
     return (
       <article className="card p-4 border-sage/30" aria-live="polite">
-        <span className="status-pill status-pill--live">Queued for truth review (Workshop)</span>
+        <MemoryMetaPills
+          importance={memory.importance}
+          lifecycle={memory.lifecycle}
+          status={memory.status}
+        />
+        <span className="mt-2 inline-block status-pill status-pill--live">Queued for truth review (Workshop)</span>
         <h3 className="mt-2 font-display font-semibold text-ink">{memory.title}</h3>
         <p className="mt-1 text-sm text-ink-muted">{memory.summary}</p>
       </article>
@@ -116,7 +165,11 @@ function MemoryPromoteRow({
 
   return (
     <article className="card p-4">
-      <span className="status-pill status-pill--clean">Active memory</span>
+      <MemoryMetaPills
+        importance={memory.importance}
+        lifecycle={memory.lifecycle}
+        status={memory.status}
+      />
         <h3 className="mt-2 font-display font-semibold text-ink">{memory.title}</h3>
       <p className="mt-1 text-sm text-ink-muted">{memory.summary}</p>
       {memory.linkedTruthTitle ? (
@@ -157,11 +210,207 @@ function MemoryPromoteRow({
   );
 }
 
+function MemoryRetireRow({
+  memory,
+  onRetire,
+  paperTrail,
+}: {
+  memory: BrainMemoryRow;
+  onRetire: (memoryId: string, actor: string) => void;
+  paperTrail: PaperTrailLine[];
+}) {
+  const [actor, setActor] = useState("");
+  const [retired, setRetired] = useState(memory.lifecycle === "retired");
+
+  if (retired) {
+    return (
+      <article className="card p-4 opacity-80" aria-live="polite">
+        <MemoryMetaPills
+          importance={memory.importance}
+          lifecycle="retired"
+          status={memory.status}
+        />
+        <h3 className="mt-2 font-display font-semibold text-ink">{memory.title}</h3>
+        <p className="mt-1 text-sm text-ink-muted">{memory.summary}</p>
+        <p className="mt-2 text-xs text-ink-muted">
+          Retired from retrieval — paper trail preserved. Demo session only.
+        </p>
+        <PaperTrailList lines={paperTrail} />
+      </article>
+    );
+  }
+
+  return (
+    <article className="card p-4">
+      <MemoryMetaPills
+        importance={memory.importance}
+        lifecycle={memory.lifecycle}
+        status={memory.status}
+      />
+      <h3 className="mt-2 font-display font-semibold text-ink">{memory.title}</h3>
+      <p className="mt-1 text-sm text-ink-muted">{memory.summary}</p>
+      {memory.lastReferencedAt ? (
+        <p className="mt-2 text-xs text-ink-muted">
+          Last referenced: {formatWhen(memory.lastReferencedAt)}
+        </p>
+      ) : null}
+      <div className="mt-4 rounded-xl border border-apricot/20 bg-apricot/5 p-3">
+        <p className="text-xs text-ink-muted">
+          Human gate: propose retire removes this memory from retrieval. Nothing is deleted — audit trail stays. Trusted Truth is untouched.
+        </p>
+        <label className="mt-3 block text-sm" htmlFor={`memory-retire-actor-${memory.id}`}>
+          <span className="section-label mb-1 block">Your name</span>
+          <input
+            id={`memory-retire-actor-${memory.id}`}
+            name="memoryRetireActor"
+            type="text"
+            value={actor}
+            onChange={(e) => setActor(e.target.value)}
+            autoComplete="off"
+            spellCheck={false}
+            className="w-full rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm"
+            placeholder="Who is approving this retire?…"
+          />
+        </label>
+        <button
+          type="button"
+          disabled={!actor.trim()}
+          onClick={() => {
+            onRetire(memory.id, actor.trim());
+            setRetired(true);
+          }}
+          className="btn-primary mt-3 text-sm disabled:opacity-60"
+        >
+          Propose retire from retrieval
+        </button>
+      </div>
+      <PaperTrailList lines={paperTrail} />
+    </article>
+  );
+}
+
+function ContextHealthPanel({
+  memories,
+  riskTolerance,
+  onRiskToleranceChange,
+  onRetire,
+  paperTrails,
+}: {
+  memories: BrainMemoryRow[];
+  riskTolerance: RiskTolerance;
+  onRiskToleranceChange: (value: RiskTolerance) => void;
+  onRetire: (memoryId: string, actor: string) => void;
+  paperTrails: Record<string, PaperTrailLine[]>;
+}) {
+  const importanceMix = useMemo(() => getImportanceDistribution(memories), [memories]);
+  const retireCandidates = useMemo(() => getRetireCandidates(memories), [memories]);
+  const lowImportanceCount = importanceMix[1] + importanceMix[2];
+
+  return (
+    <div className="platform-grid" id="context-health">
+      <section className="card p-5 sm:col-span-2">
+        <p className="section-label">Context Health</p>
+        <h2 className="font-display mt-2 text-xl font-semibold text-ink">
+          Spot bloat before it poisons answers
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-ink-muted">
+          Pam fronts this routine — importance scoring, lifecycle discipline, and a retire queue. Agents may propose;{" "}
+          <strong className="font-medium text-ink">The Architect</strong> decides what becomes Trusted Truth.
+        </p>
+        <p className="mt-2 text-xs text-ink-muted">
+          Demo data. Risk tolerance and retire actions update this session only.
+        </p>
+      </section>
+
+      <section className="card p-5">
+        <p className="section-label">Importance mix</p>
+        <p className="mt-1 text-xs text-ink-muted">Active memories by score (retired excluded)</p>
+        <ul className="mt-4 space-y-2">
+          {([5, 4, 3, 2, 1] as MemoryImportance[]).map((score) => (
+            <li key={score} className="flex items-center justify-between text-sm">
+              <span className="text-ink">
+                {score}/5
+                {score === 1 ? " — auto-retire candidate if unused" : ""}
+              </span>
+              <span className="font-medium text-ink">{importanceMix[score]}</span>
+            </li>
+          ))}
+        </ul>
+        {lowImportanceCount >= 3 ? (
+          <p className="mt-4 rounded-lg border border-apricot/20 bg-apricot/5 p-3 text-xs text-ink-muted">
+            {lowImportanceCount} low-importance memories still in retrieval. Worth a tighten pass before the next demo.
+          </p>
+        ) : null}
+      </section>
+
+      <section className="card p-5">
+        <p className="section-label">Risk tolerance</p>
+        <p className="mt-1 text-xs text-ink-muted">Per-brain curator latitude (session-only in demo)</p>
+        <fieldset className="mt-4 space-y-3">
+          <legend className="sr-only">Risk tolerance mode</legend>
+          {RISK_TOLERANCE_OPTIONS.map((option) => (
+            <label
+              key={option.value}
+              className={`flex cursor-pointer gap-3 rounded-xl border p-3 text-sm transition-colors ${
+                riskTolerance === option.value
+                  ? "border-apricot/40 bg-apricot/5"
+                  : "border-ink/10 hover:border-ink/20"
+              }`}
+            >
+              <input
+                type="radio"
+                name="riskTolerance"
+                value={option.value}
+                checked={riskTolerance === option.value}
+                onChange={() => onRiskToleranceChange(option.value)}
+                className="mt-1"
+              />
+              <span>
+                <span className="font-display font-semibold text-ink">{option.label}</span>
+                <span className="mt-1 block text-ink-muted">{option.description}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+      </section>
+
+      <section className="sm:col-span-2">
+        <h2 className="section-label mb-1">Retire queue</h2>
+        <p className="mb-3 text-xs text-ink-muted">
+          Importance-1 Working Memory unused 14+ days — propose retire, not delete. Paper trail preserved.
+        </p>
+        {retireCandidates.length === 0 ? (
+          <p className="card p-4 text-sm text-ink-muted">No retire candidates right now. Context looks tight enough.</p>
+        ) : (
+          <ul className="space-y-3">
+            {retireCandidates.map((memory) => (
+              <li key={memory.id}>
+                <MemoryRetireRow
+                  memory={memory}
+                  onRetire={onRetire}
+                  paperTrail={paperTrails[memory.id] ?? []}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+}
+
 export function BrainHealthShell() {
   const [snapshot] = useState<BrainHealthSnapshot>(DEFAULT_BRAIN_HEALTH);
   const [tab, setTab] = useState<HealthTab>("overview");
   const [memories, setMemories] = useState(snapshot.memories);
+  const [riskTolerance, setRiskTolerance] = useState<RiskTolerance>(snapshot.riskTolerance);
   const [paperTrails, setPaperTrails] = useState<Record<string, PaperTrailLine[]>>({});
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash === "#context-health") {
+      setTab("context-health");
+    }
+  }, []);
 
   const nextStep = useMemo(
     () => MATURITY_LADDER.find((s) => s.level === snapshot.nextLevel),
@@ -181,6 +430,28 @@ export function BrainHealthShell() {
       action: "Promoted memory to Brain Truth (Workshop proposal)",
       actor,
       reason: `Human gate: "${memory.title}" queued for truth review.`,
+      timestamp: new Date().toISOString(),
+    };
+
+    setPaperTrails((prev) => ({
+      ...prev,
+      [memoryId]: [...(prev[memoryId] ?? []), line],
+    }));
+  }, [memories]);
+
+  const handleRetire = useCallback((memoryId: string, actor: string) => {
+    const memory = memories.find((m) => m.id === memoryId);
+    if (!memory) return;
+
+    setMemories((prev) =>
+      prev.map((m) => (m.id === memoryId ? { ...m, lifecycle: "retired" as const } : m)),
+    );
+
+    const line: PaperTrailLine = {
+      id: `pt-mem-retire-${Date.now()}`,
+      action: "Proposed retire from retrieval",
+      actor,
+      reason: `Human gate: "${memory.title}" moved to Retired — audit trail preserved, not deleted.`,
       timestamp: new Date().toISOString(),
     };
 
@@ -236,6 +507,14 @@ export function BrainHealthShell() {
               onClick={() => setTab("truths-memories")}
             >
               Truths + memories
+            </button>
+            <button
+              type="button"
+              aria-pressed={tab === "context-health"}
+              className={`platform-tabs__btn${tab === "context-health" ? " platform-tabs__btn--active" : ""}`}
+              onClick={() => setTab("context-health")}
+            >
+              Context Health
             </button>
           </div>
 
@@ -356,7 +635,7 @@ export function BrainHealthShell() {
                 </ul>
               </section>
             </div>
-          ) : (
+          ) : tab === "truths-memories" ? (
             <div className="platform-grid">
               <section className="sm:col-span-2">
                 <h2 className="section-label mb-3">Brain truths</h2>
@@ -391,6 +670,14 @@ export function BrainHealthShell() {
                 </ul>
               </section>
             </div>
+          ) : (
+            <ContextHealthPanel
+              memories={memories}
+              riskTolerance={riskTolerance}
+              onRiskToleranceChange={setRiskTolerance}
+              onRetire={handleRetire}
+              paperTrails={paperTrails}
+            />
           )}
 
           <p className="mt-8 text-sm text-ink-muted">

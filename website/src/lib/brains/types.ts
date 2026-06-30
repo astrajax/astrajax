@@ -131,6 +131,8 @@ export interface InteractionListQuery {
   limit?: number;
   /** When true, return only low-score or context-flagged items needing attention. */
   shortlist?: boolean;
+  /** When true, return only Clive's Man upkeep proposals awaiting triage. */
+  actionProposed?: boolean;
 }
 
 export type InteractionUpkeepAction = "propose" | "dismiss";

@@ -12,6 +12,7 @@ export async function GET(request: Request) {
       brainSlug: searchParams.get("brainSlug") ?? "",
       limit: searchParams.get("limit") ? Number(searchParams.get("limit")) : undefined,
       shortlist: searchParams.get("shortlist") === "true",
+      actionProposed: searchParams.get("actionProposed") === "true",
     };
     const result = await handleInteractionList(query);
     return jsonOk(result);

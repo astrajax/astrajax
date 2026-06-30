@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { CHAPTER1_BRAIN_SLUG } from "@/lib/brains/airtable-ids";
@@ -8,7 +9,14 @@ import type { InteractionSummary } from "@/lib/brains/types";
 
 const REVIEWER_STORAGE_KEY = "astrajax-interaction-reviewer";
 
-type ReviewView = "all" | "needsReview";
+type ReviewView = "all" | "needsReview" | "actionProposed";
+
+function parseReviewViewParam(value: string | null): ReviewView | null {
+  if (value === "actionProposed" || value === "all" || value === "needsReview") {
+    return value;
+  }
+  return null;
+}
 
 async function fetchInteractions(
   brainSlug: string,
@@ -16,6 +24,7 @@ async function fetchInteractions(
 ): Promise<InteractionSummary[]> {
   const params = new URLSearchParams({ brainSlug, limit: "25" });
   if (view === "needsReview") params.set("shortlist", "true");
+  if (view === "actionProposed") params.set("actionProposed", "true");
   const response = await fetch(`/api/brains/interactions/list?${params.toString()}`);
   const data = (await response.json()) as { interactions?: InteractionSummary[]; error?: string };
   if (!response.ok) throw new Error(data.error ?? "Could not load interactions.");
@@ -375,7 +384,7 @@ function InteractionCard({
 
       <ManifestBlock interaction={interaction} />
 
-      {view === "needsReview" ? (
+      {view === "needsReview" || view === "actionProposed" ? (
         <UpkeepActions
           interaction={interaction}
           brainSlug={brainSlug}
@@ -395,12 +404,18 @@ function InteractionCard({
 }
 
 export function InteractionReviewShell() {
+  const searchParams = useSearchParams();
   const brainSlug = CHAPTER1_BRAIN_SLUG;
   const [reviewer, setReviewer] = useState("");
   const [view, setView] = useState<ReviewView>("needsReview");
   const [interactions, setInteractions] = useState<InteractionSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fromUrl = parseReviewViewParam(searchParams.get("view"));
+    if (fromUrl) setView(fromUrl);
+  }, [searchParams]);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(REVIEWER_STORAGE_KEY);
@@ -441,7 +456,11 @@ export function InteractionReviewShell() {
 
   const handleUpdated = (updated: InteractionSummary) => {
     setInteractions((prev) => {
-      if (view === "needsReview" && updated.reviewStatus === "No action") {
+      if (
+        (view === "needsReview" && updated.reviewStatus === "No action") ||
+        (view === "actionProposed" &&
+          updated.reviewStatus !== "Action proposed")
+      ) {
         return prev.filter((row) => row.recordId !== updated.recordId);
       }
       return prev.map((row) => (row.recordId === updated.recordId ? updated : row));
@@ -460,10 +479,12 @@ export function InteractionReviewShell() {
           Review past Clive and Pam interactions for your brain. Score each answer 1–5,
           add notes, and flag anything that looks like a context problem. The{" "}
           <strong className="font-medium text-ink">Needs review</strong> tab shows low scores
-          and suspected context issues — so you are not asked to triage everything.
+          and suspected context issues — so you are not asked to triage everything.{" "}
+          <strong className="font-medium text-ink">Outstanding actions</strong> lists Clive&apos;s
+          Man proposals already awaiting your approve or dismiss.
         </p>
 
-        <div className="mt-6 flex gap-2">
+        <div className="mt-6 flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setView("needsReview")}
@@ -474,6 +495,17 @@ export function InteractionReviewShell() {
             }`}
           >
             Needs review
+          </button>
+          <button
+            type="button"
+            onClick={() => setView("actionProposed")}
+            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              view === "actionProposed"
+                ? "bg-apricot text-white"
+                : "border border-ink/15 bg-white text-ink hover:border-apricot"
+            }`}
+          >
+            Outstanding actions
           </button>
           <button
             type="button"
@@ -504,7 +536,11 @@ export function InteractionReviewShell() {
             {!loading ? (
               <span>
                 {interactions.length} loaded
-                {view === "all" ? ` · ${pendingCount} awaiting score` : " in shortlist"}
+                {view === "all"
+                  ? ` · ${pendingCount} awaiting score`
+                  : view === "actionProposed"
+                    ? " proposals"
+                    : " in shortlist"}
               </span>
             ) : null}
             <button type="button" onClick={() => void load()} className="btn-secondary py-2 text-xs">
@@ -520,7 +556,9 @@ export function InteractionReviewShell() {
           <p className="mt-8 rounded-2xl border border-dashed border-ink/15 bg-white p-6 text-sm text-ink-muted">
             {view === "needsReview"
               ? "Nothing on the shortlist right now — no low scores or context flags awaiting attention."
-              : "No interactions logged yet for this brain. Ask Clive or Pam a question first — then come back here to score the answer."}
+              : view === "actionProposed"
+                ? "No outstanding actions — Clive's Man has not proposed any context repairs awaiting triage."
+                : "No interactions logged yet for this brain. Ask Clive or Pam a question first — then come back here to score the answer."}
           </p>
         ) : null}
 

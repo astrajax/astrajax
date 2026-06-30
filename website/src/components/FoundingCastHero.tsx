@@ -3,6 +3,10 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
+import { PortraitDoor } from "@/components/command-centre/PortraitDoor";
+import { useStoryMode } from "@/components/command-centre/StoryModeProvider";
+import type { CommandRoomSlug } from "@/lib/command-centre/rooms";
+import { consumeReturnPortrait, focusPortraitDoor } from "@/lib/command-centre/focus-restore";
 import { foundingCastHeroTriptych } from "@/lib/agent-cast-assets";
 
 /** Caption fade-in order (left-to-right): Pam, then Clive, then Doc — quick staggered. */
@@ -30,6 +34,18 @@ const HERO_ROLE: Record<string, string> = {
 
 const triptych = foundingCastHeroTriptych();
 const [doc, clive, pam] = triptych;
+
+const ASSET_TO_PRODUCT: Record<string, CommandRoomSlug> = {
+  "clive-wigglesworth": "clive",
+  "doc-albright": "doc",
+  "pam-portiscue": "pam",
+};
+
+const DOOR_HINT: Record<CommandRoomSlug, string> = {
+  clive: "Enter Clive's study — reasoning and context",
+  doc: "Enter Doc's workshop — agent building",
+  pam: "Enter Pam's desk — brain bases and challenge",
+};
 
 function usePrefersReducedMotion() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -189,6 +205,7 @@ function CastPortrait({
   eagerPreload,
   seamlessLoop,
   prefersReducedMotion,
+  portraitDoorsEnabled,
 }: {
   entry: CastEntry;
   displayName: string;
@@ -197,10 +214,12 @@ function CastPortrait({
   eagerPreload?: boolean;
   seamlessLoop?: boolean;
   prefersReducedMotion: boolean;
+  portraitDoorsEnabled: boolean;
 }) {
   const role = HERO_ROLE[entry.slug] ?? entry.role;
+  const productSlug = ASSET_TO_PRODUCT[entry.slug];
 
-  return (
+  const portrait = (
     <figure className="hero-portrait">
       <PortraitFrame
         posterSrc={entry.src}
@@ -217,16 +236,65 @@ function CastPortrait({
       <PortraitCaption name={displayName} role={role} delay={CAPTION_DELAY[entry.slug]} />
     </figure>
   );
+
+  if (portraitDoorsEnabled && productSlug) {
+    return (
+      <PortraitDoor
+        mode="navigate"
+        character={productSlug}
+        ariaLabel={DOOR_HINT[productSlug]}
+        className="hero-portrait-door-wrap"
+      >
+        {portrait}
+      </PortraitDoor>
+    );
+  }
+
+  return portrait;
+}
+
+function CommandCentreHint({ enabled }: { enabled: boolean }) {
+  if (!enabled) return null;
+  return (
+    <p className="hero-command-centre-hint">
+      Click a portrait to step inside — or switch to Light story for the flat directory below.
+    </p>
+  );
 }
 
 export function FoundingCastHero() {
   const prefersReducedMotion = usePrefersReducedMotion();
+  const { portraitDoorsEnabled } = useStoryMode();
+
+  useEffect(() => {
+    if (!portraitDoorsEnabled) return;
+    const slug = consumeReturnPortrait();
+    if (!slug) return;
+    focusPortraitDoor(slug);
+  }, [portraitDoorsEnabled]);
 
   return (
     <div className="hero-asymmetric-wall w-full" aria-label="Founding cast portraits">
       <p className="sr-only">
         Founding cast: {triptych.map((c) => c.name).join(", ")}
+        {portraitDoorsEnabled
+          ? ". Each portrait opens that character's command centre room."
+          : ""}
       </p>
+      <CommandCentreHint enabled={portraitDoorsEnabled} />
+      <noscript>
+        <ul className="hero-command-centre-fallback">
+          <li>
+            <a href="/command/clive">Clive&apos;s study</a>
+          </li>
+          <li>
+            <a href="/command/doc">Doc&apos;s workshop</a>
+          </li>
+          <li>
+            <a href="/command/pam">Pam&apos;s desk</a>
+          </li>
+        </ul>
+      </noscript>
 
       {/* Desktop: asymmetric composition — Clive centre, Pam lower-left, Doc upper-right */}
       <div className="hero-asymmetric-wall__desktop hidden lg:block">
@@ -239,6 +307,7 @@ export function FoundingCastHero() {
               eagerPreload
               seamlessLoop
               prefersReducedMotion={prefersReducedMotion}
+              portraitDoorsEnabled={portraitDoorsEnabled}
             />
           </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--clive">
@@ -248,17 +317,21 @@ export function FoundingCastHero() {
               sizes="(min-width: 1536px) 40vw, (min-width: 1024px) 40vw, 92vw"
               priority
               prefersReducedMotion={prefersReducedMotion}
+              portraitDoorsEnabled={portraitDoorsEnabled}
             />
           </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc">
-            <HeroWallBrand />
             <CastPortrait
               entry={doc}
               displayName={doc.name}
               sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 40vw"
               eagerPreload
               prefersReducedMotion={prefersReducedMotion}
+              portraitDoorsEnabled={portraitDoorsEnabled}
             />
+          </div>
+          <div className="hero-asymmetric-wall__brand-float" aria-hidden={false}>
+            <HeroWallBrand />
           </div>
         </div>
       </div>
@@ -271,6 +344,7 @@ export function FoundingCastHero() {
           sizes="94vw"
           priority
           prefersReducedMotion={prefersReducedMotion}
+          portraitDoorsEnabled={portraitDoorsEnabled}
         />
         <div className="hero-asymmetric-wall__mobile-flanks grid grid-cols-2 gap-3 sm:gap-3.5">
           <div className="hero-asymmetric-wall__pam-mobile flex flex-col items-center">
@@ -282,6 +356,7 @@ export function FoundingCastHero() {
               eagerPreload
               seamlessLoop
               prefersReducedMotion={prefersReducedMotion}
+              portraitDoorsEnabled={portraitDoorsEnabled}
             />
           </div>
           <CastPortrait
@@ -290,6 +365,7 @@ export function FoundingCastHero() {
             sizes="46vw"
             eagerPreload
             prefersReducedMotion={prefersReducedMotion}
+            portraitDoorsEnabled={portraitDoorsEnabled}
           />
         </div>
       </div>

@@ -1,6 +1,7 @@
 import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
 import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
 import {
+  buildActionProposedFormula,
   buildNeedsReviewFormula,
   isFallbackManifest,
   parseManifestRecordIds,
@@ -23,9 +24,12 @@ export async function handleInteractionList(query: InteractionListQuery) {
 
   const limit = clampLimit(query.limit);
   const shortlist = Boolean(query.shortlist);
+  const actionProposed = Boolean(query.actionProposed);
 
   if (useMemoryStore()) {
-    return { interactions: listMemoryInteractions(brainSlug, limit, shortlist) };
+    return {
+      interactions: listMemoryInteractions(brainSlug, limit, { shortlist, actionProposed }),
+    };
   }
 
   const workshopBaseId = getWorkshopBaseId();
@@ -37,9 +41,11 @@ export async function handleInteractionList(query: InteractionListQuery) {
     throw new Error("Workshop interaction list is not configured.");
   }
 
-  const formula = shortlist
-    ? buildNeedsReviewFormula(brainSlug)
-    : `{Brain Slug}='${escapeFormulaValue(brainSlug)}'`;
+  const formula = actionProposed
+    ? buildActionProposedFormula(brainSlug)
+    : shortlist
+      ? buildNeedsReviewFormula(brainSlug)
+      : `{Brain Slug}='${escapeFormulaValue(brainSlug)}'`;
   const url =
     `https://api.airtable.com/v0/${workshopBaseId}/${tableId}` +
     `?filterByFormula=${encodeURIComponent(formula)}` +

@@ -4,8 +4,11 @@ import { handleInteractionLog, clearMemoryInteractionLogsForTests } from "./inte
 import { handleInteractionList } from "./interaction-list";
 import { handleInteractionScore } from "./interaction-score";
 import {
+  buildActionProposedFormula,
+  buildNeedsReviewFormula,
   isFallbackManifest,
   isFallbackRecordId,
+  matchesActionProposedShortlist,
   matchesNeedsReviewShortlist,
   resolveReviewFieldsAfterScore,
 } from "../interaction-upkeep";
@@ -46,6 +49,16 @@ describe("interaction-upkeep helpers", () => {
     expect(matchesNeedsReviewShortlist({ qualityScore: 2, reviewStatus: "No action" })).toBe(
       false,
     );
+  });
+
+  it("matches action proposed shortlist", () => {
+    expect(matchesActionProposedShortlist({ reviewStatus: "Action proposed" })).toBe(true);
+    expect(matchesActionProposedShortlist({ reviewStatus: "Reviewed" })).toBe(false);
+  });
+
+  it("builds action proposed formula", () => {
+    expect(buildActionProposedFormula("chapter-1")).toContain("Action proposed");
+    expect(buildActionProposedFormula("chapter-1")).toContain("chapter-1");
   });
 });
 
