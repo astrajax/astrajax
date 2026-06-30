@@ -133,6 +133,24 @@ function MemoryPromoteRow({
   const [actor, setActor] = useState("");
   const [promoted, setPromoted] = useState(memory.status === "promoted");
 
+  if (memory.lifecycle === "retired") {
+    return (
+      <article className="card p-4 opacity-80" aria-live="polite">
+        <MemoryMetaPills
+          importance={memory.importance}
+          lifecycle="retired"
+          status={memory.status}
+        />
+        <h3 className="mt-2 font-display font-semibold text-ink">{memory.title}</h3>
+        <p className="mt-1 text-sm text-ink-muted">{memory.summary}</p>
+        <p className="mt-2 text-xs text-ink-muted">
+          Retired from retrieval — not eligible for promote. Paper trail preserved.
+        </p>
+        <PaperTrailList lines={paperTrail} />
+      </article>
+    );
+  }
+
   if (memory.status === "draft") {
     return (
       <article className="card p-4 opacity-80">
@@ -372,6 +390,10 @@ function ContextHealthPanel({
             </label>
           ))}
         </fieldset>
+        <p className="mt-4 text-xs text-ink-muted">
+          Session-only in this demo — your choice is remembered until you reload. It does not change
+          retire rules or auto-curation until Phase 3 curator automation.
+        </p>
       </section>
 
       <section className="sm:col-span-2">
@@ -407,9 +429,16 @@ export function BrainHealthShell() {
   const [paperTrails, setPaperTrails] = useState<Record<string, PaperTrailLine[]>>({});
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hash === "#context-health") {
-      setTab("context-health");
+    function syncTabFromHash() {
+      if (typeof window === "undefined") return;
+      if (window.location.hash === "#context-health") {
+        setTab("context-health");
+      }
     }
+
+    syncTabFromHash();
+    window.addEventListener("hashchange", syncTabFromHash);
+    return () => window.removeEventListener("hashchange", syncTabFromHash);
   }, []);
 
   const nextStep = useMemo(
@@ -512,7 +541,12 @@ export function BrainHealthShell() {
               type="button"
               aria-pressed={tab === "context-health"}
               className={`platform-tabs__btn${tab === "context-health" ? " platform-tabs__btn--active" : ""}`}
-              onClick={() => setTab("context-health")}
+              onClick={() => {
+                setTab("context-health");
+                if (typeof window !== "undefined") {
+                  window.history.replaceState(null, "", "#context-health");
+                }
+              }}
             >
               Context Health
             </button>

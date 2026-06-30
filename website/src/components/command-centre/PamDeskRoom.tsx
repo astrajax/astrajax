@@ -42,6 +42,10 @@ export function PamDeskRoom() {
           Demo data only. Clive&apos;s Man proposes repairs behind this desk — you approve before
           Trusted truth changes.
         </p>
+        <p className="mt-2 text-xs text-parchment/60">
+          Counts from demo seed — retire actions on Brain Health update there first until Phase 2
+          live sync.
+        </p>
         <Link
           href="/brain/health#context-health"
           className="mt-3 inline-block text-sm text-apricot underline-offset-2 hover:underline"
