@@ -6,7 +6,6 @@ import { CliveStudyShell } from "@/components/chapter1/CliveStudyShell";
 import { CliveWelcomeSequence } from "@/components/chapter1/CliveWelcomeSequence";
 import type { CliveVideoStageHandle } from "@/components/chapter1/CliveVideoStage";
 import { PaperTrailDrawer } from "@/components/chapter1/PaperTrailDrawer";
-import { PortraitEntry } from "@/components/chapter1/PortraitEntry";
 import type { CliveReaction } from "@/lib/clive/video-reactions";
 import {
   DEFAULT_BUSINESS_BRAIN,
@@ -48,7 +47,6 @@ function headerBadge(state: LoopState, accessState: ReturnType<typeof deriveBrai
 
 export function AieDemoShell() {
   const cliveVideoRef = useRef<CliveVideoStageHandle>(null);
-  const [entered, setEntered] = useState(false);
   const [welcomeComplete, setWelcomeComplete] = useState(false);
   const [paperTrailOpen, setPaperTrailOpen] = useState(false);
   const [state, setState] = useState<LoopState>(createInitialState);
@@ -100,7 +98,6 @@ export function AieDemoShell() {
 
   const reset = useCallback(() => {
     setState(createInitialState());
-    setEntered(false);
     setWelcomeComplete(false);
     setPaperTrailOpen(false);
   }, []);
@@ -113,10 +110,6 @@ export function AieDemoShell() {
   const playCliveReaction = useCallback((reaction: CliveReaction) => {
     void cliveVideoRef.current?.playReaction(reaction);
   }, []);
-
-  if (!entered) {
-    return <PortraitEntry onEnter={() => setEntered(true)} />;
-  }
 
   return (
     <>
