@@ -1,10 +1,13 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Chapter1Conversation } from "@/components/chapter1/Chapter1Conversation";
 import { CliveStudyShell } from "@/components/chapter1/CliveStudyShell";
+import { CliveWelcomeSequence } from "@/components/chapter1/CliveWelcomeSequence";
+import type { CliveVideoStageHandle } from "@/components/chapter1/CliveVideoStage";
 import { PaperTrailDrawer } from "@/components/chapter1/PaperTrailDrawer";
 import { PortraitEntry } from "@/components/chapter1/PortraitEntry";
+import type { CliveReaction } from "@/lib/clive/video-reactions";
 import {
   DEFAULT_BUSINESS_BRAIN,
   DEFAULT_PAM_REVIEW,
@@ -20,7 +23,7 @@ import {
 function createInitialState(): LoopState {
   return {
     sessionId: crypto.randomUUID(),
-    currentStep: "user_brain",
+    currentStep: "welcome",
     brainMaturity: "seedling",
     userBrain: null,
     guideMode: null,
@@ -44,7 +47,9 @@ function headerBadge(state: LoopState, accessState: ReturnType<typeof deriveBrai
 }
 
 export function AieDemoShell() {
+  const cliveVideoRef = useRef<CliveVideoStageHandle>(null);
   const [entered, setEntered] = useState(false);
+  const [welcomeComplete, setWelcomeComplete] = useState(false);
   const [paperTrailOpen, setPaperTrailOpen] = useState(false);
   const [state, setState] = useState<LoopState>(createInitialState);
 
@@ -77,14 +82,36 @@ export function AieDemoShell() {
     setState((prev) => {
       const idx = LOOP_STEPS.indexOf(prev.currentStep);
       if (idx <= 0) return prev;
-      return { ...prev, currentStep: LOOP_STEPS[idx - 1] };
+
+      let nextIdx = idx - 1;
+      if (welcomeComplete) {
+        while (nextIdx > 0) {
+          const step = LOOP_STEPS[nextIdx];
+          if (step !== "welcome" && step !== "context_importance" && step !== "brains_intro") {
+            break;
+          }
+          nextIdx -= 1;
+        }
+      }
+
+      return { ...prev, currentStep: LOOP_STEPS[nextIdx] };
     });
-  }, []);
+  }, [welcomeComplete]);
 
   const reset = useCallback(() => {
     setState(createInitialState());
     setEntered(false);
+    setWelcomeComplete(false);
     setPaperTrailOpen(false);
+  }, []);
+
+  const completeWelcome = useCallback(() => {
+    setWelcomeComplete(true);
+    setState((prev) => ({ ...prev, currentStep: "user_brain" }));
+  }, []);
+
+  const playCliveReaction = useCallback((reaction: CliveReaction) => {
+    void cliveVideoRef.current?.playReaction(reaction);
   }, []);
 
   if (!entered) {
@@ -94,17 +121,27 @@ export function AieDemoShell() {
   return (
     <>
       <CliveStudyShell
+        ref={cliveVideoRef}
         maturityLabel={maturityLabel}
         onReset={reset}
         onOpenPaperTrail={() => setPaperTrailOpen(true)}
       >
-        <Chapter1Conversation
-          state={state}
-          accessState={accessState}
-          onUpdate={update}
-          onNext={goNext}
-          onBack={state.currentStep !== "user_brain" ? goBack : undefined}
-        />
+        {!welcomeComplete ? (
+          <CliveWelcomeSequence
+            sessionId={state.sessionId}
+            videoRef={cliveVideoRef}
+            onComplete={completeWelcome}
+          />
+        ) : (
+          <Chapter1Conversation
+            state={state}
+            accessState={accessState}
+            onUpdate={update}
+            onNext={goNext}
+            onBack={state.currentStep !== "user_brain" ? goBack : undefined}
+            playCliveReaction={playCliveReaction}
+          />
+        )}
       </CliveStudyShell>
 
       <PaperTrailDrawer

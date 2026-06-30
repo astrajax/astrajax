@@ -27,8 +27,11 @@ import { DEMO_BRAIN_SLUG } from "@/lib/aie-demo/types";
 import { buildLoopContextSummary } from "@/lib/clive/loop-context";
 import { cliveMessageForState } from "@/lib/brains/ui-states";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
+import type { CliveReaction } from "@/lib/clive/video-reactions";
 
-type Chapter1ConversationProps = StepProps;
+type Chapter1ConversationProps = StepProps & {
+  playCliveReaction?: (reaction: CliveReaction) => void;
+};
 
 const BEAT_GREETINGS: Partial<Record<LoopStep, string>> = {
   user_brain: CHAPTER1_CLIVE_GREETING,
@@ -48,6 +51,7 @@ export function Chapter1Conversation({
   onUpdate,
   onNext,
   onBack,
+  playCliveReaction,
 }: Chapter1ConversationProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -187,7 +191,7 @@ export function Chapter1Conversation({
   }, [onUpdate, state.demoScope, state.keyRequest, state.sessionId]);
 
   return (
-    <div className="chapter1-conversation space-y-6">
+    <div className="chapter1-conversation">
       <CliveChatSurface
         key={`${state.currentStep}-${persona}`}
         persona={persona}
@@ -202,18 +206,29 @@ export function Chapter1Conversation({
             : []
         }
         disabled={loading}
+        studyMode
+        userLabel="The Architect"
+        onUserMessage={() => {
+          if (persona === "clive") playCliveReaction?.("listen");
+        }}
+        onThinkingChange={(thinking) => {
+          if (persona === "clive" && thinking) playCliveReaction?.("think");
+        }}
+        onAssistantMessage={() => {
+          if (persona === "clive") playCliveReaction?.("pleased");
+        }}
       />
 
       {error && (
-        <p className="rounded-lg bg-apricot/10 px-4 py-2 text-sm text-apricot" role="alert">
+        <p className="study-stage__error" role="alert">
           {error}
         </p>
       )}
 
       <div className="chapter1-conversation__actions">
         {state.currentStep === "user_brain" && (
-          <div className="space-y-3">
-            <p className="text-sm text-parchment/80">Pick who sits in the chair:</p>
+          <div className="chapter1-conversation__beat">
+            <p className="chapter1-conversation__prompt">Pick who sits in the chair:</p>
             <div className="grid gap-2">
               {USER_BRAIN_PROFILES.map((profile) => (
                 <button
@@ -230,7 +245,7 @@ export function Chapter1Conversation({
             </div>
             <button
               type="button"
-              className="btn-primary disabled:opacity-40"
+              className="btn-primary chapter1-conversation__primary disabled:opacity-40"
               disabled={!state.userBrain}
               onClick={onNext}
             >
@@ -240,7 +255,7 @@ export function Chapter1Conversation({
         )}
 
         {state.currentStep === "guide" && (
-          <div className="space-y-3">
+          <div className="chapter1-conversation__beat">
             {GUIDE_MODE_OPTIONS.map((option) => (
               <button
                 key={option.id}
@@ -256,7 +271,7 @@ export function Chapter1Conversation({
             ))}
             <button
               type="button"
-              className="btn-primary disabled:opacity-40"
+              className="btn-primary chapter1-conversation__primary disabled:opacity-40"
               disabled={!state.guideMode}
               onClick={onNext}
             >
@@ -266,78 +281,80 @@ export function Chapter1Conversation({
         )}
 
         {(state.currentStep === "clive_interview" || state.currentStep === "business_brain") && (
-          <>
+          <div className="chapter1-conversation__beat">
             {state.currentStep === "business_brain" && (
-              <div className="mb-4 rounded-xl border border-parchment/20 bg-moss/25 p-5 text-sm text-parchment/90">
-                <p className="font-display text-base font-semibold text-parchment">
+              <article className="study-doc-card">
+                <p className="study-doc-card__title">
                   Workshop draft — {state.businessBrain.clientName}
                 </p>
-                <p className="mt-2">{state.businessBrain.goal}</p>
-                <ul className="mt-3 list-inside list-disc space-y-1 opacity-90">
+                <p className="study-doc-card__body">{state.businessBrain.goal}</p>
+                <ul className="study-doc-card__list">
                   {state.businessBrain.workflows.slice(0, 3).map((item) => (
                     <li key={item}>{item}</li>
                   ))}
                 </ul>
                 {state.businessBrain.knownGaps.length > 0 && (
-                  <p className="mt-3 text-apricot/90">
+                  <p className="study-doc-card__note">
                     Gaps not yet trusted: {state.businessBrain.knownGaps[0]}
                   </p>
                 )}
-              </div>
+              </article>
             )}
-            <div className="flex flex-wrap gap-3">
+            <div className="chapter1-conversation__nav">
               {onBack && (
-                <button type="button" className="clive-study__ghost-btn" onClick={onBack}>
+                <button type="button" className="study-stage__ghost-btn" onClick={onBack}>
                   Back
                 </button>
               )}
-              <button type="button" className="btn-primary" onClick={onNext}>
+              <button type="button" className="btn-primary chapter1-conversation__primary" onClick={onNext}>
                 {state.currentStep === "clive_interview" ? "See the draft brief" : "Ask Pam to challenge"}
               </button>
             </div>
-          </>
+          </div>
         )}
 
         {state.currentStep === "pam_challenge" && (
-          <div className="rounded-xl border border-parchment/20 bg-moss/30 p-5">
-            {state.userBrain?.pamSensitivity === "high" && (
-              <p className="mb-3 text-sm text-parchment/75">
-                Your profile: Pam will challenge sooner when evidence wobbles.
-              </p>
-            )}
-            <dl className="space-y-3 text-sm text-parchment/90">
-              <div>
-                <dt className="font-mono text-xs uppercase opacity-70">Strongest part</dt>
-                <dd>{state.pamReview.strongestPart}</dd>
-              </div>
-              <div>
-                <dt className="font-mono text-xs uppercase opacity-70">Weakest assumption</dt>
-                <dd>{state.pamReview.weakestAssumption}</dd>
-              </div>
-              <div>
-                <dt className="font-mono text-xs uppercase opacity-70">Missing evidence</dt>
-                <dd>{state.pamReview.missingEvidence}</dd>
-              </div>
-              <div>
-                <dt className="font-mono text-xs uppercase opacity-70">Rabbit-hole risk</dt>
-                <dd>{state.pamReview.rabbitHoleRisk}</dd>
-              </div>
-              <div>
-                <dt className="font-mono text-xs uppercase opacity-70">Safe to send to Doc?</dt>
-                <dd>
-                  {state.pamReview.safeToSendToDoc === "yes"
-                    ? "Pam says yes — you still decide."
-                    : "Not yet — review gaps first."}
-                </dd>
-              </div>
-            </dl>
-            <div className="mt-4 flex flex-wrap gap-3">
+          <div className="chapter1-conversation__beat">
+            <article className="study-doc-card study-doc-card--pam">
+              {state.userBrain?.pamSensitivity === "high" && (
+                <p className="study-doc-card__note study-doc-card__note--muted">
+                  Your profile: Pam will challenge sooner when evidence wobbles.
+                </p>
+              )}
+              <dl className="study-doc-card__dl">
+                <div>
+                  <dt>Strongest part</dt>
+                  <dd>{state.pamReview.strongestPart}</dd>
+                </div>
+                <div>
+                  <dt>Weakest assumption</dt>
+                  <dd>{state.pamReview.weakestAssumption}</dd>
+                </div>
+                <div>
+                  <dt>Missing evidence</dt>
+                  <dd>{state.pamReview.missingEvidence}</dd>
+                </div>
+                <div>
+                  <dt>Rabbit-hole risk</dt>
+                  <dd>{state.pamReview.rabbitHoleRisk}</dd>
+                </div>
+                <div>
+                  <dt>Safe to send to Doc?</dt>
+                  <dd>
+                    {state.pamReview.safeToSendToDoc === "yes"
+                      ? "Pam says yes — you still decide."
+                      : "Not yet — review gaps first."}
+                  </dd>
+                </div>
+              </dl>
+            </article>
+            <div className="chapter1-conversation__nav">
               {onBack && (
-                <button type="button" className="clive-study__ghost-btn" onClick={onBack}>
+                <button type="button" className="study-stage__ghost-btn" onClick={onBack}>
                   Back
                 </button>
               )}
-              <button type="button" className="btn-primary" onClick={onNext}>
+              <button type="button" className="btn-primary chapter1-conversation__primary" onClick={onNext}>
                 Ready for my decision
               </button>
             </div>
@@ -345,14 +362,14 @@ export function Chapter1Conversation({
         )}
 
         {state.currentStep === "human_decision" && (
-          <div className="space-y-4">
-            <blockquote className="border-l-4 border-apricot pl-4 font-display text-lg italic text-parchment">
+          <div className="chapter1-conversation__beat">
+            <blockquote className="study-doc-card study-doc-card--quote">
               {OWNERSHIP_LINE}
             </blockquote>
             {!state.humanApproved ? (
               <button
                 type="button"
-                className="btn-primary"
+                className="btn-primary chapter1-conversation__primary"
                 onClick={() =>
                   onUpdate({
                     humanApproved: true,
@@ -363,7 +380,7 @@ export function Chapter1Conversation({
                 Make this trusted — send to Doc
               </button>
             ) : (
-              <button type="button" className="btn-primary" onClick={onNext}>
+              <button type="button" className="btn-primary chapter1-conversation__primary" onClick={onNext}>
                 Doc, file it
               </button>
             )}
@@ -371,50 +388,49 @@ export function Chapter1Conversation({
         )}
 
         {state.currentStep === "doc_handoff" && (
-          <div className="space-y-4">
+          <div className="chapter1-conversation__beat">
             {!state.promoteReceipt ? (
               <button
                 type="button"
-                className="btn-primary disabled:opacity-40"
+                className="btn-primary chapter1-conversation__primary disabled:opacity-40"
                 disabled={loading || !state.humanApproved}
                 onClick={handlePromote}
               >
                 {loading ? "Doc is filing…" : "Doc, promote to Trusted Brain"}
               </button>
             ) : (
-              <div className="rounded-xl border border-sage/40 bg-sage/10 p-5 text-sm text-ink">
-                <p className="font-medium">{state.promoteReceipt.changeSummary}</p>
-                <p className="mt-2 text-ink-muted">
-                  Filed by {state.promoteReceipt.executingAgent}, approved by{" "}
-                  {state.promoteReceipt.approver}.
-                </p>
-                <button type="button" className="btn-primary mt-4" onClick={onNext}>
+              <>
+                <article className="study-doc-card study-doc-card--receipt">
+                  <p className="study-doc-card__title">{state.promoteReceipt.changeSummary}</p>
+                  <p className="study-doc-card__body study-doc-card__body--muted">
+                    Filed by {state.promoteReceipt.executingAgent}, approved by{" "}
+                    {state.promoteReceipt.approver}.
+                  </p>
+                </article>
+                <button type="button" className="btn-primary chapter1-conversation__primary" onClick={onNext}>
                   Use approved context
                 </button>
-              </div>
+              </>
             )}
           </div>
         )}
 
         {state.currentStep === "context_access" && state.brainMaturity === "working" && (
-          <div className="space-y-3">
+          <div className="chapter1-conversation__beat">
             {state.snippets.length > 0 && (
               <div className="space-y-2">
                 {state.snippets.map((snippet) => (
-                  <div
-                    key={snippet.recordId}
-                    className="rounded-lg border border-parchment/20 bg-moss/20 p-4 text-sm text-parchment"
-                  >
-                    <p className="font-medium">{snippet.title}</p>
-                    <p className="mt-1 opacity-90">{snippet.text}</p>
-                  </div>
+                  <article key={snippet.recordId} className="study-doc-card">
+                    <p className="study-doc-card__title">{snippet.title}</p>
+                    <p className="study-doc-card__body">{snippet.text}</p>
+                  </article>
                 ))}
               </div>
             )}
             {!state.keyRequest && (
               <button
                 type="button"
-                className="btn-primary disabled:opacity-40"
+                className="btn-primary chapter1-conversation__primary disabled:opacity-40"
                 disabled={loading}
                 onClick={handleRequestAccess}
               >
@@ -424,7 +440,7 @@ export function Chapter1Conversation({
             {state.keyRequest && !state.grant && (
               <button
                 type="button"
-                className="btn-primary disabled:opacity-40"
+                className="btn-primary chapter1-conversation__primary disabled:opacity-40"
                 disabled={loading}
                 onClick={handleApproveAccess}
               >
@@ -432,7 +448,7 @@ export function Chapter1Conversation({
               </button>
             )}
             {state.grant && state.snippets.length > 0 && (
-              <button type="button" className="btn-primary" onClick={onNext}>
+              <button type="button" className="btn-primary chapter1-conversation__primary" onClick={onNext}>
                 See what this unlocks
               </button>
             )}
@@ -440,28 +456,21 @@ export function Chapter1Conversation({
         )}
 
         {state.currentStep === "receipts" && (
-          <div className="space-y-6">
-            <div className="grid gap-3 sm:grid-cols-2">
+          <div className="chapter1-conversation__beat">
+            <div className="study-doc-card__stack">
               {RECEIPT_CARDS.map((card) => (
-                <article
-                  key={card.id}
-                  className="rounded-xl border border-parchment/20 bg-moss/20 p-4 text-sm text-parchment"
-                >
-                  {card.tag && (
-                    <span className="font-mono text-xs uppercase tracking-wide text-apricot/90">
-                      {card.tag}
-                    </span>
-                  )}
-                  <h3 className="mt-1 font-display font-semibold">{card.title}</h3>
-                  <p className="mt-2 opacity-90">{card.summary}</p>
+                <article key={card.id} className="study-doc-card">
+                  {card.tag && <span className="study-doc-card__tag">{card.tag}</span>}
+                  <h3 className="study-doc-card__title">{card.title}</h3>
+                  <p className="study-doc-card__body">{card.summary}</p>
                 </article>
               ))}
             </div>
-            <div className="flex flex-wrap gap-3">
+            <div className="chapter1-conversation__nav">
               <Link href="/" className="btn-secondary">
                 Back to home
               </Link>
-              <Link href="/brain/review" className="btn-primary">
+              <Link href="/brain/review" className="btn-primary chapter1-conversation__primary">
                 Brain review
               </Link>
             </div>
