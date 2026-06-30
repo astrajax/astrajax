@@ -24,10 +24,11 @@ function buildTrail(state: LoopState, accessState: BrainKeyUiState): TrailEntry[
   const entries: TrailEntry[] = [];
 
   if (state.userBrain) {
+    const who = state.userBrainIntake?.name?.trim();
     entries.push({
       when: "Start",
-      who: "You",
-      what: `Sat in the chair as: ${state.userBrain.label}`,
+      who: who || "You",
+      what: `User brain inferred: ${state.userBrain.label}`,
     });
   }
 

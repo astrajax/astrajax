@@ -17,6 +17,8 @@ type CliveChatSurfaceProps = {
   studyMode?: boolean;
   /** Label for the human side of the conversation (Chapter 1: "The Architect"). */
   userLabel?: string;
+  /** When set, skips /api/ask-clive and uses this handler for assistant replies. */
+  onCustomSend?: (message: string, history: ChatMessage[]) => Promise<string>;
   onUserMessage?: (message: string) => void;
   onAssistantMessage?: (message: string) => void;
   onThinkingChange?: (thinking: boolean) => void;
@@ -61,6 +63,7 @@ export function CliveChatSurface({
   disabled = false,
   transcriptOnly = false,
   initialMessages = [],
+  onCustomSend,
 }: CliveChatSurfaceProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [input, setInput] = useState("");
@@ -98,29 +101,36 @@ export function CliveChatSurface({
       setMessages(nextMessages);
 
       try {
-        const response = await fetch("/api/ask-clive", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "text/plain",
-          },
-          body: JSON.stringify({
-            message,
-            history: messages,
-            sessionId,
-            persona,
-            beat,
-            loopContext,
-            stream: true,
-          }),
-        });
+        let reply: string;
 
-        if (!response.ok) {
-          const data = (await response.json().catch(() => ({}))) as { error?: string };
-          throw new Error(data.error ?? "Clive could not answer right now.");
+        if (onCustomSend) {
+          reply = await onCustomSend(message, messages);
+        } else {
+          const response = await fetch("/api/ask-clive", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "text/plain",
+            },
+            body: JSON.stringify({
+              message,
+              history: messages,
+              sessionId,
+              persona,
+              beat,
+              loopContext,
+              stream: true,
+            }),
+          });
+
+          if (!response.ok) {
+            const data = (await response.json().catch(() => ({}))) as { error?: string };
+            throw new Error(data.error ?? "Clive could not answer right now.");
+          }
+
+          reply = await readTextStream(response, setStreamingText);
         }
 
-        const reply = await readTextStream(response, setStreamingText);
         const assistantMessage: ChatMessage = { role: "assistant", content: reply };
         setMessages([...nextMessages, assistantMessage]);
         setStreamingText("");
@@ -140,6 +150,7 @@ export function CliveChatSurface({
       loopContext,
       messages,
       onAssistantMessage,
+      onCustomSend,
       onUserMessage,
       persona,
       sessionId,

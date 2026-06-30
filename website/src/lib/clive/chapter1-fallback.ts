@@ -3,22 +3,22 @@ import type { ChatMessage } from "./types";
 export type ClivePersona = "clive" | "pam";
 
 export const CHAPTER1_CLIVE_GREETING =
-  "Now we create your User Brain. Before I ask anything that can feel a bit personal, here is why: I use it to calibrate pace, tone, and support. It is not a scorecard, and it is not surveillance. Who is sitting in the chair today?";
+  "Before I calibrate pace and tone, I need a few things from you — typed answers, not a multiple-choice quiz. First: what should I call you?";
 
 export const CHAPTER1_PAM_GREETING =
   "Better now than never. I've read the draft. Show me the assumption everyone has become far too comfortable with.";
 
 const CLIVE_FALLBACK_REPLIES: Record<string, string> = {
   default:
-    "Splendid question. The important part is this: context stays human. I can help structure it, Pam can challenge it, and Doc can file it, but The Architect decides what becomes true.",
+    "Splendid question. The important part is this: context stays human. I can help structure it, Pam can challenge it, and Doc can file it — but you decide what becomes true.",
   welcome:
-    "You're The Architect because you know the work. AstraJax gives you structure, agents, and a paper trail; it does not take ownership of your context away from you.",
+    "You know the work. AstraJax gives you structure, agents, and a paper trail; it does not take ownership of your context away from you.",
   context:
     "We start with a function or focused startup scope because context bloat makes agents vague. Specific ownership makes answers sharper and safer.",
   brains:
     "A BRAIN is governed context: Workshop drafts first, Trusted Brain after human approval. It is structure, memory, and restraint in one place.",
   profile:
-    "Noted. I'll adapt my pace to your profile — plain language where you need it, sharper where you're already expert. Ready to build the business brain?",
+    "Noted. I'll adapt my pace from what you told me — plain language where you need it, sharper where you're already expert. Ready to build the business brain?",
   draft:
     "I've drafted a business brain brief from our conversation. It stays in the workshop until you approve what becomes trusted.",
   approve:

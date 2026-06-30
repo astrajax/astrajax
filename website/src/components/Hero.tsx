@@ -34,13 +34,7 @@ export function Hero() {
       {/* Baseboard rail — thin top moulding swapped to the bottom of the wall. */}
       <div className="hero-baseboard-rail" aria-hidden />
 
-      <h1 className="sr-only">Opening the Book for the People who Know the Work Best</h1>
-      {/* Visible page heading — lower-right on the wall, two lines. */}
-      <p className="hero-wall-headline font-display" aria-hidden="true">
-        Opening the Book for the
-        <br />
-        People who Know the Work Best
-      </p>
+      <h1 className="sr-only">AstraJax — founding cast: Clive, Pam, and Doc</h1>
     </section>
   );
 }

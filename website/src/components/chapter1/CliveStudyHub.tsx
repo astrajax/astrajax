@@ -67,9 +67,9 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
           <Image
             src={HUB_IMAGE_SRC}
             alt="Bird's-eye view of Clive's desk with four leather-bound books: Welcome, Reasoning with Clive, The Architect Journal, and Brain Building"
-            width={1024}
-            height={573}
+            fill
             priority
+            sizes="100vw"
             className="clive-study-hub__image"
           />
           {BOOK_HOTSPOTS.map((book) => (

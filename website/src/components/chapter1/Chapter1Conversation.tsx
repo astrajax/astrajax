@@ -10,7 +10,6 @@ import {
   retrieveContext,
 } from "@/lib/aie-demo/brain-client";
 import {
-  CHAPTER1_CLIVE_GREETING,
   CHAPTER1_PAM_GREETING,
 } from "@/lib/clive/chapter1-fallback";
 import {
@@ -20,13 +19,13 @@ import {
   OWNERSHIP_LINE,
   PROMOTE_DRAFT,
   RECEIPT_CARDS,
-  USER_BRAIN_PROFILES,
 } from "@/lib/aie-demo/demo-data";
 import type { LoopState, LoopStep, StepProps } from "@/lib/aie-demo/types";
 import { DEMO_BRAIN_SLUG } from "@/lib/aie-demo/types";
 import { buildLoopContextSummary } from "@/lib/clive/loop-context";
 import { cliveMessageForState } from "@/lib/brains/ui-states";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
+import { UserBrainIntakeChat } from "@/components/chapter1/UserBrainIntakeChat";
 import type { CliveReaction } from "@/lib/clive/video-reactions";
 
 type Chapter1ConversationProps = StepProps & {
@@ -34,7 +33,6 @@ type Chapter1ConversationProps = StepProps & {
 };
 
 const BEAT_GREETINGS: Partial<Record<LoopStep, string>> = {
-  user_brain: CHAPTER1_CLIVE_GREETING,
   guide: "Same scopes underneath — how much character do you want in the room?",
   clive_interview: "Tell me what your team actually does day to day — not the slide version.",
   business_brain: CLIVE_DRAFT_SUMMARY,
@@ -59,6 +57,12 @@ export function Chapter1Conversation({
   const loopContext = useMemo(
     () =>
       buildLoopContextSummary({
+        userName: state.userBrainIntake?.name,
+        userRole: state.userBrainIntake?.role,
+        devExperience: state.userBrainIntake?.devExperience,
+        aiComfort: state.userBrainIntake?.aiComfort,
+        contextFamiliarity: state.userBrainIntake?.contextFamiliarity,
+        userGoal: state.userBrainIntake?.goal,
         userBrainLabel: state.userBrain?.label,
         guideMode: state.guideMode ?? undefined,
         businessGoal: state.businessBrain.goal,
@@ -67,6 +71,12 @@ export function Chapter1Conversation({
         pamSensitivity: state.userBrain?.pamSensitivity,
       }),
     [state],
+  );
+
+  const userLabel = state.userBrainIntake?.name?.trim() || "You";
+  const isUserBrainStep = state.currentStep === "user_brain";
+  const userBrainIntakeComplete = Boolean(
+    state.userBrainIntake?.intakeComplete && state.userBrain,
   );
 
   const persona = state.currentStep === "pam_challenge" ? "pam" : "clive";
@@ -192,32 +202,46 @@ export function Chapter1Conversation({
 
   return (
     <div className="chapter1-conversation">
-      <CliveChatSurface
-        key={`${state.currentStep}-${persona}`}
-        persona={persona}
-        greeting={greeting}
-        beat={state.currentStep}
-        loopContext={loopContext}
-        sessionId={state.sessionId}
-        placeholder={persona === "pam" ? "Respond to Pam…" : "Talk to Clive…"}
-        starterPrompts={
-          state.currentStep === "clive_interview"
-            ? ["We run weekly forecasts with five spreadsheets", "Context lives in WhatsApp and Notion"]
-            : []
-        }
-        disabled={loading}
-        studyMode
-        userLabel="The Architect"
-        onUserMessage={() => {
-          if (persona === "clive") playCliveReaction?.("listen");
-        }}
-        onThinkingChange={(thinking) => {
-          if (persona === "clive" && thinking) playCliveReaction?.("think");
-        }}
-        onAssistantMessage={() => {
-          if (persona === "clive") playCliveReaction?.("pleased");
-        }}
-      />
+      {isUserBrainStep ? (
+        <UserBrainIntakeChat
+          sessionId={state.sessionId}
+          intake={state.userBrainIntake}
+          userBrain={state.userBrain}
+          onIntakeUpdate={(userBrainIntake) => onUpdate({ userBrainIntake })}
+          onComplete={(userBrainIntake, userBrain) =>
+            onUpdate({ userBrainIntake, userBrain })
+          }
+          playCliveReaction={playCliveReaction}
+          disabled={loading}
+        />
+      ) : (
+        <CliveChatSurface
+          key={`${state.currentStep}-${persona}`}
+          persona={persona}
+          greeting={greeting}
+          beat={state.currentStep}
+          loopContext={loopContext}
+          sessionId={state.sessionId}
+          placeholder={persona === "pam" ? "Respond to Pam…" : "Talk to Clive…"}
+          starterPrompts={
+            state.currentStep === "clive_interview"
+              ? ["We run weekly forecasts with five spreadsheets", "Context lives in WhatsApp and Notion"]
+              : []
+          }
+          disabled={loading}
+          studyMode
+          userLabel={userLabel}
+          onUserMessage={() => {
+            if (persona === "clive") playCliveReaction?.("listen");
+          }}
+          onThinkingChange={(thinking) => {
+            if (persona === "clive" && thinking) playCliveReaction?.("think");
+          }}
+          onAssistantMessage={() => {
+            if (persona === "clive") playCliveReaction?.("pleased");
+          }}
+        />
+      )}
 
       {error && (
         <p className="study-stage__error" role="alert">
@@ -244,25 +268,10 @@ export function Chapter1Conversation({
 
         {state.currentStep === "user_brain" && (
           <div className="chapter1-conversation__beat">
-            <p className="chapter1-conversation__prompt">Pick who sits in the chair:</p>
-            <div className="grid gap-2">
-              {USER_BRAIN_PROFILES.map((profile) => (
-                <button
-                  key={profile.id}
-                  type="button"
-                  onClick={() => onUpdate({ userBrain: profile })}
-                  className={`chapter1-choice ${
-                    state.userBrain?.id === profile.id ? "chapter1-choice--selected" : ""
-                  }`}
-                >
-                  {profile.label}
-                </button>
-              ))}
-            </div>
             <button
               type="button"
               className="btn-primary chapter1-conversation__primary disabled:opacity-40"
-              disabled={!state.userBrain}
+              disabled={!userBrainIntakeComplete}
               onClick={onNext}
             >
               Continue

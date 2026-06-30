@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Chapter1Conversation } from "@/components/chapter1/Chapter1Conversation";
 import {
   CliveStudyHub,
@@ -17,6 +17,12 @@ import {
   DEFAULT_PAM_REVIEW,
   DEMO_SCOPE,
 } from "@/lib/aie-demo/demo-data";
+import {
+  clearPersistedLoopSlice,
+  createEmptyIntake,
+  loadPersistedLoopSlice,
+  persistLoopSlice,
+} from "@/lib/aie-demo/user-brain-intake";
 import { LOOP_STEPS, MATURITY_LABELS, type LoopState, type LoopStep } from "@/lib/aie-demo/types";
 import {
   SEEDLING_HEADER_LABEL,
@@ -25,11 +31,13 @@ import {
 } from "@/lib/brains/ui-states";
 
 function createInitialState(currentStep: LoopStep = "welcome"): LoopState {
-  return {
-    sessionId: crypto.randomUUID(),
+  const persisted = loadPersistedLoopSlice();
+  const base: LoopState = {
+    sessionId: persisted?.sessionId ?? crypto.randomUUID(),
     currentStep,
     brainMaturity: "seedling",
-    userBrain: null,
+    userBrain: persisted?.userBrain ?? null,
+    userBrainIntake: persisted?.userBrainIntake ?? null,
     guideMode: null,
     businessBrain: DEFAULT_BUSINESS_BRAIN,
     pamReview: DEFAULT_PAM_REVIEW,
@@ -41,6 +49,12 @@ function createInitialState(currentStep: LoopStep = "welcome"): LoopState {
     promoteReceipt: null,
     demoScope: DEMO_SCOPE,
   };
+
+  if (currentStep === "user_brain" && !base.userBrainIntake) {
+    base.userBrainIntake = createEmptyIntake();
+  }
+
+  return base;
 }
 
 function headerBadge(state: LoopState, accessState: ReturnType<typeof deriveBrainKeyUiState>): string {
@@ -88,6 +102,15 @@ export function AieDemoShell() {
     setState((prev) => ({ ...prev, ...patch }));
   }, []);
 
+  useEffect(() => {
+    persistLoopSlice({
+      sessionId: state.sessionId,
+      userBrain: state.userBrain,
+      userBrainIntake: state.userBrainIntake,
+      currentStep: state.currentStep,
+    });
+  }, [state.sessionId, state.userBrain, state.userBrainIntake, state.currentStep]);
+
   const goNext = useCallback(() => {
     setState((prev) => {
       const idx = LOOP_STEPS.indexOf(prev.currentStep);
@@ -117,6 +140,7 @@ export function AieDemoShell() {
   }, [welcomeComplete]);
 
   const reset = useCallback(() => {
+    clearPersistedLoopSlice();
     setState(createInitialState());
     setEntered(false);
     setHubSelection(null);
@@ -133,7 +157,11 @@ export function AieDemoShell() {
 
   const completeWelcome = useCallback(() => {
     setWelcomeComplete(true);
-    setState((prev) => ({ ...prev, currentStep: "user_brain" }));
+    setState((prev) => ({
+      ...prev,
+      currentStep: "user_brain",
+      userBrainIntake: prev.userBrainIntake ?? createEmptyIntake(),
+    }));
   }, []);
 
   const playCliveReaction = useCallback((reaction: CliveReaction) => {

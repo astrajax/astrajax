@@ -36,6 +36,26 @@ export interface UserBrainProfile {
   pamSensitivity: "high" | "medium" | "low";
 }
 
+export interface IntakeAnswer {
+  questionId: string;
+  question: string;
+  answer: string;
+}
+
+export interface UserBrainIntake {
+  name?: string;
+  role?: string;
+  devExperience?: string;
+  aiComfort?: string;
+  contextFamiliarity?: string;
+  goal?: string;
+  rawAnswers: IntakeAnswer[];
+  questionIndex: number;
+  inferredProfileId?: string;
+  intakeComplete?: boolean;
+  classificationSummary?: string;
+}
+
 export interface BusinessBrainDraft {
   clientName: string;
   goal: string;
@@ -74,6 +94,7 @@ export interface LoopState {
   currentStep: LoopStep;
   brainMaturity: BrainMaturity;
   userBrain: UserBrainProfile | null;
+  userBrainIntake: UserBrainIntake | null;
   guideMode: GuideMode | null;
   businessBrain: BusinessBrainDraft;
   pamReview: PamSniffTest;

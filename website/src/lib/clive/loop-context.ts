@@ -4,7 +4,7 @@ const BEAT_LABELS: Record<LoopStep, string> = {
   welcome: "Welcome to Clive's study",
   context_importance: "Why context matters",
   brains_intro: "AstraJax BRAINS",
-  user_brain: "Who sits in the chair",
+  user_brain: "Map your user brain",
   guide: "Pick your guide",
   clive_interview: "Build the business brain",
   business_brain: "Review the workshop draft",
@@ -20,7 +20,13 @@ export function beatLabel(beat: LoopStep): string {
 }
 
 export function buildLoopContextSummary(context: {
+  userName?: string;
   userBrainLabel?: string;
+  userRole?: string;
+  devExperience?: string;
+  aiComfort?: string;
+  contextFamiliarity?: string;
+  userGoal?: string;
   guideMode?: string;
   businessGoal?: string;
   beat?: LoopStep;
@@ -28,7 +34,17 @@ export function buildLoopContextSummary(context: {
   pamSensitivity?: "high" | "medium" | "low";
 }): string {
   const lines: string[] = [];
-  if (context.userBrainLabel) lines.push(`User in the chair: ${context.userBrainLabel}`);
+  if (context.userName) lines.push(`User's name: ${context.userName}`);
+  if (context.userRole) lines.push(`Role: ${context.userRole}`);
+  if (context.devExperience) {
+    lines.push(`Development / system architecture (self-reported): ${context.devExperience}`);
+  }
+  if (context.aiComfort) lines.push(`AI comfort (self-reported): ${context.aiComfort}`);
+  if (context.contextFamiliarity) {
+    lines.push(`Context systems familiarity: ${context.contextFamiliarity}`);
+  }
+  if (context.userGoal) lines.push(`Building toward: ${context.userGoal}`);
+  if (context.userBrainLabel) lines.push(`Inferred user brain profile: ${context.userBrainLabel}`);
   if (context.cliveTone) lines.push(`Clive should adapt: ${context.cliveTone}`);
   if (context.pamSensitivity) {
     lines.push(`Pam challenge sensitivity: ${context.pamSensitivity}`);

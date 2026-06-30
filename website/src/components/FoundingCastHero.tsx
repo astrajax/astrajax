@@ -192,7 +192,7 @@ function HeroWallBrand() {
         height={60}
         className="hero-wall-brand__mark"
       />
-      <span className="hero-wall-brand__word">ASTRAJAX</span>
+      <span className="hero-wall-brand__word font-sans">AstraJax</span>
     </a>
   );
 }
@@ -300,15 +300,18 @@ export function FoundingCastHero() {
       <div className="hero-asymmetric-wall__desktop hidden lg:block">
         <div className="hero-asymmetric-wall__composition">
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
-            <CastPortrait
-              entry={pam}
-              displayName={pam.name}
-              sizes="(min-width: 1536px) 28vw, (min-width: 1024px) 28vw, 40vw"
-              eagerPreload
-              seamlessLoop
-              prefersReducedMotion={prefersReducedMotion}
-              portraitDoorsEnabled={portraitDoorsEnabled}
-            />
+            <div className="hero-wall-name-rail">
+              <HeroWallBrand />
+              <CastPortrait
+                entry={pam}
+                displayName={pam.name}
+                sizes="(min-width: 1536px) 28vw, (min-width: 1024px) 28vw, 40vw"
+                eagerPreload
+                seamlessLoop
+                prefersReducedMotion={prefersReducedMotion}
+                portraitDoorsEnabled={portraitDoorsEnabled}
+              />
+            </div>
           </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--clive">
             <CastPortrait
@@ -330,9 +333,6 @@ export function FoundingCastHero() {
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
           </div>
-          <div className="hero-asymmetric-wall__brand-float" aria-hidden={false}>
-            <HeroWallBrand />
-          </div>
         </div>
       </div>
 
@@ -347,17 +347,19 @@ export function FoundingCastHero() {
           portraitDoorsEnabled={portraitDoorsEnabled}
         />
         <div className="hero-asymmetric-wall__mobile-flanks grid grid-cols-2 gap-3 sm:gap-3.5">
-          <div className="hero-asymmetric-wall__pam-mobile flex flex-col items-center">
-            <HeroWallBrand />
-            <CastPortrait
-              entry={pam}
-              displayName={pam.name}
-              sizes="46vw"
-              eagerPreload
-              seamlessLoop
-              prefersReducedMotion={prefersReducedMotion}
-              portraitDoorsEnabled={portraitDoorsEnabled}
-            />
+          <div className="hero-asymmetric-wall__pam-mobile">
+            <div className="hero-wall-name-rail">
+              <HeroWallBrand />
+              <CastPortrait
+                entry={pam}
+                displayName={pam.name}
+                sizes="46vw"
+                eagerPreload
+                seamlessLoop
+                prefersReducedMotion={prefersReducedMotion}
+                portraitDoorsEnabled={portraitDoorsEnabled}
+              />
+            </div>
           </div>
           <CastPortrait
             entry={doc}
