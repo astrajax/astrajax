@@ -65,6 +65,9 @@ function PortraitCaption({
   );
 }
 
+/** Seek back to start before the native loop hits a bad tail frame or `ended` gap. */
+const LOOP_EPSILON_SECONDS = 0.04;
+
 function PortraitFrame({
   posterSrc,
   videoSrc,
@@ -74,6 +77,7 @@ function PortraitFrame({
   sizes,
   priority,
   eagerPreload,
+  seamlessLoop,
   prefersReducedMotion,
 }: {
   posterSrc: string;
@@ -85,6 +89,8 @@ function PortraitFrame({
   priority?: boolean;
   /** Homepage landing: fetch full video immediately, not metadata-only. */
   eagerPreload?: boolean;
+  /** Manual loop seam — avoids black flash when the asset or browser loop boundary glitches. */
+  seamlessLoop?: boolean;
   prefersReducedMotion: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -102,14 +108,27 @@ function PortraitFrame({
       });
     };
 
+    const handleTimeUpdate = () => {
+      if (!seamlessLoop || !Number.isFinite(video.duration)) return;
+      if (video.currentTime >= video.duration - LOOP_EPSILON_SECONDS) {
+        video.currentTime = 0;
+      }
+    };
+
     tryPlay();
     video.addEventListener("loadeddata", tryPlay);
     video.addEventListener("canplay", tryPlay);
+    if (seamlessLoop) {
+      video.addEventListener("timeupdate", handleTimeUpdate);
+    }
     return () => {
       video.removeEventListener("loadeddata", tryPlay);
       video.removeEventListener("canplay", tryPlay);
+      if (seamlessLoop) {
+        video.removeEventListener("timeupdate", handleTimeUpdate);
+      }
     };
-  }, [showVideo, videoSrc]);
+  }, [showVideo, videoSrc, seamlessLoop]);
 
   return (
     <div className="hero-portrait-frame">
@@ -146,12 +165,29 @@ function PortraitFrame({
 
 type CastEntry = (typeof triptych)[number];
 
+function HeroWallBrand() {
+  return (
+    <a href="/" aria-label="AstraJax — home" className="hero-wall-brand">
+      <Image
+        src="/astrajax-logo.png"
+        alt=""
+        aria-hidden
+        width={60}
+        height={60}
+        className="hero-wall-brand__mark"
+      />
+      <span className="hero-wall-brand__word">ASTRAJAX</span>
+    </a>
+  );
+}
+
 function CastPortrait({
   entry,
   displayName,
   sizes,
   priority,
   eagerPreload,
+  seamlessLoop,
   prefersReducedMotion,
 }: {
   entry: CastEntry;
@@ -159,6 +195,7 @@ function CastPortrait({
   sizes: string;
   priority?: boolean;
   eagerPreload?: boolean;
+  seamlessLoop?: boolean;
   prefersReducedMotion: boolean;
 }) {
   const role = HERO_ROLE[entry.slug] ?? entry.role;
@@ -174,6 +211,7 @@ function CastPortrait({
         sizes={sizes}
         priority={priority}
         eagerPreload={eagerPreload}
+        seamlessLoop={seamlessLoop}
         prefersReducedMotion={prefersReducedMotion}
       />
       <PortraitCaption name={displayName} role={role} delay={CAPTION_DELAY[entry.slug]} />
@@ -194,11 +232,13 @@ export function FoundingCastHero() {
       <div className="hero-asymmetric-wall__desktop hidden lg:block">
         <div className="hero-asymmetric-wall__composition">
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
+            <HeroWallBrand />
             <CastPortrait
               entry={pam}
               displayName={pam.name}
               sizes="(min-width: 1536px) 28vw, (min-width: 1024px) 28vw, 40vw"
               eagerPreload
+              seamlessLoop
               prefersReducedMotion={prefersReducedMotion}
             />
           </div>
@@ -233,13 +273,17 @@ export function FoundingCastHero() {
           prefersReducedMotion={prefersReducedMotion}
         />
         <div className="grid grid-cols-2 gap-4 sm:gap-5">
-          <CastPortrait
-            entry={pam}
-            displayName={pam.name}
-            sizes="46vw"
-            eagerPreload
-            prefersReducedMotion={prefersReducedMotion}
-          />
+          <div className="hero-asymmetric-wall__pam-mobile flex flex-col items-center">
+            <HeroWallBrand />
+            <CastPortrait
+              entry={pam}
+              displayName={pam.name}
+              sizes="46vw"
+              eagerPreload
+              seamlessLoop
+              prefersReducedMotion={prefersReducedMotion}
+            />
+          </div>
           <CastPortrait
             entry={doc}
             displayName={doc.name}

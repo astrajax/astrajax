@@ -27,19 +27,6 @@ export function Hero() {
       {/* Restrained depth pass layered over the photo: warm centre lift + edge vignette. */}
       <div className="hero-victorian-wall__lighting" aria-hidden />
 
-      {/* Brand wordmark hung on the wall — upper-left, separate from the nav, links home. */}
-      <a href="/" aria-label="AstraJax — home" className="hero-wall-brand">
-        <Image
-          src="/astrajax-logo.png"
-          alt=""
-          aria-hidden
-          width={60}
-          height={60}
-          className="hero-wall-brand__mark"
-        />
-        <span className="hero-wall-brand__word">ASTRAJAX</span>
-      </a>
-
       <div id="agent-cast" className="hero-victorian-wall__stage scroll-mt-24">
         <FoundingCastHero />
       </div>

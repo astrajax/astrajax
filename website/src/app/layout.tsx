@@ -1,27 +1,12 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter, Space_Mono, Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { GlobalCliveLauncher } from "@/components/GlobalCliveLauncher";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-fraunces",
-  display: "swap",
-});
-
 const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const spaceMono = Space_Mono({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-space-mono",
+  variable: "--font-sans",
   display: "swap",
 });
 
@@ -63,11 +48,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={cn(fraunces.variable, inter.variable, spaceMono.variable, "font-sans", geist.variable)}
-    >
-      <body className="antialiased">
+    <html lang="en" className={cn(inter.variable, "font-sans")}>
+      <body className={cn(inter.className, "antialiased")}>
         {children}
         <GlobalCliveLauncher />
       </body>

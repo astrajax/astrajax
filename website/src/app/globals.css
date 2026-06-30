@@ -20,9 +20,9 @@
   --color-parchment: #e7d1ad;
   --color-buttermilk: #e4d3a3;
 
-  --font-display: "Fraunces", Georgia, serif;
-  --font-body: "Inter", system-ui, sans-serif;
-  --font-mono: "Space Mono", ui-monospace, monospace;
+  --font-display: var(--font-sans);
+  --font-body: var(--font-sans);
+  --font-mono: var(--font-sans);
 }
 
 html {
@@ -395,45 +395,57 @@ body {
 }
 
 .hero-asymmetric-wall__composition {
-  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr) minmax(0, 0.82fr);
+  column-gap: clamp(1rem, 2.8vw, 2.75rem);
+  align-items: stretch;
   width: 100%;
-  min-height: min(52rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) + var(--hero-rail-overlap) - 6rem));
+  min-height: min(
+    52rem,
+    calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) + var(--hero-rail-overlap) - 6rem)
+  );
   max-width: 118rem;
   margin: 0 auto;
+  padding-inline: clamp(0.5rem, 1.5vw, 1.25rem);
 }
 
 .hero-asymmetric-wall__slot {
-  position: absolute;
+  position: relative;
   display: flex;
+  min-width: 0;
   flex-direction: column;
   align-items: center;
 }
 
-/* Pam — lower-left, clear gap from Clive (no overlap) */
+/* Pam — lower-left column; brand stacks above portrait only in this slot */
 .hero-asymmetric-wall__slot--pam {
-  bottom: clamp(0.75rem, 4vh, 2.5rem);
-  left: clamp(0.75rem, 2.5vw, 3.5rem);
-  width: min(28vw, 27rem);
+  align-self: end;
+  justify-content: flex-end;
   z-index: 2;
   transform: rotate(-0.65deg);
+  gap: clamp(0.35rem, 0.8vh, 0.65rem);
+  padding-bottom: clamp(0.75rem, 4vh, 2.5rem);
 }
 
-/* Clive — centre, dominant portrait */
+.hero-asymmetric-wall__pam-mobile .hero-wall-brand {
+  margin-bottom: clamp(0.35rem, 2vw, 0.65rem);
+}
+
+/* Clive — centre column, elevated between Pam and Doc */
 .hero-asymmetric-wall__slot--clive {
-  top: 45%;
-  left: 50%;
-  width: min(40vw, 42rem);
+  align-self: center;
+  justify-content: center;
   z-index: 1;
-  transform: translate(-50%, -45%);
+  padding-block: clamp(1.5rem, 6vh, 4rem);
 }
 
-/* Doc — upper-right, clear gap from Clive (no overlap) */
+/* Doc — upper-right column */
 .hero-asymmetric-wall__slot--doc {
-  right: clamp(0.75rem, 2.5vw, 3.5rem);
-  top: clamp(0.25rem, 1.5vh, 1rem);
-  width: min(26vw, 25rem);
+  align-self: start;
+  justify-content: flex-start;
   z-index: 2;
   transform: rotate(0.65deg);
+  padding-top: clamp(0.25rem, 1.5vh, 1rem);
 }
 
 .hero-portrait {
@@ -512,18 +524,18 @@ body {
   opacity: 0.92;
 }
 
-/* ── Wall brand wordmark — upper-left on moss, below the CSS picture rail ── */
+/* ── Wall brand wordmark — centred above Pam's portrait in the lower-left slot ── */
 .hero-wall-brand {
-  position: absolute;
-  top: clamp(0.5rem, 1.6vh, 1.1rem);
-  left: clamp(1rem, 2.5vw, 2.5rem);
+  position: relative;
   z-index: 3;
   display: inline-flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   gap: clamp(0.25rem, 0.6vh, 0.45rem);
+  margin-bottom: clamp(0.5rem, 1.2vh, 1rem);
   pointer-events: auto;
   text-decoration: none;
+  align-self: center;
 }
 
 .hero-wall-brand__mark {
@@ -620,6 +632,11 @@ body {
   max-width: 42rem;
   margin: 0 auto;
   padding: 0.25rem 0 1.75rem;
+  gap: clamp(1.25rem, 4vw, 2rem);
+}
+
+.hero-asymmetric-wall__mobile .hero-asymmetric-wall__pam-mobile {
+  gap: clamp(0.35rem, 2vw, 0.65rem);
 }
 
 .hero-asymmetric-wall__mobile .hero-portrait:first-child {
@@ -628,46 +645,19 @@ body {
 }
 
 @media (min-width: 1280px) {
+  .hero-asymmetric-wall__composition {
+    column-gap: clamp(1.25rem, 3vw, 3.25rem);
+  }
+
   .hero-asymmetric-wall__slot--clive {
-    width: min(40vw, 42rem);
-    top: 45%;
-    transform: translate(-50%, -45%);
-  }
-
-  .hero-asymmetric-wall__slot--pam {
-    width: min(28vw, 27rem);
-  }
-
-  .hero-asymmetric-wall__slot--doc {
-    width: min(26vw, 25rem);
+    padding-block: clamp(2rem, 7vh, 5rem);
   }
 }
 
 @media (min-width: 1536px) {
   .hero-asymmetric-wall__composition {
     min-height: min(56rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5rem));
-  }
-
-  .hero-asymmetric-wall__slot--pam {
-    left: clamp(1rem, 3vw, 4.5rem);
-  }
-
-  .hero-asymmetric-wall__slot--doc {
-    right: clamp(1rem, 3vw, 4.5rem);
-  }
-
-  .hero-asymmetric-wall__slot--clive {
-    width: min(40vw, 42rem);
-    top: 46%;
-    transform: translate(-50%, -46%);
-  }
-
-  .hero-asymmetric-wall__slot--pam {
-    width: min(28vw, 27rem);
-  }
-
-  .hero-asymmetric-wall__slot--doc {
-    width: min(26vw, 25rem);
+    column-gap: clamp(1.5rem, 3.2vw, 3.75rem);
   }
 }
 
@@ -676,15 +666,9 @@ body {
     align-items: start;
   }
 
-  /* Extra top padding keeps the portraits clear of the wall wordmark band. */
   .hero-victorian-wall__stage {
-    padding-top: clamp(3.5rem, 12vw, 4.75rem);
+    padding-top: clamp(1rem, 4vw, 1.75rem);
     padding-bottom: clamp(1.5rem, 7vw, 3rem);
-  }
-
-  .hero-wall-brand {
-    top: clamp(0.6rem, 2.5vw, 1rem);
-    left: clamp(0.85rem, 4vw, 1.5rem);
   }
 
   .hero-wall-brand__word {

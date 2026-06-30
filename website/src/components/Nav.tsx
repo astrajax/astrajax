@@ -116,22 +116,24 @@ export function Nav({ immersive = false }: NavProps) {
   return (
     <header className={headerClass}>
       <div className={innerClass}>
-        <Link
-          href="/"
-          aria-label="AstraJax home"
-          className="flex shrink-0 items-center gap-2 font-display text-lg font-semibold tracking-tight text-ink sm:gap-2.5"
-          onClick={closeMenu}
-        >
-          <Image
-            src="/astrajax-logo.png"
-            alt=""
-            width={32}
-            height={32}
-            priority
-            className="h-8 w-8 shrink-0"
-          />
-          <span>AstraJax</span>
-        </Link>
+        {!immersive ? (
+          <Link
+            href="/"
+            aria-label="AstraJax home"
+            className="flex shrink-0 items-center gap-2 font-display text-lg font-semibold tracking-tight text-ink sm:gap-2.5"
+            onClick={closeMenu}
+          >
+            <Image
+              src="/astrajax-logo.png"
+              alt=""
+              width={32}
+              height={32}
+              priority
+              className="h-8 w-8 shrink-0"
+            />
+            <span>AstraJax</span>
+          </Link>
+        ) : null}
 
         <nav
           className="hidden flex-1 items-center justify-center gap-10 lg:gap-12 md:flex"
