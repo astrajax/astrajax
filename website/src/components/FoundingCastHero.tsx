@@ -232,7 +232,6 @@ export function FoundingCastHero() {
       <div className="hero-asymmetric-wall__desktop hidden lg:block">
         <div className="hero-asymmetric-wall__composition">
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
-            <HeroWallBrand />
             <CastPortrait
               entry={pam}
               displayName={pam.name}
@@ -252,6 +251,7 @@ export function FoundingCastHero() {
             />
           </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc">
+            <HeroWallBrand />
             <CastPortrait
               entry={doc}
               displayName={doc.name}
@@ -272,7 +272,7 @@ export function FoundingCastHero() {
           priority
           prefersReducedMotion={prefersReducedMotion}
         />
-        <div className="grid grid-cols-2 gap-4 sm:gap-5">
+        <div className="hero-asymmetric-wall__mobile-flanks grid grid-cols-2 gap-3 sm:gap-3.5">
           <div className="hero-asymmetric-wall__pam-mobile flex flex-col items-center">
             <HeroWallBrand />
             <CastPortrait

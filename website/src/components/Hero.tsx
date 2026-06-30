@@ -34,12 +34,12 @@ export function Hero() {
       {/* Baseboard rail — thin top moulding swapped to the bottom of the wall. */}
       <div className="hero-baseboard-rail" aria-hidden />
 
-      <h1 className="sr-only">The AI Adoption Operating System</h1>
+      <h1 className="sr-only">Opening the Book for the People who Know the Work Best</h1>
       {/* Visible page heading — lower-right on the wall, two lines. */}
       <p className="hero-wall-headline font-display" aria-hidden="true">
-        The AI Adoption
+        Opening the Book for the
         <br />
-        Operating System
+        People who Know the Work Best
       </p>
     </section>
   );

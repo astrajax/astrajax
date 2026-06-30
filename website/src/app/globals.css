@@ -395,9 +395,15 @@ body {
 }
 
 .hero-asymmetric-wall__composition {
+  --hero-flank-col: 0.88fr;
+  --hero-center-col: 1.12fr;
+  --hero-flank-portrait-scale: 1.045;
   display: grid;
-  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr) minmax(0, 0.82fr);
-  column-gap: clamp(1rem, 2.8vw, 2.75rem);
+  grid-template-columns:
+    minmax(0, var(--hero-flank-col))
+    minmax(0, var(--hero-center-col))
+    minmax(0, var(--hero-flank-col));
+  column-gap: clamp(0.625rem, 2.1vw, 2.125rem);
   align-items: stretch;
   width: 100%;
   min-height: min(
@@ -417,13 +423,12 @@ body {
   align-items: center;
 }
 
-/* Pam — lower-left column; brand stacks above portrait only in this slot */
+/* Pam — lower-left column */
 .hero-asymmetric-wall__slot--pam {
   align-self: end;
   justify-content: flex-end;
   z-index: 2;
   transform: rotate(-0.65deg);
-  gap: clamp(0.35rem, 0.8vh, 0.65rem);
   padding-bottom: clamp(0.75rem, 4vh, 2.5rem);
 }
 
@@ -439,13 +444,14 @@ body {
   padding-block: clamp(1.5rem, 6vh, 4rem);
 }
 
-/* Doc — upper-right column */
+/* Doc — upper-right column; brand flush to top band above portrait */
 .hero-asymmetric-wall__slot--doc {
   align-self: start;
   justify-content: flex-start;
   z-index: 2;
   transform: rotate(0.65deg);
-  padding-top: clamp(0.25rem, 1.5vh, 1rem);
+  gap: clamp(0.2rem, 0.45vh, 0.4rem);
+  padding-top: 0;
 }
 
 .hero-portrait {
@@ -477,6 +483,21 @@ body {
   box-shadow:
     0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
+}
+
+/* Pam + Doc — slightly larger flanks, scaled toward Clive without crossing gutters */
+.hero-asymmetric-wall__slot--pam .hero-portrait,
+.hero-asymmetric-wall__slot--doc .hero-portrait {
+  width: calc(100% * var(--hero-flank-portrait-scale));
+  max-width: none;
+}
+
+.hero-asymmetric-wall__slot--pam .hero-portrait {
+  align-self: flex-end;
+}
+
+.hero-asymmetric-wall__slot--doc .hero-portrait {
+  align-self: flex-start;
 }
 
 .hero-asymmetric-wall__slot--clive .hero-portrait-frame {
@@ -524,7 +545,7 @@ body {
   opacity: 0.92;
 }
 
-/* ── Wall brand wordmark — centred above Pam's portrait in the lower-left slot ── */
+/* ── Wall brand wordmark — upper-right band, parallel to Doc's column ── */
 .hero-wall-brand {
   position: relative;
   z-index: 3;
@@ -532,16 +553,25 @@ body {
   flex-direction: column;
   align-items: center;
   gap: clamp(0.25rem, 0.6vh, 0.45rem);
-  margin-bottom: clamp(0.5rem, 1.2vh, 1rem);
   pointer-events: auto;
   text-decoration: none;
+  align-self: center;
+  flex-shrink: 0;
+}
+
+.hero-asymmetric-wall__slot--doc .hero-wall-brand {
+  margin-top: 0;
+  margin-bottom: clamp(0.1rem, 0.35vh, 0.25rem);
   align-self: center;
 }
 
 .hero-wall-brand__mark {
   width: clamp(2.5rem, 4.2vw, 3.75rem);
   height: auto;
-  filter: drop-shadow(0 1px 3px rgba(8, 6, 3, 0.55));
+  filter: drop-shadow(0 1px 2px rgba(8, 6, 3, 0.45))
+    brightness(0.92)
+    contrast(1.05);
+  opacity: 0.94;
 }
 
 .hero-wall-brand__word {
@@ -550,11 +580,13 @@ body {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  /* Buttermilk — warm brand emphasis on the dark wall */
-  color: var(--color-buttermilk);
+  /* Lighter carved bronze — wordmark set into the moss wall */
+  color: color-mix(in srgb, var(--color-parchment) 62%, #6b4a2e);
   text-shadow:
-    0 1px 2px rgba(8, 6, 3, 0.6),
-    0 0 14px rgba(8, 6, 3, 0.35);
+    -1px -1px 0 rgba(8, 6, 3, 0.55),
+    1px 1px 0 rgba(228, 211, 163, 0.18),
+    0 1px 3px rgba(8, 6, 3, 0.35);
+  opacity: 0.94;
 }
 
 .hero-wall-brand:focus-visible {
@@ -563,24 +595,27 @@ body {
   border-radius: 4px;
 }
 
-/* ── Wall headline — lower-right, the single visible page heading ── */
+/* ── Wall headline — lower-right, carved into the moss wall ── */
 .hero-wall-headline {
   position: absolute;
   right: clamp(1rem, 3.5vw, 3.5rem);
   bottom: clamp(1.25rem, 4vh, 3rem);
   z-index: 3;
-  max-width: min(30rem, 62vw);
+  max-width: min(34rem, 68vw);
   margin: 0;
   text-align: right;
   font-size: clamp(1.6rem, 3.2vw, 3rem);
   font-weight: 500;
   line-height: 1.08;
   letter-spacing: -0.01em;
-  /* Buttermilk — warm headline on the dark wall */
-  color: var(--color-buttermilk);
+  /* Deep copper/bronze — reads as wall material, not overlay */
+  color: color-mix(in srgb, var(--color-parchment) 48%, #7a5230);
   text-shadow:
-    0 1px 3px rgba(8, 6, 3, 0.6),
-    0 0 18px rgba(8, 6, 3, 0.4);
+    -1px -1px 0 rgba(8, 6, 3, 0.78),
+    -2px -2px 3px rgba(8, 6, 3, 0.38),
+    1px 1px 0 rgba(228, 211, 163, 0.28),
+    2px 2px 5px rgba(228, 211, 163, 0.1);
+  opacity: 0.94;
   pointer-events: none;
 }
 
@@ -639,6 +674,24 @@ body {
   gap: clamp(0.35rem, 2vw, 0.65rem);
 }
 
+.hero-asymmetric-wall__mobile-flanks {
+  align-items: start;
+}
+
+.hero-asymmetric-wall__mobile-flanks .hero-portrait {
+  width: 103%;
+  max-width: none;
+}
+
+.hero-asymmetric-wall__mobile-flanks .hero-asymmetric-wall__pam-mobile .hero-portrait {
+  align-self: flex-end;
+}
+
+.hero-asymmetric-wall__mobile-flanks > .hero-portrait {
+  align-self: flex-start;
+  justify-self: end;
+}
+
 .hero-asymmetric-wall__mobile .hero-portrait:first-child {
   max-width: none;
   width: 100%;
@@ -646,7 +699,8 @@ body {
 
 @media (min-width: 1280px) {
   .hero-asymmetric-wall__composition {
-    column-gap: clamp(1.25rem, 3vw, 3.25rem);
+    --hero-flank-portrait-scale: 1.05;
+    column-gap: clamp(0.75rem, 2.35vw, 2.5rem);
   }
 
   .hero-asymmetric-wall__slot--clive {
@@ -656,8 +710,11 @@ body {
 
 @media (min-width: 1536px) {
   .hero-asymmetric-wall__composition {
+    --hero-flank-col: 0.9fr;
+    --hero-center-col: 1.1fr;
+    --hero-flank-portrait-scale: 1.055;
     min-height: min(56rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5rem));
-    column-gap: clamp(1.5rem, 3.2vw, 3.75rem);
+    column-gap: clamp(0.875rem, 2.45vw, 2.75rem);
   }
 }
 
