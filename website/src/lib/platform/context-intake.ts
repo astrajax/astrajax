@@ -13,12 +13,51 @@ export const DETECTED_BY_CLIVES_MAN = "Clive's Man";
 
 export type ContextIntakeStatus = "pending" | "approved" | "declined" | "routed";
 
+/** Category of where Clive's Man detected the candidate context. */
+export type ContextSourceKind =
+  | "email"
+  | "slack"
+  | "notion"
+  | "workshop-source-document"
+  | "clive-interaction"
+  | "pam-interaction"
+  | "meeting-transcript"
+  | "repo-doc"
+  | "other";
+
+const CONTEXT_SOURCE_DISPLAY: Record<
+  Exclude<ContextSourceKind, "other">,
+  string
+> = {
+  email: "Email",
+  slack: "Slack",
+  notion: "Notion",
+  "workshop-source-document": "Workshop source document",
+  "clive-interaction": "Clive interaction",
+  "pam-interaction": "Pam interaction",
+  "meeting-transcript": "Meeting transcript",
+  "repo-doc": "Repo doc",
+};
+
+/** Human-readable category label for a detected context source. */
+export function contextSourceLabel(
+  kind: ContextSourceKind,
+  otherLabel?: string,
+): string {
+  if (kind === "other") {
+    return otherLabel?.trim() || "Other";
+  }
+  return CONTEXT_SOURCE_DISPLAY[kind];
+}
+
 export interface DetectedContextItem {
   id: string;
   title: string;
   /** Short human summary of the detected context. */
   snippet: string;
-  /** Where Clive's Man picked it up, e.g. "Gmail thread", "Workshop Source Document". */
+  /** Source category — drives the intake card pill. */
+  sourceKind: ContextSourceKind;
+  /** Human-readable provenance detail, e.g. "Gmail · pricing thread". */
   sourceLabel: string;
   /** Which agent detected it — always Clive's Man in this lane. */
   detectedByAgent: string;
@@ -41,7 +80,8 @@ export const CONTEXT_INTAKE_QUEUE: DetectedContextItem[] = [
     title: "Weekend shift-swap rule keeps getting re-asked",
     snippet:
       "Four separate rep threads ask how weekend shifts can be swapped and who signs them off. Looks like a durable working rule worth capturing.",
-    sourceLabel: "Gmail thread",
+    sourceKind: "email",
+    sourceLabel: "Gmail · ops-lead thread cluster (4 threads)",
     detectedByAgent: DETECTED_BY_CLIVES_MAN,
     suggestedBrainSlug: "northline-field-ops",
     confidenceNote:
@@ -53,7 +93,8 @@ export const CONTEXT_INTAKE_QUEUE: DetectedContextItem[] = [
     title: "Q3 discretionary discount ceiling memo",
     snippet:
       "Finance memo caps field discretionary discount at 12% for Q3. May supersede an earlier 15% note already in the brain.",
-    sourceLabel: "Workshop Source Document",
+    sourceKind: "workshop-source-document",
+    sourceLabel: "Workshop source · Q3 discount ceiling memo",
     detectedByAgent: DETECTED_BY_CLIVES_MAN,
     suggestedBrainSlug: "pricing-guardrails",
     confidenceNote:
@@ -65,7 +106,8 @@ export const CONTEXT_INTAKE_QUEUE: DetectedContextItem[] = [
     title: "'Committed' pipeline stage defined two ways",
     snippet:
       "Two teams describe the 'committed' forecast stage differently. This is a disagreement to surface, not a settled fact.",
-    sourceLabel: "Slack export",
+    sourceKind: "slack",
+    sourceLabel: "Slack export · committed-stage definitions",
     detectedByAgent: DETECTED_BY_CLIVES_MAN,
     suggestedBrainSlug: "forecast-coach",
     confidenceNote:
@@ -77,7 +119,8 @@ export const CONTEXT_INTAKE_QUEUE: DetectedContextItem[] = [
     title: "Territory handover checklist",
     snippet:
       "A tidy checklist for handing a territory between reps, captured from the ops lead's Notion page.",
-    sourceLabel: "Notion page",
+    sourceKind: "notion",
+    sourceLabel: "Notion · territory handover checklist",
     detectedByAgent: DETECTED_BY_CLIVES_MAN,
     suggestedBrainSlug: "northline-field-ops",
     confidenceNote:
@@ -89,7 +132,8 @@ export const CONTEXT_INTAKE_QUEUE: DetectedContextItem[] = [
     title: "Governed demo brain scope note",
     snippet:
       "Bootstrap note describing what the Chapter 1 demo brain is allowed to hold. Seeded material, not live curation.",
-    sourceLabel: "Repo doc",
+    sourceKind: "clive-interaction",
+    sourceLabel: "Clive interaction · Chapter 1 demo scope",
     detectedByAgent: DETECTED_BY_CLIVES_MAN,
     suggestedBrainSlug: "astrajax-chapter-1",
     confidenceNote:
@@ -101,7 +145,8 @@ export const CONTEXT_INTAKE_QUEUE: DetectedContextItem[] = [
     title: "Client asked for a bespoke annual rebate",
     snippet:
       "One client requested a custom annual rebate. Reads like a one-off negotiation rather than a reusable guardrail.",
-    sourceLabel: "Gmail thread",
+    sourceKind: "email",
+    sourceLabel: "Gmail · client bespoke rebate thread",
     detectedByAgent: DETECTED_BY_CLIVES_MAN,
     suggestedBrainSlug: "pricing-guardrails",
     confidenceNote:
@@ -113,7 +158,8 @@ export const CONTEXT_INTAKE_QUEUE: DetectedContextItem[] = [
     title: "Q4 seasonality assumption for acquisitions",
     snippet:
       "A working assumption that Q4 acquisitions dip before the holidays. Stated in a planning call, not yet evidenced.",
-    sourceLabel: "Meeting transcript",
+    sourceKind: "meeting-transcript",
+    sourceLabel: "Meeting transcript · Q4 planning call",
     detectedByAgent: DETECTED_BY_CLIVES_MAN,
     suggestedBrainSlug: "forecast-coach",
     confidenceNote:

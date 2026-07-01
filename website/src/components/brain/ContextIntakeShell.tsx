@@ -10,6 +10,7 @@ import {
 } from "@/lib/platform/brains";
 import {
   CONTEXT_INTAKE_QUEUE,
+  contextSourceLabel,
   createDeclinePaperTrail,
   createRoutePaperTrail,
   type ContextIntakeStatus,
@@ -86,12 +87,19 @@ function IntakeCard({
   const isPending = row.status === "pending";
   const targetName =
     routeOptions.find((brain) => brain.slug === row.targetSlug)?.name ?? row.targetSlug;
+  const sourceCategory = contextSourceLabel(row.sourceKind);
 
   return (
     <article className="context-intake__card card p-5" data-status={row.status}>
       <div className="context-intake__card-head">
         <span className={meta.pillClass}>{meta.label}</span>
-        <span className="context-intake__source">{row.sourceLabel}</span>
+        <span
+          className="context-intake__provenance"
+          aria-label={`Source: ${sourceCategory}. ${row.sourceLabel}`}
+        >
+          <span className="status-pill status-pill--clean">{sourceCategory}</span>
+          <span className="context-intake__source-detail">{row.sourceLabel}</span>
+        </span>
       </div>
 
       <h3 className="context-intake__title font-display">{row.title}</h3>
