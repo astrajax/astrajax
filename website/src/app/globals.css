@@ -402,14 +402,17 @@ body {
   --hero-col-gap: clamp(0.625rem, 2.1vw, 2.125rem);
   --hero-flank-portrait-scale: 1.045;
   --hero-pam-portrait-scale: 1.20;
+  --hero-doc-portrait-scale: 1.12;
   --hero-clive-portrait-scale: 1.11;
-  --hero-clive-stack-offset-x: clamp(-0.4rem, -1.1vw, -1rem);
+  --hero-lazlo-portrait-scale: 1;
+  --hero-clive-stack-offset-x: clamp(-0.7rem, -1.65vw, -1.45rem);
   position: relative;
   display: grid;
   grid-template-columns:
     minmax(0, var(--hero-flank-col))
     minmax(0, var(--hero-center-col))
     minmax(0, var(--hero-flank-col));
+  grid-template-rows: 1fr auto;
   column-gap: var(--hero-col-gap);
   align-items: stretch;
   width: 100%;
@@ -432,6 +435,8 @@ body {
 
 /* Pam — lower-left column; brand sits high, portrait stays low */
 .hero-asymmetric-wall__slot--pam {
+  grid-column: 1;
+  grid-row: 1 / -1;
   align-self: stretch;
   justify-content: stretch;
   height: 100%;
@@ -483,6 +488,8 @@ body {
 
 /* Clive — centre column stack; Man sits beneath at half scale */
 .hero-asymmetric-wall__slot--clive-stack {
+  grid-column: 2;
+  grid-row: 1;
   align-self: start;
   justify-content: flex-start;
   z-index: 1;
@@ -500,6 +507,8 @@ body {
 
 /* Doc — upper-right column stack; workshop robot minions side by side above his portrait */
 .hero-asymmetric-wall__slot--doc-stack {
+  grid-column: 3;
+  grid-row: 1;
   align-self: start;
   justify-content: flex-start;
   z-index: 2;
@@ -554,9 +563,9 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-/* Pam + Doc — slightly larger flanks, scaled toward Clive without crossing gutters */
+/* Doc — larger flank portrait, scaled toward Clive without crossing gutters */
 .hero-asymmetric-wall__slot--doc-stack .hero-portrait {
-  width: calc(100% * var(--hero-flank-portrait-scale));
+  width: calc(100% * var(--hero-doc-portrait-scale, 1.12));
   max-width: none;
 }
 
@@ -634,38 +643,31 @@ body {
     0 0.35rem 0.75rem rgba(6, 5, 3, 0.28);
 }
 
-/* Lazlo Marlowe — supporting portrait under Doc, ~half the flank scale */
+/* Lazlo Marlowe — bottom-right flank portrait, full column scale */
 .hero-asymmetric-wall__slot--lazlo {
-  align-self: center;
-  justify-content: flex-start;
-  z-index: 1;
-  width: 50%;
+  grid-column: 3;
+  grid-row: 2;
+  align-self: end;
+  justify-self: end;
+  justify-content: flex-end;
+  z-index: 3;
+  width: 100%;
   min-width: 0;
-  transform: none;
+  transform: rotate(0.55deg);
   padding: 0;
+  padding-bottom: clamp(0.25rem, 1.5vh, 0.75rem);
 }
 
 .hero-asymmetric-wall__slot--lazlo .hero-portrait {
-  width: 100%;
-  align-self: center;
-}
-
-.hero-asymmetric-wall__slot--lazlo .hero-portrait-caption {
-  margin-top: clamp(0.3rem, 0.7vw, 0.5rem);
-}
-
-.hero-asymmetric-wall__slot--lazlo .hero-portrait-caption__name {
-  font-size: clamp(0.6875rem, 0.85vw, 0.8125rem);
-}
-
-.hero-asymmetric-wall__slot--lazlo .hero-portrait-caption__role {
-  font-size: clamp(0.625rem, 0.75vw, 0.75rem);
+  width: calc(100% * var(--hero-lazlo-portrait-scale, 1));
+  max-width: none;
+  align-self: flex-end;
 }
 
 .hero-asymmetric-wall__slot--lazlo .hero-portrait-frame {
   box-shadow:
-    -0.1rem 1rem 2rem rgba(6, 5, 3, 0.42),
-    0 0.35rem 0.75rem rgba(6, 5, 3, 0.28);
+    -0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
+    0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
 .hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child .hero-portrait-frame,
@@ -903,7 +905,7 @@ body {
   align-items: center;
   gap: clamp(0.5rem, 2.5vw, 0.85rem);
   width: 100%;
-  transform: translateX(clamp(-0.25rem, -1.5vw, -0.5rem));
+  transform: translateX(clamp(-0.4rem, -2vw, -0.75rem));
 }
 
 .hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child,
@@ -935,26 +937,21 @@ body {
 }
 
 .hero-asymmetric-wall__lazlo-mobile {
-  width: 50%;
-  margin-top: 0;
-  align-self: center;
+  width: min(100%, 22rem);
+  margin-top: clamp(0.25rem, 2vw, 0.75rem);
+  margin-left: auto;
+  align-self: flex-end;
 }
 
 .hero-asymmetric-wall__lazlo-mobile .hero-portrait {
   width: 100%;
-  margin: 0 auto;
+  margin: 0;
 }
 
-.hero-asymmetric-wall__lazlo-mobile .hero-portrait-caption {
-  margin-top: clamp(0.3rem, 1.5vw, 0.5rem);
-}
-
-.hero-asymmetric-wall__lazlo-mobile .hero-portrait-caption__name {
-  font-size: clamp(0.6875rem, 2.8vw, 0.8125rem);
-}
-
-.hero-asymmetric-wall__lazlo-mobile .hero-portrait-caption__role {
-  font-size: clamp(0.625rem, 2.5vw, 0.75rem);
+.hero-asymmetric-wall__lazlo-mobile .hero-portrait-frame {
+  box-shadow:
+    -0.1rem 1.25rem 2.35rem rgba(6, 5, 3, 0.46),
+    0 0.4rem 0.85rem rgba(6, 5, 3, 0.3);
 }
 
 .hero-asymmetric-wall__mobile-flanks .hero-portrait-caption {
@@ -983,8 +980,10 @@ body {
   .hero-asymmetric-wall__composition {
     --hero-flank-portrait-scale: 1.05;
     --hero-pam-portrait-scale: 1.22;
+    --hero-doc-portrait-scale: 1.145;
     --hero-clive-portrait-scale: 1.12;
-    --hero-clive-stack-offset-x: clamp(-0.5rem, -1.25vw, -1.15rem);
+    --hero-lazlo-portrait-scale: 1.02;
+    --hero-clive-stack-offset-x: clamp(-0.85rem, -1.85vw, -1.65rem);
     --hero-col-gap: clamp(0.75rem, 2.35vw, 2.5rem);
   }
 
@@ -1001,8 +1000,10 @@ body {
     --hero-center-fr: 1.1;
     --hero-flank-portrait-scale: 1.055;
     --hero-pam-portrait-scale: 1.24;
+    --hero-doc-portrait-scale: 1.165;
     --hero-clive-portrait-scale: 1.13;
-    --hero-clive-stack-offset-x: clamp(-0.55rem, -1.35vw, -1.25rem);
+    --hero-lazlo-portrait-scale: 1.04;
+    --hero-clive-stack-offset-x: clamp(-0.95rem, -2vw, -1.8rem);
     min-height: min(56rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5rem));
     --hero-col-gap: clamp(0.875rem, 2.45vw, 2.75rem);
   }
@@ -1307,15 +1308,17 @@ body {
 
 /* ── Chapter 1: open-book study stage (SC2-style spread + Clive portal) ── */
 .study-stage {
-  --clive-study-video-scale: 0.72;
+  /* Portal crops via object-fit: cover already; keep this near 1 so gestures
+     (paws, arm lifts) don't get cut off by an extra zoom on top of that crop. */
+  --clive-study-video-scale: 0.96;
   --book-clive-top: 10%;
   --book-clive-right: 6.5%;
   --book-clive-width: min(27vw, 19rem);
-  --book-content-top: clamp(4.25rem, 11vh, 5.75rem);
-  --book-content-left: clamp(5%, 7vw, 9%);
-  --book-content-width: min(41%, 30rem);
-  --book-ink: #3a2d1f;
-  --book-ink-muted: color-mix(in srgb, var(--book-ink) 72%, #8a7355);
+  --book-content-top: clamp(4.75rem, 13vh, 6.75rem);
+  --book-content-left: clamp(9%, 11vw, 13%);
+  --book-content-width: min(34%, 22.5rem);
+  --book-ink: #23271b;
+  --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
   position: relative;
   height: 100vh;
   height: 100dvh;
@@ -1489,10 +1492,18 @@ body {
   top: var(--book-content-top);
   left: var(--book-content-left);
   width: var(--book-content-width);
-  bottom: clamp(1.25rem, 3.5vh, 2rem);
+  bottom: clamp(2rem, 8vh, 3.5rem);
   min-height: 0;
   overflow-y: auto;
   padding: 0.25rem 0.5rem 0.75rem 0;
+}
+
+.study-stage--book .study-stage__content {
+  padding:
+    clamp(0.75rem, 2.5vh, 1.25rem)
+    clamp(0.75rem, 2vw, 1.125rem)
+    clamp(0.75rem, 2vh, 1rem)
+    clamp(1rem, 2.5vw, 1.5rem);
 }
 
 .study-stage__content:has(.clive-welcome),
@@ -1517,8 +1528,9 @@ body {
     --book-clive-top: 11%;
     --book-clive-right: 7.5%;
     --book-clive-width: min(24vw, 20rem);
-    --book-content-left: clamp(6%, 8vw, 10%);
-    --book-content-width: min(38%, 32rem);
+    --book-content-top: clamp(5.25rem, 14vh, 7.25rem);
+    --book-content-left: clamp(10%, 12vw, 14%);
+    --book-content-width: min(33%, 24rem);
   }
 }
 
@@ -1527,9 +1539,9 @@ body {
     --book-clive-top: 8%;
     --book-clive-right: 4%;
     --book-clive-width: min(38vw, 11rem);
-    --book-content-top: clamp(3.75rem, 10vh, 4.5rem);
-    --book-content-left: clamp(4%, 5vw, 6%);
-    --book-content-width: min(52%, 18rem);
+    --book-content-top: clamp(4rem, 11vh, 5rem);
+    --book-content-left: clamp(6%, 7vw, 8%);
+    --book-content-width: min(46%, 16.5rem);
   }
 }
 
@@ -1544,64 +1556,111 @@ body {
   overflow: hidden;
 }
 
+.study-stage--book .clive-welcome {
+  justify-content: flex-start;
+  gap: clamp(0.35rem, 1.2vh, 0.65rem);
+}
+
+.study-stage--book .study-stage__header {
+  border-bottom-color: color-mix(in srgb, var(--book-ink) 16%, transparent);
+  background:
+    linear-gradient(180deg, rgba(35, 39, 27, 0.58), rgba(35, 39, 27, 0.28)),
+    linear-gradient(90deg, rgba(243, 237, 219, 0.08), transparent 55%);
+}
+
 .study-stage--book .clive-welcome-caption {
-  color: color-mix(in srgb, var(--book-ink) 94%, #1a120c);
-  text-shadow: 0 1px 0 rgba(255, 248, 235, 0.35);
+  font-size: clamp(0.9rem, 1.65vw, 1.2rem);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: 0.045em;
+  color: var(--book-ink);
+  text-shadow: none;
 }
 
 .study-stage--book .clive-welcome-caption::after {
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(120, 88, 48, 0.16) 10%,
-    rgba(120, 88, 48, 0.42) 50%,
-    rgba(120, 88, 48, 0.16) 90%,
+    color-mix(in srgb, var(--book-ink) 12%, transparent) 8%,
+    color-mix(in srgb, var(--book-ink) 28%, transparent) 50%,
+    color-mix(in srgb, var(--book-ink) 12%, transparent) 92%,
     transparent 100%
   );
-  box-shadow: 0 1px 0 rgba(255, 248, 235, 0.25);
+  box-shadow: none;
 }
 
 .study-stage--book .clive-welcome-monologue {
-  border-left-color: rgba(120, 88, 48, 0.34);
-  box-shadow: inset 1px 0 0 rgba(255, 248, 235, 0.35);
+  flex: 1;
+  gap: clamp(0.35rem, 1vh, 0.5rem);
+  padding:
+    clamp(0.15rem, 0.6vh, 0.35rem)
+    clamp(0.25rem, 0.8vw, 0.5rem)
+    0
+    clamp(0.65rem, 1.4vw, 0.875rem);
+  border-left: 1px solid color-mix(in srgb, var(--book-ink) 22%, transparent);
+  box-shadow: inset 1px 0 0 rgba(255, 248, 235, 0.45);
 }
 
 .study-stage--book .clive-welcome-monologue__label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
   color: var(--book-ink-muted);
   text-shadow: none;
 }
 
 .study-stage--book .clive-welcome-monologue__text {
+  font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: clamp(0.8125rem, 1.45vw, 0.9375rem);
+  line-height: 1.68;
+  text-align: justify;
+  text-align-last: left;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  hanging-punctuation: first last;
   color: var(--book-ink);
-  text-shadow: 0 1px 0 rgba(255, 248, 235, 0.28);
+  text-shadow: none;
+}
+
+.study-stage--book .clive-welcome-monologue__text::first-letter {
+  float: left;
+  margin: 0.04em 0.1em 0 0;
+  font-size: 3.15em;
+  line-height: 0.82;
+  font-weight: 600;
+  color: var(--book-ink);
 }
 
 .study-stage--book .clive-welcome__hint {
   color: var(--book-ink-muted);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 0.75rem;
 }
 
 .study-stage--book .study-stage__ghost-btn {
-  border-color: rgba(120, 88, 48, 0.34);
-  color: color-mix(in srgb, var(--book-ink) 88%, #1a120c);
-  background: rgba(255, 248, 235, 0.42);
+  border-color: color-mix(in srgb, var(--book-ink) 22%, transparent);
+  color: var(--book-ink);
+  background: color-mix(in srgb, var(--color-cream-paper) 72%, transparent);
+  box-shadow: none;
 }
 
 .study-stage--book .study-stage__ghost-btn:hover {
-  border-color: rgba(120, 88, 48, 0.52);
+  border-color: color-mix(in srgb, var(--book-ink) 38%, transparent);
   color: var(--book-ink);
-  background: rgba(255, 248, 235, 0.58);
+  background: color-mix(in srgb, var(--color-cream-paper) 88%, transparent);
 }
 
 .study-stage--book .chapter1-conversation__prompt,
 .study-stage--book .clive-chat--study .clive-chat__prompt-text {
+  font-family: Georgia, "Times New Roman", Times, serif;
   color: var(--book-ink-muted);
   text-shadow: none;
 }
 
 .study-stage--book .clive-chat--study .clive-chat__input {
+  font-family: Georgia, "Times New Roman", Times, serif;
   color: var(--book-ink);
-  background: rgba(255, 248, 235, 0.55);
-  border-color: rgba(120, 88, 48, 0.28);
+  background: color-mix(in srgb, var(--color-cream-paper) 78%, transparent);
+  border-color: color-mix(in srgb, var(--book-ink) 18%, transparent);
 }
 
 /* Caption row — in flow (not absolute) so monologue never overlaps */

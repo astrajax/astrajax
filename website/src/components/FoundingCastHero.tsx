@@ -414,15 +414,15 @@ export function FoundingCastHero() {
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
-            <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--lazlo">
-              <CastPortrait
-                entry={lazloMarlowe}
-                displayName={lazloMarlowe.name}
-                sizes="(min-width: 1536px) 13vw, (min-width: 1024px) 13vw, 23vw"
-                prefersReducedMotion={prefersReducedMotion}
-                portraitDoorsEnabled={portraitDoorsEnabled}
-              />
-            </div>
+          </div>
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--lazlo">
+            <CastPortrait
+              entry={lazloMarlowe}
+              displayName={lazloMarlowe.name}
+              sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 72vw"
+              prefersReducedMotion={prefersReducedMotion}
+              portraitDoorsEnabled={portraitDoorsEnabled}
+            />
           </div>
         </div>
       </div>
@@ -473,16 +473,16 @@ export function FoundingCastHero() {
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
-            <div className="hero-asymmetric-wall__lazlo-mobile">
-              <CastPortrait
-                entry={lazloMarlowe}
-                displayName={lazloMarlowe.name}
-                sizes="23vw"
-                prefersReducedMotion={prefersReducedMotion}
-                portraitDoorsEnabled={portraitDoorsEnabled}
-              />
-            </div>
           </div>
+        </div>
+        <div className="hero-asymmetric-wall__lazlo-mobile">
+          <CastPortrait
+            entry={lazloMarlowe}
+            displayName={lazloMarlowe.name}
+            sizes="72vw"
+            prefersReducedMotion={prefersReducedMotion}
+            portraitDoorsEnabled={portraitDoorsEnabled}
+          />
         </div>
       </div>
     </div>
