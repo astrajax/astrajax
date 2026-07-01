@@ -30,10 +30,10 @@ const HERO_ALT: Record<string, string> = {
 
 /** Editorial role lines for the hero captions (mockup-approved). */
 const HERO_ROLE: Record<string, string> = {
-  "clive-wigglesworth": "The Thought Campion",
+  "clive-wigglesworth": "The Thought Companion",
   "pam-portiscue": "The Challenger",
-  "doc-albright": "The Executor",
-  "clives-man": "The Steward",
+  "doc-albright": "The Engineer",
+  "clives-man": "The Context Steward",
 };
 
 const triptych = foundingCastHeroTriptych();
@@ -309,25 +309,25 @@ function CommandCentreHint({ enabled }: { enabled: boolean }) {
 
 function DocWorkshopRobotGrid() {
   return (
-    <div
-      className="hero-doc-workshop-grid"
-      aria-label="Doc's workshop robots — supporting cast portraits"
-    >
-      {DOC_WORKSHOP_ROBOTS.map((robot) => (
-        <figure key={robot.src} className="hero-doc-workshop-grid__cell">
-          <div className="hero-doc-workshop-grid__frame">
-            <Image
-              src={robot.src}
-              alt={robot.alt}
-              width={DOC_WORKSHOP_ROBOT_SIZE}
-              height={DOC_WORKSHOP_ROBOT_SIZE}
-              sizes="(min-width: 1024px) 7vw, 12vw"
-              className="hero-doc-workshop-grid__media"
-            />
+    <figure className="hero-doc-workshop">
+      <div className="hero-doc-workshop-grid" aria-label="Doc's Minions — Doc's Executors">
+        {DOC_WORKSHOP_ROBOTS.map((robot) => (
+          <div key={robot.src} className="hero-doc-workshop-grid__cell">
+            <div className="hero-doc-workshop-grid__frame">
+              <Image
+                src={robot.src}
+                alt={robot.alt}
+                width={DOC_WORKSHOP_ROBOT_SIZE}
+                height={DOC_WORKSHOP_ROBOT_SIZE}
+                sizes="(min-width: 1024px) 7vw, 12vw"
+                className="hero-doc-workshop-grid__media"
+              />
+            </div>
           </div>
-        </figure>
-      ))}
-    </div>
+        ))}
+      </div>
+      <PortraitCaption name="Doc's Minions" role="Doc's Executors" />
+    </figure>
   );
 }
 
