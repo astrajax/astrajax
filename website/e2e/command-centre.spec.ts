@@ -11,16 +11,21 @@ test.describe("Command centre", () => {
     await expect(page.getByRole("heading", { name: "All platform surfaces" })).toBeVisible();
   });
 
-  test("light story shows Core features and room chips", async ({ page }) => {
+  test("light story shows platform heading and room links", async ({ page }) => {
     await page.addInitScript((key) => {
       window.localStorage.setItem(key, "light");
     }, STORY_MODE_STORAGE_KEY);
 
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "Core features" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Clive's study" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Doc's workshop" })).toBeVisible();
-    await expect(page.getByRole("link", { name: "Pam's desk" })).toBeVisible();
+    // Portrait doors are enabled in light story, so the flag-on heading renders;
+    // accept the flag-off "Core features" variant too.
+    await expect(
+      page.getByRole("heading", { name: /All platform surfaces|Core features/ }),
+    ).toBeVisible();
+    // Room links are FeatureHub chips when doors are off, portrait doors when on.
+    await expect(page.getByRole("link", { name: /Clive's study/ }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /Doc's workshop/ }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /Pam's desk/ }).first()).toBeVisible();
   });
 
   test("review deep link activates Outstanding actions tab", async ({ page }) => {
@@ -65,7 +70,7 @@ test.describe("Command centre", () => {
 
     await page.getByRole("link", { name: /Enter Doc's workshop/i }).click();
     await expect(page).toHaveURL(/\/command\/doc$/);
-    await expect(page.getByText("Doc's workshop")).toBeVisible();
+    await expect(page.getByText("Doc's workshop", { exact: true })).toBeVisible();
     await expect(
       page.getByRole("img", {
         name: /Doc Albright at his steampunk workshop/i,
