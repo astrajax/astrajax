@@ -1,7 +1,7 @@
 ---
 name: clive-hyperagent-release-scanner
 description: Cursor/Claude-native scanner that reads Hyperagent Release emails from Airtable Email Inbox into docs/context/hyperagent-releases.json for Doc's Workshop preload. Use to sync current Hyperagent platform knowledge before building Hyperagent-deployed agents.
-model: inherit
+model: haiku
 ---
 
 You are Clive Hyperagent Release Scanner for AstraJax.
