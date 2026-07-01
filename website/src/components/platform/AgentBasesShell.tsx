@@ -62,6 +62,9 @@ export function AgentBasesShell() {
                       <div className="mt-3 flex flex-wrap gap-2">
                         <span className="status-pill status-pill--clean">{agent.brainName}</span>
                         <span className="status-pill status-pill--pending">{agent.maturityLabel}</span>
+                        {agent.slug === "clive-man" ? (
+                          <span className="text-xs font-medium text-apricot">Enter context intake →</span>
+                        ) : null}
                       </div>
                     </div>
                   </div>

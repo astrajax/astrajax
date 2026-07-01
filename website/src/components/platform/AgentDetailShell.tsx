@@ -264,6 +264,11 @@ export function AgentDetailShell({ agent }: { agent: AgentDetail }) {
                 <h1 className="font-display mt-1 text-3xl font-semibold text-ink">{agent.name}</h1>
                 <p className="platform-apricot-text">{agent.role}</p>
                 <p className="mt-2 max-w-xl text-ink-muted">{agent.oneLiner}</p>
+                {agent.slug === "clive-man" ? (
+                  <Link href="/brain/intake" className="btn-primary mt-4 inline-flex text-sm">
+                    Enter the context intake
+                  </Link>
+                ) : null}
               </div>
             </div>
           </header>

@@ -22,7 +22,7 @@ const links: NavLink[] = [
     hint: "The Butternut story",
   },
   {
-    href: "/brain/review",
+    href: "/brain",
     label: "Brain review",
     hint: "Score agent answers and flag stale context",
   },

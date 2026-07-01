@@ -62,6 +62,17 @@ Copy `website/.env.example` for local dev. Redeploy after adding keys.
 
 Run invariant tests: `npm run test:brain-key`
 
+## Platform routes (brain governance)
+
+| Route | Purpose |
+|-------|---------|
+| `/brain` | Brain shrine — browse seeded/registry brains, name new brains, Enter workspace |
+| `/brain/[slug]?tab=` | Per-brain workspace (`overview`, `truths-memories`, `review`, `context-health`, `paper-trail`) |
+| `/brain/health` | Redirect → default brain overview tab |
+| `/brain/review` | Redirect → default brain review tab (preserves `?view=`) |
+
+Default brain slug: `northline-field-ops`. Full build spec: [`docs/initiatives/brain-shrine-build-plan.md`](../docs/initiatives/brain-shrine-build-plan.md).
+
 ## Next steps
 
 1. Add `ANTHROPIC_API_KEY` (+ `AIRTABLE_READ_TOKEN`) in Vercel and redeploy

@@ -27,7 +27,7 @@ import {
 import { deriveBrainKeyUiState } from "@/lib/brains/ui-states";
 import { isHubBookId, stepForBook, getLoopStepsForBook } from "@/lib/chapter1/hub-books";
 
-function createInitialState(currentStep: LoopStep = "welcome"): LoopState {
+function createInitialState(currentStep: LoopStep = "welcome", newBrainName?: string): LoopState {
   const persisted = loadPersistedLoopSlice();
   const base: LoopState = {
     sessionId: persisted?.sessionId ?? crypto.randomUUID(),
@@ -36,7 +36,9 @@ function createInitialState(currentStep: LoopStep = "welcome"): LoopState {
     userBrain: persisted?.userBrain ?? null,
     userBrainIntake: persisted?.userBrainIntake ?? null,
     guideMode: "full_story",
-    businessBrain: DEFAULT_BUSINESS_BRAIN,
+    businessBrain: newBrainName
+      ? { ...DEFAULT_BUSINESS_BRAIN, clientName: newBrainName }
+      : DEFAULT_BUSINESS_BRAIN,
     pamReview: DEFAULT_PAM_REVIEW,
     keyRequest: null,
     grant: null,
@@ -64,13 +66,16 @@ export function AieDemoShell() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const bookParam = readBookParam(searchParams.get("book"));
+  const newBrainParam = searchParams.get("newBrain")?.trim() || undefined;
   const cliveVideoRef = useRef<CliveVideoStageHandle>(null);
   const [hubSelection, setHubSelection] = useState<HubBookId | null>(() => bookParam);
   const [welcomeComplete, setWelcomeComplete] = useState(
     () => (bookParam ? stepForBook(bookParam).skipWelcomeSequence : false),
   );
   const [state, setState] = useState<LoopState>(() =>
-    bookParam ? createInitialState(stepForBook(bookParam).currentStep) : createInitialState(),
+    bookParam
+      ? createInitialState(stepForBook(bookParam).currentStep, newBrainParam)
+      : createInitialState(),
   );
 
   const accessState = deriveBrainKeyUiState({
@@ -99,11 +104,11 @@ export function AieDemoShell() {
       const { currentStep, skipWelcomeSequence } = stepForBook(bookParam);
       setHubSelection(bookParam);
       setWelcomeComplete(skipWelcomeSequence);
-      setState(createInitialState(currentStep));
+      setState(createInitialState(currentStep, newBrainParam));
       return;
     }
     router.replace("/command/clive");
-  }, [bookParam, router]);
+  }, [bookParam, newBrainParam, router]);
 
   const loopSteps = useMemo(() => getLoopStepsForBook(bookParam), [bookParam]);
 

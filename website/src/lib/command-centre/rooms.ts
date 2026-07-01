@@ -1,4 +1,5 @@
 import type { FoundingCastProductSlug } from "@/lib/agent-cast-assets";
+import { DEFAULT_BRAIN_SLUG } from "@/lib/platform/brains";
 
 export type CommandRoomSlug = Extract<FoundingCastProductSlug, "clive" | "doc" | "pam">;
 
@@ -46,7 +47,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
         id: "context-review",
         title: "Brain review",
         description: "Score agent answers and flag suspect context from the review shortlist.",
-        href: "/brain/review",
+        href: `/brain/${DEFAULT_BRAIN_SLUG}?tab=review`,
         cta: "Open review",
         badge: "Live",
       },
@@ -109,7 +110,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
         title: "Outstanding actions",
         description:
           "Clive's Man proposals — context repairs waiting for your approve or dismiss.",
-        href: "/brain/review?view=actionProposed",
+        href: `/brain/${DEFAULT_BRAIN_SLUG}?tab=review&view=actionProposed`,
         cta: "Open proposals",
         badge: "Live",
       },
@@ -117,7 +118,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
         id: "health",
         title: "Brain health",
         description: "Maturity ladder, efficiency credit, leaderboard, promote gate.",
-        href: "/brain/health",
+        href: `/brain/${DEFAULT_BRAIN_SLUG}?tab=overview`,
         cta: "Open brain health",
         badge: "Live",
       },
@@ -126,7 +127,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
         title: "Context Health",
         description:
           "Importance mix, risk tolerance, retire queue — spot bloat before it spreads.",
-        href: "/brain/health#context-health",
+        href: `/brain/${DEFAULT_BRAIN_SLUG}?tab=context-health`,
         cta: "Open context health",
         badge: "Live",
       },
@@ -134,7 +135,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
         id: "review",
         title: "Brain review queue",
         description: "Needs-review shortlist — score answers, flag suspect context.",
-        href: "/brain/review",
+        href: `/brain/${DEFAULT_BRAIN_SLUG}?tab=review`,
         cta: "Open review",
         badge: "Live",
       },

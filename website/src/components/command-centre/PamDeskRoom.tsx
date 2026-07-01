@@ -47,7 +47,7 @@ export function PamDeskRoom() {
           live sync.
         </p>
         <Link
-          href="/brain/health#context-health"
+          href="/brain/northline-field-ops?tab=context-health"
           className="mt-3 inline-block text-sm text-apricot underline-offset-2 hover:underline"
         >
           Open Context Health tab →

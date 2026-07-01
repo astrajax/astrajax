@@ -1,17 +1,13 @@
-import { Suspense } from "react";
-import { InteractionReviewShell } from "@/components/brain/InteractionReviewShell";
-import type { Metadata } from "next";
+import { DEFAULT_BRAIN_SLUG } from "@/lib/platform/brains";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Review agent answers — AstraJax",
-  description:
-    "Client-facing quality review for Clive and Pam interactions — score answers 1–5 and flag context issues.",
+type PageProps = {
+  searchParams: Promise<{ view?: string }>;
 };
 
-export default function BrainReviewPage() {
-  return (
-    <Suspense fallback={<p className="p-10 text-sm text-ink-muted">Loading review…</p>}>
-      <InteractionReviewShell />
-    </Suspense>
-  );
+export default async function BrainReviewRedirect({ searchParams }: PageProps) {
+  const { view } = await searchParams;
+  const params = new URLSearchParams({ tab: "review" });
+  if (view) params.set("view", view);
+  redirect(`/brain/${DEFAULT_BRAIN_SLUG}?${params.toString()}`);
 }

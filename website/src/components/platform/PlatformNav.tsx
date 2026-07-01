@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const PLATFORM_LINKS = [
-  { href: "/brain/health", label: "Brain health" },
+  { href: "/brain", label: "Brain shrine" },
   { href: "/agents", label: "Agent bases" },
   { href: "/coach", label: "Coach" },
   { href: "/court", label: "Court mode" },

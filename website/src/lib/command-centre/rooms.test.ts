@@ -6,7 +6,7 @@ describe("command-centre rooms", () => {
     const pam = COMMAND_ROOMS.pam;
     const outstanding = pam.stations.find((station) => station.id === "outstanding-actions");
     expect(outstanding).toBeDefined();
-    expect(outstanding?.href).toBe("/brain/review?view=actionProposed");
+    expect(outstanding?.href).toBe("/brain/northline-field-ops?tab=review&view=actionProposed");
   });
 
   it("all station links are internal paths", () => {

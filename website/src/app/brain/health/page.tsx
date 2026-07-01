@@ -1,12 +1,6 @@
-import { BrainHealthShell } from "@/components/platform/BrainHealthShell";
-import type { Metadata } from "next";
+import { DEFAULT_BRAIN_SLUG } from "@/lib/platform/brains";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Brain health — AstraJax",
-  description:
-    "Brain maturity ladder, efficiency credit, celebrate-not-surveil leaderboard, and truths + memories review.",
-};
-
-export default function BrainHealthPage() {
-  return <BrainHealthShell />;
+export default function BrainHealthRedirect() {
+  redirect(`/brain/${DEFAULT_BRAIN_SLUG}?tab=overview`);
 }

@@ -25,6 +25,10 @@ export function stepForBook(book: HubBookId): {
 }
 
 export function chapter1BookHref(book: HubBookId): string {
+  if (book === "brain-building") {
+    // Enter Clive's Man's context-intake queue first; it flows on to the shrine.
+    return "/brain/intake";
+  }
   return `/chapter-1?book=${book}`;
 }
 

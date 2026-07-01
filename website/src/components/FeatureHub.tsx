@@ -17,7 +17,7 @@ const FEATURES: FeatureEntry[] = [
   {
     title: "Brain review",
     description: "Score agent answers and flag stale context from the Needs-review shortlist.",
-    href: "/brain/review",
+    href: "/brain/northline-field-ops?tab=review",
     status: "live",
     cta: "Open review",
   },
@@ -36,9 +36,9 @@ const FEATURES: FeatureEntry[] = [
     cta: "Open agent bases",
   },
   {
-    title: "Brains — health meter + memories review",
-    description: "Maturity ladder, efficiency credit, leaderboard, and truths + memories promote gate.",
-    href: "/brain/health",
+    title: "Brains — shrine + governance workspace",
+    description: "Browse brains on the shrine, read health at a glance, and enter each brain's workspace.",
+    href: "/brain",
     status: "live",
     cta: "Open brain health",
   },

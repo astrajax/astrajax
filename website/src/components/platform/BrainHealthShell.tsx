@@ -1,10 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { PlatformNav } from "@/components/platform/PlatformNav";
+import {
+  healthBandLabel,
+  HEALTH_BAND_CSS_VAR,
+  type BrainHealthBand,
+} from "@/lib/platform/brains";
 import {
   DEFAULT_BRAIN_HEALTH,
   EFFICIENCY_CREDIT_TABLE,
@@ -24,7 +29,25 @@ import {
   type RiskTolerance,
 } from "@/lib/platform/brain-health";
 
-type HealthTab = "overview" | "truths-memories" | "context-health";
+export type BrainHealthViewTab = "overview" | "truths-memories" | "context-health";
+
+type HealthTab = BrainHealthViewTab;
+
+function HealthBandBanner({ band }: { band: BrainHealthBand }) {
+  return (
+    <div
+      className="brain-health-band mb-6"
+      style={{ "--health-accent": HEALTH_BAND_CSS_VAR[band] } as CSSProperties}
+      role="status"
+    >
+      <span>Health mood:</span>
+      <span>{healthBandLabel(band)}</span>
+      <span className="text-xs font-normal text-ink-muted">
+        — coaching read, not permission to act unsupervised
+      </span>
+    </div>
+  );
+}
 
 function formatWhen(iso: string): string {
   try {
@@ -421,14 +444,36 @@ function ContextHealthPanel({
   );
 }
 
-export function BrainHealthShell() {
-  const [snapshot] = useState<BrainHealthSnapshot>(DEFAULT_BRAIN_HEALTH);
-  const [tab, setTab] = useState<HealthTab>("overview");
+export type BrainHealthShellProps = {
+  embedded?: boolean;
+  activeTab?: BrainHealthViewTab;
+  snapshotOverride?: BrainHealthSnapshot;
+  healthBand?: BrainHealthBand;
+  reviewHref?: string;
+};
+
+export function BrainHealthShell({
+  embedded = false,
+  activeTab,
+  snapshotOverride,
+  healthBand,
+  reviewHref = "/brain/review",
+}: BrainHealthShellProps = {}) {
+  const [snapshot] = useState<BrainHealthSnapshot>(snapshotOverride ?? DEFAULT_BRAIN_HEALTH);
+  const [tab, setTab] = useState<HealthTab>(activeTab ?? "overview");
   const [memories, setMemories] = useState(snapshot.memories);
   const [riskTolerance, setRiskTolerance] = useState<RiskTolerance>(snapshot.riskTolerance);
   const [paperTrails, setPaperTrails] = useState<Record<string, PaperTrailLine[]>>({});
 
   useEffect(() => {
+    if (embedded && activeTab) {
+      setTab(activeTab);
+    }
+  }, [embedded, activeTab]);
+
+  useEffect(() => {
+    if (embedded) return;
+
     function syncTabFromHash() {
       if (typeof window === "undefined") return;
       if (window.location.hash === "#context-health") {
@@ -439,7 +484,7 @@ export function BrainHealthShell() {
     syncTabFromHash();
     window.addEventListener("hashchange", syncTabFromHash);
     return () => window.removeEventListener("hashchange", syncTabFromHash);
-  }, []);
+  }, [embedded]);
 
   const nextStep = useMemo(
     () => MATURITY_LADDER.find((s) => s.level === snapshot.nextLevel),
@@ -498,62 +543,13 @@ export function BrainHealthShell() {
     { label: "Management sign-off current", ok: snapshot.eligibility.signOffCurrent },
   ];
 
-  return (
+  const resolvedTab = embedded && activeTab ? activeTab : tab;
+
+  const tabPanels = (
     <>
-      <Nav />
-      <PlatformNav />
-      <main className="platform-page">
-        <div className="platform-page__inner">
-          <header className="platform-page__header">
-            <p className="section-label">Brain health meter</p>
-            <h1 className="font-display mt-2 text-3xl font-semibold text-ink sm:text-4xl">
-              {snapshot.brainName}
-            </h1>
-            <p className="mt-3 max-w-2xl text-lg text-ink-muted">
-              Maturity earned by human review, not agent confidence. Coaching, not surveillance.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <span className="status-pill status-pill--live">{maturityLabel(snapshot.currentLevel)}</span>
-              {nextStep ? (
-                <span className="status-pill status-pill--pending">Next: {nextStep.shortLabel}</span>
-              ) : null}
-            </div>
-          </header>
-
-          <div className="platform-tabs">
-            <button
-              type="button"
-              aria-pressed={tab === "overview"}
-              className={`platform-tabs__btn${tab === "overview" ? " platform-tabs__btn--active" : ""}`}
-              onClick={() => setTab("overview")}
-            >
-              Overview
-            </button>
-            <button
-              type="button"
-              aria-pressed={tab === "truths-memories"}
-              className={`platform-tabs__btn${tab === "truths-memories" ? " platform-tabs__btn--active" : ""}`}
-              onClick={() => setTab("truths-memories")}
-            >
-              Truths + memories
-            </button>
-            <button
-              type="button"
-              aria-pressed={tab === "context-health"}
-              className={`platform-tabs__btn${tab === "context-health" ? " platform-tabs__btn--active" : ""}`}
-              onClick={() => {
-                setTab("context-health");
-                if (typeof window !== "undefined") {
-                  window.history.replaceState(null, "", "#context-health");
-                }
-              }}
-            >
-              Context Health
-            </button>
-          </div>
-
-          {tab === "overview" ? (
+          {resolvedTab === "overview" ? (
             <div className="platform-grid">
+              {healthBand ? <HealthBandBanner band={healthBand} /> : null}
               {snapshot.recentLevelUp ? (
                 <section className="card platform-level-up p-5 sm:col-span-2">
                   <p className="section-label">Level up</p>
@@ -669,7 +665,7 @@ export function BrainHealthShell() {
                 </ul>
               </section>
             </div>
-          ) : tab === "truths-memories" ? (
+          ) : resolvedTab === "truths-memories" ? (
             <div className="platform-grid">
               <section className="sm:col-span-2">
                 <h2 className="section-label mb-3">Brain truths</h2>
@@ -714,16 +710,86 @@ export function BrainHealthShell() {
             />
           )}
 
-          <p className="mt-8 text-sm text-ink-muted">
-            Score agent answers in{" "}
-            <Link href="/brain/review" className="text-apricot underline-offset-2 hover:underline">
-              Brain review
-            </Link>
-            .
-          </p>
-          <p className="mt-4 text-xs text-ink-muted">
-            Demo data. Actions update this session only, not live records.
-          </p>
+          {!embedded ? (
+            <>
+              <p className="mt-8 text-sm text-ink-muted">
+                Score agent answers in{" "}
+                <Link href={reviewHref} className="text-apricot underline-offset-2 hover:underline">
+                  Brain review
+                </Link>
+                .
+              </p>
+              <p className="mt-4 text-xs text-ink-muted">
+                Demo data. Actions update this session only, not live records.
+              </p>
+            </>
+          ) : (
+            <p className="mt-6 text-xs text-ink-muted">
+              Demo data. Actions update this session only, not live records.
+            </p>
+          )}
+    </>
+  );
+
+  if (embedded) {
+    return tabPanels;
+  }
+
+  return (
+    <>
+      <Nav />
+      <PlatformNav />
+      <main className="platform-page">
+        <div className="platform-page__inner">
+          <header className="platform-page__header">
+            <p className="section-label">Brain health meter</p>
+            <h1 className="font-display mt-2 text-3xl font-semibold text-ink sm:text-4xl">
+              {snapshot.brainName}
+            </h1>
+            <p className="mt-3 max-w-2xl text-lg text-ink-muted">
+              Maturity earned by human review, not agent confidence. Coaching, not surveillance.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="status-pill status-pill--live">{maturityLabel(snapshot.currentLevel)}</span>
+              {nextStep ? (
+                <span className="status-pill status-pill--pending">Next: {nextStep.shortLabel}</span>
+              ) : null}
+            </div>
+          </header>
+
+          <div className="platform-tabs mt-8" role="tablist" aria-label="Brain health sections">
+            <button
+              type="button"
+              aria-pressed={tab === "overview"}
+              className={`platform-tabs__btn${tab === "overview" ? " platform-tabs__btn--active" : ""}`}
+              onClick={() => setTab("overview")}
+            >
+              Overview
+            </button>
+            <button
+              type="button"
+              aria-pressed={tab === "truths-memories"}
+              className={`platform-tabs__btn${tab === "truths-memories" ? " platform-tabs__btn--active" : ""}`}
+              onClick={() => setTab("truths-memories")}
+            >
+              Truths + memories
+            </button>
+            <button
+              type="button"
+              aria-pressed={tab === "context-health"}
+              className={`platform-tabs__btn${tab === "context-health" ? " platform-tabs__btn--active" : ""}`}
+              onClick={() => {
+                setTab("context-health");
+                if (typeof window !== "undefined") {
+                  window.history.replaceState(null, "", "#context-health");
+                }
+              }}
+            >
+              Context Health
+            </button>
+          </div>
+
+          {tabPanels}
         </div>
       </main>
       <Footer />

@@ -403,9 +403,17 @@ function InteractionCard({
   );
 }
 
-export function InteractionReviewShell() {
+export type InteractionReviewShellProps = {
+  embedded?: boolean;
+  brainSlug?: string;
+};
+
+export function InteractionReviewShell({
+  embedded = false,
+  brainSlug: brainSlugProp,
+}: InteractionReviewShellProps = {}) {
   const searchParams = useSearchParams();
-  const brainSlug = CHAPTER1_BRAIN_SLUG;
+  const brainSlug = brainSlugProp ?? CHAPTER1_BRAIN_SLUG;
   const [reviewer, setReviewer] = useState("");
   const [view, setView] = useState<ReviewView>("needsReview");
   const [interactions, setInteractions] = useState<InteractionSummary[]>([]);
@@ -467,14 +475,18 @@ export function InteractionReviewShell() {
     });
   };
 
-  return (
+  const reviewBody = (
     <>
-      <Nav />
-      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <p className="section-label">Brain quality review</p>
-        <h1 className="font-display mt-2 text-3xl font-semibold text-ink sm:text-4xl">
-          Rate recent agent answers
-        </h1>
+        {!embedded ? (
+          <>
+            <p className="section-label">Brain quality review</p>
+            <h1 className="font-display mt-2 text-3xl font-semibold text-ink sm:text-4xl">
+              Rate recent agent answers
+            </h1>
+          </>
+        ) : (
+          <h2 className="font-display text-xl font-semibold text-ink">Interaction review</h2>
+        )}
         <p className="mt-3 max-w-2xl text-base leading-relaxed text-ink-muted">
           Review past Clive and Pam interactions for your brain. Score each answer 1–5,
           add notes, and flag anything that looks like a context problem. The{" "}
@@ -575,7 +587,17 @@ export function InteractionReviewShell() {
             />
           ))}
         </div>
-      </main>
+    </>
+  );
+
+  if (embedded) {
+    return reviewBody;
+  }
+
+  return (
+    <>
+      <Nav />
+      <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">{reviewBody}</main>
       <Footer />
     </>
   );
