@@ -7,7 +7,11 @@ import { PortraitDoor } from "@/components/command-centre/PortraitDoor";
 import { useStoryMode } from "@/components/command-centre/StoryModeProvider";
 import type { CommandRoomSlug } from "@/lib/command-centre/rooms";
 import { consumeReturnPortrait, focusPortraitDoor } from "@/lib/command-centre/focus-restore";
-import { castHeroSrc, foundingCastHeroTriptych } from "@/lib/agent-cast-assets";
+import {
+  castHeroSrc,
+  castHeroVideoPosterSrc,
+  foundingCastHeroTriptych,
+} from "@/lib/agent-cast-assets";
 
 /** Caption fade-in order (left-to-right): Pam, then Clive, then Doc — quick staggered. */
 const CAPTION_DELAY: Record<string, string> = {
@@ -148,6 +152,7 @@ const CLIVE_HERO_PLAYBACK_RATE = 0.72;
 function PortraitFrame({
   posterSrc,
   videoSrc,
+  videoPosterSrc,
   ariaLabel,
   width,
   height,
@@ -160,6 +165,8 @@ function PortraitFrame({
 }: {
   posterSrc: string;
   videoSrc?: string;
+  /** Compressed still for the `<video poster>` attribute, which bypasses next/image. */
+  videoPosterSrc?: string;
   ariaLabel: string;
   width: number;
   height: number;
@@ -237,7 +244,7 @@ function PortraitFrame({
           loop={!seamlessLoop}
           playsInline
           preload={eagerPreload ? "auto" : "metadata"}
-          poster={posterSrc}
+          poster={videoPosterSrc ?? posterSrc}
           width={width}
           height={height}
           aria-label={ariaLabel}
@@ -306,6 +313,7 @@ function CastPortrait({
       <PortraitFrame
         posterSrc={entry.src}
         videoSrc={entry.videoSrc}
+        videoPosterSrc={castHeroVideoPosterSrc(entry.slug)}
         ariaLabel={HERO_ALT[entry.slug]}
         width={HERO_FRAME_SIZE[entry.slug]?.width ?? 1024}
         height={HERO_FRAME_SIZE[entry.slug]?.height ?? 571}

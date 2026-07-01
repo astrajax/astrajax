@@ -19,11 +19,11 @@ export const SHRINE_STAGE_SRC = "/brain/shrine-stage.png";
 export const INTAKE_HERO_SRC = "/brain/intake-hero.png";
 
 export const HEALTH_BAND_ART_SRC: Record<BrainHealthBand, string> = {
-  rotten: "/brain/shrine-rotten.png",
-  unhappy: "/brain/shrine-unhappy.png",
-  okay: "/brain/shrine-okay.png",
-  happy: "/brain/shrine-happy.png",
-  thriving: "/brain/shrine-thriving.png",
+  rotten: "/brain/shrine-rotten.mp4",
+  unhappy: "/brain/shrine-unhappy.mp4",
+  okay: "/brain/shrine-okay.mp4",
+  happy: "/brain/shrine-happy.mp4",
+  thriving: "/brain/shrine-thriving.mp4",
 };
 
 export function shrineArtForBand(band: BrainHealthBand): string {

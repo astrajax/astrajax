@@ -227,6 +227,13 @@ export function castHeroVideoSrc(slug: CastAssetSlug): string | undefined {
   return `${AGENT_CAST_BASE}/${slug}/hero.mp4`;
 }
 
+/** Compressed poster still for the hero loop video — the raw hero.png (up to 6.5 MB)
+ * must not be used as a `<video poster>`, which bypasses next/image optimization. */
+export function castHeroVideoPosterSrc(slug: CastAssetSlug): string | undefined {
+  if (!castHeroVideoSrc(slug)) return undefined;
+  return `${AGENT_CAST_BASE}/${slug}/hero-poster.jpg`;
+}
+
 export function castHeroByProduct(slug: FoundingCastProductSlug): string | undefined {
   return castHeroSrc(PRODUCT_TO_ASSET_SLUG[slug]);
 }
