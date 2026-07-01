@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   BRAINS_SHELF,
-  SHRINE_STAGE_SRC,
+  INTAKE_HERO_SRC,
   type BrainShelfEntry,
 } from "@/lib/platform/brains";
 import {
@@ -309,7 +309,7 @@ export function ContextIntakeShell() {
       <section className="context-intake__hero" aria-labelledby="context-intake-title">
         <div className="context-intake__hero-surface">
           <Image
-            src={SHRINE_STAGE_SRC}
+            src={INTAKE_HERO_SRC}
             alt=""
             fill
             priority
