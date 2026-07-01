@@ -402,9 +402,11 @@ body {
   --hero-col-gap: clamp(0.625rem, 2.1vw, 2.125rem);
   --hero-flank-portrait-scale: 1.045;
   --hero-pam-portrait-scale: 1.20;
+  --hero-pam-portrait-gap: clamp(1.25rem, 5.5vh, 3.25rem);
   --hero-doc-portrait-scale: 1.12;
   --hero-clive-portrait-scale: 1.11;
   --hero-lazlo-portrait-scale: 1;
+  --hero-lazlo-slot-lift: clamp(2.5rem, 9vh, 5.5rem);
   --hero-clive-stack-offset-x: clamp(-0.7rem, -1.65vw, -1.45rem);
   position: relative;
   display: grid;
@@ -412,7 +414,7 @@ body {
     minmax(0, var(--hero-flank-col))
     minmax(0, var(--hero-center-col))
     minmax(0, var(--hero-flank-col));
-  grid-template-rows: 1fr auto;
+  grid-template-rows: 1fr;
   column-gap: var(--hero-col-gap);
   align-items: stretch;
   width: 100%;
@@ -433,7 +435,7 @@ body {
   align-items: center;
 }
 
-/* Pam — lower-left column; brand sits high, portrait stays low */
+/* Pam — left column; brand high, portrait lifted below logo */
 .hero-asymmetric-wall__slot--pam {
   grid-column: 1;
   grid-row: 1 / -1;
@@ -464,10 +466,10 @@ body {
 }
 
 .hero-asymmetric-wall__slot--pam .hero-wall-name-rail {
-  justify-content: space-between;
+  justify-content: flex-start;
   flex: 1 1 100%;
   height: 100%;
-  gap: clamp(0.5rem, 1.2vh, 0.875rem);
+  gap: var(--hero-pam-portrait-gap, clamp(1.25rem, 5.5vh, 3.25rem));
 }
 
 .hero-wall-name-rail .hero-portrait {
@@ -572,7 +574,7 @@ body {
 .hero-asymmetric-wall__slot--pam .hero-wall-name-rail .hero-portrait {
   align-self: center;
   width: calc(100% * var(--hero-pam-portrait-scale, 1.20));
-  margin-top: auto;
+  margin-top: 0;
   margin-bottom: 0;
 }
 
@@ -643,17 +645,17 @@ body {
     0 0.35rem 0.75rem rgba(6, 5, 3, 0.28);
 }
 
-/* Lazlo Marlowe — bottom-right flank portrait, full column scale */
+/* Lazlo Marlowe — right column, lifted beneath Doc in the main row */
 .hero-asymmetric-wall__slot--lazlo {
   grid-column: 3;
-  grid-row: 2;
+  grid-row: 1;
   align-self: end;
   justify-self: end;
   justify-content: flex-end;
   z-index: 3;
   width: 100%;
   min-width: 0;
-  transform: rotate(0.55deg);
+  transform: rotate(0.55deg) translateY(calc(-1 * var(--hero-lazlo-slot-lift, 0px)));
   padding: 0;
   padding-bottom: clamp(0.25rem, 1.5vh, 0.75rem);
 }
@@ -865,14 +867,15 @@ body {
 }
 
 .hero-asymmetric-wall__mobile-flanks .hero-asymmetric-wall__pam-mobile .hero-wall-name-rail {
-  justify-content: space-between;
+  justify-content: flex-start;
   min-height: 100%;
+  gap: clamp(0.75rem, 4vw, 1.5rem);
 }
 
 .hero-asymmetric-wall__mobile-flanks .hero-asymmetric-wall__pam-mobile .hero-wall-name-rail .hero-portrait {
   align-self: center;
   width: calc(100% * var(--hero-pam-portrait-scale, 1.14));
-  margin-top: auto;
+  margin-top: 0;
 }
 
 .hero-asymmetric-wall__mobile-flanks .hero-asymmetric-wall__doc-mobile > .hero-portrait {
@@ -938,9 +941,10 @@ body {
 
 .hero-asymmetric-wall__lazlo-mobile {
   width: min(100%, 22rem);
-  margin-top: clamp(0.25rem, 2vw, 0.75rem);
+  margin-top: clamp(-0.75rem, -2.5vw, 0.25rem);
   margin-left: auto;
   align-self: flex-end;
+  transform: translateY(clamp(-1rem, -4vw, -0.35rem));
 }
 
 .hero-asymmetric-wall__lazlo-mobile .hero-portrait {
@@ -1315,8 +1319,8 @@ body {
   --book-clive-right: 6.5%;
   --book-clive-width: min(27vw, 19rem);
   --book-content-top: clamp(4.75rem, 13vh, 6.75rem);
-  --book-content-left: clamp(9%, 11vw, 13%);
-  --book-content-width: min(34%, 22.5rem);
+  --book-content-left: clamp(7.5%, 9vw, 10.5%);
+  --book-content-width: min(40%, 28rem);
   --book-ink: #23271b;
   --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
   position: relative;
@@ -1499,11 +1503,17 @@ body {
 }
 
 .study-stage--book .study-stage__content {
+  bottom: clamp(0.75rem, 2.5vh, 1.5rem);
   padding:
     clamp(0.75rem, 2.5vh, 1.25rem)
-    clamp(0.75rem, 2vw, 1.125rem)
-    clamp(0.75rem, 2vh, 1rem)
-    clamp(1rem, 2.5vw, 1.5rem);
+    clamp(0.5rem, 1.5vw, 0.875rem)
+    clamp(0.35rem, 1vh, 0.5rem)
+    clamp(0.85rem, 2vw, 1.25rem);
+}
+
+.study-stage--book .study-stage__content:has(.clive-welcome) {
+  overflow: hidden;
+  padding-bottom: 0.35rem;
 }
 
 .study-stage__content:has(.clive-welcome),
@@ -1529,8 +1539,8 @@ body {
     --book-clive-right: 7.5%;
     --book-clive-width: min(24vw, 20rem);
     --book-content-top: clamp(5.25rem, 14vh, 7.25rem);
-    --book-content-left: clamp(10%, 12vw, 14%);
-    --book-content-width: min(33%, 24rem);
+    --book-content-left: clamp(8%, 10vw, 11%);
+    --book-content-width: min(42%, 32rem);
   }
 }
 
@@ -1592,9 +1602,11 @@ body {
 .study-stage--book .clive-welcome-monologue {
   flex: 1;
   gap: clamp(0.35rem, 1vh, 0.5rem);
+  min-height: 0;
+  overflow: hidden;
   padding:
     clamp(0.15rem, 0.6vh, 0.35rem)
-    clamp(0.25rem, 0.8vw, 0.5rem)
+    clamp(0.15rem, 0.5vw, 0.35rem)
     0
     clamp(0.65rem, 1.4vw, 0.875rem);
   border-left: 1px solid color-mix(in srgb, var(--book-ink) 22%, transparent);
@@ -1611,7 +1623,7 @@ body {
 .study-stage--book .clive-welcome-monologue__text {
   font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
   font-size: clamp(0.8125rem, 1.45vw, 0.9375rem);
-  line-height: 1.68;
+  line-height: 1.62;
   text-align: justify;
   text-align-last: left;
   -webkit-hyphens: auto;
@@ -1619,15 +1631,26 @@ body {
   hanging-punctuation: first last;
   color: var(--book-ink);
   text-shadow: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: 0.2rem;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--book-ink) 22%, transparent) transparent;
 }
 
 .study-stage--book .clive-welcome-monologue__text::first-letter {
   float: left;
   margin: 0.04em 0.1em 0 0;
-  font-size: 3.15em;
+  font-size: 2.85em;
   line-height: 0.82;
   font-weight: 600;
   color: var(--book-ink);
+}
+
+.study-stage--book .clive-welcome__controls {
+  margin-top: clamp(0.35rem, 1vh, 0.5rem);
+  padding-top: 0.125rem;
 }
 
 .study-stage--book .clive-welcome__hint {
@@ -1649,11 +1672,107 @@ body {
   background: color-mix(in srgb, var(--color-cream-paper) 88%, transparent);
 }
 
+.study-stage--book .study-stage__content:has(.chapter1-conversation) {
+  overflow: hidden;
+  padding-bottom: 0.35rem;
+}
+
+.study-stage--book .chapter1-conversation,
+.study-stage--book .chapter1-intake-chat {
+  flex: 1;
+  gap: clamp(0.35rem, 1vh, 0.5rem);
+  min-height: 0;
+  overflow: hidden;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__messages {
+  flex: 1;
+  min-height: 0;
+  padding:
+    clamp(0.15rem, 0.6vh, 0.35rem)
+    clamp(0.15rem, 0.5vw, 0.35rem)
+    clamp(0.25rem, 0.8vh, 0.5rem)
+    clamp(0.65rem, 1.4vw, 0.875rem);
+  border-left: 1px solid color-mix(in srgb, var(--book-ink) 22%, transparent);
+  box-shadow: inset 1px 0 0 rgba(255, 248, 235, 0.45);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--book-ink) 22%, transparent) transparent;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__prompt-label,
+.study-stage--book .clive-chat--study .clive-chat__turn-label {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
+  color: var(--book-ink-muted);
+  text-shadow: none;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__prompt-label::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--book-ink) 10%, transparent) 8%,
+    color-mix(in srgb, var(--book-ink) 24%, transparent) 50%,
+    color-mix(in srgb, var(--book-ink) 10%, transparent) 92%,
+    transparent 100%
+  );
+  box-shadow: none;
+}
+
 .study-stage--book .chapter1-conversation__prompt,
-.study-stage--book .clive-chat--study .clive-chat__prompt-text {
+.study-stage--book .clive-chat--study .clive-chat__prompt-text,
+.study-stage--book .clive-chat--study .clive-chat__bubble,
+.study-stage--book .clive-chat--study .clive-chat__bubble p {
+  font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: clamp(0.8125rem, 1.45vw, 0.9375rem);
+  line-height: 1.62;
+  color: var(--book-ink);
+  text-shadow: none;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__prompt-text,
+.study-stage--book .clive-chat--study .clive-chat__prompt-text--revealing {
+  text-align: justify;
+  text-align-last: left;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__prompt-text--user,
+.study-stage--book .clive-chat--study .clive-chat__bubble--user,
+.study-stage--book .clive-chat--study .clive-chat__bubble--user p {
+  font-style: italic;
+  color: var(--book-ink-muted);
+}
+
+.study-stage--book .clive-chat--study .clive-chat__thinking {
   font-family: Georgia, "Times New Roman", Times, serif;
   color: var(--book-ink-muted);
   text-shadow: none;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__thinking-pulse {
+  background: color-mix(in srgb, var(--book-ink) 45%, #6e7b52);
+  box-shadow: none;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__architect-label {
+  margin-bottom: 0.25rem;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  font-variant: small-caps;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+  color: var(--book-ink-muted);
+  text-shadow: none;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__form {
+  flex-shrink: 0;
+  margin-top: clamp(0.35rem, 1vh, 0.5rem);
+  padding-top: 0.125rem;
 }
 
 .study-stage--book .clive-chat--study .clive-chat__input {
@@ -1661,6 +1780,70 @@ body {
   color: var(--book-ink);
   background: color-mix(in srgb, var(--color-cream-paper) 78%, transparent);
   border-color: color-mix(in srgb, var(--book-ink) 18%, transparent);
+  box-shadow: none;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__input::placeholder {
+  color: color-mix(in srgb, var(--book-ink) 42%, transparent);
+}
+
+.study-stage--book .clive-chat--study .clive-chat__input:focus {
+  border-color: color-mix(in srgb, var(--book-ink) 32%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--book-ink) 10%, transparent);
+}
+
+.study-stage--book .clive-chat--study .clive-chat__starter {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  border-color: color-mix(in srgb, var(--book-ink) 18%, transparent);
+  color: var(--book-ink);
+  background: color-mix(in srgb, var(--color-cream-paper) 65%, transparent);
+  box-shadow: none;
+}
+
+.study-stage--book .clive-chat--study .btn-primary,
+.study-stage--book .btn-primary {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  border-color: color-mix(in srgb, var(--book-ink) 22%, transparent);
+  color: var(--book-ink);
+  background: color-mix(in srgb, var(--color-cream-paper) 72%, transparent);
+  box-shadow: none;
+}
+
+.study-stage--book .clive-chat--study .btn-primary:hover,
+.study-stage--book .btn-primary:hover {
+  border-color: color-mix(in srgb, var(--book-ink) 38%, transparent);
+  color: var(--book-ink);
+  background: color-mix(in srgb, var(--color-cream-paper) 88%, transparent);
+  box-shadow: none;
+}
+
+.study-stage--book .clive-chat--study .btn-primary:focus-visible,
+.study-stage--book .btn-primary:focus-visible {
+  outline-color: color-mix(in srgb, var(--book-ink) 35%, transparent);
+}
+
+.study-stage--book .study-doc-card,
+.study-stage--book .chapter1-intake-summary {
+  border: 1px solid color-mix(in srgb, var(--book-ink) 12%, transparent);
+  color: var(--book-ink);
+  background: color-mix(in srgb, var(--color-cream-paper) 52%, transparent);
+  box-shadow: none;
+}
+
+.study-stage--book .study-doc-card__tag,
+.study-stage--book .study-doc-card__body,
+.study-stage--book .study-doc-card__note,
+.study-stage--book .study-doc-card__list {
+  color: inherit;
+}
+
+.study-stage--book .study-doc-card__note--muted {
+  color: var(--book-ink-muted);
+}
+
+.study-stage--book .chapter1-conversation__actions {
+  margin-top: clamp(0.25rem, 0.8vh, 0.5rem);
+  padding-top: 0.125rem;
 }
 
 /* Caption row — in flow (not absolute) so monologue never overlaps */
