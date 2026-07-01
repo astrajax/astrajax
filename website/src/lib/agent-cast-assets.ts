@@ -10,6 +10,7 @@
 export type CastAssetSlug =
   | "clive-wigglesworth"
   | "clives-man"
+  | "lazlo-marlowe"
   | "pam-portiscue"
   | "doc-albright"
   | "professor-iris-mortimer"
@@ -80,6 +81,15 @@ export const CAST_CHARACTERS: CastCharacterAssets[] = [
     name: "Clive's Man",
     role: "Context Steward",
     tag: "Steward",
+    foundingCast: true,
+    heroStatus: "canonical",
+    animations: [],
+  },
+  {
+    slug: "lazlo-marlowe",
+    name: "Lazlo Marlowe",
+    role: "Agent Scriptwriter",
+    tag: "Character Craft",
     foundingCast: true,
     heroStatus: "canonical",
     animations: [],

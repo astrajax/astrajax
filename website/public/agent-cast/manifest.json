@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-30",
+  "updated": "2026-07-01",
   "convention": {
     "root": "website/public/agent-cast",
     "hero": "{slug}/hero.png",
@@ -21,6 +21,14 @@
     {
       "slug": "clives-man",
       "name": "Clive's Man",
+      "foundingCast": true,
+      "heroStatus": "canonical",
+      "heroLegacyPath": null,
+      "animations": []
+    },
+    {
+      "slug": "lazlo-marlowe",
+      "name": "Lazlo Marlowe",
       "foundingCast": true,
       "heroStatus": "canonical",
       "heroLegacyPath": null,

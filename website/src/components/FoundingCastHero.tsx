@@ -15,6 +15,7 @@ const CAPTION_DELAY: Record<string, string> = {
   "clive-wigglesworth": "0.65s",
   "doc-albright": "1s",
   "clives-man": "1.35s",
+  "lazlo-marlowe": "1.7s",
 };
 
 const HERO_ALT: Record<string, string> = {
@@ -26,6 +27,8 @@ const HERO_ALT: Record<string, string> = {
     "Pam Portiscue — grey cat with a map and compass, challenger at the chart table",
   "clives-man":
     "Clive's Man — badger at a study desk with ledger and lamp, context steward and keeper of the study",
+  "lazlo-marlowe":
+    "Lazlo Marlowe — red fox at a writing desk with quill, agent scriptwriter in an ornate gold frame",
 };
 
 /** Editorial role lines for the hero captions (mockup-approved). */
@@ -34,6 +37,7 @@ const HERO_ROLE: Record<string, string> = {
   "pam-portiscue": "The Challenger",
   "doc-albright": "The Executor",
   "clives-man": "The Steward",
+  "lazlo-marlowe": "Agent Scriptwriter",
 };
 
 const triptych = foundingCastHeroTriptych();
@@ -48,6 +52,18 @@ const clivesMan = {
   name: "Clive's Man",
   src: clivesManSrc,
   role: "Context Steward",
+  videoSrc: undefined,
+};
+
+const lazloMarloweSrc = castHeroSrc("lazlo-marlowe");
+if (!lazloMarloweSrc) {
+  throw new Error("Missing hero still for founding cast: lazlo-marlowe");
+}
+const lazloMarlowe = {
+  slug: "lazlo-marlowe" as const,
+  name: "Lazlo Marlowe",
+  src: lazloMarloweSrc,
+  role: "Agent Scriptwriter",
   videoSrc: undefined,
 };
 
@@ -71,6 +87,7 @@ const HERO_FRAME_SIZE: Record<string, { width: number; height: number }> = {
   "doc-albright": { width: 2752, height: 1536 },
   "clive-wigglesworth": { width: 1024, height: 571 },
   "clives-man": { width: 1024, height: 764 },
+  "lazlo-marlowe": { width: 1024, height: 571 },
 };
 
 const ASSET_TO_PRODUCT: Record<string, CommandRoomSlug> = {
@@ -114,6 +131,9 @@ function PortraitCaption({
   return (
     <figcaption className="hero-portrait-caption" style={style}>
       <span className="hero-portrait-caption__name font-display">{name}</span>
+      <span className="hero-portrait-caption__sep" aria-hidden="true">
+        ·
+      </span>
       <span className="hero-portrait-caption__role">{role}</span>
     </figcaption>
   );
@@ -217,7 +237,7 @@ function PortraitFrame({
   );
 }
 
-type CastEntry = (typeof triptych)[number] | typeof clivesMan;
+type CastEntry = (typeof triptych)[number] | typeof clivesMan | typeof lazloMarlowe;
 
 function HeroWallBrand() {
   return (
@@ -290,15 +310,6 @@ function CastPortrait({
   return portrait;
 }
 
-function CommandCentreHint({ enabled }: { enabled: boolean }) {
-  if (!enabled) return null;
-  return (
-    <p className="hero-command-centre-hint">
-      Click a portrait to step inside — or switch to Light story for the flat directory below.
-    </p>
-  );
-}
-
 function DocWorkshopRobotGrid() {
   return (
     <div
@@ -337,12 +348,12 @@ export function FoundingCastHero() {
   return (
     <div className="hero-asymmetric-wall w-full" aria-label="Founding cast portraits">
       <p className="sr-only">
-        Founding cast: {triptych.map((c) => c.name).join(", ")}, {clivesMan.name}
+        Founding cast: {triptych.map((c) => c.name).join(", ")}, {clivesMan.name},{" "}
+        {lazloMarlowe.name}
         {portraitDoorsEnabled
           ? ". Each portrait opens that character's command centre room."
           : ""}
       </p>
-      <CommandCentreHint enabled={portraitDoorsEnabled} />
       <noscript>
         <ul className="hero-command-centre-fallback">
           <li>
@@ -403,6 +414,15 @@ export function FoundingCastHero() {
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
+            <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--lazlo">
+              <CastPortrait
+                entry={lazloMarlowe}
+                displayName={lazloMarlowe.name}
+                sizes="(min-width: 1536px) 13vw, (min-width: 1024px) 13vw, 23vw"
+                prefersReducedMotion={prefersReducedMotion}
+                portraitDoorsEnabled={portraitDoorsEnabled}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -453,6 +473,15 @@ export function FoundingCastHero() {
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
+            <div className="hero-asymmetric-wall__lazlo-mobile">
+              <CastPortrait
+                entry={lazloMarlowe}
+                displayName={lazloMarlowe.name}
+                sizes="23vw"
+                prefersReducedMotion={prefersReducedMotion}
+                portraitDoorsEnabled={portraitDoorsEnabled}
+              />
+            </div>
           </div>
         </div>
       </div>
