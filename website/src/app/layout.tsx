@@ -18,9 +18,9 @@ export const metadata: Metadata = {
   title: "AstraJax — The AI Adoption Operating System",
   description: "Building is commoditised. Adoption is the moat.",
   icons: {
-    icon: [{ url: logoImage, type: "image/png", sizes: "1024x1024" }],
+    icon: [{ url: logoImage, type: "image/png", sizes: "1024x929" }],
     shortcut: [logoImage],
-    apple: [{ url: logoImage, type: "image/png", sizes: "1024x1024" }],
+    apple: [{ url: logoImage, type: "image/png", sizes: "1024x929" }],
   },
   openGraph: {
     title: "AstraJax — The AI Adoption Operating System",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
       {
         url: logoImage,
         width: 1024,
-        height: 1024,
+        height: 929,
         alt: "AstraJax logo mark",
       },
     ],

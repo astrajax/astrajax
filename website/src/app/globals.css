@@ -401,7 +401,7 @@ body {
   --hero-center-fr: 1.12;
   --hero-col-gap: clamp(0.625rem, 2.1vw, 2.125rem);
   --hero-flank-portrait-scale: 1.045;
-  --hero-pam-portrait-scale: 1.14;
+  --hero-pam-portrait-scale: 1.20;
   position: relative;
   display: grid;
   grid-template-columns:
@@ -558,7 +558,7 @@ body {
 
 .hero-asymmetric-wall__slot--pam .hero-wall-name-rail .hero-portrait {
   align-self: center;
-  width: calc(100% * var(--hero-pam-portrait-scale, 1.14));
+  width: calc(100% * var(--hero-pam-portrait-scale, 1.20));
   margin-top: auto;
   margin-bottom: 0;
 }
@@ -723,14 +723,6 @@ body {
   text-underline-offset: 3px;
 }
 
-/* Cream-backed logo mark on dark surfaces (Victorian wall, sage pages). */
-.brand-mark-on-dark {
-  border-radius: 14%;
-  box-shadow:
-    0 2px 14px rgba(0, 0, 0, 0.32),
-    0 0 0 1px rgba(255, 244, 225, 0.06);
-}
-
 /* ── Wall brand wordmark — logo + ASTRAJAX stacked above Pam ── */
 .hero-wall-brand {
   --hero-brand-mark-size: clamp(3.75rem, 7vw, 6.25rem);
@@ -747,15 +739,9 @@ body {
   margin-bottom: clamp(0.5rem, 2vh, 1.25rem);
 }
 
-/* Cream-backed mark on dark Victorian wall — soft medallion, not a harsh square crop. */
 .hero-wall-brand__mark {
   width: var(--hero-brand-mark-size);
   height: auto;
-  opacity: 1;
-  border-radius: 14%;
-  box-shadow:
-    0 2px 14px rgba(0, 0, 0, 0.32),
-    0 0 0 1px rgba(255, 244, 225, 0.06);
 }
 
 .hero-wall-brand__word {
@@ -834,7 +820,7 @@ body {
 
 .hero-asymmetric-wall__mobile-flanks .hero-asymmetric-wall__pam-mobile .hero-wall-name-rail .hero-portrait {
   align-self: center;
-  width: calc(100% * var(--hero-pam-portrait-scale, 1.08));
+  width: calc(100% * var(--hero-pam-portrait-scale, 1.14));
   margin-top: auto;
 }
 
@@ -904,7 +890,7 @@ body {
 @media (min-width: 1280px) {
   .hero-asymmetric-wall__composition {
     --hero-flank-portrait-scale: 1.05;
-    --hero-pam-portrait-scale: 1.16;
+    --hero-pam-portrait-scale: 1.22;
     --hero-col-gap: clamp(0.75rem, 2.35vw, 2.5rem);
   }
 
@@ -920,7 +906,7 @@ body {
     --hero-flank-fr: 0.9;
     --hero-center-fr: 1.1;
     --hero-flank-portrait-scale: 1.055;
-    --hero-pam-portrait-scale: 1.18;
+    --hero-pam-portrait-scale: 1.24;
     min-height: min(56rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5rem));
     --hero-col-gap: clamp(0.875rem, 2.45vw, 2.75rem);
   }
@@ -1306,6 +1292,7 @@ body {
 }
 
 .study-stage__scene {
+  --clive-study-video-scale: 0.75;
   position: relative;
   grid-row: 1;
   min-height: 0;
@@ -1344,6 +1331,23 @@ body {
 
 .clive-video-stage__layer--inactive {
   opacity: 0;
+}
+
+/* Study scene — pull camera back so more of Clive + desk is visible */
+.study-stage__scene .clive-video-stage {
+  overflow: hidden;
+}
+
+.study-stage__scene .clive-video-stage__poster,
+.study-stage__scene .clive-video-stage__layer {
+  --clive-study-media-size: calc(100% / var(--clive-study-video-scale));
+  width: var(--clive-study-media-size);
+  height: var(--clive-study-media-size);
+  inset: auto;
+  top: calc(50% - var(--clive-study-media-size) / 2);
+  left: calc(72% - var(--clive-study-media-size) * 0.72);
+  object-fit: cover;
+  object-position: center center;
 }
 
 .study-stage__scene-vignette {

@@ -235,7 +235,7 @@ function HeroWallBrand() {
         alt=""
         aria-hidden
         width={1024}
-        height={1024}
+        height={929}
         className="hero-wall-brand__mark"
       />
       <span className="hero-wall-brand__word font-sans">ASTRAJAX</span>

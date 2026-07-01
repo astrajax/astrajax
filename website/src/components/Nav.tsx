@@ -128,9 +128,9 @@ export function Nav({ immersive = false }: NavProps) {
               src="/astrajax-logo.png"
               alt=""
               width={1024}
-              height={1024}
+              height={929}
               priority
-              className="h-8 w-8 shrink-0"
+              className="h-8 w-auto shrink-0"
             />
             <span>AstraJax</span>
           </Link>
