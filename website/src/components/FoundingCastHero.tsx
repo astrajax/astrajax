@@ -33,10 +33,10 @@ const HERO_ALT: Record<string, string> = {
 
 /** Editorial role lines for the hero captions (mockup-approved). */
 const HERO_ROLE: Record<string, string> = {
-  "clive-wigglesworth": "The Thought Campion",
+  "clive-wigglesworth": "The Thought Companion",
   "pam-portiscue": "The Challenger",
-  "doc-albright": "The Executor",
-  "clives-man": "The Steward",
+  "doc-albright": "The Engineer",
+  "clives-man": "The Context Steward",
   "lazlo-marlowe": "Agent Scriptwriter",
 };
 
@@ -174,13 +174,20 @@ function PortraitFrame({
   prefersReducedMotion: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoReady, setVideoReady] = useState(false);
   const showVideo = Boolean(videoSrc) && !prefersReducedMotion;
+
+  useEffect(() => {
+    setVideoReady(false);
+  }, [videoSrc, posterSrc]);
 
   useEffect(() => {
     if (!showVideo) return;
 
     const video = videoRef.current;
     if (!video) return;
+
+    const markReady = () => setVideoReady(true);
 
     const tryPlay = () => {
       video.playbackRate = playbackRate;
@@ -199,12 +206,14 @@ function PortraitFrame({
     tryPlay();
     video.addEventListener("loadeddata", tryPlay);
     video.addEventListener("canplay", tryPlay);
+    video.addEventListener("playing", markReady);
     if (seamlessLoop) {
       video.addEventListener("timeupdate", handleTimeUpdate);
     }
     return () => {
       video.removeEventListener("loadeddata", tryPlay);
       video.removeEventListener("canplay", tryPlay);
+      video.removeEventListener("playing", markReady);
       if (seamlessLoop) {
         video.removeEventListener("timeupdate", handleTimeUpdate);
       }
@@ -216,10 +225,16 @@ function PortraitFrame({
       {showVideo ? (
         <video
           ref={videoRef}
-          className="hero-portrait-frame__media"
+          className={[
+            "hero-portrait-frame__media",
+            "hero-portrait-frame__media--video",
+            videoReady ? "hero-portrait-frame__media--ready" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
           autoPlay
           muted
-          loop
+          loop={!seamlessLoop}
           playsInline
           preload={eagerPreload ? "auto" : "metadata"}
           poster={posterSrc}
@@ -322,25 +337,25 @@ function CastPortrait({
 
 function DocWorkshopRobotGrid() {
   return (
-    <div
-      className="hero-doc-workshop-grid"
-      aria-label="Doc's workshop robots — supporting cast portraits"
-    >
-      {DOC_WORKSHOP_ROBOTS.map((robot) => (
-        <figure key={robot.src} className="hero-doc-workshop-grid__cell">
-          <div className="hero-doc-workshop-grid__frame">
-            <Image
-              src={robot.src}
-              alt={robot.alt}
-              width={DOC_WORKSHOP_ROBOT_SIZE}
-              height={DOC_WORKSHOP_ROBOT_SIZE}
-              sizes="(min-width: 1024px) 7vw, 12vw"
-              className="hero-doc-workshop-grid__media"
-            />
+    <figure className="hero-doc-workshop">
+      <div className="hero-doc-workshop-grid" aria-label="Doc's Minions — Doc's Executors">
+        {DOC_WORKSHOP_ROBOTS.map((robot) => (
+          <div key={robot.src} className="hero-doc-workshop-grid__cell">
+            <div className="hero-doc-workshop-grid__frame">
+              <Image
+                src={robot.src}
+                alt={robot.alt}
+                width={DOC_WORKSHOP_ROBOT_SIZE}
+                height={DOC_WORKSHOP_ROBOT_SIZE}
+                sizes="(min-width: 1024px) 7vw, 12vw"
+                className="hero-doc-workshop-grid__media"
+              />
+            </div>
           </div>
-        </figure>
-      ))}
-    </div>
+        ))}
+      </div>
+      <PortraitCaption name="Doc's Minions" role="Doc's Executors" />
+    </figure>
   );
 }
 
@@ -400,6 +415,8 @@ export function FoundingCastHero() {
               displayName="Clive Wigglesworth Esq."
               sizes="(min-width: 1536px) 40vw, (min-width: 1024px) 40vw, 92vw"
               priority
+              eagerPreload
+              seamlessLoop
               playbackRate={CLIVE_HERO_PLAYBACK_RATE}
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
@@ -423,15 +440,15 @@ export function FoundingCastHero() {
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
-            <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--lazlo">
-              <CastPortrait
-                entry={lazloMarlowe}
-                displayName={lazloMarlowe.name}
-                sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 72vw"
-                prefersReducedMotion={prefersReducedMotion}
-                portraitDoorsEnabled={portraitDoorsEnabled}
-              />
-            </div>
+          </div>
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--lazlo">
+            <CastPortrait
+              entry={lazloMarlowe}
+              displayName={lazloMarlowe.name}
+              sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 72vw"
+              prefersReducedMotion={prefersReducedMotion}
+              portraitDoorsEnabled={portraitDoorsEnabled}
+            />
           </div>
         </div>
       </div>
@@ -444,6 +461,8 @@ export function FoundingCastHero() {
             displayName="Clive Wigglesworth Esq."
             sizes="94vw"
             priority
+            eagerPreload
+            seamlessLoop
             playbackRate={CLIVE_HERO_PLAYBACK_RATE}
             prefersReducedMotion={prefersReducedMotion}
             portraitDoorsEnabled={portraitDoorsEnabled}
