@@ -212,8 +212,8 @@ function HeroWallBrand() {
         src="/astrajax-logo.png"
         alt=""
         aria-hidden
-        width={60}
-        height={60}
+        width={120}
+        height={120}
         className="hero-wall-brand__mark"
       />
       <span className="hero-wall-brand__word font-sans">ASTRAJAX</span>
@@ -319,7 +319,7 @@ export function FoundingCastHero() {
         </ul>
       </noscript>
 
-      {/* Desktop: asymmetric composition — Clive centre, Pam lower-left, Doc upper-right, Clive's Man lower-right */}
+      {/* Desktop: asymmetric composition — Clive centre with Man beneath, Pam lower-left, Doc upper-right */}
       <div className="hero-asymmetric-wall__desktop hidden lg:block">
         <div className="hero-asymmetric-wall__composition">
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
@@ -336,7 +336,7 @@ export function FoundingCastHero() {
               />
             </div>
           </div>
-          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--clive">
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--clive-stack">
             <CastPortrait
               entry={clive}
               displayName="Clive Wigglesworth Esq."
@@ -345,41 +345,50 @@ export function FoundingCastHero() {
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
-          </div>
-          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--right-rail">
-            <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc">
-              <CastPortrait
-                entry={doc}
-                displayName={doc.name}
-                sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 40vw"
-                eagerPreload
-                prefersReducedMotion={prefersReducedMotion}
-                portraitDoorsEnabled={portraitDoorsEnabled}
-              />
-            </div>
             <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--man">
               <CastPortrait
                 entry={clivesMan}
                 displayName={clivesMan.name}
-                sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 40vw"
+                sizes="(min-width: 1536px) 20vw, (min-width: 1024px) 20vw, 46vw"
                 prefersReducedMotion={prefersReducedMotion}
                 portraitDoorsEnabled={portraitDoorsEnabled}
               />
             </div>
           </div>
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc">
+            <CastPortrait
+              entry={doc}
+              displayName={doc.name}
+              sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 40vw"
+              eagerPreload
+              prefersReducedMotion={prefersReducedMotion}
+              portraitDoorsEnabled={portraitDoorsEnabled}
+            />
+          </div>
         </div>
       </div>
 
-      {/* Mobile: Clive dominant, Pam + Doc below with captions */}
+      {/* Mobile: Clive dominant with Man beneath, Pam + Doc below */}
       <div className="hero-asymmetric-wall__mobile flex w-full flex-col gap-6 lg:hidden">
-        <CastPortrait
-          entry={clive}
-          displayName="Clive Wigglesworth Esq."
-          sizes="94vw"
-          priority
-          prefersReducedMotion={prefersReducedMotion}
-          portraitDoorsEnabled={portraitDoorsEnabled}
-        />
+        <div className="hero-asymmetric-wall__clive-stack-mobile">
+          <CastPortrait
+            entry={clive}
+            displayName="Clive Wigglesworth Esq."
+            sizes="94vw"
+            priority
+            prefersReducedMotion={prefersReducedMotion}
+            portraitDoorsEnabled={portraitDoorsEnabled}
+          />
+          <div className="hero-asymmetric-wall__man-mobile">
+            <CastPortrait
+              entry={clivesMan}
+              displayName={clivesMan.name}
+              sizes="47vw"
+              prefersReducedMotion={prefersReducedMotion}
+              portraitDoorsEnabled={portraitDoorsEnabled}
+            />
+          </div>
+        </div>
         <div className="hero-asymmetric-wall__mobile-flanks grid grid-cols-2 gap-3 sm:gap-3.5">
           <div className="hero-asymmetric-wall__pam-mobile">
             <div className="hero-wall-name-rail">
@@ -400,15 +409,6 @@ export function FoundingCastHero() {
             displayName={doc.name}
             sizes="46vw"
             eagerPreload
-            prefersReducedMotion={prefersReducedMotion}
-            portraitDoorsEnabled={portraitDoorsEnabled}
-          />
-        </div>
-        <div className="hero-asymmetric-wall__man-mobile flex justify-end">
-          <CastPortrait
-            entry={clivesMan}
-            displayName={clivesMan.name}
-            sizes="46vw"
             prefersReducedMotion={prefersReducedMotion}
             portraitDoorsEnabled={portraitDoorsEnabled}
           />
