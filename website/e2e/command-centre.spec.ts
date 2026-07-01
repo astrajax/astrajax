@@ -54,4 +54,22 @@ test.describe("Command centre", () => {
     await page.getByRole("link", { name: /Enter Clive's study/i }).click();
     await expect(page).toHaveURL(/\/command\/clive$/);
   });
+
+  test("portrait click navigates to Doc workshop stage", async ({ page }) => {
+    await page.addInitScript((key) => {
+      window.localStorage.setItem(key, "full");
+    }, STORY_MODE_STORAGE_KEY);
+
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/#agent-cast");
+
+    await page.getByRole("link", { name: /Enter Doc's workshop/i }).click();
+    await expect(page).toHaveURL(/\/command\/doc$/);
+    await expect(page.getByText("Doc's workshop")).toBeVisible();
+    await expect(
+      page.getByRole("img", {
+        name: /Doc Albright at his steampunk workshop/i,
+      }),
+    ).toBeVisible();
+  });
 });
