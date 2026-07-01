@@ -506,18 +506,10 @@ export function inferProfileFromIntake(intake: UserBrainIntake): {
   return { profileId, summary, reasoning };
 }
 
-export function buildIntakeSummaryCard(intake: UserBrainIntake, profile: UserBrainProfile): {
-  headline: string;
-  body: string;
+export function buildIntakeSummaryCard(_intake: UserBrainIntake, profile: UserBrainProfile): {
   profileLabel: string;
 } {
-  const name = intake.name?.trim() || "You";
-  const body =
-    intake.classificationSummary?.trim() || synthesizeHeuristicSummary(intake, profile);
-
   return {
-    headline: `Here's what I'm taking from this, ${name}`,
-    body,
     profileLabel: profile.label,
   };
 }

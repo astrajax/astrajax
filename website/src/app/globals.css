@@ -621,33 +621,33 @@ body {
   text-underline-offset: 3px;
 }
 
-/* ── Wall brand wordmark — plain Inter beside Pam ── */
+/* ── Wall brand wordmark — logo + ASTRAJAX stacked above Pam ── */
 .hero-wall-brand {
   position: relative;
   z-index: 3;
   display: inline-flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  gap: clamp(0.4rem, 0.9vw, 0.65rem);
+  gap: clamp(0.2rem, 0.45vw, 0.35rem);
   pointer-events: auto;
   text-decoration: none;
   flex-shrink: 0;
 }
 
 .hero-wall-brand__mark {
-  width: clamp(2rem, 3.2vw, 2.75rem);
+  width: clamp(2.25rem, 3.5vw, 3rem);
   height: auto;
-  opacity: 0.94;
+  opacity: 1;
 }
 
 .hero-wall-brand__word {
   font-family: var(--font-sans, Inter, system-ui, sans-serif);
-  font-size: clamp(1.05rem, 1.85vw, 1.5rem);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  text-transform: none;
-  color: var(--color-parchment);
-  opacity: 0.96;
+  font-size: clamp(0.9375rem, 1.55vw, 1.3125rem);
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #fff;
+  opacity: 1;
 }
 
 .hero-wall-brand:focus-visible {
@@ -657,7 +657,7 @@ body {
 }
 
 /* ── Hero intro sequence ──
-   Captions fade in first (quick, staggered), then AstraJax beside Pam.
+   Captions fade in first (quick, staggered), then AstraJax above Pam.
    Everything is visible immediately under prefers-reduced-motion. */
 @keyframes heroWallCaptionIn {
   from {
@@ -757,7 +757,8 @@ body {
   }
 
   .hero-wall-brand__word {
-    font-size: clamp(0.95rem, 4.2vw, 1.25rem);
+    font-size: clamp(0.8125rem, 3.8vw, 1.125rem);
+    letter-spacing: 0.12em;
   }
 }
 

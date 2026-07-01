@@ -199,7 +199,7 @@ function HeroWallBrand() {
         height={60}
         className="hero-wall-brand__mark"
       />
-      <span className="hero-wall-brand__word font-sans">AstraJax</span>
+      <span className="hero-wall-brand__word font-sans">ASTRAJAX</span>
     </a>
   );
 }

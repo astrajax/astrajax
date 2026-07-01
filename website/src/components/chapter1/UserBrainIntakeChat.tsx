@@ -206,11 +206,9 @@ export function UserBrainIntakeChat({
 
       {summaryCard && (
         <article className="study-doc-card chapter1-intake-summary">
-          <p className="study-doc-card__title">{summaryCard.headline}</p>
-          <p className="study-doc-card__body">{summaryCard.body}</p>
           <p className="study-doc-card__note">
-            Inferred profile: <strong>{summaryCard.profileLabel}</strong> — Clive will adapt pace
-            and tone from here. You did not pick a card; I classified from what you said.
+            Inferred profile: <strong>{summaryCard.profileLabel}</strong> — shaped from your
+            answers. Clive will adapt pace and tone from here.
           </p>
         </article>
       )}
