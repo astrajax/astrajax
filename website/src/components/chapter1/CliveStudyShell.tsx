@@ -6,23 +6,13 @@ import { forwardRef, type ReactNode } from "react";
 
 type CliveStudyShellProps = {
   children: ReactNode;
-  maturityLabel: string;
   onReset: () => void;
-  onOpenPaperTrail?: () => void;
 };
 
 export const CliveStudyShell = forwardRef<CliveVideoStageHandle, CliveStudyShellProps>(
-  function CliveStudyShell(
-    { children, maturityLabel, onReset, onOpenPaperTrail },
-    ref,
-  ) {
+  function CliveStudyShell({ children, onReset }, ref) {
     return (
-      <CliveStudyStage
-        ref={ref}
-        maturityLabel={maturityLabel}
-        onReset={onReset}
-        onOpenPaperTrail={onOpenPaperTrail}
-      >
+      <CliveStudyStage ref={ref} onReset={onReset}>
         {children}
       </CliveStudyStage>
     );

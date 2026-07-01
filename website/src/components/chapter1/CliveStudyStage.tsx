@@ -11,16 +11,11 @@ const STUDY_WALL_SRC = "/agent-cast/victorian-wall.png";
 
 type CliveStudyStageProps = {
   children: ReactNode;
-  maturityLabel: string;
   onReset: () => void;
-  onOpenPaperTrail?: () => void;
 };
 
 export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStageProps>(
-  function CliveStudyStage(
-    { children, maturityLabel, onReset, onOpenPaperTrail },
-    ref,
-  ) {
+  function CliveStudyStage({ children, onReset }, ref) {
     const mainRef = useRef<HTMLElement>(null);
 
     useEffect(() => {
@@ -48,16 +43,6 @@ export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStage
             <p className="study-stage__subtitle">Chapter 1</p>
           </div>
           <div className="study-stage__header-actions">
-            <span className="study-stage__badge">{maturityLabel}</span>
-            {onOpenPaperTrail ? (
-              <button
-                type="button"
-                className="study-stage__ghost-btn"
-                onClick={onOpenPaperTrail}
-              >
-                Paper trail
-              </button>
-            ) : null}
             <button type="button" className="study-stage__ghost-btn" onClick={onReset}>
               Start again
             </button>

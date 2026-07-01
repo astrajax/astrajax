@@ -6,9 +6,10 @@
 **Purpose:** Generate five short, loop-safe Veo clips for the Act 2 **Brain Vault** —
 the steampunk chamber where the operator's business brains live as glowing brains
 suspended in glass vats. One reusable base prompt + one variation line per vat.  
-**Use with:** Chapter 1 brain themes in
-[`chapter1-context-structure.md`](./chapter1-context-structure.md) §3 and the
-agent-cast loop convention in
+**Use with:** Creative brief for Kathryn:
+[`brain-vault-visual-brief-kathryn.md`](./brain-vault-visual-brief-kathryn.md).
+Chapter 1 brain themes in [`chapter1-context-structure.md`](./chapter1-context-structure.md) §3
+and the agent-cast loop convention in
 [`../../website/public/agent-cast/INGEST-NOTES-pam-doc.md`](../../website/public/agent-cast/INGEST-NOTES-pam-doc.md).
 
 ---

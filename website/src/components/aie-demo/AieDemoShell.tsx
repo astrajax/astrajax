@@ -7,7 +7,6 @@ import type { HubBookId } from "@/components/chapter1/CliveStudyHub";
 import { CliveStudyShell } from "@/components/chapter1/CliveStudyShell";
 import { CliveWelcomeSequence } from "@/components/chapter1/CliveWelcomeSequence";
 import type { CliveVideoStageHandle } from "@/components/chapter1/CliveVideoStage";
-import { PaperTrailDrawer } from "@/components/chapter1/PaperTrailDrawer";
 import type { CliveReaction } from "@/lib/clive/video-reactions";
 import {
   DEFAULT_BUSINESS_BRAIN,
@@ -21,16 +20,11 @@ import {
   persistLoopSlice,
 } from "@/lib/aie-demo/user-brain-intake";
 import {
-  MATURITY_LABELS,
   resolveLoopStep,
   type LoopState,
   type LoopStep,
 } from "@/lib/aie-demo/types";
-import {
-  SEEDLING_HEADER_LABEL,
-  UI_STATE_LABELS,
-  deriveBrainKeyUiState,
-} from "@/lib/brains/ui-states";
+import { deriveBrainKeyUiState } from "@/lib/brains/ui-states";
 import { isHubBookId, stepForBook, getLoopStepsForBook } from "@/lib/chapter1/hub-books";
 
 function createInitialState(currentStep: LoopStep = "welcome"): LoopState {
@@ -62,13 +56,6 @@ function createInitialState(currentStep: LoopStep = "welcome"): LoopState {
   return base;
 }
 
-function headerBadge(state: LoopState, accessState: ReturnType<typeof deriveBrainKeyUiState>): string {
-  if (state.brainMaturity === "seedling") {
-    return SEEDLING_HEADER_LABEL;
-  }
-  return `${MATURITY_LABELS.working} · ${UI_STATE_LABELS[accessState]}`;
-}
-
 function readBookParam(book: string | null): HubBookId | null {
   return isHubBookId(book) ? book : null;
 }
@@ -82,7 +69,6 @@ export function AieDemoShell() {
   const [welcomeComplete, setWelcomeComplete] = useState(
     () => (bookParam ? stepForBook(bookParam).skipWelcomeSequence : false),
   );
-  const [paperTrailOpen, setPaperTrailOpen] = useState(false);
   const [state, setState] = useState<LoopState>(() =>
     bookParam ? createInitialState(stepForBook(bookParam).currentStep) : createInitialState(),
   );
@@ -94,11 +80,6 @@ export function AieDemoShell() {
     grant: state.grant ?? undefined,
     promotionPending: false,
   });
-
-  const maturityLabel = useMemo(
-    () => headerBadge(state, accessState),
-    [state, accessState],
-  );
 
   const update = useCallback((patch: Partial<LoopState>) => {
     setState((prev) => ({ ...prev, ...patch }));
@@ -158,7 +139,6 @@ export function AieDemoShell() {
 
   const reset = useCallback(() => {
     clearPersistedLoopSlice();
-    setPaperTrailOpen(false);
     router.push("/command/clive");
   }, [router]);
 
@@ -188,12 +168,7 @@ export function AieDemoShell() {
 
   return (
     <>
-      <CliveStudyShell
-        ref={cliveVideoRef}
-        maturityLabel={maturityLabel}
-        onReset={reset}
-        onOpenPaperTrail={() => setPaperTrailOpen(true)}
-      >
+      <CliveStudyShell ref={cliveVideoRef} onReset={reset}>
         {showWelcomeSequence ? (
           <CliveWelcomeSequence
             sessionId={state.sessionId}
@@ -212,13 +187,6 @@ export function AieDemoShell() {
           />
         )}
       </CliveStudyShell>
-
-      <PaperTrailDrawer
-        open={paperTrailOpen}
-        onClose={() => setPaperTrailOpen(false)}
-        state={state}
-        accessState={accessState}
-      />
     </>
   );
 }

@@ -7,13 +7,14 @@ import { PortraitDoor } from "@/components/command-centre/PortraitDoor";
 import { useStoryMode } from "@/components/command-centre/StoryModeProvider";
 import type { CommandRoomSlug } from "@/lib/command-centre/rooms";
 import { consumeReturnPortrait, focusPortraitDoor } from "@/lib/command-centre/focus-restore";
-import { foundingCastHeroTriptych } from "@/lib/agent-cast-assets";
+import { castHeroSrc, foundingCastHeroTriptych } from "@/lib/agent-cast-assets";
 
 /** Caption fade-in order (left-to-right): Pam, then Clive, then Doc — quick staggered. */
 const CAPTION_DELAY: Record<string, string> = {
   "pam-portiscue": "0.3s",
   "clive-wigglesworth": "0.65s",
   "doc-albright": "1s",
+  "clives-man": "1.35s",
 };
 
 const HERO_ALT: Record<string, string> = {
@@ -23,6 +24,8 @@ const HERO_ALT: Record<string, string> = {
     "Clive Wigglesworth — golden retriever in a warm Victorian library portrait",
   "pam-portiscue":
     "Pam Portiscue — grey cat with a map and compass, challenger at the chart table",
+  "clives-man":
+    "Clive's Man — badger at a study desk with ledger and lamp, context steward and keeper of the study",
 };
 
 /** Editorial role lines for the hero captions (mockup-approved). */
@@ -30,16 +33,30 @@ const HERO_ROLE: Record<string, string> = {
   "clive-wigglesworth": "The Thought Campion",
   "pam-portiscue": "The Challenger",
   "doc-albright": "The Executor",
+  "clives-man": "The Steward",
 };
 
 const triptych = foundingCastHeroTriptych();
 const [doc, clive, pam] = triptych;
+
+const clivesManSrc = castHeroSrc("clives-man");
+if (!clivesManSrc) {
+  throw new Error("Missing hero still for founding cast: clives-man");
+}
+const clivesMan = {
+  slug: "clives-man" as const,
+  name: "Clive's Man",
+  src: clivesManSrc,
+  role: "Context Steward",
+  videoSrc: undefined,
+};
 
 /** Intrinsic hero still dimensions — keeps layout stable without cropping baked-in frames. */
 const HERO_FRAME_SIZE: Record<string, { width: number; height: number }> = {
   "pam-portiscue": { width: 2560, height: 1440 },
   "doc-albright": { width: 2752, height: 1536 },
   "clive-wigglesworth": { width: 1024, height: 571 },
+  "clives-man": { width: 1024, height: 764 },
 };
 
 const ASSET_TO_PRODUCT: Record<string, CommandRoomSlug> = {
@@ -186,7 +203,7 @@ function PortraitFrame({
   );
 }
 
-type CastEntry = (typeof triptych)[number];
+type CastEntry = (typeof triptych)[number] | typeof clivesMan;
 
 function HeroWallBrand() {
   return (
@@ -282,7 +299,7 @@ export function FoundingCastHero() {
   return (
     <div className="hero-asymmetric-wall w-full" aria-label="Founding cast portraits">
       <p className="sr-only">
-        Founding cast: {triptych.map((c) => c.name).join(", ")}
+        Founding cast: {triptych.map((c) => c.name).join(", ")}, {clivesMan.name}
         {portraitDoorsEnabled
           ? ". Each portrait opens that character's command centre room."
           : ""}
@@ -302,7 +319,7 @@ export function FoundingCastHero() {
         </ul>
       </noscript>
 
-      {/* Desktop: asymmetric composition — Clive centre, Pam lower-left, Doc upper-right */}
+      {/* Desktop: asymmetric composition — Clive centre, Pam lower-left, Doc upper-right, Clive's Man lower-right */}
       <div className="hero-asymmetric-wall__desktop hidden lg:block">
         <div className="hero-asymmetric-wall__composition">
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
@@ -329,15 +346,26 @@ export function FoundingCastHero() {
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
           </div>
-          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc">
-            <CastPortrait
-              entry={doc}
-              displayName={doc.name}
-              sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 40vw"
-              eagerPreload
-              prefersReducedMotion={prefersReducedMotion}
-              portraitDoorsEnabled={portraitDoorsEnabled}
-            />
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--right-rail">
+            <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc">
+              <CastPortrait
+                entry={doc}
+                displayName={doc.name}
+                sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 40vw"
+                eagerPreload
+                prefersReducedMotion={prefersReducedMotion}
+                portraitDoorsEnabled={portraitDoorsEnabled}
+              />
+            </div>
+            <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--man">
+              <CastPortrait
+                entry={clivesMan}
+                displayName={clivesMan.name}
+                sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 40vw"
+                prefersReducedMotion={prefersReducedMotion}
+                portraitDoorsEnabled={portraitDoorsEnabled}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -372,6 +400,15 @@ export function FoundingCastHero() {
             displayName={doc.name}
             sizes="46vw"
             eagerPreload
+            prefersReducedMotion={prefersReducedMotion}
+            portraitDoorsEnabled={portraitDoorsEnabled}
+          />
+        </div>
+        <div className="hero-asymmetric-wall__man-mobile flex justify-end">
+          <CastPortrait
+            entry={clivesMan}
+            displayName={clivesMan.name}
+            sizes="46vw"
             prefersReducedMotion={prefersReducedMotion}
             portraitDoorsEnabled={portraitDoorsEnabled}
           />

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-06-29",
+  "updated": "2026-06-30",
   "convention": {
     "root": "website/public/agent-cast",
     "hero": "{slug}/hero.png",
@@ -16,6 +16,14 @@
       "productSlug": "clive",
       "heroStatus": "canonical",
       "heroLegacyPath": "clive-wigglesworth.png",
+      "animations": []
+    },
+    {
+      "slug": "clives-man",
+      "name": "Clive's Man",
+      "foundingCast": true,
+      "heroStatus": "canonical",
+      "heroLegacyPath": null,
       "animations": []
     },
     {

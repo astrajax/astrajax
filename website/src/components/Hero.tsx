@@ -34,7 +34,7 @@ export function Hero() {
       {/* Baseboard rail — thin top moulding swapped to the bottom of the wall. */}
       <div className="hero-baseboard-rail" aria-hidden />
 
-      <h1 className="sr-only">AstraJax — founding cast: Clive, Pam, and Doc</h1>
+      <h1 className="sr-only">AstraJax — founding cast: Clive, Pam, Doc, and Clive&apos;s Man</h1>
     </section>
   );
 }

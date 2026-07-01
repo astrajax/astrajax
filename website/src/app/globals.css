@@ -480,6 +480,29 @@ body {
   padding-top: 0;
 }
 
+/* Right column — Doc upper, Clive's Man lower */
+.hero-asymmetric-wall__slot--right-rail {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: stretch;
+  min-height: 100%;
+  gap: clamp(0.5rem, 2vh, 1.5rem);
+}
+
+.hero-asymmetric-wall__slot--right-rail > .hero-asymmetric-wall__slot--doc {
+  flex: 0 0 auto;
+}
+
+/* Clive's Man — lower-right column */
+.hero-asymmetric-wall__slot--man {
+  align-self: stretch;
+  justify-content: flex-end;
+  z-index: 2;
+  transform: rotate(0.45deg);
+  padding-bottom: clamp(0.75rem, 4vh, 2.5rem);
+}
+
 .hero-portrait {
   position: relative;
   width: 100%;
@@ -513,7 +536,8 @@ body {
 
 /* Pam + Doc — slightly larger flanks, scaled toward Clive without crossing gutters */
 .hero-asymmetric-wall__slot--pam .hero-wall-name-rail .hero-portrait,
-.hero-asymmetric-wall__slot--doc .hero-portrait {
+.hero-asymmetric-wall__slot--doc .hero-portrait,
+.hero-asymmetric-wall__slot--man .hero-portrait {
   width: calc(100% * var(--hero-flank-portrait-scale));
   max-width: none;
 }
@@ -525,6 +549,16 @@ body {
 
 .hero-asymmetric-wall__slot--doc .hero-portrait {
   align-self: flex-start;
+}
+
+.hero-asymmetric-wall__slot--man .hero-portrait {
+  align-self: flex-end;
+}
+
+.hero-asymmetric-wall__slot--man .hero-portrait-frame {
+  box-shadow:
+    -0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
+    0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
 .hero-asymmetric-wall__slot--clive .hero-portrait-frame {
@@ -716,6 +750,16 @@ body {
 .hero-asymmetric-wall__mobile-flanks > .hero-portrait {
   align-self: flex-start;
   justify-self: end;
+}
+
+.hero-asymmetric-wall__man-mobile {
+  width: 100%;
+  margin-top: -0.25rem;
+}
+
+.hero-asymmetric-wall__man-mobile .hero-portrait {
+  width: min(100%, 46vw);
+  margin-left: auto;
 }
 
 .hero-asymmetric-wall__mobile .hero-portrait:first-child {
@@ -1209,20 +1253,6 @@ body {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
-}
-
-.study-stage__badge {
-  border-radius: 9999px;
-  padding: 0.25rem 0.625rem;
-  font-family: var(--font-mono);
-  font-size: 0.625rem;
-  letter-spacing: 0.08em;
-  color: color-mix(in srgb, var(--color-parchment) 88%, white);
-  background:
-    linear-gradient(180deg, rgba(231, 209, 173, 0.07), rgba(0, 0, 0, 0.1)),
-    color-mix(in srgb, var(--color-moss) 42%, transparent);
-  border: 1px solid rgba(203, 160, 86, 0.26);
-  box-shadow: inset 0 1px 0 rgba(255, 240, 198, 0.08);
 }
 
 .study-stage__ghost-btn {
