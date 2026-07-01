@@ -7,7 +7,11 @@ import { PortraitDoor } from "@/components/command-centre/PortraitDoor";
 import { useStoryMode } from "@/components/command-centre/StoryModeProvider";
 import type { CommandRoomSlug } from "@/lib/command-centre/rooms";
 import { consumeReturnPortrait, focusPortraitDoor } from "@/lib/command-centre/focus-restore";
-import { castHeroSrc, foundingCastHeroTriptych } from "@/lib/agent-cast-assets";
+import {
+  castHeroSrc,
+  castHeroVideoPosterSrc,
+  foundingCastHeroTriptych,
+} from "@/lib/agent-cast-assets";
 
 /** Caption fade-in order (left-to-right): Pam, then Clive, then Doc — quick staggered. */
 const CAPTION_DELAY: Record<string, string> = {
