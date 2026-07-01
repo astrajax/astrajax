@@ -15,13 +15,6 @@ type FeatureEntry = {
 
 const FEATURES: FeatureEntry[] = [
   {
-    title: "Chapter 1 — Build the Brain with Clive",
-    description: "Step into Clive's study. Map the human, draft the business brain, hear Pam, you decide.",
-    href: "/chapter-1",
-    status: "live",
-    cta: "Enter the study",
-  },
-  {
     title: "Brain review",
     description: "Score agent answers and flag stale context from the Needs-review shortlist.",
     href: "/brain/review",
@@ -31,9 +24,9 @@ const FEATURES: FeatureEntry[] = [
   {
     title: "Chat with Clive",
     description: "Ask Clive from anywhere — same governed context, booth-safe fallback.",
-    href: "/command/clive#ask-clive",
+    href: "/chapter-1?book=reason",
     status: "live",
-    cta: "Open chat",
+    cta: "Reason with Clive",
   },
   {
     title: "Agent Bases — conversation review + memories",

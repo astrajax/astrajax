@@ -38,16 +38,8 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
         title: "Build the brain",
         description:
           "Chapter 1 — structured interview, Pam sniff test, human approval, Doc promote.",
-        href: "/chapter-1",
-        cta: "Enter Chapter 1",
-        badge: "Live",
-      },
-      {
-        id: "ask-clive",
-        title: "Ask Clive",
-        description: "Same governed context — booth-safe fallback for quick questions.",
-        href: "/command/clive#ask-clive",
-        cta: "Open chat",
+        href: "/command/clive",
+        cta: "Choose a book",
         badge: "Live",
       },
       {

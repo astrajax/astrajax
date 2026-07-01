@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import type { HubBookId } from "@/lib/chapter1/hub-books";
 
-export type HubBookId = "welcome" | "reason" | "architect" | "brain-building";
+export type { HubBookId };
 
 const HUB_IMAGE_SRC = "/agent-cast/clive-wigglesworth/clive-study-hub.png";
 

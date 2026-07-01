@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { AieDemoShell } from "@/components/aie-demo/AieDemoShell";
 import type { Metadata } from "next";
 
@@ -8,5 +9,9 @@ export const metadata: Metadata = {
 };
 
 export default function AieDemoPage() {
-  return <AieDemoShell />;
+  return (
+    <Suspense fallback={null}>
+      <AieDemoShell />
+    </Suspense>
+  );
 }

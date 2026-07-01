@@ -240,7 +240,6 @@ function CastPortrait({
   if (portraitDoorsEnabled && productSlug) {
     return (
       <PortraitDoor
-        mode="navigate"
         character={productSlug}
         ariaLabel={DOOR_HINT[productSlug]}
         className="hero-portrait-door-wrap"

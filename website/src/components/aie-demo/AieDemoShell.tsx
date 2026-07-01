@@ -1,16 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Chapter1Conversation } from "@/components/chapter1/Chapter1Conversation";
-import {
-  CliveStudyHub,
-  type HubBookId,
-} from "@/components/chapter1/CliveStudyHub";
+import type { HubBookId } from "@/components/chapter1/CliveStudyHub";
 import { CliveStudyShell } from "@/components/chapter1/CliveStudyShell";
 import { CliveWelcomeSequence } from "@/components/chapter1/CliveWelcomeSequence";
 import type { CliveVideoStageHandle } from "@/components/chapter1/CliveVideoStage";
 import { PaperTrailDrawer } from "@/components/chapter1/PaperTrailDrawer";
-import { PortraitEntry } from "@/components/chapter1/PortraitEntry";
 import type { CliveReaction } from "@/lib/clive/video-reactions";
 import {
   DEFAULT_BUSINESS_BRAIN,
@@ -29,6 +26,7 @@ import {
   UI_STATE_LABELS,
   deriveBrainKeyUiState,
 } from "@/lib/brains/ui-states";
+import { isHubBookId, stepForBook } from "@/lib/chapter1/hub-books";
 
 function createInitialState(currentStep: LoopStep = "welcome"): LoopState {
   const persisted = loadPersistedLoopSlice();
@@ -64,26 +62,23 @@ function headerBadge(state: LoopState, accessState: ReturnType<typeof deriveBrai
   return `${MATURITY_LABELS.working} · ${UI_STATE_LABELS[accessState]}`;
 }
 
-function stepForBook(book: HubBookId): { currentStep: LoopStep; skipWelcomeSequence: boolean } {
-  switch (book) {
-    case "welcome":
-      return { currentStep: "welcome", skipWelcomeSequence: false };
-    case "reason":
-      return { currentStep: "context_importance", skipWelcomeSequence: true };
-    case "architect":
-      return { currentStep: "user_brain", skipWelcomeSequence: true };
-    case "brain-building":
-      return { currentStep: "brains_intro", skipWelcomeSequence: true };
-  }
+function readBookParam(book: string | null): HubBookId | null {
+  return isHubBookId(book) ? book : null;
 }
 
 export function AieDemoShell() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const bookParam = readBookParam(searchParams.get("book"));
   const cliveVideoRef = useRef<CliveVideoStageHandle>(null);
-  const [entered, setEntered] = useState(false);
-  const [hubSelection, setHubSelection] = useState<HubBookId | null>(null);
-  const [welcomeComplete, setWelcomeComplete] = useState(false);
+  const [hubSelection, setHubSelection] = useState<HubBookId | null>(() => bookParam);
+  const [welcomeComplete, setWelcomeComplete] = useState(
+    () => (bookParam ? stepForBook(bookParam).skipWelcomeSequence : false),
+  );
   const [paperTrailOpen, setPaperTrailOpen] = useState(false);
-  const [state, setState] = useState<LoopState>(() => createInitialState());
+  const [state, setState] = useState<LoopState>(() =>
+    bookParam ? createInitialState(stepForBook(bookParam).currentStep) : createInitialState(),
+  );
 
   const accessState = deriveBrainKeyUiState({
     brainSlug: "astrajax-chapter-1",
@@ -110,6 +105,17 @@ export function AieDemoShell() {
       currentStep: state.currentStep,
     });
   }, [state.sessionId, state.userBrain, state.userBrainIntake, state.currentStep]);
+
+  useEffect(() => {
+    if (bookParam) {
+      const { currentStep, skipWelcomeSequence } = stepForBook(bookParam);
+      setHubSelection(bookParam);
+      setWelcomeComplete(skipWelcomeSequence);
+      setState(createInitialState(currentStep));
+      return;
+    }
+    router.replace("/command/clive");
+  }, [bookParam, router]);
 
   const goNext = useCallback(() => {
     setState((prev) => {
@@ -141,19 +147,9 @@ export function AieDemoShell() {
 
   const reset = useCallback(() => {
     clearPersistedLoopSlice();
-    setState(createInitialState());
-    setEntered(false);
-    setHubSelection(null);
-    setWelcomeComplete(false);
     setPaperTrailOpen(false);
-  }, []);
-
-  const handleSelectBook = useCallback((book: HubBookId) => {
-    const { currentStep, skipWelcomeSequence } = stepForBook(book);
-    setHubSelection(book);
-    setWelcomeComplete(skipWelcomeSequence);
-    setState(createInitialState(currentStep));
-  }, []);
+    router.push("/command/clive");
+  }, [router]);
 
   const completeWelcome = useCallback(() => {
     setWelcomeComplete(true);
@@ -168,12 +164,8 @@ export function AieDemoShell() {
     void cliveVideoRef.current?.playReaction(reaction);
   }, []);
 
-  if (!entered) {
-    return <PortraitEntry onEnter={() => setEntered(true)} />;
-  }
-
-  if (hubSelection === null) {
-    return <CliveStudyHub onSelectBook={handleSelectBook} />;
+  if (!bookParam || hubSelection === null) {
+    return null;
   }
 
   const showWelcomeSequence = hubSelection === "welcome" && !welcomeComplete;
