@@ -16,7 +16,8 @@ export interface BrainShelfEntry {
 
 export const DEFAULT_BRAIN_SLUG = "northline-field-ops";
 export const SHRINE_STAGE_SRC = "/brain/shrine-stage.png";
-export const INTAKE_HERO_SRC = "/brain/intake-hero.png";
+/** Bird's-eye desk spread — shared with Chapter 1 study hub. */
+export const INTAKE_HERO_SRC = "/agent-cast/clive-wigglesworth/clive-study-hub.png";
 
 export const HEALTH_BAND_ART_SRC: Record<BrainHealthBand, string> = {
   rotten: "/brain/shrine-rotten.png",
