@@ -359,7 +359,7 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
             }`}
             muted
             playsInline
-            preload="auto"
+            preload="metadata"
             poster={POSTER_SRC}
             aria-hidden
           />
