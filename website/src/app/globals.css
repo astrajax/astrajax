@@ -1351,7 +1351,9 @@ body {
   top: var(--book-clive-top);
   right: var(--book-clive-right);
   width: var(--book-clive-width);
-  aspect-ratio: 5 / 4;
+  /* Closer to the 16:9 source than 5:4 — less forced side-crop before the
+     feather mask even kicks in, so gestures stay in frame. */
+  aspect-ratio: 3 / 2;
 }
 
 .study-stage__clive-feather {
@@ -1403,7 +1405,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 72% center;
+  object-position: center center;
 }
 
 .clive-video-stage__layer {
@@ -1426,7 +1428,7 @@ body {
 .study-stage__clive-feather .clive-video-stage__poster,
 .study-stage__clive-feather .clive-video-stage__layer {
   transform: scale(calc(1 / var(--clive-study-video-scale)));
-  transform-origin: 72% center;
+  transform-origin: center center;
 }
 
 .study-stage__header {
