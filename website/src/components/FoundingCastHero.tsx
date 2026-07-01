@@ -142,6 +142,9 @@ function PortraitCaption({
 /** Seek back to start before the native loop hits a bad tail frame or `ended` gap. */
 const LOOP_EPSILON_SECONDS = 0.04;
 
+/** Clive hero loop — ambient pace, matches study CliveVideoStage. */
+const CLIVE_HERO_PLAYBACK_RATE = 0.72;
+
 function PortraitFrame({
   posterSrc,
   videoSrc,
@@ -152,6 +155,7 @@ function PortraitFrame({
   priority,
   eagerPreload,
   seamlessLoop,
+  playbackRate = 1,
   prefersReducedMotion,
 }: {
   posterSrc: string;
@@ -165,6 +169,8 @@ function PortraitFrame({
   eagerPreload?: boolean;
   /** Manual loop seam — avoids black flash when the asset or browser loop boundary glitches. */
   seamlessLoop?: boolean;
+  /** Playback speed multiplier — e.g. 0.72 for ambient Clive loop. */
+  playbackRate?: number;
   prefersReducedMotion: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -177,6 +183,7 @@ function PortraitFrame({
     if (!video) return;
 
     const tryPlay = () => {
+      video.playbackRate = playbackRate;
       void video.play().catch(() => {
         // Autoplay blocked — poster still shows until user interacts.
       });
@@ -202,7 +209,7 @@ function PortraitFrame({
         video.removeEventListener("timeupdate", handleTimeUpdate);
       }
     };
-  }, [showVideo, videoSrc, seamlessLoop]);
+  }, [showVideo, videoSrc, seamlessLoop, playbackRate]);
 
   return (
     <div className="hero-portrait-frame">
@@ -262,6 +269,7 @@ function CastPortrait({
   priority,
   eagerPreload,
   seamlessLoop,
+  playbackRate,
   prefersReducedMotion,
   portraitDoorsEnabled,
 }: {
@@ -271,6 +279,7 @@ function CastPortrait({
   priority?: boolean;
   eagerPreload?: boolean;
   seamlessLoop?: boolean;
+  playbackRate?: number;
   prefersReducedMotion: boolean;
   portraitDoorsEnabled: boolean;
 }) {
@@ -289,6 +298,7 @@ function CastPortrait({
         priority={priority}
         eagerPreload={eagerPreload}
         seamlessLoop={seamlessLoop}
+        playbackRate={playbackRate}
         prefersReducedMotion={prefersReducedMotion}
       />
       <PortraitCaption name={displayName} role={role} delay={CAPTION_DELAY[entry.slug]} />
@@ -378,7 +388,6 @@ export function FoundingCastHero() {
                 entry={pam}
                 displayName={pam.name}
                 sizes="(min-width: 1536px) 28vw, (min-width: 1024px) 28vw, 40vw"
-                eagerPreload
                 seamlessLoop
                 prefersReducedMotion={prefersReducedMotion}
                 portraitDoorsEnabled={portraitDoorsEnabled}
@@ -391,6 +400,7 @@ export function FoundingCastHero() {
               displayName="Clive Wigglesworth Esq."
               sizes="(min-width: 1536px) 40vw, (min-width: 1024px) 40vw, 92vw"
               priority
+              playbackRate={CLIVE_HERO_PLAYBACK_RATE}
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
@@ -410,19 +420,18 @@ export function FoundingCastHero() {
               entry={doc}
               displayName={doc.name}
               sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 40vw"
-              eagerPreload
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
-          </div>
-          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--lazlo">
-            <CastPortrait
-              entry={lazloMarlowe}
-              displayName={lazloMarlowe.name}
-              sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 72vw"
-              prefersReducedMotion={prefersReducedMotion}
-              portraitDoorsEnabled={portraitDoorsEnabled}
-            />
+            <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--lazlo">
+              <CastPortrait
+                entry={lazloMarlowe}
+                displayName={lazloMarlowe.name}
+                sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 72vw"
+                prefersReducedMotion={prefersReducedMotion}
+                portraitDoorsEnabled={portraitDoorsEnabled}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -435,6 +444,7 @@ export function FoundingCastHero() {
             displayName="Clive Wigglesworth Esq."
             sizes="94vw"
             priority
+            playbackRate={CLIVE_HERO_PLAYBACK_RATE}
             prefersReducedMotion={prefersReducedMotion}
             portraitDoorsEnabled={portraitDoorsEnabled}
           />
@@ -456,7 +466,6 @@ export function FoundingCastHero() {
                 entry={pam}
                 displayName={pam.name}
                 sizes="46vw"
-                eagerPreload
                 seamlessLoop
                 prefersReducedMotion={prefersReducedMotion}
                 portraitDoorsEnabled={portraitDoorsEnabled}
@@ -469,7 +478,6 @@ export function FoundingCastHero() {
               entry={doc}
               displayName={doc.name}
               sizes="46vw"
-              eagerPreload
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
