@@ -32,6 +32,17 @@ Default is **Full story** (portrait doors + **All platform surfaces** heading). 
 
 ---
 
+## Doc's Workshop build demo
+
+- [ ] Open `/command/doc` — workshop stage visible.
+- [ ] Click **Design the fleet** hotspot (left alcove) → lands on `/command/doc/build`.
+- [ ] Walk Trinity steps through **Approve build** with your name filled in.
+- [ ] **View export** shows governed defaults table with **Auto-save memories: false**.
+- [ ] **Download export JSON** link serves `agent-northline-shift-advisor-demo-v0_1.json`.
+- [ ] Footer link **Fleet design (full surface)** → `/fleet`.
+
+---
+
 ## Regression script (optional)
 
 ```bash

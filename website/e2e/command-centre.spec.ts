@@ -65,11 +65,36 @@ test.describe("Command centre", () => {
 
     await page.getByRole("link", { name: /Enter Doc's workshop/i }).click();
     await expect(page).toHaveURL(/\/command\/doc$/);
-    await expect(page.getByText("Doc's workshop")).toBeVisible();
+    await expect(page.locator(".doc-workshop-hub__label")).toHaveText("Doc's workshop");
     await expect(
       page.getByRole("img", {
         name: /Doc Albright at his steampunk workshop/i,
       }),
     ).toBeVisible();
+  });
+
+  test("workshop fleet hotspot opens Trinity build demo through approval to export", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto("/command/doc");
+
+    await page.getByRole("button", { name: /Design the fleet/i }).click();
+    await expect(page).toHaveURL(/\/command\/doc\/build$/);
+    await expect(page.getByRole("heading", { name: "Agent build demo" })).toBeVisible();
+
+    await page.getByRole("button", { name: "Continue to brief" }).click();
+    await page.getByRole("button", { name: "View Proposer pack" }).click();
+    await page.getByRole("button", { name: "Send to Challenger" }).click();
+    await page.getByRole("button", { name: "Ready for your approval" }).click();
+
+    await page.getByLabel("Your name").fill("Matthew");
+    await page.getByRole("button", { name: /Approve build/i }).click();
+
+    await page.getByRole("button", { name: "View export" }).click({ timeout: 15000 });
+
+    await expect(page.getByText("Auto-save memories")).toBeVisible();
+    await expect(page.getByText("false").first()).toBeVisible();
+    await expect(page.getByRole("link", { name: /Download export JSON/i })).toBeVisible();
   });
 });

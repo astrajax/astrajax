@@ -64,10 +64,10 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
       {
         id: "fleet",
         title: "Design the fleet",
-        description: "Task-scoped agents — personality editable, competence locked.",
-        href: "/fleet",
-        cta: "Open fleet design",
-        badge: "Live",
+        description: "Doc's Workshop Trinity — interview, red-team, approve, export JSON.",
+        href: "/command/doc/build",
+        cta: "Open build demo",
+        badge: "Demo",
       },
       {
         id: "deploy",

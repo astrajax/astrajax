@@ -100,6 +100,9 @@ export function DocWorkshopHub() {
       </div>
 
       <footer className="doc-workshop-hub__footer">
+        <Link href="/fleet" className="doc-workshop-hub__fleet-link">
+          Fleet design (full surface) →
+        </Link>
         <Link href="/#agent-cast" className="doc-workshop-hub__back">
           ← Back to command centre
         </Link>
