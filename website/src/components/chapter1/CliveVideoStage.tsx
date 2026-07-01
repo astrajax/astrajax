@@ -21,6 +21,7 @@ import { usePrefersReducedMotion } from "@/components/command-centre/usePortrait
 
 const POSTER_SRC =
   castHeroByProduct("clive") ?? "/agent-cast/clive-wigglesworth/hero.png";
+const AMBIENT_PLAYBACK_RATE = 0.72;
 
 type LayerIndex = 0 | 1;
 
@@ -41,11 +42,13 @@ function loadAndPlay(
   video: HTMLVideoElement,
   src: string,
   loop: boolean,
+  playbackRate = AMBIENT_PLAYBACK_RATE,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const onReady = () => {
       cleanup();
       video.loop = loop;
+      video.playbackRate = playbackRate;
       void video.play().then(() => resolve()).catch(reject);
     };
     const onError = () => {
@@ -59,6 +62,7 @@ function loadAndPlay(
 
     video.src = src;
     video.loop = loop;
+    video.playbackRate = playbackRate;
     video.currentTime = 0;
     video.addEventListener("canplay", onReady);
     video.addEventListener("error", onError);
@@ -111,13 +115,17 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
     );
 
     const crossfadeToClip = useCallback(
-      async (src: string, loop: boolean): Promise<HTMLVideoElement | null> => {
+      async (
+        src: string,
+        loop: boolean,
+        playbackRate = AMBIENT_PLAYBACK_RATE,
+      ): Promise<HTMLVideoElement | null> => {
         const current = activeLayerRef.current;
         const next: LayerIndex = current === 0 ? 1 : 0;
         const nextVideo = layerRefs[next].current;
         if (!nextVideo) return null;
 
-        await loadAndPlay(nextVideo, src, loop);
+        await loadAndPlay(nextVideo, src, loop, playbackRate);
         setActive(next);
         return nextVideo;
       },
@@ -125,7 +133,11 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
     );
 
     const bootstrapFirstClip = useCallback(
-      async (src: string, loop: boolean): Promise<HTMLVideoElement | null> => {
+      async (
+        src: string,
+        loop: boolean,
+        playbackRate = AMBIENT_PLAYBACK_RATE,
+      ): Promise<HTMLVideoElement | null> => {
         if (videoReadyRef.current) return layerRefs[activeLayerRef.current].current;
 
         if (bootstrapPromiseRef.current) {
@@ -136,7 +148,7 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
         const video = layerRefs[0].current;
         if (!video) return null;
 
-        const bootstrap = loadAndPlay(video, src, loop).then(() => {
+        const bootstrap = loadAndPlay(video, src, loop, playbackRate).then(() => {
           setActive(0);
           markVideoReady();
         });
