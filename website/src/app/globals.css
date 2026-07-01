@@ -481,13 +481,18 @@ body {
   width: 100%;
 }
 
-/* Doc — upper-right column */
-.hero-asymmetric-wall__slot--doc {
+/* Doc — upper-right column stack; workshop robots in a tight 2×2 grid beneath */
+.hero-asymmetric-wall__slot--doc-stack {
   align-self: start;
   justify-content: flex-start;
   z-index: 2;
   transform: rotate(0.65deg);
   padding-top: 0;
+  gap: clamp(0.35rem, 1.2vh, 0.85rem);
+}
+
+.hero-asymmetric-wall__slot--doc-stack > .hero-portrait {
+  flex: 0 0 auto;
 }
 
 /* Clive's Man — supporting portrait under Clive, ~half the hero scale */
@@ -520,7 +525,7 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-.hero-asymmetric-wall__slot--doc .hero-portrait-frame {
+.hero-asymmetric-wall__slot--doc-stack .hero-portrait-frame {
   box-shadow:
     -0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
@@ -534,7 +539,7 @@ body {
 
 /* Pam + Doc — slightly larger flanks, scaled toward Clive without crossing gutters */
 .hero-asymmetric-wall__slot--pam .hero-wall-name-rail .hero-portrait,
-.hero-asymmetric-wall__slot--doc .hero-portrait {
+.hero-asymmetric-wall__slot--doc-stack .hero-portrait {
   width: calc(100% * var(--hero-flank-portrait-scale));
   max-width: none;
 }
@@ -545,8 +550,47 @@ body {
   margin-top: auto;
 }
 
-.hero-asymmetric-wall__slot--doc .hero-portrait {
+.hero-asymmetric-wall__slot--doc-stack > .hero-portrait {
   align-self: flex-start;
+}
+
+/* Doc's workshop — supporting robot portraits in a tight 2×2 square grid */
+.hero-doc-workshop-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(0.125rem, 0.35vw, 0.25rem);
+  width: 55%;
+  min-width: 0;
+  align-self: center;
+  margin: 0;
+}
+
+.hero-doc-workshop-grid__cell {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 1;
+  min-width: 0;
+}
+
+.hero-doc-workshop-grid__frame {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  background: transparent;
+  box-shadow:
+    0 0.65rem 1.35rem rgba(6, 5, 3, 0.38),
+    0 0.25rem 0.5rem rgba(6, 5, 3, 0.24);
+}
+
+.hero-doc-workshop-grid__media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 2px;
 }
 
 .hero-asymmetric-wall__slot--man .hero-portrait {
@@ -666,6 +710,14 @@ body {
   text-underline-offset: 3px;
 }
 
+/* Cream-backed logo mark on dark surfaces (Victorian wall, sage pages). */
+.brand-mark-on-dark {
+  border-radius: 14%;
+  box-shadow:
+    0 2px 14px rgba(0, 0, 0, 0.32),
+    0 0 0 1px rgba(255, 244, 225, 0.06);
+}
+
 /* ── Wall brand wordmark — logo + ASTRAJAX stacked above Pam ── */
 .hero-wall-brand {
   --hero-brand-mark-size: clamp(3.75rem, 7vw, 6.25rem);
@@ -682,10 +734,15 @@ body {
   margin-bottom: clamp(0.5rem, 2vh, 1.25rem);
 }
 
+/* Cream-backed mark on dark Victorian wall — soft medallion, not a harsh square crop. */
 .hero-wall-brand__mark {
   width: var(--hero-brand-mark-size);
   height: auto;
   opacity: 1;
+  border-radius: 14%;
+  box-shadow:
+    0 2px 14px rgba(0, 0, 0, 0.32),
+    0 0 0 1px rgba(255, 244, 225, 0.06);
 }
 
 .hero-wall-brand__word {
@@ -753,7 +810,7 @@ body {
 }
 
 .hero-asymmetric-wall__mobile-flanks .hero-asymmetric-wall__pam-mobile .hero-wall-name-rail .hero-portrait,
-.hero-asymmetric-wall__mobile-flanks > .hero-portrait {
+.hero-asymmetric-wall__mobile-flanks .hero-asymmetric-wall__doc-mobile > .hero-portrait {
   width: 100%;
 }
 
@@ -761,9 +818,27 @@ body {
   align-self: flex-end;
 }
 
-.hero-asymmetric-wall__mobile-flanks > .hero-portrait {
+.hero-asymmetric-wall__mobile-flanks .hero-asymmetric-wall__doc-mobile > .hero-portrait {
   align-self: flex-start;
   justify-self: end;
+}
+
+.hero-asymmetric-wall__doc-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.35rem, 2vw, 0.65rem);
+  width: 100%;
+  min-width: 0;
+}
+
+.hero-asymmetric-wall__doc-mobile > .hero-portrait {
+  width: 100%;
+  align-self: flex-start;
+}
+
+.hero-asymmetric-wall__doc-mobile .hero-doc-workshop-grid {
+  width: 58%;
 }
 
 .hero-asymmetric-wall__clive-stack-mobile {
@@ -1707,29 +1782,55 @@ body {
   padding: 0;
 }
 
-.clive-chat--study .clive-chat__prompt-stage {
-  position: relative;
-  display: flex;
+.clive-chat--study .clive-chat__messages {
   flex: 1;
-  flex-direction: column;
-  justify-content: flex-end;
-  gap: 0.75rem;
   min-height: 0;
-  overflow: hidden;
-  padding: 0 0.125rem clamp(0.375rem, 1.6vh, 0.875rem) 0.875rem;
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  padding: 0.125rem 0.125rem clamp(0.375rem, 1.6vh, 0.875rem) 0.875rem;
   border-left: 1px solid rgba(203, 160, 86, 0.3);
   box-shadow: inset 1px 0 0 rgba(255, 240, 198, 0.05);
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+
+.clive-chat--study .clive-chat__prompt-stage {
+  display: none;
 }
 
 .clive-chat--study .clive-chat__prompt,
 .clive-chat--study .clive-chat__user-echo {
   position: relative;
   max-width: 42rem;
+  flex-shrink: 0;
 }
 
-.clive-chat--study .clive-chat__prompt,
-.clive-chat--study .clive-chat__user-echo {
-  animation: studyPromptIn 700ms ease forwards;
+.clive-chat--study .clive-chat__prompt-text--revealing {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.clive-chat--study .clive-chat__prompt-line {
+  display: block;
+  opacity: 0;
+  animation: studyLineIn 420ms ease forwards;
+}
+
+@keyframes studyLineIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .clive-chat--study .clive-chat__prompt-label {
@@ -1847,12 +1948,6 @@ body {
   margin: 0.5rem 0 0;
   font-size: 0.8125rem;
   color: var(--color-apricot);
-}
-
-.clive-chat--study .clive-chat__messages {
-  max-height: none;
-  overflow: visible;
-  gap: 1.125rem;
 }
 
 .clive-chat--study .clive-chat__turn {
@@ -1975,10 +2070,14 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .clive-chat--study .clive-chat__prompt,
-  .clive-chat--study .clive-chat__user-echo,
   .clive-chat--study .clive-chat__thinking {
     animation: none;
+  }
+
+  .clive-chat--study .clive-chat__prompt-line {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 
   .clive-chat--study .clive-chat__thinking-pulse {

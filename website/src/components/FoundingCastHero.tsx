@@ -51,6 +51,28 @@ const clivesMan = {
   videoSrc: undefined,
 };
 
+/** Doc's workshop — supporting steampunk robot portraits beneath his hero still. */
+const DOC_WORKSHOP_ROBOTS = [
+  {
+    src: "/agent-cast/doc-albright/workshop/robot-1.png",
+    alt: "Steampunk brass robot portrait — round gauge eyes and riveted copper plating",
+  },
+  {
+    src: "/agent-cast/doc-albright/workshop/robot-2.png",
+    alt: "Steampunk robot portrait — brass monocle lens and polished bronze faceplate",
+  },
+  {
+    src: "/agent-cast/doc-albright/workshop/robot-3.png",
+    alt: "Steampunk robot portrait — twin dial eyes and weathered iron jaw",
+  },
+  {
+    src: "/agent-cast/doc-albright/workshop/robot-4.png",
+    alt: "Steampunk robot portrait — copper coil crown and brass rivet seams",
+  },
+] as const;
+
+const DOC_WORKSHOP_ROBOT_SIZE = 1024;
+
 /** Intrinsic hero still dimensions — keeps layout stable without cropping baked-in frames. */
 const HERO_FRAME_SIZE: Record<string, { width: number; height: number }> = {
   "pam-portiscue": { width: 2560, height: 1440 },
@@ -212,8 +234,8 @@ function HeroWallBrand() {
         src="/astrajax-logo.png"
         alt=""
         aria-hidden
-        width={120}
-        height={120}
+        width={1024}
+        height={1024}
         className="hero-wall-brand__mark"
       />
       <span className="hero-wall-brand__word font-sans">ASTRAJAX</span>
@@ -282,6 +304,30 @@ function CommandCentreHint({ enabled }: { enabled: boolean }) {
     <p className="hero-command-centre-hint">
       Click a portrait to step inside — or switch to Light story for the flat directory below.
     </p>
+  );
+}
+
+function DocWorkshopRobotGrid() {
+  return (
+    <div
+      className="hero-doc-workshop-grid"
+      aria-label="Doc's workshop robots — supporting cast portraits"
+    >
+      {DOC_WORKSHOP_ROBOTS.map((robot) => (
+        <figure key={robot.src} className="hero-doc-workshop-grid__cell">
+          <div className="hero-doc-workshop-grid__frame">
+            <Image
+              src={robot.src}
+              alt={robot.alt}
+              width={DOC_WORKSHOP_ROBOT_SIZE}
+              height={DOC_WORKSHOP_ROBOT_SIZE}
+              sizes="(min-width: 1024px) 7vw, 12vw"
+              className="hero-doc-workshop-grid__media"
+            />
+          </div>
+        </figure>
+      ))}
+    </div>
   );
 }
 
@@ -355,7 +401,7 @@ export function FoundingCastHero() {
               />
             </div>
           </div>
-          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc">
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc-stack">
             <CastPortrait
               entry={doc}
               displayName={doc.name}
@@ -364,6 +410,7 @@ export function FoundingCastHero() {
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
+            <DocWorkshopRobotGrid />
           </div>
         </div>
       </div>
@@ -404,14 +451,17 @@ export function FoundingCastHero() {
               />
             </div>
           </div>
-          <CastPortrait
-            entry={doc}
-            displayName={doc.name}
-            sizes="46vw"
-            eagerPreload
-            prefersReducedMotion={prefersReducedMotion}
-            portraitDoorsEnabled={portraitDoorsEnabled}
-          />
+          <div className="hero-asymmetric-wall__doc-mobile">
+            <CastPortrait
+              entry={doc}
+              displayName={doc.name}
+              sizes="46vw"
+              eagerPreload
+              prefersReducedMotion={prefersReducedMotion}
+              portraitDoorsEnabled={portraitDoorsEnabled}
+            />
+            <DocWorkshopRobotGrid />
+          </div>
         </div>
       </div>
     </div>
