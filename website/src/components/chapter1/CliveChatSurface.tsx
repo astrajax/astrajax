@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ChatMessage, ClivePersona } from "@/lib/clive/types";
 
 type CliveChatSurfaceProps = {
@@ -15,7 +15,7 @@ type CliveChatSurfaceProps = {
   compact?: boolean;
   /** Calm study rail — full names, lighter chrome. */
   studyMode?: boolean;
-  /** Label for the human side of the conversation (Chapter 1: "The Architect"). */
+  /** Label for the human side of the conversation (Chapter 1: "Architect {name}"). */
   userLabel?: string;
   /** When set, skips /api/ask-clive and uses this handler for assistant replies. */
   onCustomSend?: (message: string, history: ChatMessage[]) => Promise<string>;
@@ -46,6 +46,13 @@ async function readTextStream(response: Response, onDelta: (chunk: string) => vo
   return full.trim();
 }
 
+function lastMessageOfRole(messages: ChatMessage[], role: ChatMessage["role"]): ChatMessage | undefined {
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    if (messages[index].role === role) return messages[index];
+  }
+  return undefined;
+}
+
 export function CliveChatSurface({
   persona = "clive",
   greeting,
@@ -73,10 +80,11 @@ export function CliveChatSurface({
   const listRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = useCallback(() => {
+    if (studyMode) return;
     requestAnimationFrame(() => {
       listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
     });
-  }, []);
+  }, [studyMode]);
 
   useEffect(() => {
     scrollToBottom();
@@ -181,6 +189,22 @@ export function CliveChatSurface({
     .filter(Boolean)
     .join(" ");
 
+  const studyAssistantText = useMemo(() => {
+    if (streamingText) return streamingText;
+    const lastAssistant = lastMessageOfRole(messages, "assistant");
+    if (lastAssistant?.content) return lastAssistant.content;
+    if (messages.length === 0 && greeting) return greeting;
+    return null;
+  }, [greeting, messages, streamingText]);
+
+  const studyUserEcho = useMemo(() => {
+    if (!isThinking || streamingText) return null;
+    return lastMessageOfRole(messages, "user")?.content ?? null;
+  }, [isThinking, messages, streamingText]);
+
+  const thinkingLabel =
+    persona === "pam" ? "Pam is considering…" : "Clive's thinking…";
+
   function renderTurn(
     role: "assistant" | "user",
     content: string,
@@ -234,6 +258,91 @@ export function CliveChatSurface({
         <p className={options?.muted ? "text-ink-muted" : undefined}>
           <span className="clive-chat__speaker">{label}:</span> {content}
         </p>
+      </div>
+    );
+  }
+
+  if (studyMode) {
+    return (
+      <div className={chatClassName}>
+        <div className="clive-chat__prompt-stage" aria-live="polite">
+          {studyAssistantText && !isThinking && !streamingText && (
+            <div key={studyAssistantText.slice(0, 64)} className="clive-chat__prompt">
+              <p className="clive-chat__prompt-label">{speakerName}</p>
+              <p className="clive-chat__prompt-text">{studyAssistantText}</p>
+            </div>
+          )}
+
+          {studyUserEcho && (
+            <div key={studyUserEcho.slice(0, 64)} className="clive-chat__user-echo">
+              <p className="clive-chat__prompt-text clive-chat__prompt-text--user">
+                {studyUserEcho}
+              </p>
+            </div>
+          )}
+
+          {isThinking && !streamingText && (
+            <div className="clive-chat__thinking">
+              <span className="clive-chat__thinking-pulse" aria-hidden />
+              <span>{thinkingLabel}</span>
+            </div>
+          )}
+
+          {streamingText && (
+            <div key="streaming" className="clive-chat__prompt">
+              <p className="clive-chat__prompt-label">{speakerName}</p>
+              <p className="clive-chat__prompt-text">{streamingText}</p>
+            </div>
+          )}
+        </div>
+
+        {!transcriptOnly && (
+          <>
+            {messages.length === 0 && starterPrompts.length > 0 && (
+              <div className="clive-chat__starters">
+                {starterPrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => void sendMessage(prompt)}
+                    disabled={isThinking || disabled}
+                    className="clive-chat__starter"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="clive-chat__form">
+              <p className="clive-chat__architect-label">{userLabel}</p>
+              <div className="clive-chat__form-row">
+                <input
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  placeholder={placeholder}
+                  maxLength={500}
+                  disabled={isThinking || disabled}
+                  className="clive-chat__input"
+                  aria-label={`Message for ${speakerName}`}
+                />
+                <button
+                  type="submit"
+                  disabled={isThinking || disabled || !input.trim()}
+                  className="btn-primary shrink-0 px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Send
+                </button>
+              </div>
+            </form>
+          </>
+        )}
+
+        {error && (
+          <p className="clive-chat__study-error" role="alert">
+            {error}
+          </p>
+        )}
       </div>
     );
   }

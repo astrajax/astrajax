@@ -1,3 +1,4 @@
+import { recommendBrainThemes } from "./brain-theme-templates";
 import { USER_BRAIN_PROFILES } from "./demo-data";
 import type { IntakeAnswer, UserBrainIntake, UserBrainProfile } from "./types";
 
@@ -7,7 +8,13 @@ export type IntakeQuestion = {
   id: string;
   field: keyof Pick<
     UserBrainIntake,
-    "name" | "role" | "devExperience" | "aiComfort" | "contextFamiliarity" | "goal"
+    | "name"
+    | "role"
+    | "businessSector"
+    | "devExperience"
+    | "aiComfort"
+    | "contextFamiliarity"
+    | "goal"
   >;
   text: string;
   required: boolean;
@@ -26,6 +33,13 @@ export const INTAKE_QUESTIONS: IntakeQuestion[] = [
     field: "role",
     text: "What's your role, and what are you actually responsible for day to day?",
     required: true,
+  },
+  {
+    id: "business_sector",
+    field: "businessSector",
+    text: "What kind of business is this — and what corner of it do you own? For example: a startup you're building, sales inside a company, product, marketing, ops, finance, people, or professional services. Plain language is fine.",
+    required: true,
+    placeholder: "e.g. B2B SaaS startup I'm founding / Head of Sales at a pet food company",
   },
   {
     id: "dev_experience",
@@ -251,6 +265,9 @@ function acknowledgeAnswer(question: IntakeQuestion, answer: string, name?: stri
   if (question.id === "role") {
     return "Clear — that helps.";
   }
+  if (question.id === "business_sector") {
+    return "Good — that tells me which Brain themes to recommend.";
+  }
   if (question.id === "dev_experience") {
     return "Good to know.";
   }
@@ -335,7 +352,9 @@ export function inferProfileFromIntake(intake: UserBrainIntake): {
   const ctx = (intake.contextFamiliarity ?? "").toLowerCase();
   const dev = (intake.devExperience ?? "").toLowerCase();
   const role = (intake.role ?? "").toLowerCase();
+  const sector = (intake.businessSector ?? "").toLowerCase();
   const goal = (intake.goal ?? "").toLowerCase();
+  const sectorAndRole = `${role} ${sector}`;
 
   const aiZeroSignals = isZeroOrConfused(intake.aiComfort) || ai.includes("cautious newcomer");
   const ctxZeroSignals = isZeroOrConfused(intake.contextFamiliarity);
@@ -464,12 +483,12 @@ export function inferProfileFromIntake(intake: UserBrainIntake): {
   }
   if (
     hasSubstantiveRole(intake.role) &&
-    (role.includes("sales") ||
-      role.includes("commercial") ||
-      role.includes("revenue") ||
-      role.includes("account") ||
-      role.includes("ops") ||
-      role.includes("operations"))
+    (sectorAndRole.includes("sales") ||
+      sectorAndRole.includes("commercial") ||
+      sectorAndRole.includes("revenue") ||
+      sectorAndRole.includes("account") ||
+      sectorAndRole.includes("ops") ||
+      sectorAndRole.includes("operations"))
   ) {
     if (aiPositive && !ctxZeroSignals) {
       scores["commercial-new-context"] += 2;
@@ -506,11 +525,24 @@ export function inferProfileFromIntake(intake: UserBrainIntake): {
   return { profileId, summary, reasoning };
 }
 
-export function buildIntakeSummaryCard(_intake: UserBrainIntake, profile: UserBrainProfile): {
+export function buildIntakeSummaryCard(intake: UserBrainIntake, profile: UserBrainProfile): {
   profileLabel: string;
+  sectorLabel?: string;
 } {
   return {
     profileLabel: profile.label,
+    sectorLabel: intake.brainThemeRecommendations?.sectorLabel,
+  };
+}
+
+/** Attach sector inference and brain theme recommendations after intake completes. */
+export function enrichIntakeWithThemeRecommendations(intake: UserBrainIntake): UserBrainIntake {
+  const recommendations = recommendBrainThemes(intake);
+  return {
+    ...intake,
+    inferredSectorId: recommendations.sectorId,
+    inferredArchetype: recommendations.archetype,
+    brainThemeRecommendations: recommendations,
   };
 }
 

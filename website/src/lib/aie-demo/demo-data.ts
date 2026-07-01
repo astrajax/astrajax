@@ -120,7 +120,7 @@ export const CLIVE_INTERVIEW_PROMPTS = [
   "What would a good agent answer sound like — and what must it never say?",
 ];
 
-/** Five Brain Vault themes — one governed context vat per corner of the business. */
+/** @deprecated Use brain-theme-templates.ts — kept for legacy references and fallback demos. */
 export const BRAINS_THEMES = [
   {
     id: "core",

@@ -6,11 +6,13 @@ import type { CliveReaction } from "@/lib/clive/video-reactions";
 import type { ChatMessage } from "@/lib/clive/types";
 import type { UserBrainIntake, UserBrainProfile } from "@/lib/aie-demo/types";
 import { saveUserBrainToWorkshop } from "@/lib/aie-demo/brain-client";
+import { formatArchitectLabel } from "@/lib/chapter1/format-labels";
 import {
   applyIntakeAnswer,
   buildIntakeSummaryCard,
   buildIntakeTranscript,
   createEmptyIntake,
+  enrichIntakeWithThemeRecommendations,
   getNextAssistantMessage,
   getProfileById,
   INTAKE_QUESTIONS,
@@ -57,7 +59,7 @@ export function UserBrainIntakeChat({
     return buildIntakeTranscript(intake);
   }, [intake]);
 
-  const userLabel = intake.name?.trim() || "You";
+  const userLabel = formatArchitectLabel(intake.name);
 
   const handleCustomSend = useCallback(
     async (message: string, _history: ChatMessage[]): Promise<string> => {
@@ -117,12 +119,12 @@ export function UserBrainIntakeChat({
           profile = getProfileById(profileId)!;
         }
 
-        const completedIntake: UserBrainIntake = {
+        const completedIntake = enrichIntakeWithThemeRecommendations({
           ...updatedIntake,
           inferredProfileId: profileId,
           intakeComplete: true,
           classificationSummary: summary,
-        };
+        });
 
         onIntakeUpdate(completedIntake);
         onComplete(completedIntake, profile);
@@ -146,12 +148,12 @@ export function UserBrainIntakeChat({
       } catch {
         const heuristic = inferProfileFromIntake(updatedIntake);
         const profile = getProfileById(heuristic.profileId)!;
-        const completedIntake: UserBrainIntake = {
+        const completedIntake = enrichIntakeWithThemeRecommendations({
           ...updatedIntake,
           inferredProfileId: heuristic.profileId,
           intakeComplete: true,
           classificationSummary: heuristic.summary,
-        };
+        });
         onIntakeUpdate(completedIntake);
         onComplete(completedIntake, profile);
         playCliveReaction?.("pleased");
@@ -182,7 +184,7 @@ export function UserBrainIntakeChat({
       : null;
 
   return (
-    <>
+    <div className="chapter1-intake-chat">
       <CliveChatSurface
         key="user-brain-intake"
         persona="clive"
@@ -207,11 +209,17 @@ export function UserBrainIntakeChat({
       {summaryCard && (
         <article className="study-doc-card chapter1-intake-summary">
           <p className="study-doc-card__note">
-            Inferred profile: <strong>{summaryCard.profileLabel}</strong> — shaped from your
-            answers. Clive will adapt pace and tone from here.
+            Inferred profile: <strong>{summaryCard.profileLabel}</strong>
+            {summaryCard.sectorLabel ? (
+              <>
+                {" "}
+                · Sector: <strong>{summaryCard.sectorLabel}</strong>
+              </>
+            ) : null}{" "}
+            — shaped from your answers. Clive will adapt pace and tone from here.
           </p>
         </article>
       )}
-    </>
+    </div>
   );
 }

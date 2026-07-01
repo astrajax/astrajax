@@ -22,6 +22,8 @@ export function buildLoopContextSummary(context: {
   userName?: string;
   userBrainLabel?: string;
   userRole?: string;
+  businessSector?: string;
+  sectorLabel?: string;
   devExperience?: string;
   aiComfort?: string;
   contextFamiliarity?: string;
@@ -35,6 +37,8 @@ export function buildLoopContextSummary(context: {
   const lines: string[] = [];
   if (context.userName) lines.push(`User's name: ${context.userName}`);
   if (context.userRole) lines.push(`Role: ${context.userRole}`);
+  if (context.businessSector) lines.push(`Business / sector: ${context.businessSector}`);
+  if (context.sectorLabel) lines.push(`Inferred sector for brain themes: ${context.sectorLabel}`);
   if (context.devExperience) {
     lines.push(`Development / system architecture (self-reported): ${context.devExperience}`);
   }

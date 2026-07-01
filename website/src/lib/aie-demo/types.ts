@@ -1,3 +1,4 @@
+import type { BrainThemeRecommendation } from "@/lib/aie-demo/brain-theme-templates";
 import type { AccessGrant, BrainKeyRequest, ContextSnippet } from "@/lib/brains/types";
 import type { BrainKeyUiState } from "@/lib/brains/types";
 
@@ -61,6 +62,8 @@ export interface IntakeAnswer {
 export interface UserBrainIntake {
   name?: string;
   role?: string;
+  /** Sector / business type — drives brain theme recommendations. */
+  businessSector?: string;
   devExperience?: string;
   aiComfort?: string;
   contextFamiliarity?: string;
@@ -68,6 +71,9 @@ export interface UserBrainIntake {
   rawAnswers: IntakeAnswer[];
   questionIndex: number;
   inferredProfileId?: string;
+  inferredSectorId?: string;
+  inferredArchetype?: "founder" | "function-leader";
+  brainThemeRecommendations?: BrainThemeRecommendation;
   intakeComplete?: boolean;
   classificationSummary?: string;
 }

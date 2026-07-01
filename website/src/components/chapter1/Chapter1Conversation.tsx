@@ -14,15 +14,20 @@ import {
   CHAPTER1_PAM_GREETING,
 } from "@/lib/clive/chapter1-fallback";
 import {
-  BRAINS_THEMES,
   DEMO_SCOPE,
   mergeDraftTruthsForDisplay,
   OWNERSHIP_LINE,
   promotionsFromDrafts,
   RECEIPT_CARDS,
 } from "@/lib/aie-demo/demo-data";
+import {
+  GOOD_THEME_QUALITIES,
+  WHY_WE_THEME,
+  themesForIntake,
+} from "@/lib/aie-demo/brain-theme-templates";
 import type { DraftTruthItem, LoopStep, StepProps } from "@/lib/aie-demo/types";
 import { DEMO_BRAIN_SLUG } from "@/lib/aie-demo/types";
+import { formatArchitectLabel } from "@/lib/chapter1/format-labels";
 import { brainsIntroGreeting, truthApprovalGreeting } from "@/lib/clive/beat-copy";
 import { buildLoopContextSummary } from "@/lib/clive/loop-context";
 import { cliveMessageForState } from "@/lib/brains/ui-states";
@@ -75,6 +80,8 @@ export function Chapter1Conversation({
         aiComfort: state.userBrainIntake?.aiComfort,
         contextFamiliarity: state.userBrainIntake?.contextFamiliarity,
         userGoal: state.userBrainIntake?.goal,
+        businessSector: state.userBrainIntake?.businessSector,
+        sectorLabel: state.userBrainIntake?.brainThemeRecommendations?.sectorLabel,
         userBrainLabel: state.userBrain?.label,
         guideMode: state.guideMode ?? undefined,
         businessGoal: state.businessBrain.goal,
@@ -85,7 +92,13 @@ export function Chapter1Conversation({
     [state],
   );
 
-  const userLabel = state.userBrainIntake?.name?.trim() || "You";
+  const userLabel = formatArchitectLabel(state.userBrainIntake?.name);
+  const recommendedThemes = useMemo(
+    () => themesForIntake(state.userBrainIntake),
+    [state.userBrainIntake],
+  );
+  const themeRecommendations = state.userBrainIntake?.brainThemeRecommendations;
+  const primaryPickId = themeRecommendations?.primaryPickId;
   const isUserBrainStep = state.currentStep === "user_brain";
   const isTruthApprovalStep = state.currentStep === "truth_approval";
   const userBrainIntakeComplete = Boolean(
@@ -369,13 +382,39 @@ export function Chapter1Conversation({
           <div className="chapter1-conversation__beat">
             {state.currentStep === "brains_intro" && (
               <div className="study-doc-card__stack">
+                {themeRecommendations && (
+                  <p className="study-doc-card__note study-doc-card__note--muted">
+                    Recommended for <strong>{themeRecommendations.sectorLabel}</strong> —{" "}
+                    {themeRecommendations.sectorRationale}
+                  </p>
+                )}
                 <p className="study-doc-card__note study-doc-card__note--muted">
-                  Five Brain themes — pick one to light first. Don&apos;t try to fill all five at once.
+                  {WHY_WE_THEME} Pick one to light first — not all of them at once.
                 </p>
-                {BRAINS_THEMES.map((theme) => (
-                  <article key={theme.id} className="study-doc-card">
-                    <span className="study-doc-card__tag">{theme.label}</span>
+                <div className="study-doc-card">
+                  <p className="study-doc-card__tag">What makes a good theme</p>
+                  <ul className="study-doc-card__list">
+                    {GOOD_THEME_QUALITIES.map((q) => (
+                      <li key={q.title}>
+                        <strong>{q.title}</strong> — {q.body}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                {recommendedThemes.map((theme) => (
+                  <article
+                    key={theme.id}
+                    className={`study-doc-card${theme.id === primaryPickId ? " study-doc-card--selected" : ""}`}
+                  >
+                    <span className="study-doc-card__tag">
+                      {theme.label}
+                      {theme.isCore ? " · always one" : ""}
+                      {theme.id === primaryPickId ? " · start here" : ""}
+                    </span>
                     <p className="study-doc-card__body">{theme.description}</p>
+                    <p className="study-doc-card__note study-doc-card__note--muted">
+                      {theme.whyRecommended}
+                    </p>
                   </article>
                 ))}
               </div>

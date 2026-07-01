@@ -44,12 +44,12 @@ And let me be plain about why, because it matters: this is so the room can fit y
     actId: 2,
     step: "brains_intro",
     speaker: "clive",
-    caption: "Five vats. You light just one.",
-    monologue: `Welcome to the Brain Vault. Five great vats, each a Brain in waiting — structured context for one corner of your world, glowing away under glass.
+    caption: "Your themes. Light just one.",
+    monologue: `Welcome to the Brain Vault — Iris tends the vats; Pam guards the gate. Nothing leaves trusted until it has earned it.
 
-Iris tends them; she keeps each one fed, labelled, and in good order. Pam guards the gate, naturally — nothing leaves a vat trusted until it has earned it.
+The list beside me is not the same for everyone. I recommend themes from what you told me about your sector — each vat is structured context for one domain you actually own.
 
-Now, the temptation: light all five at once. Please don't. That is context bloat, and it makes every agent vague and far too sure of itself, all at the same time. Pick one. The function you know best, or the first Brain your young company actually needs. We'll make that one genuinely good before we so much as glance at the others.`,
+The temptation is to light them all at once. Please don't. That is context bloat, and it makes every agent vague and far too sure of itself. Pick one — the function you know best, or the first brain your company genuinely needs. We'll make that one good before we glance at the rest.`,
   },
   {
     actId: 3,
