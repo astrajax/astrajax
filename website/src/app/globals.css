@@ -4284,7 +4284,7 @@ body {
 
 .context-intake__hero-image {
   object-fit: cover;
-  object-position: center;
+  object-position: center 42%;
 }
 
 .context-intake__hero-scrim {
