@@ -6,10 +6,8 @@ export const DEMO_BRAIN_SLUG = "astrajax-chapter-1";
 export const LOOP_STEPS = [
   "welcome",
   "context_importance",
-  "brains_intro",
   "user_brain",
-  "guide",
-  "clive_interview",
+  "brains_intro",
   "business_brain",
   "pam_challenge",
   "human_decision",
@@ -18,7 +16,25 @@ export const LOOP_STEPS = [
   "receipts",
 ] as const;
 
-export type LoopStep = (typeof LOOP_STEPS)[number];
+/** Architect journal path — real draft truths, no Northline theatre. */
+export const ARCHITECT_LOOP_STEPS = [
+  "user_brain",
+  "brains_intro",
+  "truth_approval",
+  "human_decision",
+  "doc_handoff",
+  "context_access",
+  "receipts",
+] as const;
+
+export type LoopStep = (typeof LOOP_STEPS)[number] | "truth_approval";
+
+/** Maps removed or legacy step ids to the current flow. */
+export function resolveLoopStep(step: string | undefined, fallback: LoopStep): LoopStep {
+  if (step === "guide" || step === "clive_interview") return "brains_intro";
+  const allSteps = [...LOOP_STEPS, "truth_approval"] as const;
+  return step && (allSteps as readonly string[]).includes(step) ? (step as LoopStep) : fallback;
+}
 
 export type BrainMaturity = "seedling" | "working";
 
@@ -89,6 +105,18 @@ export interface PromoteReceipt {
   approver: string;
 }
 
+export interface DraftTruthItem {
+  recordId: string;
+  title: string;
+  canonicalText: string;
+  proposedCategory: string;
+  brainTheme?: string;
+  status: string;
+  proposedByAgent?: string;
+  scope: string;
+  source: "workshop" | "session" | "fallback";
+}
+
 export interface LoopState {
   sessionId: string;
   currentStep: LoopStep;
@@ -105,6 +133,10 @@ export interface LoopState {
   approvalDecisionId: string;
   promoteReceipt: PromoteReceipt | null;
   demoScope: string;
+  draftTruths: DraftTruthItem[];
+  selectedDraftIds: string[];
+  draftTruthsSource?: "workshop" | "session" | "fallback";
+  draftTruthsNotice?: string;
 }
 
 export interface StepProps {
@@ -120,8 +152,7 @@ export const STEP_LABELS: Record<LoopStep, string> = {
   context_importance: "Why Context Matters",
   brains_intro: "BRAINS",
   user_brain: "User Brain",
-  guide: "Guide Mode",
-  clive_interview: "Clive Interview",
+  truth_approval: "Approve Truths",
   business_brain: "Business Brain",
   pam_challenge: "Pam Challenge",
   human_decision: "Your Decision",

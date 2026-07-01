@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   approveBrainKey,
+  fetchDraftTruths,
   logInteraction,
   promoteToTrusted,
   requestBrainKey,
@@ -13,15 +14,16 @@ import {
   CHAPTER1_PAM_GREETING,
 } from "@/lib/clive/chapter1-fallback";
 import {
-  CLIVE_DRAFT_SUMMARY,
+  BRAINS_THEMES,
   DEMO_SCOPE,
-  GUIDE_MODE_OPTIONS,
+  mergeDraftTruthsForDisplay,
   OWNERSHIP_LINE,
-  PROMOTE_DRAFT,
+  promotionsFromDrafts,
   RECEIPT_CARDS,
 } from "@/lib/aie-demo/demo-data";
-import type { LoopState, LoopStep, StepProps } from "@/lib/aie-demo/types";
+import type { DraftTruthItem, LoopStep, StepProps } from "@/lib/aie-demo/types";
 import { DEMO_BRAIN_SLUG } from "@/lib/aie-demo/types";
+import { brainsIntroGreeting, truthApprovalGreeting } from "@/lib/clive/beat-copy";
 import { buildLoopContextSummary } from "@/lib/clive/loop-context";
 import { cliveMessageForState } from "@/lib/brains/ui-states";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
@@ -30,18 +32,26 @@ import type { CliveReaction } from "@/lib/clive/video-reactions";
 
 type Chapter1ConversationProps = StepProps & {
   playCliveReaction?: (reaction: CliveReaction) => void;
+  architectPath?: boolean;
 };
 
-const BEAT_GREETINGS: Partial<Record<LoopStep, string>> = {
-  guide: "Same scopes underneath — how much character do you want in the room?",
-  clive_interview: "Tell me what your team actually does day to day — not the slide version.",
-  business_brain: CLIVE_DRAFT_SUMMARY,
+const STATIC_BEAT_GREETINGS: Partial<Record<LoopStep, string>> = {
   pam_challenge: CHAPTER1_PAM_GREETING,
-  human_decision: "Pam has had her say. What becomes trusted is your call — not mine.",
+  human_decision: "Pam has had her say on the drafts you picked. What becomes trusted is your call — not mine.",
   doc_handoff: "Your approved brief is ready for filing. I'll ask Doc to promote it when you say so.",
   context_access: "Approved context exists now. I can ask to use it for a bounded task — you approve, it's scoped and logged.",
   receipts: "That's the loop. Your brain is growing up — here's what it unlocks next.",
 };
+
+function pamNoteForDrafts(selected: DraftTruthItem[]): string {
+  if (selected.length === 0) {
+    return "Pick at least one draft before you decide. I won't pretend an empty approval is governance.";
+  }
+  if (selected.some((draft) => draft.source === "session")) {
+    return "Session drafts are honest starting points — but live promote needs real Workshop rows. Strongest part: you're naming what matters. Weakest assumption: that intake alone is enough evidence without sources.";
+  }
+  return `You've selected ${selected.length} draft${selected.length === 1 ? "" : "s"}. Strongest part: each row is labelled and scoped. Weakest assumption: that agents will cite them before humans have promoted. Missing evidence: check canonical text against your sources before Doc files.`;
+}
 
 export function Chapter1Conversation({
   state,
@@ -50,9 +60,11 @@ export function Chapter1Conversation({
   onNext,
   onBack,
   playCliveReaction,
+  architectPath = false,
 }: Chapter1ConversationProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [draftsLoading, setDraftsLoading] = useState(false);
 
   const loopContext = useMemo(
     () =>
@@ -75,29 +87,127 @@ export function Chapter1Conversation({
 
   const userLabel = state.userBrainIntake?.name?.trim() || "You";
   const isUserBrainStep = state.currentStep === "user_brain";
+  const isTruthApprovalStep = state.currentStep === "truth_approval";
   const userBrainIntakeComplete = Boolean(
     state.userBrainIntake?.intakeComplete && state.userBrain,
   );
 
-  const persona = state.currentStep === "pam_challenge" ? "pam" : "clive";
-  const greeting = BEAT_GREETINGS[state.currentStep];
+  const persona =
+    state.currentStep === "pam_challenge" || state.currentStep === "truth_approval"
+      ? "pam"
+      : "clive";
+
+  const greeting = useMemo(() => {
+    if (state.currentStep === "brains_intro") {
+      return brainsIntroGreeting(state.userBrainIntake);
+    }
+    if (state.currentStep === "truth_approval") {
+      return truthApprovalGreeting(state.userBrainIntake);
+    }
+    return STATIC_BEAT_GREETINGS[state.currentStep];
+  }, [state.currentStep, state.userBrainIntake]);
+
+  const selectedDrafts = useMemo(
+    () =>
+      state.draftTruths.filter((draft) => state.selectedDraftIds.includes(draft.recordId)),
+    [state.draftTruths, state.selectedDraftIds],
+  );
+
+  useEffect(() => {
+    if (!isTruthApprovalStep) return;
+    if (state.draftTruths.length > 0) return;
+
+    let cancelled = false;
+    setDraftsLoading(true);
+    setError(null);
+
+    void (async () => {
+      try {
+        const result = await fetchDraftTruths(DEMO_BRAIN_SLUG);
+        const workshopDrafts: DraftTruthItem[] = (result.drafts ?? []).map((draft) => ({
+          ...draft,
+          source: draft.source ?? "workshop",
+        }));
+        const merged = mergeDraftTruthsForDisplay(
+          state.sessionId,
+          state.userBrainIntake,
+          workshopDrafts,
+        );
+
+        if (cancelled) return;
+
+        onUpdate({
+          draftTruths: merged.drafts,
+          draftTruthsSource: merged.source,
+          draftTruthsNotice: result.message ?? merged.notice,
+          selectedDraftIds:
+            state.selectedDraftIds.length > 0
+              ? state.selectedDraftIds
+              : merged.drafts.slice(0, 1).map((draft) => draft.recordId),
+        });
+      } catch (err) {
+        if (cancelled) return;
+        const merged = mergeDraftTruthsForDisplay(state.sessionId, state.userBrainIntake, []);
+        onUpdate({
+          draftTruths: merged.drafts,
+          draftTruthsSource: merged.source,
+          draftTruthsNotice:
+            err instanceof Error ? err.message : "Could not reach Workshop — using session drafts.",
+          selectedDraftIds: merged.drafts.slice(0, 1).map((draft) => draft.recordId),
+        });
+      } finally {
+        if (!cancelled) setDraftsLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    isTruthApprovalStep,
+    onUpdate,
+    state.draftTruths.length,
+    state.sessionId,
+    state.userBrainIntake,
+    state.selectedDraftIds.length,
+  ]);
+
+  const toggleDraftSelection = useCallback(
+    (recordId: string) => {
+      const selected = state.selectedDraftIds.includes(recordId);
+      onUpdate({
+        selectedDraftIds: selected
+          ? state.selectedDraftIds.filter((id) => id !== recordId)
+          : [...state.selectedDraftIds, recordId],
+      });
+    },
+    [onUpdate, state.selectedDraftIds],
+  );
 
   const handlePromote = useCallback(async () => {
     setLoading(true);
     setError(null);
+
+    const promotions = promotionsFromDrafts(state.draftTruths, state.selectedDraftIds);
+    if (promotions.length === 0) {
+      setError("Select at least one draft truth to promote.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const result = await promoteToTrusted({
         approvalDecisionId: state.approvalDecisionId || `session_${state.sessionId}`,
         brainSlug: DEMO_BRAIN_SLUG,
-        promotions: [PROMOTE_DRAFT],
+        promotions,
         approver: "Matthew",
-        reason: "Human approved business brain brief after Pam sniff test",
+        reason: "Human approved draft brain truth(s) after review",
       });
 
       onUpdate({
         promoteReceipt: {
           promotedRecordIds: result.promotedRecordIds,
-          changeSummary: `Doc filed ${result.promotedRecordIds.length} approved snippet(s) into the Trusted Brain`,
+          changeSummary: `Doc filed ${result.promotedRecordIds.length} approved snippet(s) into the Trusted Brain (${result.mode} mode)`,
           executingAgent: "Doc",
           approver: "Matthew",
         },
@@ -108,7 +218,7 @@ export function Chapter1Conversation({
     } finally {
       setLoading(false);
     }
-  }, [onUpdate, state.approvalDecisionId, state.sessionId]);
+  }, [onUpdate, state.approvalDecisionId, state.draftTruths, state.selectedDraftIds, state.sessionId]);
 
   const handleRequestAccess = useCallback(async () => {
     setLoading(true);
@@ -119,7 +229,7 @@ export function Chapter1Conversation({
         persona: "clive",
         purpose: "Answer a question using approved positioning context",
         scope: DEMO_SCOPE,
-        reason: state.businessBrain.knownGaps[0] ?? "Need approved snippets for this task",
+        reason: state.draftTruths[0]?.title ?? "Need approved snippets for this task",
         sessionId: state.sessionId,
         requestedExpiryMinutes: 15,
       });
@@ -144,7 +254,7 @@ export function Chapter1Conversation({
     } finally {
       setLoading(false);
     }
-  }, [onUpdate, state.businessBrain.knownGaps, state.sessionId]);
+  }, [onUpdate, state.draftTruths, state.sessionId]);
 
   const handleApproveAccess = useCallback(async () => {
     if (!state.keyRequest) return;
@@ -200,6 +310,9 @@ export function Chapter1Conversation({
     }
   }, [onUpdate, state.demoScope, state.keyRequest, state.sessionId]);
 
+  const showChat =
+    !isUserBrainStep && !(isTruthApprovalStep && architectPath);
+
   return (
     <div className="chapter1-conversation">
       {isUserBrainStep ? (
@@ -207,6 +320,7 @@ export function Chapter1Conversation({
           sessionId={state.sessionId}
           intake={state.userBrainIntake}
           userBrain={state.userBrain}
+          guideMode={state.guideMode ?? undefined}
           onIntakeUpdate={(userBrainIntake) => onUpdate({ userBrainIntake })}
           onComplete={(userBrainIntake, userBrain) =>
             onUpdate({ userBrainIntake, userBrain })
@@ -214,7 +328,7 @@ export function Chapter1Conversation({
           playCliveReaction={playCliveReaction}
           disabled={loading}
         />
-      ) : (
+      ) : showChat ? (
         <CliveChatSurface
           key={`${state.currentStep}-${persona}`}
           persona={persona}
@@ -223,11 +337,7 @@ export function Chapter1Conversation({
           loopContext={loopContext}
           sessionId={state.sessionId}
           placeholder={persona === "pam" ? "Respond to Pam…" : "Talk to Clive…"}
-          starterPrompts={
-            state.currentStep === "clive_interview"
-              ? ["We run weekly forecasts with five spreadsheets", "Context lives in WhatsApp and Notion"]
-              : []
-          }
+          starterPrompts={[]}
           disabled={loading}
           studyMode
           userLabel={userLabel}
@@ -241,7 +351,11 @@ export function Chapter1Conversation({
             if (persona === "clive") playCliveReaction?.("pleased");
           }}
         />
-      )}
+      ) : isTruthApprovalStep ? (
+        <div className="chapter1-conversation__beat">
+          <p className="study-doc-card__note study-doc-card__note--muted">{greeting}</p>
+        </div>
+      ) : null}
 
       {error && (
         <p className="study-stage__error" role="alert">
@@ -253,6 +367,19 @@ export function Chapter1Conversation({
         {(state.currentStep === "context_importance" ||
           state.currentStep === "brains_intro") && (
           <div className="chapter1-conversation__beat">
+            {state.currentStep === "brains_intro" && (
+              <div className="study-doc-card__stack">
+                <p className="study-doc-card__note study-doc-card__note--muted">
+                  Five Brain themes — pick one to light first. Don&apos;t try to fill all five at once.
+                </p>
+                {BRAINS_THEMES.map((theme) => (
+                  <article key={theme.id} className="study-doc-card">
+                    <span className="study-doc-card__tag">{theme.label}</span>
+                    <p className="study-doc-card__body">{theme.description}</p>
+                  </article>
+                ))}
+              </div>
+            )}
             <div className="chapter1-conversation__nav">
               {onBack && (
                 <button type="button" className="study-stage__ghost-btn" onClick={onBack}>
@@ -260,7 +387,11 @@ export function Chapter1Conversation({
                 </button>
               )}
               <button type="button" className="btn-primary chapter1-conversation__primary" onClick={onNext}>
-                Continue
+                {state.currentStep === "brains_intro"
+                  ? architectPath
+                    ? "Review draft truths"
+                    : "See the workshop draft"
+                  : "Continue"}
               </button>
             </div>
           </div>
@@ -279,52 +410,85 @@ export function Chapter1Conversation({
           </div>
         )}
 
-        {state.currentStep === "guide" && (
+        {state.currentStep === "truth_approval" && (
           <div className="chapter1-conversation__beat">
-            {GUIDE_MODE_OPTIONS.map((option) => (
+            {state.draftTruthsNotice && (
+              <p className="study-doc-card__note study-doc-card__note--muted">
+                {state.draftTruthsNotice}
+              </p>
+            )}
+            {draftsLoading ? (
+              <p className="study-doc-card__body">Loading Workshop drafts…</p>
+            ) : (
+              <div className="study-doc-card__stack">
+                {state.draftTruths.map((draft) => {
+                  const selected = state.selectedDraftIds.includes(draft.recordId);
+                  return (
+                    <article
+                      key={draft.recordId}
+                      className={`study-doc-card${selected ? " study-doc-card--selected" : ""}`}
+                    >
+                      <label className="flex cursor-pointer gap-3">
+                        <input
+                          type="checkbox"
+                          className="mt-1"
+                          checked={selected}
+                          onChange={() => toggleDraftSelection(draft.recordId)}
+                        />
+                        <span className="flex-1">
+                          <span className="study-doc-card__tag">
+                            {draft.brainTheme ?? "core"} · {draft.proposedCategory}
+                            {draft.source === "session" ? " · session draft" : ""}
+                          </span>
+                          <p className="study-doc-card__title">{draft.title}</p>
+                          <p className="study-doc-card__body">{draft.canonicalText}</p>
+                          {draft.proposedByAgent && (
+                            <p className="study-doc-card__note study-doc-card__note--muted">
+                              Proposed by {draft.proposedByAgent} · {draft.status}
+                            </p>
+                          )}
+                        </span>
+                      </label>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+            <article className="study-doc-card study-doc-card--pam">
+              <p className="study-doc-card__tag">Pam — sniff test</p>
+              <p className="study-doc-card__body">{pamNoteForDrafts(selectedDrafts)}</p>
+            </article>
+            <div className="chapter1-conversation__nav">
+              {onBack && (
+                <button type="button" className="study-stage__ghost-btn" onClick={onBack}>
+                  Back
+                </button>
+              )}
               <button
-                key={option.id}
                 type="button"
-                onClick={() => onUpdate({ guideMode: option.id })}
-                className={`chapter1-choice ${
-                  state.guideMode === option.id ? "chapter1-choice--selected" : ""
-                }`}
+                className="btn-primary chapter1-conversation__primary disabled:opacity-40"
+                disabled={draftsLoading || state.selectedDraftIds.length === 0}
+                onClick={onNext}
               >
-                <span className="font-medium">{option.label}</span>
-                <span className="mt-1 block text-sm opacity-80">{option.description}</span>
+                Ready for my decision
               </button>
-            ))}
-            <button
-              type="button"
-              className="btn-primary chapter1-conversation__primary disabled:opacity-40"
-              disabled={!state.guideMode}
-              onClick={onNext}
-            >
-              Start with Clive
-            </button>
+            </div>
           </div>
         )}
 
-        {(state.currentStep === "clive_interview" || state.currentStep === "business_brain") && (
+        {state.currentStep === "business_brain" && (
           <div className="chapter1-conversation__beat">
-            {state.currentStep === "business_brain" && (
-              <article className="study-doc-card">
-                <p className="study-doc-card__title">
-                  Workshop draft — {state.businessBrain.clientName}
-                </p>
-                <p className="study-doc-card__body">{state.businessBrain.goal}</p>
-                <ul className="study-doc-card__list">
-                  {state.businessBrain.workflows.slice(0, 3).map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
-                {state.businessBrain.knownGaps.length > 0 && (
-                  <p className="study-doc-card__note">
-                    Gaps not yet trusted: {state.businessBrain.knownGaps[0]}
-                  </p>
-                )}
-              </article>
-            )}
+            <article className="study-doc-card">
+              <p className="study-doc-card__title">
+                Workshop draft — {state.businessBrain.clientName}
+              </p>
+              <p className="study-doc-card__body">{state.businessBrain.goal}</p>
+              <ul className="study-doc-card__list">
+                {state.businessBrain.workflows.slice(0, 3).map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
             <div className="chapter1-conversation__nav">
               {onBack && (
                 <button type="button" className="study-stage__ghost-btn" onClick={onBack}>
@@ -332,7 +496,7 @@ export function Chapter1Conversation({
                 </button>
               )}
               <button type="button" className="btn-primary chapter1-conversation__primary" onClick={onNext}>
-                {state.currentStep === "clive_interview" ? "See the draft brief" : "Ask Pam to challenge"}
+                Ask Pam to challenge
               </button>
             </div>
           </div>
@@ -341,11 +505,6 @@ export function Chapter1Conversation({
         {state.currentStep === "pam_challenge" && (
           <div className="chapter1-conversation__beat">
             <article className="study-doc-card study-doc-card--pam">
-              {state.userBrain?.pamSensitivity === "high" && (
-                <p className="study-doc-card__note study-doc-card__note--muted">
-                  Your profile: Pam will challenge sooner when evidence wobbles.
-                </p>
-              )}
               <dl className="study-doc-card__dl">
                 <div>
                   <dt>Strongest part</dt>
@@ -354,22 +513,6 @@ export function Chapter1Conversation({
                 <div>
                   <dt>Weakest assumption</dt>
                   <dd>{state.pamReview.weakestAssumption}</dd>
-                </div>
-                <div>
-                  <dt>Missing evidence</dt>
-                  <dd>{state.pamReview.missingEvidence}</dd>
-                </div>
-                <div>
-                  <dt>Rabbit-hole risk</dt>
-                  <dd>{state.pamReview.rabbitHoleRisk}</dd>
-                </div>
-                <div>
-                  <dt>Safe to send to Doc?</dt>
-                  <dd>
-                    {state.pamReview.safeToSendToDoc === "yes"
-                      ? "Pam says yes — you still decide."
-                      : "Not yet — review gaps first."}
-                  </dd>
                 </div>
               </dl>
             </article>
@@ -388,13 +531,27 @@ export function Chapter1Conversation({
 
         {state.currentStep === "human_decision" && (
           <div className="chapter1-conversation__beat">
+            {selectedDrafts.length > 0 && (
+              <div className="study-doc-card__stack">
+                {selectedDrafts.map((draft) => (
+                  <article key={draft.recordId} className="study-doc-card">
+                    <p className="study-doc-card__title">{draft.title}</p>
+                    <p className="study-doc-card__body study-doc-card__body--muted">
+                      {draft.canonicalText.slice(0, 160)}
+                      {draft.canonicalText.length > 160 ? "…" : ""}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            )}
             <blockquote className="study-doc-card study-doc-card--quote">
               {OWNERSHIP_LINE}
             </blockquote>
             {!state.humanApproved ? (
               <button
                 type="button"
-                className="btn-primary chapter1-conversation__primary"
+                className="btn-primary chapter1-conversation__primary disabled:opacity-40"
+                disabled={state.selectedDraftIds.length === 0}
                 onClick={() =>
                   onUpdate({
                     humanApproved: true,
@@ -402,7 +559,7 @@ export function Chapter1Conversation({
                   })
                 }
               >
-                Make this trusted — send to Doc
+                Make selected truths trusted — send to Doc
               </button>
             ) : (
               <button type="button" className="btn-primary chapter1-conversation__primary" onClick={onNext}>

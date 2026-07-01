@@ -499,19 +499,6 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-.hero-asymmetric-wall__slot--pam .hero-wall-name-rail .hero-portrait-frame,
-.hero-asymmetric-wall__slot--doc .hero-portrait-frame {
-  aspect-ratio: 1024 / 686;
-}
-
-.hero-asymmetric-wall__slot--pam .hero-wall-name-rail .hero-portrait-frame__media,
-.hero-asymmetric-wall__slot--doc .hero-portrait-frame__media {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-}
-
 .hero-asymmetric-wall__slot--doc .hero-portrait-frame {
   box-shadow:
     -0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
@@ -715,19 +702,6 @@ body {
 
 .hero-asymmetric-wall__mobile .hero-asymmetric-wall__pam-mobile {
   width: 100%;
-}
-
-.hero-asymmetric-wall__mobile-flanks .hero-asymmetric-wall__pam-mobile .hero-portrait-frame,
-.hero-asymmetric-wall__mobile-flanks > .hero-portrait .hero-portrait-frame {
-  aspect-ratio: 1024 / 686;
-}
-
-.hero-asymmetric-wall__mobile-flanks .hero-asymmetric-wall__pam-mobile .hero-portrait-frame__media,
-.hero-asymmetric-wall__mobile-flanks > .hero-portrait .hero-portrait-frame__media {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
 }
 
 .hero-asymmetric-wall__mobile-flanks .hero-asymmetric-wall__pam-mobile .hero-wall-name-rail .hero-portrait,
@@ -1448,6 +1422,11 @@ body {
 
 .study-doc-card--pam {
   background: color-mix(in srgb, var(--color-parchment) 82%, #ddd0bc);
+}
+
+.study-doc-card--selected {
+  outline: 2px solid color-mix(in srgb, var(--color-apricot) 70%, transparent);
+  outline-offset: 1px;
 }
 
 .study-doc-card--quote {

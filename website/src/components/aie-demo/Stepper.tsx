@@ -8,7 +8,7 @@ interface StepperProps {
 }
 
 export function Stepper({ currentStep, completedSteps, onJump }: StepperProps) {
-  const currentIndex = LOOP_STEPS.indexOf(currentStep);
+  const currentIndex = LOOP_STEPS.indexOf(currentStep as (typeof LOOP_STEPS)[number]);
 
   return (
     <nav aria-label="Chapter 1 flow" className="space-y-1">

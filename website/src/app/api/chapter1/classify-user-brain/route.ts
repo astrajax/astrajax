@@ -88,14 +88,20 @@ export async function POST(request: Request) {
 Profiles (pick one id only):
 ${USER_BRAIN_PROFILES.map((p) => `- ${p.id}: ${p.label}`).join("\n")}
 
+Routing rules:
+- starting-fresh: little or no AI experience AND little or no context-system familiarity — honest "never", "starting from zero", "no experience" answers belong here even if their role is non-technical.
+- commercial-new-context: strong commercial or domain judgement, often already uses AI, but new to governed context systems — NOT for true AI beginners.
+- balanced-leader: team leader comfortable with AI and basic context ideas.
+- systems-expert: hands-on engineering or deep systems architecture.
+
 Respond with JSON only, no markdown:
-{"profileId":"<one of: ${PROFILE_IDS}>","reasoning":"<one sentence why>","summary":"<2-3 sentences addressing the user by name, summarising what you heard and naming the inferred profile label>"}`,
+{"profileId":"<one of: ${PROFILE_IDS}>","reasoning":"<one sentence why, internal tone>","summary":"<2-3 warm sentences in Clive's voice synthesising what you heard — interpret their situation, do not quote answers verbatim or list fields. Do not name the profile label here.>"}`,
       prompt: `Name: ${intake.name ?? "unknown"}
 Role: ${intake.role ?? "unknown"}
 Development / system architecture experience: ${intake.devExperience ?? "unknown"}
 AI comfort: ${intake.aiComfort ?? "unknown"}
 Context familiarity: ${intake.contextFamiliarity ?? "unknown"}
-Goal: ${intake.goal ?? "not given"}
+Goal: ${intake.goal ?? "unknown"}
 
 Q&A:
 ${answerBlock}`,

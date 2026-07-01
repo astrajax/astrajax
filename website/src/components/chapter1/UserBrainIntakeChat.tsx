@@ -5,6 +5,7 @@ import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import type { CliveReaction } from "@/lib/clive/video-reactions";
 import type { ChatMessage } from "@/lib/clive/types";
 import type { UserBrainIntake, UserBrainProfile } from "@/lib/aie-demo/types";
+import { saveUserBrainToWorkshop } from "@/lib/aie-demo/brain-client";
 import {
   applyIntakeAnswer,
   buildIntakeSummaryCard,
@@ -22,6 +23,7 @@ type UserBrainIntakeChatProps = {
   sessionId: string;
   intake: UserBrainIntake | null;
   userBrain: UserBrainProfile | null;
+  guideMode?: string;
   onIntakeUpdate: (intake: UserBrainIntake) => void;
   onComplete: (intake: UserBrainIntake, profile: UserBrainProfile) => void;
   playCliveReaction?: (reaction: CliveReaction) => void;
@@ -32,6 +34,7 @@ export function UserBrainIntakeChat({
   sessionId,
   intake: intakeProp,
   userBrain,
+  guideMode,
   onIntakeUpdate,
   onComplete,
   playCliveReaction,
@@ -124,6 +127,21 @@ export function UserBrainIntakeChat({
         onIntakeUpdate(completedIntake);
         onComplete(completedIntake, profile);
         playCliveReaction?.("pleased");
+
+        void saveUserBrainToWorkshop({
+          sessionId,
+          name: completedIntake.name,
+          role: completedIntake.role,
+          goal: completedIntake.goal,
+          profileLabel: profile.label,
+          aiConfidence: profile.aiConfidence,
+          contextConfidence: profile.contextConfidence,
+          classificationSummary: summary,
+          guideMode,
+        }).catch(() => {
+          // Workshop save is best-effort — intake still works in session
+        });
+
         return summary;
       } catch {
         const heuristic = inferProfileFromIntake(updatedIntake);
@@ -137,12 +155,25 @@ export function UserBrainIntakeChat({
         onIntakeUpdate(completedIntake);
         onComplete(completedIntake, profile);
         playCliveReaction?.("pleased");
+
+        void saveUserBrainToWorkshop({
+          sessionId,
+          name: completedIntake.name,
+          role: completedIntake.role,
+          goal: completedIntake.goal,
+          profileLabel: profile.label,
+          aiConfidence: profile.aiConfidence,
+          contextConfidence: profile.contextConfidence,
+          classificationSummary: heuristic.summary,
+          guideMode,
+        }).catch(() => {});
+
         return heuristic.summary;
       } finally {
         setClassifying(false);
       }
     },
-    [intake, intakeComplete, onComplete, onIntakeUpdate, playCliveReaction],
+    [intake, intakeComplete, guideMode, onComplete, onIntakeUpdate, playCliveReaction, sessionId],
   );
 
   const summaryCard =
@@ -176,11 +207,7 @@ export function UserBrainIntakeChat({
       {summaryCard && (
         <article className="study-doc-card chapter1-intake-summary">
           <p className="study-doc-card__title">{summaryCard.headline}</p>
-          <ul className="study-doc-card__list">
-            {summaryCard.lines.map((line) => (
-              <li key={line}>{line}</li>
-            ))}
-          </ul>
+          <p className="study-doc-card__body">{summaryCard.body}</p>
           <p className="study-doc-card__note">
             Inferred profile: <strong>{summaryCard.profileLabel}</strong> — Clive will adapt pace
             and tone from here. You did not pick a card; I classified from what you said.

@@ -35,6 +35,13 @@ const HERO_ROLE: Record<string, string> = {
 const triptych = foundingCastHeroTriptych();
 const [doc, clive, pam] = triptych;
 
+/** Intrinsic hero still dimensions — keeps layout stable without cropping baked-in frames. */
+const HERO_FRAME_SIZE: Record<string, { width: number; height: number }> = {
+  "pam-portiscue": { width: 2560, height: 1440 },
+  "doc-albright": { width: 2752, height: 1536 },
+  "clive-wigglesworth": { width: 1024, height: 571 },
+};
+
 const ASSET_TO_PRODUCT: Record<string, CommandRoomSlug> = {
   "clive-wigglesworth": "clive",
   "doc-albright": "doc",
@@ -225,8 +232,8 @@ function CastPortrait({
         posterSrc={entry.src}
         videoSrc={entry.videoSrc}
         ariaLabel={HERO_ALT[entry.slug]}
-        width={1024}
-        height={entry.slug === "doc-albright" ? 686 : 571}
+        width={HERO_FRAME_SIZE[entry.slug]?.width ?? 1024}
+        height={HERO_FRAME_SIZE[entry.slug]?.height ?? 571}
         sizes={sizes}
         priority={priority}
         eagerPreload={eagerPreload}

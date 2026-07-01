@@ -30,27 +30,27 @@ export const INTAKE_QUESTIONS: IntakeQuestion[] = [
   {
     id: "dev_experience",
     field: "devExperience",
-    text: "How would you describe your development or system architecture experience — non-coder who builds with AI, comfortable designing systems without writing code, or hands-on engineer?",
+    text: "What's your development or system architecture experience? Be honest if you're starting from zero — non-coder who builds with AI, designs systems without writing code, hands-on engineer, or none of that yet.",
     required: true,
   },
   {
     id: "ai_comfort",
     field: "aiComfort",
-    text: "How comfortable are you working with AI — cautious newcomer, daily user, or already deep in it?",
+    text: "How comfortable are you working with AI? It's fine to say you've never really used it — or you're a cautious newcomer, daily user, or already deep in it.",
     required: true,
   },
   {
     id: "context_familiarity",
     field: "contextFamiliarity",
-    text: "How familiar are you with context systems or operating layers — the structured memory agents draw from?",
+    text: "How familiar are you with context systems or operating layers — the structured memory agents draw from? No shame in 'never heard of it' or 'starting from scratch'.",
     required: true,
   },
   {
     id: "goal",
     field: "goal",
-    text: "Optional last one: what are you trying to build or improve right now? (Say skip if you'd rather not.)",
-    required: false,
-    placeholder: "Your goal, or type skip",
+    text: "Last one — what's your number one goal here?",
+    required: true,
+    placeholder: "Your top priority on this journey",
   },
 ];
 
@@ -68,9 +68,148 @@ export function getProfileById(profileId: string): UserBrainProfile | undefined 
   return USER_BRAIN_PROFILES.find((profile) => profile.id === profileId);
 }
 
-function isSkipAnswer(answer: string): boolean {
-  const lower = answer.trim().toLowerCase();
-  return lower === "skip" || lower === "n/a" || lower === "none" || lower === "no";
+const ZERO_EXPERIENCE_SIGNALS = [
+  "never",
+  "nothing",
+  "no experience",
+  "no exp",
+  "haven't",
+  "havent",
+  "brand new",
+  "starting from scratch",
+  "starting from zero",
+  "from zero",
+  "from scratch",
+  "zero",
+  "not used",
+  "don't use",
+  "dont use",
+  "do not use",
+  "no idea",
+  "first time",
+  "complete beginner",
+  "total beginner",
+  "not familiar",
+  "unfamiliar",
+  "heard of it",
+  "never heard",
+  "none yet",
+  "none of that",
+  "don't know",
+  "dont know",
+  "no clue",
+  "not yet",
+  "just starting",
+  "new to",
+  "newbie",
+  "newcomer",
+  "beginner",
+];
+
+const SKIP_ANSWER_PATTERN = /^(skip|pass|n\/a|na|none|\.|\?+)$/i;
+
+const CONFUSED_ANSWER_PHRASES = [
+  "what is that",
+  "what's that",
+  "what is this",
+  "whats that",
+  "what is ai",
+  "what's ai",
+  "idk",
+  "dunno",
+  "no idea",
+  "not sure",
+  "don't understand",
+  "dont understand",
+  "confused",
+  "huh",
+];
+
+function isConfusedAnswer(text: string): boolean {
+  const trimmed = text.trim();
+  const lower = trimmed.toLowerCase();
+
+  if (SKIP_ANSWER_PATTERN.test(lower)) return true;
+  if (trimmed.length <= 2 && lower !== "ok") return true;
+  if (/^(what|how|why|where|when|huh)\b/.test(lower) && lower.includes("?")) return true;
+  if (CONFUSED_ANSWER_PHRASES.some((phrase) => lower === phrase || lower.startsWith(`${phrase} `))) {
+    return true;
+  }
+
+  return false;
+}
+
+function isZeroOrConfused(text?: string): boolean {
+  if (!text?.trim()) return true;
+  const lower = text.trim().toLowerCase();
+  if (isConfusedAnswer(text)) return true;
+  return matchesAny(lower, ZERO_EXPERIENCE_SIGNALS);
+}
+
+function hasPositiveAiExperience(text?: string): boolean {
+  if (!text?.trim()) return false;
+  const lower = text.trim().toLowerCase();
+  if (isZeroOrConfused(text)) return false;
+
+  return (
+    lower.includes("comfortable") ||
+    lower.includes("daily") ||
+    lower.includes("regular") ||
+    lower.includes("use it") ||
+    lower.includes("using it") ||
+    lower.includes("chatgpt") ||
+    lower.includes("copilot") ||
+    lower.includes("claude") ||
+    lower.includes("deep") ||
+    lower.includes("expert") ||
+    lower.includes("ship") ||
+    lower.includes("build with ai")
+  );
+}
+
+function hasSubstantiveRole(text?: string): boolean {
+  if (!text?.trim()) return false;
+  const trimmed = text.trim();
+  if (isZeroOrConfused(trimmed)) return false;
+  return trimmed.length >= 8;
+}
+
+function normalizeGoalPhrase(goal: string): string {
+  const g = goal.trim().replace(/\.$/, "");
+  if (!g) return g;
+  if (/^[A-Z]{2,}/.test(g)) return g;
+  return g.charAt(0).toLowerCase() + g.slice(1);
+}
+
+export function synthesizeHeuristicSummary(intake: UserBrainIntake, profile: UserBrainProfile): string {
+  const name = intake.name?.trim() || "you";
+  const goal = intake.goal?.trim();
+
+  let experienceSentence: string;
+  switch (profile.id) {
+    case "starting-fresh":
+      experienceSentence = `From what you've told me, ${name}, you're at the beginning of the AI and context-systems journey — no pretence needed, and we'll build up from honest basics.`;
+      break;
+    case "commercial-new-context":
+      experienceSentence = `${name}, you bring real commercial or operational judgement, and governed context systems are the newer territory — I'll keep architecture plain and approval gates visible.`;
+      break;
+    case "balanced-leader":
+      experienceSentence = `You're leading where AI is already familiar, ${name}, and you want context handled properly for your team — I'll match that pace.`;
+      break;
+    case "systems-expert":
+      experienceSentence = `${name}, you're comfortable in the weeds on systems and architecture — I'll stay peer-level and skip the hand-holding.`;
+      break;
+    default:
+      experienceSentence = `I've got a read on where you're starting, ${name}.`;
+  }
+
+  if (!goal) return experienceSentence;
+
+  return `${experienceSentence} What matters most to you right now is ${normalizeGoalPhrase(goal)}.`;
+}
+
+function matchesAny(text: string, signals: string[]): boolean {
+  return signals.some((signal) => text.includes(signal));
 }
 
 export function buildIntakeTranscript(intake: UserBrainIntake): { role: "user" | "assistant"; content: string }[] {
@@ -106,8 +245,8 @@ function acknowledgeAnswer(question: IntakeQuestion, answer: string, name?: stri
     const trimmed = answer.trim();
     return trimmed ? `Good to meet you, ${trimmed}.` : "Noted.";
   }
-  if (question.id === "goal" && isSkipAnswer(answer)) {
-    return "No problem — we can leave that open.";
+  if (question.id === "goal") {
+    return "Got it — that gives me a north star.";
   }
   if (question.id === "role") {
     return "Clear — that helps.";
@@ -145,15 +284,13 @@ export function applyIntakeAnswer(
   answer: string,
 ): UserBrainIntake {
   const trimmed = answer.trim();
-  const storedAnswer = question.required || !isSkipAnswer(trimmed) ? trimmed : "";
 
   const rawAnswers: IntakeAnswer[] = [
     ...intake.rawAnswers,
-    { questionId: question.id, question: question.text, answer: storedAnswer || trimmed },
+    { questionId: question.id, question: question.text, answer: trimmed },
   ];
 
-  const fieldValue =
-    question.field === "goal" && isSkipAnswer(trimmed) ? undefined : trimmed || undefined;
+  const fieldValue = trimmed || undefined;
 
   return {
     ...intake,
@@ -171,6 +308,14 @@ export function validateIntakeAnswer(question: IntakeQuestion, answer: string): 
   if (question.id === "name" && trimmed.length < 2) {
     return "Give me at least a name or nickname I can use.";
   }
+  if (question.required && question.id !== "name") {
+    if (isConfusedAnswer(trimmed)) {
+      return "I need a real answer here — even 'starting from scratch' or 'never used it' helps me calibrate.";
+    }
+    if (trimmed.length < 4) {
+      return "A bit more detail helps — even a few words on your honest starting point.";
+    }
+  }
   return null;
 }
 
@@ -180,6 +325,7 @@ export function inferProfileFromIntake(intake: UserBrainIntake): {
   reasoning: string;
 } {
   const scores: Record<string, number> = {
+    "starting-fresh": 0,
     "commercial-new-context": 0,
     "balanced-leader": 0,
     "systems-expert": 0,
@@ -191,36 +337,53 @@ export function inferProfileFromIntake(intake: UserBrainIntake): {
   const role = (intake.role ?? "").toLowerCase();
   const goal = (intake.goal ?? "").toLowerCase();
 
-  if (
-    ai.includes("new") ||
-    ai.includes("cautious") ||
-    ai.includes("uncomfortable") ||
-    ai.includes("beginner") ||
-    ai.includes("never")
-  ) {
-    scores["commercial-new-context"] += 2;
+  const aiZeroSignals = isZeroOrConfused(intake.aiComfort) || ai.includes("cautious newcomer");
+  const ctxZeroSignals = isZeroOrConfused(intake.contextFamiliarity);
+  const devZeroSignals = isZeroOrConfused(intake.devExperience);
+  const zeroFieldCount = [aiZeroSignals, ctxZeroSignals, devZeroSignals].filter(Boolean).length;
+
+  if (zeroFieldCount >= 2) {
+    scores["starting-fresh"] += 10;
   }
-  if (
-    ai.includes("comfortable") ||
-    ai.includes("daily") ||
-    ai.includes("regular") ||
-    ai.includes("use it")
-  ) {
+  if (aiZeroSignals) {
+    scores["starting-fresh"] += 3;
+  }
+  if (ctxZeroSignals) {
+    scores["starting-fresh"] += 3;
+  }
+  if (devZeroSignals) {
+    scores["starting-fresh"] += 2;
+  }
+  if (aiZeroSignals && ctxZeroSignals) {
+    scores["starting-fresh"] += 4;
+  }
+  if (aiZeroSignals && ctxZeroSignals && devZeroSignals) {
+    scores["starting-fresh"] += 3;
+  }
+
+  const aiPositive = hasPositiveAiExperience(intake.aiComfort);
+
+  if (aiPositive) {
     scores["balanced-leader"] += 2;
+    if (!ctxZeroSignals) {
+      scores["commercial-new-context"] += 1;
+    }
   }
-  if (ai.includes("expert") || ai.includes("deep") || ai.includes("build") || ai.includes("ship")) {
+  if (aiPositive && (ai.includes("expert") || ai.includes("deep") || ai.includes("ship"))) {
     scores["systems-expert"] += 2;
     scores["balanced-leader"] += 1;
   }
 
-  if (
-    ctx.includes("new") ||
-    ctx.includes("never") ||
-    ctx.includes("unfamiliar") ||
-    ctx.includes("heard of") ||
-    ctx.includes("no idea")
-  ) {
+  if (aiPositive && ctxZeroSignals && !devZeroSignals && hasSubstantiveRole(intake.role)) {
     scores["commercial-new-context"] += 3;
+  } else if (
+    !ctxZeroSignals &&
+    (ctx.includes("new to") ||
+      ctx.includes("unfamiliar") ||
+      ctx.includes("not familiar") ||
+      ctx.includes("never heard"))
+  ) {
+    scores["commercial-new-context"] += 2;
   }
   if (
     ctx.includes("comfortable") ||
@@ -242,14 +405,15 @@ export function inferProfileFromIntake(intake: UserBrainIntake): {
   }
 
   if (
-    dev.includes("non-coder") ||
-    dev.includes("no code") ||
-    dev.includes("don't code") ||
-    dev.includes("dont code") ||
-    dev.includes("never code") ||
-    dev.includes("build with ai") ||
-    dev.includes("ai-assisted") ||
-    dev.includes("not technical")
+    !devZeroSignals &&
+    (dev.includes("non-coder") ||
+      dev.includes("no code") ||
+      dev.includes("don't code") ||
+      dev.includes("dont code") ||
+      dev.includes("never code") ||
+      dev.includes("build with ai") ||
+      dev.includes("ai-assisted") ||
+      dev.includes("not technical"))
   ) {
     scores["commercial-new-context"] += 2;
     scores["balanced-leader"] += 1;
@@ -299,15 +463,20 @@ export function inferProfileFromIntake(intake: UserBrainIntake): {
     scores["systems-expert"] += 1;
   }
   if (
-    role.includes("sales") ||
-    role.includes("commercial") ||
-    role.includes("revenue") ||
-    role.includes("account") ||
-    role.includes("ops") ||
-    role.includes("operations")
+    hasSubstantiveRole(intake.role) &&
+    (role.includes("sales") ||
+      role.includes("commercial") ||
+      role.includes("revenue") ||
+      role.includes("account") ||
+      role.includes("ops") ||
+      role.includes("operations"))
   ) {
-    scores["commercial-new-context"] += 1;
-    scores["balanced-leader"] += 1;
+    if (aiPositive && !ctxZeroSignals) {
+      scores["commercial-new-context"] += 2;
+    }
+    if (!aiZeroSignals) {
+      scores["balanced-leader"] += 1;
+    }
   }
 
   if (
@@ -320,42 +489,35 @@ export function inferProfileFromIntake(intake: UserBrainIntake): {
   }
 
   const profileId =
-    Object.entries(scores).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "balanced-leader";
+    Object.entries(scores).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "starting-fresh";
   const profile = getProfileById(profileId)!;
-  const name = intake.name?.trim() || "you";
 
-  const reasoning = [
-    intake.role && `Role: ${intake.role}`,
-    intake.devExperience && `Dev / architecture: ${intake.devExperience}`,
-    intake.aiComfort && `AI comfort: ${intake.aiComfort}`,
-    intake.contextFamiliarity && `Context familiarity: ${intake.contextFamiliarity}`,
-    intake.goal && `Goal: ${intake.goal}`,
-  ]
-    .filter(Boolean)
-    .join(". ");
+  const reasoning =
+    zeroFieldCount >= 2
+      ? "Multiple zero or confused answers on AI, context, and experience — starting fresh."
+      : aiPositive && ctxZeroSignals
+        ? "Comfortable with AI but new to context systems."
+        : profile.id === "systems-expert"
+          ? "Strong systems or engineering signals."
+          : "Heuristic classification from intake answers.";
 
-  const summary = `Here's what I heard, ${name}: ${reasoning}. From that, I'm placing you as "${profile.label}" — ${profile.cliveTone}`;
+  const summary = synthesizeHeuristicSummary(intake, profile);
 
   return { profileId, summary, reasoning };
 }
 
 export function buildIntakeSummaryCard(intake: UserBrainIntake, profile: UserBrainProfile): {
   headline: string;
-  lines: string[];
+  body: string;
   profileLabel: string;
 } {
   const name = intake.name?.trim() || "You";
-  const lines = [
-    intake.role && `Role: ${intake.role}`,
-    intake.devExperience && `Dev / architecture: ${intake.devExperience}`,
-    intake.aiComfort && `AI comfort: ${intake.aiComfort}`,
-    intake.contextFamiliarity && `Context systems: ${intake.contextFamiliarity}`,
-    intake.goal && `Building toward: ${intake.goal}`,
-  ].filter(Boolean) as string[];
+  const body =
+    intake.classificationSummary?.trim() || synthesizeHeuristicSummary(intake, profile);
 
   return {
-    headline: `Here's what I heard, ${name}`,
-    lines,
+    headline: `Here's what I'm taking from this, ${name}`,
+    body,
     profileLabel: profile.label,
   };
 }

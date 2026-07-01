@@ -7,9 +7,9 @@
  * into the cinematic engine.
  *
  * Each entry maps to a step in `LOOP_STEPS` (see `@/lib/aie-demo/types`).
- * Act 3 is one room that spans two steps — `clive_interview` (the curation
- * bench) and `business_brain` (the Workshop draft assembling); it is keyed to
- * `clive_interview` as the room's entry point.
+ * Act 3 is the workshop draft beat — `business_brain` (Northline demo brief
+ * after Brain themes); the curation interview is folded into that step, not a
+ * separate generic team-interview room.
  *
  * Voice: Clive — warm, eager, lightly theatrical Victorian golden retriever.
  * Pam — sharp, fair challenger, witty, a little scary, never cruel.
@@ -53,14 +53,14 @@ Now, the temptation: light all five at once. Please don't. That is context bloat
   },
   {
     actId: 3,
-    step: "clive_interview",
+    step: "business_brain",
     speaker: "clive",
     caption: "From raw notes to structured context.",
     monologue: `In we go, then — inside the vat you chose. This is the curation bench, where the real work happens.
 
-Tell me what your team actually does, day to day. Not the slide version — the messy, true version: where the knowledge lives, who owns it, what's a rule and what's just a habit. I'll take all of that and lay it out properly — sorted, labelled, each piece tied back to where it came from.
+For this demo I've assembled a workshop draft from a fictional field-sales team — Northline Field Ops. It's messy source material turned into structured context: sorted, labelled, each piece tied back to where it came from.
 
-Watch the Workshop draft assemble as we talk. Nothing here is official yet — it's a draft on the bench, not truth on the wall. But it's beginning to look like something you could actually trust.`,
+Nothing here is official yet — it's a draft on the bench, not truth on the wall. But it's beginning to look like something you could actually trust.`,
   },
   {
     actId: 4,

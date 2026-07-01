@@ -61,3 +61,49 @@ export function promoteToTrusted(body: DocPromoteBody) {
     approvalDecisionId: string;
   }>("/aie-demo/promote", body);
 }
+
+export function fetchDraftTruths(brainSlug: string) {
+  return fetch(`/api/chapter1/draft-truths?brainSlug=${encodeURIComponent(brainSlug)}`).then(
+    async (response) => {
+      const data = (await response.json()) as {
+        mode?: string;
+        drafts?: Array<{
+          recordId: string;
+          title: string;
+          canonicalText: string;
+          proposedCategory: string;
+          brainTheme?: string;
+          status: string;
+          proposedByAgent?: string;
+          scope: string;
+          source?: "workshop" | "fallback";
+        }>;
+        message?: string;
+        error?: string;
+      };
+      if (!response.ok) {
+        throw new Error(data.error ?? "Could not load draft truths.");
+      }
+      return data;
+    },
+  );
+}
+
+export function saveUserBrainToWorkshop(body: {
+  sessionId: string;
+  name?: string;
+  role?: string;
+  goal?: string;
+  profileLabel?: string;
+  aiConfidence?: "new" | "comfortable" | "expert";
+  contextConfidence?: "new" | "comfortable" | "expert";
+  classificationSummary?: string;
+  guideMode?: string;
+}) {
+  return postJson<{
+    mode: string;
+    saved: boolean;
+    recordId?: string;
+    message?: string;
+  }>("/api/chapter1/user-brain/save", body);
+}

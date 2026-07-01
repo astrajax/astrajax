@@ -1,4 +1,4 @@
-import type { LoopStep } from "@/lib/aie-demo/types";
+import { ARCHITECT_LOOP_STEPS, LOOP_STEPS, type LoopStep } from "@/lib/aie-demo/types";
 
 export type HubBookId = "welcome" | "reason" | "architect" | "brain-building";
 
@@ -26,4 +26,9 @@ export function stepForBook(book: HubBookId): {
 
 export function chapter1BookHref(book: HubBookId): string {
   return `/chapter-1?book=${book}`;
+}
+
+export function getLoopStepsForBook(book: HubBookId | null): readonly LoopStep[] {
+  if (book === "architect") return ARCHITECT_LOOP_STEPS;
+  return LOOP_STEPS;
 }

@@ -32,25 +32,33 @@ function buildTrail(state: LoopState, accessState: BrainKeyUiState): TrailEntry[
     });
   }
 
-  if (state.guideMode) {
+  if (state.draftTruths.length > 0) {
     entries.push({
-      when: "Guide",
-      who: "You",
-      what: `Chose guide mode: ${state.guideMode.replace(/_/g, " ")}`,
+      when: "Workshop",
+      who: "Clive",
+      what: `${state.draftTruths.length} draft truth row(s) loaded — ${state.draftTruthsSource ?? "workshop"} source`,
+    });
+  } else {
+    entries.push({
+      when: "Workshop",
+      who: "Clive",
+      what: `Drafted a business brain brief for ${state.businessBrain.clientName} — workshop only, not trusted yet`,
     });
   }
 
-  entries.push({
-    when: "Workshop",
-    who: "Clive",
-    what: `Drafted a business brain brief for ${state.businessBrain.clientName} — workshop only, not trusted yet`,
-  });
-
-  entries.push({
-    when: "Challenge",
-    who: "Pam",
-    what: `Sniff test: ${state.pamReview.weakestAssumption.slice(0, 120)}…`,
-  });
+  if (state.selectedDraftIds.length > 0) {
+    entries.push({
+      when: "Challenge",
+      who: "Pam",
+      what: `Reviewed ${state.selectedDraftIds.length} selected draft(s) before human approval`,
+    });
+  } else if (state.pamReview.weakestAssumption) {
+    entries.push({
+      when: "Challenge",
+      who: "Pam",
+      what: `Sniff test: ${state.pamReview.weakestAssumption.slice(0, 120)}…`,
+    });
+  }
 
   if (state.humanApproved) {
     entries.push({

@@ -20,13 +20,18 @@ import {
   loadPersistedLoopSlice,
   persistLoopSlice,
 } from "@/lib/aie-demo/user-brain-intake";
-import { LOOP_STEPS, MATURITY_LABELS, type LoopState, type LoopStep } from "@/lib/aie-demo/types";
+import {
+  MATURITY_LABELS,
+  resolveLoopStep,
+  type LoopState,
+  type LoopStep,
+} from "@/lib/aie-demo/types";
 import {
   SEEDLING_HEADER_LABEL,
   UI_STATE_LABELS,
   deriveBrainKeyUiState,
 } from "@/lib/brains/ui-states";
-import { isHubBookId, stepForBook } from "@/lib/chapter1/hub-books";
+import { isHubBookId, stepForBook, getLoopStepsForBook } from "@/lib/chapter1/hub-books";
 
 function createInitialState(currentStep: LoopStep = "welcome"): LoopState {
   const persisted = loadPersistedLoopSlice();
@@ -36,7 +41,7 @@ function createInitialState(currentStep: LoopStep = "welcome"): LoopState {
     brainMaturity: "seedling",
     userBrain: persisted?.userBrain ?? null,
     userBrainIntake: persisted?.userBrainIntake ?? null,
-    guideMode: null,
+    guideMode: "full_story",
     businessBrain: DEFAULT_BUSINESS_BRAIN,
     pamReview: DEFAULT_PAM_REVIEW,
     keyRequest: null,
@@ -46,6 +51,8 @@ function createInitialState(currentStep: LoopStep = "welcome"): LoopState {
     approvalDecisionId: "",
     promoteReceipt: null,
     demoScope: DEMO_SCOPE,
+    draftTruths: [],
+    selectedDraftIds: [],
   };
 
   if (currentStep === "user_brain" && !base.userBrainIntake) {
@@ -117,33 +124,37 @@ export function AieDemoShell() {
     router.replace("/command/clive");
   }, [bookParam, router]);
 
+  const loopSteps = useMemo(() => getLoopStepsForBook(bookParam), [bookParam]);
+
   const goNext = useCallback(() => {
     setState((prev) => {
-      const idx = LOOP_STEPS.indexOf(prev.currentStep);
-      if (idx >= LOOP_STEPS.length - 1) return prev;
-      return { ...prev, currentStep: LOOP_STEPS[idx + 1] };
+      const current = resolveLoopStep(prev.currentStep, prev.currentStep);
+      const idx = loopSteps.indexOf(current);
+      if (idx >= loopSteps.length - 1) return prev;
+      return { ...prev, currentStep: loopSteps[idx + 1] };
     });
-  }, []);
+  }, [loopSteps]);
 
   const goBack = useCallback(() => {
     setState((prev) => {
-      const idx = LOOP_STEPS.indexOf(prev.currentStep);
+      const current = resolveLoopStep(prev.currentStep, prev.currentStep);
+      const idx = loopSteps.indexOf(current);
       if (idx <= 0) return prev;
 
       let nextIdx = idx - 1;
       if (welcomeComplete) {
         while (nextIdx > 0) {
-          const step = LOOP_STEPS[nextIdx];
-          if (step !== "welcome" && step !== "context_importance" && step !== "brains_intro") {
+          const step = loopSteps[nextIdx];
+          if (step !== "welcome" && step !== "context_importance") {
             break;
           }
           nextIdx -= 1;
         }
       }
 
-      return { ...prev, currentStep: LOOP_STEPS[nextIdx] };
+      return { ...prev, currentStep: loopSteps[nextIdx] };
     });
-  }, [welcomeComplete]);
+  }, [loopSteps, welcomeComplete]);
 
   const reset = useCallback(() => {
     clearPersistedLoopSlice();
@@ -164,11 +175,16 @@ export function AieDemoShell() {
     void cliveVideoRef.current?.playReaction(reaction);
   }, []);
 
+  const showWelcomeSequence = hubSelection === "welcome" && !welcomeComplete;
+
+  useEffect(() => {
+    if (showWelcomeSequence) return;
+    cliveVideoRef.current?.startIdleReel();
+  }, [showWelcomeSequence, bookParam]);
+
   if (!bookParam || hubSelection === null) {
     return null;
   }
-
-  const showWelcomeSequence = hubSelection === "welcome" && !welcomeComplete;
 
   return (
     <>
@@ -192,6 +208,7 @@ export function AieDemoShell() {
             onNext={goNext}
             onBack={state.currentStep !== "user_brain" ? goBack : undefined}
             playCliveReaction={playCliveReaction}
+            architectPath={bookParam === "architect"}
           />
         )}
       </CliveStudyShell>

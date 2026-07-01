@@ -78,7 +78,8 @@ async function logReply(params: {
 
 function resolveBeat(raw: unknown): LoopStep | undefined {
   if (typeof raw !== "string") return undefined;
-  return (LOOP_STEPS as readonly string[]).includes(raw) ? (raw as LoopStep) : undefined;
+  const allSteps = [...LOOP_STEPS, "truth_approval"] as const;
+  return (allSteps as readonly string[]).includes(raw) ? (raw as LoopStep) : undefined;
 }
 
 export async function POST(request: Request) {

@@ -61,6 +61,9 @@ export function getSeededReply(
   if (beat === "brains_intro") {
     return CLIVE_FALLBACK_REPLIES.brains;
   }
+  if (beat === "truth_approval") {
+    return PAM_FALLBACK_REPLIES.challenge;
+  }
   if (beat === "business_brain" || lower.includes("draft") || lower.includes("brain")) {
     return CLIVE_FALLBACK_REPLIES.draft;
   }

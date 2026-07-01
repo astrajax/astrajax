@@ -28,8 +28,8 @@ export const CLIVE_IDLE_REEL: readonly string[] = [
 
 /** Maps chat/study reactions to public video URLs. */
 export const CLIVE_REACTION_CLIPS: Record<CliveReaction, string> = {
-  /** Default ambient loop when idle reel is not active. */
-  idle: "/agent-cast/clive-wigglesworth/hero.mp4",
+  /** Default ambient loop when idle reel is not active — study uses animation clips, not homepage hero. */
+  idle: `${CLIVE_ANIMATIONS_BASE}/idle-blinking.mp4`,
   listen: `${CLIVE_ANIMATIONS_BASE}/head-move.mp4`,
   think: `${CLIVE_ANIMATIONS_BASE}/looking-up.mp4`,
   pleased: `${CLIVE_ANIMATIONS_BASE}/lean-back-proud.mp4`,
