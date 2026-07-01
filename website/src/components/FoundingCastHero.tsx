@@ -51,23 +51,15 @@ const clivesMan = {
   videoSrc: undefined,
 };
 
-/** Doc's workshop — supporting steampunk robot portraits beneath his hero still. */
+/** Doc's workshop — supporting steampunk robot minions above his hero still. */
 const DOC_WORKSHOP_ROBOTS = [
   {
     src: "/agent-cast/doc-albright/workshop/robot-1.png",
-    alt: "Steampunk brass robot portrait — round gauge eyes and riveted copper plating",
+    alt: "Steampunk workshop robot minion — brass smokestack crown and gear-toothed grin",
   },
   {
     src: "/agent-cast/doc-albright/workshop/robot-2.png",
-    alt: "Steampunk robot portrait — brass monocle lens and polished bronze faceplate",
-  },
-  {
-    src: "/agent-cast/doc-albright/workshop/robot-3.png",
-    alt: "Steampunk robot portrait — twin dial eyes and weathered iron jaw",
-  },
-  {
-    src: "/agent-cast/doc-albright/workshop/robot-4.png",
-    alt: "Steampunk robot portrait — copper coil crown and brass rivet seams",
+    alt: "Steampunk workshop robot minion — brass hands clutching a golden bolt",
   },
 ] as const;
 
