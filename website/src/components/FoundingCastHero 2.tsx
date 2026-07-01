@@ -402,7 +402,6 @@ export function FoundingCastHero() {
             </div>
           </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc-stack">
-            <DocWorkshopRobotGrid />
             <CastPortrait
               entry={doc}
               displayName={doc.name}
@@ -411,6 +410,7 @@ export function FoundingCastHero() {
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
+            <DocWorkshopRobotGrid />
           </div>
         </div>
       </div>
@@ -452,7 +452,6 @@ export function FoundingCastHero() {
             </div>
           </div>
           <div className="hero-asymmetric-wall__doc-mobile">
-            <DocWorkshopRobotGrid />
             <CastPortrait
               entry={doc}
               displayName={doc.name}
@@ -461,6 +460,7 @@ export function FoundingCastHero() {
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
+            <DocWorkshopRobotGrid />
           </div>
         </div>
       </div>

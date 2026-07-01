@@ -299,9 +299,9 @@ export function SeedsOfPromiseContent() {
             <Image
               src="/astrajax-logo.png"
               alt=""
-              width={28}
-              height={28}
-              className="h-7 w-7 shrink-0 rounded-sm"
+              width={1024}
+              height={1024}
+              className="brand-mark-on-dark h-7 w-7 shrink-0"
             />
             <span>Seeds of Promise</span>
             <span className="hidden text-sm font-normal text-[#F3EDDB]/70 sm:inline">

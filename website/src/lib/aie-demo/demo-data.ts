@@ -12,6 +12,8 @@ import { scopeForDraft, categoryForPromote } from "./draft-truth-utils";
 export const BOOTH_HEADLINE =
   "AstraJax turns a domain expert's messy knowledge into a governed brain that agents can safely use.";
 
+export const BOOTH_SUBHEAD =
+  "Meet Clive, map what the human knows, let Pam challenge it, and decide what becomes trusted.";
 
 export const OWNERSHIP_LINE =
   "This is your decision. You now have context-aware, bias-checked opinions. You decide.";

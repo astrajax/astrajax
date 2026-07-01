@@ -127,8 +127,8 @@ export function Nav({ immersive = false }: NavProps) {
             <Image
               src="/astrajax-logo.png"
               alt=""
-              width={32}
-              height={32}
+              width={1024}
+              height={1024}
               priority
               className="h-8 w-8 shrink-0"
             />

@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { StudyAssistantText } from "@/components/chapter1/StudyAssistantText";
 import type { ChatMessage, ClivePersona } from "@/lib/clive/types";
 
 type CliveChatSurfaceProps = {
@@ -46,13 +47,6 @@ async function readTextStream(response: Response, onDelta: (chunk: string) => vo
   return full.trim();
 }
 
-function lastMessageOfRole(messages: ChatMessage[], role: ChatMessage["role"]): ChatMessage | undefined {
-  for (let index = messages.length - 1; index >= 0; index -= 1) {
-    if (messages[index].role === role) return messages[index];
-  }
-  return undefined;
-}
-
 export function CliveChatSurface({
   persona = "clive",
   greeting,
@@ -78,17 +72,44 @@ export function CliveChatSurface({
   const [isThinking, setIsThinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
+  const lastAnimatedIndexRef = useRef(
+    initialMessages.length > 0 ? initialMessages.length - 1 : -1,
+  );
+  const skipNextAnimationRef = useRef(false);
+  const [animatingIndex, setAnimatingIndex] = useState<number | null>(null);
 
   const scrollToBottom = useCallback(() => {
-    if (studyMode) return;
     requestAnimationFrame(() => {
-      listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: "smooth" });
+      const node = listRef.current;
+      if (!node) return;
+      node.scrollTo({
+        top: node.scrollHeight,
+        behavior: "smooth",
+      });
     });
-  }, [studyMode]);
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, streamingText, scrollToBottom]);
+  }, [messages, streamingText, isThinking, scrollToBottom]);
+
+  useEffect(() => {
+    const lastIndex = messages.length - 1;
+    const lastMessage = messages[lastIndex];
+    if (
+      lastMessage?.role === "assistant" &&
+      lastIndex > lastAnimatedIndexRef.current &&
+      !streamingText
+    ) {
+      lastAnimatedIndexRef.current = lastIndex;
+      if (skipNextAnimationRef.current) {
+        skipNextAnimationRef.current = false;
+        setAnimatingIndex(null);
+      } else {
+        setAnimatingIndex(lastIndex);
+      }
+    }
+  }, [messages, streamingText]);
 
   useEffect(() => {
     onThinkingChange?.(isThinking);
@@ -137,6 +158,7 @@ export function CliveChatSurface({
           }
 
           reply = await readTextStream(response, setStreamingText);
+          skipNextAnimationRef.current = true;
         }
 
         const assistantMessage: ChatMessage = { role: "assistant", content: reply };
@@ -188,19 +210,6 @@ export function CliveChatSurface({
   ]
     .filter(Boolean)
     .join(" ");
-
-  const studyAssistantText = useMemo(() => {
-    if (streamingText) return streamingText;
-    const lastAssistant = lastMessageOfRole(messages, "assistant");
-    if (lastAssistant?.content) return lastAssistant.content;
-    if (messages.length === 0 && greeting) return greeting;
-    return null;
-  }, [greeting, messages, streamingText]);
-
-  const studyUserEcho = useMemo(() => {
-    if (!isThinking || streamingText) return null;
-    return lastMessageOfRole(messages, "user")?.content ?? null;
-  }, [isThinking, messages, streamingText]);
 
   const thinkingLabel =
     persona === "pam" ? "Pam is considering…" : "Clive's thinking…";
@@ -262,36 +271,49 @@ export function CliveChatSurface({
     );
   }
 
+  function renderStudyAssistantTurn(
+    content: string,
+    key: string,
+    options?: { animate?: boolean; muted?: boolean },
+  ) {
+    return (
+      <div key={key} className="clive-chat__prompt">
+        <p className="clive-chat__prompt-label">{speakerName}</p>
+        <StudyAssistantText content={content} animate={options?.animate} />
+      </div>
+    );
+  }
+
+  function renderStudyUserTurn(content: string, key: string) {
+    return (
+      <div key={key} className="clive-chat__user-echo">
+        <p className="clive-chat__prompt-label">{userLabel}</p>
+        <p className="clive-chat__prompt-text clive-chat__prompt-text--user">{content}</p>
+      </div>
+    );
+  }
+
   if (studyMode) {
     return (
       <div className={chatClassName}>
-        <div className="clive-chat__prompt-stage" aria-live="polite">
-          {studyAssistantText && !isThinking && !streamingText && (
-            <div key={studyAssistantText.slice(0, 64)} className="clive-chat__prompt">
-              <p className="clive-chat__prompt-label">{speakerName}</p>
-              <p className="clive-chat__prompt-text">{studyAssistantText}</p>
-            </div>
+        <div ref={listRef} className="clive-chat__messages" aria-live="polite">
+          {greeting && messages.length === 0 && !streamingText &&
+            renderStudyAssistantTurn(greeting, "greeting")}
+
+          {messages.map((turn, index) =>
+            turn.role === "assistant"
+              ? renderStudyAssistantTurn(turn.content, `assistant-${index}`, {
+                  animate: index === animatingIndex,
+                })
+              : renderStudyUserTurn(turn.content, `user-${index}`),
           )}
 
-          {studyUserEcho && (
-            <div key={studyUserEcho.slice(0, 64)} className="clive-chat__user-echo">
-              <p className="clive-chat__prompt-text clive-chat__prompt-text--user">
-                {studyUserEcho}
-              </p>
-            </div>
-          )}
+          {streamingText && renderStudyAssistantTurn(streamingText, "streaming")}
 
           {isThinking && !streamingText && (
             <div className="clive-chat__thinking">
               <span className="clive-chat__thinking-pulse" aria-hidden />
               <span>{thinkingLabel}</span>
-            </div>
-          )}
-
-          {streamingText && (
-            <div key="streaming" className="clive-chat__prompt">
-              <p className="clive-chat__prompt-label">{speakerName}</p>
-              <p className="clive-chat__prompt-text">{streamingText}</p>
             </div>
           )}
         </div>

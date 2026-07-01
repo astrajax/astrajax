@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -70,7 +71,9 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
     const prefersReducedMotion = usePrefersReducedMotion();
     const [activeLayer, setActiveLayer] = useState<LayerIndex>(0);
     const [videoReady, setVideoReady] = useState(false);
-    const layerRefs = [useRef<HTMLVideoElement>(null), useRef<HTMLVideoElement>(null)];
+    const layer0Ref = useRef<HTMLVideoElement>(null);
+    const layer1Ref = useRef<HTMLVideoElement>(null);
+    const layerRefs = useMemo(() => [layer0Ref, layer1Ref] as const, []);
     const activeLayerRef = useRef<LayerIndex>(0);
     const actionPlayingRef = useRef(false);
     const idleReelActiveRef = useRef(false);
