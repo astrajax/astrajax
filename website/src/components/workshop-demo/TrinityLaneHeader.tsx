@@ -4,8 +4,8 @@ import type { WorkshopBuildStep } from "@/lib/workshop-demo/types";
 import { laneForStep } from "@/lib/workshop-demo/types";
 
 const LANES = [
-  { id: "proposer" as const, label: "Proposer", model: "GPT-5.5" },
-  { id: "challenger" as const, label: "Challenger", model: "GPT-5.5" },
+  { id: "proposer" as const, label: "Proposer", model: "Fable-class" },
+  { id: "challenger" as const, label: "Challenger", model: "Fable-class" },
   { id: "human" as const, label: "Matthew", model: "Human gate" },
   { id: "builder" as const, label: "Builder", model: "Composer" },
 ];

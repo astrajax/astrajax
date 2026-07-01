@@ -10,7 +10,9 @@ export function ApprovalStep({ state, onUpdate, onNext, onBack }: StepNavProps) 
     if (!canApprove) return;
     onUpdate({
       humanApproved: true,
-      paperTrail: [...state.paperTrail, createApprovalPaperTrail(state.approverName.trim())],
+      paperTrail: state.humanApproved
+        ? state.paperTrail
+        : [...state.paperTrail, createApprovalPaperTrail(state.approverName.trim())],
     });
     onNext();
   }

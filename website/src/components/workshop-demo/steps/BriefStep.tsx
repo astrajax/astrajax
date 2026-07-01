@@ -10,8 +10,8 @@ export function BriefStep({ onNext, onBack }: StepNavProps) {
         <p className="section-label text-parchment/70">Step 2 — Workshop interview</p>
         <h2 className="font-display mt-2 text-2xl font-semibold text-parchment">Agent brief</h2>
         <p className="mt-3 max-w-2xl text-parchment/85">
-          The Proposer turns your answers into a config pack. This demo uses a canned Northline
-          brief consistent with the Chapter 1 demo brain.
+          The Proposer turns your answers into a config pack. This demo walks the real brief
+          behind the External Context Scanner — a scheduled web-sourcing agent in the fleet.
         </p>
       </div>
 

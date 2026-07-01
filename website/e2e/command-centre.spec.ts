@@ -96,5 +96,10 @@ test.describe("Command centre", () => {
     await expect(page.getByText("Auto-save memories")).toBeVisible();
     await expect(page.getByText("false").first()).toBeVisible();
     await expect(page.getByRole("link", { name: /Download export JSON/i })).toBeVisible();
+
+    // Regression: revisiting the builder after completion shows the finished log
+    await page.getByRole("button", { name: "Back", exact: true }).click();
+    await expect(page.getByText(/Validator passed/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "View export" })).toBeEnabled();
   });
 });

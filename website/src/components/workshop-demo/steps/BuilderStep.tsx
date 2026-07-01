@@ -6,8 +6,8 @@ import { createBuildCompletePaperTrail } from "@/lib/workshop-demo/paper-trail";
 import type { StepNavProps } from "@/lib/workshop-demo/types";
 
 export function BuilderStep({ state, onUpdate, onNext, onBack }: StepNavProps) {
-  const [visibleLines, setVisibleLines] = useState(0);
-  const [running, setRunning] = useState(true);
+  const [visibleLines, setVisibleLines] = useState(state.buildComplete ? BUILDER_LOG.length : 0);
+  const [running, setRunning] = useState(!state.buildComplete);
 
   useEffect(() => {
     if (!state.humanApproved || state.buildComplete) return;

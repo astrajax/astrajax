@@ -7,18 +7,25 @@ export const EXPORT_PREVIEW = {
   data: {
     name: DEMO_AGENT.name,
     description:
-      "Field-sales shift planning assistant for Northline Field Ops. Reads approved staffing truths, drafts exception requests for RM review.",
+      "Scheduled web scanner for AstraJax. Sources useful external info from allowlisted domains weekly and drafts UNVERIFIED intake candidates for Clive's Man.",
     skillScope: "selected",
     skillLoadMode: "preload",
     modelId: "opus-latest",
     skills: [
       {
-        name: "northline-shift-advisor-demo",
+        name: "external-context-scanner",
         isPinned: true,
-        toolsSummary: "documents ON, tables ON",
+        toolsSummary: "web-search ON, documents ON",
       },
     ],
-    toolSettingsEnabled: ["documents", "tables", "searchMode"],
+    scheduledInvocations: [
+      {
+        name: "Weekly external context scan",
+        rrule: "FREQ=WEEKLY;BYDAY=MO;BYHOUR=8;BYMINUTE=0;BYSECOND=0",
+        timezone: "Europe/London",
+      },
+    ],
+    toolSettingsEnabled: ["web-search", "documents", "searchMode"],
     governedFlags: CHALLENGER_VERDICT.governedDefaults.map((d) => ({
       key: d.key,
       value: d.value,
