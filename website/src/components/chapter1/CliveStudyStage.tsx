@@ -7,7 +7,7 @@ import {
   type CliveVideoStageHandle,
 } from "@/components/chapter1/CliveVideoStage";
 
-const STUDY_WALL_SRC = "/agent-cast/victorian-wall.png";
+const STUDY_BOOK_SRC = "/agent-cast/clive-wigglesworth/study-book-spread.png";
 
 type CliveStudyStageProps = {
   children: ReactNode;
@@ -23,18 +23,16 @@ export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStage
     }, []);
 
     return (
-    <div className="study-stage">
-      <div className="study-stage__rail">
-        <div className="study-stage__rail-texture" aria-hidden>
+      <div className="study-stage study-stage--book">
+        <div className="study-stage__book" aria-hidden>
           <Image
-            src={STUDY_WALL_SRC}
+            src={STUDY_BOOK_SRC}
             alt=""
             fill
             priority
-            sizes="(min-width: 1024px) 42vw, 100vw"
-            className="study-stage__wall-image"
+            sizes="100vw"
+            className="study-stage__book-image"
           />
-          <div className="study-stage__rail-overlay" />
         </div>
 
         <header className="study-stage__header">
@@ -56,13 +54,13 @@ export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStage
         >
           {children}
         </main>
-      </div>
 
-      <div className="study-stage__scene" aria-hidden>
-        <CliveVideoStage ref={ref} className="study-stage__scene-media" />
-        <div className="study-stage__scene-vignette" />
+        <div className="study-stage__clive-spot" aria-hidden>
+          <div className="study-stage__clive-feather">
+            <CliveVideoStage ref={ref} className="study-stage__clive-media" />
+          </div>
+        </div>
       </div>
-    </div>
     );
   },
 );

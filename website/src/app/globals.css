@@ -402,6 +402,8 @@ body {
   --hero-col-gap: clamp(0.625rem, 2.1vw, 2.125rem);
   --hero-flank-portrait-scale: 1.045;
   --hero-pam-portrait-scale: 1.20;
+  --hero-clive-portrait-scale: 1.11;
+  --hero-clive-stack-offset-x: clamp(-0.4rem, -1.1vw, -1rem);
   position: relative;
   display: grid;
   grid-template-columns:
@@ -487,11 +489,13 @@ body {
   gap: clamp(0.35rem, 1.2vh, 0.85rem);
   padding-top: 0;
   padding-bottom: clamp(0.5rem, 2vh, 1.25rem);
+  transform: translateX(var(--hero-clive-stack-offset-x, 0));
 }
 
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child {
+.hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child,
+.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child {
   flex: 0 0 auto;
-  width: 100%;
+  width: calc(100% * var(--hero-clive-portrait-scale, 1));
 }
 
 /* Doc — upper-right column stack; workshop robot minions side by side above his portrait */
@@ -664,7 +668,8 @@ body {
     0 0.35rem 0.75rem rgba(6, 5, 3, 0.28);
 }
 
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child .hero-portrait-frame {
+.hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child .hero-portrait-frame,
+.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child .hero-portrait-frame {
   box-shadow:
     0 2rem 3.75rem rgba(6, 5, 3, 0.55),
     0 0.65rem 1.25rem rgba(6, 5, 3, 0.36);
@@ -898,10 +903,12 @@ body {
   align-items: center;
   gap: clamp(0.5rem, 2.5vw, 0.85rem);
   width: 100%;
+  transform: translateX(clamp(-0.25rem, -1.5vw, -0.5rem));
 }
 
-.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child {
-  width: 100%;
+.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child,
+.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child {
+  width: calc(100% * var(--hero-clive-portrait-scale, 1.08));
   max-width: none;
 }
 
@@ -966,15 +973,18 @@ body {
   font-size: clamp(0.625rem, 2.5vw, 0.75rem);
 }
 
-.hero-asymmetric-wall__mobile .hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child {
+.hero-asymmetric-wall__mobile .hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child,
+.hero-asymmetric-wall__mobile .hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child {
   max-width: none;
-  width: 100%;
+  width: calc(100% * var(--hero-clive-portrait-scale, 1.08));
 }
 
 @media (min-width: 1280px) {
   .hero-asymmetric-wall__composition {
     --hero-flank-portrait-scale: 1.05;
     --hero-pam-portrait-scale: 1.22;
+    --hero-clive-portrait-scale: 1.12;
+    --hero-clive-stack-offset-x: clamp(-0.5rem, -1.25vw, -1.15rem);
     --hero-col-gap: clamp(0.75rem, 2.35vw, 2.5rem);
   }
 
@@ -991,6 +1001,8 @@ body {
     --hero-center-fr: 1.1;
     --hero-flank-portrait-scale: 1.055;
     --hero-pam-portrait-scale: 1.24;
+    --hero-clive-portrait-scale: 1.13;
+    --hero-clive-stack-offset-x: clamp(-0.55rem, -1.35vw, -1.25rem);
     min-height: min(56rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5rem));
     --hero-col-gap: clamp(0.875rem, 2.45vw, 2.75rem);
   }
@@ -1293,101 +1305,83 @@ body {
   }
 }
 
-/* ── Chapter 1: calm study stage (split room + conversation rail) ── */
+/* ── Chapter 1: open-book study stage (SC2-style spread + Clive portal) ── */
 .study-stage {
-  display: grid;
+  --clive-study-video-scale: 0.72;
+  --book-clive-top: 10%;
+  --book-clive-right: 6.5%;
+  --book-clive-width: min(27vw, 19rem);
+  --book-content-top: clamp(4.25rem, 11vh, 5.75rem);
+  --book-content-left: clamp(5%, 7vw, 9%);
+  --book-content-width: min(41%, 30rem);
+  --book-ink: #3a2d1f;
+  --book-ink-muted: color-mix(in srgb, var(--book-ink) 72%, #8a7355);
+  position: relative;
   height: 100vh;
   height: 100dvh;
   max-height: 100dvh;
   overflow: hidden;
-  grid-template-rows: min(28vh, 14rem) 1fr;
-  color: var(--color-parchment);
-  background: #1a2218;
+  color: var(--book-ink);
+  background: #1a120c;
 }
 
-.study-stage__rail {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  grid-row: 2;
-  overflow: hidden;
-  background:
-    radial-gradient(ellipse at 18% 12%, rgba(223, 179, 99, 0.13), transparent 42%),
-    linear-gradient(145deg, #12180f 0%, #202a1b 52%, #12180f 100%);
-}
-
-.study-stage__rail::before,
-.study-stage__rail::after {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  z-index: 1;
-}
-
-.study-stage__rail::before {
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 22% 18%, rgba(231, 209, 173, 0.13), transparent 36%),
-    radial-gradient(ellipse at 8% 82%, rgba(197, 143, 64, 0.1), transparent 34%),
-    linear-gradient(90deg, rgba(8, 10, 6, 0.5) 0%, transparent 34%, rgba(7, 8, 5, 0.25) 100%),
-    linear-gradient(180deg, rgba(5, 8, 5, 0.28) 0%, transparent 38%, rgba(4, 6, 4, 0.58) 100%);
-}
-
-.study-stage__rail::after {
-  inset: 0.75rem;
-  border-top: 1px solid rgba(203, 160, 86, 0.22);
-  border-bottom: 1px solid rgba(203, 160, 86, 0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 240, 198, 0.06),
-    inset 1px 0 0 rgba(203, 160, 86, 0.1);
-  opacity: 0.9;
-}
-
-.study-stage__rail-texture {
+.study-stage__book {
   pointer-events: none;
   position: absolute;
   inset: 0;
   z-index: 0;
 }
 
-.study-stage__wall-image {
+.study-stage__book-image {
   object-fit: cover;
   object-position: center;
 }
 
-.study-stage__rail-overlay {
+.study-stage__clive-spot {
+  pointer-events: none;
   position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 26% 17%, rgba(223, 179, 99, 0.18), transparent 42%),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, #0d120b 45%, transparent) 0%,
-      color-mix(in srgb, #1a2218 34%, transparent) 46%,
-      color-mix(in srgb, #090c08 58%, transparent) 100%
-    ),
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, #080a06 32%, transparent) 0%,
-      transparent 54%,
-      color-mix(in srgb, #060704 46%, transparent) 100%
-    );
+  z-index: 2;
+  top: var(--book-clive-top);
+  right: var(--book-clive-right);
+  width: var(--book-clive-width);
+  aspect-ratio: 5 / 4;
 }
 
-.study-stage__scene {
-  --clive-study-video-scale: 0.75;
+.study-stage__clive-feather {
   position: relative;
-  grid-row: 1;
-  min-height: 0;
+  width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #120f0c;
+  -webkit-mask-image: radial-gradient(
+    ellipse 92% 88% at 56% 42%,
+    #000 22%,
+    color-mix(in srgb, #000 88%, transparent) 48%,
+    transparent 74%
+  );
+  mask-image: radial-gradient(
+    ellipse 92% 88% at 56% 42%,
+    #000 22%,
+    color-mix(in srgb, #000 88%, transparent) 48%,
+    transparent 74%
+  );
 }
 
-.study-stage__scene-image {
-  object-fit: cover;
-  object-position: 72% center;
+.study-stage__clive-feather::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: -4%;
+  z-index: 3;
+  background:
+    radial-gradient(ellipse 88% 82% at 58% 40%, transparent 34%, rgba(236, 220, 190, 0.22) 72%, rgba(236, 220, 190, 0.55) 100%),
+    linear-gradient(180deg, rgba(236, 220, 190, 0.18) 0%, transparent 14%, transparent 86%, rgba(236, 220, 190, 0.2) 100%),
+    linear-gradient(90deg, rgba(236, 220, 190, 0.16) 0%, transparent 12%, transparent 88%, rgba(236, 220, 190, 0.24) 100%);
+  mix-blend-mode: multiply;
+}
+
+.study-stage__clive-media {
+  position: absolute;
+  inset: 0;
 }
 
 .clive-video-stage {
@@ -1417,47 +1411,34 @@ body {
   opacity: 0;
 }
 
-/* Study scene — pull camera back so more of Clive + desk is visible */
-.study-stage__scene .clive-video-stage {
+/* Book spread — pull camera back inside the Clive portal */
+.study-stage__clive-feather .clive-video-stage {
   overflow: hidden;
 }
 
-.study-stage__scene .clive-video-stage__poster,
-.study-stage__scene .clive-video-stage__layer {
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 72% center;
+.study-stage__clive-feather .clive-video-stage__poster,
+.study-stage__clive-feather .clive-video-stage__layer {
   transform: scale(calc(1 / var(--clive-study-video-scale)));
   transform-origin: 72% center;
 }
 
-.study-stage__scene-vignette {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    transparent 55%,
-    color-mix(in srgb, #1a2218 85%, transparent) 100%
-  );
-  pointer-events: none;
-}
-
 .study-stage__header {
-  position: relative;
-  z-index: 2;
+  position: absolute;
+  z-index: 4;
+  top: 0;
+  right: 0;
+  left: 0;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem 1rem;
-  padding: 0.875rem 1.25rem;
-  border-bottom: 1px solid rgba(203, 160, 86, 0.22);
+  padding: 0.75rem clamp(1rem, 2.5vw, 1.5rem);
+  border-bottom: 1px solid rgba(120, 88, 48, 0.28);
   background:
-    linear-gradient(180deg, rgba(6, 8, 5, 0.26), rgba(6, 8, 5, 0.08)),
-    linear-gradient(90deg, rgba(231, 209, 173, 0.08), transparent 55%);
-  box-shadow: 0 1px 0 rgba(255, 240, 198, 0.06);
+    linear-gradient(180deg, rgba(26, 18, 12, 0.72), rgba(26, 18, 12, 0.38)),
+    linear-gradient(90deg, rgba(231, 209, 173, 0.06), transparent 55%);
+  box-shadow: 0 1px 0 rgba(255, 240, 198, 0.05);
 }
 
 .study-stage__label {
@@ -1465,15 +1446,15 @@ body {
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-  color: color-mix(in srgb, var(--color-parchment) 92%, white);
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55);
+  color: color-mix(in srgb, var(--color-parchment) 90%, white);
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.45);
 }
 
 .study-stage__subtitle {
   margin-top: 0.125rem;
   font-size: 0.75rem;
   letter-spacing: 0.08em;
-  color: color-mix(in srgb, var(--color-parchment) 64%, transparent);
+  color: color-mix(in srgb, var(--color-parchment) 62%, transparent);
 }
 
 .study-stage__header-actions {
@@ -1503,12 +1484,15 @@ body {
 }
 
 .study-stage__content {
-  position: relative;
-  z-index: 2;
-  flex: 1;
+  position: absolute;
+  z-index: 3;
+  top: var(--book-content-top);
+  left: var(--book-content-left);
+  width: var(--book-content-width);
+  bottom: clamp(1.25rem, 3.5vh, 2rem);
   min-height: 0;
   overflow-y: auto;
-  padding: 1.25rem 1.25rem 1.75rem;
+  padding: 0.25rem 0.5rem 0.75rem 0;
 }
 
 .study-stage__content:has(.clive-welcome),
@@ -1530,35 +1514,26 @@ body {
 
 @media (min-width: 1024px) {
   .study-stage {
-    grid-template-columns: minmax(20rem, 42%) 1fr;
-    grid-template-rows: 1fr;
-  }
-
-  .study-stage__rail {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .study-stage__scene {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  .study-stage__scene-vignette {
-    background: linear-gradient(
-      90deg,
-      color-mix(in srgb, #1a2218 88%, transparent) 0%,
-      transparent 22%,
-      transparent 100%
-    );
-  }
-
-  .study-stage__content {
-    padding: 1.5rem 1.75rem 2rem;
+    --book-clive-top: 11%;
+    --book-clive-right: 7.5%;
+    --book-clive-width: min(24vw, 20rem);
+    --book-content-left: clamp(6%, 8vw, 10%);
+    --book-content-width: min(38%, 32rem);
   }
 }
 
-/* Study conversation rail — cinematic welcome */
+@media (max-width: 767px) {
+  .study-stage {
+    --book-clive-top: 8%;
+    --book-clive-right: 4%;
+    --book-clive-width: min(38vw, 11rem);
+    --book-content-top: clamp(3.75rem, 10vh, 4.5rem);
+    --book-content-left: clamp(4%, 5vw, 6%);
+    --book-content-width: min(52%, 18rem);
+  }
+}
+
+/* Study conversation rail — cinematic welcome (ink on parchment in book mode) */
 .clive-welcome {
   position: relative;
   display: flex;
@@ -1567,6 +1542,66 @@ body {
   gap: 0;
   min-height: 0;
   overflow: hidden;
+}
+
+.study-stage--book .clive-welcome-caption {
+  color: color-mix(in srgb, var(--book-ink) 94%, #1a120c);
+  text-shadow: 0 1px 0 rgba(255, 248, 235, 0.35);
+}
+
+.study-stage--book .clive-welcome-caption::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(120, 88, 48, 0.16) 10%,
+    rgba(120, 88, 48, 0.42) 50%,
+    rgba(120, 88, 48, 0.16) 90%,
+    transparent 100%
+  );
+  box-shadow: 0 1px 0 rgba(255, 248, 235, 0.25);
+}
+
+.study-stage--book .clive-welcome-monologue {
+  border-left-color: rgba(120, 88, 48, 0.34);
+  box-shadow: inset 1px 0 0 rgba(255, 248, 235, 0.35);
+}
+
+.study-stage--book .clive-welcome-monologue__label {
+  color: var(--book-ink-muted);
+  text-shadow: none;
+}
+
+.study-stage--book .clive-welcome-monologue__text {
+  color: var(--book-ink);
+  text-shadow: 0 1px 0 rgba(255, 248, 235, 0.28);
+}
+
+.study-stage--book .clive-welcome__hint {
+  color: var(--book-ink-muted);
+}
+
+.study-stage--book .study-stage__ghost-btn {
+  border-color: rgba(120, 88, 48, 0.34);
+  color: color-mix(in srgb, var(--book-ink) 88%, #1a120c);
+  background: rgba(255, 248, 235, 0.42);
+}
+
+.study-stage--book .study-stage__ghost-btn:hover {
+  border-color: rgba(120, 88, 48, 0.52);
+  color: var(--book-ink);
+  background: rgba(255, 248, 235, 0.58);
+}
+
+.study-stage--book .chapter1-conversation__prompt,
+.study-stage--book .clive-chat--study .clive-chat__prompt-text {
+  color: var(--book-ink-muted);
+  text-shadow: none;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__input {
+  color: var(--book-ink);
+  background: rgba(255, 248, 235, 0.55);
+  border-color: rgba(120, 88, 48, 0.28);
 }
 
 /* Caption row — in flow (not absolute) so monologue never overlaps */
@@ -2941,8 +2976,8 @@ body {
   }
 
   /* Static study zoom-out is framing, not motion — keep it for reduced-motion users */
-  .study-stage__scene .clive-video-stage__layer,
-  .study-stage__scene .clive-video-stage__poster {
+  .study-stage__clive-feather .clive-video-stage__layer,
+  .study-stage__clive-feather .clive-video-stage__poster {
     transform: scale(calc(1 / var(--clive-study-video-scale)));
   }
 
