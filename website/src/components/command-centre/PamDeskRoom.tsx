@@ -43,14 +43,14 @@ export function PamDeskRoom() {
           Trusted truth changes.
         </p>
         <p className="mt-2 text-xs text-parchment/60">
-          Counts from demo seed — retire actions on Brain Health update there first until Phase 2
-          live sync.
+          Live counts from Airtable when tokens are configured — demo seed available on the
+          curation sitting.
         </p>
         <Link
-          href="/brain/northline-field-ops?tab=context-health"
+          href="/brain/astrajax-chapter-1/curate"
           className="mt-3 inline-block text-sm text-apricot underline-offset-2 hover:underline"
         >
-          Open Context Health tab →
+          Sit with Clive →
         </Link>
       </aside>
 

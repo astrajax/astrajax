@@ -17,7 +17,7 @@ const FEATURES: FeatureEntry[] = [
   {
     title: "Brain review",
     description: "Score agent answers and flag stale context from the Needs-review shortlist.",
-    href: "/brain/northline-field-ops?tab=review",
+    href: "/brain/astrajax-chapter-1?tab=review",
     status: "live",
     cta: "Open review",
   },

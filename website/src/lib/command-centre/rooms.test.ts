@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { DEFAULT_BRAIN_SLUG } from "@/lib/platform/brains";
 import { COMMAND_ROOMS } from "./rooms";
 
 describe("command-centre rooms", () => {
@@ -6,7 +7,9 @@ describe("command-centre rooms", () => {
     const pam = COMMAND_ROOMS.pam;
     const outstanding = pam.stations.find((station) => station.id === "outstanding-actions");
     expect(outstanding).toBeDefined();
-    expect(outstanding?.href).toBe("/brain/northline-field-ops?tab=review&view=actionProposed");
+    expect(outstanding?.href).toBe(
+      `/brain/${DEFAULT_BRAIN_SLUG}?tab=review&view=actionProposed`,
+    );
   });
 
   it("all station links are internal paths", () => {

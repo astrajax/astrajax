@@ -14,7 +14,7 @@ export interface BrainShelfEntry {
   jarArtSrc: string;
 }
 
-export const DEFAULT_BRAIN_SLUG = "northline-field-ops";
+export const DEFAULT_BRAIN_SLUG = "astrajax-chapter-1";
 export const SHRINE_STAGE_SRC = "/brain/shrine-stage.png";
 /** Bird's-eye desk spread — shared with Chapter 1 study hub. */
 export const INTAKE_HERO_SRC = "/agent-cast/clive-wigglesworth/clive-study-hub.png";
@@ -80,43 +80,13 @@ export function deriveHealthBand(
 
 export const BRAINS_SHELF: BrainShelfEntry[] = [
   {
-    slug: "northline-field-ops",
-    name: "Northline Field Ops Brain",
-    theme: "Field sales operations",
-    maturityLabel: "Working Brain",
-    healthBand: "happy",
-    lastAuditAt: "2026-06-24T14:30:00.000Z",
-    flagsCount: 2,
-    jarArtSrc: shrineArtForBand("happy"),
-  },
-  {
-    slug: "pricing-guardrails",
-    name: "Pricing Guardrails Brain",
-    theme: "Commercial guardrails",
-    maturityLabel: "Sharp Brain",
-    healthBand: "thriving",
-    lastAuditAt: "2026-06-28T11:00:00.000Z",
-    flagsCount: 0,
-    jarArtSrc: shrineArtForBand("thriving"),
-  },
-  {
-    slug: "forecast-coach",
-    name: "Forecast Coach Brain",
-    theme: "Planning and forecasting",
-    maturityLabel: "Working Brain",
-    healthBand: "okay",
-    lastAuditAt: "2026-06-20T09:15:00.000Z",
-    flagsCount: 1,
-    jarArtSrc: shrineArtForBand("okay"),
-  },
-  {
     slug: "astrajax-chapter-1",
     name: "AstraJax Chapter 1",
-    theme: "Governed demo brain",
+    theme: "AstraJax positioning and governance demo",
     maturityLabel: "Seedling Brain",
     healthBand: "unhappy",
     lastAuditAt: null,
-    flagsCount: 4,
+    flagsCount: 0,
     jarArtSrc: shrineArtForBand("unhappy"),
   },
 ];
@@ -171,13 +141,11 @@ export function getBrainHealthSnapshot(
   brain?: BrainShelfEntry,
 ): BrainHealthSnapshot {
   const entry = brain ?? getBrainBySlug(slug);
-  if (!entry || slug === DEFAULT_BRAIN_HEALTH.brainSlug) {
-    return DEFAULT_BRAIN_HEALTH;
-  }
+  const name = entry?.name ?? "AstraJax Chapter 1";
   return {
     ...DEFAULT_BRAIN_HEALTH,
     brainSlug: slug,
-    brainName: entry.name,
+    brainName: name,
   };
 }
 

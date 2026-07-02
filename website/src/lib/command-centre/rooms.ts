@@ -137,12 +137,12 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
       },
       {
         id: "context-health",
-        title: "Context Health",
-        plaqueLabel: "Context Health",
+        title: "Sit with Clive",
+        plaqueLabel: "Sit with Clive",
         description:
-          "Importance mix, risk tolerance, retire queue — spot bloat before it spreads.",
-        href: `/brain/${DEFAULT_BRAIN_SLUG}?tab=context-health`,
-        cta: "Open context health",
+          "Review the docket with Clive — propose truths, route intake, and file with visible destinations.",
+        href: `/brain/${DEFAULT_BRAIN_SLUG}/curate`,
+        cta: "Open curation sitting",
         badge: "Live",
       },
       {

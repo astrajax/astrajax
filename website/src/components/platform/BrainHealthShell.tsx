@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "r
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { PlatformNav } from "@/components/platform/PlatformNav";
+import { DestinationChip } from "@/components/brain/DestinationChip";
 import {
   healthBandLabel,
   HEALTH_BAND_CSS_VAR,
@@ -450,6 +451,7 @@ export type BrainHealthShellProps = {
   snapshotOverride?: BrainHealthSnapshot;
   healthBand?: BrainHealthBand;
   reviewHref?: string;
+  curateHref?: string;
 };
 
 export function BrainHealthShell({
@@ -458,6 +460,7 @@ export function BrainHealthShell({
   snapshotOverride,
   healthBand,
   reviewHref = "/brain/review",
+  curateHref = "/brain/astrajax-chapter-1/curate",
 }: BrainHealthShellProps = {}) {
   const [snapshot] = useState<BrainHealthSnapshot>(snapshotOverride ?? DEFAULT_BRAIN_HEALTH);
   const [tab, setTab] = useState<HealthTab>(activeTab ?? "overview");
@@ -680,34 +683,42 @@ export function BrainHealthShell({
                       </div>
                       <h3 className="mt-2 font-display font-semibold text-ink">{truth.title}</h3>
                       <p className="mt-1 text-sm text-ink-muted">{truth.summary}</p>
+                      <DestinationChip
+                        destination={
+                          truth.status === "approved"
+                            ? "trusted-brain-truth"
+                            : "workshop-draft-truth"
+                        }
+                        brainSlug={snapshot.brainSlug}
+                        recordId={truth.id}
+                      />
                     </li>
                   ))}
                 </ul>
               </section>
 
               <section className="sm:col-span-2">
-                <h2 className="section-label mb-3">Brain memories: human-gated promote</h2>
-                <ul className="space-y-3">
-                  {memories.map((memory) => (
-                    <li key={memory.id}>
-                      <MemoryPromoteRow
-                        memory={memory}
-                        onPromote={handlePromote}
-                        paperTrail={paperTrails[memory.id] ?? []}
-                      />
-                    </li>
-                  ))}
-                </ul>
+                <h2 className="section-label mb-3">Brain memories</h2>
+                <p className="card p-4 text-sm text-ink-muted">
+                  Memory promote and retire moved to{" "}
+                  <Link href={curateHref} className="text-apricot underline">
+                    Sit with Clive
+                  </Link>
+                  . Counts above reflect live Workshop and Trusted records when wired.
+                </p>
               </section>
             </div>
           ) : (
-            <ContextHealthPanel
-              memories={memories}
-              riskTolerance={riskTolerance}
-              onRiskToleranceChange={setRiskTolerance}
-              onRetire={handleRetire}
-              paperTrails={paperTrails}
-            />
+            <div className="card p-5">
+              <p className="section-label">Context health</p>
+              <p className="mt-3 text-sm text-ink-muted">
+                Risk tolerance and retire queues are curated in{" "}
+                <Link href={curateHref} className="text-apricot underline">
+                  Sit with Clive
+                </Link>
+                . Review flagged interactions in the Review tab.
+              </p>
+            </div>
           )}
 
           {!embedded ? (
@@ -720,12 +731,12 @@ export function BrainHealthShell({
                 .
               </p>
               <p className="mt-4 text-xs text-ink-muted">
-                Demo data. Actions update this session only, not live records.
+                Live counts when Airtable is wired.
               </p>
             </>
           ) : (
             <p className="mt-6 text-xs text-ink-muted">
-              Demo data. Actions update this session only, not live records.
+              Live counts when Airtable is wired. Curate context in Sit with Clive.
             </p>
           )}
     </>

@@ -97,6 +97,7 @@ export const BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS = {
   status: "fldiMCxuBITyZIOXW",
   proposedByAgent: "flde1d1sda9lWwrj9",
   createdBy: "fldEonKVeEsrbiwkm",
+  supersedesTrustedTruthId: "fldbWiOWBg5nmNMJv",
 } as const;
 
 /** Brain Interactions table — client review / scoring fields (26 Jun 2026). */

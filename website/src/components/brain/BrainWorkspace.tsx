@@ -20,6 +20,7 @@ import {
   HEALTH_BAND_CSS_VAR,
   type BrainShelfEntry,
 } from "@/lib/platform/brains";
+import type { BrainHealthSnapshot } from "@/lib/platform/brain-health";
 
 const WORKSPACE_TABS = [
   { id: "overview", label: "Overview" },
@@ -48,6 +49,7 @@ function BrainWorkspaceInner({ slug }: { slug: string }) {
   const activeTab = parseWorkspaceTab(searchParams.get("tab"));
   const [brains, setBrains] = useState<BrainShelfEntry[]>(BRAINS_SHELF);
   const [listReady, setListReady] = useState(false);
+  const [liveSnapshot, setLiveSnapshot] = useState<BrainHealthSnapshot | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -69,11 +71,32 @@ function BrainWorkspaceInner({ slug }: { slug: string }) {
     };
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch(
+          `/api/brains/health?brainSlug=${encodeURIComponent(slug)}`,
+        );
+        const data = (await response.json()) as { snapshot?: BrainHealthSnapshot };
+        if (!cancelled && response.ok && data.snapshot) {
+          setLiveSnapshot(data.snapshot);
+        }
+      } catch {
+        /* fallback snapshot */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
   const brain = useMemo(() => findBrainInList(slug, brains), [brains, slug]);
   const snapshot = useMemo(
-    () => (brain ? getBrainHealthSnapshot(slug, brain) : null),
-    [brain, slug],
+    () => liveSnapshot ?? (brain ? getBrainHealthSnapshot(slug, brain) : null),
+    [brain, liveSnapshot, slug],
   );
+  const curateHref = `/brain/${slug}/curate`;
   const healthBand = useMemo(
     () => (brain ? getBrainHealthBandForSlug(slug, brain) : null),
     [brain, slug],
@@ -149,9 +172,14 @@ function BrainWorkspaceInner({ slug }: { slug: string }) {
               </span>
             </div>
             <p className="mt-3 max-w-2xl text-lg text-ink-muted">
-              {brain.theme} · {brain.maturityLabel}. Maturity is earned by human review — health is
-              a coaching read, not permission to act alone.
+              {brain.theme} · {brain.maturityLabel}. Counts read from Workshop and Trusted when
+              wired; otherwise honest placeholders.
             </p>
+            <div className="mt-4">
+              <Link href={curateHref} className="btn-primary inline-flex">
+                Sit with Clive
+              </Link>
+            </div>
           </header>
 
           <div className="platform-tabs mt-8" role="tablist" aria-label="Brain workspace sections">
@@ -178,6 +206,7 @@ function BrainWorkspaceInner({ slug }: { slug: string }) {
                 snapshotOverride={snapshot!}
                 healthBand={healthBand!}
                 reviewHref={reviewHref}
+                curateHref={curateHref}
               />
             ) : null}
             {activeTab === "review" ? (

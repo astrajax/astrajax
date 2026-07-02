@@ -83,7 +83,7 @@ export const CONTEXT_INTAKE_QUEUE: DetectedContextItem[] = [
     sourceKind: "email",
     sourceLabel: "Gmail · ops-lead thread cluster (4 threads)",
     detectedByAgent: DETECTED_BY_CLIVES_MAN,
-    suggestedBrainSlug: "northline-field-ops",
+    suggestedBrainSlug: "astrajax-chapter-1",
     confidenceNote:
       "Recurs across 4 threads and is attributable to the ops lead — strong candidate for a working memory, not canonical truth.",
     status: "pending",
@@ -122,7 +122,7 @@ export const CONTEXT_INTAKE_QUEUE: DetectedContextItem[] = [
     sourceKind: "notion",
     sourceLabel: "Notion · territory handover checklist",
     detectedByAgent: DETECTED_BY_CLIVES_MAN,
-    suggestedBrainSlug: "northline-field-ops",
+    suggestedBrainSlug: "astrajax-chapter-1",
     confidenceNote:
       "Actionable and attributable. Reversible if it changes — safe to route as a draft into the field-ops queue.",
     status: "pending",
