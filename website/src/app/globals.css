@@ -5467,3 +5467,33 @@ body {
   }
 }
 
+/* Narrow screens: fit the whole book to the viewport width (letterboxed)
+   rather than cropping to a vertical strip. The scene stays coherent and
+   the percentage-positioned hotspots/slots/pages remain aligned to the art. */
+@media (max-width: 900px) {
+  .court-stage__book {
+    display: none;
+  }
+
+  .court-stage__artwork {
+    width: 100vw;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    top: 50%;
+  }
+
+  .platform-court__verdict-text {
+    font-size: clamp(0.55rem, 2.6vw, 0.85rem);
+  }
+
+  .platform-court__intake-title,
+  .platform-court__bicker-head h2 {
+    font-size: clamp(0.8rem, 3vw, 1.1rem);
+  }
+
+  .platform-court__intake-lede,
+  .platform-court__bicker-turn {
+    font-size: clamp(0.6rem, 2.4vw, 0.85rem);
+  }
+}
+
