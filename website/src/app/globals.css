@@ -401,12 +401,11 @@ body {
 
 .hero-asymmetric-wall__composition {
   /* Column width IS portrait width (~16:9 stills). Clive largest, Pam second,
-     Doc supporting cast. Tracks sum to 3.48fr — Doc stays narrow so stars
-     can eat the remaining horizontal space without overlapping. */
-  --hero-pam-col: 1.38fr;
-  --hero-clive-col: 1.66fr;
-  --hero-doc-col: 0.44fr;
-  --hero-col-gap: clamp(0.5rem, 1.6vw, 1.75rem);
+     Doc readable but still third. Logo is an overlay — not a grid reservation. */
+  --hero-pam-col: 1.28fr;
+  --hero-clive-col: 1.52fr;
+  --hero-doc-col: 0.88fr;
+  --hero-col-gap: clamp(0.5rem, 1.5vw, 1.65rem);
   --hero-lazlo-portrait-scale: 1;
   position: relative;
   display: grid;
@@ -414,21 +413,36 @@ body {
     minmax(0, var(--hero-pam-col))
     minmax(0, var(--hero-clive-col))
     minmax(0, var(--hero-doc-col));
-  grid-template-rows: auto auto;
-  align-content: space-between;
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  align-content: stretch;
   column-gap: var(--hero-col-gap);
-  row-gap: clamp(0.15rem, 0.55vh, 0.4rem);
+  row-gap: clamp(0.15rem, 0.5vh, 0.35rem);
   align-items: stretch;
   width: 100%;
   min-height: min(
     52rem,
     calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) + var(--hero-rail-overlap) - 4.5rem)
   );
-  /* Width cap tied to viewport height — tuned so principals can grow until
-     the full cast (incl. captions) still clears one screen. */
-  max-width: min(118rem, calc((100svh - 13.5rem) * 2.42));
+  max-width: min(118rem, calc((100svh - 14rem) * 2.12));
   margin: 0 auto;
   padding-inline: clamp(0.35rem, 1.1vw, 0.9rem);
+}
+
+/* Logo — pinned tight top-left; portraits may softly overlap this zone */
+.hero-asymmetric-wall__brand-overlay {
+  position: absolute;
+  top: clamp(0.1rem, 0.35vh, 0.35rem);
+  left: clamp(0.15rem, 0.6vw, 0.55rem);
+  z-index: 6;
+  pointer-events: auto;
+}
+
+.hero-asymmetric-wall__brand-overlay .hero-wall-brand {
+  --hero-brand-mark-size: clamp(2rem, 3.5vw, 3.25rem);
+  --hero-brand-word-size: clamp(0.8125rem, 1.45vw, 1.125rem);
+  align-items: flex-start;
+  margin-bottom: 0;
+  gap: clamp(0.2rem, 0.4vw, 0.35rem);
 }
 
 .hero-asymmetric-wall__slot {
@@ -439,34 +453,17 @@ body {
   align-items: center;
 }
 
-/* Brand — lower in the left wall zone, just above Pam; compact so stars keep space */
-.hero-asymmetric-wall__slot--brand {
-  grid-column: 1;
-  grid-row: 1;
-  align-self: stretch;
-  justify-content: flex-end;
-  z-index: 3;
-  padding-top: clamp(0.75rem, 2.5vh, 1.5rem);
-  padding-bottom: clamp(0.1rem, 0.4vh, 0.25rem);
-}
-
-.hero-asymmetric-wall__slot--brand .hero-wall-brand {
-  --hero-brand-mark-size: clamp(2.75rem, 5vw, 4.75rem);
-  --hero-brand-word-size: clamp(1rem, 2vw, 1.75rem);
-  margin-bottom: 0;
-}
-
-/* Pam — bottom-left flank; fills the lower-left dead space */
+/* Pam — left flank; spans both rows so she can sit close under the logo overlay */
 .hero-asymmetric-wall__slot--pam {
   grid-column: 1;
-  grid-row: 2;
-  align-self: end;
+  grid-row: 1 / -1;
+  align-self: stretch;
   align-items: stretch;
   justify-content: flex-end;
-  height: 100%;
   z-index: 2;
   transform: rotate(-0.65deg);
-  padding-bottom: clamp(0.25rem, 1.5vh, 0.75rem);
+  padding-top: clamp(3.5rem, 9vh, 5.5rem);
+  padding-bottom: clamp(0.15rem, 1vh, 0.45rem);
 }
 
 .hero-asymmetric-wall__slot--pam .hero-portrait,
@@ -516,17 +513,18 @@ body {
   align-self: center;
 }
 
-/* Clive — centre stack spanning both rows, vertically centred with Man beneath */
+/* Clive — centre stack spanning both rows */
 .hero-asymmetric-wall__slot--clive-stack {
   grid-column: 2;
   grid-row: 1 / -1;
   align-self: stretch;
   align-items: stretch;
   justify-content: center;
-  z-index: 1;
-  gap: clamp(0.25rem, 0.9vh, 0.55rem);
-  padding-top: 0;
-  padding-bottom: clamp(0.2rem, 0.85vh, 0.55rem);
+  z-index: 3;
+  gap: clamp(0.25rem, 0.85vh, 0.5rem);
+  padding-top: clamp(0.5rem, 1.2vh, 0.85rem);
+  padding-bottom: clamp(0.15rem, 0.65vh, 0.4rem);
+  margin-left: calc(var(--hero-col-gap) * -0.35);
 }
 
 .hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child,
@@ -536,16 +534,17 @@ body {
   max-width: 100%;
 }
 
-/* Doc — upper-right column stack; minion executors side by side above his portrait */
+/* Doc — upper-right stack; minions + portrait fill the wider flank column */
 .hero-asymmetric-wall__slot--doc-stack {
   grid-column: 3;
   grid-row: 1;
-  align-self: start;
+  align-self: stretch;
+  align-items: stretch;
   justify-content: flex-start;
   z-index: 2;
   transform: rotate(0.65deg);
-  padding-top: 0;
-  gap: clamp(0.2rem, 0.65vh, 0.45rem);
+  padding-top: clamp(0.35rem, 0.9vh, 0.65rem);
+  gap: clamp(0.25rem, 0.55vh, 0.4rem);
   min-height: 0;
 }
 
@@ -615,9 +614,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 46%;
+  width: 92%;
   min-width: 0;
   margin: 0;
+  align-self: center;
 }
 
 .hero-doc-workshop .hero-portrait-caption {
@@ -626,11 +626,11 @@ body {
 }
 
 .hero-doc-workshop .hero-portrait-caption__name {
-  font-size: clamp(0.625rem, 0.75vw, 0.75rem);
+  font-size: clamp(0.6875rem, 0.85vw, 0.8125rem);
 }
 
 .hero-doc-workshop .hero-portrait-caption__role {
-  font-size: clamp(0.5625rem, 0.68vw, 0.6875rem);
+  font-size: clamp(0.625rem, 0.75vw, 0.75rem);
 }
 
 .hero-doc-workshop-grid {
@@ -700,6 +700,7 @@ body {
   grid-column: 3;
   grid-row: 2;
   align-self: end;
+  align-items: stretch;
   justify-self: stretch;
   justify-content: flex-end;
   z-index: 3;
@@ -708,13 +709,14 @@ body {
   min-height: 0;
   transform: rotate(0.55deg);
   padding: 0;
-  padding-bottom: clamp(0.25rem, 1.5vh, 0.75rem);
+  padding-bottom: clamp(0.1rem, 0.55vh, 0.35rem);
 }
 
-.hero-asymmetric-wall__slot--lazlo .hero-portrait {
-  width: min(100%, calc(100% * var(--hero-lazlo-portrait-scale, 1)));
+.hero-asymmetric-wall__slot--lazlo .hero-portrait,
+.hero-asymmetric-wall__slot--lazlo .hero-portrait-door-wrap {
+  width: 100%;
   max-width: 100%;
-  align-self: flex-end;
+  align-self: stretch;
 }
 
 .hero-asymmetric-wall__slot--lazlo .hero-portrait-frame {
@@ -1059,8 +1061,8 @@ body {
 
 @media (min-width: 1536px) {
   .hero-asymmetric-wall__composition {
-    min-height: min(56rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5rem));
-    --hero-col-gap: clamp(0.875rem, 2.45vw, 2.75rem);
+    min-height: min(54rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5.5rem));
+    --hero-col-gap: clamp(0.75rem, 2.1vw, 2.35rem);
   }
 }
 
