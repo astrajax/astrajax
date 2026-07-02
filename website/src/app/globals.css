@@ -2681,10 +2681,17 @@ body {
   width: max(100vw, calc(100dvh * 1024 / 573));
   height: max(100dvh, calc(100vw * 573 / 1024));
   flex-shrink: 0;
+  background: #2a2418;
 }
 
 .clive-study-hub__image {
   object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.clive-study-hub__image--loaded {
+  opacity: 1;
 }
 
 .clive-study-hub__glows {
@@ -2736,6 +2743,10 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .clive-study-hub__book {
+    transition: none;
+  }
+
+  .clive-study-hub__image {
     transition: none;
   }
 
