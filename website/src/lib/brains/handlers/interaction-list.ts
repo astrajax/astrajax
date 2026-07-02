@@ -1,5 +1,5 @@
 import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
-import { airtableSelect } from "../airtable-rest";
+import { airtableSelect, type AirtableRecord } from "../airtable-rest";
 import { getWorkshopBaseId, getWorkshopReadToken, useMemoryStore } from "../config";
 import {
   buildActionProposedFormula,
@@ -12,12 +12,6 @@ import type { InteractionListQuery, InteractionSummary, PersonaId } from "../typ
 
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 50;
-
-interface AirtableInteractionRecord {
-  id: string;
-  createdTime: string;
-  fields: Record<string, unknown>;
-}
 
 export async function handleInteractionList(query: InteractionListQuery): Promise<{
   interactions: InteractionSummary[];
@@ -78,7 +72,7 @@ export async function handleInteractionList(query: InteractionListQuery): Promis
   }
 }
 
-function mapAirtableRecord(record: AirtableInteractionRecord): InteractionSummary {
+function mapAirtableRecord(record: AirtableRecord): InteractionSummary {
   const fields = record.fields;
   const persona = String(fields.Persona ?? "clive");
   const manifestRecordIds = parseManifestRecordIds(fields["Manifest Record IDs"]);
