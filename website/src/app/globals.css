@@ -4593,6 +4593,7 @@ body {
   position: absolute;
   inset: 0;
   z-index: 0;
+  pointer-events: none;
 }
 
 .platform-court__book-image {
@@ -4700,6 +4701,8 @@ body {
   position: absolute;
   display: flex;
   flex-direction: column;
+  z-index: 1;
+  pointer-events: auto;
   background: transparent;
   border: none;
   border-radius: 0;
@@ -4850,17 +4853,32 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  overflow-y: auto;
-  padding-right: 0.5rem;
-  mask-image: linear-gradient(180deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+  min-height: 0;
+  overflow: hidden;
 }
 
-.platform-court__intake-scroll::-webkit-scrollbar {
+.platform-court__intake-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.platform-court__intake-body::-webkit-scrollbar {
   width: 4px;
 }
-.platform-court__intake-scroll::-webkit-scrollbar-thumb {
+.platform-court__intake-body::-webkit-scrollbar-thumb {
   background: color-mix(in srgb, var(--book-ink) 25%, transparent);
   border-radius: 2px;
+}
+
+.platform-court__intake-actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
 }
 
 .platform-court__intake-title {
@@ -4927,18 +4945,18 @@ body {
 .platform-court__underline-input--area {
   resize: none;
   min-height: 2.6rem;
+  max-height: 5.5rem;
   line-height: 1.4;
   overflow-x: hidden;
+  overflow-y: auto;
   white-space: pre-wrap;
   word-break: break-word;
-  /* Grow with the entry instead of scrolling (supported in modern browsers;
-     falls back to the min-height + internal scroll elsewhere). */
-  field-sizing: content;
 }
 
 .platform-court__underline-input--title {
-  min-height: 0;
-  overflow-y: hidden;
+  min-height: 2.6rem;
+  max-height: 3.6rem;
+  overflow-y: auto;
 }
 
 .platform-court__underline-input::placeholder {

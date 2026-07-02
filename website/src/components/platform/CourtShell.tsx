@@ -523,13 +523,14 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
           }}
         >
           <div className="platform-court__intake-scroll">
-            <h2 className="platform-court__intake-title">Bring a matter to the Court</h2>
-            <p className="platform-court__intake-lede">
-              The Court sits for consequential calls. If this is idle curiosity, take it to Clive
-              first.
-            </p>
+            <div className="platform-court__intake-body">
+              <h2 className="platform-court__intake-title">Bring a matter to the Court</h2>
+              <p className="platform-court__intake-lede">
+                The Court sits for consequential calls. If this is idle curiosity, take it to Clive
+                first.
+              </p>
 
-            <form onSubmit={handleSubmit} className="platform-court__intake-form">
+              <form id="court-intake-form" onSubmit={handleSubmit} className="platform-court__intake-form">
               <label className="platform-court__field" htmlFor="matter-title">
                 <span className="platform-court__field-label">
                   Matter title
@@ -589,22 +590,26 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
                   required
                 />
               </label>
+              </form>
+            </div>
+
+            <div className="platform-court__intake-actions">
               <button
                 type="submit"
+                form="court-intake-form"
                 disabled={!title.trim() || !context.trim() || !stakes.trim()}
                 className="platform-court__seal-btn"
               >
                 Convene the Court
               </button>
-            </form>
-
-            <button
-              type="button"
-              onClick={() => onDecisionSet(DEFAULT_COURT_DECISION)}
-              className="platform-court__intake-sample platform-court__inline-link"
-            >
-              or hear the sample matter
-            </button>
+              <button
+                type="button"
+                onClick={() => onDecisionSet(DEFAULT_COURT_DECISION)}
+                className="platform-court__intake-sample platform-court__inline-link"
+              >
+                or hear the sample matter
+              </button>
+            </div>
           </div>
         </div>
       </CourtBookArtwork>
