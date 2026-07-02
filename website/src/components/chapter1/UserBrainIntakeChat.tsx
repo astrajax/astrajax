@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
+import { StudyStageRightPanel } from "@/components/chapter1/StudyStageRightPanel";
 import type { CliveReaction } from "@/lib/clive/video-reactions";
 import type { ChatMessage } from "@/lib/clive/types";
 import type { UserBrainIntake, UserBrainProfile } from "@/lib/aie-demo/types";
@@ -144,7 +145,7 @@ export function UserBrainIntakeChat({
           // Workshop save is best-effort — intake still works in session
         });
 
-        return summary;
+        return "I've captured your profile on the right-hand page — review it, then hit Continue when you're ready.";
       } catch {
         const heuristic = inferProfileFromIntake(updatedIntake);
         const profile = getProfileById(heuristic.profileId)!;
@@ -170,7 +171,7 @@ export function UserBrainIntakeChat({
           guideMode,
         }).catch(() => {});
 
-        return heuristic.summary;
+        return "I've captured your profile on the right-hand page — review it, then hit Continue when you're ready.";
       } finally {
         setClassifying(false);
       }
@@ -206,20 +207,26 @@ export function UserBrainIntakeChat({
         onAssistantMessage={() => playCliveReaction?.("pleased")}
       />
 
-      {summaryCard && (
-        <article className="study-doc-card chapter1-intake-summary">
-          <p className="study-doc-card__note">
-            Inferred profile: <strong>{summaryCard.profileLabel}</strong>
-            {summaryCard.sectorLabel ? (
-              <>
-                {" "}
-                · Sector: <strong>{summaryCard.sectorLabel}</strong>
-              </>
-            ) : null}{" "}
-            — shaped from your answers. Clive will adapt pace and tone from here.
-          </p>
-        </article>
-      )}
+      {summaryCard ? (
+        <StudyStageRightPanel>
+          <article className="study-doc-card chapter1-intake-summary study-stage__right-summary">
+            <p className="study-doc-card__tag">Your profile</p>
+            {intake.classificationSummary ? (
+              <p className="study-doc-card__body">{intake.classificationSummary}</p>
+            ) : null}
+            <p className="study-doc-card__note">
+              Inferred profile: <strong>{summaryCard.profileLabel}</strong>
+              {summaryCard.sectorLabel ? (
+                <>
+                  {" "}
+                  · Sector: <strong>{summaryCard.sectorLabel}</strong>
+                </>
+              ) : null}{" "}
+              — shaped from your answers. Clive will adapt pace and tone from here.
+            </p>
+          </article>
+        </StudyStageRightPanel>
+      ) : null}
     </div>
   );
 }

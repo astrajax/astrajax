@@ -2,11 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { forwardRef, useEffect, useRef, type ReactNode } from "react";
+import { forwardRef, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   CliveVideoStage,
   type CliveVideoStageHandle,
 } from "@/components/chapter1/CliveVideoStage";
+import { StudyStageRightPanelProvider } from "@/components/chapter1/StudyStageRightPanel";
 
 const STUDY_BOOK_SRC = "/agent-cast/clive-wigglesworth/study-book-spread.png";
 
@@ -26,12 +27,14 @@ export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStage
     ref,
   ) {
     const mainRef = useRef<HTMLElement>(null);
+    const [rightPanelEl, setRightPanelEl] = useState<HTMLElement | null>(null);
 
     useEffect(() => {
       mainRef.current?.focus();
     }, []);
 
     return (
+      <StudyStageRightPanelProvider container={rightPanelEl}>
       <div className="study-stage study-stage--book">
         <div className="study-stage__book" aria-hidden>
           <Image
@@ -75,7 +78,14 @@ export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStage
             <CliveVideoStage ref={ref} className="study-stage__clive-media" />
           </div>
         </div>
+
+        <aside
+          ref={setRightPanelEl}
+          className="study-stage__right-panel"
+          aria-live="polite"
+        />
       </div>
+      </StudyStageRightPanelProvider>
     );
   },
 );

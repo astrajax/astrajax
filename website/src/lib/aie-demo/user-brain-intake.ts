@@ -244,10 +244,11 @@ export function buildIntakeTranscript(intake: UserBrainIntake): { role: "user" |
     }
   }
 
-  if (intake.intakeComplete && intake.classificationSummary) {
+  if (intake.intakeComplete) {
     messages.push({
       role: "assistant",
-      content: intake.classificationSummary,
+      content:
+        "I've captured your profile on the right-hand page — review it, then hit Continue when you're ready.",
     });
   }
 
