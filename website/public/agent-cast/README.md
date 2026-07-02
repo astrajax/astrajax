@@ -30,7 +30,7 @@ agent-cast/
 
 Extended DS fleet characters (Juan, Marcel, KK, Reggie, Marlowe, Tashi) use the same layout when they get animations.
 
-**Homepage triptych** — Doc, Clive (centre), Pam via `foundingCastHeroTriptych()` in `FoundingCastHero.tsx`.
+**Homepage founding-cast hero** — asymmetric wall in `FoundingCastHero.tsx`: Clive centre, Doc column with Doc's Minions above Doc, Pam, Clive's Man, and Lazlo. The Doc/Clive/Pam entries still come from `foundingCastHeroTriptych()`.
 
 ## Naming
 
