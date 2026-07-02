@@ -746,7 +746,7 @@ body {
 
 /* Lazlo Marlowe — bottom-right anchor, mirrors Pam on the left */
 .hero-asymmetric-wall__slot--lazlo {
-  bottom: -5%;
+  bottom: -10%;
   right: 9%;
   width: 28%;
   z-index: 4;
