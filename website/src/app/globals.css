@@ -576,12 +576,13 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-/* Doc's Minions — tiny squares, stacked above Lazlo on the right edge */
+/* Doc's Minions — tiny squares at bottom far-right, clear of Doc's frame */
 .hero-asymmetric-wall__slot--minions {
-  top: 34%;
-  right: 3%;
-  width: 11.5%;
-  z-index: 2;
+  top: auto;
+  bottom: 11%;
+  right: 0.5%;
+  width: 9%;
+  z-index: 5;
 }
 
 .hero-asymmetric-wall__slot--minions .hero-doc-workshop {
@@ -692,8 +693,8 @@ body {
 
 /* Lazlo Marlowe — bottom-right anchor, mirrors Pam on the left */
 .hero-asymmetric-wall__slot--lazlo {
-  bottom: 3%;
-  right: 2%;
+  bottom: 0.5%;
+  right: 5%;
   width: 28%;
   z-index: 4;
   min-width: 0;
@@ -711,13 +712,6 @@ body {
   box-shadow:
     -0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
-}
-
-/* Mockup: captions only on Man, Lazlo, Minions — principals stay clean on desktop */
-.hero-asymmetric-wall__slot--clive .hero-portrait-caption,
-.hero-asymmetric-wall__slot--doc .hero-portrait-caption,
-.hero-asymmetric-wall__slot--pam .hero-portrait-caption {
-  display: none;
 }
 
 .hero-portrait-frame__media {
