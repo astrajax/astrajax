@@ -1,5 +1,6 @@
 import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
-import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
+import { airtableSelect } from "../airtable-rest";
+import { getWorkshopBaseId, getWorkshopReadToken, useMemoryStore } from "../config";
 import {
   buildActionProposedFormula,
   buildNeedsReviewFormula,
@@ -18,7 +19,10 @@ interface AirtableInteractionRecord {
   fields: Record<string, unknown>;
 }
 
-export async function handleInteractionList(query: InteractionListQuery) {
+export async function handleInteractionList(query: InteractionListQuery): Promise<{
+  interactions: InteractionSummary[];
+  warning?: string;
+}> {
   const brainSlug = query.brainSlug?.trim();
   if (!brainSlug) throw new Error("brainSlug is required.");
 
@@ -33,12 +37,15 @@ export async function handleInteractionList(query: InteractionListQuery) {
   }
 
   const workshopBaseId = getWorkshopBaseId();
-  const workshopToken = getWorkshopWriteToken();
+  const workshopToken = getWorkshopReadToken();
   const tableId =
     process.env.BRAIN_WORKSHOP_INTERACTIONS_TABLE_ID ?? BRAIN_WORKSHOP_TABLES.brainInteractions;
 
   if (!workshopBaseId || !workshopToken || !tableId) {
-    throw new Error("Workshop interaction list is not configured.");
+    return {
+      interactions: [],
+      warning: "Workshop interaction list is not configured.",
+    };
   }
 
   const formula = actionProposed
@@ -46,26 +53,29 @@ export async function handleInteractionList(query: InteractionListQuery) {
     : shortlist
       ? buildNeedsReviewFormula(brainSlug)
       : `{Brain Slug}='${escapeFormulaValue(brainSlug)}'`;
-  const url =
-    `https://api.airtable.com/v0/${workshopBaseId}/${tableId}` +
-    `?filterByFormula=${encodeURIComponent(formula)}` +
-    `&maxRecords=${limit}`;
 
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${workshopToken}` },
-    cache: "no-store",
-  });
+  try {
+    const records = await airtableSelect(workshopBaseId, tableId, workshopToken, {
+      filterByFormula: formula,
+      maxRecords: limit,
+    });
 
-  if (!response.ok) {
-    throw new Error(`Workshop interaction list failed (${response.status})`);
+    const interactions = records
+      .map(mapAirtableRecord)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+    return { interactions };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Workshop interaction list failed.";
+    if (/403|401|NOT_AUTHORIZED|INVALID_PERMISSIONS/i.test(message)) {
+      return {
+        interactions: [],
+        warning:
+          "Could not read Brain Interactions from Workshop (token lacks read access). Flagged conversations will be empty until BRAIN_WORKSHOP_READ_TOKEN is configured.",
+      };
+    }
+    throw error instanceof Error ? error : new Error(message);
   }
-
-  const data = (await response.json()) as { records?: AirtableInteractionRecord[] };
-  const interactions = (data.records ?? [])
-    .map(mapAirtableRecord)
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-
-  return { interactions };
 }
 
 function mapAirtableRecord(record: AirtableInteractionRecord): InteractionSummary {
@@ -83,7 +93,7 @@ function mapAirtableRecord(record: AirtableInteractionRecord): InteractionSummar
     userMessage: String(fields["User Message"] ?? ""),
     assistantReply: String(fields["Assistant Reply"] ?? ""),
     channel: String(fields.Channel ?? "website"),
-    createdAt: record.createdTime,
+    createdAt: record.createdTime ?? new Date(0).toISOString(),
     qualityScore: readNumber(fields["Quality Score"]),
     reviewer: readOptionalString(fields.Reviewer),
     reviewNotes: readOptionalString(fields["Review Notes"]),

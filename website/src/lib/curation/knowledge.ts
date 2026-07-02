@@ -7,7 +7,7 @@ import {
   BRAIN_WORKSHOP_TABLES,
   CHAPTER1_BRAIN_SLUG,
 } from "@/lib/brains/airtable-ids";
-import { getWorkshopBaseId, getWorkshopWriteToken } from "@/lib/brains/config";
+import { getWorkshopBaseId, getWorkshopReadToken, getWorkshopWriteToken } from "@/lib/brains/config";
 import type { CurationDocket, TrustedTruthRow } from "./types";
 
 const TRUSTED_SCOPES = ["read:brain-truth:positioning", "read:brain-truth:governance"];
@@ -39,7 +39,7 @@ async function loadTrustedTruthRows(brainSlug: string): Promise<TrustedTruthRow[
 
 async function loadPendingSourceDocuments(brainSlug: string) {
   const workshopBaseId = getWorkshopBaseId();
-  const workshopToken = getWorkshopWriteToken();
+  const workshopToken = getWorkshopReadToken() ?? getWorkshopWriteToken();
   if (!workshopBaseId || !workshopToken) return [];
 
   const records = await airtableSelect(
@@ -65,7 +65,10 @@ export async function loadCurationDocket(brainSlug: string): Promise<CurationDoc
   const [draftResult, interactionResult, trustedTruths, pendingSourceDocuments] =
     await Promise.all([
       handleDraftTruthList(slug),
-      handleInteractionList({ brainSlug: slug, shortlist: true, limit: 10 }),
+      handleInteractionList({ brainSlug: slug, shortlist: true, limit: 10 }).catch(() => ({
+        interactions: [],
+        warning: "Could not load flagged interactions.",
+      })),
       loadTrustedTruthRows(slug),
       loadPendingSourceDocuments(slug).catch(() => []),
     ]);

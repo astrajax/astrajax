@@ -56,6 +56,15 @@ export function getWorkshopWriteToken(): string | undefined {
   return process.env.BRAIN_WORKSHOP_WRITE_TOKEN;
 }
 
+/** Read path for Workshop tables — falls back to write/promote tokens when no read PAT is set. */
+export function getWorkshopReadToken(): string | undefined {
+  return (
+    process.env.BRAIN_WORKSHOP_READ_TOKEN ??
+    process.env.BRAIN_WORKSHOP_WRITE_TOKEN ??
+    process.env.BRAIN_DOC_PROMOTE_TOKEN
+  );
+}
+
 export function getDocPromoteToken(): string | undefined {
   return process.env.BRAIN_DOC_PROMOTE_TOKEN;
 }
