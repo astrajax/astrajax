@@ -6,9 +6,11 @@ import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { PlatformNav } from "@/components/platform/PlatformNav";
 import { DestinationChip } from "@/components/brain/DestinationChip";
+import Image from "next/image";
 import {
   healthBandLabel,
   HEALTH_BAND_CSS_VAR,
+  stillArtForBand,
   type BrainHealthBand,
 } from "@/lib/platform/brains";
 import {
@@ -36,17 +38,28 @@ type HealthTab = BrainHealthViewTab;
 
 function HealthBandBanner({ band }: { band: BrainHealthBand }) {
   return (
-    <div
-      className="brain-health-band mb-6"
-      style={{ "--health-accent": HEALTH_BAND_CSS_VAR[band] } as CSSProperties}
-      role="status"
-    >
-      <span>Health mood:</span>
-      <span>{healthBandLabel(band)}</span>
-      <span className="text-xs font-normal text-ink-muted">
-        — coaching read, not permission to act unsupervised
-      </span>
-    </div>
+    <figure className="brain-state-portrait sm:col-span-2" role="status">
+      <div className="brain-state-portrait__frame">
+        <Image
+          src={stillArtForBand(band)}
+          alt={`Painted portrait of a ${healthBandLabel(band).toLowerCase()} brain in its jar`}
+          width={1024}
+          height={571}
+          priority
+          sizes="(min-width: 640px) 42rem, 100vw"
+          className="brain-state-portrait__image"
+        />
+      </div>
+      <figcaption
+        className="brain-state-portrait__caption"
+        style={{ "--health-accent": HEALTH_BAND_CSS_VAR[band] } as CSSProperties}
+      >
+        <span className="brain-state-portrait__band">{healthBandLabel(band)}</span>
+        <span className="brain-state-portrait__note">
+          Coaching read, not permission to act unsupervised
+        </span>
+      </figcaption>
+    </figure>
   );
 }
 

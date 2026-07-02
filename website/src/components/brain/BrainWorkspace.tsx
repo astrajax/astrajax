@@ -171,10 +171,6 @@ function BrainWorkspaceInner({ slug }: { slug: string }) {
                 {healthBandLabel(brain.healthBand)}
               </span>
             </div>
-            <p className="mt-3 max-w-2xl text-lg text-ink-muted">
-              {brain.theme} · {brain.maturityLabel}. Counts read from Workshop and Trusted when
-              wired; otherwise honest placeholders.
-            </p>
             <div className="mt-4">
               <Link href={curateHref} className="btn-primary inline-flex">
                 Sit with Clive

@@ -31,6 +31,19 @@ export function shrineArtForBand(band: BrainHealthBand): string {
   return HEALTH_BAND_ART_SRC[band];
 }
 
+/** Painted still of each health state — framed portrait in the brain workspace. */
+export const HEALTH_BAND_STILL_SRC: Record<BrainHealthBand, string> = {
+  rotten: "/brain/state-rotten.png",
+  unhappy: "/brain/state-unhappy.png",
+  okay: "/brain/state-okay.png",
+  happy: "/brain/state-happy.png",
+  thriving: "/brain/state-thriving.png",
+};
+
+export function stillArtForBand(band: BrainHealthBand): string {
+  return HEALTH_BAND_STILL_SRC[band];
+}
+
 export const HEALTH_BAND_LABELS: Record<BrainHealthBand, string> = {
   rotten: "Rotten",
   unhappy: "Unhappy",
@@ -84,10 +97,10 @@ export const BRAINS_SHELF: BrainShelfEntry[] = [
     name: "AstraJax Chapter 1",
     theme: "AstraJax positioning and governance demo",
     maturityLabel: "Working Brain",
-    healthBand: "okay",
+    healthBand: "thriving",
     lastAuditAt: "2026-07-01",
     flagsCount: 4,
-    jarArtSrc: shrineArtForBand("okay"),
+    jarArtSrc: shrineArtForBand("thriving"),
   },
   {
     slug: "butternut-direct-sales",

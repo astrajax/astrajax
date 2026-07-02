@@ -5156,18 +5156,14 @@ body {
 /* ── Brain shrine (context governance entry) ── */
 .brain-shrine {
   --shrine-room-pad: clamp(1rem, 2.8vw, 2.25rem);
-  --shrine-frame-mat: clamp(0.65rem, 1.45vw, 1.1rem);
+  --shrine-frame-mat: 0rem;
   --shrine-stage-max-h: calc(100dvh - clamp(5.5rem, 15vh, 8.5rem));
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
-  background: linear-gradient(
-    165deg,
-    var(--color-cream) 0%,
-    var(--color-cream-deep) 45%,
-    var(--color-cream-paper) 100%
-  );
-  color: var(--color-ink);
+  /* Dark-green Victorian study wall (brand/system-assets/website-background). */
+  background: #101a13 url("/brain/victorian-wall.png") center / cover no-repeat;
+  color: var(--color-cream-paper);
 }
 
 .brain-shrine__header {
@@ -5213,15 +5209,10 @@ body {
 .brain-shrine__frame {
   position: relative;
   flex-shrink: 0;
-  padding: var(--shrine-frame-mat);
-  background: var(--color-cream-paper);
-  border: 1px solid color-mix(in srgb, var(--color-cream-inset) 72%, transparent);
   border-radius: 2px;
   box-shadow:
-    inset 0 1px 0 color-mix(in srgb, white 55%, var(--color-cream-paper)),
-    inset 0 -1px 0 color-mix(in srgb, var(--color-cream-inset) 45%, transparent),
-    0 1.35rem 2.75rem color-mix(in srgb, var(--color-ink) 16%, transparent),
-    0 0.35rem 0.85rem color-mix(in srgb, var(--color-ink) 9%, transparent);
+    0 1.35rem 2.75rem color-mix(in srgb, var(--color-ink) 45%, transparent),
+    0 0.35rem 0.85rem color-mix(in srgb, var(--color-ink) 30%, transparent);
 }
 
 .brain-shrine__surface {
@@ -5297,34 +5288,30 @@ body {
   pointer-events: none;
 }
 
+/* Overlay positions are tuned to the painted plaques in the shrine artwork. */
 .brain-shrine__overlay--nameplate {
   pointer-events: auto;
-  top: 89.5%;
-  left: 35%;
+  top: 91%;
+  left: 46.8%;
   width: 30%;
   height: 6.5%;
-}
-
-.brain-shrine__overlay--cartouche {
-  top: 56.5%;
-  left: 50%;
-  width: 14%;
-  height: 8.5%;
   transform: translateX(-50%);
 }
 
 .brain-shrine__overlay--audit {
-  top: 66.5%;
-  left: 31.2%;
-  width: 5.5%;
-  height: 4.8%;
+  top: 64.2%;
+  left: 35.3%;
+  width: 9%;
+  height: 6%;
+  transform: translateX(-50%);
 }
 
 .brain-shrine__overlay--flags {
-  top: 66.5%;
-  left: 63.3%;
-  width: 5.5%;
-  height: 4.8%;
+  top: 64.4%;
+  left: 66%;
+  width: 9%;
+  height: 6%;
+  transform: translateX(-50%);
 }
 
 .shrine-slot {
@@ -5340,7 +5327,8 @@ body {
   display: block;
   width: 100%;
   font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(0.75rem, 72cqh, 1.125rem);
+  /* Scale with the slot but never overflow the plaque width. */
+  font-size: clamp(0.875rem, min(78cqh, 21cqw), 1.75rem);
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -5350,32 +5338,6 @@ body {
   white-space: nowrap;
   color: #2a1c12;
   text-shadow: 0 1px 0 color-mix(in srgb, white 30%, transparent);
-}
-
-.brain-shrine__cartouche {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  container-type: size;
-  background: color-mix(in srgb, #e8ede4 94%, transparent);
-  border-radius: 0.15rem;
-}
-
-.brain-shrine__cartouche-word {
-  display: block;
-  width: 100%;
-  font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(0.875rem, 58cqh, 1.75rem);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0.06em;
-  text-align: center;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--health-accent, #2a1c12);
-  text-shadow: 0 1px 0 color-mix(in srgb, white 35%, transparent);
 }
 
 .brain-shrine__nameplate {
@@ -5440,7 +5402,7 @@ body {
   pointer-events: none;
   background: linear-gradient(
     0deg,
-    color-mix(in srgb, var(--color-cream-deep) 88%, transparent) 0%,
+    color-mix(in srgb, #0b120d 78%, transparent) 0%,
     transparent 100%
   );
 }
@@ -5466,7 +5428,7 @@ body {
   padding: 0;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: color-mix(in srgb, var(--color-ink) 78%, transparent);
+  color: color-mix(in srgb, var(--color-cream-paper) 88%, transparent);
   cursor: pointer;
 }
 
@@ -5488,7 +5450,66 @@ body {
 
 .brain-shrine__link-divider {
   font-size: 0.75rem;
-  color: color-mix(in srgb, var(--color-ink-muted) 45%, transparent);
+  color: color-mix(in srgb, var(--color-cream-paper) 45%, transparent);
+}
+
+/* Framed painting of the brain's current health state (workspace overview). */
+.brain-state-portrait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.brain-state-portrait__frame {
+  max-width: 42rem;
+  padding: clamp(0.5rem, 1.2vw, 0.85rem);
+  background: linear-gradient(
+    150deg,
+    #8a6a3a 0%,
+    #b3894c 18%,
+    #6e5227 42%,
+    #a67f45 68%,
+    #7c5e30 100%
+  );
+  border: 1px solid color-mix(in srgb, #4a3417 80%, transparent);
+  border-radius: 3px;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #f4dfae 55%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, #2c1e0b 55%, transparent),
+    0 1rem 2.25rem color-mix(in srgb, var(--color-ink) 22%, transparent),
+    0 0.3rem 0.7rem color-mix(in srgb, var(--color-ink) 12%, transparent);
+}
+
+.brain-state-portrait__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 1px;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #2c1e0b 45%, transparent);
+}
+
+.brain-state-portrait__caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.brain-state-portrait__band {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--health-accent, var(--color-ink));
+}
+
+.brain-state-portrait__note {
+  font-size: 0.8125rem;
+  color: var(--color-ink-muted);
 }
 
 .brain-health-band {
