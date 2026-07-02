@@ -1678,6 +1678,133 @@ body {
   }
 }
 
+/* Chapter 1 hero Clive inset — welcome + conversation beats (not user mapping/intake) */
+.study-stage--book:has(.clive-welcome),
+.study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) {
+  --book-clive-top: 7%;
+  --book-clive-right: 5%;
+  --book-clive-width: min(36vw, 28rem);
+}
+
+@media (min-width: 1024px) {
+  .study-stage--book:has(.clive-welcome),
+  .study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) {
+    --book-clive-top: 8%;
+    --book-clive-right: 6%;
+    --book-clive-width: min(34vw, 26rem);
+  }
+}
+
+@media (max-width: 767px) {
+  .study-stage--book:has(.clive-welcome),
+  .study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) {
+    --book-clive-top: 8%;
+    --book-clive-right: 4%;
+    --book-clive-width: min(42vw, 13.5rem);
+  }
+}
+
+.study-stage--book:has(.chapter1-intake-chat) .study-stage__clive-spot {
+  visibility: hidden;
+}
+
+/* Softer dissolve into the right-hand parchment page */
+.study-stage--book:has(.clive-welcome) .study-stage__clive-spot,
+.study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) .study-stage__clive-spot {
+  overflow: visible;
+  box-shadow: none;
+  filter: none;
+}
+
+.study-stage--book:has(.clive-welcome) .study-stage__clive-feather,
+.study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) .study-stage__clive-feather {
+  overflow: visible;
+  isolation: isolate;
+  -webkit-mask-image: radial-gradient(
+    ellipse 122% 118% at 50% 46%,
+    #000 0%,
+    #000 18%,
+    color-mix(in srgb, #000 92%, transparent) 32%,
+    color-mix(in srgb, #000 68%, transparent) 48%,
+    color-mix(in srgb, #000 38%, transparent) 62%,
+    color-mix(in srgb, #000 14%, transparent) 76%,
+    transparent 92%
+  );
+  mask-image: radial-gradient(
+    ellipse 122% 118% at 50% 46%,
+    #000 0%,
+    #000 18%,
+    color-mix(in srgb, #000 92%, transparent) 32%,
+    color-mix(in srgb, #000 68%, transparent) 48%,
+    color-mix(in srgb, #000 38%, transparent) 62%,
+    color-mix(in srgb, #000 14%, transparent) 76%,
+    transparent 92%
+  );
+  -webkit-mask-size: 112% 112%;
+  mask-size: 112% 112%;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+.study-stage--book:has(.clive-welcome) .study-stage__clive-feather::before,
+.study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) .study-stage__clive-feather::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: -18%;
+  z-index: 2;
+  background: radial-gradient(
+    ellipse 88% 84% at 50% 44%,
+    transparent 38%,
+    color-mix(in srgb, var(--color-cream) 28%, transparent) 68%,
+    color-mix(in srgb, var(--color-cream-paper) 62%, transparent) 100%
+  );
+  mix-blend-mode: soft-light;
+  opacity: 0.9;
+}
+
+.study-stage--book:has(.clive-welcome) .study-stage__clive-feather::after,
+.study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) .study-stage__clive-feather::after {
+  inset: -24%;
+  z-index: 3;
+  background:
+    radial-gradient(
+      ellipse 108% 102% at 50% 44%,
+      transparent 8%,
+      color-mix(in srgb, var(--color-cream) 22%, transparent) 42%,
+      color-mix(in srgb, var(--color-parchment) 48%, transparent) 68%,
+      color-mix(in srgb, var(--color-cream-paper) 78%, transparent) 100%
+    ),
+    radial-gradient(
+      ellipse 150% 140% at 58% 52%,
+      transparent 58%,
+      color-mix(in srgb, var(--color-cream-paper) 42%, transparent) 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-cream) 26%, transparent) 0%,
+      transparent 14%,
+      transparent 86%,
+      color-mix(in srgb, var(--color-cream) 28%, transparent) 100%
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-cream) 20%, transparent) 0%,
+      transparent 12%,
+      transparent 88%,
+      color-mix(in srgb, var(--color-parchment) 34%, transparent) 100%
+    );
+  mix-blend-mode: multiply;
+  opacity: 0.88;
+}
+
+.study-stage--book:has(.clive-welcome) .study-stage__clive-feather .clive-video-stage,
+.study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) .study-stage__clive-feather .clive-video-stage {
+  overflow: visible;
+}
+
 /* Study conversation rail — cinematic welcome (ink on parchment in book mode) */
 .clive-welcome {
   position: relative;
