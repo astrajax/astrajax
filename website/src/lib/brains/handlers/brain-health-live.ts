@@ -58,7 +58,14 @@ export async function handleBrainHealthLive(brainSlug: string): Promise<{
   const snapshot: BrainHealthSnapshot = {
     ...DEFAULT_BRAIN_HEALTH,
     brainSlug: slug,
-    brainName: "AstraJax Chapter 1",
+    brainName:
+      slug === "butternut-direct-sales"
+        ? "Butternut Direct Sales"
+        : slug === "astrajax-chapter-1"
+          ? "AstraJax Chapter 1"
+          : slug === "astrajax-brand"
+            ? "AstraJax Brand"
+            : slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
     currentLevel: approvedCount >= 10 ? "working" : approvedCount >= 3 ? "house-trained" : "seedling",
     nextLevel: approvedCount >= 10 ? "sharp" : approvedCount >= 3 ? "working" : "house-trained",
     metrics: {
