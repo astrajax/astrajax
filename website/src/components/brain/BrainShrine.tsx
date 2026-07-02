@@ -24,8 +24,6 @@ export function BrainShrine({ initialSlug = DEFAULT_BRAIN_SLUG }: BrainShrinePro
   const [activeSlug, setActiveSlug] = useState(initialSlug);
   const [createMode, setCreateMode] = useState(false);
   const [newBrainName, setNewBrainName] = useState("");
-  const [listSource, setListSource] = useState<"seed" | "live">("seed");
-
   useEffect(() => {
     let cancelled = false;
     void (async () => {
@@ -33,11 +31,9 @@ export function BrainShrine({ initialSlug = DEFAULT_BRAIN_SLUG }: BrainShrinePro
         const response = await fetch("/api/brains/list");
         const data = (await response.json()) as {
           brains?: BrainShelfEntry[];
-          source?: "seed" | "live";
         };
         if (!cancelled && response.ok && data.brains?.length) {
           setBrains(data.brains);
-          setListSource(data.source ?? "live");
           setActiveSlug((current) =>
             data.brains!.some((brain) => brain.slug === current)
               ? current
@@ -115,14 +111,6 @@ export function BrainShrine({ initialSlug = DEFAULT_BRAIN_SLUG }: BrainShrinePro
 
   return (
     <div className="brain-shrine">
-      <header className="brain-shrine__header">
-        <p className="brain-shrine__label">Context governance</p>
-        <p className="brain-shrine__subtitle">
-          One brain on stage — health is a mood read, not permission to act alone.
-          {listSource === "seed" ? " Shelf data is seeded until the registry list is wired." : null}
-        </p>
-      </header>
-
       <div className="brain-shrine__stage">
         <div className="brain-shrine__surface">
           <BrainJar
@@ -132,20 +120,22 @@ export function BrainShrine({ initialSlug = DEFAULT_BRAIN_SLUG }: BrainShrinePro
 
           <button
             type="button"
-            className="brain-shrine__arrow brain-shrine__arrow--prev"
-            aria-label="Previous brain"
-            onClick={() => cycle(-1)}
-          >
-            ‹
-          </button>
+            className="brain-shrine__hotspot brain-shrine__hotspot--jar"
+            aria-label={`Open ${activeBrain.name} workspace`}
+            onClick={enterWorkspace}
+          />
           <button
             type="button"
-            className="brain-shrine__arrow brain-shrine__arrow--next"
+            className="brain-shrine__hotspot brain-shrine__hotspot--prev"
+            aria-label="Previous brain"
+            onClick={() => cycle(-1)}
+          />
+          <button
+            type="button"
+            className="brain-shrine__hotspot brain-shrine__hotspot--next"
             aria-label="Next brain"
             onClick={() => cycle(1)}
-          >
-            ›
-          </button>
+          />
 
           <div
             className="brain-shrine__overlay brain-shrine__overlay--audit shrine-slot"
@@ -173,20 +163,21 @@ export function BrainShrine({ initialSlug = DEFAULT_BRAIN_SLUG }: BrainShrinePro
       </div>
 
       <footer className="brain-shrine__footer">
-        <div className="brain-shrine__actions">
+        <div className="brain-shrine__links">
           {createMode ? (
             <>
               <button
                 type="button"
-                className="brain-shrine__action brain-shrine__action--primary"
+                className="brain-shrine__link"
                 disabled={!newBrainName.trim()}
                 onClick={confirmCreate}
               >
                 Start build in Chapter 1
               </button>
+              <span className="brain-shrine__link-divider" aria-hidden="true">·</span>
               <button
                 type="button"
-                className="brain-shrine__action brain-shrine__action--ghost"
+                className="brain-shrine__link"
                 onClick={() => {
                   setCreateMode(false);
                   setNewBrainName("");
@@ -199,14 +190,7 @@ export function BrainShrine({ initialSlug = DEFAULT_BRAIN_SLUG }: BrainShrinePro
             <>
               <button
                 type="button"
-                className="brain-shrine__action brain-shrine__action--primary"
-                onClick={enterWorkspace}
-              >
-                Enter
-              </button>
-              <button
-                type="button"
-                className="brain-shrine__action brain-shrine__action--ghost"
+                className="brain-shrine__link"
                 onClick={() => {
                   setCreateMode(true);
                   setNewBrainName("");
@@ -214,15 +198,13 @@ export function BrainShrine({ initialSlug = DEFAULT_BRAIN_SLUG }: BrainShrinePro
               >
                 + New brain
               </button>
+              <span className="brain-shrine__link-divider" aria-hidden="true">·</span>
+              <Link href="/command/clive" className="brain-shrine__link">
+                ← Back to study
+              </Link>
             </>
           )}
         </div>
-        <p className="brain-shrine__hint">
-          Arrow keys cycle brains · Enter opens workspace · Esc returns to Clive&apos;s study
-        </p>
-        <Link href="/command/clive" className="brain-shrine__back">
-          ← Back to study
-        </Link>
       </footer>
     </div>
   );

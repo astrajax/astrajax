@@ -122,15 +122,15 @@ export function formatAuditDate(iso: string | null): string {
   }
 }
 
-/** Compact date for the shrine audit slot (1024×571 art). */
+/** Compact date for the shrine audit slot (dd/mm/yy). */
 export function formatShrineAuditDate(iso: string | null): string {
   if (!iso) return "Never";
   try {
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
+    const date = new Date(iso);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = String(date.getFullYear()).slice(-2);
+    return `${day}/${month}/${year}`;
   } catch {
     return iso;
   }

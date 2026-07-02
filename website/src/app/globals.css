@@ -4188,17 +4188,17 @@ body {
 }
 
 .brain-shrine__overlay--audit {
-  top: 66%;
-  left: 30%;
-  width: 10%;
-  height: 6%;
+  top: 66.75%;
+  left: 31.4%;
+  width: 3.65%;
+  height: 3.5%;
 }
 
 .brain-shrine__overlay--flags {
-  top: 66%;
-  left: 62%;
-  width: 10%;
-  height: 6%;
+  top: 66.75%;
+  left: 64.95%;
+  width: 3.65%;
+  height: 3.5%;
 }
 
 .shrine-slot {
@@ -4210,13 +4210,20 @@ body {
 }
 
 .shrine-slot__value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(0.875rem, 1.4vw, 1.25rem);
+  font-size: clamp(0.625rem, 0.95vw, 0.9375rem);
   font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: 0.05em;
+  line-height: 1;
+  letter-spacing: 0.02em;
   text-align: center;
   text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
   color: #2a1c12;
   text-shadow: 0 1px 0 color-mix(in srgb, white 30%, transparent);
 }

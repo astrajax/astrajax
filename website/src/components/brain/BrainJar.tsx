@@ -39,6 +39,7 @@ export function BrainJar({ healthBand, alt }: BrainJarProps) {
       return;
     }
 
+    video.load();
     void video.play().catch(() => {});
   }, [prefersReducedMotion, src]);
 
@@ -49,7 +50,6 @@ export function BrainJar({ healthBand, alt }: BrainJarProps) {
     >
       <video
         ref={videoRef}
-        key={src}
         className="brain-shrine__jar-media"
         src={src}
         autoPlay={!prefersReducedMotion}
