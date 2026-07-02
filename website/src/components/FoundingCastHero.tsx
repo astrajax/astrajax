@@ -227,8 +227,25 @@ function PortraitFrame({
     };
   }, [showVideo, videoSrc, seamlessLoop, playbackRate]);
 
+  const stillSrc = videoPosterSrc ?? posterSrc;
+
   return (
     <div className="hero-portrait-frame">
+      <Image
+        src={stillSrc}
+        alt={showVideo ? "" : ariaLabel}
+        aria-hidden={showVideo ? true : undefined}
+        width={width}
+        height={height}
+        priority={priority}
+        sizes={sizes}
+        className={[
+          "hero-portrait-frame__media",
+          showVideo ? "hero-portrait-frame__media--poster" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      />
       {showVideo ? (
         <video
           ref={videoRef}
@@ -244,24 +261,13 @@ function PortraitFrame({
           loop={!seamlessLoop}
           playsInline
           preload={eagerPreload ? "auto" : "metadata"}
-          poster={videoPosterSrc ?? posterSrc}
           width={width}
           height={height}
           aria-label={ariaLabel}
         >
           <source src={videoSrc} type="video/mp4" />
         </video>
-      ) : (
-        <Image
-          src={posterSrc}
-          alt={ariaLabel}
-          width={width}
-          height={height}
-          priority={priority}
-          sizes={sizes}
-          className="hero-portrait-frame__media"
-        />
-      )}
+      ) : null}
     </div>
   );
 }
@@ -424,7 +430,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={doc}
               displayName={doc.name}
-              sizes="(min-width: 1536px) 22vw, (min-width: 1024px) 22vw, 40vw"
+              sizes="(min-width: 1536px) 30vw, (min-width: 1024px) 30vw, 40vw"
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
@@ -433,7 +439,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={pam}
               displayName={pam.name}
-              sizes="(min-width: 1536px) 28vw, (min-width: 1024px) 28vw, 40vw"
+              sizes="(min-width: 1536px) 34vw, (min-width: 1024px) 34vw, 40vw"
               seamlessLoop
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
@@ -452,7 +458,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={lazloMarlowe}
               displayName={lazloMarlowe.name}
-              sizes="(min-width: 1536px) 18vw, (min-width: 1024px) 18vw, 72vw"
+              sizes="(min-width: 1536px) 14vw, (min-width: 1024px) 14vw, 72vw"
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />

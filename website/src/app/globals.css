@@ -400,21 +400,22 @@ body {
 }
 
 .hero-asymmetric-wall__composition {
-  /* Mockup gallery: 4×2 — Clive top-centre (span 2), Doc top-right; Pam / Man /
-     Lazlo / Minions on the bottom row. Logo overlays top-left, not a grid cell. */
+  /* Mockup gallery — 5×2 grid decouples Clive width from Man/Lazlo columns.
+     Size hierarchy: Clive ≈ Pam > Doc > Lazlo > Man > Minions. */
   --hero-col-gap: clamp(0.45rem, 1.35vw, 1.5rem);
   --hero-row-gap: clamp(0.2rem, 0.55vh, 0.45rem);
   position: relative;
   display: grid;
   grid-template-columns:
-    minmax(0, 1.22fr)
-    minmax(0, 0.58fr)
-    minmax(0, 0.94fr)
-    minmax(0, 1.05fr);
+    minmax(0, 0.74fr)
+    minmax(0, 0.74fr)
+    minmax(0, 0.36fr)
+    minmax(0, 0.56fr)
+    minmax(0, 1.28fr);
   grid-template-rows: minmax(0, 1fr) auto;
   grid-template-areas:
-    ".    clive clive doc"
-    "pam  man   lazlo minions";
+    ".    clive clive clive doc"
+    "pam  pam   man   lazlo minions";
   align-content: end;
   column-gap: var(--hero-col-gap);
   row-gap: var(--hero-row-gap);
@@ -451,7 +452,7 @@ body {
   align-items: center;
 }
 
-/* Clive — top-centre co-star, spans columns 2–3 */
+/* Clive — top-centre co-star, spans columns 2–4 */
 .hero-asymmetric-wall__slot--clive {
   grid-area: clive;
   align-self: end;
@@ -559,7 +560,7 @@ body {
   align-self: end;
   justify-self: center;
   z-index: 2;
-  width: 76%;
+  width: 100%;
   max-width: 100%;
   transform: rotate(0.4deg);
   padding-bottom: clamp(0.1rem, 0.45vh, 0.3rem);
@@ -578,7 +579,7 @@ body {
   overflow: hidden;
   width: 100%;
   border-radius: 3px;
-  background: transparent;
+  background: color-mix(in srgb, var(--color-forest) 28%, #1a1814);
   box-shadow:
     0 1.75rem 3.1rem rgba(6, 5, 3, 0.5),
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
@@ -711,9 +712,10 @@ body {
 .hero-asymmetric-wall__slot--lazlo {
   grid-area: lazlo;
   align-self: end;
-  justify-self: stretch;
+  justify-self: center;
   z-index: 3;
   width: 100%;
+  max-width: 100%;
   min-width: 0;
   transform: rotate(0.55deg);
   padding-bottom: clamp(0.1rem, 0.55vh, 0.35rem);
@@ -723,7 +725,7 @@ body {
 .hero-asymmetric-wall__slot--lazlo .hero-portrait-door-wrap {
   width: 100%;
   max-width: 100%;
-  align-self: stretch;
+  align-self: center;
 }
 
 .hero-asymmetric-wall__slot--lazlo .hero-portrait-frame {
@@ -739,7 +741,19 @@ body {
   border-radius: 3px;
 }
 
+.hero-portrait-frame__media--poster {
+  position: relative;
+  z-index: 1;
+}
+
 .hero-portrait-frame__media--video {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   opacity: 0;
   transition: opacity 450ms ease;
 }
@@ -1374,12 +1388,12 @@ body {
   /* Portal crops via object-fit: cover already; keep this near 1 so gestures
      (paws, arm lifts) don't get cut off by an extra zoom on top of that crop. */
   --clive-study-video-scale: 0.96;
-  --book-clive-top: 10%;
-  --book-clive-right: 6.5%;
-  --book-clive-width: min(27vw, 19rem);
+  --book-clive-top: 8%;
+  --book-clive-right: 4.5%;
+  --book-clive-width: min(44vw, 32rem);
   --book-content-top: clamp(4.75rem, 13vh, 6.75rem);
-  --book-content-left: clamp(7.5%, 9vw, 10.5%);
-  --book-content-width: min(40%, 28rem);
+  --book-content-left: clamp(6.5%, 8vw, 9%);
+  --book-content-width: min(48%, 36rem);
   --book-ink: #23271b;
   --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
   position: relative;
@@ -1403,11 +1417,7 @@ body {
   object-position: center;
 }
 
-/* User mapping — left-page chat only; hide the feathered portrait inset */
-.study-stage--book:has(.chapter1-intake-chat) .study-stage__clive-spot {
-  display: none;
-}
-
+/* User mapping — left-page chat; Clive stays visible on the right page */
 .study-stage__clive-spot {
   pointer-events: none;
   position: absolute;
@@ -1426,16 +1436,20 @@ body {
   height: 100%;
   overflow: hidden;
   -webkit-mask-image: radial-gradient(
-    ellipse 92% 88% at 56% 42%,
-    #000 22%,
-    color-mix(in srgb, #000 88%, transparent) 48%,
-    transparent 74%
+    ellipse 98% 96% at 52% 44%,
+    #000 10%,
+    color-mix(in srgb, #000 94%, transparent) 28%,
+    color-mix(in srgb, #000 62%, transparent) 48%,
+    color-mix(in srgb, #000 22%, transparent) 64%,
+    transparent 78%
   );
   mask-image: radial-gradient(
-    ellipse 92% 88% at 56% 42%,
-    #000 22%,
-    color-mix(in srgb, #000 88%, transparent) 48%,
-    transparent 74%
+    ellipse 98% 96% at 52% 44%,
+    #000 10%,
+    color-mix(in srgb, #000 94%, transparent) 28%,
+    color-mix(in srgb, #000 62%, transparent) 48%,
+    color-mix(in srgb, #000 22%, transparent) 64%,
+    transparent 78%
   );
 }
 
@@ -1443,12 +1457,12 @@ body {
   content: "";
   pointer-events: none;
   position: absolute;
-  inset: -4%;
+  inset: -10%;
   z-index: 3;
   background:
-    radial-gradient(ellipse 88% 82% at 58% 40%, transparent 34%, rgba(236, 220, 190, 0.22) 72%, rgba(236, 220, 190, 0.55) 100%),
-    linear-gradient(180deg, rgba(236, 220, 190, 0.18) 0%, transparent 14%, transparent 86%, rgba(236, 220, 190, 0.2) 100%),
-    linear-gradient(90deg, rgba(236, 220, 190, 0.16) 0%, transparent 12%, transparent 88%, rgba(236, 220, 190, 0.24) 100%);
+    radial-gradient(ellipse 94% 90% at 52% 42%, transparent 18%, rgba(236, 220, 190, 0.38) 56%, rgba(236, 220, 190, 0.78) 100%),
+    linear-gradient(180deg, rgba(236, 220, 190, 0.34) 0%, transparent 8%, transparent 92%, rgba(236, 220, 190, 0.36) 100%),
+    linear-gradient(90deg, rgba(236, 220, 190, 0.3) 0%, transparent 6%, transparent 94%, rgba(236, 220, 190, 0.42) 100%);
   mix-blend-mode: multiply;
 }
 
@@ -1572,9 +1586,9 @@ body {
   bottom: clamp(0.75rem, 2.5vh, 1.5rem);
   padding:
     clamp(0.75rem, 2.5vh, 1.25rem)
-    clamp(0.5rem, 1.5vw, 0.875rem)
+    clamp(0.35rem, 1vw, 0.625rem)
     clamp(0.35rem, 1vh, 0.5rem)
-    clamp(0.85rem, 2vw, 1.25rem);
+    clamp(0.65rem, 1.6vw, 1rem);
 }
 
 .study-stage--book .study-stage__content:has(.clive-welcome) {
@@ -1601,23 +1615,23 @@ body {
 
 @media (min-width: 1024px) {
   .study-stage {
-    --book-clive-top: 11%;
-    --book-clive-right: 7.5%;
-    --book-clive-width: min(24vw, 20rem);
+    --book-clive-top: 9%;
+    --book-clive-right: 4%;
+    --book-clive-width: min(42vw, 38rem);
     --book-content-top: clamp(5.25rem, 14vh, 7.25rem);
-    --book-content-left: clamp(8%, 10vw, 11%);
-    --book-content-width: min(42%, 32rem);
+    --book-content-left: clamp(7%, 9vw, 10%);
+    --book-content-width: min(52%, 44rem);
   }
 }
 
 @media (max-width: 767px) {
   .study-stage {
-    --book-clive-top: 8%;
-    --book-clive-right: 4%;
-    --book-clive-width: min(38vw, 11rem);
+    --book-clive-top: 7%;
+    --book-clive-right: 3%;
+    --book-clive-width: min(50vw, 17rem);
     --book-content-top: clamp(4rem, 11vh, 5rem);
-    --book-content-left: clamp(6%, 7vw, 8%);
-    --book-content-width: min(46%, 16.5rem);
+    --book-content-left: clamp(5.5%, 6.5vw, 7%);
+    --book-content-width: min(54%, 19rem);
   }
 }
 
@@ -1645,7 +1659,7 @@ body {
 }
 
 .study-stage--book .clive-welcome-caption {
-  font-size: clamp(0.9rem, 1.65vw, 1.2rem);
+  font-size: clamp(1rem, 1.85vw, 1.375rem);
   font-weight: 700;
   line-height: 1.28;
   letter-spacing: 0.045em;
@@ -1680,7 +1694,7 @@ body {
 }
 
 .study-stage--book .clive-welcome-monologue__label {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   color: var(--book-ink-muted);
   text-shadow: none;
@@ -1688,8 +1702,8 @@ body {
 
 .study-stage--book .clive-welcome-monologue__text {
   font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
-  font-size: clamp(0.8125rem, 1.45vw, 0.9375rem);
-  line-height: 1.62;
+  font-size: clamp(0.9375rem, 1.65vw, 1.125rem);
+  line-height: 1.65;
   text-align: justify;
   text-align-last: left;
   -webkit-hyphens: auto;
@@ -1751,6 +1765,15 @@ body {
   overflow: hidden;
 }
 
+/* Book spread — study chat must stay ink-on-parchment, not the default moss panel */
+.study-stage--book .clive-chat.clive-chat--study {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
 .study-stage--book .clive-chat--study .clive-chat__messages {
   flex: 1;
   min-height: 0;
@@ -1768,7 +1791,7 @@ body {
 .study-stage--book .clive-chat--study .clive-chat__prompt-label,
 .study-stage--book .clive-chat--study .clive-chat__turn-label {
   font-family: Georgia, "Times New Roman", Times, serif;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   color: var(--book-ink-muted);
   text-shadow: none;
@@ -1791,8 +1814,8 @@ body {
 .study-stage--book .clive-chat--study .clive-chat__bubble,
 .study-stage--book .clive-chat--study .clive-chat__bubble p {
   font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
-  font-size: clamp(0.8125rem, 1.45vw, 0.9375rem);
-  line-height: 1.62;
+  font-size: clamp(0.9375rem, 1.65vw, 1.125rem);
+  line-height: 1.65;
   color: var(--book-ink);
   text-shadow: none;
 }
@@ -1826,7 +1849,7 @@ body {
 .study-stage--book .clive-chat--study .clive-chat__architect-label {
   margin-bottom: 0.25rem;
   font-family: Georgia, "Times New Roman", Times, serif;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   font-variant: small-caps;
   letter-spacing: 0.14em;
@@ -1843,6 +1866,7 @@ body {
 
 .study-stage--book .clive-chat--study .clive-chat__input {
   font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: clamp(0.9375rem, 1.5vw, 1.0625rem);
   color: var(--book-ink);
   background: color-mix(in srgb, var(--color-cream-paper) 78%, transparent);
   border-color: color-mix(in srgb, var(--book-ink) 18%, transparent);
@@ -1894,6 +1918,26 @@ body {
   color: var(--book-ink);
   background: color-mix(in srgb, var(--color-cream-paper) 52%, transparent);
   box-shadow: none;
+  font-size: clamp(0.9375rem, 1.5vw, 1.0625rem);
+  line-height: 1.6;
+}
+
+.study-stage--book .study-doc-card__title {
+  font-size: clamp(1rem, 1.55vw, 1.125rem);
+}
+
+.study-stage--book .study-doc-card__body--muted,
+.study-stage--book .study-doc-card__note {
+  font-size: clamp(0.875rem, 1.35vw, 0.9375rem);
+}
+
+.study-stage--book .study-doc-card__tag {
+  font-size: 0.6875rem;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__prompt,
+.study-stage--book .clive-chat--study .clive-chat__user-echo {
+  max-width: none;
 }
 
 .study-stage--book .study-doc-card__tag,
@@ -2522,7 +2566,7 @@ body {
   }
 
   .clive-welcome-caption {
-    font-size: clamp(1.05rem, 2.25vw, 1.5rem);
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
   }
 
   .clive-welcome-caption::after {
@@ -2532,8 +2576,8 @@ body {
 
   .clive-welcome-monologue__text,
   .clive-chat--study .clive-chat__prompt-text {
-    font-size: clamp(0.8125rem, 1.6vw, 0.875rem);
-    line-height: 1.5;
+    font-size: clamp(0.875rem, 1.55vw, 1rem);
+    line-height: 1.55;
   }
 
   .clive-welcome__controls {
@@ -3158,12 +3202,20 @@ body {
 }
 
 /* ── Chat surface ── */
-.clive-chat {
+.clive-chat:not(.clive-chat--study) {
   position: relative;
   border-radius: 1rem;
   border: 1px solid color-mix(in srgb, var(--color-parchment) 15%, transparent);
   background: color-mix(in srgb, var(--color-moss) 60%, black);
   padding: 1.25rem;
+}
+
+.clive-chat.clive-chat--study {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
 }
 
 .clive-chat--compact {
