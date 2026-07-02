@@ -407,7 +407,7 @@ body {
       var(--hero-gallery-gap) * 2
   );
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   width: 100%;
   height: var(--hero-wall-height);
@@ -454,11 +454,10 @@ body {
 
 /* Clive — top-centre anchor, highest on the wall */
 .hero-asymmetric-wall__slot--clive {
-  top: 3.5%;
+  top: 0%;
   left: 32.5%;
   width: 36.5%;
   z-index: 4;
-  transform: rotate(-0.35deg);
 }
 
 .hero-asymmetric-wall__slot--clive .hero-portrait,
@@ -473,7 +472,6 @@ body {
   right: 1.5%;
   width: 28.5%;
   z-index: 3;
-  transform: rotate(0.65deg);
 }
 
 .hero-asymmetric-wall__slot--doc .hero-portrait,
@@ -495,7 +493,6 @@ body {
   width: 33%;
   align-items: stretch;
   z-index: 3;
-  transform: rotate(-0.65deg);
 }
 
 .hero-asymmetric-wall__slot--pam .hero-portrait,
@@ -547,11 +544,10 @@ body {
 
 /* Clive's Man — small portrait tucked between Pam and Lazlo */
 .hero-asymmetric-wall__slot--man {
-  top: 57%;
+  top: 54%;
   left: 38.5%;
   width: 16%;
   z-index: 2;
-  transform: rotate(0.4deg);
 }
 
 .hero-portrait {
@@ -581,11 +577,10 @@ body {
 
 /* Doc's Minions — tiny squares, right edge beside Lazlo */
 .hero-asymmetric-wall__slot--minions {
-  top: 52%;
+  top: 51%;
   right: 4%;
   width: 11.5%;
   z-index: 2;
-  transform: rotate(0.5deg);
 }
 
 .hero-asymmetric-wall__slot--minions .hero-doc-workshop {
@@ -696,12 +691,11 @@ body {
 
 /* Lazlo Marlowe — medium portrait between Man and the minions */
 .hero-asymmetric-wall__slot--lazlo {
-  top: 64%;
-  left: 59%;
-  width: 21.5%;
+  top: 63%;
+  left: 55%;
+  width: 28%;
   z-index: 3;
   min-width: 0;
-  transform: rotate(-0.55deg);
 }
 
 .hero-asymmetric-wall__slot--lazlo .hero-portrait,
@@ -1361,14 +1355,16 @@ body {
   /* Portal crops via object-fit: cover already; keep this near 1 so gestures
      (paws, arm lifts) don't get cut off by an extra zoom on top of that crop. */
   --clive-study-video-scale: 0.96;
-  --book-spine: 50%;
-  --book-page-gutter: clamp(0.65rem, 1.75vw, 1.125rem);
-  --book-clive-top: 10%;
-  --book-clive-right: 7%;
-  --book-clive-width: min(28vw, 21rem);
+  /* Left/right page zones — invisible boundary, no drawn spine */
+  --book-left-page-end: 46.5%;
+  --book-right-page-start: 53.5%;
+  --book-page-gutter: clamp(0.75rem, 2vw, 1.25rem);
+  --book-clive-top: 12%;
+  --book-clive-right: 9%;
+  --book-clive-width: min(20vw, 15rem);
   --book-content-top: clamp(4.75rem, 13vh, 6.75rem);
-  --book-content-left: clamp(7%, 8.5vw, 9.5%);
-  --book-content-width: min(38%, 30rem);
+  --book-content-left: clamp(7.5%, 9vw, 10%);
+  --book-content-width: min(34%, 26rem);
   --book-ink: #23271b;
   --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
   position: relative;
@@ -1392,30 +1388,6 @@ body {
   object-position: center;
 }
 
-/* Spine — hard boundary between left-page copy and right-page Clive */
-.study-stage--book::before {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  z-index: 1;
-  top: clamp(4.5rem, 12vh, 6.5rem);
-  bottom: clamp(1.5rem, 5vh, 2.5rem);
-  left: var(--book-spine);
-  width: max(1px, 0.08rem);
-  transform: translateX(-50%);
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    color-mix(in srgb, var(--book-ink) 18%, transparent) 12%,
-    color-mix(in srgb, var(--book-ink) 28%, transparent) 50%,
-    color-mix(in srgb, var(--book-ink) 18%, transparent) 88%,
-    transparent 100%
-  );
-  box-shadow:
-    -1px 0 0 rgba(255, 248, 235, 0.35),
-    1px 0 6px rgba(26, 18, 12, 0.12);
-}
-
 /* User mapping — left-page chat; Clive stays visible on the right page */
 .study-stage__clive-spot {
   pointer-events: none;
@@ -1423,11 +1395,10 @@ body {
   z-index: 2;
   top: var(--book-clive-top);
   right: var(--book-clive-right);
-  width: min(
-    var(--book-clive-width),
-    calc(100% - var(--book-spine) - var(--book-clive-right) - var(--book-page-gutter))
+  width: var(--book-clive-width);
+  max-width: calc(
+    100% - var(--book-right-page-start) - var(--book-clive-right) - var(--book-page-gutter)
   );
-  max-width: calc(50% - var(--book-clive-right) - var(--book-page-gutter));
   /* Closer to the 16:9 source than 5:4 — less forced side-crop before the
      feather mask even kicks in, so gestures stay in frame. */
   aspect-ratio: 3 / 2;
@@ -1547,6 +1518,27 @@ body {
   color: color-mix(in srgb, var(--color-parchment) 62%, transparent);
 }
 
+.study-stage__back-link {
+  display: inline-block;
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--color-apricot) 88%, white);
+  text-decoration: none;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+
+.study-stage__back-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.study-stage__header-note {
+  max-width: 14rem;
+  font-size: 0.6875rem;
+  line-height: 1.35;
+  color: color-mix(in srgb, var(--color-parchment) 68%, transparent);
+}
+
 .study-stage__header-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1589,28 +1581,65 @@ body {
 .study-stage--book .study-stage__content {
   left: var(--book-content-left);
   width: auto;
-  right: calc(var(--book-spine) + var(--book-page-gutter));
-  max-width: calc(var(--book-spine) - var(--book-content-left) - var(--book-page-gutter));
+  right: calc(100% - var(--book-left-page-end) + var(--book-page-gutter));
+  max-width: calc(var(--book-left-page-end) - var(--book-content-left) - var(--book-page-gutter));
+  min-width: 0;
   overflow-x: hidden;
+  overflow-y: auto;
   bottom: clamp(0.75rem, 2.5vh, 1.5rem);
   padding:
     clamp(0.75rem, 2.5vh, 1.25rem)
-    clamp(0.35rem, 1vw, 0.625rem)
+    clamp(0.5rem, 1.25vw, 0.875rem)
     clamp(0.35rem, 1vh, 0.5rem)
     clamp(0.65rem, 1.6vw, 1rem);
 }
 
 .study-stage--book .study-stage__content:has(.clive-welcome) {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding-bottom: 0.35rem;
+}
+
+.study-stage--book .study-stage__content:has(.chapter1-conversation) {
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.study-stage--book .clive-welcome,
+.study-stage--book .chapter1-conversation,
+.study-stage--book .chapter1-intake-chat,
+.study-stage--book .clive-chat--study {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.study-stage--book .clive-welcome-caption {
+  font-size: clamp(0.9rem, 1.55vw, 1.15rem);
+  font-weight: 700;
+  line-height: 1.32;
+  letter-spacing: 0.04em;
+  color: var(--book-ink);
+  text-shadow: none;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .study-stage__content:has(.clive-welcome),
 .study-stage__content:has(.chapter1-conversation) {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  min-width: 0;
+  overflow-x: hidden;
   padding-bottom: 1rem;
+}
+
+.study-stage__content:has(.clive-welcome) {
+  overflow-y: auto;
+}
+
+.study-stage__content:has(.chapter1-conversation) {
+  overflow-y: hidden;
 }
 
 .study-stage__error {
@@ -1624,24 +1653,28 @@ body {
 
 @media (min-width: 1024px) {
   .study-stage {
-    --book-clive-top: 11%;
-    --book-clive-right: 8%;
-    --book-clive-width: min(26vw, 23rem);
+    --book-left-page-end: 46%;
+    --book-right-page-start: 54%;
+    --book-clive-top: 13%;
+    --book-clive-right: 10%;
+    --book-clive-width: min(18vw, 14rem);
     --book-content-top: clamp(5.25rem, 14vh, 7.25rem);
-    --book-content-left: clamp(8%, 9.5vw, 10.5%);
-    --book-content-width: min(40%, 34rem);
+    --book-content-left: clamp(8.5%, 10vw, 11%);
+    --book-content-width: min(36%, 28rem);
   }
 }
 
 @media (max-width: 767px) {
   .study-stage {
-    --book-page-gutter: clamp(0.45rem, 1.2vw, 0.75rem);
-    --book-clive-top: 8%;
-    --book-clive-right: 5%;
-    --book-clive-width: min(36vw, 12.5rem);
+    --book-left-page-end: 48%;
+    --book-right-page-start: 52%;
+    --book-page-gutter: clamp(0.4rem, 1vw, 0.65rem);
+    --book-clive-top: 10%;
+    --book-clive-right: 6%;
+    --book-clive-width: min(28vw, 9.5rem);
     --book-content-top: clamp(4rem, 11vh, 5rem);
-    --book-content-left: clamp(6%, 7vw, 8%);
-    --book-content-width: min(42%, 17rem);
+    --book-content-left: clamp(6.5%, 7.5vw, 8%);
+    --book-content-width: min(40%, 15rem);
   }
 }
 
@@ -1666,15 +1699,6 @@ body {
   background:
     linear-gradient(180deg, rgba(35, 39, 27, 0.58), rgba(35, 39, 27, 0.28)),
     linear-gradient(90deg, rgba(243, 237, 219, 0.08), transparent 55%);
-}
-
-.study-stage--book .clive-welcome-caption {
-  font-size: clamp(1rem, 1.85vw, 1.375rem);
-  font-weight: 700;
-  line-height: 1.28;
-  letter-spacing: 0.045em;
-  color: var(--book-ink);
-  text-shadow: none;
 }
 
 .study-stage--book .clive-welcome-caption::after {
@@ -2718,6 +2742,21 @@ body {
 .clive-study__ghost-btn:hover {
   border-color: color-mix(in srgb, var(--color-parchment) 45%, transparent);
   background: color-mix(in srgb, var(--color-parchment) 8%, transparent);
+}
+
+@media print {
+  .study-stage {
+    height: 100vh;
+    max-height: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .study-stage__book,
+  .study-stage__book-image {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 }
 
 /* ── Clive study hub (four-book desk) ── */
@@ -4022,20 +4061,55 @@ body {
 
 /* Court Book */
 
+/* Court Book full-bleed stage, modelled on study-stage */
+.court-stage {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  color: var(--book-ink);
+  background: #1a120c;
+}
+
+.court-stage__book {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.court-stage__book-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Artwork layer: aspect-ratio lock to preserve hotspot/slot percentages across viewports */
+.court-stage__artwork {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 16 / 9;
+  width: max(100vw, 177.78dvh);
+  height: max(100dvh, 56.25vw);
+  z-index: 1;
+}
+
 .platform-court__book-stage {
-  margin-top: 1.5rem;
-  max-width: 1400px;
-  margin-left: auto;
-  margin-right: auto;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 
 .platform-court__book-container {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 100%;
   background-size: cover;
   background-position: center;
-  border-radius: 0.75rem;
   overflow: hidden;
 }
 
@@ -4082,52 +4156,64 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-inline: 4%;
   font-family: var(--font-display);
-  letter-spacing: 0.05em;
+  overflow: hidden;
 }
 
 .platform-court__verdict-text {
-  color: var(--color-ink);
+  color: var(--book-ink);
+  opacity: 0.85;
   font-weight: 600;
-  font-size: 0.875rem;
+  font-size: clamp(0.7rem, 1.15vw, 1.05rem);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
 .platform-court__verdict-placeholder {
-  color: color-mix(in srgb, var(--color-ink) 30%, transparent);
-  font-size: 1.25rem;
-  animation: shimmer 1.5s ease-in-out infinite;
+  color: var(--book-ink);
+  opacity: 0.85;
+  font-size: 0.375rem;
+  letter-spacing: 0.2em;
+  animation: verdictPulse 1.2s ease-in-out infinite;
 }
 
-@keyframes shimmer {
+@keyframes verdictPulse {
   0%, 100% {
-    opacity: 0.6;
+    opacity: 0.85;
   }
   50% {
-    opacity: 0.3;
+    opacity: 0.4;
   }
 }
 
+/* Right page: transparent on parchment */
 .platform-court__right-page-content {
   position: absolute;
   display: flex;
   flex-direction: column;
-  background: color-mix(in srgb, var(--color-cream-paper) 95%, white);
-  border: 1px solid color-mix(in srgb, var(--color-ink) 8%, transparent);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  box-shadow: inset 0 0 12px color-mix(in srgb, var(--color-ink) 3%, transparent);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  color: var(--book-ink);
+  font-family: var(--font-body);
 }
 
 .platform-court__bicker-head {
   flex-shrink: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
   padding-bottom: 0.75rem;
   margin-bottom: 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--book-ink) 20%, transparent);
 }
 
 .platform-court__bicker-head h2 {
-  font-size: 1rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 1.6vw, 1.5rem);
+  font-weight: 600;
   margin: 0;
+  color: var(--book-ink);
 }
 
 .platform-court__bicker-feed {
@@ -4135,10 +4221,13 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  min-height: 150px;
+  gap: 0.9em;
+  margin-bottom: 1rem;
   padding-right: 0.5rem;
+  min-height: 150px;
+  color: var(--book-ink);
+  opacity: 0.9;
+  mask-image: linear-gradient(180deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
 }
 
 .platform-court__bicker-feed::-webkit-scrollbar {
@@ -4146,45 +4235,56 @@ body {
 }
 
 .platform-court__bicker-feed::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--color-ink) 20%, transparent);
+  background: color-mix(in srgb, var(--book-ink) 25%, transparent);
   border-radius: 2px;
 }
 
 .platform-court__bicker-turn {
   font-size: 0.875rem;
   line-height: 1.4;
-  color: var(--color-ink);
+  color: var(--book-ink);
+  opacity: 0.9;
 }
 
 .platform-court__bicker-speaker {
+  font-family: var(--font-display);
   font-weight: 600;
-  color: var(--color-ink);
+  color: var(--book-ink);
 }
 
 .platform-court__bicker-input {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   flex-shrink: 0;
+  align-items: center;
 }
 
 .platform-court__input {
   flex: 1;
-  border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
-  border-radius: 0.375rem;
-  padding: 0.5rem 0.75rem;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--book-ink) 30%, transparent);
+  border-radius: 0;
+  padding: 0.5rem 0;
   font-size: 0.875rem;
-  background: white;
-  color: var(--color-ink);
+  background: transparent;
+  color: var(--book-ink);
+  font-family: inherit;
 }
 
 .platform-court__input::placeholder {
-  color: color-mix(in srgb, var(--color-ink) 40%, transparent);
+  color: color-mix(in srgb, var(--book-ink) 40%, transparent);
+}
+
+.platform-court__input:focus {
+  outline: none;
+  border-bottom-color: color-mix(in srgb, var(--book-ink) 50%, transparent);
 }
 
 .platform-court__verdict-panel-inner {
-  padding: 1rem;
+  padding: 0;
   overflow-y: auto;
   max-height: 100%;
+  color: var(--book-ink);
 }
 
 .platform-court__plaque-hotspot {
