@@ -82,7 +82,7 @@ export const COURT_BOOK_LAYOUT = {
     lazlo: { x: 19.5, y: 56.5, width: 26, height: 9 },
     "clive-man": { x: 19.5, y: 70.6, width: 26, height: 9 },
   } as Record<Exclude<CourtRoleId, "judge">, CourtBookSlot>,
-  rightPageContent: { left: 52, top: 7, width: 40, height: 78 },
+  rightPageContent: { left: 55, top: 8, width: 34, height: 76 },
   plaque: { x: 68.5, y: 82, width: 12, height: 12 },
 } as const;
 

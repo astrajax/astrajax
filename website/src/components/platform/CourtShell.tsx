@@ -79,6 +79,8 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
     if (conveneGuardRef.current === decision.id) return;
     conveneGuardRef.current = decision.id;
 
+    const revealTimers: NodeJS.Timeout[] = [];
+
     const convene = async () => {
       setIsDeliberating(true);
       try {
@@ -92,10 +94,19 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
           }),
         });
         const data = await res.json();
-        setVerdicts(data.verdicts || []);
+        const incoming: AgentVerdict[] = data.verdicts || [];
+        // Reveal verdicts one at a time, like ink drying on the page
+        incoming.forEach((verdict, index) => {
+          revealTimers.push(
+            setTimeout(() => {
+              setVerdicts((prev) => [...prev, verdict]);
+              if (index === incoming.length - 1) setIsDeliberating(false);
+            }, 700 + index * 1100),
+          );
+        });
+        if (incoming.length === 0) setIsDeliberating(false);
       } catch (error) {
         console.error("Deliberation error:", error);
-      } finally {
         setIsDeliberating(false);
       }
 
@@ -103,11 +114,13 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
     };
 
     convene();
+    return () => revealTimers.forEach(clearTimeout);
   }, [decision]);
 
   const fetchBicker = useCallback(
-    async (currentTranscript: BickerTurn[]) => {
-      if (judgement || bickerInFlightRef.current) return;
+    async (currentTranscript: BickerTurn[], options?: { force?: boolean }) => {
+      if (judgement) return;
+      if (bickerInFlightRef.current && !options?.force) return;
       bickerInFlightRef.current = true;
       setBickering(true);
       try {
@@ -184,7 +197,9 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
     setBicker((prev) => [...prev, newTurn]);
     setUserInput("");
 
-    await fetchBicker([...bicker, newTurn]);
+    // The human always gets the floor: bypass the in-flight guard so an
+    // auto-bicker cycle can't swallow their address to the bench.
+    await fetchBicker([...bicker, newTurn], { force: true });
   };
 
   const recordJudgement = (choice: Exclude<HumanJudgement, null>) => {
@@ -302,7 +317,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
                   />
                   <button
                     onClick={handleUserMessage}
-                    disabled={!userInput.trim() || bickering}
+                    disabled={!userInput.trim()}
                     className="platform-court__inline-link"
                   >
                     Address the bench

@@ -4496,6 +4496,8 @@ body {
   padding-inline: 4%;
   font-family: var(--font-display);
   overflow: hidden;
+  /* Layout y-coordinates are the vertical centre of the painted square. */
+  transform: translateY(-50%);
 }
 
 .platform-court__verdict-text {
@@ -4505,6 +4507,18 @@ body {
   font-size: clamp(0.7rem, 1.15vw, 1.05rem);
   text-transform: uppercase;
   letter-spacing: 0.12em;
+  animation: verdictInkIn 0.9s ease-out both;
+}
+
+@keyframes verdictInkIn {
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+  to {
+    opacity: 0.85;
+    filter: none;
+  }
 }
 
 .platform-court__verdict-placeholder {
