@@ -241,6 +241,13 @@ export interface CourtMatter {
   stakes: string;
 }
 
+/** Character limits for the intake form — keeps entries on the page of the book. */
+export const COURT_MATTER_LIMITS = {
+  title: 120,
+  context: 500,
+  stakes: 300,
+} as const;
+
 export function conveneMatter(matter: CourtMatter): CourtDecision {
   return {
     id: `court-matter-${Date.now()}`,

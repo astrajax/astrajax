@@ -10,6 +10,7 @@ import {
   docExecutionLine,
   conveneMatter,
   COURT_BOOK_LAYOUT,
+  COURT_MATTER_LIMITS,
   type CourtDecision,
   type CourtMatter,
   type CourtRole,
@@ -339,7 +340,9 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
                 width: `${COURT_BOOK_LAYOUT.plaque.width}%`,
                 height: `${COURT_BOOK_LAYOUT.plaque.height}%`,
               }}
-            />
+            >
+              <span className="platform-court__plaque-word">Decide</span>
+            </button>
           )}
         </div>
 
@@ -516,34 +519,59 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
 
             <form onSubmit={handleSubmit} className="platform-court__intake-form">
               <label className="platform-court__field" htmlFor="matter-title">
-                <span className="platform-court__field-label">Matter title</span>
-                <input
+                <span className="platform-court__field-label">
+                  Matter title
+                  <span className="platform-court__field-count">
+                    {title.length}/{COURT_MATTER_LIMITS.title}
+                  </span>
+                </span>
+                {/* A textarea (not an input) so long titles wrap onto a second
+                    line instead of scrolling off the edge of the page. */}
+                <textarea
                   id="matter-title"
-                  type="text"
                   value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="platform-court__underline-input"
+                  onChange={(e) =>
+                    setTitle(e.target.value.replace(/\n/g, " ").slice(0, COURT_MATTER_LIMITS.title))
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") e.preventDefault();
+                  }}
+                  rows={1}
+                  maxLength={COURT_MATTER_LIMITS.title}
+                  className="platform-court__underline-input platform-court__underline-input--area platform-court__underline-input--title"
                   placeholder="Approve the off-script discount guardrail?…"
                   required
                 />
               </label>
               <label className="platform-court__field" htmlFor="matter-context">
-                <span className="platform-court__field-label">Context</span>
+                <span className="platform-court__field-label">
+                  Context
+                  <span className="platform-court__field-count">
+                    {context.length}/{COURT_MATTER_LIMITS.context}
+                  </span>
+                </span>
                 <textarea
                   id="matter-context"
                   value={context}
-                  onChange={(e) => setContext(e.target.value)}
+                  onChange={(e) => setContext(e.target.value.slice(0, COURT_MATTER_LIMITS.context))}
+                  maxLength={COURT_MATTER_LIMITS.context}
                   className="platform-court__underline-input platform-court__underline-input--area"
                   placeholder="What is the situation and why does it matter?…"
                   required
                 />
               </label>
               <label className="platform-court__field" htmlFor="matter-stakes">
-                <span className="platform-court__field-label">Stakes</span>
+                <span className="platform-court__field-label">
+                  Stakes
+                  <span className="platform-court__field-count">
+                    {stakes.length}/{COURT_MATTER_LIMITS.stakes}
+                  </span>
+                </span>
                 <textarea
                   id="matter-stakes"
                   value={stakes}
-                  onChange={(e) => setStakes(e.target.value)}
+                  onChange={(e) => setStakes(e.target.value.slice(0, COURT_MATTER_LIMITS.stakes))}
+                  maxLength={COURT_MATTER_LIMITS.stakes}
                   className="platform-court__underline-input platform-court__underline-input--area"
                   placeholder="What happens if you decide wrong?…"
                   required

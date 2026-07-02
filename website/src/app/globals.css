@@ -4694,6 +4694,23 @@ body {
   width: 12%;
   height: 12%;
   border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.platform-court__plaque-word {
+  font-family: var(--font-display);
+  font-size: clamp(0.7rem, 1.4vw, 1.05rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  /* Optical centring: the letter-spacing adds a trailing gap after the E. */
+  padding-left: 0.22em;
+  color: color-mix(in srgb, var(--book-ink) 78%, transparent);
+  text-shadow: 0 1px 0 rgba(255, 244, 220, 0.45);
+  pointer-events: none;
+  user-select: none;
 }
 
 .platform-court__plaque-hotspot--active {
@@ -4769,6 +4786,10 @@ body {
 }
 
 .platform-court__field-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
   font-family: var(--font-display);
   font-size: 0.7rem;
   text-transform: uppercase;
@@ -4776,11 +4797,21 @@ body {
   color: color-mix(in srgb, var(--book-ink) 60%, transparent);
 }
 
+.platform-court__field-count {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--book-ink) 45%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+
 .platform-court__underline-input {
   border: none;
   border-bottom: 1px solid color-mix(in srgb, var(--book-ink) 30%, transparent);
   border-radius: 0;
   padding: 0.4rem 0;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: break-word;
   font-size: 0.9rem;
   background: transparent;
   color: var(--book-ink);
@@ -4792,6 +4823,17 @@ body {
   resize: none;
   min-height: 2.6rem;
   line-height: 1.4;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+  /* Grow with the entry instead of scrolling (supported in modern browsers;
+     falls back to the min-height + internal scroll elsewhere). */
+  field-sizing: content;
+}
+
+.platform-court__underline-input--title {
+  min-height: 0;
+  overflow-y: hidden;
 }
 
 .platform-court__underline-input::placeholder {
