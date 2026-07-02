@@ -506,7 +506,7 @@ body {
 }
 
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop {
-  width: min(42%, 6.5rem);
+  width: min(58.8%, 9.1rem);
   margin: 0;
   align-self: center;
   position: relative;
@@ -515,19 +515,19 @@ body {
 }
 
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop-grid {
-  gap: clamp(0.25rem, 0.55cqw, 0.4rem);
+  gap: clamp(0.35rem, 0.77cqw, 0.56rem);
 }
 
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop .hero-portrait-caption {
-  margin-top: clamp(0.25rem, 0.5cqw, 0.4rem);
+  margin-top: clamp(0.35rem, 0.7cqw, 0.56rem);
 }
 
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop .hero-portrait-caption__name {
-  font-size: clamp(0.5625rem, 0.68cqw, 0.6875rem);
+  font-size: clamp(0.7875rem, 0.952cqw, 0.9625rem);
 }
 
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop .hero-portrait-caption__role {
-  font-size: clamp(0.5rem, 0.62cqw, 0.625rem);
+  font-size: clamp(0.7rem, 0.868cqw, 0.875rem);
 }
 
 /* Principals — name + title stacked on two lines (desktop) */
