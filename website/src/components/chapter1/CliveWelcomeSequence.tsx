@@ -97,7 +97,6 @@ export function CliveWelcomeSequence({
     clearTimers();
     stopAudio();
     videoRef?.current?.stopIdleReel();
-    videoRef?.current?.returnToIdle();
     onComplete();
   }, [clearTimers, onComplete, stopAudio, videoRef]);
 
@@ -292,7 +291,6 @@ export function CliveWelcomeSequence({
       clearTimers();
       stopAudio();
       videoRef?.current?.stopIdleReel();
-      videoRef?.current?.returnToIdle();
     };
   }, [clearTimers, stopAudio, videoRef]);
 

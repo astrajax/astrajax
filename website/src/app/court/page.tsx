@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Court mode — AstraJax",
   description:
-    "High-stakes multi-perspective panel — the Court surfaces perspectives; the human gives judgement.",
+    "The Court convenes for consequential calls — the cast speak in character, the human gives judgement.",
 };
 
 export default function CourtPage() {

@@ -6,6 +6,8 @@ export type CommandRoomSlug = Extract<FoundingCastProductSlug, "clive" | "doc" |
 export type RoomStation = {
   id: string;
   title: string;
+  /** Live label on the workshop nameplate when this station is focused. */
+  plaqueLabel: string;
   description: string;
   href: string;
   cta: string;
@@ -25,6 +27,9 @@ export type RoomConfig = {
 
 export const COMMAND_ROOM_ORDER: CommandRoomSlug[] = ["clive", "doc", "pam"];
 
+/** Default brass nameplate copy when no workshop station is focused. */
+export const DOC_WORKSHOP_DEFAULT_PLAQUE = "Doc Albright · The Engineer";
+
 export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
   clive: {
     slug: "clive",
@@ -37,6 +42,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
       {
         id: "chapter-1",
         title: "Build the brain",
+        plaqueLabel: "Build the brain",
         description:
           "Chapter 1 — structured interview, Pam sniff test, human approval, Doc promote.",
         href: "/command/clive",
@@ -46,6 +52,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
       {
         id: "context-review",
         title: "Brain review",
+        plaqueLabel: "Brain review",
         description: "Score agent answers and flag suspect context from the review shortlist.",
         href: `/brain/${DEFAULT_BRAIN_SLUG}?tab=review`,
         cta: "Open review",
@@ -64,6 +71,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
       {
         id: "fleet",
         title: "Design the fleet",
+        plaqueLabel: "Design the fleet",
         description: "Doc's Workshop Trinity — interview, red-team, approve, export JSON.",
         href: "/command/doc/build",
         cta: "Open build demo",
@@ -72,6 +80,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
       {
         id: "deploy",
         title: "Package and deploy",
+        plaqueLabel: "Package and deploy",
         description: "HyperAgent-ready packages with governed defaults.",
         href: "/deploy",
         cta: "Open deploy",
@@ -80,6 +89,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
       {
         id: "dispatch",
         title: "Doc dispatch",
+        plaqueLabel: "Doc Albright · The Engineer",
         description: "Implementation jobs — routing, Composer builds, publish gates.",
         href: "/dispatch",
         cta: "Open dispatch",
@@ -88,6 +98,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
       {
         id: "agents",
         title: "Agent bases",
+        plaqueLabel: "Doc's Minions · Doc's Executors",
         description: "Persona config and persona memories across agent bases.",
         href: "/agents",
         cta: "Open agent bases",
@@ -108,6 +119,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
       {
         id: "outstanding-actions",
         title: "Outstanding actions",
+        plaqueLabel: "Outstanding actions",
         description:
           "Clive's Man proposals — context repairs waiting for your approve or dismiss.",
         href: `/brain/${DEFAULT_BRAIN_SLUG}?tab=review&view=actionProposed`,
@@ -117,6 +129,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
       {
         id: "health",
         title: "Brain health",
+        plaqueLabel: "Brain health",
         description: "Maturity ladder, efficiency credit, leaderboard, promote gate.",
         href: `/brain/${DEFAULT_BRAIN_SLUG}?tab=overview`,
         cta: "Open brain health",
@@ -124,16 +137,18 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
       },
       {
         id: "context-health",
-        title: "Context Health",
+        title: "Sit with Clive",
+        plaqueLabel: "Sit with Clive",
         description:
-          "Importance mix, risk tolerance, retire queue — spot bloat before it spreads.",
-        href: `/brain/${DEFAULT_BRAIN_SLUG}?tab=context-health`,
-        cta: "Open context health",
+          "Review the docket with Clive — propose truths, route intake, and file with visible destinations.",
+        href: `/brain/${DEFAULT_BRAIN_SLUG}/curate`,
+        cta: "Open curation sitting",
         badge: "Live",
       },
       {
         id: "review",
         title: "Brain review queue",
+        plaqueLabel: "Brain review queue",
         description: "Needs-review shortlist — score answers, flag suspect context.",
         href: `/brain/${DEFAULT_BRAIN_SLUG}?tab=review`,
         cta: "Open review",
@@ -142,6 +157,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
       {
         id: "agents",
         title: "Agent bases",
+        plaqueLabel: "Agent bases",
         description: "Review persona config and memories — spot drift before it spreads.",
         href: "/agents",
         cta: "Open agent bases",

@@ -1,22 +1,8 @@
-import type { PaperTrailLine } from "@/lib/platform/brain-health";
-import { getBrainBySlug } from "@/lib/platform/brains";
+"use client";
 
-const SEED_PAPER_TRAIL: PaperTrailLine[] = [
-  {
-    id: "pt-seed-promote-1",
-    action: "Promoted memory to Brain Truth (Workshop proposal)",
-    actor: "Regional domain owner",
-    reason: "Human gate: pricing guardrail snippet queued for truth review.",
-    timestamp: "2026-06-18T10:15:00.000Z",
-  },
-  {
-    id: "pt-seed-retire-1",
-    action: "Proposed retire from retrieval",
-    actor: "Clive's Man",
-    reason: "Importance-1 working memory unused 14+ days — audit trail preserved.",
-    timestamp: "2026-06-22T16:40:00.000Z",
-  },
-];
+import { useEffect, useState } from "react";
+import { DestinationChip } from "@/components/brain/DestinationChip";
+import type { PaperTrailEntry } from "@/lib/curation/types";
 
 function formatWhen(iso: string): string {
   try {
@@ -29,39 +15,65 @@ function formatWhen(iso: string): string {
 }
 
 export function BrainPaperTrailPanel({ slug }: { slug: string }) {
-  const brain = getBrainBySlug(slug);
-  const seedLines = SEED_PAPER_TRAIL;
+  const [entries, setEntries] = useState<PaperTrailEntry[]>([]);
+  const [mode, setMode] = useState<string>("loading");
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch(
+          `/api/brains/paper-trail?brainSlug=${encodeURIComponent(slug)}`,
+        );
+        const data = (await response.json()) as {
+          entries?: PaperTrailEntry[];
+          mode?: string;
+        };
+        if (!cancelled && response.ok) {
+          setEntries(data.entries ?? []);
+          setMode(data.mode ?? "unknown");
+        }
+      } catch {
+        if (!cancelled) setMode("error");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
 
   return (
     <div>
       <p className="section-label">Paper trail</p>
       <p className="mt-2 max-w-2xl text-sm text-ink-muted">
-        Governed actions for {brain?.name ?? slug}. Promote, retire, and review events accumulate
-        here — demo seed below; session actions in other tabs add lines locally.
+        Governed actions for this brain from the Registry change log ({mode}).
       </p>
 
-      {seedLines.length === 0 ? (
+      {entries.length === 0 ? (
         <p className="mt-6 rounded-2xl border border-dashed border-ink/15 bg-white p-6 text-sm text-ink-muted">
-          No paper-trail lines seeded for this brain yet.
+          No change-log entries yet. Seed demo truths or confirm a curation proposal to populate the
+          trail.
         </p>
       ) : (
         <ul className="platform-paper-trail__list mt-6">
-          {seedLines.map((line) => (
+          {entries.map((line) => (
             <li key={line.id} className="platform-paper-trail__item card p-4">
               <p className="platform-paper-trail__action">{line.action}</p>
               <p className="platform-paper-trail__meta">
                 {line.actor} · {formatWhen(line.timestamp)}
               </p>
               <p className="platform-paper-trail__reason">{line.reason}</p>
+              {line.destination ? (
+                <DestinationChip
+                  destination={line.destination}
+                  brainSlug={slug}
+                  recordId={line.recordId}
+                />
+              ) : null}
             </li>
           ))}
         </ul>
       )}
-
-      <p className="mt-6 text-xs text-ink-muted">
-        Demo data. Session promote/retire actions in Truths + memories and Context health tabs stay
-        in-browser until live registry wiring ships.
-      </p>
     </div>
   );
 }

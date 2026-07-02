@@ -65,6 +65,7 @@ type CliveStudyHubProps = {
 
 export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
   const [hoveredBook, setHoveredBook] = useState<HubBookId | null>(null);
+  const [hubImageLoaded, setHubImageLoaded] = useState(false);
   const [motionAllowed, setMotionAllowed] = useState(true);
   const glowRefs = useRef<Partial<Record<HubBookId, HTMLVideoElement>>>({});
 
@@ -128,7 +129,10 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
             fill
             priority
             sizes="100vw"
-            className="clive-study-hub__image"
+            className={`clive-study-hub__image${
+              hubImageLoaded ? " clive-study-hub__image--loaded" : ""
+            }`}
+            onLoad={() => setHubImageLoaded(true)}
           />
 
           {motionAllowed ? (

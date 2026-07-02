@@ -17,7 +17,7 @@ const FEATURES: FeatureEntry[] = [
   {
     title: "Brain review",
     description: "Score agent answers and flag stale context from the Needs-review shortlist.",
-    href: "/brain/northline-field-ops?tab=review",
+    href: "/brain/astrajax-chapter-1?tab=review",
     status: "live",
     cta: "Open review",
   },
@@ -51,10 +51,10 @@ const FEATURES: FeatureEntry[] = [
   },
   {
     title: "Court Mode",
-    description: "High-stakes multi-perspective panel — the Court surfaces perspectives; you give judgement.",
+    description: "Bring a consequential matter to the Court — six cast members speak in character; you give the final call.",
     href: "/court",
     status: "live",
-    cta: "Enter the court",
+    cta: "Convene the court",
   },
   {
     title: "Fleet Design",

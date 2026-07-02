@@ -1,12 +1,14 @@
-import { ContextIntakeShell } from "@/components/brain/ContextIntakeShell";
+import { DEFAULT_BRAIN_SLUG } from "@/lib/platform/brains";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Context intake — Clive's Man — AstraJax",
+  title: "Sit with Clive — AstraJax",
   description:
-    "Clive's Man detects candidate context and proposes where it belongs. Approve, decline, or route each item, then enter the brain shrine. Human-gated; session-only demo.",
+    "Context curation with Clive — review the docket, propose truths, and file records with visible destinations.",
 };
 
-export default function ContextIntakePage() {
-  return <ContextIntakeShell />;
+/** Retired: standalone intake was preview-only. Curation lives in the sitting. */
+export default function ContextIntakeRedirect() {
+  redirect(`/brain/${DEFAULT_BRAIN_SLUG}/curate`);
 }

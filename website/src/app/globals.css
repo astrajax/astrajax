@@ -399,57 +399,108 @@ body {
   overflow: visible;
 }
 
-.hero-asymmetric-wall__composition {
-  --hero-flank-col: 0.88fr;
-  --hero-center-col: 1.12fr;
-  --hero-flank-fr: 0.88;
-  --hero-center-fr: 1.12;
-  --hero-col-gap: clamp(0.625rem, 2.1vw, 2.125rem);
-  --hero-flank-portrait-scale: 1.045;
-  --hero-pam-portrait-scale: 1.20;
-  --hero-pam-portrait-gap: clamp(1.25rem, 5.5vh, 3.25rem);
-  --hero-doc-portrait-scale: 1.12;
-  --hero-clive-portrait-scale: 1.11;
-  --hero-lazlo-portrait-scale: 1;
-  --hero-clive-stack-offset-x: clamp(-0.7rem, -1.65vw, -1.45rem);
-  position: relative;
-  display: grid;
-  grid-template-columns:
-    minmax(0, var(--hero-flank-col))
-    minmax(0, var(--hero-center-col))
-    minmax(0, var(--hero-flank-col));
-  grid-template-rows: 1fr auto;
-  column-gap: var(--hero-col-gap);
-  align-items: stretch;
-  width: 100%;
-  min-height: min(
-    52rem,
-    calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) + var(--hero-rail-overlap) - 6rem)
+/* Desktop gallery band — centres the fixed-aspect collage canvas in the
+   available viewport height so tall windows letterbox instead of stretching. */
+.hero-asymmetric-wall__desktop {
+  --hero-wall-height: calc(
+    100svh - var(--hero-nav-height) - var(--hero-rail-height) + var(--hero-rail-overlap) -
+      var(--hero-gallery-gap) * 2
   );
-  max-width: 118rem;
-  margin: 0 auto;
-  padding-inline: clamp(0.5rem, 1.5vw, 1.25rem);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  width: 100%;
+  height: var(--hero-wall-height);
+  min-height: 28rem;
+}
+
+/* Collage canvas — locked to the mockup's 2.4:1 aspect so every slot
+   percentage below reproduces the mockup at any window size. */
+.hero-asymmetric-wall__composition {
+  position: relative;
+  aspect-ratio: 2.4 / 1;
+  width: min(100%, calc(max(var(--hero-wall-height), 28rem) * 2.4));
+  height: auto;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  container-type: inline-size;
+}
+
+/* Logo — large mark + wordmark filling the empty wall left of Clive */
+.hero-asymmetric-wall__brand-overlay {
+  position: absolute;
+  top: 13%;
+  left: 13%;
+  z-index: 6;
+  pointer-events: auto;
+}
+
+.hero-asymmetric-wall__brand-overlay .hero-wall-brand {
+  --hero-brand-mark-size: 9cqw;
+  --hero-brand-word-size: 1.8cqw;
+  align-items: center;
+  margin-bottom: 0;
+  gap: 1.1cqw;
 }
 
 .hero-asymmetric-wall__slot {
-  position: relative;
+  position: absolute;
   display: flex;
   min-width: 0;
   flex-direction: column;
   align-items: center;
 }
 
-/* Pam — left column; brand high, portrait lifted below logo */
+/* Clive — top-centre anchor, highest on the wall */
+.hero-asymmetric-wall__slot--clive {
+  top: 0%;
+  left: 32.5%;
+  width: 36.5%;
+  z-index: 4;
+}
+
+.hero-asymmetric-wall__slot--clive .hero-portrait,
+.hero-asymmetric-wall__slot--clive .hero-portrait-door-wrap {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Doc — top-right co-star, clearly smaller than Clive */
+.hero-asymmetric-wall__slot--doc {
+  top: 5%;
+  right: 1.5%;
+  width: 28.5%;
+  z-index: 3;
+}
+
+.hero-asymmetric-wall__slot--doc .hero-portrait,
+.hero-asymmetric-wall__slot--doc .hero-portrait-door-wrap {
+  width: 100%;
+  max-width: 100%;
+}
+
+.hero-asymmetric-wall__slot--doc .hero-portrait-frame {
+  box-shadow:
+    -0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
+    0 0.5rem 1rem rgba(6, 5, 3, 0.32);
+}
+
+/* Pam — large bottom-left, pushed down to the foot of the wall */
 .hero-asymmetric-wall__slot--pam {
-  grid-column: 1;
-  grid-row: 1 / -1;
+  top: 57%;
+  left: 2%;
+  bottom: auto;
+  width: 33%;
+  align-items: stretch;
+  z-index: 3;
+}
+
+.hero-asymmetric-wall__slot--pam .hero-portrait,
+.hero-asymmetric-wall__slot--pam .hero-portrait-door-wrap {
+  width: 100%;
+  max-width: 100%;
   align-self: stretch;
-  justify-content: stretch;
-  height: 100%;
-  z-index: 2;
-  transform: rotate(-0.65deg);
-  padding-top: clamp(0.25rem, 1.5vh, 0.75rem);
-  padding-bottom: clamp(0.25rem, 1.5vh, 0.75rem);
 }
 
 .hero-asymmetric-wall__pam-mobile .hero-wall-name-rail {
@@ -470,16 +521,16 @@ body {
 }
 
 .hero-asymmetric-wall__slot--pam .hero-wall-name-rail {
-  justify-content: flex-start;
+  justify-content: flex-end;
   flex: 1 1 100%;
   height: 100%;
-  gap: var(--hero-pam-portrait-gap, clamp(1.25rem, 5.5vh, 3.25rem));
+  gap: clamp(0.625rem, 1.4vw, 1rem);
 }
 
 .hero-wall-name-rail .hero-portrait {
   flex: 0 0 auto;
-  width: calc(100% * var(--hero-flank-portrait-scale, 1.045));
-  max-width: none;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
 }
 
@@ -492,51 +543,12 @@ body {
   align-self: center;
 }
 
-/* Clive — centre column stack; Man sits beneath at half scale */
-.hero-asymmetric-wall__slot--clive-stack {
-  grid-column: 2;
-  grid-row: 1;
-  align-self: start;
-  justify-content: flex-start;
-  z-index: 1;
-  gap: clamp(0.35rem, 1.2vh, 0.85rem);
-  padding-top: 0;
-  padding-bottom: clamp(0.5rem, 2vh, 1.25rem);
-  transform: translateX(var(--hero-clive-stack-offset-x, 0));
-}
-
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child,
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child {
-  flex: 0 0 auto;
-  width: calc(100% * var(--hero-clive-portrait-scale, 1));
-  max-width: none;
-}
-
-/* Doc — upper-right column stack; minion executors side by side above his portrait */
-.hero-asymmetric-wall__slot--doc-stack {
-  grid-column: 3;
-  grid-row: 1;
-  align-self: start;
-  justify-content: flex-start;
-  z-index: 2;
-  transform: rotate(0.65deg);
-  padding-top: 0;
-  gap: clamp(0.4rem, 1.1vh, 0.75rem);
-}
-
-.hero-asymmetric-wall__slot--doc-stack > .hero-portrait {
-  flex: 0 0 auto;
-}
-
-/* Clive's Man — supporting portrait under Clive, ~half the hero scale */
+/* Clive's Man — small portrait tucked between Pam and Lazlo */
 .hero-asymmetric-wall__slot--man {
-  align-self: center;
-  justify-content: flex-start;
-  z-index: 1;
-  width: 50%;
-  min-width: 0;
-  transform: none;
-  padding: 0;
+  top: 54%;
+  left: 38.5%;
+  width: 16%;
+  z-index: 2;
 }
 
 .hero-portrait {
@@ -552,15 +564,9 @@ body {
   overflow: hidden;
   width: 100%;
   border-radius: 3px;
-  background: transparent;
+  background: color-mix(in srgb, var(--color-forest) 28%, #1a1814);
   box-shadow:
     0 1.75rem 3.1rem rgba(6, 5, 3, 0.5),
-    0 0.5rem 1rem rgba(6, 5, 3, 0.32);
-}
-
-.hero-asymmetric-wall__slot--doc-stack .hero-portrait-frame {
-  box-shadow:
-    -0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
@@ -570,19 +576,32 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-/* Doc — larger flank portrait, scaled within column bounds */
-.hero-asymmetric-wall__slot--doc-stack > .hero-portrait {
-  width: calc(100% * var(--hero-doc-portrait-scale, 1.12));
-  max-width: none;
-  align-self: flex-start;
+/* Doc's Minions — tiny squares, right edge beside Lazlo */
+.hero-asymmetric-wall__slot--minions {
+  top: 51%;
+  right: 4%;
+  width: 11.5%;
+  z-index: 2;
 }
 
-.hero-asymmetric-wall__slot--pam .hero-wall-name-rail .hero-portrait {
-  align-self: center;
-  width: calc(100% * var(--hero-pam-portrait-scale, 1.20));
-  max-width: none;
-  margin-top: auto;
-  margin-bottom: 0;
+.hero-asymmetric-wall__slot--minions .hero-doc-workshop {
+  width: 100%;
+}
+
+.hero-asymmetric-wall__slot--minions .hero-doc-workshop-grid {
+  gap: clamp(0.3rem, 0.65cqw, 0.5rem);
+}
+
+.hero-asymmetric-wall__slot--minions .hero-portrait-caption {
+  margin-top: clamp(0.2rem, 0.45cqw, 0.35rem);
+}
+
+.hero-asymmetric-wall__slot--minions .hero-portrait-caption__name {
+  font-size: clamp(0.625rem, 0.75cqw, 0.75rem);
+}
+
+.hero-asymmetric-wall__slot--minions .hero-portrait-caption__role {
+  font-size: clamp(0.5625rem, 0.68cqw, 0.6875rem);
 }
 
 /* Doc's Minions — two executors in a single row above Doc */
@@ -590,9 +609,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 72%;
+  width: 100%;
   min-width: 0;
   margin: 0;
+  align-self: stretch;
 }
 
 .hero-doc-workshop .hero-portrait-caption {
@@ -601,11 +621,11 @@ body {
 }
 
 .hero-doc-workshop .hero-portrait-caption__name {
-  font-size: clamp(0.625rem, 0.75vw, 0.75rem);
+  font-size: clamp(0.6875rem, 0.85vw, 0.8125rem);
 }
 
 .hero-doc-workshop .hero-portrait-caption__role {
-  font-size: clamp(0.5625rem, 0.68vw, 0.6875rem);
+  font-size: clamp(0.625rem, 0.75vw, 0.75rem);
 }
 
 .hero-doc-workshop-grid {
@@ -653,15 +673,15 @@ body {
 }
 
 .hero-asymmetric-wall__slot--man .hero-portrait-caption {
-  margin-top: clamp(0.3rem, 0.7vw, 0.5rem);
+  margin-top: clamp(0.3rem, 0.7cqw, 0.5rem);
 }
 
 .hero-asymmetric-wall__slot--man .hero-portrait-caption__name {
-  font-size: clamp(0.6875rem, 0.85vw, 0.8125rem);
+  font-size: clamp(0.6875rem, 0.85cqw, 0.8125rem);
 }
 
 .hero-asymmetric-wall__slot--man .hero-portrait-caption__role {
-  font-size: clamp(0.625rem, 0.75vw, 0.75rem);
+  font-size: clamp(0.625rem, 0.75cqw, 0.75rem);
 }
 
 .hero-asymmetric-wall__slot--man .hero-portrait-frame {
@@ -670,25 +690,20 @@ body {
     0 0.35rem 0.75rem rgba(6, 5, 3, 0.28);
 }
 
-/* Lazlo Marlowe — bottom-right flank portrait, full column scale */
+/* Lazlo Marlowe — medium portrait between Man and the minions */
 .hero-asymmetric-wall__slot--lazlo {
-  grid-column: 3;
-  grid-row: 2;
-  align-self: end;
-  justify-self: end;
-  justify-content: flex-end;
+  top: 63%;
+  left: 55%;
+  width: 28%;
   z-index: 3;
-  width: 100%;
   min-width: 0;
-  transform: rotate(0.55deg);
-  padding: 0;
-  padding-bottom: clamp(0.25rem, 1.5vh, 0.75rem);
 }
 
-.hero-asymmetric-wall__slot--lazlo .hero-portrait {
-  width: calc(100% * var(--hero-lazlo-portrait-scale, 1));
-  max-width: none;
-  align-self: flex-end;
+.hero-asymmetric-wall__slot--lazlo .hero-portrait,
+.hero-asymmetric-wall__slot--lazlo .hero-portrait-door-wrap {
+  width: 100%;
+  max-width: 100%;
+  align-self: center;
 }
 
 .hero-asymmetric-wall__slot--lazlo .hero-portrait-frame {
@@ -697,11 +712,11 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child .hero-portrait-frame,
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child .hero-portrait-frame {
-  box-shadow:
-    0 2rem 3.75rem rgba(6, 5, 3, 0.55),
-    0 0.65rem 1.25rem rgba(6, 5, 3, 0.36);
+/* Mockup: captions only on Man, Lazlo, Minions — principals stay clean on desktop */
+.hero-asymmetric-wall__slot--clive .hero-portrait-caption,
+.hero-asymmetric-wall__slot--doc .hero-portrait-caption,
+.hero-asymmetric-wall__slot--pam .hero-portrait-caption {
+  display: none;
 }
 
 .hero-portrait-frame__media {
@@ -711,7 +726,19 @@ body {
   border-radius: 3px;
 }
 
+.hero-portrait-frame__media--poster {
+  position: relative;
+  z-index: 1;
+}
+
 .hero-portrait-frame__media--video {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   opacity: 0;
   transition: opacity 450ms ease;
 }
@@ -908,8 +935,8 @@ body {
 
 .hero-asymmetric-wall__mobile-flanks .hero-asymmetric-wall__pam-mobile .hero-wall-name-rail .hero-portrait {
   align-self: center;
-  width: calc(100% * var(--hero-pam-portrait-scale, 1.14));
-  max-width: none;
+  width: 100%;
+  max-width: 100%;
   margin-top: auto;
 }
 
@@ -928,7 +955,7 @@ body {
 }
 
 .hero-asymmetric-wall__doc-mobile > .hero-portrait {
-  width: min(100%, calc(100% * var(--hero-doc-portrait-scale, 1.12)));
+  width: 100%;
   max-width: 100%;
   align-self: flex-start;
 }
@@ -951,7 +978,7 @@ body {
 
 .hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child,
 .hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child {
-  width: min(100%, calc(100% * var(--hero-clive-portrait-scale, 1.08)));
+  width: 100%;
   max-width: 100%;
 }
 
@@ -978,7 +1005,7 @@ body {
 }
 
 .hero-asymmetric-wall__lazlo-mobile {
-  width: min(100%, 22rem);
+  width: min(100%, 25.3rem);
   margin-top: clamp(0.5rem, 2.5vw, 1rem);
   margin-left: auto;
   align-self: flex-end;
@@ -1015,39 +1042,15 @@ body {
 .hero-asymmetric-wall__mobile .hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child,
 .hero-asymmetric-wall__mobile .hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child {
   max-width: 100%;
-  width: min(100%, calc(100% * var(--hero-clive-portrait-scale, 1.08)));
+  width: 100%;
 }
 
-@media (min-width: 1280px) {
-  .hero-asymmetric-wall__composition {
-    --hero-flank-portrait-scale: 1.05;
-    --hero-pam-portrait-scale: 1.22;
-    --hero-doc-portrait-scale: 1.145;
-    --hero-clive-portrait-scale: 1.12;
-    --hero-lazlo-portrait-scale: 1.02;
-    --hero-clive-stack-offset-x: clamp(-0.85rem, -1.85vw, -1.65rem);
-    --hero-col-gap: clamp(0.75rem, 2.35vw, 2.5rem);
-  }
-
-  .hero-asymmetric-wall__slot--clive-stack {
-    padding-top: clamp(0.15rem, 0.75vh, 0.5rem);
-  }
-}
-
-@media (min-width: 1536px) {
-  .hero-asymmetric-wall__composition {
-    --hero-flank-col: 0.9fr;
-    --hero-center-col: 1.1fr;
-    --hero-flank-fr: 0.9;
-    --hero-center-fr: 1.1;
-    --hero-flank-portrait-scale: 1.055;
-    --hero-pam-portrait-scale: 1.24;
-    --hero-doc-portrait-scale: 1.165;
-    --hero-clive-portrait-scale: 1.13;
-    --hero-lazlo-portrait-scale: 1.04;
-    --hero-clive-stack-offset-x: clamp(-0.95rem, -2vw, -1.8rem);
-    min-height: min(56rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5rem));
-    --hero-col-gap: clamp(0.875rem, 2.45vw, 2.75rem);
+@media (min-width: 1024px) {
+  /* Reclaim vertical room for principal portraits on desktop hero only. */
+  .hero-immersive-room .hero-victorian-wall__stage {
+    padding-top: clamp(0.35rem, 0.85vh, 0.65rem);
+    padding-bottom: clamp(0.45rem, 1vw, 0.75rem);
+    padding-inline: clamp(0.5rem, 2vw, 1.75rem);
   }
 }
 
@@ -1393,6 +1396,7 @@ body {
   object-position: center;
 }
 
+/* User mapping — left-page chat; Clive stays visible on the right page */
 .study-stage__clive-spot {
   pointer-events: none;
   position: absolute;
@@ -1414,16 +1418,20 @@ body {
   height: 100%;
   overflow: hidden;
   -webkit-mask-image: radial-gradient(
-    ellipse 92% 88% at 56% 42%,
-    #000 22%,
-    color-mix(in srgb, #000 88%, transparent) 48%,
-    transparent 74%
+    ellipse 98% 96% at 52% 44%,
+    #000 10%,
+    color-mix(in srgb, #000 94%, transparent) 28%,
+    color-mix(in srgb, #000 62%, transparent) 48%,
+    color-mix(in srgb, #000 22%, transparent) 64%,
+    transparent 78%
   );
   mask-image: radial-gradient(
-    ellipse 92% 88% at 56% 42%,
-    #000 22%,
-    color-mix(in srgb, #000 88%, transparent) 48%,
-    transparent 74%
+    ellipse 98% 96% at 52% 44%,
+    #000 10%,
+    color-mix(in srgb, #000 94%, transparent) 28%,
+    color-mix(in srgb, #000 62%, transparent) 48%,
+    color-mix(in srgb, #000 22%, transparent) 64%,
+    transparent 78%
   );
 }
 
@@ -1431,12 +1439,12 @@ body {
   content: "";
   pointer-events: none;
   position: absolute;
-  inset: -4%;
+  inset: -10%;
   z-index: 3;
   background:
-    radial-gradient(ellipse 88% 82% at 58% 40%, transparent 34%, rgba(236, 220, 190, 0.22) 72%, rgba(236, 220, 190, 0.55) 100%),
-    linear-gradient(180deg, rgba(236, 220, 190, 0.18) 0%, transparent 14%, transparent 86%, rgba(236, 220, 190, 0.2) 100%),
-    linear-gradient(90deg, rgba(236, 220, 190, 0.16) 0%, transparent 12%, transparent 88%, rgba(236, 220, 190, 0.24) 100%);
+    radial-gradient(ellipse 94% 90% at 52% 42%, transparent 18%, rgba(236, 220, 190, 0.38) 56%, rgba(236, 220, 190, 0.78) 100%),
+    linear-gradient(180deg, rgba(236, 220, 190, 0.34) 0%, transparent 8%, transparent 92%, rgba(236, 220, 190, 0.36) 100%),
+    linear-gradient(90deg, rgba(236, 220, 190, 0.3) 0%, transparent 6%, transparent 94%, rgba(236, 220, 190, 0.42) 100%);
   mix-blend-mode: multiply;
 }
 
@@ -1573,6 +1581,7 @@ body {
   width: var(--book-content-width);
   bottom: clamp(2rem, 8vh, 3.5rem);
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   padding: 0.25rem 0.5rem 0.75rem 0;
 }
@@ -1588,9 +1597,9 @@ body {
   bottom: var(--book-content-bottom);
   padding:
     clamp(0.75rem, 2.5vh, 1.25rem)
-    clamp(0.5rem, 1.5vw, 0.875rem)
+    clamp(0.5rem, 1.25vw, 0.875rem)
     clamp(0.35rem, 1vh, 0.5rem)
-    clamp(0.85rem, 2vw, 1.25rem);
+    clamp(0.65rem, 1.6vw, 1rem);
 }
 
 .study-stage--book .study-stage__content:has(.clive-welcome) {
@@ -1856,7 +1865,7 @@ body {
 }
 
 .study-stage--book .clive-welcome-monologue__label {
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   color: var(--book-ink-muted);
   text-shadow: none;
@@ -1864,8 +1873,8 @@ body {
 
 .study-stage--book .clive-welcome-monologue__text {
   font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
-  font-size: clamp(0.8125rem, 1.45vw, 0.9375rem);
-  line-height: 1.62;
+  font-size: clamp(0.9375rem, 1.65vw, 1.125rem);
+  line-height: 1.65;
   text-align: justify;
   text-align-last: left;
   -webkit-hyphens: auto;
@@ -1930,9 +1939,19 @@ body {
   overflow: hidden;
 }
 
+/* Book spread — study chat must stay ink-on-parchment, not the default moss panel */
+.study-stage--book .clive-chat.clive-chat--study {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+}
+
 .study-stage--book .clive-chat--study .clive-chat__messages {
   flex: 1;
   min-height: 0;
+  overflow-x: hidden;
   padding:
     clamp(0.15rem, 0.6vh, 0.35rem)
     clamp(0.15rem, 0.5vw, 0.35rem)
@@ -1947,7 +1966,7 @@ body {
 .study-stage--book .clive-chat--study .clive-chat__prompt-label,
 .study-stage--book .clive-chat--study .clive-chat__turn-label {
   font-family: Georgia, "Times New Roman", Times, serif;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   color: var(--book-ink-muted);
   text-shadow: none;
@@ -1970,10 +1989,11 @@ body {
 .study-stage--book .clive-chat--study .clive-chat__bubble,
 .study-stage--book .clive-chat--study .clive-chat__bubble p {
   font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
-  font-size: clamp(0.8125rem, 1.45vw, 0.9375rem);
-  line-height: 1.62;
+  font-size: clamp(0.9375rem, 1.65vw, 1.125rem);
+  line-height: 1.65;
   color: var(--book-ink);
   text-shadow: none;
+  overflow-wrap: anywhere;
 }
 
 .study-stage--book .clive-chat--study .clive-chat__prompt-text,
@@ -2005,7 +2025,7 @@ body {
 .study-stage--book .clive-chat--study .clive-chat__architect-label {
   margin-bottom: 0.25rem;
   font-family: Georgia, "Times New Roman", Times, serif;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   font-variant: small-caps;
   letter-spacing: 0.14em;
@@ -2022,6 +2042,7 @@ body {
 
 .study-stage--book .clive-chat--study .clive-chat__input {
   font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: clamp(0.9375rem, 1.5vw, 1.0625rem);
   color: var(--book-ink);
   background: color-mix(in srgb, var(--color-cream-paper) 78%, transparent);
   border-color: color-mix(in srgb, var(--book-ink) 18%, transparent);
@@ -2073,6 +2094,26 @@ body {
   color: var(--book-ink);
   background: color-mix(in srgb, var(--color-cream-paper) 52%, transparent);
   box-shadow: none;
+  font-size: clamp(0.9375rem, 1.5vw, 1.0625rem);
+  line-height: 1.6;
+}
+
+.study-stage--book .study-doc-card__title {
+  font-size: clamp(1rem, 1.55vw, 1.125rem);
+}
+
+.study-stage--book .study-doc-card__body--muted,
+.study-stage--book .study-doc-card__note {
+  font-size: clamp(0.875rem, 1.35vw, 0.9375rem);
+}
+
+.study-stage--book .study-doc-card__tag {
+  font-size: 0.6875rem;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__prompt,
+.study-stage--book .clive-chat--study .clive-chat__user-echo {
+  max-width: none;
 }
 
 .study-stage--book .study-doc-card__tag,
@@ -2701,7 +2742,7 @@ body {
   }
 
   .clive-welcome-caption {
-    font-size: clamp(1.05rem, 2.25vw, 1.5rem);
+    font-size: clamp(1.05rem, 2vw, 1.35rem);
   }
 
   .clive-welcome-caption::after {
@@ -2711,8 +2752,8 @@ body {
 
   .clive-welcome-monologue__text,
   .clive-chat--study .clive-chat__prompt-text {
-    font-size: clamp(0.8125rem, 1.6vw, 0.875rem);
-    line-height: 1.5;
+    font-size: clamp(0.875rem, 1.55vw, 1rem);
+    line-height: 1.55;
   }
 
   .clive-welcome__controls {
@@ -2842,6 +2883,21 @@ body {
   background: color-mix(in srgb, var(--color-parchment) 8%, transparent);
 }
 
+@media print {
+  .study-stage {
+    height: 100vh;
+    max-height: none;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .study-stage__book,
+  .study-stage__book-image {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
+
 /* ── Clive study hub (four-book desk) ── */
 .clive-study-hub {
   position: relative;
@@ -2896,15 +2952,44 @@ body {
   width: max(100vw, calc(100dvh * 1024 / 573));
   height: max(100dvh, calc(100vw * 573 / 1024));
   flex-shrink: 0;
+  background: #2a2418;
 }
 
 .clive-study-hub__image {
   object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.clive-study-hub__image--loaded {
+  opacity: 1;
+}
+
+.clive-study-hub__glows {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.clive-study-hub__glow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: lighten;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.clive-study-hub__glow--active {
+  opacity: 1;
 }
 
 .clive-study-hub__book {
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   border: 2px solid transparent;
   border-radius: 0.375rem;
   background: transparent;
@@ -2916,11 +3001,9 @@ body {
     box-shadow 0.15s ease;
 }
 
+.clive-study-hub__book--hovered,
 .clive-study-hub__book:hover {
-  border-color: color-mix(in srgb, var(--color-buttermilk) 55%, transparent);
-  filter: brightness(1.08);
-  transform: scale(1.02);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-buttermilk) 18%, transparent);
+  transform: scale(1.015);
 }
 
 .clive-study-hub__book:focus-visible {
@@ -2934,8 +3017,16 @@ body {
     transition: none;
   }
 
+  .clive-study-hub__image {
+    transition: none;
+  }
+
+  .clive-study-hub__book--hovered,
   .clive-study-hub__book:hover {
     transform: none;
+    filter: brightness(1.08);
+    border-color: color-mix(in srgb, var(--color-buttermilk) 55%, transparent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-buttermilk) 18%, transparent);
   }
 }
 
@@ -3463,12 +3554,20 @@ body {
 }
 
 /* ── Chat surface ── */
-.clive-chat {
+.clive-chat:not(.clive-chat--study) {
   position: relative;
   border-radius: 1rem;
   border: 1px solid color-mix(in srgb, var(--color-parchment) 15%, transparent);
   background: color-mix(in srgb, var(--color-moss) 60%, black);
   padding: 1.25rem;
+}
+
+.clive-chat.clive-chat--study {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
 }
 
 .clive-chat--compact {
@@ -4169,6 +4268,70 @@ body {
   color: var(--color-moss);
 }
 
+.platform-court__convening-strip {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: color-mix(in srgb, var(--color-moss) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-parchment) 30%, transparent);
+  text-align: center;
+}
+
+.platform-court__dialogue {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.platform-court__dialogue-turn {
+  padding: 1.25rem;
+  opacity: 0;
+  animation: fadeInUp 0.3s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.platform-court__dialogue-turn--entered {
+  animation: fadeInUp 0.3s ease forwards;
+}
+
+.platform-court__judgement-gate {
+  position: relative;
+}
+
+.platform-court__judgement-gate--stage-1 {
+  opacity: 0.8;
+}
+
+.platform-court__judgement-gate--stage-2 {
+  opacity: 0.9;
+}
+
+.platform-court__judgement-gate--stage-3 .platform-court__judgement {
+  animation: pulseGate 1s ease-in-out;
+}
+
+@keyframes pulseGate {
+  0%, 100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-apricot) 30%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-apricot) 0%, transparent);
+  }
+}
+
 .platform-court__judgement {
   position: relative;
   z-index: 1;
@@ -4181,6 +4344,11 @@ body {
     transition: none;
   }
 
+  .platform-court__dialogue-turn {
+    opacity: 1;
+    animation: none;
+  }
+
   .platform-agent-card {
     transition: none;
   }
@@ -4188,6 +4356,293 @@ body {
   .platform-nav__link,
   .platform-tabs__btn {
     transition: none;
+  }
+}
+
+/* Court Book */
+
+/* Court Book full-bleed stage, modelled on study-stage */
+.court-stage {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  color: var(--book-ink);
+  background: #1a120c;
+}
+
+.court-stage__book {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.court-stage__book-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Artwork layer: aspect-ratio lock to preserve hotspot/slot percentages across viewports */
+.court-stage__artwork {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 16 / 9;
+  width: max(100vw, 177.78dvh);
+  height: max(100dvh, 56.25vw);
+  z-index: 1;
+}
+
+.platform-court__book-stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.platform-court__book-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+
+.platform-court__portrait-hotspot,
+.platform-court__plaque-hotspot {
+  position: absolute;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.platform-court__portrait-hotspot {
+  width: 11%;
+  height: 11%;
+  border-radius: 50%;
+}
+
+.platform-court__portrait-hotspot:not(.platform-court__portrait-hotspot--judge):hover {
+  box-shadow: inset 0 0 8px color-mix(in srgb, var(--color-apricot) 40%, transparent);
+}
+
+.platform-court__portrait-hotspot--judge {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.platform-court__portrait-hotspot--judge:hover::after {
+  content: "The Judge does not decide";
+  position: absolute;
+  bottom: -1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-ink);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.platform-court__verdict-slot {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 4%;
+  font-family: var(--font-display);
+  overflow: hidden;
+}
+
+.platform-court__verdict-text {
+  color: var(--book-ink);
+  opacity: 0.85;
+  font-weight: 600;
+  font-size: clamp(0.7rem, 1.15vw, 1.05rem);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.platform-court__verdict-placeholder {
+  color: var(--book-ink);
+  opacity: 0.85;
+  font-size: 0.375rem;
+  letter-spacing: 0.2em;
+  animation: verdictPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes verdictPulse {
+  0%, 100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* Right page: transparent on parchment */
+.platform-court__right-page-content {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  color: var(--book-ink);
+  font-family: var(--font-body);
+}
+
+.platform-court__bicker-head {
+  flex-shrink: 0;
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--book-ink) 20%, transparent);
+}
+
+.platform-court__bicker-head h2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.05rem, 1.6vw, 1.5rem);
+  font-weight: 600;
+  margin: 0;
+  color: var(--book-ink);
+}
+
+.platform-court__bicker-feed {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9em;
+  margin-bottom: 1rem;
+  padding-right: 0.5rem;
+  min-height: 150px;
+  color: var(--book-ink);
+  opacity: 0.9;
+  mask-image: linear-gradient(180deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+}
+
+.platform-court__bicker-feed::-webkit-scrollbar {
+  width: 4px;
+}
+
+.platform-court__bicker-feed::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--book-ink) 25%, transparent);
+  border-radius: 2px;
+}
+
+.platform-court__bicker-turn {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--book-ink);
+  opacity: 0.9;
+}
+
+.platform-court__bicker-speaker {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--book-ink);
+}
+
+.platform-court__bicker-input {
+  display: flex;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.platform-court__input {
+  flex: 1;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--book-ink) 30%, transparent);
+  border-radius: 0;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  background: transparent;
+  color: var(--book-ink);
+  font-family: inherit;
+}
+
+.platform-court__input::placeholder {
+  color: color-mix(in srgb, var(--book-ink) 40%, transparent);
+}
+
+.platform-court__input:focus {
+  outline: none;
+  border-bottom-color: color-mix(in srgb, var(--book-ink) 50%, transparent);
+}
+
+.platform-court__verdict-panel-inner {
+  padding: 0;
+  overflow-y: auto;
+  max-height: 100%;
+  color: var(--book-ink);
+}
+
+.platform-court__plaque-hotspot {
+  width: 12%;
+  height: 12%;
+  border-radius: 0.5rem;
+}
+
+.platform-court__plaque-hotspot--active {
+  animation: plaqueGlow 2s ease-in-out infinite;
+}
+
+@keyframes plaqueGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px color-mix(in srgb, var(--color-apricot) 50%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 16px color-mix(in srgb, var(--color-apricot) 80%, transparent);
+  }
+}
+
+.platform-court__judgement-section {
+  margin-top: 2rem;
+  position: relative;
+}
+
+.platform-court__judgement-panel {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive fallback for narrow screens */
+@media (max-width: 900px) {
+  .platform-court__book-container {
+    display: none;
+  }
+
+  .platform-court__portrait-row {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+    padding: 0 1rem;
+  }
+
+  .platform-court__portrait-chip {
+    flex-shrink: 0;
+    padding: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent);
+    border-radius: 0.5rem;
+    background: white;
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  .platform-court__stack-content {
+    margin-top: 1rem;
+    padding: 0 1rem;
   }
 }
 
@@ -4315,13 +4770,8 @@ body {
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
-  background: linear-gradient(
-    165deg,
-    var(--color-cream) 0%,
-    var(--color-cream-deep) 45%,
-    var(--color-cream-paper) 100%
-  );
-  color: var(--color-ink);
+  background: #0a0a0a;
+  color: var(--color-cream);
 }
 
 .brain-shrine__header {
@@ -4332,8 +4782,8 @@ body {
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--color-cream) 96%, transparent) 0%,
-    color-mix(in srgb, var(--color-cream) 60%, transparent) 55%,
+    color-mix(in srgb, black 45%, transparent) 0%,
+    color-mix(in srgb, black 22%, transparent) 55%,
     transparent 100%
   );
 }
@@ -4343,13 +4793,16 @@ body {
   font-size: 1.125rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+  color: var(--color-cream);
+  text-shadow: 0 1px 3px color-mix(in srgb, black 55%, transparent);
 }
 
 .brain-shrine__subtitle {
   margin-top: 0.35rem;
   max-width: 36rem;
   font-size: 0.875rem;
-  color: var(--color-ink-muted);
+  color: color-mix(in srgb, var(--color-cream) 78%, transparent);
+  text-shadow: 0 1px 3px color-mix(in srgb, black 55%, transparent);
 }
 
 .brain-shrine__stage {
@@ -4363,65 +4816,60 @@ body {
 
 .brain-shrine__surface {
   position: relative;
-  aspect-ratio: 1024 / 571;
-  width: max(100vw, calc(100dvh * 1024 / 571));
-  height: max(100dvh, calc(100vw * 571 / 1024));
+  width: min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .brain-shrine__jar {
   position: absolute;
   inset: 0;
-  filter: drop-shadow(
-    0 0 48px color-mix(in srgb, var(--health-glow, var(--color-apricot)) 35%, transparent)
-  );
 }
 
-.brain-shrine__jar-image {
-  object-fit: cover;
-}
-
-.brain-shrine__arrow {
+.brain-shrine__jar-media {
   position: absolute;
-  top: 50%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.brain-shrine__hotspot {
+  position: absolute;
   z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
-  border-radius: 9999px;
-  background: color-mix(in srgb, var(--color-cream-paper) 92%, transparent);
-  font-size: 1.75rem;
-  line-height: 1;
-  color: var(--color-ink);
+  border: none;
+  background: transparent;
+  padding: 0;
   cursor: pointer;
-  transform: translateY(-50%);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    border-color 0.15s ease;
+  appearance: none;
 }
 
-.brain-shrine__arrow--prev {
-  left: 1rem;
+.brain-shrine__hotspot:focus-visible {
+  outline: 2px solid var(--color-apricot);
+  outline-offset: -2px;
+  border-radius: 4px;
 }
 
-.brain-shrine__arrow--next {
-  right: 1rem;
+.brain-shrine__hotspot--prev {
+  left: 0;
+  top: 35%;
+  width: 7%;
+  height: 30%;
 }
 
-.brain-shrine__arrow:hover {
-  border-color: color-mix(in srgb, var(--color-apricot) 45%, transparent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-apricot) 16%, transparent);
-  transform: translateY(-50%) scale(1.04);
+.brain-shrine__hotspot--next {
+  right: 0;
+  top: 35%;
+  width: 7%;
+  height: 30%;
 }
 
-.brain-shrine__arrow:focus-visible {
-  outline: none;
-  border-color: var(--color-apricot);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-apricot) 35%, transparent);
+.brain-shrine__hotspot--jar {
+  left: 35%;
+  top: 5%;
+  width: 30%;
+  height: 55%;
 }
 
 .brain-shrine__overlay {
@@ -4432,24 +4880,24 @@ body {
 
 .brain-shrine__overlay--nameplate {
   pointer-events: auto;
-  top: 78.8%;
-  left: 17%;
-  width: 66%;
-  height: 5.2%;
+  top: 90.5%;
+  left: 37.5%;
+  width: 25%;
+  height: 7%;
 }
 
 .brain-shrine__overlay--audit {
-  top: 67.5%;
-  left: 22%;
-  width: 16%;
-  height: 5.5%;
+  top: 66.75%;
+  left: 31.4%;
+  width: 3.65%;
+  height: 3.5%;
 }
 
 .brain-shrine__overlay--flags {
-  top: 67.5%;
-  right: 22%;
-  width: 16%;
-  height: 5.5%;
+  top: 66.75%;
+  left: 64.95%;
+  width: 3.65%;
+  height: 3.5%;
 }
 
 .shrine-slot {
@@ -4461,26 +4909,22 @@ body {
 }
 
 .shrine-slot__value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(0.75rem, 1.75vw, 1rem);
-  font-weight: 600;
-  line-height: 1.1;
-  letter-spacing: 0.06em;
+  font-size: clamp(0.625rem, 0.95vw, 0.9375rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
   text-align: center;
   text-transform: uppercase;
-  color: #2f1a0e;
-  text-shadow:
-    0 1px 0 color-mix(in srgb, white 28%, transparent),
-    0 -1px 0 color-mix(in srgb, black 22%, transparent);
-}
-
-.brain-shrine__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  margin-bottom: 0.35rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: #2a1c12;
+  text-shadow: 0 1px 0 color-mix(in srgb, white 30%, transparent);
 }
 
 .brain-shrine__nameplate {
@@ -4497,10 +4941,10 @@ body {
 
 .brain-shrine__nameplate-text {
   font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(0.8125rem, 1.85vw, 1.25rem);
+  font-size: clamp(0.875rem, 1.25vw, 1.25rem);
   font-weight: 700;
   line-height: 1.1;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
@@ -4508,9 +4952,7 @@ body {
   text-overflow: ellipsis;
   max-width: 100%;
   color: #2a1c12;
-  text-shadow:
-    0 1px 0 color-mix(in srgb, white 35%, transparent),
-    0 -1px 0 color-mix(in srgb, black 18%, transparent);
+  text-shadow: 0 1px 0 color-mix(in srgb, white 30%, transparent);
 }
 
 .brain-shrine__nameplate-input {
@@ -4518,61 +4960,16 @@ body {
   border: none;
   background: transparent;
   font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(0.875rem, 2.1vw, 1.3125rem);
-  font-weight: 600;
+  font-size: clamp(1rem, 1.7vw, 1.5rem);
+  font-weight: 700;
   letter-spacing: 0.04em;
   text-align: center;
   color: #2a1c12;
 }
 
 .brain-shrine__nameplate-input::placeholder {
-  color: color-mix(in srgb, var(--color-ink-muted) 70%, transparent);
-  font-weight: 500;
-}
-
-.brain-shrine__action {
-  border-radius: 9999px;
-  padding: 0.55rem 1.1rem;
-  font-size: 0.8125rem;
+  color: color-mix(in srgb, #2a1c12 55%, transparent);
   font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    background 0.15s ease;
-}
-
-.brain-shrine__action--primary {
-  border: none;
-  background: var(--color-apricot);
-  color: white;
-}
-
-.brain-shrine__action--primary:hover:not(:disabled) {
-  background: var(--color-apricot-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px color-mix(in srgb, var(--color-apricot) 35%, transparent);
-}
-
-.brain-shrine__action--primary:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.brain-shrine__action--ghost {
-  border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
-  background: color-mix(in srgb, var(--color-cream-paper) 90%, transparent);
-  color: var(--color-ink);
-}
-
-.brain-shrine__action--ghost:hover {
-  border-color: color-mix(in srgb, var(--color-apricot) 40%, transparent);
-  transform: translateY(-1px);
-}
-
-.brain-shrine__action:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-apricot) 35%, transparent);
 }
 
 .brain-shrine__footer {
@@ -4584,41 +4981,62 @@ body {
   align-items: center;
   justify-content: flex-end;
   gap: 0.4rem;
-  min-height: 18%;
+  min-height: 14%;
   padding: 0 1.5rem 1rem;
   pointer-events: none;
   background: linear-gradient(
     0deg,
-    color-mix(in srgb, var(--color-cream) 96%, transparent) 0%,
+    color-mix(in srgb, black 45%, transparent) 0%,
     transparent 100%
   );
 }
 
-.brain-shrine__footer .brain-shrine__actions,
-.brain-shrine__footer .brain-shrine__back {
+.brain-shrine__footer .brain-shrine__links {
   pointer-events: auto;
 }
 
 .brain-shrine__hint {
   font-size: 0.75rem;
-  color: var(--color-ink-muted);
+  color: color-mix(in srgb, var(--color-cream) 72%, transparent);
+  text-shadow: 0 1px 3px color-mix(in srgb, black 55%, transparent);
 }
 
-.brain-shrine__back {
+.brain-shrine__links {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.brain-shrine__link {
+  border: none;
+  background: transparent;
+  padding: 0;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--color-apricot);
+  color: color-mix(in srgb, var(--color-cream) 88%, transparent);
+  text-shadow: 0 1px 3px color-mix(in srgb, black 55%, transparent);
+  cursor: pointer;
 }
 
-.brain-shrine__back:hover {
+.brain-shrine__link:hover:not(:disabled) {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.brain-shrine__back:focus-visible {
+.brain-shrine__link:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.brain-shrine__link:focus-visible {
   outline: 2px solid var(--color-apricot);
   outline-offset: 2px;
   border-radius: 0.25rem;
+}
+
+.brain-shrine__link-divider {
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--color-cream) 50%, transparent);
 }
 
 .brain-health-band {
@@ -4634,18 +5052,6 @@ body {
   color: var(--health-accent, var(--color-ink));
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .brain-shrine__arrow,
-  .brain-shrine__action {
-    transition: none;
-  }
-
-  .brain-shrine__arrow:hover,
-  .brain-shrine__action--primary:hover:not(:disabled),
-  .brain-shrine__action--ghost:hover {
-    transform: none;
-  }
-}
 
 /* ── Clive's Man context intake — front door before the brain shrine ── */
 .context-intake {
@@ -4672,7 +5078,7 @@ body {
 
 .context-intake__hero-image {
   object-fit: cover;
-  object-position: center;
+  object-position: center 42%;
 }
 
 .context-intake__hero-scrim {

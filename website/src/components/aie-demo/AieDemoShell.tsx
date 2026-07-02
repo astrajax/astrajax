@@ -164,8 +164,12 @@ export function AieDemoShell() {
 
   useEffect(() => {
     if (showWelcomeSequence) return;
+    if (state.currentStep === "user_brain") {
+      cliveVideoRef.current?.stopIdleReel();
+      return;
+    }
     cliveVideoRef.current?.startIdleReel();
-  }, [showWelcomeSequence, bookParam]);
+  }, [showWelcomeSequence, bookParam, state.currentStep]);
 
   if (!bookParam || hubSelection === null) {
     return null;

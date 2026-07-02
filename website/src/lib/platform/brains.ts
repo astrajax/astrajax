@@ -14,16 +14,17 @@ export interface BrainShelfEntry {
   jarArtSrc: string;
 }
 
-export const DEFAULT_BRAIN_SLUG = "northline-field-ops";
+export const DEFAULT_BRAIN_SLUG = "astrajax-chapter-1";
 export const SHRINE_STAGE_SRC = "/brain/shrine-stage.png";
-export const INTAKE_HERO_SRC = "/brain/intake-hero.png";
+/** Bird's-eye desk spread — shared with Chapter 1 study hub. */
+export const INTAKE_HERO_SRC = "/agent-cast/clive-wigglesworth/clive-study-hub.png";
 
 export const HEALTH_BAND_ART_SRC: Record<BrainHealthBand, string> = {
-  rotten: "/brain/shrine-rotten.png",
-  unhappy: "/brain/shrine-unhappy.png",
-  okay: "/brain/shrine-okay.png",
-  happy: "/brain/shrine-happy.png",
-  thriving: "/brain/shrine-thriving.png",
+  rotten: "/brain/shrine-rotten.mp4",
+  unhappy: "/brain/shrine-unhappy.mp4",
+  okay: "/brain/shrine-okay.mp4",
+  happy: "/brain/shrine-happy.mp4",
+  thriving: "/brain/shrine-thriving.mp4",
 };
 
 export function shrineArtForBand(band: BrainHealthBand): string {
@@ -79,44 +80,34 @@ export function deriveHealthBand(
 
 export const BRAINS_SHELF: BrainShelfEntry[] = [
   {
-    slug: "northline-field-ops",
-    name: "Northline Field Ops Brain",
-    theme: "Field sales operations",
+    slug: "astrajax-chapter-1",
+    name: "AstraJax Chapter 1",
+    theme: "AstraJax positioning and governance demo",
+    maturityLabel: "Working Brain",
+    healthBand: "okay",
+    lastAuditAt: "2026-07-01",
+    flagsCount: 4,
+    jarArtSrc: shrineArtForBand("okay"),
+  },
+  {
+    slug: "butternut-direct-sales",
+    name: "Butternut Direct Sales",
+    theme: "Flagship operating-layer proof — Direct Sales channel",
     maturityLabel: "Working Brain",
     healthBand: "happy",
-    lastAuditAt: "2026-06-24T14:30:00.000Z",
+    lastAuditAt: "2026-07-01",
     flagsCount: 2,
     jarArtSrc: shrineArtForBand("happy"),
   },
   {
-    slug: "pricing-guardrails",
-    name: "Pricing Guardrails Brain",
-    theme: "Commercial guardrails",
-    maturityLabel: "Sharp Brain",
-    healthBand: "thriving",
-    lastAuditAt: "2026-06-28T11:00:00.000Z",
-    flagsCount: 0,
-    jarArtSrc: shrineArtForBand("thriving"),
-  },
-  {
-    slug: "forecast-coach",
-    name: "Forecast Coach Brain",
-    theme: "Planning and forecasting",
+    slug: "astrajax-brand",
+    name: "AstraJax Brand",
+    theme: "Brand voice, visual system, and character cast",
     maturityLabel: "Working Brain",
     healthBand: "okay",
-    lastAuditAt: "2026-06-20T09:15:00.000Z",
-    flagsCount: 1,
+    lastAuditAt: "2026-07-02",
+    flagsCount: 3,
     jarArtSrc: shrineArtForBand("okay"),
-  },
-  {
-    slug: "astrajax-chapter-1",
-    name: "AstraJax Chapter 1",
-    theme: "Governed demo brain",
-    maturityLabel: "Seedling Brain",
-    healthBand: "unhappy",
-    lastAuditAt: null,
-    flagsCount: 4,
-    jarArtSrc: shrineArtForBand("unhappy"),
   },
 ];
 
@@ -151,15 +142,15 @@ export function formatAuditDate(iso: string | null): string {
   }
 }
 
-/** Compact date for the shrine audit slot (1024×571 art). */
+/** Compact date for the shrine audit slot (dd/mm/yy). */
 export function formatShrineAuditDate(iso: string | null): string {
   if (!iso) return "Never";
   try {
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    }).format(new Date(iso));
+    const date = new Date(iso);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = String(date.getFullYear()).slice(-2);
+    return `${day}/${month}/${year}`;
   } catch {
     return iso;
   }
@@ -170,13 +161,11 @@ export function getBrainHealthSnapshot(
   brain?: BrainShelfEntry,
 ): BrainHealthSnapshot {
   const entry = brain ?? getBrainBySlug(slug);
-  if (!entry || slug === DEFAULT_BRAIN_HEALTH.brainSlug) {
-    return DEFAULT_BRAIN_HEALTH;
-  }
+  const name = entry?.name ?? "AstraJax Chapter 1";
   return {
     ...DEFAULT_BRAIN_HEALTH,
     brainSlug: slug,
-    brainName: entry.name,
+    brainName: name,
   };
 }
 

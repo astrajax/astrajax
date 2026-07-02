@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
+import { DestinationChip } from "@/components/brain/DestinationChip";
 import { CHAPTER1_BRAIN_SLUG } from "@/lib/brains/airtable-ids";
 import type { InteractionSummary } from "@/lib/brains/types";
 
@@ -383,6 +384,11 @@ function InteractionCard({
       </div>
 
       <ManifestBlock interaction={interaction} />
+      <DestinationChip
+        destination="workshop-interactions"
+        brainSlug={interaction.brainSlug}
+        recordId={interaction.recordId}
+      />
 
       {view === "needsReview" || view === "actionProposed" ? (
         <UpkeepActions

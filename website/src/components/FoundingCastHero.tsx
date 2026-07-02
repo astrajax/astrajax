@@ -7,7 +7,11 @@ import { PortraitDoor } from "@/components/command-centre/PortraitDoor";
 import { useStoryMode } from "@/components/command-centre/StoryModeProvider";
 import type { CommandRoomSlug } from "@/lib/command-centre/rooms";
 import { consumeReturnPortrait, focusPortraitDoor } from "@/lib/command-centre/focus-restore";
-import { castHeroSrc, foundingCastHeroTriptych } from "@/lib/agent-cast-assets";
+import {
+  castHeroSrc,
+  castHeroVideoPosterSrc,
+  foundingCastHeroTriptych,
+} from "@/lib/agent-cast-assets";
 
 /** Caption fade-in order (left-to-right): Pam, then Clive, then Doc — quick staggered. */
 const CAPTION_DELAY: Record<string, string> = {
@@ -148,6 +152,7 @@ const CLIVE_HERO_PLAYBACK_RATE = 0.72;
 function PortraitFrame({
   posterSrc,
   videoSrc,
+  videoPosterSrc,
   ariaLabel,
   width,
   height,
@@ -160,6 +165,8 @@ function PortraitFrame({
 }: {
   posterSrc: string;
   videoSrc?: string;
+  /** Compressed still for the `<video poster>` attribute, which bypasses next/image. */
+  videoPosterSrc?: string;
   ariaLabel: string;
   width: number;
   height: number;
@@ -220,8 +227,25 @@ function PortraitFrame({
     };
   }, [showVideo, videoSrc, seamlessLoop, playbackRate]);
 
+  const stillSrc = videoPosterSrc ?? posterSrc;
+
   return (
     <div className="hero-portrait-frame">
+      <Image
+        src={stillSrc}
+        alt={showVideo ? "" : ariaLabel}
+        aria-hidden={showVideo ? true : undefined}
+        width={width}
+        height={height}
+        priority={priority}
+        sizes={sizes}
+        className={[
+          "hero-portrait-frame__media",
+          showVideo ? "hero-portrait-frame__media--poster" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      />
       {showVideo ? (
         <video
           ref={videoRef}
@@ -237,24 +261,13 @@ function PortraitFrame({
           loop={!seamlessLoop}
           playsInline
           preload={eagerPreload ? "auto" : "metadata"}
-          poster={posterSrc}
           width={width}
           height={height}
           aria-label={ariaLabel}
         >
           <source src={videoSrc} type="video/mp4" />
         </video>
-      ) : (
-        <Image
-          src={posterSrc}
-          alt={ariaLabel}
-          width={width}
-          height={height}
-          priority={priority}
-          sizes={sizes}
-          className="hero-portrait-frame__media"
-        />
-      )}
+      ) : null}
     </div>
   );
 }
@@ -306,6 +319,7 @@ function CastPortrait({
       <PortraitFrame
         posterSrc={entry.src}
         videoSrc={entry.videoSrc}
+        videoPosterSrc={castHeroVideoPosterSrc(entry.slug)}
         ariaLabel={HERO_ALT[entry.slug]}
         width={HERO_FRAME_SIZE[entry.slug]?.width ?? 1024}
         height={HERO_FRAME_SIZE[entry.slug]?.height ?? 571}
@@ -393,27 +407,17 @@ export function FoundingCastHero() {
         </ul>
       </noscript>
 
-      {/* Desktop: asymmetric composition — Clive centre with Man beneath, Pam lower-left, Doc upper-right */}
+      {/* Desktop: mockup gallery — Clive top-centre, Doc top-right, Pam bottom-left */}
       <div className="hero-asymmetric-wall__desktop hidden lg:block">
         <div className="hero-asymmetric-wall__composition">
-          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
-            <div className="hero-wall-name-rail">
-              <HeroWallBrand />
-              <CastPortrait
-                entry={pam}
-                displayName={pam.name}
-                sizes="(min-width: 1536px) 28vw, (min-width: 1024px) 28vw, 40vw"
-                seamlessLoop
-                prefersReducedMotion={prefersReducedMotion}
-                portraitDoorsEnabled={portraitDoorsEnabled}
-              />
-            </div>
+          <div className="hero-asymmetric-wall__brand-overlay">
+            <HeroWallBrand />
           </div>
-          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--clive-stack">
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--clive">
             <CastPortrait
               entry={clive}
               displayName="Clive Wigglesworth Esq."
-              sizes="(min-width: 1536px) 40vw, (min-width: 1024px) 40vw, 92vw"
+              sizes="(min-width: 1536px) 38vw, (min-width: 1024px) 38vw, 92vw"
               priority
               eagerPreload
               seamlessLoop
@@ -421,22 +425,31 @@ export function FoundingCastHero() {
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
-            <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--man">
-              <CastPortrait
-                entry={clivesMan}
-                displayName={clivesMan.name}
-                sizes="(min-width: 1536px) 20vw, (min-width: 1024px) 20vw, 46vw"
-                prefersReducedMotion={prefersReducedMotion}
-                portraitDoorsEnabled={portraitDoorsEnabled}
-              />
-            </div>
           </div>
-          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc-stack">
-            <DocWorkshopRobotGrid />
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc">
             <CastPortrait
               entry={doc}
               displayName={doc.name}
-              sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 40vw"
+              sizes="(min-width: 1536px) 30vw, (min-width: 1024px) 30vw, 40vw"
+              prefersReducedMotion={prefersReducedMotion}
+              portraitDoorsEnabled={portraitDoorsEnabled}
+            />
+          </div>
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
+            <CastPortrait
+              entry={pam}
+              displayName={pam.name}
+              sizes="(min-width: 1536px) 34vw, (min-width: 1024px) 34vw, 40vw"
+              seamlessLoop
+              prefersReducedMotion={prefersReducedMotion}
+              portraitDoorsEnabled={portraitDoorsEnabled}
+            />
+          </div>
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--man">
+            <CastPortrait
+              entry={clivesMan}
+              displayName={clivesMan.name}
+              sizes="(min-width: 1536px) 11vw, (min-width: 1024px) 11vw, 46vw"
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
@@ -445,10 +458,13 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={lazloMarlowe}
               displayName={lazloMarlowe.name}
-              sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 72vw"
+              sizes="(min-width: 1536px) 14vw, (min-width: 1024px) 14vw, 72vw"
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
+          </div>
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--minions">
+            <DocWorkshopRobotGrid />
           </div>
         </div>
       </div>

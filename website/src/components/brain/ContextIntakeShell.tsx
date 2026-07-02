@@ -306,6 +306,13 @@ export function ContextIntakeShell() {
 
   return (
     <div className="context-intake">
+      <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-ink">
+        Preview only — intake actions here do not file Airtable records yet. Use{" "}
+        <Link href="/brain/astrajax-chapter-1/curate" className="text-apricot underline">
+          Sit with Clive
+        </Link>{" "}
+        to curate context with real writes.
+      </div>
       <section className="context-intake__hero" aria-labelledby="context-intake-title">
         <div className="context-intake__hero-surface">
           <Image
