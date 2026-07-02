@@ -115,6 +115,14 @@ export function DocWorkshopHub() {
         <p className="doc-workshop-hub__subtitle">
           Agent building — pick a bench or the nameplate below
         </p>
+        <nav className="doc-workshop-hub__header-nav" aria-label="Workshop navigation">
+          <Link href="/#agent-cast" className="doc-workshop-hub__back">
+            ← Back to command centre
+          </Link>
+          <Link href="/fleet" className="doc-workshop-hub__fleet-link">
+            Fleet design (full surface) →
+          </Link>
+        </nav>
       </header>
 
       <div className="doc-workshop-hub__stage">
@@ -170,12 +178,6 @@ export function DocWorkshopHub() {
           })}
         </div>
       </div>
-
-      <footer className="doc-workshop-hub__footer">
-        <Link href="/#agent-cast" className="doc-workshop-hub__back">
-          ← Back to command centre
-        </Link>
-      </footer>
     </div>
   );
 }

@@ -24,6 +24,7 @@ function createSessionId(): string {
 export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveShellProps) {
   const videoRef = useRef<CliveVideoStageHandle | null>(null);
   const [sessionId] = useState(createSessionId);
+  const [introBeatIndex, setIntroBeatIndex] = useState(0);
   const [introComplete, setIntroComplete] = useState(false);
   const [docket, setDocket] = useState<CurationDocket | null>(null);
   const [proposals, setProposals] = useState<CurationProposal[]>([]);
@@ -54,6 +55,26 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
   useEffect(() => {
     void loadDocket();
   }, [loadDocket]);
+
+  useEffect(() => {
+    void videoRef.current?.startIdleReel();
+  }, []);
+
+  const introBeat = CURATION_SITTING_BEATS[introBeatIndex];
+  const isLastIntroBeat = introBeatIndex >= CURATION_SITTING_BEATS.length - 1;
+
+  const handleIntroContinue = useCallback(() => {
+    if (isLastIntroBeat) {
+      setIntroComplete(true);
+      return;
+    }
+    setIntroBeatIndex((index) => index + 1);
+  }, [isLastIntroBeat]);
+
+  const handleReset = useCallback(() => {
+    setIntroComplete(false);
+    setIntroBeatIndex(0);
+  }, []);
 
   const initialMessages = useMemo<ChatMessage[]>(() => {
     if (!docket) return [];
@@ -158,33 +179,27 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
   return (
     <CliveStudyShell
       ref={videoRef}
-      onReset={() => setIntroComplete(false)}
+      onReset={handleReset}
       label="Sit with Clive"
       subtitle={brainName}
       backHref={`/brain/${brainSlug}`}
       backLabel={brainName}
       headerActions={headerActions}
     >
-      {!introComplete ? (
+      {!introComplete && introBeat ? (
         <div className="clive-welcome">
-          {CURATION_SITTING_BEATS.map((beat) => (
-            <div key={beat.id} className="mb-6">
-              <p className="clive-welcome-caption clive-welcome-caption--visible">{beat.caption}</p>
-              <div className="clive-welcome-monologue mt-4">
-                <p className="clive-welcome-monologue__label">Clive Wigglesworth</p>
-                <p className="clive-welcome-monologue__text clive-welcome-monologue__text--visible">
-                  {beat.monologue}
-                </p>
-              </div>
-            </div>
-          ))}
-          <button
-            type="button"
-            className="btn-primary mt-4"
-            onClick={() => setIntroComplete(true)}
-          >
-            Begin curation
-          </button>
+          <p className="clive-welcome-caption clive-welcome-caption--visible">{introBeat.caption}</p>
+          <div className="clive-welcome-monologue">
+            <p className="clive-welcome-monologue__label">Clive Wigglesworth</p>
+            <p className="clive-welcome-monologue__text clive-welcome-monologue__text--visible">
+              {introBeat.monologue}
+            </p>
+          </div>
+          <div className="clive-welcome__controls">
+            <button type="button" className="btn-primary" onClick={handleIntroContinue}>
+              {isLastIntroBeat ? "Begin curation" : "Continue"}
+            </button>
+          </div>
         </div>
       ) : (
         <div className="chapter1-conversation">

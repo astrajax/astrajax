@@ -486,10 +486,11 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-/* Pam — large bottom-left, sits lower than Clive */
+/* Pam — large bottom-left, pushed down to the foot of the wall */
 .hero-asymmetric-wall__slot--pam {
-  bottom: 3%;
+  top: 57%;
   left: 2%;
+  bottom: auto;
   width: 33%;
   align-items: stretch;
   z-index: 3;
@@ -1352,6 +1353,12 @@ body {
 }
 
 /* ── Chapter 1: open-book study stage (SC2-style spread + Clive portal) ── */
+.study-stage-route {
+  min-height: 100dvh;
+  overflow: hidden;
+  background: #1a120c;
+}
+
 .study-stage {
   /* Portal crops via object-fit: cover already; keep this near 1 so gestures
      (paws, arm lifts) don't get cut off by an extra zoom on top of that crop. */
@@ -1361,11 +1368,12 @@ body {
   --book-right-page-start: 53.5%;
   --book-page-gutter: clamp(0.75rem, 2vw, 1.25rem);
   --book-clive-top: 12%;
-  --book-clive-right: 9%;
-  --book-clive-width: min(20vw, 15rem);
+  --book-clive-right: 6.5%;
+  --book-clive-width: min(27vw, 19rem);
   --book-content-top: clamp(4.75rem, 13vh, 6.75rem);
-  --book-content-left: clamp(7.5%, 9vw, 10%);
-  --book-content-width: min(34%, 26rem);
+  --book-content-bottom: clamp(11vh, 13vh, 15vh);
+  --book-content-left: clamp(7.5%, 9vw, 10.5%);
+  --book-content-width: min(40%, 28rem);
   --book-ink: #23271b;
   --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
   position: relative;
@@ -1587,7 +1595,7 @@ body {
   min-width: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  bottom: clamp(0.75rem, 2.5vh, 1.5rem);
+  bottom: var(--book-content-bottom);
   padding:
     clamp(0.75rem, 2.5vh, 1.25rem)
     clamp(0.5rem, 1.25vw, 0.875rem)
@@ -1597,33 +1605,12 @@ body {
 
 .study-stage--book .study-stage__content:has(.clive-welcome) {
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: hidden;
   padding-bottom: 0.35rem;
 }
 
-.study-stage--book .study-stage__content:has(.chapter1-conversation) {
-  overflow-x: hidden;
-  overflow-y: hidden;
-}
-
-.study-stage--book .clive-welcome,
-.study-stage--book .chapter1-conversation,
-.study-stage--book .chapter1-intake-chat,
-.study-stage--book .clive-chat--study {
-  min-width: 0;
-  max-width: 100%;
-}
-
-.study-stage--book .clive-welcome-caption {
-  font-size: clamp(0.9rem, 1.55vw, 1.15rem);
-  font-weight: 700;
-  line-height: 1.32;
-  letter-spacing: 0.04em;
-  color: var(--book-ink);
-  text-shadow: none;
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  hyphens: auto;
+.study-stage--book:has(.clive-welcome) {
+  --book-content-bottom: clamp(12vh, 14vh, 16vh);
 }
 
 .study-stage__content:has(.clive-welcome),
@@ -1636,11 +1623,19 @@ body {
 }
 
 .study-stage__content:has(.clive-welcome) {
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 
 .study-stage__content:has(.chapter1-conversation) {
   overflow-y: hidden;
+}
+
+.study-stage--book .clive-welcome,
+.study-stage--book .chapter1-conversation,
+.study-stage--book .chapter1-intake-chat,
+.study-stage--book .clive-chat--study {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .study-stage__error {
@@ -1657,11 +1652,12 @@ body {
     --book-left-page-end: 46%;
     --book-right-page-start: 54%;
     --book-clive-top: 13%;
-    --book-clive-right: 10%;
-    --book-clive-width: min(18vw, 14rem);
+    --book-clive-right: 7.5%;
+    --book-clive-width: min(24vw, 20rem);
     --book-content-top: clamp(5.25rem, 14vh, 7.25rem);
-    --book-content-left: clamp(8.5%, 10vw, 11%);
-    --book-content-width: min(36%, 28rem);
+    --book-content-bottom: clamp(11vh, 13vh, 15vh);
+    --book-content-left: clamp(8%, 10vw, 11%);
+    --book-content-width: min(42%, 32rem);
   }
 }
 
@@ -1670,19 +1666,20 @@ body {
     --book-left-page-end: 48%;
     --book-right-page-start: 52%;
     --book-page-gutter: clamp(0.4rem, 1vw, 0.65rem);
-    --book-clive-top: 10%;
-    --book-clive-right: 6%;
-    --book-clive-width: min(28vw, 9.5rem);
+    --book-clive-top: 11%;
+    --book-clive-right: 4%;
+    --book-clive-width: min(38vw, 11rem);
     --book-content-top: clamp(4rem, 11vh, 5rem);
-    --book-content-left: clamp(6.5%, 7.5vw, 8%);
-    --book-content-width: min(40%, 15rem);
+    --book-content-bottom: clamp(9vh, 11vh, 13vh);
+    --book-content-left: clamp(6%, 7vw, 8%);
+    --book-content-width: min(46%, 16.5rem);
   }
 }
 
 /* Chapter 1 hero Clive inset — welcome + conversation beats (not user mapping/intake) */
 .study-stage--book:has(.clive-welcome),
 .study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) {
-  --book-clive-top: 7%;
+  --book-clive-top: clamp(10.5rem, 20vh, 13rem);
   --book-clive-right: 5%;
   --book-clive-width: min(36vw, 28rem);
 }
@@ -1690,7 +1687,7 @@ body {
 @media (min-width: 1024px) {
   .study-stage--book:has(.clive-welcome),
   .study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) {
-    --book-clive-top: 8%;
+    --book-clive-top: clamp(11rem, 21vh, 14rem);
     --book-clive-right: 6%;
     --book-clive-width: min(34vw, 26rem);
   }
@@ -1699,7 +1696,7 @@ body {
 @media (max-width: 767px) {
   .study-stage--book:has(.clive-welcome),
   .study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) {
-    --book-clive-top: 8%;
+    --book-clive-top: clamp(9.5rem, 18vh, 11.5rem);
     --book-clive-right: 4%;
     --book-clive-width: min(42vw, 13.5rem);
   }
@@ -1709,17 +1706,16 @@ body {
   visibility: hidden;
 }
 
-/* Softer dissolve into the right-hand parchment page */
 .study-stage--book:has(.clive-welcome) .study-stage__clive-spot,
 .study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) .study-stage__clive-spot {
-  overflow: visible;
+  overflow: hidden;
   box-shadow: none;
   filter: none;
 }
 
 .study-stage--book:has(.clive-welcome) .study-stage__clive-feather,
 .study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) .study-stage__clive-feather {
-  overflow: visible;
+  overflow: hidden;
   isolation: isolate;
   -webkit-mask-image: radial-gradient(
     ellipse 122% 118% at 50% 46%,
@@ -1754,7 +1750,7 @@ body {
   content: "";
   pointer-events: none;
   position: absolute;
-  inset: -18%;
+  inset: -10%;
   z-index: 2;
   background: radial-gradient(
     ellipse 88% 84% at 50% 44%,
@@ -1768,7 +1764,7 @@ body {
 
 .study-stage--book:has(.clive-welcome) .study-stage__clive-feather::after,
 .study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) .study-stage__clive-feather::after {
-  inset: -24%;
+  inset: -12%;
   z-index: 3;
   background:
     radial-gradient(
@@ -1803,7 +1799,7 @@ body {
 
 .study-stage--book:has(.clive-welcome) .study-stage__clive-feather .clive-video-stage,
 .study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-intake-chat)) .study-stage__clive-feather .clive-video-stage {
-  overflow: visible;
+  overflow: hidden;
 }
 
 /* Study conversation rail — cinematic welcome (ink on parchment in book mode) */
@@ -1829,6 +1825,18 @@ body {
     linear-gradient(90deg, rgba(243, 237, 219, 0.08), transparent 55%);
 }
 
+.study-stage--book .clive-welcome-caption {
+  font-size: clamp(0.9rem, 1.65vw, 1.2rem);
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: 0.045em;
+  color: var(--book-ink);
+  text-shadow: none;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
 .study-stage--book .clive-welcome-caption::after {
   background: linear-gradient(
     90deg,
@@ -1842,14 +1850,16 @@ body {
 }
 
 .study-stage--book .clive-welcome-monologue {
+  display: flex;
   flex: 1;
+  flex-direction: column;
   gap: clamp(0.35rem, 1vh, 0.5rem);
   min-height: 0;
   overflow: hidden;
   padding:
     clamp(0.15rem, 0.6vh, 0.35rem)
     clamp(0.15rem, 0.5vw, 0.35rem)
-    0
+    clamp(0.35rem, 1vh, 0.5rem)
     clamp(0.65rem, 1.4vw, 0.875rem);
   border-left: 1px solid color-mix(in srgb, var(--book-ink) 22%, transparent);
   box-shadow: inset 1px 0 0 rgba(255, 248, 235, 0.45);
@@ -1873,6 +1883,8 @@ body {
   hanging-punctuation: first last;
   color: var(--book-ink);
   text-shadow: none;
+  flex: 1;
+  min-height: 0;
   overflow-x: hidden;
   overflow-wrap: anywhere;
   overflow-y: auto;
@@ -3058,6 +3070,14 @@ body {
   text-shadow: 0 1px 10px color-mix(in srgb, black 50%, transparent);
 }
 
+.doc-workshop-hub__header-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-top: 0.875rem;
+  pointer-events: auto;
+}
+
 .doc-workshop-hub__stage {
   position: absolute;
   inset: 0;
@@ -3069,9 +3089,9 @@ body {
 
 .doc-workshop-hub__surface {
   position: relative;
-  aspect-ratio: 1920 / 1080;
-  width: max(100vw, calc(100dvh * 1920 / 1080));
-  height: max(100dvh, calc(100vw * 1080 / 1920));
+  aspect-ratio: 1280 / 720;
+  width: max(100vw, calc(100dvh * 1280 / 720));
+  height: max(100dvh, calc(100vw * 720 / 1280));
   flex-shrink: 0;
 }
 
@@ -3086,23 +3106,23 @@ body {
 .doc-workshop-hub__nameplate {
   position: absolute;
   z-index: 1;
-  top: 84%;
-  left: 31%;
-  width: 38%;
-  height: 11%;
+  top: 91.2%;
+  left: 23%;
+  width: 54%;
+  height: 6.8%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 0.75rem;
+  padding: 0 0.5rem;
   pointer-events: none;
 }
 
 .doc-workshop-hub__nameplate-text {
   font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(0.6875rem, 1.45vw, 1.125rem);
+  font-size: clamp(0.625rem, 1.35vw, 1rem);
   font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: 0.06em;
+  line-height: 1;
+  letter-spacing: 0.05em;
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
@@ -3144,21 +3164,26 @@ body {
 
 .doc-workshop-hub__station--focused {
   border-color: color-mix(in srgb, var(--color-apricot) 45%, transparent);
+  filter: brightness(1.04);
 }
 
-.doc-workshop-hub__footer {
-  position: absolute;
-  inset: auto 0 0;
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  padding: 0 1.5rem 1.25rem;
-  pointer-events: none;
-  background: linear-gradient(
-    0deg,
-    color-mix(in srgb, #1a120c 92%, transparent) 0%,
-    transparent 100%
-  );
+.doc-workshop-hub__fleet-link {
+  pointer-events: auto;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--color-sage) 90%, var(--color-parchment));
+  text-decoration: none;
+}
+
+.doc-workshop-hub__fleet-link:hover {
+  color: var(--color-sage);
+  text-decoration: underline;
+}
+
+.doc-workshop-hub__fleet-link:focus-visible {
+  outline: none;
+  border-radius: 0.25rem;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-sage) 35%, transparent);
 }
 
 .doc-workshop-hub__back {
@@ -3187,6 +3212,154 @@ body {
 
   .doc-workshop-hub__station:hover {
     transform: none;
+  }
+}
+
+/* ── Doc's Workshop build demo (Trinity clickthrough) ── */
+.workshop-build-demo__badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-sage) 45%, transparent);
+  background: color-mix(in srgb, var(--color-sage) 18%, transparent);
+  padding: 0.125rem 0.625rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-sage);
+}
+
+.workshop-build-demo__badge--off {
+  border-color: color-mix(in srgb, var(--color-parchment) 20%, transparent);
+  background: color-mix(in srgb, var(--color-parchment) 6%, transparent);
+  color: color-mix(in srgb, var(--color-parchment) 55%, transparent);
+}
+
+.workshop-build-demo__badge--proceed {
+  border-color: color-mix(in srgb, var(--color-sage) 55%, transparent);
+  background: color-mix(in srgb, var(--color-sage) 22%, transparent);
+}
+
+.workshop-trinity-lanes__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.workshop-trinity-lanes__item {
+  flex: 1 1 8rem;
+  min-width: 7rem;
+  border-radius: 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--color-parchment) 12%, transparent);
+  background: color-mix(in srgb, var(--color-parchment) 4%, transparent);
+  padding: 0.625rem 0.75rem;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.workshop-trinity-lanes__item--active {
+  border-color: color-mix(in srgb, var(--color-sage) 50%, transparent);
+  background: color-mix(in srgb, var(--color-sage) 12%, transparent);
+}
+
+.workshop-trinity-lanes__label {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-parchment);
+}
+
+.workshop-trinity-lanes__model {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.6875rem;
+  color: color-mix(in srgb, var(--color-parchment) 60%, transparent);
+}
+
+.workshop-build-demo__progress {
+  height: 0.25rem;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-parchment) 10%, transparent);
+}
+
+.workshop-build-demo__progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-sage);
+  transition: width 0.35s ease;
+}
+
+.workshop-build-demo__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .workshop-build-demo__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.workshop-build-demo__input {
+  outline: none;
+}
+
+.workshop-build-demo__input:focus-visible {
+  border-color: color-mix(in srgb, var(--color-sage) 50%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-sage) 25%, transparent);
+}
+
+.workshop-build-demo__check-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+}
+
+.workshop-build-demo__check-pass {
+  flex-shrink: 0;
+  color: var(--color-sage);
+  font-weight: 700;
+}
+
+.workshop-export-panel__json {
+  margin-top: 0.75rem;
+  max-height: 16rem;
+  overflow: auto;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--color-parchment) 12%, transparent);
+  background: color-mix(in srgb, var(--color-graphite) 80%, black);
+  padding: 1rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--color-parchment) 92%, white);
+}
+
+.workshop-export-panel__lock {
+  display: inline-flex;
+  border-radius: 0.25rem;
+  border: 1px solid color-mix(in srgb, var(--color-sage) 35%, transparent);
+  padding: 0.0625rem 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-sage);
+}
+
+.workshop-build-demo__handoff {
+  border-left: 3px solid var(--color-sage);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workshop-build-demo__progress-fill {
+    transition: none;
+  }
+
+  .workshop-trinity-lanes__item {
+    transition: none;
   }
 }
 
@@ -5598,6 +5771,36 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .context-intake__card {
     transition: none;
+  }
+}
+
+/* Narrow screens: fit the whole book to the viewport width (letterboxed)
+   rather than cropping to a vertical strip. The scene stays coherent and
+   the percentage-positioned hotspots/slots/pages remain aligned to the art. */
+@media (max-width: 900px) {
+  .court-stage__book {
+    display: none;
+  }
+
+  .court-stage__artwork {
+    width: 100vw;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    top: 50%;
+  }
+
+  .platform-court__verdict-text {
+    font-size: clamp(0.55rem, 2.6vw, 0.85rem);
+  }
+
+  .platform-court__intake-title,
+  .platform-court__bicker-head h2 {
+    font-size: clamp(0.8rem, 3vw, 1.1rem);
+  }
+
+  .platform-court__intake-lede,
+  .platform-court__bicker-turn {
+    font-size: clamp(0.6rem, 2.4vw, 0.85rem);
   }
 }
 
