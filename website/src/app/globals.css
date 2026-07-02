@@ -399,39 +399,30 @@ body {
   overflow: visible;
 }
 
-.hero-asymmetric-wall__composition {
-  /* Mockup gallery — 5×2 grid decouples Clive width from Man/Lazlo columns.
-     Size hierarchy: Clive ≈ Pam > Doc > Lazlo > Man > Minions. */
-  --hero-col-gap: clamp(0.45rem, 1.35vw, 1.5rem);
-  --hero-row-gap: clamp(0.2rem, 0.55vh, 0.45rem);
-  position: relative;
-  display: grid;
-  grid-template-columns:
-    minmax(0, 0.74fr)
-    minmax(0, 0.74fr)
-    minmax(0, 0.36fr)
-    minmax(0, 0.56fr)
-    minmax(0, 1.28fr);
-  grid-template-rows: minmax(0, 1fr) auto;
-  grid-template-areas:
-    ".    clive clive clive doc"
-    "pam  pam   man   lazlo minions";
-  align-content: end;
-  column-gap: var(--hero-col-gap);
-  row-gap: var(--hero-row-gap);
-  align-items: end;
+/* Desktop gallery canvas — absolute collage tuned to mockup at ~1440×900. */
+.hero-asymmetric-wall__desktop {
   width: 100%;
-  min-height: 0;
-  max-width: min(118rem, calc((100svh - 12rem) * 2.05));
-  margin: 0 auto;
-  padding-inline: clamp(0.35rem, 1.1vw, 0.9rem);
+  height: calc(
+    100svh - var(--hero-nav-height) - var(--hero-rail-height) + var(--hero-rail-overlap) -
+      var(--hero-gallery-gap) * 2
+  );
+  min-height: 28rem;
 }
 
-/* Logo — pinned tight top-left; portraits may softly overlap this zone */
+.hero-asymmetric-wall__composition {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Logo — modest top-left; does not reserve a grid column */
 .hero-asymmetric-wall__brand-overlay {
   position: absolute;
-  top: clamp(0.1rem, 0.35vh, 0.35rem);
-  left: clamp(0.15rem, 0.6vw, 0.55rem);
+  top: 2%;
+  left: 1%;
   z-index: 6;
   pointer-events: auto;
 }
@@ -445,24 +436,20 @@ body {
 }
 
 .hero-asymmetric-wall__slot {
-  position: relative;
+  position: absolute;
   display: flex;
   min-width: 0;
   flex-direction: column;
   align-items: center;
 }
 
-/* Clive — top-centre co-star, spans columns 2–4 */
+/* Clive — top-centre anchor, highest on the wall */
 .hero-asymmetric-wall__slot--clive {
-  grid-area: clive;
-  align-self: end;
-  justify-self: center;
+  top: 6%;
+  left: 22%;
+  width: 44%;
   z-index: 4;
-  width: 100%;
-  max-width: 100%;
   transform: rotate(-0.35deg);
-  padding-top: clamp(1.75rem, 4.5vh, 2.75rem);
-  padding-bottom: clamp(0.05rem, 0.25vh, 0.2rem);
 }
 
 .hero-asymmetric-wall__slot--clive .hero-portrait,
@@ -471,16 +458,13 @@ body {
   max-width: 100%;
 }
 
-/* Doc — top-right large portrait */
+/* Doc — top-right co-star (~80–90% of Clive width) */
 .hero-asymmetric-wall__slot--doc {
-  grid-area: doc;
-  align-self: end;
-  justify-self: stretch;
+  top: 4%;
+  right: 1%;
+  width: 36%;
   z-index: 3;
-  width: 100%;
   transform: rotate(0.65deg);
-  padding-top: clamp(0.35rem, 0.9vh, 0.65rem);
-  padding-bottom: clamp(0.05rem, 0.25vh, 0.2rem);
 }
 
 .hero-asymmetric-wall__slot--doc .hero-portrait,
@@ -495,16 +479,14 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-/* Pam — bottom-left co-star, similar scale to Clive */
+/* Pam — large bottom-left, sits lower than Clive */
 .hero-asymmetric-wall__slot--pam {
-  grid-area: pam;
-  align-self: end;
+  bottom: 4%;
+  left: 1%;
+  width: 38%;
   align-items: stretch;
-  justify-content: flex-end;
   z-index: 3;
-  width: 100%;
   transform: rotate(-0.65deg);
-  padding-bottom: clamp(0.1rem, 0.55vh, 0.35rem);
 }
 
 .hero-asymmetric-wall__slot--pam .hero-portrait,
@@ -554,16 +536,13 @@ body {
   align-self: center;
 }
 
-/* Clive's Man — small portrait, bottom row centre-left */
+/* Clive's Man — small portrait tucked between Pam and Lazlo */
 .hero-asymmetric-wall__slot--man {
-  grid-area: man;
-  align-self: end;
-  justify-self: center;
+  bottom: 6%;
+  left: 40%;
+  width: 13%;
   z-index: 2;
-  width: 100%;
-  max-width: 100%;
   transform: rotate(0.4deg);
-  padding-bottom: clamp(0.1rem, 0.45vh, 0.3rem);
 }
 
 .hero-portrait {
@@ -591,15 +570,13 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-/* Doc's Minions — tiny squares, bottom-right (separate from Doc portrait) */
+/* Doc's Minions — tiny squares, bottom-right corner */
 .hero-asymmetric-wall__slot--minions {
-  grid-area: minions;
-  align-self: end;
-  justify-self: end;
+  bottom: 6%;
+  right: 1%;
+  width: 9%;
   z-index: 2;
-  width: min(100%, clamp(7.5rem, 11vw, 10.5rem));
   transform: rotate(0.5deg);
-  padding-bottom: clamp(0.1rem, 0.45vh, 0.3rem);
 }
 
 .hero-asymmetric-wall__slot--minions .hero-doc-workshop {
@@ -708,17 +685,14 @@ body {
     0 0.35rem 0.75rem rgba(6, 5, 3, 0.28);
 }
 
-/* Lazlo Marlowe — medium portrait, ornate gold frame, bottom centre-right */
+/* Lazlo Marlowe — medium portrait (~2× Man width), ornate gold frame */
 .hero-asymmetric-wall__slot--lazlo {
-  grid-area: lazlo;
-  align-self: end;
-  justify-self: center;
+  bottom: 5%;
+  right: 14%;
+  width: 25%;
   z-index: 3;
-  width: 100%;
-  max-width: 100%;
   min-width: 0;
-  transform: rotate(0.55deg);
-  padding-bottom: clamp(0.1rem, 0.55vh, 0.35rem);
+  transform: rotate(-0.55deg);
 }
 
 .hero-asymmetric-wall__slot--lazlo .hero-portrait,
@@ -732,6 +706,13 @@ body {
   box-shadow:
     -0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
+}
+
+/* Mockup: captions only on Man, Lazlo, Minions — principals stay clean on desktop */
+.hero-asymmetric-wall__slot--clive .hero-portrait-caption,
+.hero-asymmetric-wall__slot--doc .hero-portrait-caption,
+.hero-asymmetric-wall__slot--pam .hero-portrait-caption {
+  display: none;
 }
 
 .hero-portrait-frame__media {
@@ -1066,23 +1047,6 @@ body {
     padding-top: clamp(0.35rem, 0.85vh, 0.65rem);
     padding-bottom: clamp(0.45rem, 1vw, 0.75rem);
     padding-inline: clamp(0.5rem, 2vw, 1.75rem);
-  }
-
-  .hero-asymmetric-wall__slot--pam,
-  .hero-asymmetric-wall__slot--lazlo {
-    padding-bottom: clamp(0.1rem, 0.55vh, 0.35rem);
-  }
-}
-
-@media (min-width: 1280px) {
-  .hero-asymmetric-wall__composition {
-    --hero-col-gap: clamp(0.75rem, 2.35vw, 2.5rem);
-  }
-}
-
-@media (min-width: 1536px) {
-  .hero-asymmetric-wall__composition {
-    --hero-col-gap: clamp(0.75rem, 2.1vw, 2.35rem);
   }
 }
 
