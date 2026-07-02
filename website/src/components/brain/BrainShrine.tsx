@@ -113,7 +113,8 @@ export function BrainShrine({ initialSlug = DEFAULT_BRAIN_SLUG }: BrainShrinePro
   return (
     <div className="brain-shrine">
       <div className="brain-shrine__stage">
-        <div className="brain-shrine__surface">
+        <div className="brain-shrine__frame">
+          <div className="brain-shrine__surface">
           <BrainJar
             healthBand={activeBrain.healthBand}
             alt={`${activeBrain.name} — health ${healthBandLabel(activeBrain.healthBand)}`}
@@ -163,6 +164,7 @@ export function BrainShrine({ initialSlug = DEFAULT_BRAIN_SLUG }: BrainShrinePro
               onNameChange={setNewBrainName}
               onConfirmCreate={confirmCreate}
             />
+          </div>
           </div>
         </div>
       </div>
