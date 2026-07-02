@@ -32,6 +32,7 @@ import { brainsIntroGreeting, truthApprovalGreeting } from "@/lib/clive/beat-cop
 import { buildLoopContextSummary } from "@/lib/clive/loop-context";
 import { cliveMessageForState } from "@/lib/brains/ui-states";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
+import { StudyStageDecisionPanel } from "@/components/chapter1/StudyStageDecisionPanel";
 import { UserBrainIntakeChat } from "@/components/chapter1/UserBrainIntakeChat";
 import type { CliveReaction } from "@/lib/clive/video-reactions";
 
@@ -99,6 +100,12 @@ export function Chapter1Conversation({
   );
   const themeRecommendations = state.userBrainIntake?.brainThemeRecommendations;
   const primaryPickId = themeRecommendations?.primaryPickId;
+  const primaryTheme = useMemo(
+    () =>
+      recommendedThemes.find((theme) => theme.id === primaryPickId) ?? recommendedThemes[0] ?? null,
+    [recommendedThemes, primaryPickId],
+  );
+  const isBrainsIntroStep = state.currentStep === "brains_intro";
   const isUserBrainStep = state.currentStep === "user_brain";
   const isTruthApprovalStep = state.currentStep === "truth_approval";
   const userBrainIntakeComplete = Boolean(
@@ -326,8 +333,175 @@ export function Chapter1Conversation({
   const showChat =
     !isUserBrainStep && !(isTruthApprovalStep && architectPath);
 
+  const hasRightDecisionPanel =
+    (isBrainsIntroStep && Boolean(primaryTheme)) ||
+    state.currentStep === "business_brain" ||
+    state.currentStep === "pam_challenge" ||
+    state.currentStep === "human_decision" ||
+    (state.currentStep === "truth_approval" && !draftsLoading) ||
+    (state.currentStep === "doc_handoff" && Boolean(state.promoteReceipt)) ||
+    (state.currentStep === "context_access" &&
+      state.brainMaturity === "working" &&
+      state.snippets.length > 0) ||
+    state.currentStep === "receipts";
+
+  const rightDecisionPanel = useMemo(() => {
+    if (isBrainsIntroStep && primaryTheme) {
+      return (
+        <StudyStageDecisionPanel>
+          <article className="study-doc-card study-doc-card--selected">
+            <span className="study-doc-card__tag">
+              {primaryTheme.label}
+              {primaryTheme.isCore ? " · always one" : ""}
+              {" · start here"}
+            </span>
+            <p className="study-doc-card__body">{primaryTheme.description}</p>
+            <p className="study-doc-card__note study-doc-card__note--muted">
+              {primaryTheme.whyRecommended}
+            </p>
+          </article>
+        </StudyStageDecisionPanel>
+      );
+    }
+
+    if (state.currentStep === "business_brain") {
+      return (
+        <StudyStageDecisionPanel>
+          <article className="study-doc-card">
+            <p className="study-doc-card__tag">Workshop draft</p>
+            <p className="study-doc-card__title">{state.businessBrain.clientName}</p>
+            <p className="study-doc-card__body">{state.businessBrain.goal}</p>
+            <ul className="study-doc-card__list">
+              {state.businessBrain.workflows.slice(0, 3).map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </article>
+        </StudyStageDecisionPanel>
+      );
+    }
+
+    if (state.currentStep === "pam_challenge") {
+      return (
+        <StudyStageDecisionPanel>
+          <article className="study-doc-card study-doc-card--pam">
+            <p className="study-doc-card__tag">Pam — challenge</p>
+            <dl className="study-doc-card__dl">
+              <div>
+                <dt>Strongest part</dt>
+                <dd>{state.pamReview.strongestPart}</dd>
+              </div>
+              <div>
+                <dt>Weakest assumption</dt>
+                <dd>{state.pamReview.weakestAssumption}</dd>
+              </div>
+            </dl>
+          </article>
+        </StudyStageDecisionPanel>
+      );
+    }
+
+    if (state.currentStep === "human_decision") {
+      return (
+        <StudyStageDecisionPanel>
+          <div className="study-doc-card__stack">
+            <blockquote className="study-doc-card study-doc-card--quote">{OWNERSHIP_LINE}</blockquote>
+            {selectedDrafts.map((draft) => (
+              <article key={draft.recordId} className="study-doc-card">
+                <p className="study-doc-card__title">{draft.title}</p>
+                <p className="study-doc-card__body study-doc-card__body--muted">
+                  {draft.canonicalText.slice(0, 140)}
+                  {draft.canonicalText.length > 140 ? "…" : ""}
+                </p>
+              </article>
+            ))}
+          </div>
+        </StudyStageDecisionPanel>
+      );
+    }
+
+    if (state.currentStep === "truth_approval" && !draftsLoading) {
+      return (
+        <StudyStageDecisionPanel>
+          <article className="study-doc-card study-doc-card--pam">
+            <p className="study-doc-card__tag">Pam — sniff test</p>
+            <p className="study-doc-card__body">{pamNoteForDrafts(selectedDrafts)}</p>
+            <p className="study-doc-card__note study-doc-card__note--muted">
+              {selectedDrafts.length} draft{selectedDrafts.length === 1 ? "" : "s"} selected for review.
+            </p>
+          </article>
+        </StudyStageDecisionPanel>
+      );
+    }
+
+    if (state.currentStep === "doc_handoff" && state.promoteReceipt) {
+      return (
+        <StudyStageDecisionPanel>
+          <article className="study-doc-card study-doc-card--receipt">
+            <p className="study-doc-card__tag">Doc — filed</p>
+            <p className="study-doc-card__title">{state.promoteReceipt.changeSummary}</p>
+            <p className="study-doc-card__body study-doc-card__body--muted">
+              Filed by {state.promoteReceipt.executingAgent}, approved by{" "}
+              {state.promoteReceipt.approver}.
+            </p>
+          </article>
+        </StudyStageDecisionPanel>
+      );
+    }
+
+    if (
+      state.currentStep === "context_access" &&
+      state.brainMaturity === "working" &&
+      state.snippets.length > 0
+    ) {
+      return (
+        <StudyStageDecisionPanel>
+          <div className="study-doc-card__stack">
+            <p className="study-doc-card__tag">Approved context unlocked</p>
+            {state.snippets.map((snippet) => (
+              <article key={snippet.recordId} className="study-doc-card">
+                <p className="study-doc-card__title">{snippet.title}</p>
+                <p className="study-doc-card__body">{snippet.text}</p>
+              </article>
+            ))}
+          </div>
+        </StudyStageDecisionPanel>
+      );
+    }
+
+    if (state.currentStep === "receipts" && RECEIPT_CARDS[0]) {
+      const card = RECEIPT_CARDS[0];
+      return (
+        <StudyStageDecisionPanel>
+          <article className="study-doc-card">
+            {card.tag ? <span className="study-doc-card__tag">{card.tag}</span> : null}
+            <h3 className="study-doc-card__title">{card.title}</h3>
+            <p className="study-doc-card__body">{card.summary}</p>
+          </article>
+        </StudyStageDecisionPanel>
+      );
+    }
+
+    return null;
+  }, [
+    draftsLoading,
+    isBrainsIntroStep,
+    primaryTheme,
+    selectedDrafts,
+    state.businessBrain,
+    state.brainMaturity,
+    state.currentStep,
+    state.pamReview,
+    state.promoteReceipt,
+    state.snippets,
+  ]);
+
+  const showRightDecisionLayout = hasRightDecisionPanel;
+
   return (
-    <div className="chapter1-conversation">
+    <div
+      className={`chapter1-conversation${showRightDecisionLayout ? " chapter1-right-decision" : ""}`}
+    >
       {isUserBrainStep ? (
         <UserBrainIntakeChat
           sessionId={state.sessionId}
@@ -370,6 +544,8 @@ export function Chapter1Conversation({
         </div>
       ) : null}
 
+      {rightDecisionPanel}
+
       {error && (
         <p className="study-stage__error" role="alert">
           {error}
@@ -401,22 +577,6 @@ export function Chapter1Conversation({
                     ))}
                   </ul>
                 </div>
-                {recommendedThemes.map((theme) => (
-                  <article
-                    key={theme.id}
-                    className={`study-doc-card${theme.id === primaryPickId ? " study-doc-card--selected" : ""}`}
-                  >
-                    <span className="study-doc-card__tag">
-                      {theme.label}
-                      {theme.isCore ? " · always one" : ""}
-                      {theme.id === primaryPickId ? " · start here" : ""}
-                    </span>
-                    <p className="study-doc-card__body">{theme.description}</p>
-                    <p className="study-doc-card__note study-doc-card__note--muted">
-                      {theme.whyRecommended}
-                    </p>
-                  </article>
-                ))}
               </div>
             )}
             <div className="chapter1-conversation__nav">
@@ -493,10 +653,6 @@ export function Chapter1Conversation({
                 })}
               </div>
             )}
-            <article className="study-doc-card study-doc-card--pam">
-              <p className="study-doc-card__tag">Pam — sniff test</p>
-              <p className="study-doc-card__body">{pamNoteForDrafts(selectedDrafts)}</p>
-            </article>
             <div className="chapter1-conversation__nav">
               {onBack && (
                 <button type="button" className="study-stage__ghost-btn" onClick={onBack}>
@@ -517,17 +673,6 @@ export function Chapter1Conversation({
 
         {state.currentStep === "business_brain" && (
           <div className="chapter1-conversation__beat">
-            <article className="study-doc-card">
-              <p className="study-doc-card__title">
-                Workshop draft — {state.businessBrain.clientName}
-              </p>
-              <p className="study-doc-card__body">{state.businessBrain.goal}</p>
-              <ul className="study-doc-card__list">
-                {state.businessBrain.workflows.slice(0, 3).map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </article>
             <div className="chapter1-conversation__nav">
               {onBack && (
                 <button type="button" className="study-stage__ghost-btn" onClick={onBack}>
@@ -543,18 +688,6 @@ export function Chapter1Conversation({
 
         {state.currentStep === "pam_challenge" && (
           <div className="chapter1-conversation__beat">
-            <article className="study-doc-card study-doc-card--pam">
-              <dl className="study-doc-card__dl">
-                <div>
-                  <dt>Strongest part</dt>
-                  <dd>{state.pamReview.strongestPart}</dd>
-                </div>
-                <div>
-                  <dt>Weakest assumption</dt>
-                  <dd>{state.pamReview.weakestAssumption}</dd>
-                </div>
-              </dl>
-            </article>
             <div className="chapter1-conversation__nav">
               {onBack && (
                 <button type="button" className="study-stage__ghost-btn" onClick={onBack}>
@@ -570,22 +703,6 @@ export function Chapter1Conversation({
 
         {state.currentStep === "human_decision" && (
           <div className="chapter1-conversation__beat">
-            {selectedDrafts.length > 0 && (
-              <div className="study-doc-card__stack">
-                {selectedDrafts.map((draft) => (
-                  <article key={draft.recordId} className="study-doc-card">
-                    <p className="study-doc-card__title">{draft.title}</p>
-                    <p className="study-doc-card__body study-doc-card__body--muted">
-                      {draft.canonicalText.slice(0, 160)}
-                      {draft.canonicalText.length > 160 ? "…" : ""}
-                    </p>
-                  </article>
-                ))}
-              </div>
-            )}
-            <blockquote className="study-doc-card study-doc-card--quote">
-              {OWNERSHIP_LINE}
-            </blockquote>
             {!state.humanApproved ? (
               <button
                 type="button"
@@ -620,34 +737,15 @@ export function Chapter1Conversation({
                 {loading ? "Doc is filing…" : "Doc, promote to Trusted Brain"}
               </button>
             ) : (
-              <>
-                <article className="study-doc-card study-doc-card--receipt">
-                  <p className="study-doc-card__title">{state.promoteReceipt.changeSummary}</p>
-                  <p className="study-doc-card__body study-doc-card__body--muted">
-                    Filed by {state.promoteReceipt.executingAgent}, approved by{" "}
-                    {state.promoteReceipt.approver}.
-                  </p>
-                </article>
-                <button type="button" className="btn-primary chapter1-conversation__primary" onClick={onNext}>
-                  Use approved context
-                </button>
-              </>
+              <button type="button" className="btn-primary chapter1-conversation__primary" onClick={onNext}>
+                Use approved context
+              </button>
             )}
           </div>
         )}
 
         {state.currentStep === "context_access" && state.brainMaturity === "working" && (
           <div className="chapter1-conversation__beat">
-            {state.snippets.length > 0 && (
-              <div className="space-y-2">
-                {state.snippets.map((snippet) => (
-                  <article key={snippet.recordId} className="study-doc-card">
-                    <p className="study-doc-card__title">{snippet.title}</p>
-                    <p className="study-doc-card__body">{snippet.text}</p>
-                  </article>
-                ))}
-              </div>
-            )}
             {!state.keyRequest && (
               <button
                 type="button"
@@ -678,15 +776,17 @@ export function Chapter1Conversation({
 
         {state.currentStep === "receipts" && (
           <div className="chapter1-conversation__beat">
-            <div className="study-doc-card__stack">
-              {RECEIPT_CARDS.map((card) => (
-                <article key={card.id} className="study-doc-card">
-                  {card.tag && <span className="study-doc-card__tag">{card.tag}</span>}
-                  <h3 className="study-doc-card__title">{card.title}</h3>
-                  <p className="study-doc-card__body">{card.summary}</p>
-                </article>
-              ))}
-            </div>
+            {RECEIPT_CARDS.length > 1 ? (
+              <div className="study-doc-card__stack">
+                {RECEIPT_CARDS.slice(1).map((card) => (
+                  <article key={card.id} className="study-doc-card">
+                    {card.tag ? <span className="study-doc-card__tag">{card.tag}</span> : null}
+                    <h3 className="study-doc-card__title">{card.title}</h3>
+                    <p className="study-doc-card__body">{card.summary}</p>
+                  </article>
+                ))}
+              </div>
+            ) : null}
             <div className="chapter1-conversation__nav">
               <Link href="/" className="btn-secondary">
                 Back to home

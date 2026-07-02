@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
-import { StudyStageRightPanel } from "@/components/chapter1/StudyStageRightPanel";
+import { StudyStageDecisionPanel } from "@/components/chapter1/StudyStageDecisionPanel";
 import type { CliveReaction } from "@/lib/clive/video-reactions";
 import type { ChatMessage } from "@/lib/clive/types";
 import type { UserBrainIntake, UserBrainProfile } from "@/lib/aie-demo/types";
@@ -185,7 +185,7 @@ export function UserBrainIntakeChat({
       : null;
 
   return (
-    <div className="chapter1-intake-chat">
+    <div className={`chapter1-intake-chat${summaryCard ? " chapter1-right-decision" : ""}`}>
       <CliveChatSurface
         key="user-brain-intake"
         persona="clive"
@@ -208,8 +208,8 @@ export function UserBrainIntakeChat({
       />
 
       {summaryCard ? (
-        <StudyStageRightPanel>
-          <article className="study-doc-card chapter1-intake-summary study-stage__right-summary">
+        <StudyStageDecisionPanel>
+          <article className="study-doc-card">
             <p className="study-doc-card__tag">Your profile</p>
             {intake.classificationSummary ? (
               <p className="study-doc-card__body">{intake.classificationSummary}</p>
@@ -225,7 +225,7 @@ export function UserBrainIntakeChat({
               — shaped from your answers. Clive will adapt pace and tone from here.
             </p>
           </article>
-        </StudyStageRightPanel>
+        </StudyStageDecisionPanel>
       ) : null}
     </div>
   );

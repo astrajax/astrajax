@@ -74,7 +74,7 @@ export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStage
         </main>
 
         <div className="study-stage__clive-spot" aria-hidden>
-          <div className="study-stage__clive-feather">
+          <div className="study-stage__clive-feather clive-portrait-feather">
             <CliveVideoStage ref={ref} className="study-stage__clive-media" />
           </div>
         </div>

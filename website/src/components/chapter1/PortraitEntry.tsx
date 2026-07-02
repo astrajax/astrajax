@@ -10,7 +10,7 @@ type PortraitEntryProps = {
 export function PortraitEntry({ onEnter }: PortraitEntryProps) {
   return (
     <section className="portrait-entry portrait-entry--study">
-      <div className="portrait-entry__frame" aria-hidden>
+      <div className="portrait-entry__frame clive-portrait-feather" aria-hidden>
         <Image
           src="/agent-cast/clive-wigglesworth/hero.png"
           alt=""

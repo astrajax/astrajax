@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CliveStudyShell } from "@/components/chapter1/CliveStudyShell";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
+import { StudyStageDecisionPanel } from "@/components/chapter1/StudyStageDecisionPanel";
 import type { CliveVideoStageHandle } from "@/components/chapter1/CliveVideoStage";
 import { ProposalCard } from "@/components/brain/ProposalCard";
 import {
@@ -10,6 +11,7 @@ import {
   CURATION_SITTING_BEATS,
 } from "@/lib/clive/curation-sitting";
 import type { ChatMessage } from "@/lib/clive/types";
+import { destinationConfirmLabel } from "@/lib/curation/destinations";
 import type { CurationDocket, CurationProposal } from "@/lib/curation/types";
 
 type CurateWithCliveShellProps = {
@@ -167,6 +169,62 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
     }
   }, [brainSlug, loadDocket]);
 
+  const latestPendingProposal = useMemo(
+    () => [...proposals].reverse().find((proposal) => proposal.status === "pending") ?? null,
+    [proposals],
+  );
+
+  const leftProposals = useMemo(
+    () =>
+      latestPendingProposal
+        ? proposals.filter((proposal) => proposal.id !== latestPendingProposal.id)
+        : proposals,
+    [proposals, latestPendingProposal],
+  );
+
+  const showRightDecisionLayout = introComplete && Boolean(docket);
+
+  const rightDecisionPanel = useMemo(() => {
+    if (!docket) return null;
+
+    if (latestPendingProposal) {
+      return (
+        <StudyStageDecisionPanel>
+          <article className="study-doc-card study-doc-card--selected">
+            <p className="study-doc-card__tag">Clive proposes</p>
+            <p className="study-doc-card__title">{latestPendingProposal.title}</p>
+            <p className="study-doc-card__body">{latestPendingProposal.summary}</p>
+            <button
+              type="button"
+              className="btn-primary chapter1-conversation__primary mt-3 w-full"
+              disabled={confirmingId === latestPendingProposal.id}
+              onClick={() => void handleConfirm(latestPendingProposal)}
+            >
+              {confirmingId === latestPendingProposal.id
+                ? "Filing…"
+                : destinationConfirmLabel(latestPendingProposal.destination)}
+            </button>
+          </article>
+        </StudyStageDecisionPanel>
+      );
+    }
+
+    return (
+      <StudyStageDecisionPanel>
+        <article className="study-doc-card">
+          <p className="study-doc-card__tag">Docket</p>
+          <p className="study-doc-card__title">Pending work</p>
+          <ul className="study-doc-card__list">
+            <li>{docket.trustedTruths.length} trusted truths</li>
+            <li>{docket.drafts.length} workshop drafts</li>
+            <li>{docket.flaggedInteractions.length} flagged interactions</li>
+            <li>{docket.pendingSourceDocuments.length} source documents</li>
+          </ul>
+        </article>
+      </StudyStageDecisionPanel>
+    );
+  }, [confirmingId, docket, handleConfirm, latestPendingProposal]);
+
   const headerActions = (
     <>
       <button type="button" className="study-stage__ghost-btn" onClick={() => void handleDemoSeed()}>
@@ -202,7 +260,9 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
           </div>
         </div>
       ) : (
-        <div className="chapter1-conversation">
+        <div
+          className={`chapter1-conversation${showRightDecisionLayout ? " chapter1-right-decision" : ""}`}
+        >
           <CliveChatSurface
             sessionId={sessionId}
             studyMode
@@ -217,7 +277,7 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
             initialMessages={initialMessages}
             onCustomSend={handleCustomSend}
           />
-          {proposals.map((proposal) => (
+          {leftProposals.map((proposal) => (
             <ProposalCard
               key={proposal.id}
               proposal={proposal}
@@ -225,19 +285,7 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
               onConfirm={handleConfirm}
             />
           ))}
-          <div className="study-doc-card mt-4">
-            <p className="study-doc-card__title">Pending work</p>
-            {docket ? (
-              <ul className="study-doc-card__list mt-2">
-                <li>{docket.trustedTruths.length} trusted truths</li>
-                <li>{docket.drafts.length} workshop drafts</li>
-                <li>{docket.flaggedInteractions.length} flagged interactions</li>
-                <li>{docket.pendingSourceDocuments.length} source documents</li>
-              </ul>
-            ) : (
-              <p className="study-doc-card__body study-doc-card__body--muted mt-2">Loading docket…</p>
-            )}
-          </div>
+          {rightDecisionPanel}
         </div>
       )}
     </CliveStudyShell>
