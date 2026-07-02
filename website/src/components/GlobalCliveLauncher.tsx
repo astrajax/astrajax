@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useState } from "react";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 
-const HIDDEN_PATHS = ["/brain", "/chapter-1", "/aie-demo", "/command"];
+const HIDDEN_PATHS = ["/brain", "/chapter-1", "/aie-demo", "/command", "/court"];
 
 const GREETING =
   "Ask me about AstraJax, citizen-builders, the adoption loop, or how Clive keeps agent context clean.";

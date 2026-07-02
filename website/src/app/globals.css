@@ -4462,18 +4462,6 @@ body {
   background: #1a120c;
 }
 
-.court-stage__book {
-  pointer-events: none;
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-.court-stage__book-image {
-  object-fit: cover;
-  object-position: center;
-}
-
 /* Artwork layer: aspect-ratio lock to preserve hotspot/slot percentages across viewports */
 .court-stage__artwork {
   position: absolute;
@@ -4498,9 +4486,25 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  background-size: cover;
-  background-position: center;
   overflow: hidden;
+}
+
+.platform-court__book-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.platform-court__book-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+.platform-court__portrait-hotspot,
+.platform-court__plaque-hotspot,
+.platform-court__verdict-slot,
+.platform-court__right-page-content {
+  z-index: 1;
 }
 
 .platform-court__portrait-hotspot,
@@ -4919,7 +4923,7 @@ body {
   color: var(--book-ink);
   background:
     linear-gradient(color-mix(in srgb, var(--color-parchment) 55%, #fbf4e2), color-mix(in srgb, var(--color-parchment) 55%, #fbf4e2)),
-    url(/agent-cast/court/court-book.png);
+    url(/agent-cast/court/court-book.jpg);
   background-size: cover;
   background-position: center;
   box-shadow: 0 24px 60px rgba(26, 18, 12, 0.55);
@@ -5008,10 +5012,6 @@ body {
    rather than cropping to a vertical strip. The scene stays coherent and
    the percentage-positioned hotspots/slots/pages remain aligned to the art. */
 @media (max-width: 900px) {
-  .court-stage__book {
-    display: none;
-  }
-
   .court-stage__artwork {
     width: 100vw;
     height: auto;
@@ -5923,10 +5923,6 @@ body {
    rather than cropping to a vertical strip. The scene stays coherent and
    the percentage-positioned hotspots/slots/pages remain aligned to the art. */
 @media (max-width: 900px) {
-  .court-stage__book {
-    display: none;
-  }
-
   .court-stage__artwork {
     width: 100vw;
     height: auto;

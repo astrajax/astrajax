@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, type ReactNode } from "react";
 import {
   createJudgementPaperTrail,
   CONVENING_LINE,
@@ -20,6 +20,26 @@ import {
   type CourtRoleId,
 } from "@/lib/platform/court";
 import type { PaperTrailLine } from "@/lib/platform/brain-health";
+
+const COURT_BOOK_IMAGE = "/agent-cast/court/court-book.jpg";
+
+function CourtBookArtwork({ children }: { children: ReactNode }) {
+  return (
+    <div className="platform-court__book-container">
+      <div className="platform-court__book-media" aria-hidden>
+        <Image
+          src={COURT_BOOK_IMAGE}
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="platform-court__book-image"
+        />
+      </div>
+      {children}
+    </div>
+  );
+}
 
 function formatWhen(iso: string): string {
   try {
@@ -216,12 +236,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
 
   return (
     <div className="platform-court__book-stage">
-        <div
-          className="platform-court__book-container"
-          style={{
-            backgroundImage: "url(/agent-cast/court/court-book.png)",
-          }}
-        >
+        <CourtBookArtwork>
           {/* Portrait hotspots */}
           {(["clive", "pam", "doc", "lazlo", "clive-man", "judge"] as CourtRoleId[]).map((roleId) => {
             const pos = COURT_BOOK_LAYOUT.portraits[roleId];
@@ -344,7 +359,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
               <span className="platform-court__plaque-word">Decide</span>
             </button>
           )}
-        </div>
+        </CourtBookArtwork>
 
       {showJudgement ? (
         <div
@@ -497,10 +512,7 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
 
   return (
     <div className="platform-court__book-stage">
-      <div
-        className="platform-court__book-container"
-        style={{ backgroundImage: "url(/agent-cast/court/court-book.png)" }}
-      >
+      <CourtBookArtwork>
         <div
           className="platform-court__right-page-content platform-court__intake"
           style={{
@@ -595,7 +607,7 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
             </button>
           </div>
         </div>
-      </div>
+      </CourtBookArtwork>
     </div>
   );
 }
@@ -605,17 +617,6 @@ export function CourtShell() {
 
   return (
     <div className="court-stage">
-      <div className="court-stage__book" aria-hidden>
-        <Image
-          src="/agent-cast/court/court-book.png"
-          alt=""
-          fill
-          priority
-          sizes="100vw"
-          className="court-stage__book-image"
-        />
-      </div>
-
       <header className="court-stage__header">
         <div>
           <p className="court-stage__label">The Court</p>
