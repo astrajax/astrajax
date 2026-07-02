@@ -1,11 +1,13 @@
-import { airtableCreate } from "../airtable-rest";
+import { airtableCreate, airtableSelect, escapeAirtableString } from "../airtable-rest";
+import { normalizeCreatedBy } from "../airtable-field-values";
 import {
   BRAIN_TRUSTED_CHAPTER1_BASE_ID,
   BRAIN_TRUSTED_CHAPTER1_TABLES,
+  BRAIN_WORKSHOP_TABLES,
   CHAPTER1_BRAIN_SLUG,
 } from "../airtable-ids";
 import { appendChangeLog } from "../change-log";
-import { getDocPromoteToken, getWorkshopWriteToken, useMemoryStore } from "../config";
+import { getDocPromoteToken, getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
 import { createDraftTruth } from "./draft-propose";
 
 export type DemoSeedTruth = {
@@ -52,6 +54,28 @@ export const ASTRAJAX_DEMO_TRUTHS: DemoSeedTruth[] = [
   },
 ];
 
+const DEMO_DRAFT_TITLE = "Open question: first paid pilot shape";
+
+async function listExistingTrustedTitles(
+  baseId: string,
+  tableId: string,
+  token: string,
+  titles: string[],
+): Promise<Set<string>> {
+  if (titles.length === 0) return new Set();
+  const formula = `OR(${titles.map((title) => `{Title}='${escapeAirtableString(title)}'`).join(",")})`;
+  const records = await airtableSelect(baseId, tableId, token, {
+    filterByFormula: formula,
+    fields: ["Title"],
+    maxRecords: titles.length,
+  });
+  return new Set(
+    records
+      .map((record) => record.fields.Title)
+      .filter((title): title is string => typeof title === "string"),
+  );
+}
+
 export async function handleDemoSeed(input: {
   brainSlug?: string;
   actor?: string;
@@ -63,6 +87,7 @@ export async function handleDemoSeed(input: {
 }> {
   const brainSlug = input.brainSlug?.trim() || CHAPTER1_BRAIN_SLUG;
   const actor = input.actor?.trim() || "Demo seed";
+  const createdBy = normalizeCreatedBy(actor);
   const token = getDocPromoteToken() ?? getWorkshopWriteToken();
   const trustedBaseId = process.env.BRAIN_TRUSTED_BASE_ID ?? BRAIN_TRUSTED_CHAPTER1_BASE_ID;
   const trustedTableId =
@@ -84,14 +109,25 @@ export async function handleDemoSeed(input: {
           "Demo draft — what does the first paid AstraJax engagement look like after Chapter 1?",
         proposedCategory: "Open Questions",
         proposedByAgent: "Clive's Man",
-        actor,
+        actor: createdBy,
       });
       draftRecordIds.push(draft.recordId);
     }
     return { mode: "memory", trustedRecordIds, draftRecordIds };
   }
 
+  const existingTitles = await listExistingTrustedTitles(
+    trustedBaseId,
+    trustedTableId,
+    token,
+    ASTRAJAX_DEMO_TRUTHS.map((truth) => truth.title),
+  );
+
   for (const truth of ASTRAJAX_DEMO_TRUTHS) {
+    if (existingTitles.has(truth.title)) {
+      trustedRecordIds.push(`skipped_existing:${truth.title}`);
+      continue;
+    }
     const created = await airtableCreate(trustedBaseId, trustedTableId, token, {
       Title: truth.title,
       "Canonical Text": truth.canonicalText,
@@ -105,16 +141,36 @@ export async function handleDemoSeed(input: {
   }
 
   if (input.includeDrafts) {
-    const draft = await createDraftTruth({
-      brainSlug,
-      title: "Open question: first paid pilot shape",
-      canonicalText:
-        "Demo draft — what does the first paid AstraJax engagement look like after Chapter 1?",
-      proposedCategory: "Open Questions",
-      proposedByAgent: "Clive's Man",
-      actor,
-    });
-    draftRecordIds.push(draft.recordId);
+    const workshopBaseId = getWorkshopBaseId();
+    let skipDraft = false;
+    if (workshopBaseId) {
+      const existingDrafts = await airtableSelect(
+        workshopBaseId,
+        BRAIN_WORKSHOP_TABLES.draftBrainTruth,
+        token,
+        {
+          filterByFormula: `{Title}='${escapeAirtableString(DEMO_DRAFT_TITLE)}'`,
+          fields: ["Title"],
+          maxRecords: 1,
+        },
+      );
+      skipDraft = existingDrafts.length > 0;
+    }
+
+    if (skipDraft) {
+      draftRecordIds.push(`skipped_existing:${DEMO_DRAFT_TITLE}`);
+    } else {
+      const draft = await createDraftTruth({
+        brainSlug,
+        title: DEMO_DRAFT_TITLE,
+        canonicalText:
+          "Demo draft — what does the first paid AstraJax engagement look like after Chapter 1?",
+        proposedCategory: "Open Questions",
+        proposedByAgent: "Clive's Man",
+        actor: createdBy,
+      });
+      draftRecordIds.push(draft.recordId);
+    }
   }
 
   try {

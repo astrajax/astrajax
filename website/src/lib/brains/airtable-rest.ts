@@ -45,7 +45,16 @@ async function airtableRequest(
       signal: controller.signal,
     });
     if (!response.ok) {
-      throw new Error(`Airtable API error ${response.status}`);
+      let detail = response.statusText;
+      try {
+        const body = (await response.json()) as { error?: { message?: string; type?: string } };
+        if (body.error?.message) {
+          detail = body.error.message;
+        }
+      } catch {
+        /* non-JSON body */
+      }
+      throw new Error(`Airtable API error ${response.status}: ${detail}`);
     }
     return response;
   } finally {

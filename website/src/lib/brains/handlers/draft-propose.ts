@@ -1,4 +1,5 @@
 import { appendChangeLog } from "../change-log";
+import { normalizeCreatedBy } from "../airtable-field-values";
 import { airtableCreate, airtableFindOne, airtableUpdate } from "../airtable-rest";
 import {
   BRAIN_INTERACTION_CONTEXT_FLAGGED,
@@ -72,7 +73,7 @@ export async function createDraftTruth(input: {
     Status: "Draft",
     "Proposed Category": input.proposedCategory,
     "Proposed By Agent": input.proposedByAgent ?? "Clive",
-    "Created By": input.actor ?? "Architect",
+    "Created By": normalizeCreatedBy(input.actor),
   };
   if (input.supersedesTrustedTruthId) {
     fields["Supersedes Trusted Truth ID"] = input.supersedesTrustedTruthId;
@@ -265,7 +266,7 @@ export async function routeIntakeItem(input: {
       "Brain Slug": input.brainSlug,
       "Mine Status": "Pending",
       "Proposed By Agent": "Clive's Man",
-      "Created By": input.actor ?? "Architect",
+      "Created By": normalizeCreatedBy(input.actor),
     },
   );
 
