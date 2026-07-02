@@ -400,29 +400,28 @@ body {
 }
 
 .hero-asymmetric-wall__composition {
-  /* Left → right: Clive+Man cluster, Pam, wide Doc flank. Clive portrait largest,
-     Pam second, Doc third — but Doc column is much wider than the fa507ac pass. */
-  --hero-clive-col: 2.05fr;
-  --hero-pam-col: 1.3fr;
-  --hero-doc-col: 1.28fr;
-  --hero-clive-share: 0.74;
-  --hero-man-share: 0.26;
-  --hero-col-gap: clamp(0.5rem, 1.5vw, 1.65rem);
-  --hero-lazlo-portrait-scale: 1;
+  /* Mockup gallery: 4×2 — Clive top-centre (span 2), Doc top-right; Pam / Man /
+     Lazlo / Minions on the bottom row. Logo overlays top-left, not a grid cell. */
+  --hero-col-gap: clamp(0.45rem, 1.35vw, 1.5rem);
+  --hero-row-gap: clamp(0.2rem, 0.55vh, 0.45rem);
   position: relative;
   display: grid;
   grid-template-columns:
-    minmax(0, var(--hero-clive-col))
-    minmax(0, var(--hero-pam-col))
-    minmax(0, var(--hero-doc-col));
-  grid-template-rows: auto auto;
+    minmax(0, 1.22fr)
+    minmax(0, 0.58fr)
+    minmax(0, 0.94fr)
+    minmax(0, 1.05fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    ".    clive clive doc"
+    "pam  man   lazlo minions";
   align-content: end;
   column-gap: var(--hero-col-gap);
-  row-gap: clamp(0.15rem, 0.5vh, 0.35rem);
-  align-items: stretch;
+  row-gap: var(--hero-row-gap);
+  align-items: end;
   width: 100%;
   min-height: 0;
-  max-width: min(124rem, calc((100svh - 14rem) * 2.24));
+  max-width: min(118rem, calc((100svh - 12rem) * 2.05));
   margin: 0 auto;
   padding-inline: clamp(0.35rem, 1.1vw, 0.9rem);
 }
@@ -452,46 +451,58 @@ body {
   align-items: center;
 }
 
-/* Clive cluster — left flank; Clive portrait with Man adjacent on his right */
-.hero-asymmetric-wall__slot--clive-cluster {
-  grid-column: 1;
-  grid-row: 1 / -1;
+/* Clive — top-centre co-star, spans columns 2–3 */
+.hero-asymmetric-wall__slot--clive {
+  grid-area: clive;
   align-self: end;
-  align-items: flex-end;
-  justify-content: flex-start;
-  z-index: 3;
-  padding-top: clamp(2rem, 5.5vh, 3.25rem);
-  padding-bottom: clamp(0.1rem, 0.55vh, 0.35rem);
-}
-
-.hero-asymmetric-wall__clive-row {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  justify-content: flex-start;
+  justify-self: center;
+  z-index: 4;
   width: 100%;
-  min-width: 0;
-  gap: clamp(0.2rem, 0.55vw, 0.55rem);
+  max-width: 100%;
+  transform: rotate(-0.35deg);
+  padding-top: clamp(1.75rem, 4.5vh, 2.75rem);
+  padding-bottom: clamp(0.05rem, 0.25vh, 0.2rem);
 }
 
-.hero-asymmetric-wall__clive-row > .hero-portrait:first-child,
-.hero-asymmetric-wall__clive-row > .hero-portrait-door-wrap:first-child {
-  flex: 1 1 calc(var(--hero-clive-share) * 100%);
-  width: calc(var(--hero-clive-share) * 100%);
-  max-width: calc(var(--hero-clive-share) * 100%);
-  min-width: 0;
+.hero-asymmetric-wall__slot--clive .hero-portrait,
+.hero-asymmetric-wall__slot--clive .hero-portrait-door-wrap {
+  width: 100%;
+  max-width: 100%;
 }
 
-/* Pam — centre column, bottom row beside Lazlo */
+/* Doc — top-right large portrait */
+.hero-asymmetric-wall__slot--doc {
+  grid-area: doc;
+  align-self: end;
+  justify-self: stretch;
+  z-index: 3;
+  width: 100%;
+  transform: rotate(0.65deg);
+  padding-top: clamp(0.35rem, 0.9vh, 0.65rem);
+  padding-bottom: clamp(0.05rem, 0.25vh, 0.2rem);
+}
+
+.hero-asymmetric-wall__slot--doc .hero-portrait,
+.hero-asymmetric-wall__slot--doc .hero-portrait-door-wrap {
+  width: 100%;
+  max-width: 100%;
+}
+
+.hero-asymmetric-wall__slot--doc .hero-portrait-frame {
+  box-shadow:
+    -0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
+    0 0.5rem 1rem rgba(6, 5, 3, 0.32);
+}
+
+/* Pam — bottom-left co-star, similar scale to Clive */
 .hero-asymmetric-wall__slot--pam {
-  grid-column: 2;
-  grid-row: 2;
+  grid-area: pam;
   align-self: end;
   align-items: stretch;
   justify-content: flex-end;
-  z-index: 2;
+  z-index: 3;
+  width: 100%;
   transform: rotate(-0.65deg);
-  padding-top: 0;
   padding-bottom: clamp(0.1rem, 0.55vh, 0.35rem);
 }
 
@@ -542,36 +553,16 @@ body {
   align-self: center;
 }
 
-/* Doc — upper-right stack; minions + portrait fill the wide flank column */
-.hero-asymmetric-wall__slot--doc-stack {
-  grid-column: 3;
-  grid-row: 1;
-  align-self: stretch;
-  align-items: stretch;
-  justify-content: flex-start;
-  z-index: 2;
-  transform: rotate(0.65deg);
-  padding-top: clamp(0.35rem, 0.9vh, 0.65rem);
-  gap: clamp(0.25rem, 0.55vh, 0.4rem);
-  min-height: 0;
-}
-
-.hero-asymmetric-wall__slot--doc-stack > .hero-portrait {
-  flex: 0 0 auto;
-}
-
-/* Clive's Man — adjacent to Clive's right, baseline-aligned */
+/* Clive's Man — small portrait, bottom row centre-left */
 .hero-asymmetric-wall__slot--man {
-  flex: 0 0 calc(var(--hero-man-share) * 100%);
-  width: calc(var(--hero-man-share) * 100%);
-  max-width: calc(var(--hero-man-share) * 100%);
-  align-self: flex-end;
-  justify-content: flex-end;
+  grid-area: man;
+  align-self: end;
+  justify-self: center;
   z-index: 2;
-  min-width: 0;
-  transform: none;
-  padding: 0;
-  margin-bottom: clamp(0.1rem, 0.35vh, 0.25rem);
+  width: 76%;
+  max-width: 100%;
+  transform: rotate(0.4deg);
+  padding-bottom: clamp(0.1rem, 0.45vh, 0.3rem);
 }
 
 .hero-portrait {
@@ -593,31 +584,41 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-.hero-asymmetric-wall__slot--doc-stack .hero-portrait-frame {
-  box-shadow:
-    -0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
-    0 0.5rem 1rem rgba(6, 5, 3, 0.32);
-}
-
 .hero-asymmetric-wall__slot--pam .hero-portrait-frame {
   box-shadow:
     0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-/* Doc — fills the flank column edge-to-edge */
-.hero-asymmetric-wall__slot--doc-stack > .hero-portrait {
-  width: 100%;
-  max-width: 100%;
-  align-self: flex-start;
+/* Doc's Minions — tiny squares, bottom-right (separate from Doc portrait) */
+.hero-asymmetric-wall__slot--minions {
+  grid-area: minions;
+  align-self: end;
+  justify-self: end;
+  z-index: 2;
+  width: min(100%, clamp(7.5rem, 11vw, 10.5rem));
+  transform: rotate(0.5deg);
+  padding-bottom: clamp(0.1rem, 0.45vh, 0.3rem);
 }
 
-.hero-asymmetric-wall__slot--pam .hero-wall-name-rail .hero-portrait {
-  align-self: center;
+.hero-asymmetric-wall__slot--minions .hero-doc-workshop {
   width: 100%;
-  max-width: 100%;
-  margin-top: 0;
-  margin-bottom: 0;
+}
+
+.hero-asymmetric-wall__slot--minions .hero-doc-workshop-grid {
+  gap: clamp(0.3rem, 0.65vw, 0.5rem);
+}
+
+.hero-asymmetric-wall__slot--minions .hero-portrait-caption {
+  margin-top: clamp(0.2rem, 0.45vw, 0.35rem);
+}
+
+.hero-asymmetric-wall__slot--minions .hero-portrait-caption__name {
+  font-size: clamp(0.625rem, 0.75vw, 0.75rem);
+}
+
+.hero-asymmetric-wall__slot--minions .hero-portrait-caption__role {
+  font-size: clamp(0.5625rem, 0.68vw, 0.6875rem);
 }
 
 /* Doc's Minions — two executors in a single row above Doc */
@@ -706,20 +707,15 @@ body {
     0 0.35rem 0.75rem rgba(6, 5, 3, 0.28);
 }
 
-/* Lazlo Marlowe — bottom-right flank portrait, fills the corner cell */
+/* Lazlo Marlowe — medium portrait, ornate gold frame, bottom centre-right */
 .hero-asymmetric-wall__slot--lazlo {
-  grid-column: 3;
-  grid-row: 2;
+  grid-area: lazlo;
   align-self: end;
-  align-items: stretch;
   justify-self: stretch;
-  justify-content: flex-end;
   z-index: 3;
   width: 100%;
   min-width: 0;
-  min-height: 0;
   transform: rotate(0.55deg);
-  padding: 0;
   padding-bottom: clamp(0.1rem, 0.55vh, 0.35rem);
 }
 
