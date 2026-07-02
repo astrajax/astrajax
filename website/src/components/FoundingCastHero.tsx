@@ -441,6 +441,7 @@ export function FoundingCastHero() {
           </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc">
             <div className="hero-doc-column">
+              <DocWorkshopRobotGrid />
               <CastPortrait
                 entry={doc}
                 displayName={doc.name}
@@ -448,7 +449,6 @@ export function FoundingCastHero() {
                 prefersReducedMotion={prefersReducedMotion}
                 portraitDoorsEnabled={portraitDoorsEnabled}
               />
-              <DocWorkshopRobotGrid />
             </div>
           </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
