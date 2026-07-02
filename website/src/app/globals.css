@@ -399,40 +399,49 @@ body {
   overflow: visible;
 }
 
-/* Desktop gallery canvas — absolute collage tuned to mockup at ~1440×900. */
+/* Desktop gallery band — centres the fixed-aspect collage canvas in the
+   available viewport height so tall windows letterbox instead of stretching. */
 .hero-asymmetric-wall__desktop {
-  width: 100%;
-  height: calc(
+  --hero-wall-height: calc(
     100svh - var(--hero-nav-height) - var(--hero-rail-height) + var(--hero-rail-overlap) -
       var(--hero-gallery-gap) * 2
   );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--hero-wall-height);
   min-height: 28rem;
 }
 
+/* Collage canvas — locked to the mockup's 2.4:1 aspect so every slot
+   percentage below reproduces the mockup at any window size. */
 .hero-asymmetric-wall__composition {
   position: relative;
-  width: 100%;
-  height: 100%;
+  aspect-ratio: 2.4 / 1;
+  width: min(100%, calc(max(var(--hero-wall-height), 28rem) * 2.4));
+  height: auto;
   max-width: none;
   margin: 0;
   padding: 0;
+  container-type: inline-size;
 }
 
-/* Logo — modest top-left; does not reserve a grid column */
+/* Logo — large mark + wordmark filling the empty wall left of Clive */
 .hero-asymmetric-wall__brand-overlay {
   position: absolute;
-  top: 2%;
-  left: 1%;
+  top: 13%;
+  left: 13%;
   z-index: 6;
   pointer-events: auto;
 }
 
 .hero-asymmetric-wall__brand-overlay .hero-wall-brand {
-  --hero-brand-mark-size: clamp(2rem, 3.5vw, 3.25rem);
-  --hero-brand-word-size: clamp(0.8125rem, 1.45vw, 1.125rem);
-  align-items: flex-start;
+  --hero-brand-mark-size: 9cqw;
+  --hero-brand-word-size: 1.8cqw;
+  align-items: center;
   margin-bottom: 0;
-  gap: clamp(0.2rem, 0.4vw, 0.35rem);
+  gap: 1.1cqw;
 }
 
 .hero-asymmetric-wall__slot {
@@ -445,9 +454,9 @@ body {
 
 /* Clive — top-centre anchor, highest on the wall */
 .hero-asymmetric-wall__slot--clive {
-  top: 6%;
-  left: 22%;
-  width: 44%;
+  top: 3.5%;
+  left: 32.5%;
+  width: 36.5%;
   z-index: 4;
   transform: rotate(-0.35deg);
 }
@@ -458,11 +467,11 @@ body {
   max-width: 100%;
 }
 
-/* Doc — top-right co-star (~80–90% of Clive width) */
+/* Doc — top-right co-star, clearly smaller than Clive */
 .hero-asymmetric-wall__slot--doc {
-  top: 4%;
-  right: 1%;
-  width: 36%;
+  top: 5%;
+  right: 1.5%;
+  width: 28.5%;
   z-index: 3;
   transform: rotate(0.65deg);
 }
@@ -481,9 +490,9 @@ body {
 
 /* Pam — large bottom-left, sits lower than Clive */
 .hero-asymmetric-wall__slot--pam {
-  bottom: 4%;
-  left: 1%;
-  width: 38%;
+  bottom: 3%;
+  left: 2%;
+  width: 33%;
   align-items: stretch;
   z-index: 3;
   transform: rotate(-0.65deg);
@@ -538,9 +547,9 @@ body {
 
 /* Clive's Man — small portrait tucked between Pam and Lazlo */
 .hero-asymmetric-wall__slot--man {
-  bottom: 6%;
-  left: 40%;
-  width: 13%;
+  top: 57%;
+  left: 38.5%;
+  width: 16%;
   z-index: 2;
   transform: rotate(0.4deg);
 }
@@ -570,11 +579,11 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-/* Doc's Minions — tiny squares, bottom-right corner */
+/* Doc's Minions — tiny squares, right edge beside Lazlo */
 .hero-asymmetric-wall__slot--minions {
-  bottom: 6%;
-  right: 1%;
-  width: 9%;
+  top: 52%;
+  right: 4%;
+  width: 11.5%;
   z-index: 2;
   transform: rotate(0.5deg);
 }
@@ -584,19 +593,19 @@ body {
 }
 
 .hero-asymmetric-wall__slot--minions .hero-doc-workshop-grid {
-  gap: clamp(0.3rem, 0.65vw, 0.5rem);
+  gap: clamp(0.3rem, 0.65cqw, 0.5rem);
 }
 
 .hero-asymmetric-wall__slot--minions .hero-portrait-caption {
-  margin-top: clamp(0.2rem, 0.45vw, 0.35rem);
+  margin-top: clamp(0.2rem, 0.45cqw, 0.35rem);
 }
 
 .hero-asymmetric-wall__slot--minions .hero-portrait-caption__name {
-  font-size: clamp(0.625rem, 0.75vw, 0.75rem);
+  font-size: clamp(0.625rem, 0.75cqw, 0.75rem);
 }
 
 .hero-asymmetric-wall__slot--minions .hero-portrait-caption__role {
-  font-size: clamp(0.5625rem, 0.68vw, 0.6875rem);
+  font-size: clamp(0.5625rem, 0.68cqw, 0.6875rem);
 }
 
 /* Doc's Minions — two executors in a single row above Doc */
@@ -668,15 +677,15 @@ body {
 }
 
 .hero-asymmetric-wall__slot--man .hero-portrait-caption {
-  margin-top: clamp(0.3rem, 0.7vw, 0.5rem);
+  margin-top: clamp(0.3rem, 0.7cqw, 0.5rem);
 }
 
 .hero-asymmetric-wall__slot--man .hero-portrait-caption__name {
-  font-size: clamp(0.6875rem, 0.85vw, 0.8125rem);
+  font-size: clamp(0.6875rem, 0.85cqw, 0.8125rem);
 }
 
 .hero-asymmetric-wall__slot--man .hero-portrait-caption__role {
-  font-size: clamp(0.625rem, 0.75vw, 0.75rem);
+  font-size: clamp(0.625rem, 0.75cqw, 0.75rem);
 }
 
 .hero-asymmetric-wall__slot--man .hero-portrait-frame {
@@ -685,11 +694,11 @@ body {
     0 0.35rem 0.75rem rgba(6, 5, 3, 0.28);
 }
 
-/* Lazlo Marlowe — medium portrait (~2× Man width), ornate gold frame */
+/* Lazlo Marlowe — medium portrait between Man and the minions */
 .hero-asymmetric-wall__slot--lazlo {
-  bottom: 5%;
-  right: 14%;
-  width: 25%;
+  top: 64%;
+  left: 59%;
+  width: 21.5%;
   z-index: 3;
   min-width: 0;
   transform: rotate(-0.55deg);
@@ -4008,6 +4017,232 @@ body {
   .platform-nav__link,
   .platform-tabs__btn {
     transition: none;
+  }
+}
+
+/* Court Book */
+
+.platform-court__book-stage {
+  margin-top: 1.5rem;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.platform-court__book-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-size: cover;
+  background-position: center;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.platform-court__portrait-hotspot,
+.platform-court__plaque-hotspot {
+  position: absolute;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.platform-court__portrait-hotspot {
+  width: 11%;
+  height: 11%;
+  border-radius: 50%;
+}
+
+.platform-court__portrait-hotspot:not(.platform-court__portrait-hotspot--judge):hover {
+  box-shadow: inset 0 0 8px color-mix(in srgb, var(--color-apricot) 40%, transparent);
+}
+
+.platform-court__portrait-hotspot--judge {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.platform-court__portrait-hotspot--judge:hover::after {
+  content: "The Judge does not decide";
+  position: absolute;
+  bottom: -1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-ink);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.platform-court__verdict-slot {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  letter-spacing: 0.05em;
+}
+
+.platform-court__verdict-text {
+  color: var(--color-ink);
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.platform-court__verdict-placeholder {
+  color: color-mix(in srgb, var(--color-ink) 30%, transparent);
+  font-size: 1.25rem;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.platform-court__right-page-content {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  background: color-mix(in srgb, var(--color-cream-paper) 95%, white);
+  border: 1px solid color-mix(in srgb, var(--color-ink) 8%, transparent);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  box-shadow: inset 0 0 12px color-mix(in srgb, var(--color-ink) 3%, transparent);
+}
+
+.platform-court__bicker-head {
+  flex-shrink: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-ink) 12%, transparent);
+  padding-bottom: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.platform-court__bicker-head h2 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.platform-court__bicker-feed {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  min-height: 150px;
+  padding-right: 0.5rem;
+}
+
+.platform-court__bicker-feed::-webkit-scrollbar {
+  width: 4px;
+}
+
+.platform-court__bicker-feed::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--color-ink) 20%, transparent);
+  border-radius: 2px;
+}
+
+.platform-court__bicker-turn {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--color-ink);
+}
+
+.platform-court__bicker-speaker {
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+.platform-court__bicker-input {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.platform-court__input {
+  flex: 1;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 15%, transparent);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  background: white;
+  color: var(--color-ink);
+}
+
+.platform-court__input::placeholder {
+  color: color-mix(in srgb, var(--color-ink) 40%, transparent);
+}
+
+.platform-court__verdict-panel-inner {
+  padding: 1rem;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.platform-court__plaque-hotspot {
+  width: 12%;
+  height: 12%;
+  border-radius: 0.5rem;
+}
+
+.platform-court__plaque-hotspot--active {
+  animation: plaqueGlow 2s ease-in-out infinite;
+}
+
+@keyframes plaqueGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px color-mix(in srgb, var(--color-apricot) 50%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 16px color-mix(in srgb, var(--color-apricot) 80%, transparent);
+  }
+}
+
+.platform-court__judgement-section {
+  margin-top: 2rem;
+  position: relative;
+}
+
+.platform-court__judgement-panel {
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive fallback for narrow screens */
+@media (max-width: 900px) {
+  .platform-court__book-container {
+    display: none;
+  }
+
+  .platform-court__portrait-row {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+    padding: 0 1rem;
+  }
+
+  .platform-court__portrait-chip {
+    flex-shrink: 0;
+    padding: 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent);
+    border-radius: 0.5rem;
+    background: white;
+    font-size: 0.75rem;
+    text-align: center;
+  }
+
+  .platform-court__stack-content {
+    margin-top: 1rem;
+    padding: 0 1rem;
   }
 }
 
