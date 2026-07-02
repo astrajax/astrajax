@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { PlatformNav } from "@/components/platform/PlatformNav";
@@ -9,7 +9,6 @@ import { DestinationChip } from "@/components/brain/DestinationChip";
 import Image from "next/image";
 import {
   healthBandLabel,
-  HEALTH_BAND_CSS_VAR,
   stillArtForBand,
   type BrainHealthBand,
 } from "@/lib/platform/brains";
@@ -38,7 +37,7 @@ type HealthTab = BrainHealthViewTab;
 
 function HealthBandBanner({ band }: { band: BrainHealthBand }) {
   return (
-    <figure className="brain-state-portrait sm:col-span-2" role="status">
+    <figure className="brain-state-portrait sm:col-span-2" role="img">
       <div className="brain-state-portrait__frame">
         <Image
           src={stillArtForBand(band)}
@@ -46,19 +45,10 @@ function HealthBandBanner({ band }: { band: BrainHealthBand }) {
           width={1024}
           height={571}
           priority
-          sizes="(min-width: 640px) 42rem, 100vw"
+          sizes="(min-width: 1024px) 68rem, 100vw"
           className="brain-state-portrait__image"
         />
       </div>
-      <figcaption
-        className="brain-state-portrait__caption"
-        style={{ "--health-accent": HEALTH_BAND_CSS_VAR[band] } as CSSProperties}
-      >
-        <span className="brain-state-portrait__band">{healthBandLabel(band)}</span>
-        <span className="brain-state-portrait__note">
-          Coaching read, not permission to act unsupervised
-        </span>
-      </figcaption>
     </figure>
   );
 }

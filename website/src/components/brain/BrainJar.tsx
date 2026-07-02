@@ -47,17 +47,19 @@ export function BrainJar({ healthBand, alt }: BrainJarProps) {
       className="brain-shrine__jar"
       style={{ "--health-glow": HEALTH_BAND_CSS_VAR[healthBand] } as CSSProperties}
     >
-      <video
-        ref={videoRef}
-        className="brain-shrine__jar-media"
-        src={src}
-        autoPlay={!prefersReducedMotion}
-        muted
-        loop
-        playsInline
-        preload="metadata"
-        aria-label={alt}
-      />
+      <div className="brain-shrine__jar-feather">
+        <video
+          ref={videoRef}
+          className="brain-shrine__jar-media"
+          src={src}
+          autoPlay={!prefersReducedMotion}
+          muted
+          loop
+          playsInline
+          preload="metadata"
+          aria-label={alt}
+        />
+      </div>
     </div>
   );
 }
