@@ -411,7 +411,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={pam}
               displayName={pam.name}
-              sizes="(min-width: 1536px) 28vw, (min-width: 1024px) 28vw, 40vw"
+              sizes="(min-width: 1536px) 36vw, (min-width: 1024px) 36vw, 40vw"
               seamlessLoop
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
@@ -421,7 +421,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={clive}
               displayName="Clive Wigglesworth Esq."
-              sizes="(min-width: 1536px) 40vw, (min-width: 1024px) 40vw, 92vw"
+              sizes="(min-width: 1536px) 43vw, (min-width: 1024px) 43vw, 92vw"
               priority
               eagerPreload
               seamlessLoop
@@ -444,7 +444,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={doc}
               displayName={doc.name}
-              sizes="(min-width: 1536px) 34vw, (min-width: 1024px) 32vw, 40vw"
+              sizes="(min-width: 1536px) 12vw, (min-width: 1024px) 12vw, 40vw"
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
@@ -453,7 +453,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={lazloMarlowe}
               displayName={lazloMarlowe.name}
-              sizes="(min-width: 1536px) 34vw, (min-width: 1024px) 32vw, 72vw"
+              sizes="(min-width: 1536px) 12vw, (min-width: 1024px) 12vw, 72vw"
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />

@@ -400,35 +400,35 @@ body {
 }
 
 .hero-asymmetric-wall__composition {
-  /* Portrait sizing lives in the grid columns; every portrait is capped at
-     100% of its track, so frames can never cross the column gap and overlap.
-     Tune relative sizes here — never with >100% widths on the portraits. */
-  --hero-pam-col: 0.98fr;
-  --hero-clive-col: 1.34fr;
-  --hero-doc-col: 1.38fr;
-  --hero-col-gap: clamp(0.625rem, 2.1vw, 2.125rem);
+  /* Column width IS portrait width (~16:9 stills). Clive largest, Pam second,
+     Doc supporting cast. Tracks sum to 3.48fr — Doc stays narrow so stars
+     can eat the remaining horizontal space without overlapping. */
+  --hero-pam-col: 1.38fr;
+  --hero-clive-col: 1.66fr;
+  --hero-doc-col: 0.44fr;
+  --hero-col-gap: clamp(0.5rem, 1.6vw, 1.75rem);
   --hero-lazlo-portrait-scale: 1;
-  /* Leftward nudge for the centre stack — a fraction of the column gap, so
-     the remaining clearance to Pam's column is always positive. */
-  --hero-clive-stack-offset-x: calc(var(--hero-col-gap) * -0.92);
   position: relative;
   display: grid;
   grid-template-columns:
     minmax(0, var(--hero-pam-col))
     minmax(0, var(--hero-clive-col))
     minmax(0, var(--hero-doc-col));
-  grid-template-rows: minmax(0, 1.15fr) minmax(0, 0.92fr);
+  grid-template-rows: auto auto;
+  align-content: space-between;
   column-gap: var(--hero-col-gap);
-  row-gap: clamp(0.35rem, 1.2vh, 0.85rem);
+  row-gap: clamp(0.15rem, 0.55vh, 0.4rem);
   align-items: stretch;
   width: 100%;
   min-height: min(
     52rem,
-    calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) + var(--hero-rail-overlap) - 6rem)
+    calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) + var(--hero-rail-overlap) - 4.5rem)
   );
-  max-width: 118rem;
+  /* Width cap tied to viewport height — tuned so principals can grow until
+     the full cast (incl. captions) still clears one screen. */
+  max-width: min(118rem, calc((100svh - 13.5rem) * 2.42));
   margin: 0 auto;
-  padding-inline: clamp(0.5rem, 1.5vw, 1.25rem);
+  padding-inline: clamp(0.35rem, 1.1vw, 0.9rem);
 }
 
 .hero-asymmetric-wall__slot {
@@ -439,17 +439,20 @@ body {
   align-items: center;
 }
 
-/* Brand — top-left corner, above Pam's lower flank */
+/* Brand — lower in the left wall zone, just above Pam; compact so stars keep space */
 .hero-asymmetric-wall__slot--brand {
   grid-column: 1;
   grid-row: 1;
-  align-self: start;
-  justify-content: flex-start;
+  align-self: stretch;
+  justify-content: flex-end;
   z-index: 3;
-  padding-top: clamp(0.25rem, 1.5vh, 0.75rem);
+  padding-top: clamp(0.75rem, 2.5vh, 1.5rem);
+  padding-bottom: clamp(0.1rem, 0.4vh, 0.25rem);
 }
 
 .hero-asymmetric-wall__slot--brand .hero-wall-brand {
+  --hero-brand-mark-size: clamp(2.75rem, 5vw, 4.75rem);
+  --hero-brand-word-size: clamp(1rem, 2vw, 1.75rem);
   margin-bottom: 0;
 }
 
@@ -458,6 +461,7 @@ body {
   grid-column: 1;
   grid-row: 2;
   align-self: end;
+  align-items: stretch;
   justify-content: flex-end;
   height: 100%;
   z-index: 2;
@@ -465,10 +469,11 @@ body {
   padding-bottom: clamp(0.25rem, 1.5vh, 0.75rem);
 }
 
-.hero-asymmetric-wall__slot--pam .hero-portrait {
+.hero-asymmetric-wall__slot--pam .hero-portrait,
+.hero-asymmetric-wall__slot--pam .hero-portrait-door-wrap {
   width: 100%;
   max-width: 100%;
-  align-self: flex-end;
+  align-self: stretch;
 }
 
 .hero-asymmetric-wall__pam-mobile .hero-wall-name-rail {
@@ -511,17 +516,17 @@ body {
   align-self: center;
 }
 
-/* Clive — centre stack spanning both rows; shifted left into Pam's former upper flank */
+/* Clive — centre stack spanning both rows, vertically centred with Man beneath */
 .hero-asymmetric-wall__slot--clive-stack {
   grid-column: 2;
   grid-row: 1 / -1;
   align-self: stretch;
-  justify-content: flex-start;
+  align-items: stretch;
+  justify-content: center;
   z-index: 1;
-  gap: clamp(0.35rem, 1.2vh, 0.85rem);
-  padding-top: clamp(0.15rem, 0.75vh, 0.5rem);
-  padding-bottom: clamp(0.5rem, 2vh, 1.25rem);
-  transform: translateX(var(--hero-clive-stack-offset-x, 0));
+  gap: clamp(0.25rem, 0.9vh, 0.55rem);
+  padding-top: 0;
+  padding-bottom: clamp(0.2rem, 0.85vh, 0.55rem);
 }
 
 .hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child,
@@ -540,7 +545,7 @@ body {
   z-index: 2;
   transform: rotate(0.65deg);
   padding-top: 0;
-  gap: clamp(0.35rem, 1vh, 0.65rem);
+  gap: clamp(0.2rem, 0.65vh, 0.45rem);
   min-height: 0;
 }
 
@@ -548,16 +553,12 @@ body {
   flex: 0 0 auto;
 }
 
-/* Clive's Man — supporting portrait under Clive, ~half the hero scale */
-.hero-asymmetric-wall__slot--clive-stack .hero-asymmetric-wall__slot--man {
-  margin-top: auto;
-}
-
+/* Clive's Man — supporting portrait directly under Clive, ~half the hero scale */
 .hero-asymmetric-wall__slot--man {
   align-self: center;
   justify-content: flex-start;
   z-index: 1;
-  width: 45%;
+  width: 38%;
   min-width: 0;
   transform: none;
   padding: 0;
@@ -614,7 +615,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 58%;
+  width: 46%;
   min-width: 0;
   margin: 0;
 }
@@ -720,82 +721,6 @@ body {
   box-shadow:
     -0.15rem 1.65rem 3rem rgba(6, 5, 3, 0.5),
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
-}
-
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child .hero-portrait-frame,
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child .hero-portrait-frame,
-.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child .hero-portrait-frame,
-.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child .hero-portrait-frame {
-  overflow: hidden;
-  border-radius: 0;
-  box-shadow: none;
-  filter: drop-shadow(0 1.65rem 3rem rgba(6, 5, 3, 0.48))
-    drop-shadow(0 0.55rem 1.1rem rgba(6, 5, 3, 0.3));
-  -webkit-mask-image: radial-gradient(
-    ellipse 96% 90% at 50% 44%,
-    #000 14%,
-    color-mix(in srgb, #000 92%, transparent) 38%,
-    color-mix(in srgb, #000 55%, transparent) 58%,
-    transparent 72%
-  );
-  mask-image: radial-gradient(
-    ellipse 96% 90% at 50% 44%,
-    #000 14%,
-    color-mix(in srgb, #000 92%, transparent) 38%,
-    color-mix(in srgb, #000 55%, transparent) 58%,
-    transparent 72%
-  );
-}
-
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child .hero-portrait-frame::after,
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child .hero-portrait-frame::after,
-.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child .hero-portrait-frame::after,
-.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child .hero-portrait-frame::after {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  inset: -6%;
-  z-index: 2;
-  background:
-    radial-gradient(
-      ellipse 88% 84% at 50% 42%,
-      transparent 28%,
-      rgba(22, 28, 18, 0.28) 62%,
-      rgba(12, 10, 6, 0.72) 100%
-    ),
-    linear-gradient(
-      180deg,
-      rgba(22, 28, 18, 0.32) 0%,
-      transparent 11%,
-      transparent 89%,
-      rgba(22, 28, 18, 0.36) 100%
-    ),
-    linear-gradient(
-      90deg,
-      rgba(22, 28, 18, 0.28) 0%,
-      transparent 9%,
-      transparent 91%,
-      rgba(22, 28, 18, 0.32) 100%
-    );
-  mix-blend-mode: multiply;
-}
-
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child .hero-portrait-frame__media,
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child .hero-portrait-frame__media,
-.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child .hero-portrait-frame__media,
-.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child .hero-portrait-frame__media {
-  border-radius: 0;
-}
-
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child:hover .hero-portrait-frame,
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child:focus-visible .hero-portrait-frame,
-.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child:hover .hero-portrait-frame,
-.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child:focus-visible .hero-portrait-frame {
-  box-shadow: none;
-  filter:
-    drop-shadow(0 1.65rem 3rem rgba(6, 5, 3, 0.48))
-    drop-shadow(0 0.55rem 1.1rem rgba(6, 5, 3, 0.3))
-    drop-shadow(0 0 0.55rem color-mix(in srgb, var(--color-buttermilk) 42%, transparent));
 }
 
 .hero-portrait-frame__media {
@@ -1112,25 +1037,30 @@ body {
   width: 100%;
 }
 
+@media (min-width: 1024px) {
+  /* Reclaim vertical room for principal portraits on desktop hero only. */
+  .hero-immersive-room .hero-victorian-wall__stage {
+    padding-top: clamp(0.35rem, 0.85vh, 0.65rem);
+    padding-bottom: clamp(0.45rem, 1vw, 0.75rem);
+    padding-inline: clamp(0.5rem, 2vw, 1.75rem);
+  }
+
+  .hero-asymmetric-wall__slot--pam,
+  .hero-asymmetric-wall__slot--lazlo {
+    padding-bottom: clamp(0.1rem, 0.55vh, 0.35rem);
+  }
+}
+
 @media (min-width: 1280px) {
   .hero-asymmetric-wall__composition {
-    --hero-pam-col: 1fr;
-    --hero-clive-col: 1.38fr;
-    --hero-doc-col: 1.48fr;
     --hero-col-gap: clamp(0.75rem, 2.35vw, 2.5rem);
-    --hero-clive-stack-offset-x: calc(var(--hero-col-gap) * -1);
   }
 }
 
 @media (min-width: 1536px) {
   .hero-asymmetric-wall__composition {
-    --hero-pam-col: 1.02fr;
-    --hero-clive-col: 1.42fr;
-    --hero-doc-col: 1.55fr;
     min-height: min(56rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5rem));
     --hero-col-gap: clamp(0.875rem, 2.45vw, 2.75rem);
-    --hero-clive-stack-offset-x: calc(var(--hero-col-gap) * -1.05);
-    grid-template-rows: minmax(0, 1.2fr) minmax(0, 0.95fr);
   }
 }
 
@@ -1463,6 +1393,11 @@ body {
 .study-stage__book-image {
   object-fit: cover;
   object-position: center;
+}
+
+/* User mapping — left-page chat only; hide the feathered portrait inset */
+.study-stage--book:has(.chapter1-intake-chat) .study-stage__clive-spot {
+  display: none;
 }
 
 .study-stage__clive-spot {
@@ -4136,13 +4071,8 @@ body {
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
-  background: linear-gradient(
-    165deg,
-    var(--color-cream) 0%,
-    var(--color-cream-deep) 45%,
-    var(--color-cream-paper) 100%
-  );
-  color: var(--color-ink);
+  background: #0a0a0a;
+  color: var(--color-cream);
 }
 
 .brain-shrine__header {
@@ -4153,8 +4083,8 @@ body {
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--color-cream) 96%, transparent) 0%,
-    color-mix(in srgb, var(--color-cream) 60%, transparent) 55%,
+    color-mix(in srgb, black 45%, transparent) 0%,
+    color-mix(in srgb, black 22%, transparent) 55%,
     transparent 100%
   );
 }
@@ -4164,13 +4094,16 @@ body {
   font-size: 1.125rem;
   font-weight: 600;
   letter-spacing: 0.02em;
+  color: var(--color-cream);
+  text-shadow: 0 1px 3px color-mix(in srgb, black 55%, transparent);
 }
 
 .brain-shrine__subtitle {
   margin-top: 0.35rem;
   max-width: 36rem;
   font-size: 0.875rem;
-  color: var(--color-ink-muted);
+  color: color-mix(in srgb, var(--color-cream) 78%, transparent);
+  text-shadow: 0 1px 3px color-mix(in srgb, black 55%, transparent);
 }
 
 .brain-shrine__stage {
@@ -4184,18 +4117,15 @@ body {
 
 .brain-shrine__surface {
   position: relative;
-  aspect-ratio: 1024 / 571;
-  width: max(100vw, calc(100dvh * 1024 / 571));
-  height: max(100dvh, calc(100vw * 571 / 1024));
+  width: min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .brain-shrine__jar {
   position: absolute;
   inset: 0;
-  filter: drop-shadow(
-    0 0 48px color-mix(in srgb, var(--health-glow, var(--color-apricot)) 35%, transparent)
-  );
 }
 
 .brain-shrine__jar-media {
@@ -4203,50 +4133,44 @@ body {
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
-.brain-shrine__arrow {
+.brain-shrine__hotspot {
   position: absolute;
-  top: 50%;
   z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.75rem;
-  height: 2.75rem;
-  border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
-  border-radius: 9999px;
-  background: color-mix(in srgb, var(--color-cream-paper) 92%, transparent);
-  font-size: 1.75rem;
-  line-height: 1;
-  color: var(--color-ink);
+  border: none;
+  background: transparent;
+  padding: 0;
   cursor: pointer;
-  transform: translateY(-50%);
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    border-color 0.15s ease;
+  appearance: none;
 }
 
-.brain-shrine__arrow--prev {
-  left: 1rem;
+.brain-shrine__hotspot:focus-visible {
+  outline: 2px solid var(--color-apricot);
+  outline-offset: -2px;
+  border-radius: 4px;
 }
 
-.brain-shrine__arrow--next {
-  right: 1rem;
+.brain-shrine__hotspot--prev {
+  left: 0;
+  top: 35%;
+  width: 7%;
+  height: 30%;
 }
 
-.brain-shrine__arrow:hover {
-  border-color: color-mix(in srgb, var(--color-apricot) 45%, transparent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-apricot) 16%, transparent);
-  transform: translateY(-50%) scale(1.04);
+.brain-shrine__hotspot--next {
+  right: 0;
+  top: 35%;
+  width: 7%;
+  height: 30%;
 }
 
-.brain-shrine__arrow:focus-visible {
-  outline: none;
-  border-color: var(--color-apricot);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-apricot) 35%, transparent);
+.brain-shrine__hotspot--jar {
+  left: 35%;
+  top: 5%;
+  width: 30%;
+  height: 55%;
 }
 
 .brain-shrine__overlay {
@@ -4257,24 +4181,24 @@ body {
 
 .brain-shrine__overlay--nameplate {
   pointer-events: auto;
-  top: 78.8%;
-  left: 17%;
-  width: 66%;
-  height: 5.2%;
+  top: 90.5%;
+  left: 37.5%;
+  width: 25%;
+  height: 7%;
 }
 
 .brain-shrine__overlay--audit {
-  top: 67.5%;
-  left: 22%;
-  width: 16%;
-  height: 5.5%;
+  top: 66%;
+  left: 30%;
+  width: 10%;
+  height: 6%;
 }
 
 .brain-shrine__overlay--flags {
-  top: 67.5%;
-  right: 22%;
-  width: 16%;
-  height: 5.5%;
+  top: 66%;
+  left: 62%;
+  width: 10%;
+  height: 6%;
 }
 
 .shrine-slot {
@@ -4287,25 +4211,14 @@ body {
 
 .shrine-slot__value {
   font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(0.75rem, 1.75vw, 1rem);
-  font-weight: 600;
+  font-size: clamp(0.875rem, 1.4vw, 1.25rem);
+  font-weight: 700;
   line-height: 1.1;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-align: center;
   text-transform: uppercase;
-  color: #2f1a0e;
-  text-shadow:
-    0 1px 0 color-mix(in srgb, white 28%, transparent),
-    0 -1px 0 color-mix(in srgb, black 22%, transparent);
-}
-
-.brain-shrine__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  margin-bottom: 0.35rem;
+  color: #2a1c12;
+  text-shadow: 0 1px 0 color-mix(in srgb, white 30%, transparent);
 }
 
 .brain-shrine__nameplate {
@@ -4322,10 +4235,10 @@ body {
 
 .brain-shrine__nameplate-text {
   font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(0.8125rem, 1.85vw, 1.25rem);
+  font-size: clamp(0.875rem, 1.25vw, 1.25rem);
   font-weight: 700;
   line-height: 1.1;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
@@ -4333,9 +4246,7 @@ body {
   text-overflow: ellipsis;
   max-width: 100%;
   color: #2a1c12;
-  text-shadow:
-    0 1px 0 color-mix(in srgb, white 35%, transparent),
-    0 -1px 0 color-mix(in srgb, black 18%, transparent);
+  text-shadow: 0 1px 0 color-mix(in srgb, white 30%, transparent);
 }
 
 .brain-shrine__nameplate-input {
@@ -4343,61 +4254,16 @@ body {
   border: none;
   background: transparent;
   font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(0.875rem, 2.1vw, 1.3125rem);
-  font-weight: 600;
+  font-size: clamp(1rem, 1.7vw, 1.5rem);
+  font-weight: 700;
   letter-spacing: 0.04em;
   text-align: center;
   color: #2a1c12;
 }
 
 .brain-shrine__nameplate-input::placeholder {
-  color: color-mix(in srgb, var(--color-ink-muted) 70%, transparent);
-  font-weight: 500;
-}
-
-.brain-shrine__action {
-  border-radius: 9999px;
-  padding: 0.55rem 1.1rem;
-  font-size: 0.8125rem;
+  color: color-mix(in srgb, #2a1c12 55%, transparent);
   font-weight: 600;
-  cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    background 0.15s ease;
-}
-
-.brain-shrine__action--primary {
-  border: none;
-  background: var(--color-apricot);
-  color: white;
-}
-
-.brain-shrine__action--primary:hover:not(:disabled) {
-  background: var(--color-apricot-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px color-mix(in srgb, var(--color-apricot) 35%, transparent);
-}
-
-.brain-shrine__action--primary:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.brain-shrine__action--ghost {
-  border: 1px solid color-mix(in srgb, var(--color-ink) 18%, transparent);
-  background: color-mix(in srgb, var(--color-cream-paper) 90%, transparent);
-  color: var(--color-ink);
-}
-
-.brain-shrine__action--ghost:hover {
-  border-color: color-mix(in srgb, var(--color-apricot) 40%, transparent);
-  transform: translateY(-1px);
-}
-
-.brain-shrine__action:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-apricot) 35%, transparent);
 }
 
 .brain-shrine__footer {
@@ -4409,41 +4275,62 @@ body {
   align-items: center;
   justify-content: flex-end;
   gap: 0.4rem;
-  min-height: 18%;
+  min-height: 14%;
   padding: 0 1.5rem 1rem;
   pointer-events: none;
   background: linear-gradient(
     0deg,
-    color-mix(in srgb, var(--color-cream) 96%, transparent) 0%,
+    color-mix(in srgb, black 45%, transparent) 0%,
     transparent 100%
   );
 }
 
-.brain-shrine__footer .brain-shrine__actions,
-.brain-shrine__footer .brain-shrine__back {
+.brain-shrine__footer .brain-shrine__links {
   pointer-events: auto;
 }
 
 .brain-shrine__hint {
   font-size: 0.75rem;
-  color: var(--color-ink-muted);
+  color: color-mix(in srgb, var(--color-cream) 72%, transparent);
+  text-shadow: 0 1px 3px color-mix(in srgb, black 55%, transparent);
 }
 
-.brain-shrine__back {
+.brain-shrine__links {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.brain-shrine__link {
+  border: none;
+  background: transparent;
+  padding: 0;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--color-apricot);
+  color: color-mix(in srgb, var(--color-cream) 88%, transparent);
+  text-shadow: 0 1px 3px color-mix(in srgb, black 55%, transparent);
+  cursor: pointer;
 }
 
-.brain-shrine__back:hover {
+.brain-shrine__link:hover:not(:disabled) {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
-.brain-shrine__back:focus-visible {
+.brain-shrine__link:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.brain-shrine__link:focus-visible {
   outline: 2px solid var(--color-apricot);
   outline-offset: 2px;
   border-radius: 0.25rem;
+}
+
+.brain-shrine__link-divider {
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--color-cream) 50%, transparent);
 }
 
 .brain-health-band {
@@ -4459,18 +4346,6 @@ body {
   color: var(--health-accent, var(--color-ink));
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .brain-shrine__arrow,
-  .brain-shrine__action {
-    transition: none;
-  }
-
-  .brain-shrine__arrow:hover,
-  .brain-shrine__action--primary:hover:not(:disabled),
-  .brain-shrine__action--ghost:hover {
-    transform: none;
-  }
-}
 
 /* ── Clive's Man context intake — front door before the brain shrine ── */
 .context-intake {
