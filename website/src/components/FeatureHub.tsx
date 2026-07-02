@@ -51,10 +51,10 @@ const FEATURES: FeatureEntry[] = [
   },
   {
     title: "Court Mode",
-    description: "High-stakes multi-perspective panel — the Court surfaces perspectives; you give judgement.",
+    description: "Bring a consequential matter to the Court — six cast members speak in character; you give the final call.",
     href: "/court",
     status: "live",
-    cta: "Enter the court",
+    cta: "Convene the court",
   },
   {
     title: "Fleet Design",

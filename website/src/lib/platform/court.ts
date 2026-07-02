@@ -17,6 +17,11 @@ export interface CourtTake {
   body: string;
 }
 
+export interface CourtDialogueTurn {
+  roleId: CourtRoleId;
+  line: string;
+}
+
 export type HumanJudgement = "approve" | "not-yet" | "escalate" | null;
 
 export interface CourtDecision {
@@ -26,21 +31,19 @@ export interface CourtDecision {
   stakes: string;
   roles: CourtRole[];
   takes: CourtTake[];
+  dialogue: CourtDialogueTurn[];
   judgeSummary: string;
   ruleLine: string;
+  convenerId: CourtRoleId;
 }
 
 export const COURT_RULE =
   "The Court surfaces perspectives; the human gives judgement.";
 
-export const DEFAULT_COURT_DECISION: CourtDecision = {
-  id: "court-discount-guardrail",
-  title: "Approve the off-script discount guardrail for trusted context?",
-  context:
-    "Regional managers want reps to move faster on trusted accounts. Clive drafted a guardrail that allows a 10% off-script discount when two conditions are met: account tier is Gold+ and RM pre-approves in the brain log.",
-  stakes:
-    "High stakes: this becomes approved context agents will cite. Wrong guardrails propagate into live sales conversations and pricing claims.",
-  roles: [
+export const CONVENING_LINE =
+  "Pam Portiscue convenes this session. She calls the Court to order; she does not own the verdict.";
+
+export const COURT_ROLES: CourtRole[] = [
     {
       id: "clive",
       name: "Clive Wigglesworth",
@@ -81,7 +84,16 @@ export const DEFAULT_COURT_DECISION: CourtDecision = {
       title: "Summarises; does not decide",
       focus: "Weighs the perspectives for the human; abstains from the final call.",
     },
-  ],
+];
+
+export const DEFAULT_COURT_DECISION: CourtDecision = {
+  id: "court-discount-guardrail",
+  title: "Approve the off-script discount guardrail for trusted context?",
+  context:
+    "Regional managers want reps to move faster on trusted accounts. Clive drafted a guardrail that allows a 10% off-script discount when two conditions are met: account tier is Gold+ and RM pre-approves in the brain log.",
+  stakes:
+    "High stakes: this becomes approved context agents will cite. Wrong guardrails propagate into live sales conversations and pricing claims.",
+  roles: COURT_ROLES,
   takes: [
     {
       roleId: "clive",
@@ -114,9 +126,48 @@ export const DEFAULT_COURT_DECISION: CourtDecision = {
       body: "Six perspectives on the table. The tension sits between adoption upside (Clive, Vera) and evidence boundaries (Pam, Iris). Doc waits on your judgement. I summarise; I do not choose.",
     },
   ],
+  dialogue: [
+    {
+      roleId: "pam",
+      line: "The Court is in session. The matter before the bench: a ten per cent off-script discount guardrail for trusted accounts. I convene; I do not preside. Clive, you brought this. Make your case.",
+    },
+    {
+      roleId: "clive",
+      line: "Gladly, Pam. Reps on trusted accounts are already improvising in the corridors, poor things. A logged ten per cent path with RM sign-off is kinder than hallway folklore. Adoption follows helpfulness.",
+    },
+    {
+      roleId: "pam",
+      line: "Helpfulness is exactly how drift gets in the door, Clive. This guardrail assumes reps wait for the RM log entry before quoting. Where is the sign-off compliance rate from the pilot?",
+    },
+    {
+      roleId: "iris",
+      line: "Partial, not absent, if I may. Gold-plus account performance supports a bounded discount window. Ireland's sample is too thin. I would tag the truth UK-only until the Irish evidence clears review.",
+    },
+    {
+      roleId: "vera",
+      line: "And finance will ask who pays for the optimism. Reps will quote the headline, never the footnote. Frame it as logged exceptions, not a culture of wiggle room, or leadership hears something you did not say.",
+    },
+    {
+      roleId: "doc",
+      line: "If judgement lands, execution is one truth promote, two linked examples, one workshop row retired. I move on recorded judgement, not on applause.",
+    },
+    {
+      roleId: "clive",
+      line: "Then let the record show I accept Iris's boundary. UK-only, with the Ireland variants visibly untrusted. Better a narrow truth than a broad rumour.",
+    },
+    {
+      roleId: "pam",
+      line: "Noted for the record. And the fifteen per cent whisper dies here until the ten per cent path is proven in review data.",
+    },
+    {
+      roleId: "judge",
+      line: "The bench has spoken and I shall be brief. The tension sits between adoption upside and evidence boundaries. I summarise; I do not choose. The only chair that matters now is yours.",
+    },
+  ],
   judgeSummary:
     "Six perspectives on the table. The tension sits between adoption upside (Clive, Vera) and evidence boundaries (Pam, Iris). Doc waits on your judgement. I do not choose.",
   ruleLine: COURT_RULE,
+  convenerId: "pam",
 };
 
 export function createJudgementPaperTrail(
@@ -141,4 +192,55 @@ export function createJudgementPaperTrail(
 export function docExecutionLine(judgement: Exclude<HumanJudgement, null>): string | null {
   if (judgement !== "approve") return null;
   return "Doc will execute the approved brief (truth promote, linked examples, and change log entry) after your judgement is recorded.";
+}
+
+export interface CourtMatter {
+  title: string;
+  context: string;
+  stakes: string;
+}
+
+export function conveneMatter(matter: CourtMatter): CourtDecision {
+  return {
+    id: `court-matter-${Date.now()}`,
+    title: matter.title,
+    context: matter.context,
+    stakes: matter.stakes,
+    roles: COURT_ROLES,
+    takes: [],
+    dialogue: [
+      {
+        roleId: "pam",
+        line: `The Court is in session. The matter before the bench: "${matter.title.replace(/[.?!]+$/, "")}". This door is always open, but it is not a casual one. I convene; I do not preside. Clive, the constructive case, please.`,
+      },
+      {
+        roleId: "clive",
+        line: "The upside first, as is proper. If this works, what does it make possible for the humans involved? That is the question I shall hold while the bench does its work.",
+      },
+      {
+        roleId: "pam",
+        line: "And I shall hold the other one. What is the weakest assumption underneath it, and what happens if that assumption is wrong? Evidence before enthusiasm.",
+      },
+      {
+        roleId: "iris",
+        line: "I will want to know what data supports it, how much of it exists, and how much of it merely appears to. Confidence should be earned, not borrowed.",
+      },
+      {
+        roleId: "vera",
+        line: "And I will ask how it lands. Stakeholders hear stories, not specifications. If the story this tells is the wrong one, the specification will not save it.",
+      },
+      {
+        roleId: "doc",
+        line: "When judgement is recorded, I will name the cost of acting on it: effort, risk, and what gets retired. Not before.",
+      },
+      {
+        roleId: "judge",
+        line: "The bench has framed its questions. No verdict is available from this side of the room. The judgement, as ever, is yours.",
+      },
+    ],
+    judgeSummary:
+      "Six perspectives on the table. I summarise; I do not choose. The chair that matters is yours.",
+    ruleLine: COURT_RULE,
+    convenerId: "pam",
+  };
 }

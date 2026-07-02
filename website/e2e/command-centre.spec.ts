@@ -72,9 +72,7 @@ test.describe("Command centre", () => {
     await expect(page).toHaveURL(/\/command\/doc$/);
     await expect(page.getByText("Doc's workshop", { exact: true })).toBeVisible();
     await expect(
-      page.getByRole("img", {
-        name: /Doc Albright at his steampunk workshop/i,
-      }),
+      page.getByLabel(/Doc Albright at his steampunk workshop/i),
     ).toBeVisible();
   });
 });
