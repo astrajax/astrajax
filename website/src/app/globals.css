@@ -486,6 +486,48 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
+/* Doc column — portrait + minions stacked as one unit */
+.hero-asymmetric-wall__slot--doc .hero-doc-workshop {
+  width: 52%;
+  margin-top: clamp(0.35rem, 0.75cqw, 0.55rem);
+}
+
+.hero-asymmetric-wall__slot--doc .hero-doc-workshop-grid {
+  gap: clamp(0.3rem, 0.65cqw, 0.5rem);
+}
+
+.hero-asymmetric-wall__slot--doc .hero-doc-workshop .hero-portrait-caption {
+  margin-top: clamp(0.2rem, 0.45cqw, 0.35rem);
+}
+
+.hero-asymmetric-wall__slot--doc .hero-doc-workshop .hero-portrait-caption__name {
+  font-size: clamp(0.625rem, 0.75cqw, 0.75rem);
+}
+
+.hero-asymmetric-wall__slot--doc .hero-doc-workshop .hero-portrait-caption__role {
+  font-size: clamp(0.5625rem, 0.68cqw, 0.6875rem);
+}
+
+/* Principals — name · role on desktop (both lines visible) */
+.hero-asymmetric-wall__slot--clive .hero-portrait-caption,
+.hero-asymmetric-wall__slot--doc .hero-portrait-caption,
+.hero-asymmetric-wall__slot--pam .hero-portrait-caption {
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hero-asymmetric-wall__slot--clive .hero-portrait-caption__name,
+.hero-asymmetric-wall__slot--doc .hero-portrait-caption__name,
+.hero-asymmetric-wall__slot--pam .hero-portrait-caption__name,
+.hero-asymmetric-wall__slot--clive .hero-portrait-caption__sep,
+.hero-asymmetric-wall__slot--doc .hero-portrait-caption__sep,
+.hero-asymmetric-wall__slot--pam .hero-portrait-caption__sep,
+.hero-asymmetric-wall__slot--clive .hero-portrait-caption__role,
+.hero-asymmetric-wall__slot--doc .hero-portrait-caption__role,
+.hero-asymmetric-wall__slot--pam .hero-portrait-caption__role {
+  flex-shrink: 0;
+}
+
 /* Pam — large bottom-left, pushed down to the foot of the wall */
 .hero-asymmetric-wall__slot--pam {
   top: 57%;
@@ -576,36 +618,7 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-/* Doc's Minions — tiny squares at bottom far-right, clear of Doc's frame */
-.hero-asymmetric-wall__slot--minions {
-  top: auto;
-  bottom: 11%;
-  right: 0.5%;
-  width: 9%;
-  z-index: 5;
-}
-
-.hero-asymmetric-wall__slot--minions .hero-doc-workshop {
-  width: 100%;
-}
-
-.hero-asymmetric-wall__slot--minions .hero-doc-workshop-grid {
-  gap: clamp(0.3rem, 0.65cqw, 0.5rem);
-}
-
-.hero-asymmetric-wall__slot--minions .hero-portrait-caption {
-  margin-top: clamp(0.2rem, 0.45cqw, 0.35rem);
-}
-
-.hero-asymmetric-wall__slot--minions .hero-portrait-caption__name {
-  font-size: clamp(0.625rem, 0.75cqw, 0.75rem);
-}
-
-.hero-asymmetric-wall__slot--minions .hero-portrait-caption__role {
-  font-size: clamp(0.5625rem, 0.68cqw, 0.6875rem);
-}
-
-/* Doc's Minions — two executors in a single row above Doc */
+/* Doc's Minions — two executors in a single row below Doc */
 .hero-doc-workshop {
   display: flex;
   flex-direction: column;

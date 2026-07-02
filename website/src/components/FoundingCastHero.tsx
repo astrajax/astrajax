@@ -72,7 +72,7 @@ const lazloMarlowe = {
   videoSrc: undefined,
 };
 
-/** Doc's workshop — supporting steampunk robot minions above his hero still. */
+/** Doc's workshop — supporting steampunk robot minions below his hero still. */
 const DOC_WORKSHOP_ROBOTS = [
   {
     src: "/agent-cast/doc-albright/workshop/robot-1.png",
@@ -447,6 +447,7 @@ export function FoundingCastHero() {
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
+            <DocWorkshopRobotGrid />
           </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
             <CastPortrait
@@ -475,9 +476,6 @@ export function FoundingCastHero() {
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
-          </div>
-          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--minions">
-            <DocWorkshopRobotGrid />
           </div>
         </div>
       </div>
