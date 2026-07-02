@@ -440,14 +440,16 @@ export function FoundingCastHero() {
             />
           </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc">
-            <CastPortrait
-              entry={doc}
-              displayName={doc.name}
-              sizes="(min-width: 1536px) 30vw, (min-width: 1024px) 30vw, 40vw"
-              prefersReducedMotion={prefersReducedMotion}
-              portraitDoorsEnabled={portraitDoorsEnabled}
-            />
-            <DocWorkshopRobotGrid />
+            <div className="hero-doc-column">
+              <CastPortrait
+                entry={doc}
+                displayName={doc.name}
+                sizes="(min-width: 1536px) 30vw, (min-width: 1024px) 30vw, 40vw"
+                prefersReducedMotion={prefersReducedMotion}
+                portraitDoorsEnabled={portraitDoorsEnabled}
+              />
+              <DocWorkshopRobotGrid />
+            </div>
           </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
             <CastPortrait

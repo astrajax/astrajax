@@ -486,46 +486,85 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-/* Doc column — portrait + minions stacked as one unit */
+/* Doc column — portrait, caption, then minions as one centred stack */
+.hero-doc-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: clamp(0.45rem, 0.95cqw, 0.7rem);
+}
+
+.hero-asymmetric-wall__slot--doc {
+  z-index: 5;
+}
+
+.hero-asymmetric-wall__slot--doc .hero-doc-column > .hero-portrait,
+.hero-asymmetric-wall__slot--doc .hero-doc-column > .hero-portrait-door-wrap {
+  width: 100%;
+}
+
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop {
-  width: 52%;
-  margin-top: clamp(0.35rem, 0.75cqw, 0.55rem);
+  width: min(42%, 6.5rem);
+  margin-top: 0;
+  align-self: center;
+  position: relative;
+  z-index: 2;
 }
 
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop-grid {
-  gap: clamp(0.3rem, 0.65cqw, 0.5rem);
+  gap: clamp(0.25rem, 0.55cqw, 0.4rem);
 }
 
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop .hero-portrait-caption {
-  margin-top: clamp(0.2rem, 0.45cqw, 0.35rem);
+  margin-top: clamp(0.25rem, 0.5cqw, 0.4rem);
 }
 
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop .hero-portrait-caption__name {
-  font-size: clamp(0.625rem, 0.75cqw, 0.75rem);
-}
-
-.hero-asymmetric-wall__slot--doc .hero-doc-workshop .hero-portrait-caption__role {
   font-size: clamp(0.5625rem, 0.68cqw, 0.6875rem);
 }
 
-/* Principals — name · role on desktop (both lines visible) */
+.hero-asymmetric-wall__slot--doc .hero-doc-workshop .hero-portrait-caption__role {
+  font-size: clamp(0.5rem, 0.62cqw, 0.625rem);
+}
+
+/* Principals — name + title stacked on two lines (desktop) */
 .hero-asymmetric-wall__slot--clive .hero-portrait-caption,
-.hero-asymmetric-wall__slot--doc .hero-portrait-caption,
+.hero-asymmetric-wall__slot--doc .hero-doc-column > .hero-portrait-door-wrap .hero-portrait-caption,
+.hero-asymmetric-wall__slot--doc .hero-doc-column > .hero-portrait .hero-portrait-caption,
 .hero-asymmetric-wall__slot--pam .hero-portrait-caption {
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.12em;
+  margin-top: clamp(0.5rem, 1cqw, 0.75rem);
 }
 
 .hero-asymmetric-wall__slot--clive .hero-portrait-caption__name,
-.hero-asymmetric-wall__slot--doc .hero-portrait-caption__name,
-.hero-asymmetric-wall__slot--pam .hero-portrait-caption__name,
+.hero-asymmetric-wall__slot--doc .hero-doc-column > .hero-portrait-door-wrap .hero-portrait-caption__name,
+.hero-asymmetric-wall__slot--doc .hero-doc-column > .hero-portrait .hero-portrait-caption__name,
+.hero-asymmetric-wall__slot--pam .hero-portrait-caption__name {
+  font-size: clamp(0.875rem, 1.15cqw, 1rem);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+}
+
 .hero-asymmetric-wall__slot--clive .hero-portrait-caption__sep,
-.hero-asymmetric-wall__slot--doc .hero-portrait-caption__sep,
-.hero-asymmetric-wall__slot--pam .hero-portrait-caption__sep,
+.hero-asymmetric-wall__slot--doc .hero-doc-column > .hero-portrait-door-wrap .hero-portrait-caption__sep,
+.hero-asymmetric-wall__slot--doc .hero-doc-column > .hero-portrait .hero-portrait-caption__sep,
+.hero-asymmetric-wall__slot--pam .hero-portrait-caption__sep {
+  display: none;
+}
+
 .hero-asymmetric-wall__slot--clive .hero-portrait-caption__role,
-.hero-asymmetric-wall__slot--doc .hero-portrait-caption__role,
+.hero-asymmetric-wall__slot--doc .hero-doc-column > .hero-portrait-door-wrap .hero-portrait-caption__role,
+.hero-asymmetric-wall__slot--doc .hero-doc-column > .hero-portrait .hero-portrait-caption__role,
 .hero-asymmetric-wall__slot--pam .hero-portrait-caption__role {
-  flex-shrink: 0;
+  font-size: clamp(0.75rem, 0.95cqw, 0.875rem);
+  opacity: 1;
+  line-height: 1.25;
 }
 
 /* Pam — large bottom-left, pushed down to the foot of the wall */
