@@ -626,7 +626,7 @@ body {
 
 /* Clive's Man — small portrait tucked between Pam and Lazlo */
 .hero-asymmetric-wall__slot--man {
-  top: 54%;
+  top: 59%;
   left: 38.5%;
   width: 16%;
   z-index: 2;
@@ -745,7 +745,7 @@ body {
 
 /* Lazlo Marlowe — bottom-right anchor, mirrors Pam on the left */
 .hero-asymmetric-wall__slot--lazlo {
-  bottom: 0.5%;
+  bottom: -2%;
   right: 5%;
   width: 28%;
   z-index: 4;
