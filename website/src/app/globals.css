@@ -403,23 +403,23 @@ body {
   /* Portrait sizing lives in the grid columns; every portrait is capped at
      100% of its track, so frames can never cross the column gap and overlap.
      Tune relative sizes here — never with >100% widths on the portraits. */
-  --hero-pam-col: 1.056fr;
-  --hero-clive-col: 1.243fr;
-  --hero-doc-col: 0.986fr;
+  --hero-pam-col: 0.98fr;
+  --hero-clive-col: 1.34fr;
+  --hero-doc-col: 1.38fr;
   --hero-col-gap: clamp(0.625rem, 2.1vw, 2.125rem);
-  --hero-pam-portrait-gap: clamp(1.25rem, 5.5vh, 3.25rem);
-  --hero-lazlo-portrait-scale: 0.89;
+  --hero-lazlo-portrait-scale: 1;
   /* Leftward nudge for the centre stack — a fraction of the column gap, so
      the remaining clearance to Pam's column is always positive. */
-  --hero-clive-stack-offset-x: calc(var(--hero-col-gap) * -0.4);
+  --hero-clive-stack-offset-x: calc(var(--hero-col-gap) * -0.92);
   position: relative;
   display: grid;
   grid-template-columns:
     minmax(0, var(--hero-pam-col))
     minmax(0, var(--hero-clive-col))
     minmax(0, var(--hero-doc-col));
-  grid-template-rows: 1fr auto;
+  grid-template-rows: minmax(0, 1.15fr) minmax(0, 0.92fr);
   column-gap: var(--hero-col-gap);
+  row-gap: clamp(0.35rem, 1.2vh, 0.85rem);
   align-items: stretch;
   width: 100%;
   min-height: min(
@@ -439,17 +439,36 @@ body {
   align-items: center;
 }
 
-/* Pam — left column; brand high, portrait lifted below logo */
+/* Brand — top-left corner, above Pam's lower flank */
+.hero-asymmetric-wall__slot--brand {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  justify-content: flex-start;
+  z-index: 3;
+  padding-top: clamp(0.25rem, 1.5vh, 0.75rem);
+}
+
+.hero-asymmetric-wall__slot--brand .hero-wall-brand {
+  margin-bottom: 0;
+}
+
+/* Pam — bottom-left flank; fills the lower-left dead space */
 .hero-asymmetric-wall__slot--pam {
   grid-column: 1;
-  grid-row: 1 / -1;
-  align-self: stretch;
-  justify-content: stretch;
+  grid-row: 2;
+  align-self: end;
+  justify-content: flex-end;
   height: 100%;
   z-index: 2;
   transform: rotate(-0.65deg);
-  padding-top: clamp(0.25rem, 1.5vh, 0.75rem);
   padding-bottom: clamp(0.25rem, 1.5vh, 0.75rem);
+}
+
+.hero-asymmetric-wall__slot--pam .hero-portrait {
+  width: 100%;
+  max-width: 100%;
+  align-self: flex-end;
 }
 
 .hero-asymmetric-wall__pam-mobile .hero-wall-name-rail {
@@ -470,10 +489,10 @@ body {
 }
 
 .hero-asymmetric-wall__slot--pam .hero-wall-name-rail {
-  justify-content: flex-start;
+  justify-content: flex-end;
   flex: 1 1 100%;
   height: 100%;
-  gap: var(--hero-pam-portrait-gap, clamp(1.25rem, 5.5vh, 3.25rem));
+  gap: clamp(0.625rem, 1.4vw, 1rem);
 }
 
 .hero-wall-name-rail .hero-portrait {
@@ -492,15 +511,15 @@ body {
   align-self: center;
 }
 
-/* Clive — centre column stack; Man sits beneath at half scale */
+/* Clive — centre stack spanning both rows; shifted left into Pam's former upper flank */
 .hero-asymmetric-wall__slot--clive-stack {
   grid-column: 2;
-  grid-row: 1;
-  align-self: start;
+  grid-row: 1 / -1;
+  align-self: stretch;
   justify-content: flex-start;
   z-index: 1;
   gap: clamp(0.35rem, 1.2vh, 0.85rem);
-  padding-top: 0;
+  padding-top: clamp(0.15rem, 0.75vh, 0.5rem);
   padding-bottom: clamp(0.5rem, 2vh, 1.25rem);
   transform: translateX(var(--hero-clive-stack-offset-x, 0));
 }
@@ -521,7 +540,8 @@ body {
   z-index: 2;
   transform: rotate(0.65deg);
   padding-top: 0;
-  gap: clamp(0.4rem, 1.1vh, 0.75rem);
+  gap: clamp(0.35rem, 1vh, 0.65rem);
+  min-height: 0;
 }
 
 .hero-asymmetric-wall__slot--doc-stack > .hero-portrait {
@@ -529,6 +549,10 @@ body {
 }
 
 /* Clive's Man — supporting portrait under Clive, ~half the hero scale */
+.hero-asymmetric-wall__slot--clive-stack .hero-asymmetric-wall__slot--man {
+  margin-top: auto;
+}
+
 .hero-asymmetric-wall__slot--man {
   align-self: center;
   justify-content: flex-start;
@@ -581,7 +605,7 @@ body {
   align-self: center;
   width: 100%;
   max-width: 100%;
-  margin-top: auto;
+  margin-top: 0;
   margin-bottom: 0;
 }
 
@@ -590,7 +614,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 63%;
+  width: 58%;
   min-width: 0;
   margin: 0;
 }
@@ -670,16 +694,17 @@ body {
     0 0.35rem 0.75rem rgba(6, 5, 3, 0.28);
 }
 
-/* Lazlo Marlowe — bottom-right flank portrait, full column scale */
+/* Lazlo Marlowe — bottom-right flank portrait, fills the corner cell */
 .hero-asymmetric-wall__slot--lazlo {
   grid-column: 3;
   grid-row: 2;
   align-self: end;
-  justify-self: end;
+  justify-self: stretch;
   justify-content: flex-end;
   z-index: 3;
   width: 100%;
   min-width: 0;
+  min-height: 0;
   transform: rotate(0.55deg);
   padding: 0;
   padding-bottom: clamp(0.25rem, 1.5vh, 0.75rem);
@@ -698,10 +723,79 @@ body {
 }
 
 .hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child .hero-portrait-frame,
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child .hero-portrait-frame {
-  box-shadow:
-    0 2rem 3.75rem rgba(6, 5, 3, 0.55),
-    0 0.65rem 1.25rem rgba(6, 5, 3, 0.36);
+.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child .hero-portrait-frame,
+.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child .hero-portrait-frame,
+.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child .hero-portrait-frame {
+  overflow: hidden;
+  border-radius: 0;
+  box-shadow: none;
+  filter: drop-shadow(0 1.65rem 3rem rgba(6, 5, 3, 0.48))
+    drop-shadow(0 0.55rem 1.1rem rgba(6, 5, 3, 0.3));
+  -webkit-mask-image: radial-gradient(
+    ellipse 96% 90% at 50% 44%,
+    #000 14%,
+    color-mix(in srgb, #000 92%, transparent) 38%,
+    color-mix(in srgb, #000 55%, transparent) 58%,
+    transparent 72%
+  );
+  mask-image: radial-gradient(
+    ellipse 96% 90% at 50% 44%,
+    #000 14%,
+    color-mix(in srgb, #000 92%, transparent) 38%,
+    color-mix(in srgb, #000 55%, transparent) 58%,
+    transparent 72%
+  );
+}
+
+.hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child .hero-portrait-frame::after,
+.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child .hero-portrait-frame::after,
+.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child .hero-portrait-frame::after,
+.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child .hero-portrait-frame::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: -6%;
+  z-index: 2;
+  background:
+    radial-gradient(
+      ellipse 88% 84% at 50% 42%,
+      transparent 28%,
+      rgba(22, 28, 18, 0.28) 62%,
+      rgba(12, 10, 6, 0.72) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(22, 28, 18, 0.32) 0%,
+      transparent 11%,
+      transparent 89%,
+      rgba(22, 28, 18, 0.36) 100%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(22, 28, 18, 0.28) 0%,
+      transparent 9%,
+      transparent 91%,
+      rgba(22, 28, 18, 0.32) 100%
+    );
+  mix-blend-mode: multiply;
+}
+
+.hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child .hero-portrait-frame__media,
+.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child .hero-portrait-frame__media,
+.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait:first-child .hero-portrait-frame__media,
+.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child .hero-portrait-frame__media {
+  border-radius: 0;
+}
+
+.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child:hover .hero-portrait-frame,
+.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child:focus-visible .hero-portrait-frame,
+.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child:hover .hero-portrait-frame,
+.hero-asymmetric-wall__clive-stack-mobile > .hero-portrait-door-wrap:first-child:focus-visible .hero-portrait-frame {
+  box-shadow: none;
+  filter:
+    drop-shadow(0 1.65rem 3rem rgba(6, 5, 3, 0.48))
+    drop-shadow(0 0.55rem 1.1rem rgba(6, 5, 3, 0.3))
+    drop-shadow(0 0 0.55rem color-mix(in srgb, var(--color-buttermilk) 42%, transparent));
 }
 
 .hero-portrait-frame__media {
@@ -978,7 +1072,7 @@ body {
 }
 
 .hero-asymmetric-wall__lazlo-mobile {
-  width: min(100%, 22rem);
+  width: min(100%, 25.3rem);
   margin-top: clamp(0.5rem, 2.5vw, 1rem);
   margin-left: auto;
   align-self: flex-end;
@@ -1020,24 +1114,23 @@ body {
 
 @media (min-width: 1280px) {
   .hero-asymmetric-wall__composition {
-    --hero-pam-col: 1.074fr;
-    --hero-clive-col: 1.254fr;
-    --hero-doc-col: 1.008fr;
+    --hero-pam-col: 1fr;
+    --hero-clive-col: 1.38fr;
+    --hero-doc-col: 1.48fr;
     --hero-col-gap: clamp(0.75rem, 2.35vw, 2.5rem);
-  }
-
-  .hero-asymmetric-wall__slot--clive-stack {
-    padding-top: clamp(0.15rem, 0.75vh, 0.5rem);
+    --hero-clive-stack-offset-x: calc(var(--hero-col-gap) * -1);
   }
 }
 
 @media (min-width: 1536px) {
   .hero-asymmetric-wall__composition {
-    --hero-pam-col: 1.116fr;
-    --hero-clive-col: 1.243fr;
-    --hero-doc-col: 1.049fr;
+    --hero-pam-col: 1.02fr;
+    --hero-clive-col: 1.42fr;
+    --hero-doc-col: 1.55fr;
     min-height: min(56rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5rem));
     --hero-col-gap: clamp(0.875rem, 2.45vw, 2.75rem);
+    --hero-clive-stack-offset-x: calc(var(--hero-col-gap) * -1.05);
+    grid-template-rows: minmax(0, 1.2fr) minmax(0, 0.95fr);
   }
 }
 

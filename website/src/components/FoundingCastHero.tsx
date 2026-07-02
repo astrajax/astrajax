@@ -401,21 +401,21 @@ export function FoundingCastHero() {
         </ul>
       </noscript>
 
-      {/* Desktop: asymmetric composition — Clive centre with Man beneath, Pam lower-left, Doc upper-right */}
+      {/* Desktop: brand top-left, Pam bottom-left, Clive stack shifted left, Doc + Lazlo right flank */}
       <div className="hero-asymmetric-wall__desktop hidden lg:block">
         <div className="hero-asymmetric-wall__composition">
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--brand">
+            <HeroWallBrand />
+          </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
-            <div className="hero-wall-name-rail">
-              <HeroWallBrand />
-              <CastPortrait
-                entry={pam}
-                displayName={pam.name}
-                sizes="(min-width: 1536px) 28vw, (min-width: 1024px) 28vw, 40vw"
-                seamlessLoop
-                prefersReducedMotion={prefersReducedMotion}
-                portraitDoorsEnabled={portraitDoorsEnabled}
-              />
-            </div>
+            <CastPortrait
+              entry={pam}
+              displayName={pam.name}
+              sizes="(min-width: 1536px) 28vw, (min-width: 1024px) 28vw, 40vw"
+              seamlessLoop
+              prefersReducedMotion={prefersReducedMotion}
+              portraitDoorsEnabled={portraitDoorsEnabled}
+            />
           </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--clive-stack">
             <CastPortrait
@@ -444,7 +444,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={doc}
               displayName={doc.name}
-              sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 40vw"
+              sizes="(min-width: 1536px) 34vw, (min-width: 1024px) 32vw, 40vw"
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
@@ -453,7 +453,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={lazloMarlowe}
               displayName={lazloMarlowe.name}
-              sizes="(min-width: 1536px) 26vw, (min-width: 1024px) 26vw, 72vw"
+              sizes="(min-width: 1536px) 34vw, (min-width: 1024px) 32vw, 72vw"
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
