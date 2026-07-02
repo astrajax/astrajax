@@ -401,50 +401,52 @@ export function FoundingCastHero() {
         </ul>
       </noscript>
 
-      {/* Desktop: logo overlays top-left; Pam bottom-left, Clive centre, Doc + Lazlo right */}
+      {/* Desktop: logo overlay; Clive + Man left, Pam centre, wide Doc + Lazlo right */}
       <div className="hero-asymmetric-wall__desktop hidden lg:block">
         <div className="hero-asymmetric-wall__composition">
           <div className="hero-asymmetric-wall__brand-overlay">
             <HeroWallBrand />
           </div>
+          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--clive-cluster">
+            <div className="hero-asymmetric-wall__clive-row">
+              <CastPortrait
+                entry={clive}
+                displayName="Clive Wigglesworth Esq."
+                sizes="(min-width: 1536px) 32vw, (min-width: 1024px) 32vw, 92vw"
+                priority
+                eagerPreload
+                seamlessLoop
+                playbackRate={CLIVE_HERO_PLAYBACK_RATE}
+                prefersReducedMotion={prefersReducedMotion}
+                portraitDoorsEnabled={portraitDoorsEnabled}
+              />
+              <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--man">
+                <CastPortrait
+                  entry={clivesMan}
+                  displayName={clivesMan.name}
+                  sizes="(min-width: 1536px) 11vw, (min-width: 1024px) 11vw, 46vw"
+                  prefersReducedMotion={prefersReducedMotion}
+                  portraitDoorsEnabled={portraitDoorsEnabled}
+                />
+              </div>
+            </div>
+          </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--pam">
             <CastPortrait
               entry={pam}
               displayName={pam.name}
-              sizes="(min-width: 1536px) 34vw, (min-width: 1024px) 34vw, 40vw"
+              sizes="(min-width: 1536px) 28vw, (min-width: 1024px) 28vw, 40vw"
               seamlessLoop
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
-          </div>
-          <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--clive-stack">
-            <CastPortrait
-              entry={clive}
-              displayName="Clive Wigglesworth Esq."
-              sizes="(min-width: 1536px) 40vw, (min-width: 1024px) 40vw, 92vw"
-              priority
-              eagerPreload
-              seamlessLoop
-              playbackRate={CLIVE_HERO_PLAYBACK_RATE}
-              prefersReducedMotion={prefersReducedMotion}
-              portraitDoorsEnabled={portraitDoorsEnabled}
-            />
-            <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--man">
-              <CastPortrait
-                entry={clivesMan}
-                displayName={clivesMan.name}
-                sizes="(min-width: 1536px) 20vw, (min-width: 1024px) 20vw, 46vw"
-                prefersReducedMotion={prefersReducedMotion}
-                portraitDoorsEnabled={portraitDoorsEnabled}
-              />
-            </div>
           </div>
           <div className="hero-asymmetric-wall__slot hero-asymmetric-wall__slot--doc-stack">
             <DocWorkshopRobotGrid />
             <CastPortrait
               entry={doc}
               displayName={doc.name}
-              sizes="(min-width: 1536px) 24vw, (min-width: 1024px) 24vw, 40vw"
+              sizes="(min-width: 1536px) 32vw, (min-width: 1024px) 32vw, 40vw"
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />
@@ -453,7 +455,7 @@ export function FoundingCastHero() {
             <CastPortrait
               entry={lazloMarlowe}
               displayName={lazloMarlowe.name}
-              sizes="(min-width: 1536px) 24vw, (min-width: 1024px) 24vw, 72vw"
+              sizes="(min-width: 1536px) 32vw, (min-width: 1024px) 32vw, 72vw"
               prefersReducedMotion={prefersReducedMotion}
               portraitDoorsEnabled={portraitDoorsEnabled}
             />

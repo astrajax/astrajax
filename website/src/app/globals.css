@@ -400,30 +400,29 @@ body {
 }
 
 .hero-asymmetric-wall__composition {
-  /* Column width IS portrait width (~16:9 stills). Clive largest, Pam second,
-     Doc readable but still third. Logo is an overlay — not a grid reservation. */
-  --hero-pam-col: 1.28fr;
-  --hero-clive-col: 1.52fr;
-  --hero-doc-col: 0.88fr;
+  /* Left → right: Clive+Man cluster, Pam, wide Doc flank. Clive portrait largest,
+     Pam second, Doc third — but Doc column is much wider than the fa507ac pass. */
+  --hero-clive-col: 2.05fr;
+  --hero-pam-col: 1.3fr;
+  --hero-doc-col: 1.28fr;
+  --hero-clive-share: 0.74;
+  --hero-man-share: 0.26;
   --hero-col-gap: clamp(0.5rem, 1.5vw, 1.65rem);
   --hero-lazlo-portrait-scale: 1;
   position: relative;
   display: grid;
   grid-template-columns:
-    minmax(0, var(--hero-pam-col))
     minmax(0, var(--hero-clive-col))
+    minmax(0, var(--hero-pam-col))
     minmax(0, var(--hero-doc-col));
-  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-  align-content: stretch;
+  grid-template-rows: auto auto;
+  align-content: end;
   column-gap: var(--hero-col-gap);
   row-gap: clamp(0.15rem, 0.5vh, 0.35rem);
   align-items: stretch;
   width: 100%;
-  min-height: min(
-    52rem,
-    calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) + var(--hero-rail-overlap) - 4.5rem)
-  );
-  max-width: min(118rem, calc((100svh - 14rem) * 2.12));
+  min-height: 0;
+  max-width: min(124rem, calc((100svh - 14rem) * 2.24));
   margin: 0 auto;
   padding-inline: clamp(0.35rem, 1.1vw, 0.9rem);
 }
@@ -453,17 +452,47 @@ body {
   align-items: center;
 }
 
-/* Pam — left flank; spans both rows so she can sit close under the logo overlay */
-.hero-asymmetric-wall__slot--pam {
+/* Clive cluster — left flank; Clive portrait with Man adjacent on his right */
+.hero-asymmetric-wall__slot--clive-cluster {
   grid-column: 1;
   grid-row: 1 / -1;
-  align-self: stretch;
+  align-self: end;
+  align-items: flex-end;
+  justify-content: flex-start;
+  z-index: 3;
+  padding-top: clamp(2rem, 5.5vh, 3.25rem);
+  padding-bottom: clamp(0.1rem, 0.55vh, 0.35rem);
+}
+
+.hero-asymmetric-wall__clive-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
+  gap: clamp(0.2rem, 0.55vw, 0.55rem);
+}
+
+.hero-asymmetric-wall__clive-row > .hero-portrait:first-child,
+.hero-asymmetric-wall__clive-row > .hero-portrait-door-wrap:first-child {
+  flex: 1 1 calc(var(--hero-clive-share) * 100%);
+  width: calc(var(--hero-clive-share) * 100%);
+  max-width: calc(var(--hero-clive-share) * 100%);
+  min-width: 0;
+}
+
+/* Pam — centre column, bottom row beside Lazlo */
+.hero-asymmetric-wall__slot--pam {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: end;
   align-items: stretch;
   justify-content: flex-end;
   z-index: 2;
   transform: rotate(-0.65deg);
-  padding-top: clamp(3.5rem, 9vh, 5.5rem);
-  padding-bottom: clamp(0.15rem, 1vh, 0.45rem);
+  padding-top: 0;
+  padding-bottom: clamp(0.1rem, 0.55vh, 0.35rem);
 }
 
 .hero-asymmetric-wall__slot--pam .hero-portrait,
@@ -513,28 +542,7 @@ body {
   align-self: center;
 }
 
-/* Clive — centre stack spanning both rows */
-.hero-asymmetric-wall__slot--clive-stack {
-  grid-column: 2;
-  grid-row: 1 / -1;
-  align-self: stretch;
-  align-items: stretch;
-  justify-content: center;
-  z-index: 3;
-  gap: clamp(0.25rem, 0.85vh, 0.5rem);
-  padding-top: clamp(0.5rem, 1.2vh, 0.85rem);
-  padding-bottom: clamp(0.15rem, 0.65vh, 0.4rem);
-  margin-left: calc(var(--hero-col-gap) * -0.35);
-}
-
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait:first-child,
-.hero-asymmetric-wall__slot--clive-stack > .hero-portrait-door-wrap:first-child {
-  flex: 0 0 auto;
-  width: 100%;
-  max-width: 100%;
-}
-
-/* Doc — upper-right stack; minions + portrait fill the wider flank column */
+/* Doc — upper-right stack; minions + portrait fill the wide flank column */
 .hero-asymmetric-wall__slot--doc-stack {
   grid-column: 3;
   grid-row: 1;
@@ -552,15 +560,18 @@ body {
   flex: 0 0 auto;
 }
 
-/* Clive's Man — supporting portrait directly under Clive, ~half the hero scale */
+/* Clive's Man — adjacent to Clive's right, baseline-aligned */
 .hero-asymmetric-wall__slot--man {
-  align-self: center;
-  justify-content: flex-start;
-  z-index: 1;
-  width: 38%;
+  flex: 0 0 calc(var(--hero-man-share) * 100%);
+  width: calc(var(--hero-man-share) * 100%);
+  max-width: calc(var(--hero-man-share) * 100%);
+  align-self: flex-end;
+  justify-content: flex-end;
+  z-index: 2;
   min-width: 0;
   transform: none;
   padding: 0;
+  margin-bottom: clamp(0.1rem, 0.35vh, 0.25rem);
 }
 
 .hero-portrait {
@@ -614,10 +625,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 92%;
+  width: 100%;
   min-width: 0;
   margin: 0;
-  align-self: center;
+  align-self: stretch;
 }
 
 .hero-doc-workshop .hero-portrait-caption {
@@ -1061,7 +1072,6 @@ body {
 
 @media (min-width: 1536px) {
   .hero-asymmetric-wall__composition {
-    min-height: min(54rem, calc(100svh - var(--hero-nav-height) - var(--hero-rail-height) - 5.5rem));
     --hero-col-gap: clamp(0.75rem, 2.1vw, 2.35rem);
   }
 }
