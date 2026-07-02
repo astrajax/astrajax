@@ -245,7 +245,31 @@ export function AgentDetailShell({ agent }: { agent: AgentDetail }) {
               ← Fleet roster
             </Link>
             <div className="mt-4 flex flex-wrap items-start gap-4">
-              {agent.portraitSrc ? (
+              {agent.slug === "clive-man" ? (
+                <Link
+                  href="/brain"
+                  aria-label="Enter the brain shrine"
+                  className="rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-apricot"
+                >
+                  {agent.portraitSrc ? (
+                    <Image
+                      src={agent.portraitSrc}
+                      alt=""
+                      width={96}
+                      height={96}
+                      sizes="96px"
+                      className="platform-agent-card__portrait platform-agent-card__portrait--lg"
+                    />
+                  ) : (
+                    <div
+                      className="platform-agent-card__nameplate platform-agent-card__nameplate--lg"
+                      aria-hidden
+                    >
+                      <span>{agent.name.split(" ").map((p) => p[0]).join("").slice(0, 2)}</span>
+                    </div>
+                  )}
+                </Link>
+              ) : agent.portraitSrc ? (
                 <Image
                   src={agent.portraitSrc}
                   alt=""
@@ -265,8 +289,8 @@ export function AgentDetailShell({ agent }: { agent: AgentDetail }) {
                 <p className="platform-apricot-text">{agent.role}</p>
                 <p className="mt-2 max-w-xl text-ink-muted">{agent.oneLiner}</p>
                 {agent.slug === "clive-man" ? (
-                  <Link href="/brain/intake" className="btn-primary mt-4 inline-flex text-sm">
-                    Enter the context intake
+                  <Link href="/brain" className="btn-primary mt-4 inline-flex text-sm">
+                    Enter the brain shrine →
                   </Link>
                 ) : null}
               </div>

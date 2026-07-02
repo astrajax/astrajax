@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import type { CSSProperties } from "react";
 import { useEffect, useRef, useState } from "react";
 import { PortraitDoor } from "@/components/command-centre/PortraitDoor";
@@ -333,6 +334,18 @@ function CastPortrait({
       <PortraitCaption name={displayName} role={role} delay={CAPTION_DELAY[entry.slug]} />
     </figure>
   );
+
+  if (entry.slug === "clives-man") {
+    return (
+      <Link
+        href="/brain"
+        className="hero-portrait-door-wrap block"
+        aria-label="Enter the brain shrine"
+      >
+        {portrait}
+      </Link>
+    );
+  }
 
   if (portraitDoorsEnabled && productSlug) {
     return (

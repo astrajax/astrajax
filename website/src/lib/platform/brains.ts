@@ -142,11 +142,20 @@ export function formatAuditDate(iso: string | null): string {
   }
 }
 
+function parseShrineDate(iso: string): Date {
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (dateOnly) {
+    return new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]));
+  }
+  return new Date(iso);
+}
+
 /** Compact date for the shrine audit slot (dd/mm/yy). */
 export function formatShrineAuditDate(iso: string | null): string {
   if (!iso) return "Never";
   try {
-    const date = new Date(iso);
+    const date = parseShrineDate(iso);
+    if (Number.isNaN(date.getTime())) return iso;
     const day = String(date.getDate()).padStart(2, "0");
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = String(date.getFullYear()).slice(-2);

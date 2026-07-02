@@ -1,0 +1,243 @@
+<template>
+  <div id="root" data-composition-id="scene4-the-characters" data-width="1920" data-height="1080" data-duration="14">
+    <style>
+      #root {
+        position: absolute;
+        inset: 0;
+        /* Transparent — sub-beats 1 and 3 (fleet-loop, team-laughing) are host-root children
+           that must show through. Sub-beat 1's paper ground lives on its own scoped .beat1-bg
+           layer below, not on the root, so it can fade out before sub-beat 3's video needs to
+           be visible. */
+        background: transparent;
+        font-family: "Inter", sans-serif;
+        overflow: hidden;
+      }
+
+      .beat1-bg {
+        position: absolute;
+        inset: 0;
+        background: #faf7ed;
+        z-index: 0;
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(#171a18 0.6px, transparent 0.6px);
+        background-size: 6px 6px;
+        opacity: 0.03;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      .caption-bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 90px;
+        display: flex;
+        justify-content: center;
+        z-index: 6;
+      }
+
+      .caption-text {
+        font-size: 34px;
+        font-weight: 700;
+        letter-spacing: -0.005em;
+        color: #171a18;
+        opacity: 0;
+        transform: translateY(16px);
+      }
+
+      /* ---- Sub-beat 1 (0-4.5s): fleet-loop framed card, centered on paper ground ---- */
+      .beat1 {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+      }
+
+      .fleet-frame {
+        position: absolute;
+        left: 50%;
+        top: 46%;
+        width: 1400px;
+        height: 758px;
+        margin-left: -700px;
+        margin-top: -379px;
+        border-radius: 14px;
+        border: 2px solid #171a18;
+        overflow: hidden;
+        box-shadow: 0 30px 70px rgba(23, 26, 24, 0.22);
+        opacity: 0;
+      }
+
+      .fleet-frame-inner {
+        position: absolute;
+        inset: 0;
+        background: #171a18;
+      }
+
+      /* ---- Sub-beat 2 (4.5-9s): the AstraJax trio, three LARGE framed portrait cards ---- */
+      /* Container-level opacity on the wrapper (not just per-card) keeps this whole group's
+         computed opacity at 0 outside its active sub-beat, so its aggregate text never reads
+         as on-screen while sub-beat 1 (fleet-loop) or sub-beat 3 (team-laughing) occupy the
+         same host region. */
+      .beat2 {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        opacity: 0;
+      }
+
+      .trio {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 56px;
+        top: -20px;
+      }
+
+      .portrait-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        opacity: 0;
+        transform: translateY(30px) scale(0.94);
+      }
+
+      /* Portrait art is 1856x2304 (portrait orientation) — frame respects that ratio, no letterboxing */
+      .portrait-frame {
+        width: 372px;
+        height: 461px;
+        border-radius: 14px;
+        border: 2px solid #171a18;
+        overflow: hidden;
+        box-shadow: 0 24px 50px rgba(23, 26, 24, 0.2);
+        background: #ebe4d8;
+      }
+
+      .portrait-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .nameplate {
+        margin-top: 22px;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: #171a18;
+      }
+
+      .role-tag {
+        margin-top: 6px;
+        font-size: 19px;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        color: #4a4f4c;
+        text-transform: lowercase;
+      }
+
+      /* ---- Sub-beat 3 (9-14s): team-laughing full-bleed, caption ---- */
+      .beat3-scrim {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(23, 26, 24, 0) 55%, rgba(23, 26, 24, 0.55) 100%);
+        z-index: 3;
+        opacity: 0;
+      }
+    </style>
+
+    <div class="beat1" id="beat1">
+      <div class="beat1-bg"></div>
+      <div class="fleet-frame" id="fleet-frame">
+        <div class="fleet-frame-inner"></div>
+      </div>
+    </div>
+
+    <div class="beat2" id="beat2">
+      <div class="trio" id="trio">
+        <div class="portrait-card" id="card-clive">
+          <div class="portrait-frame"><img src="assets/clive-portrait.png" alt="Clive" /></div>
+          <div class="nameplate">Clive</div>
+          <div class="role-tag">reasons</div>
+        </div>
+        <div class="portrait-card" id="card-pam">
+          <div class="portrait-frame"><img src="assets/pam-portrait.png" alt="Pam" /></div>
+          <div class="nameplate">Pam</div>
+          <div class="role-tag">challenges</div>
+        </div>
+        <div class="portrait-card" id="card-doc">
+          <div class="portrait-frame"><img src="assets/doc-portrait.png" alt="Doc" /></div>
+          <div class="nameplate">Doc</div>
+          <div class="role-tag">executes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="beat3-scrim" id="beat3-scrim"></div>
+
+    <div class="grain"></div>
+    <div class="caption-bar">
+      <div class="caption-text" id="caption">every agent is a character with a story.</div>
+    </div>
+
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+
+        // ---- Sub-beat 1: 0-4.5s — fleet-loop framed card ----
+        tl.fromTo(
+          "#fleet-frame",
+          { opacity: 0, scale: 0.96, y: 18 },
+          { opacity: 1, scale: 1, y: 0, duration: 0.6, ease: "power3.out" },
+          0.2,
+        );
+        tl.fromTo(
+          "#caption",
+          { opacity: 0, y: 16 },
+          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          0.6,
+        );
+        tl.to("#caption", { opacity: 0, y: -12, duration: 0.35, ease: "power1.in" }, 3.9);
+        tl.to("#fleet-frame", { opacity: 0, duration: 0.4, ease: "power1.in" }, 4.1);
+        // Clear the whole sub-beat-1 wrapper (incl. its paper .beat1-bg) before sub-beat 2 —
+        // otherwise the opaque paper layer keeps blocking sub-beat 3's host-root video later.
+        tl.to("#beat1", { opacity: 0, duration: 0.3, ease: "power1.in" }, 4.3);
+
+        // ---- Sub-beat 2: 4.5-9s — trio of framed portraits, staggered entrance, gentle settle ----
+        // Container-level opacity gate keeps .trio's own computed opacity at 0 outside this
+        // window (see CSS comment) so it never overlaps sub-beats 1/3 sharing the host region.
+        tl.set("#beat2", { opacity: 1 }, 4.5);
+        const cards = ["#card-clive", "#card-pam", "#card-doc"];
+        cards.forEach((sel, i) => {
+          tl.fromTo(
+            sel,
+            { opacity: 0, y: 30, scale: 0.94 },
+            { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: "power3.out" },
+            4.6 + i * 0.22,
+          );
+        });
+        tl.set("#caption", { innerText: "Clive reasons · Pam challenges · Doc executes", y: 16 }, 5.3);
+        tl.to("#caption", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 5.3);
+        tl.to("#caption", { opacity: 0, y: -12, duration: 0.35, ease: "power1.in" }, 8.4);
+        tl.to(cards, { opacity: 0, duration: 0.4, ease: "power1.in" }, 8.6);
+        tl.set("#beat2", { opacity: 0 }, 9.0);
+
+        // ---- Sub-beat 3: 9-14s — team-laughing full-bleed ----
+        tl.to("#beat3-scrim", { opacity: 1, duration: 0.5, ease: "power1.out" }, 9.1);
+        tl.set("#caption", { innerText: "bots people laugh at get used.", y: 16, color: "#f3eddb", textShadow: "0 2px 18px rgba(0, 0, 0, 0.55)" }, 9.4);
+        tl.to("#caption", { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 9.4);
+        // Hold to end of 14s slot
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["scene4-the-characters"] = tl;
+      })();
+    </script>
+  </div>
+</template>

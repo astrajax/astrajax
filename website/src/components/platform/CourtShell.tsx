@@ -1,20 +1,22 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
-import { PlatformNav } from "@/components/platform/PlatformNav";
+import Link from "next/link";
+import { useEffect, useState, useCallback, useRef } from "react";
 import {
   createJudgementPaperTrail,
   CONVENING_LINE,
   DEFAULT_COURT_DECISION,
   docExecutionLine,
   conveneMatter,
+  COURT_BOOK_LAYOUT,
   type CourtDecision,
   type CourtMatter,
   type CourtRole,
   type HumanJudgement,
+  type AgentVerdict,
+  type BickerTurn,
+  type CourtRoleId,
 } from "@/lib/platform/court";
 import type { PaperTrailLine } from "@/lib/platform/brain-health";
 
@@ -55,193 +57,410 @@ function RoleAvatar({ role }: { role: CourtRole }) {
   );
 }
 
-function CourtSession({ decision }: { decision: CourtDecision }) {
-  const [revealedCount, setRevealedCount] = useState(1);
+function CourtBook({ decision }: { decision: CourtDecision }) {
+  const [verdicts, setVerdicts] = useState<AgentVerdict[]>([]);
+  const [bicker, setBicker] = useState<BickerTurn[]>([]);
+  const [userInput, setUserInput] = useState("");
   const [actor, setActor] = useState("");
   const [judgement, setJudgement] = useState<HumanJudgement>(null);
   const [paperTrail, setPaperTrail] = useState<PaperTrailLine[]>([]);
-  const [entered, setEntered] = useState(false);
+  const [openVerdictRoleId, setOpenVerdictRoleId] = useState<CourtRoleId | null>(null);
+  const [showJudgement, setShowJudgement] = useState(false);
+  const [isDeliberating, setIsDeliberating] = useState(false);
+  const [bickering, setBickering] = useState(false);
+  const [bickerCount, setBickerCount] = useState(0);
+  const bickerfeedRef = useRef<HTMLDivElement>(null);
+  const bickerIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const conveneGuardRef = useRef<string | null>(null);
+  const bickerInFlightRef = useRef<boolean>(false);
 
+  // Convene: fetch initial verdicts and bicker (guarded against StrictMode double-mount)
   useEffect(() => {
-    const frame = requestAnimationFrame(() => setEntered(true));
-    return () => cancelAnimationFrame(frame);
-  }, []);
+    if (conveneGuardRef.current === decision.id) return;
+    conveneGuardRef.current = decision.id;
 
-  // Dialogue auto-reveal
+    const convene = async () => {
+      setIsDeliberating(true);
+      try {
+        const res = await fetch("/api/court/deliberate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: decision.title,
+            context: decision.context,
+            stakes: decision.stakes,
+          }),
+        });
+        const data = await res.json();
+        setVerdicts(data.verdicts || []);
+      } catch (error) {
+        console.error("Deliberation error:", error);
+      } finally {
+        setIsDeliberating(false);
+      }
+
+      await fetchBicker([]);
+    };
+
+    convene();
+  }, [decision]);
+
+  const fetchBicker = useCallback(
+    async (currentTranscript: BickerTurn[]) => {
+      if (judgement || bickerInFlightRef.current) return;
+      bickerInFlightRef.current = true;
+      setBickering(true);
+      try {
+        const res = await fetch("/api/court/bicker", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: decision.title,
+            context: decision.context,
+            stakes: decision.stakes,
+            transcript: currentTranscript,
+          }),
+        });
+        const data = await res.json();
+        if (data.turns && data.turns.length > 0) {
+          setBicker((prev) => {
+            const last4 = prev.slice(-4);
+            const filtered = data.turns.filter((turn: BickerTurn) =>
+              !last4.some((t) => t.roleId === turn.roleId && t.line === turn.line)
+            );
+            return filtered.length > 0 ? [...prev, ...filtered] : prev;
+          });
+          setBickerCount((prev) => prev + 1);
+        }
+      } catch (error) {
+        console.error("Bicker error:", error);
+      } finally {
+        setBickering(false);
+        bickerInFlightRef.current = false;
+      }
+    },
+    [decision, judgement]
+  );
+
+  // Auto-bicker loop
   useEffect(() => {
-    if (revealedCount >= decision.dialogue.length) return;
+    if (!openVerdictRoleId && !judgement && document.visibilityState === "visible" && bickerCount < 30) {
+      const interval = setInterval(async () => {
+        await fetchBicker(bicker);
+      }, 15000);
+      bickerIntervalRef.current = interval;
+      return () => clearInterval(interval);
+    }
+  }, [openVerdictRoleId, judgement, bickerCount, bicker, fetchBicker]);
 
-    const timer = setTimeout(() => {
-      setRevealedCount((prev) => prev + 1);
-    }, 2800);
+  // Auto-scroll bicker feed
+  useEffect(() => {
+    if (bickerfeedRef.current) {
+      bickerfeedRef.current.scrollTop = bickerfeedRef.current.scrollHeight;
+    }
+  }, [bicker]);
 
-    return () => clearTimeout(timer);
-  }, [revealedCount, decision.dialogue.length]);
+  const handleSendToVerdictRoleId = (roleId: CourtRoleId) => {
+    setOpenVerdictRoleId(roleId);
+    if (bickerIntervalRef.current) clearInterval(bickerIntervalRef.current);
+  };
+
+  const handleCloseVerdict = async () => {
+    setOpenVerdictRoleId(null);
+    if (bickerCount < 30) {
+      await fetchBicker(bicker);
+    }
+    if (!openVerdictRoleId && !judgement && document.visibilityState === "visible" && bickerCount < 30) {
+      const interval = setInterval(async () => {
+        await fetchBicker(bicker);
+      }, 15000);
+      bickerIntervalRef.current = interval;
+    }
+  };
+
+  const handleUserMessage = async () => {
+    if (!userInput.trim()) return;
+    const newTurn: BickerTurn = { roleId: "user", line: userInput.trim() };
+    setBicker((prev) => [...prev, newTurn]);
+    setUserInput("");
+
+    await fetchBicker([...bicker, newTurn]);
+  };
 
   const recordJudgement = (choice: Exclude<HumanJudgement, null>) => {
     if (!actor.trim()) return;
     setJudgement(choice);
     setPaperTrail((prev) => [...prev, createJudgementPaperTrail(choice, actor.trim())]);
+    if (bickerIntervalRef.current) clearInterval(bickerIntervalRef.current);
   };
 
   const docLine = judgement ? docExecutionLine(judgement) : null;
-  const gateStage =
-    revealedCount < Math.ceil(decision.dialogue.length / 2)
-      ? "1"
-      : revealedCount < decision.dialogue.length
-        ? "2"
-        : "3";
-  const convenerRole = decision.roles.find((r) => r.id === decision.convenerId)!;
+  const verdictMap = Object.fromEntries(verdicts.map((v) => [v.roleId, v]));
+  const allVerdictsIn = verdicts.length === 5;
 
   return (
-    <>
-      <header className="platform-page__header platform-court__header">
-        <p className="section-label">Court mode</p>
-        <h1 className="font-display mt-2 text-3xl font-semibold text-cream sm:text-4xl">
-          {decision.title}
-        </h1>
-        <p className="mt-3 max-w-2xl text-lg text-cream/80">{decision.context}</p>
-        <p className="mt-2 text-sm text-parchment/90">
-          <strong>Stakes:</strong> {decision.stakes}
-        </p>
-        <p className="mt-4 rounded-lg border border-parchment/20 bg-moss/60 px-4 py-3 text-sm text-cream">
-          {decision.ruleLine}
-        </p>
-      </header>
-
-      <div className="platform-court__convening-strip">
-        <p className="text-sm text-cream/90">
-          <strong className="text-cream">{convenerRole.name}</strong> convenes this session. She calls
-          the Court to order; she does not own the verdict.
-        </p>
-      </div>
-
-      <div className={`platform-court__scene${entered ? " platform-court__scene--entered" : ""}`}>
-        <ul className="platform-court__dialogue">
-          {decision.dialogue.slice(0, revealedCount).map((turn, idx) => {
-            const role = decision.roles.find((r) => r.id === turn.roleId)!;
-            const isJudge = role.id === "judge";
+    <div className="platform-court__book-stage">
+        <div
+          className="platform-court__book-container"
+          style={{
+            backgroundImage: "url(/agent-cast/court/court-book.png)",
+          }}
+        >
+          {/* Portrait hotspots */}
+          {(["clive", "pam", "doc", "lazlo", "clive-man", "judge"] as CourtRoleId[]).map((roleId) => {
+            const pos = COURT_BOOK_LAYOUT.portraits[roleId];
+            const isJudge = roleId === "judge";
             return (
-              <li
-                key={idx}
-                className={`platform-court__dialogue-turn platform-court__dialogue-turn--entered`}
-              >
-                <div className="flex gap-3">
-                  <RoleAvatar role={role} />
-                  <div>
-                    <p className="section-label">{role.title}</p>
-                    <h2 className="font-display text-lg font-semibold text-ink">{role.name}</h2>
-                    <p className="mt-2 text-sm leading-relaxed text-ink">{turn.line}</p>
-                    {isJudge ? (
-                      <p className="mt-3 text-xs font-medium text-apricot">
-                        The Judge summarises — does not decide.
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-              </li>
+              <button
+                key={roleId}
+                aria-label={`${decision.roles.find((r) => r.id === roleId)?.name || roleId}`}
+                onClick={() => !isJudge && handleSendToVerdictRoleId(roleId)}
+                disabled={isJudge}
+                className={`platform-court__portrait-hotspot${
+                  isJudge ? " platform-court__portrait-hotspot--judge" : ""
+                }`}
+                style={{
+                  left: `${pos.x}%`,
+                  top: `${pos.y}%`,
+                  transform: "translate(-50%, -50%)",
+                }}
+                title={isJudge ? "The Judge summarises; the Judge does not decide." : ""}
+              />
             );
           })}
-        </ul>
-        {revealedCount < decision.dialogue.length ? (
-          <button
-            onClick={() => setRevealedCount(decision.dialogue.length)}
-            className="btn-secondary text-sm mt-4"
-          >
-            Reveal all
-          </button>
-        ) : null}
-      </div>
 
-      <div className={`platform-court__judgement-gate platform-court__judgement-gate--stage-${gateStage}`}>
-        <div className="sticky bottom-0 bg-cream/95 backdrop-blur border-t border-ink/10 px-4 py-3">
-          <p className="text-xs font-medium text-ink-muted mb-1">{decision.ruleLine}</p>
-        </div>
-
-        <section className="card platform-court__judgement p-5">
-          <p className="section-label">Human gives judgement</p>
-          <p className="mt-2 text-sm text-ink-muted">{decision.judgeSummary}</p>
-
-          {!judgement ? (
-            <>
-              <label className="mt-4 block text-sm" htmlFor="court-actor-name">
-                <span className="section-label mb-1 block">Your name</span>
-                <input
-                  id="court-actor-name"
-                  name="courtActor"
-                  type="text"
-                  value={actor}
-                  onChange={(e) => setActor(e.target.value)}
-                  autoComplete="off"
-                  spellCheck={false}
-                  className="w-full max-w-md rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm"
-                  placeholder="Who is recording this judgement?…"
-                />
-              </label>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  disabled={!actor.trim()}
-                  onClick={() => recordJudgement("approve")}
-                  className="btn-primary text-sm disabled:opacity-60"
+          {/* Verdict slots */}
+          {(["clive", "pam", "doc", "lazlo", "clive-man"] as Exclude<CourtRoleId, "judge">[]).map(
+            (roleId) => {
+              const slot = COURT_BOOK_LAYOUT.verdictSlots[roleId];
+              const verdict = verdictMap[roleId];
+              return (
+                <div
+                  key={`slot-${roleId}`}
+                  className="platform-court__verdict-slot"
+                  style={{
+                    left: `${slot.x}%`,
+                    top: `${slot.y}%`,
+                    width: `${slot.width}%`,
+                    height: `${slot.height}%`,
+                  }}
                 >
-                  Approve
-                </button>
-                <button
-                  type="button"
-                  disabled={!actor.trim()}
-                  onClick={() => recordJudgement("not-yet")}
-                  className="btn-secondary text-sm disabled:opacity-60"
-                >
-                  Not yet
-                </button>
-                <button
-                  type="button"
-                  disabled={!actor.trim()}
-                  onClick={() => recordJudgement("escalate")}
-                  className="btn-secondary text-sm disabled:opacity-60"
-                >
-                  Send to another human
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="mt-4 rounded-xl border border-sage/30 bg-sage/10 p-4" aria-live="polite">
-              <p className="font-display font-semibold text-ink">
-                Judgement recorded:{" "}
-                {judgement === "approve"
-                  ? "Approved"
-                  : judgement === "not-yet"
-                    ? "Not yet"
-                    : "Escalated"}
-              </p>
-              {docLine ? <p className="mt-2 text-sm text-ink-muted">{docLine}</p> : null}
-            </div>
+                  {verdict ? (
+                    <span className="platform-court__verdict-text">{verdict.verdict}</span>
+                  ) : (
+                    <span className="platform-court__verdict-placeholder">
+                      {isDeliberating ? "⋯" : ""}
+                    </span>
+                  )}
+                </div>
+              );
+            }
           )}
 
-          {paperTrail.length > 0 ? (
-            <div className="platform-paper-trail mt-4">
-              <p className="section-label mb-2">Paper trail</p>
-              <ul className="platform-paper-trail__list">
-                {paperTrail.map((line) => (
-                  <li key={line.id} className="platform-paper-trail__item">
-                    <p className="platform-paper-trail__action">{line.action}</p>
-                    <p className="platform-paper-trail__meta">
-                      {line.actor} · {formatWhen(line.timestamp)}
-                    </p>
-                    <p className="platform-paper-trail__reason">{line.reason}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : null}
-        </section>
-      </div>
+          {/* Right page content area */}
+          <div
+            className="platform-court__right-page-content"
+            style={{
+              left: `${COURT_BOOK_LAYOUT.rightPageContent.left}%`,
+              top: `${COURT_BOOK_LAYOUT.rightPageContent.top}%`,
+              width: `${COURT_BOOK_LAYOUT.rightPageContent.width}%`,
+              height: `${COURT_BOOK_LAYOUT.rightPageContent.height}%`,
+            }}
+          >
+            {openVerdictRoleId ? (
+              <VerdictPanel
+                roleId={openVerdictRoleId}
+                role={decision.roles.find((r) => r.id === openVerdictRoleId)!}
+                verdict={verdictMap[openVerdictRoleId]}
+                onClose={handleCloseVerdict}
+              />
+            ) : (
+              <>
+                <div className="platform-court__bicker-head">
+                  <h2 className="font-display text-xl font-semibold text-ink">{decision.title}</h2>
+                </div>
+                <div className="platform-court__bicker-feed" ref={bickerfeedRef}>
+                  {bicker.map((turn, idx) => (
+                    <div key={idx} className="platform-court__bicker-turn">
+                      <span className="platform-court__bicker-speaker">
+                        {turn.roleId === "user"
+                          ? "You"
+                          : decision.roles.find((r) => r.id === turn.roleId)?.name || turn.roleId}
+                      </span>
+                      : {turn.line}
+                    </div>
+                  ))}
+                </div>
+                <div className="platform-court__bicker-input">
+                  <input
+                    type="text"
+                    value={userInput}
+                    onChange={(e) => setUserInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleUserMessage()}
+                    placeholder="Address the bench…"
+                    className="platform-court__input"
+                  />
+                  <button
+                    onClick={handleUserMessage}
+                    disabled={!userInput.trim() || bickering}
+                    className="platform-court__inline-link"
+                  >
+                    Address the bench
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
 
-      <p className="mt-8 text-xs text-ink-muted">
-        Demo data. Actions update this session only, not live records.
-      </p>
-    </>
+          {/* Plaque hotspot */}
+          {allVerdictsIn && !judgement && (
+            <button
+              aria-label="Record judgement"
+              onClick={() => setShowJudgement(true)}
+              className="platform-court__plaque-hotspot platform-court__plaque-hotspot--active"
+              style={{
+                left: `${COURT_BOOK_LAYOUT.plaque.x}%`,
+                top: `${COURT_BOOK_LAYOUT.plaque.y}%`,
+                width: `${COURT_BOOK_LAYOUT.plaque.width}%`,
+                height: `${COURT_BOOK_LAYOUT.plaque.height}%`,
+              }}
+            />
+          )}
+        </div>
+
+      {showJudgement ? (
+        <div
+          className="platform-court__judgement-overlay"
+          role="dialog"
+          aria-label="Record judgement"
+          onClick={() => setShowJudgement(false)}
+        >
+          <div
+            className="platform-court__judgement-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="platform-court__judgement-head">
+              <p className="platform-court__judgement-eyebrow">The bench has spoken — you give judgement</p>
+              <button
+                type="button"
+                onClick={() => setShowJudgement(false)}
+                className="platform-court__inline-link"
+              >
+                Close
+              </button>
+            </div>
+            <p className="platform-court__judgement-summary">{decision.judgeSummary}</p>
+
+            {!judgement ? (
+              <>
+                <label className="platform-court__field" htmlFor="court-actor-name">
+                  <span className="platform-court__field-label">Your name</span>
+                  <input
+                    id="court-actor-name"
+                    name="courtActor"
+                    type="text"
+                    value={actor}
+                    onChange={(e) => setActor(e.target.value)}
+                    autoComplete="off"
+                    spellCheck={false}
+                    className="platform-court__underline-input"
+                    placeholder="Who is recording this judgement?…"
+                  />
+                </label>
+                <div className="platform-court__judgement-actions">
+                  <button
+                    type="button"
+                    disabled={!actor.trim()}
+                    onClick={() => recordJudgement("approve")}
+                    className="platform-court__seal-btn"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!actor.trim()}
+                    onClick={() => recordJudgement("not-yet")}
+                    className="platform-court__inline-link"
+                  >
+                    Not yet
+                  </button>
+                  <button
+                    type="button"
+                    disabled={!actor.trim()}
+                    onClick={() => recordJudgement("escalate")}
+                    className="platform-court__inline-link"
+                  >
+                    Send to another human
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="platform-court__judgement-recorded" aria-live="polite">
+                <p className="platform-court__judgement-verdict">
+                  Judgement recorded:{" "}
+                  {judgement === "approve"
+                    ? "Approved"
+                    : judgement === "not-yet"
+                      ? "Not yet"
+                      : "Escalated"}
+                </p>
+                {docLine ? <p className="platform-court__judgement-docline">{docLine}</p> : null}
+              </div>
+            )}
+
+            {paperTrail.length > 0 ? (
+              <div className="platform-court__paper-trail">
+                <p className="platform-court__field-label">Paper trail</p>
+                <ul>
+                  {paperTrail.map((line) => (
+                    <li key={line.id}>
+                      <p className="platform-court__paper-action">{line.action}</p>
+                      <p className="platform-court__paper-meta">
+                        {line.actor} · {formatWhen(line.timestamp)}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function VerdictPanel({
+  roleId,
+  role,
+  verdict,
+  onClose,
+}: {
+  roleId: CourtRoleId;
+  role: CourtRole;
+  verdict?: AgentVerdict;
+  onClose: () => void;
+}) {
+  return (
+    <div className="platform-court__verdict-panel-inner">
+      <div className="flex items-start justify-between mb-3">
+        <div>
+          <p className="section-label">{role.title}</p>
+          <h3 className="font-display font-semibold text-ink">{role.name}</h3>
+        </div>
+        <button onClick={onClose} className="text-sm text-ink-muted hover:text-ink">
+          Return to bench
+        </button>
+      </div>
+      {verdict ? (
+        <>
+          <p className="text-lg font-semibold text-ink mb-2">{verdict.verdict}</p>
+          <p className="text-sm leading-relaxed text-ink">{verdict.summary}</p>
+        </>
+      ) : (
+        <p className="text-sm text-ink-muted">Deliberating…</p>
+      )}
+    </div>
   );
 }
 
@@ -259,89 +478,82 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
   };
 
   return (
-    <>
-      <header className="platform-page__header platform-court__header">
-        <p className="section-label">Court mode</p>
-        <h1 className="font-display mt-2 text-3xl font-semibold text-cream sm:text-4xl">
-          Bring a matter to the Court
-        </h1>
-        <p className="mt-3 max-w-2xl text-lg text-cream/80">
-          The Court sits for consequential calls. If this is idle curiosity, take it to Clive first.
-        </p>
-      </header>
+    <div className="platform-court__book-stage">
+      <div
+        className="platform-court__book-container"
+        style={{ backgroundImage: "url(/agent-cast/court/court-book.png)" }}
+      >
+        <div
+          className="platform-court__right-page-content platform-court__intake"
+          style={{
+            left: `${COURT_BOOK_LAYOUT.rightPageContent.left}%`,
+            top: `${COURT_BOOK_LAYOUT.rightPageContent.top}%`,
+            width: `${COURT_BOOK_LAYOUT.rightPageContent.width}%`,
+            height: `${COURT_BOOK_LAYOUT.rightPageContent.height}%`,
+          }}
+        >
+          <div className="platform-court__intake-scroll">
+            <h2 className="platform-court__intake-title">Bring a matter to the Court</h2>
+            <p className="platform-court__intake-lede">
+              The Court sits for consequential calls. If this is idle curiosity, take it to Clive
+              first.
+            </p>
 
-      <div className="mt-8 space-y-6">
-        <div className="space-y-4">
-          <h2 className="font-display text-xl font-semibold text-ink">Sample matter</h2>
-          <button
-            onClick={() => onDecisionSet(DEFAULT_COURT_DECISION)}
-            className="btn-secondary text-sm"
-          >
-            Convene the sample Court
-          </button>
+            <form onSubmit={handleSubmit} className="platform-court__intake-form">
+              <label className="platform-court__field" htmlFor="matter-title">
+                <span className="platform-court__field-label">Matter title</span>
+                <input
+                  id="matter-title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="platform-court__underline-input"
+                  placeholder="Approve the off-script discount guardrail?…"
+                  required
+                />
+              </label>
+              <label className="platform-court__field" htmlFor="matter-context">
+                <span className="platform-court__field-label">Context</span>
+                <textarea
+                  id="matter-context"
+                  value={context}
+                  onChange={(e) => setContext(e.target.value)}
+                  className="platform-court__underline-input platform-court__underline-input--area"
+                  placeholder="What is the situation and why does it matter?…"
+                  required
+                />
+              </label>
+              <label className="platform-court__field" htmlFor="matter-stakes">
+                <span className="platform-court__field-label">Stakes</span>
+                <textarea
+                  id="matter-stakes"
+                  value={stakes}
+                  onChange={(e) => setStakes(e.target.value)}
+                  className="platform-court__underline-input platform-court__underline-input--area"
+                  placeholder="What happens if you decide wrong?…"
+                  required
+                />
+              </label>
+              <button
+                type="submit"
+                disabled={!title.trim() || !context.trim() || !stakes.trim()}
+                className="platform-court__seal-btn"
+              >
+                Convene the Court
+              </button>
+            </form>
+
+            <button
+              type="button"
+              onClick={() => onDecisionSet(DEFAULT_COURT_DECISION)}
+              className="platform-court__intake-sample platform-court__inline-link"
+            >
+              or hear the sample matter
+            </button>
+          </div>
         </div>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-ink/10"></div>
-          </div>
-          <div className="relative flex justify-center">
-            <span className="px-3 bg-cream text-sm text-ink-muted">or</span>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="font-display text-xl font-semibold text-ink">Bring your own matter</h2>
-          <div>
-            <label className="block text-sm" htmlFor="matter-title">
-              <span className="section-label mb-1 block">Matter title</span>
-              <input
-                id="matter-title"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full max-w-2xl rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm"
-                placeholder="Approve the off-script discount guardrail?…"
-                required
-              />
-            </label>
-          </div>
-          <div>
-            <label className="block text-sm" htmlFor="matter-context">
-              <span className="section-label mb-1 block">Context</span>
-              <textarea
-                id="matter-context"
-                value={context}
-                onChange={(e) => setContext(e.target.value)}
-                className="w-full max-w-2xl rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm min-h-24"
-                placeholder="What is the situation and why does it matter?…"
-                required
-              />
-            </label>
-          </div>
-          <div>
-            <label className="block text-sm" htmlFor="matter-stakes">
-              <span className="section-label mb-1 block">Stakes</span>
-              <textarea
-                id="matter-stakes"
-                value={stakes}
-                onChange={(e) => setStakes(e.target.value)}
-                className="w-full max-w-2xl rounded-lg border border-ink/15 bg-white px-3 py-2 text-sm min-h-20"
-                placeholder="What happens if you decide wrong?…"
-                required
-              />
-            </label>
-          </div>
-          <button
-            type="submit"
-            disabled={!title.trim() || !context.trim() || !stakes.trim()}
-            className="btn-primary text-sm disabled:opacity-60"
-          >
-            Convene the Court
-          </button>
-        </form>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -349,19 +561,36 @@ export function CourtShell() {
   const [decision, setDecision] = useState<CourtDecision | null>(null);
 
   return (
-    <>
-      <Nav />
-      <PlatformNav />
-      <main className="platform-page platform-page--court">
-        <div className="platform-page__inner">
+    <div className="court-stage">
+      <div className="court-stage__book" aria-hidden>
+        <Image
+          src="/agent-cast/court/court-book.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="court-stage__book-image"
+        />
+      </div>
+
+      <header className="court-stage__header">
+        <div>
+          <p className="court-stage__label">The Court</p>
+        </div>
+        <Link href="/command/pam" className="court-stage__back-link">
+          ← Leave the courtroom
+        </Link>
+      </header>
+
+      <div className="court-stage__artwork">
+        <div className="platform-court__book-stage">
           {decision ? (
-            <CourtSession decision={decision} />
+            <CourtBook decision={decision} />
           ) : (
             <CourtIntake onDecisionSet={setDecision} />
           )}
         </div>
-      </main>
-      <Footer />
-    </>
+      </div>
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 import { castHeroByProduct } from "@/lib/agent-cast-assets";
 import type { PaperTrailLine } from "./brain-health";
 
-export type CourtRoleId = "clive" | "pam" | "doc" | "iris" | "vera" | "judge";
+export type CourtRoleId = "clive" | "pam" | "doc" | "lazlo" | "clive-man" | "judge";
 
 export interface CourtRole {
   id: CourtRoleId;
@@ -19,6 +19,19 @@ export interface CourtTake {
 
 export interface CourtDialogueTurn {
   roleId: CourtRoleId;
+  line: string;
+}
+
+export type CourtVerdict = "Approve" | "Strong approve" | "Disapprove" | "Strong disapprove" | "LOVE" | "HATE";
+
+export interface AgentVerdict {
+  roleId: CourtRoleId;
+  verdict: CourtVerdict;
+  summary: string;
+}
+
+export interface BickerTurn {
+  roleId: CourtRoleId | "user";
   line: string;
 }
 
@@ -43,6 +56,36 @@ export const COURT_RULE =
 export const CONVENING_LINE =
   "Pam Portiscue convenes this session. She calls the Court to order; she does not own the verdict.";
 
+export interface CourtBookPosition {
+  x: number;
+  y: number;
+}
+
+export interface CourtBookSlot extends CourtBookPosition {
+  width: number;
+  height: number;
+}
+
+export const COURT_BOOK_LAYOUT = {
+  portraits: {
+    clive: { x: 15.9, y: 13.9 },
+    pam: { x: 15.6, y: 28.2 },
+    doc: { x: 15.9, y: 42.1 },
+    lazlo: { x: 15.4, y: 56.5 },
+    "clive-man": { x: 15.4, y: 70.6 },
+    judge: { x: 15.4, y: 84.1 },
+  } as Record<CourtRoleId, CourtBookPosition>,
+  verdictSlots: {
+    clive: { x: 19.5, y: 13.9, width: 26, height: 9 },
+    pam: { x: 19.5, y: 28.2, width: 26, height: 9 },
+    doc: { x: 19.5, y: 42.1, width: 26, height: 9 },
+    lazlo: { x: 19.5, y: 56.5, width: 26, height: 9 },
+    "clive-man": { x: 19.5, y: 70.6, width: 26, height: 9 },
+  } as Record<Exclude<CourtRoleId, "judge">, CourtBookSlot>,
+  rightPageContent: { left: 52, top: 7, width: 40, height: 78 },
+  plaque: { x: 68.5, y: 82, width: 12, height: 12 },
+} as const;
+
 export const COURT_ROLES: CourtRole[] = [
     {
       id: "clive",
@@ -65,18 +108,16 @@ export const COURT_ROLES: CourtRole[] = [
       focus: "Can we execute cleanly after judgement, with a paper trail?",
     },
     {
-      id: "iris",
-      name: "Professor Iris Mortimer",
-      title: "Evidence quality",
-      portraitSrc: castHeroByProduct("iris"),
-      focus: "Does the data support the guardrail thresholds?",
+      id: "lazlo",
+      name: "Lazlo Marlowe",
+      title: "Dramaturg's eye",
+      focus: "Does this hold together as a story humans will believe?",
     },
     {
-      id: "vera",
-      name: "Vera Vinegar-Toes",
-      title: "Stakeholder reaction and narrative risk",
-      portraitSrc: castHeroByProduct("vera"),
-      focus: "How will this land with reps, finance, and leadership?",
+      id: "clive-man",
+      name: "Clive's Man",
+      title: "Keeper of the record",
+      focus: "What does the record actually say, and what will it say afterwards?",
     },
     {
       id: "judge",
@@ -111,19 +152,19 @@ export const DEFAULT_COURT_DECISION: CourtDecision = {
       body: "I can write the approved truth row, link source snippets, and log the change, but only after you record judgement. Estimated effort: one truth promote, two linked examples, one workshop row retired.",
     },
     {
-      roleId: "iris",
-      headline: "Evidence is partial, not absent",
-      body: "Gold+ account performance supports a bounded discount window, but sample size for Ireland is too thin. Recommend tagging the truth as UK-only until Ireland evidence clears review.",
+      roleId: "lazlo",
+      headline: "Does the narrative hold, and will reps believe it?",
+      body: "Gold+ account performance supports a bounded discount window, but the story this tells must ring true. Reps will love the speed, yet leadership will ask who pays for the optimism. Frame it as logged exceptions, not a culture of wiggle room, or the narrative collapses.",
     },
     {
-      roleId: "vera",
-      headline: "Finance will ask who pays for the optimism",
-      body: "Reps will love the speed. Finance will ask who pays for the optimism, and whether this erodes margin discipline. Reps will quote the headline, not the footnote. Narrative fix: frame it as logged exceptions, not a culture of wiggle room. Leadership needs one slide on the human gate, not just the discount cap.",
+      roleId: "clive-man",
+      headline: "The record must be exact; precedent matters",
+      body: "What the record says now shapes what it says afterwards. This guardrail assumes RM log discipline; I need that discipline exact. Tagging the truth as UK-only until Ireland evidence clears review keeps the precedent clean. A narrow record beats a broad assumption.",
     },
     {
       roleId: "judge",
       headline: "Summary for the human gate",
-      body: "Six perspectives on the table. The tension sits between adoption upside (Clive, Vera) and evidence boundaries (Pam, Iris). Doc waits on your judgement. I summarise; I do not choose.",
+      body: "Five perspectives on the table. The tension sits between narrative flow and record precision. Doc waits on your judgement. I summarise; I do not choose.",
     },
   ],
   dialogue: [
@@ -140,12 +181,12 @@ export const DEFAULT_COURT_DECISION: CourtDecision = {
       line: "Helpfulness is exactly how drift gets in the door, Clive. This guardrail assumes reps wait for the RM log entry before quoting. Where is the sign-off compliance rate from the pilot?",
     },
     {
-      roleId: "iris",
-      line: "Partial, not absent, if I may. Gold-plus account performance supports a bounded discount window. Ireland's sample is too thin. I would tag the truth UK-only until the Irish evidence clears review.",
+      roleId: "lazlo",
+      line: "Does the story hold? Gold-plus account performance supports a bounded discount window, yet the narrative must ring true. Reps will quote the headline, never the footnote. Frame it as logged exceptions or leadership hears something you did not say.",
     },
     {
-      roleId: "vera",
-      line: "And finance will ask who pays for the optimism. Reps will quote the headline, never the footnote. Frame it as logged exceptions, not a culture of wiggle room, or leadership hears something you did not say.",
+      roleId: "clive-man",
+      line: "The record must be exact. Tagging the truth as UK-only until Ireland evidence clears review keeps the precedent clean. A narrow record beats a broad assumption, and RM log discipline is not negotiable.",
     },
     {
       roleId: "doc",
@@ -153,7 +194,7 @@ export const DEFAULT_COURT_DECISION: CourtDecision = {
     },
     {
       roleId: "clive",
-      line: "Then let the record show I accept Iris's boundary. UK-only, with the Ireland variants visibly untrusted. Better a narrow truth than a broad rumour.",
+      line: "Then let the record show I accept Clive's Man's boundary. UK-only, with the Ireland variants visibly untrusted. Better a narrow truth than a broad rumour.",
     },
     {
       roleId: "pam",
@@ -161,11 +202,11 @@ export const DEFAULT_COURT_DECISION: CourtDecision = {
     },
     {
       roleId: "judge",
-      line: "The bench has spoken and I shall be brief. The tension sits between adoption upside and evidence boundaries. I summarise; I do not choose. The only chair that matters now is yours.",
+      line: "The bench has spoken and I shall be brief. The tension sits between narrative flow and record precision. I summarise; I do not choose. The only chair that matters now is yours.",
     },
   ],
   judgeSummary:
-    "Six perspectives on the table. The tension sits between adoption upside (Clive, Vera) and evidence boundaries (Pam, Iris). Doc waits on your judgement. I do not choose.",
+    "Five perspectives on the table. The tension sits between narrative flow (Lazlo) and record precision (Clive's Man). Doc waits on your judgement. I do not choose.",
   ruleLine: COURT_RULE,
   convenerId: "pam",
 };
@@ -222,12 +263,12 @@ export function conveneMatter(matter: CourtMatter): CourtDecision {
         line: "And I shall hold the other one. What is the weakest assumption underneath it, and what happens if that assumption is wrong? Evidence before enthusiasm.",
       },
       {
-        roleId: "iris",
-        line: "I will want to know what data supports it, how much of it exists, and how much of it merely appears to. Confidence should be earned, not borrowed.",
+        roleId: "lazlo",
+        line: "And I will ask how it lands as a story. Stakeholders hear narratives, not specifications. If the story this tells is the wrong one, the specification will not save it.",
       },
       {
-        roleId: "vera",
-        line: "And I will ask how it lands. Stakeholders hear stories, not specifications. If the story this tells is the wrong one, the specification will not save it.",
+        roleId: "clive-man",
+        line: "I will want to know what precedent this sets and how the record will hold it. Precision now saves second-guessing later.",
       },
       {
         roleId: "doc",

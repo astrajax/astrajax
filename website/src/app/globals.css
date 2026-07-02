@@ -575,10 +575,10 @@ body {
     0 0.5rem 1rem rgba(6, 5, 3, 0.32);
 }
 
-/* Doc's Minions — tiny squares, right edge beside Lazlo */
+/* Doc's Minions — tiny squares, stacked above Lazlo on the right edge */
 .hero-asymmetric-wall__slot--minions {
-  top: 51%;
-  right: 4%;
+  top: 34%;
+  right: 3%;
   width: 11.5%;
   z-index: 2;
 }
@@ -689,13 +689,14 @@ body {
     0 0.35rem 0.75rem rgba(6, 5, 3, 0.28);
 }
 
-/* Lazlo Marlowe — medium portrait between Man and the minions */
+/* Lazlo Marlowe — bottom-right anchor, mirrors Pam on the left */
 .hero-asymmetric-wall__slot--lazlo {
-  top: 63%;
-  left: 55%;
+  bottom: 3%;
+  right: 2%;
   width: 28%;
-  z-index: 3;
+  z-index: 4;
   min-width: 0;
+  align-items: stretch;
 }
 
 .hero-asymmetric-wall__slot--lazlo .hero-portrait,
@@ -4443,33 +4444,275 @@ body {
   z-index: 1;
 }
 
-/* Responsive fallback for narrow screens */
+/* ── Intake on the book (right page, parchment) ── */
+.platform-court__intake {
+  color: var(--book-ink);
+}
+
+.platform-court__intake-scroll {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  mask-image: linear-gradient(180deg, transparent 0%, #000 5%, #000 95%, transparent 100%);
+}
+
+.platform-court__intake-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.platform-court__intake-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--book-ink) 25%, transparent);
+  border-radius: 2px;
+}
+
+.platform-court__intake-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+  color: var(--book-ink);
+  margin: 0;
+}
+
+.platform-court__intake-lede {
+  margin: 0.5rem 0 1.25rem;
+  font-size: clamp(0.82rem, 1.05vw, 0.95rem);
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--book-ink) 82%, transparent);
+}
+
+.platform-court__intake-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.platform-court__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.platform-court__field-label {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--book-ink) 60%, transparent);
+}
+
+.platform-court__underline-input {
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--book-ink) 30%, transparent);
+  border-radius: 0;
+  padding: 0.4rem 0;
+  font-size: 0.9rem;
+  background: transparent;
+  color: var(--book-ink);
+  font-family: inherit;
+  width: 100%;
+}
+
+.platform-court__underline-input--area {
+  resize: none;
+  min-height: 2.6rem;
+  line-height: 1.4;
+}
+
+.platform-court__underline-input::placeholder {
+  color: color-mix(in srgb, var(--book-ink) 40%, transparent);
+}
+
+.platform-court__underline-input:focus {
+  outline: none;
+  border-bottom-color: color-mix(in srgb, var(--book-ink) 55%, transparent);
+}
+
+.platform-court__seal-btn {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--book-ink);
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--book-ink) 45%, transparent);
+  border-radius: 0.2rem;
+  padding: 0.5rem 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.platform-court__seal-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--book-ink) 8%, transparent);
+}
+
+.platform-court__seal-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.platform-court__inline-link {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  color: color-mix(in srgb, var(--book-ink) 78%, transparent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.platform-court__inline-link:hover:not(:disabled) {
+  color: var(--book-ink);
+}
+
+.platform-court__inline-link:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.platform-court__intake-sample {
+  margin-top: 1.25rem;
+}
+
+/* ── Judgement overlay (parchment card over the stage) ── */
+.platform-court__judgement-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: color-mix(in srgb, #1a120c 62%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.platform-court__judgement-card {
+  width: min(32rem, 100%);
+  max-height: 85dvh;
+  overflow-y: auto;
+  padding: 1.75rem;
+  border-radius: 0.4rem;
+  color: var(--book-ink);
+  background:
+    linear-gradient(color-mix(in srgb, var(--color-parchment) 55%, #fbf4e2), color-mix(in srgb, var(--color-parchment) 55%, #fbf4e2)),
+    url(/agent-cast/court/court-book.png);
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 24px 60px rgba(26, 18, 12, 0.55);
+  border: 1px solid color-mix(in srgb, var(--book-ink) 25%, transparent);
+}
+
+.platform-court__judgement-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.platform-court__judgement-eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--book-ink) 65%, transparent);
+  margin: 0;
+}
+
+.platform-court__judgement-summary {
+  margin: 0.75rem 0 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--book-ink) 88%, transparent);
+}
+
+.platform-court__judgement-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.platform-court__judgement-recorded {
+  margin-top: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 0.3rem;
+  border: 1px solid color-mix(in srgb, var(--color-sage) 45%, transparent);
+  background: color-mix(in srgb, var(--color-sage) 12%, transparent);
+}
+
+.platform-court__judgement-verdict {
+  font-family: var(--font-display);
+  font-weight: 600;
+  margin: 0;
+}
+
+.platform-court__judgement-docline {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--book-ink) 80%, transparent);
+}
+
+.platform-court__paper-trail {
+  margin-top: 1.25rem;
+  border-top: 1px solid color-mix(in srgb, var(--book-ink) 18%, transparent);
+  padding-top: 0.9rem;
+}
+
+.platform-court__paper-trail ul {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.platform-court__paper-action {
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.platform-court__paper-meta {
+  font-size: 0.72rem;
+  margin: 0.1rem 0 0;
+  color: color-mix(in srgb, var(--book-ink) 60%, transparent);
+}
+
+/* Narrow screens: fit the whole book to the viewport width (letterboxed)
+   rather than cropping to a vertical strip. The scene stays coherent and
+   the percentage-positioned hotspots/slots/pages remain aligned to the art. */
 @media (max-width: 900px) {
-  .platform-court__book-container {
+  .court-stage__book {
     display: none;
   }
 
-  .platform-court__portrait-row {
-    display: flex;
-    gap: 0.5rem;
-    overflow-x: auto;
-    margin: 1rem 0;
-    padding: 0 1rem;
+  .court-stage__artwork {
+    width: 100vw;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    top: 50%;
   }
 
-  .platform-court__portrait-chip {
-    flex-shrink: 0;
-    padding: 0.75rem;
-    border: 1px solid color-mix(in srgb, var(--color-ink) 10%, transparent);
-    border-radius: 0.5rem;
-    background: white;
-    font-size: 0.75rem;
-    text-align: center;
+  .platform-court__verdict-text {
+    font-size: clamp(0.55rem, 2.6vw, 0.85rem);
   }
 
-  .platform-court__stack-content {
-    margin-top: 1rem;
-    padding: 0 1rem;
+  .platform-court__intake-title,
+  .platform-court__bicker-head h2 {
+    font-size: clamp(0.8rem, 3vw, 1.1rem);
+  }
+
+  .platform-court__intake-lede,
+  .platform-court__bicker-turn {
+    font-size: clamp(0.6rem, 2.4vw, 0.85rem);
   }
 }
 
@@ -4594,11 +4837,19 @@ body {
 
 /* ── Brain shrine (context governance entry) ── */
 .brain-shrine {
+  --shrine-room-pad: clamp(1rem, 2.8vw, 2.25rem);
+  --shrine-frame-mat: clamp(0.65rem, 1.45vw, 1.1rem);
+  --shrine-stage-max-h: calc(100dvh - clamp(5.5rem, 15vh, 8.5rem));
   position: relative;
   min-height: 100dvh;
   overflow: hidden;
-  background: #0a0a0a;
-  color: var(--color-cream);
+  background: linear-gradient(
+    165deg,
+    var(--color-cream) 0%,
+    var(--color-cream-deep) 45%,
+    var(--color-cream-paper) 100%
+  );
+  color: var(--color-ink);
 }
 
 .brain-shrine__header {
@@ -4609,8 +4860,8 @@ body {
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    color-mix(in srgb, black 45%, transparent) 0%,
-    color-mix(in srgb, black 22%, transparent) 55%,
+    color-mix(in srgb, var(--color-cream-paper) 92%, transparent) 0%,
+    color-mix(in srgb, var(--color-cream) 55%, transparent) 55%,
     transparent 100%
   );
 }
@@ -4620,16 +4871,14 @@ body {
   font-size: 1.125rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: var(--color-cream);
-  text-shadow: 0 1px 3px color-mix(in srgb, black 55%, transparent);
+  color: var(--color-ink);
 }
 
 .brain-shrine__subtitle {
   margin-top: 0.35rem;
   max-width: 36rem;
   font-size: 0.875rem;
-  color: color-mix(in srgb, var(--color-cream) 78%, transparent);
-  text-shadow: 0 1px 3px color-mix(in srgb, black 55%, transparent);
+  color: color-mix(in srgb, var(--color-ink-muted) 88%, transparent);
 }
 
 .brain-shrine__stage {
@@ -4638,15 +4887,39 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: var(--shrine-room-pad);
+  padding-bottom: clamp(4.5rem, 13vh, 7.5rem);
   overflow: hidden;
+}
+
+.brain-shrine__frame {
+  position: relative;
+  flex-shrink: 0;
+  padding: var(--shrine-frame-mat);
+  background: var(--color-cream-paper);
+  border: 1px solid color-mix(in srgb, var(--color-cream-inset) 72%, transparent);
+  border-radius: 2px;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, white 55%, var(--color-cream-paper)),
+    inset 0 -1px 0 color-mix(in srgb, var(--color-cream-inset) 45%, transparent),
+    0 1.35rem 2.75rem color-mix(in srgb, var(--color-ink) 16%, transparent),
+    0 0.35rem 0.85rem color-mix(in srgb, var(--color-ink) 9%, transparent);
 }
 
 .brain-shrine__surface {
   position: relative;
-  width: min(100vw, calc(100dvh * 16 / 9));
-  height: min(100dvh, calc(100vw * 9 / 16));
+  width: min(
+    calc(100vw - 2 * var(--shrine-room-pad) - 2 * var(--shrine-frame-mat) - 2px),
+    calc(var(--shrine-stage-max-h) * 16 / 9)
+  );
+  height: min(
+    var(--shrine-stage-max-h),
+    calc((100vw - 2 * var(--shrine-room-pad) - 2 * var(--shrine-frame-mat) - 2px) * 9 / 16)
+  );
   flex-shrink: 0;
   overflow: hidden;
+  background: #0a0a0a;
+  border-radius: 1px;
 }
 
 .brain-shrine__jar {
@@ -4660,6 +4933,7 @@ body {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  object-position: center center;
 }
 
 .brain-shrine__hotspot {
@@ -4707,24 +4981,32 @@ body {
 
 .brain-shrine__overlay--nameplate {
   pointer-events: auto;
-  top: 90.5%;
-  left: 37.5%;
-  width: 25%;
-  height: 7%;
+  top: 89.5%;
+  left: 35%;
+  width: 30%;
+  height: 6.5%;
+}
+
+.brain-shrine__overlay--cartouche {
+  top: 56.5%;
+  left: 50%;
+  width: 14%;
+  height: 8.5%;
+  transform: translateX(-50%);
 }
 
 .brain-shrine__overlay--audit {
-  top: 66.75%;
-  left: 31.4%;
-  width: 3.65%;
-  height: 3.5%;
+  top: 66.5%;
+  left: 31.2%;
+  width: 5.5%;
+  height: 4.8%;
 }
 
 .brain-shrine__overlay--flags {
-  top: 66.75%;
-  left: 64.95%;
-  width: 3.65%;
-  height: 3.5%;
+  top: 66.5%;
+  left: 63.3%;
+  width: 5.5%;
+  height: 4.8%;
 }
 
 .shrine-slot {
@@ -4733,19 +5015,17 @@ body {
   justify-content: center;
   overflow: hidden;
   background: transparent;
+  container-type: size;
 }
 
 .shrine-slot__value {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   width: 100%;
-  height: 100%;
   font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(0.625rem, 0.95vw, 0.9375rem);
+  font-size: clamp(0.75rem, 72cqh, 1.125rem);
   font-weight: 700;
   line-height: 1;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
   text-align: center;
   text-transform: uppercase;
   font-variant-numeric: tabular-nums;
@@ -4754,21 +5034,50 @@ body {
   text-shadow: 0 1px 0 color-mix(in srgb, white 30%, transparent);
 }
 
+.brain-shrine__cartouche {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  container-type: size;
+  background: color-mix(in srgb, #e8ede4 94%, transparent);
+  border-radius: 0.15rem;
+}
+
+.brain-shrine__cartouche-word {
+  display: block;
+  width: 100%;
+  font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+  font-size: clamp(0.875rem, 58cqh, 1.75rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--health-accent, #2a1c12);
+  text-shadow: 0 1px 0 color-mix(in srgb, white 35%, transparent);
+}
+
 .brain-shrine__nameplate {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
-  padding: 0 1.25rem;
+  padding: 0 0.75rem;
   background: transparent;
   border: none;
   box-shadow: none;
+  container-type: size;
 }
 
 .brain-shrine__nameplate-text {
+  display: block;
+  width: 100%;
   font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(0.875rem, 1.25vw, 1.25rem);
+  font-size: clamp(0.875rem, 52cqh, 1.375rem);
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: 0.04em;
@@ -4787,7 +5096,7 @@ body {
   border: none;
   background: transparent;
   font-family: var(--font-shrine), "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
-  font-size: clamp(1rem, 1.7vw, 1.5rem);
+  font-size: clamp(0.875rem, 48cqh, 1.25rem);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-align: center;
@@ -4813,7 +5122,7 @@ body {
   pointer-events: none;
   background: linear-gradient(
     0deg,
-    color-mix(in srgb, black 45%, transparent) 0%,
+    color-mix(in srgb, var(--color-cream-deep) 88%, transparent) 0%,
     transparent 100%
   );
 }
@@ -4824,8 +5133,7 @@ body {
 
 .brain-shrine__hint {
   font-size: 0.75rem;
-  color: color-mix(in srgb, var(--color-cream) 72%, transparent);
-  text-shadow: 0 1px 3px color-mix(in srgb, black 55%, transparent);
+  color: color-mix(in srgb, var(--color-ink-muted) 82%, transparent);
 }
 
 .brain-shrine__links {
@@ -4840,8 +5148,7 @@ body {
   padding: 0;
   font-size: 0.8125rem;
   font-weight: 500;
-  color: color-mix(in srgb, var(--color-cream) 88%, transparent);
-  text-shadow: 0 1px 3px color-mix(in srgb, black 55%, transparent);
+  color: color-mix(in srgb, var(--color-ink) 78%, transparent);
   cursor: pointer;
 }
 
@@ -4863,7 +5170,7 @@ body {
 
 .brain-shrine__link-divider {
   font-size: 0.75rem;
-  color: color-mix(in srgb, var(--color-cream) 50%, transparent);
+  color: color-mix(in srgb, var(--color-ink-muted) 45%, transparent);
 }
 
 .brain-health-band {

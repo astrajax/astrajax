@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" data-resolution="landscape">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, height=1080">
+    <title>AstraJax Launch — V3</title>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=block" rel="stylesheet">
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #f3eddb;
+        font-family: "Inter", sans-serif;
+      }
+      .scene {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div data-hf-id="hf-7tcw" id="root" data-composition-id="main" data-start="0" data-duration="58" data-width="1920" data-height="1080">
+      <!-- F1 : The hook is you — 0-11s -->
+      <div data-hf-id="hf-ybzw" id="scene-1" class="scene" data-composition-id="scene1-hook" data-composition-src="compositions/scene1-hook.html" data-start="0" data-duration="11" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- F2 : The mess — 11-19s (frame/shell only; ds-old-system.mp4 is a host-root child below) -->
+      <div data-hf-id="hf-ja4z" id="scene-2" class="scene" data-composition-id="scene2-the-mess" data-composition-src="compositions/scene2-the-mess.html" data-start="11" data-duration="8" data-track-index="1" data-width="1920" data-height="1080" style="z-index: 1;"></div>
+
+      <!-- F2 media: ds-old-system.mp4 is only 3.4s — plays once, then a frame-grab still (last
+           frame extracted to assets/ds-old-system-lastframe.jpg) crossfades in and holds, darkened
+           + grained, for the remainder of the 8s slot. -->
+      <video data-hf-id="hf-f2v1" id="ds-old-system" class="clip" src="assets/ds-old-system.mp4" data-start="11" data-duration="3.4" data-track-index="2" muted playsinline style="
+          position: absolute;
+          inset: 0;
+          width: 1920px;
+          height: 1080px;
+          object-fit: cover;
+          z-index: 0;
+        "></video>
+      <img data-hf-id="hf-f2v2" id="ds-old-system-hold" class="clip" src="assets/ds-old-system-lastframe.jpg" data-start="14.3" data-duration="4.7" data-track-index="3" style="
+          position: absolute;
+          inset: 0;
+          width: 1920px;
+          height: 1080px;
+          object-fit: cover;
+          filter: brightness(0.82) saturate(0.9);
+          opacity: 0;
+          z-index: 0;
+        " />
+      <div data-hf-id="hf-f2v3" id="ds-old-system-hold-grain" class="clip" data-start="11 + 3.3" data-duration="4.7" data-track-index="8" style="
+          position: absolute;
+          inset: 0;
+          width: 1920px;
+          height: 1080px;
+          background-image: radial-gradient(#f3eddb 0.6px, transparent 0.6px);
+          background-size: 4px 4px;
+          opacity: 0.06;
+          pointer-events: none;
+          z-index: 1;
+        "></div>
+
+      <!-- F3 : The turn + numbers — 19-27s (frame/shell only; ds-new-system + brain-thriving are
+           host-root children below) -->
+      <div data-hf-id="hf-1ic1" id="scene-3" class="scene" data-composition-id="scene3-the-turn" data-composition-src="compositions/scene3-the-turn.html" data-start="19" data-duration="8" data-track-index="1" data-width="1920" data-height="1080" style="z-index: 1;"></div>
+
+      <!-- F3 media beat 1 (19-23s): ds-new-system.mp4 full-bleed slow pan -->
+      <video data-hf-id="hf-f3v1" id="ds-new-system" class="clip" src="assets/ds-new-system.mp4" data-start="19" data-duration="4" data-track-index="4" muted playsinline style="
+          position: absolute;
+          inset: 0;
+          width: 1920px;
+          height: 1080px;
+          object-fit: cover;
+          z-index: 0;
+        "></video>
+
+      <!-- F3 media beat 2 (23-27s): brain-thriving.mp4 background behind stat panel, brightness 0.78 -->
+      <video data-hf-id="hf-f3v2" id="brain-thriving-bg" class="clip" src="assets/brain-thriving.mp4" data-start="23" data-duration="4" data-track-index="5" muted loop playsinline style="
+          position: absolute;
+          inset: 0;
+          width: 1920px;
+          height: 1080px;
+          object-fit: cover;
+          filter: brightness(0.78);
+          z-index: 0;
+        "></video>
+
+      <!-- F4 : Why the characters — 27-41s (frame/shell only; fleet-loop + team-laughing are
+           host-root children below) -->
+      <div data-hf-id="hf-2to9" id="scene-4" class="scene" data-composition-id="scene4-the-characters" data-composition-src="compositions/scene4-the-characters.html" data-start="27" data-duration="14" data-track-index="1" data-width="1920" data-height="1080" style="z-index: 1;"></div>
+
+      <!-- F4 sub-beat 1 (27-31.5s): fleet-loop.mp4, 1200x650, framed card ~1400px wide centered
+           (NOT stretched full-bleed) — sits inside the sub-comp's .fleet-frame slot. -->
+      <video data-hf-id="hf-f4v1" id="fleet-loop" class="clip" src="assets/fleet-loop.mp4" data-start="27" data-duration="4.5" data-track-index="6" muted loop playsinline style="
+          position: absolute;
+          left: 260px;
+          top: 118px;
+          width: 1400px;
+          height: 758px;
+          object-fit: cover;
+          border-radius: 12px;
+          opacity: 0;
+          z-index: 2;
+        "></video>
+
+      <!-- F4 sub-beat 3 (36-41s): team-laughing.mp4 full-bleed, muted, 23.976fps -->
+      <video data-hf-id="hf-f4v2" id="team-laughing" class="clip" src="assets/team-laughing.mp4" data-start="36" data-duration="5" data-track-index="7" muted playsinline style="
+          position: absolute;
+          inset: 0;
+          width: 1920px;
+          height: 1080px;
+          object-fit: cover;
+          z-index: 0;
+        "></video>
+
+      <!-- F5 : What AstraJax does for you — 41-53s -->
+      <div data-hf-id="hf-m9v3" id="scene-5" class="scene" data-composition-id="scene5-what-astrajax-does" data-composition-src="compositions/scene5-what-astrajax-does.html" data-start="41" data-duration="12" data-track-index="1" data-width="1920" data-height="1080"></div>
+
+      <!-- F6 : Close — 53-58s -->
+      <div data-hf-id="hf-1j9i" id="scene-6" class="scene" data-composition-id="scene6-close" data-composition-src="compositions/scene6-close.html" data-start="53" data-duration="5" data-track-index="1" data-width="1920" data-height="1080"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const mainTl = gsap.timeline({ paused: true });
+
+      // --- F2: ds-old-system plays once (11-14.4), then the held-frame video crossfades in
+      // and holds (brightened/darkened + grain via CSS filter) through the rest of the 8s slot. ---
+      mainTl.set("#ds-old-system", { opacity: 1 }, 11);
+      mainTl.to("#ds-old-system", { opacity: 0, duration: 0.5, ease: "power1.inOut" }, 11 + 2.9);
+      mainTl.fromTo(
+        "#ds-old-system-hold",
+        { opacity: 0 },
+        { opacity: 1, duration: 0.5, ease: "power1.inOut" },
+        11 + 2.9,
+      );
+      mainTl.fromTo(
+        "#ds-old-system-hold-grain",
+        { opacity: 0 },
+        { opacity: 0.06, duration: 0.5, ease: "power1.inOut" },
+        11 + 2.9,
+      );
+      // Slow zoom during the play-once beat
+      mainTl.fromTo(
+        "#ds-old-system",
+        { scale: 1.0 },
+        { scale: 1.05, duration: 3.3, ease: "none" },
+        11,
+      );
+      // Held frame drifts very slightly to avoid a dead-static look while "held"
+      mainTl.fromTo(
+        "#ds-old-system-hold",
+        { scale: 1.05 },
+        { scale: 1.09, duration: 4.7, ease: "none" },
+        11 + 3.3,
+      );
+
+      // --- F3: ds-new-system slow pan (19-23), then brain-thriving loops behind stat panel (23-27) ---
+      mainTl.fromTo(
+        "#ds-new-system",
+        { scale: 1.0 },
+        { scale: 1.06, duration: 4, ease: "none" },
+        19,
+      );
+      mainTl.fromTo(
+        "#brain-thriving-bg",
+        { scale: 1.0 },
+        { scale: 1.04, duration: 4, ease: "none" },
+        23,
+      );
+
+      // --- F4 sub-beat 1: fleet-loop reveals inside the framed card (27-31.5), then clears ---
+      mainTl.fromTo(
+        "#fleet-loop",
+        { opacity: 0, scale: 1.02 },
+        { opacity: 1, scale: 1, duration: 0.6, ease: "power3.out" },
+        27 + 0.2,
+      );
+      mainTl.to("#fleet-loop", { opacity: 0, duration: 0.4, ease: "power1.in" }, 27 + 4.1);
+
+      // --- F4 sub-beat 3: team-laughing full-bleed reveal (36-41), subtle zoom ---
+      mainTl.fromTo(
+        "#team-laughing",
+        { opacity: 0, scale: 1.03 },
+        { opacity: 1, scale: 1, duration: 0.6, ease: "power2.out" },
+        36 + 0.1,
+      );
+      mainTl.to(
+        "#team-laughing",
+        { scale: 1.05, duration: 4.3, ease: "none" },
+        36 + 0.7,
+      );
+
+      window.__timelines["main"] = mainTl;
+    </script>
+  </body>
+</html>

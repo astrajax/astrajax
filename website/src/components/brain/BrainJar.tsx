@@ -39,7 +39,6 @@ export function BrainJar({ healthBand, alt }: BrainJarProps) {
       return;
     }
 
-    video.load();
     void video.play().catch(() => {});
   }, [prefersReducedMotion, src]);
 

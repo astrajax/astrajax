@@ -1,0 +1,119 @@
+<template>
+  <div id="root" data-composition-id="scene2-the-mess" data-width="1920" data-height="1080" data-duration="6">
+    <style>
+      #root {
+        position: absolute;
+        inset: 0;
+        /* Transparent — ds-old-system.mp4 (host-root child, z-index 0) shows through beneath
+           this sub-comp's overlay chrome. An opaque root here would block the video entirely. */
+        background: transparent;
+        font-family: "Inter", sans-serif;
+        overflow: hidden;
+      }
+
+      /* Darken scrim over the footage so overlaid type stays legible (also covers the held
+         last-frame for the remainder of the slot per spec). Stays strong across the whole top
+         band — the source footage (a bright spreadsheet) is busy and light, so a light-touch
+         gradient there left the type unreadable; this holds heavier opacity through the zone
+         the TWO type overlay occupies. */
+      .scrim {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(23, 26, 24, 0.72) 0%,
+          rgba(23, 26, 24, 0.58) 30%,
+          rgba(23, 26, 24, 0.22) 62%,
+          rgba(23, 26, 24, 0.6) 100%
+        );
+        z-index: 2;
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(#f3eddb 0.6px, transparent 0.6px);
+        background-size: 5px 5px;
+        opacity: 0.05;
+        pointer-events: none;
+        z-index: 3;
+      }
+
+      /* TWO type overlay — display type over the darkened footage, matching F1a's headline
+         treatment so the "still no code" arc reads as one visual language. */
+      .type-stage {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding-top: 118px;
+        z-index: 4;
+      }
+
+      .type-line {
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      .type-line-1 {
+        font-size: 72px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        color: #f3eddb;
+        text-shadow: 0 2px 18px rgba(23, 26, 24, 0.65), 0 1px 3px rgba(23, 26, 24, 0.8);
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      .type-line-2 {
+        margin-top: 20px;
+        font-size: 40px;
+        font-weight: 600;
+        letter-spacing: 0;
+        color: #e7d1ad;
+        text-shadow: 0 2px 14px rgba(23, 26, 24, 0.65), 0 1px 3px rgba(23, 26, 24, 0.8);
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+    </style>
+
+    <div class="scrim"></div>
+    <div class="grain"></div>
+
+    <div class="type-stage">
+      <div class="type-line type-line-1" id="type-line-1">SEVEN YEARS A SENIOR COMMERCIAL LEADER.</div>
+      <div class="type-line type-line-2" id="type-line-2">STILL NO CODE. LOTS OF OPERATIONAL CONTEXT.</div>
+    </div>
+
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+
+        // TWO type overlay: line 1 slams in, line 2 follows
+        tl.fromTo(
+          "#type-line-1",
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" },
+          0.3,
+        );
+        tl.fromTo(
+          "#type-line-2",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" },
+          0.75,
+        );
+
+        // Popup Sheets-limit gag was dropped: at this frame's tight 6s duration the type overlay
+        // occupies the full vertical zone the popup would need, and inspect flagged a genuine
+        // content_overlap between the two. Per spec ("dropped if crowded"), the type wins —
+        // it holds clean through to the end of the 6s slot.
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["scene2-the-mess"] = tl;
+      })();
+    </script>
+  </div>
+</template>

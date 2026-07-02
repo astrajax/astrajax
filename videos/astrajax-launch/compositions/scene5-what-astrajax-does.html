@@ -1,0 +1,240 @@
+<template>
+  <div id="root" data-composition-id="scene5-what-astrajax-does" data-width="1920" data-height="1080" data-duration="12">
+    <style>
+      #root {
+        position: absolute;
+        inset: 0;
+        background: #faf7ed;
+        font-family: "Inter", sans-serif;
+        overflow: hidden;
+      }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        background-image: radial-gradient(#171a18 0.6px, transparent 0.6px);
+        background-size: 6px 6px;
+        opacity: 0.03;
+        pointer-events: none;
+        z-index: 10;
+      }
+
+      /* ---- Sub-beat 1 (0-6s): triptych of product captures ---- */
+      .triptych {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+      }
+
+      .shot {
+        position: absolute;
+        width: 1400px;
+        height: 787.5px;
+        left: 260px;
+        top: 220px;
+        border-radius: 22px;
+        overflow: hidden;
+        box-shadow: 0 40px 90px rgba(23, 26, 24, 0.28);
+        border: 1px solid rgba(23, 26, 24, 0.08);
+        opacity: 0;
+      }
+
+      .shot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .ring {
+        position: absolute;
+        border: 6px solid #d77545;
+        border-radius: 50%;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 4;
+      }
+
+      .triptych-caption {
+        position: absolute;
+        top: 96px;
+        left: 0;
+        right: 0;
+        text-align: center;
+        z-index: 6;
+      }
+
+      .triptych-caption-text {
+        display: inline-block;
+        font-size: 44px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: #171a18;
+        opacity: 0;
+      }
+
+      /* ---- Sub-beat 2 (6-12s): airspace-stage.jpg cover-crop + validation card ---- */
+      .stage-photo {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        opacity: 0;
+      }
+
+      .stage-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .stage-scrim {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(23, 26, 24, 0) 55%, rgba(23, 26, 24, 0.6) 100%);
+        z-index: 3;
+      }
+
+      .validation-card {
+        position: absolute;
+        left: 50%;
+        bottom: 110px;
+        transform: translate(-50%, 30px);
+        z-index: 5;
+        background: rgba(250, 247, 237, 0.97);
+        border: 1px solid rgba(23, 26, 24, 0.1);
+        border-radius: 18px;
+        padding: 26px 46px;
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        opacity: 0;
+        white-space: nowrap;
+      }
+
+      .validation-item {
+        font-size: 26px;
+        font-weight: 700;
+        color: #171a18;
+        letter-spacing: 0.005em;
+      }
+
+      .validation-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #d77545;
+        flex: 0 0 auto;
+      }
+    </style>
+
+    <div class="triptych" id="triptych">
+      <div class="shot" id="shot-home"><img src="assets/home-hero.png" alt="" /></div>
+      <div class="shot" id="shot-command"><img src="assets/command-clive-top.png" alt="" /></div>
+      <div class="shot" id="shot-agents"><img src="assets/agents-top.png" alt="" /></div>
+
+      <div class="ring" id="ring-home" style="left: 420px; top: 500px; width: 220px; height: 220px;"></div>
+      <div class="ring" id="ring-command" style="left: 1000px; top: 420px; width: 260px; height: 260px;"></div>
+      <div class="ring" id="ring-agents" style="left: 500px; top: 460px; width: 260px; height: 260px;"></div>
+
+      <div class="triptych-caption">
+        <span class="triptych-caption-text" id="triptych-caption-text">context flows</span>
+      </div>
+    </div>
+
+    <div class="stage-photo" id="stage-photo">
+      <img src="assets/airspace-stage.jpg" alt="Airspace LA keynote" />
+    </div>
+    <div class="stage-scrim" id="stage-scrim" style="opacity: 0;"></div>
+
+    <div class="validation-card" id="validation">
+      <div class="validation-item">Airspace LA keynote</div>
+      <div class="validation-dot"></div>
+      <div class="validation-item">Airtable MVP</div>
+    </div>
+
+    <div class="grain"></div>
+
+    <script>
+      (function () {
+        const tl = gsap.timeline({ paused: true });
+
+        // ---- Sub-beat 1: 0-6s — triptych keyed to narration thirds ----
+        // Beats: home-hero "context flows" (0-2.0) / command-clive-top "story-crafted agents" (2.0-4.0)
+        // / agents-top "coaching cycles" (4.0-6.0)
+        const shots = ["#shot-home", "#shot-command", "#shot-agents"];
+        const rings = ["#ring-home", "#ring-command", "#ring-agents"];
+        const beats = [0, 2.0, 4.0];
+        const beatDur = [2.0, 2.0, 2.0];
+        const captions = ["context flows", "story-crafted agents", "coaching cycles"];
+
+        shots.forEach((sel, i) => {
+          const start = beats[i];
+          const dur = beatDur[i];
+
+          tl.fromTo(
+            sel,
+            { opacity: 0, scale: 1.04, y: 22 },
+            { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: "power3.out" },
+            start,
+          );
+
+          tl.to(sel, { scale: 1.025, duration: dur - 0.45, ease: "none" }, start + 0.45);
+
+          if (i < shots.length - 1) {
+            // Overlap the exit past the next shot's entrance so the stack crossfades
+            // instead of dipping to the cream ground between shots.
+            tl.to(sel, { opacity: 0, scale: 0.98, duration: 0.3, ease: "power2.in" }, start + dur + 0.15);
+          }
+
+          tl.fromTo(
+            rings[i],
+            { opacity: 0, scale: 0.85 },
+            { opacity: 0.85, scale: 1, duration: 0.35, ease: "power2.out" },
+            start + 0.6,
+          );
+          tl.to(rings[i], { opacity: 0, duration: 0.3, ease: "power1.in" }, start + dur - 0.35);
+        });
+
+        // Caption swaps per beat
+        tl.fromTo(
+          "#triptych-caption-text",
+          { opacity: 0, y: 14 },
+          { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" },
+          0.1,
+        );
+        tl.to("#triptych-caption-text", { opacity: 0, y: -10, duration: 0.25, ease: "power2.in" }, 1.75);
+
+        tl.set("#triptych-caption-text", { innerText: captions[1], y: 14 }, 2.05);
+        tl.to("#triptych-caption-text", { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, 2.05);
+        tl.to("#triptych-caption-text", { opacity: 0, y: -10, duration: 0.25, ease: "power2.in" }, 3.75);
+
+        tl.set("#triptych-caption-text", { innerText: captions[2], y: 14 }, 4.05);
+        tl.to("#triptych-caption-text", { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }, 4.05);
+        tl.to("#triptych-caption-text", { opacity: 0, y: -10, duration: 0.25, ease: "power2.in" }, 5.7);
+
+        // ---- Sub-beat 2: 6-12s — airspace-stage.jpg cover-crop + validation card ----
+        tl.to("#triptych", { opacity: 0, duration: 0.4, ease: "power1.in" }, 5.9);
+        tl.fromTo(
+          "#stage-photo",
+          { opacity: 0, scale: 1.05 },
+          { opacity: 1, scale: 1, duration: 0.7, ease: "power2.out" },
+          6.1,
+        );
+        tl.to("#stage-scrim", { opacity: 1, duration: 0.6, ease: "power1.out" }, 6.1);
+
+        tl.fromTo(
+          "#validation",
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.55, ease: "power3.out" },
+          7.0,
+        );
+
+        // Hold to end of 12s slot — no narration for this beat, the image carries it
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines["scene5-what-astrajax-does"] = tl;
+      })();
+    </script>
+  </div>
+</template>

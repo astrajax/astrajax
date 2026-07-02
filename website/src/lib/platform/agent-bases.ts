@@ -1,5 +1,5 @@
 import type { InteractionSummary } from "@/lib/brains/types";
-import { castHeroByProduct } from "@/lib/agent-cast-assets";
+import { castHeroByProduct, castHeroSrc } from "@/lib/agent-cast-assets";
 import type { PaperTrailLine } from "./brain-health";
 
 export type AgentSlug = "clive" | "pam" | "doc" | "clive-man" | "lazlo-marlowe";
@@ -101,6 +101,7 @@ export const AGENT_ROSTER: AgentRosterEntry[] = [
     name: "Clive's Man",
     role: "Context upkeep",
     oneLiner: "Proposes brain repairs and upkeep — humans approve before Trusted truth changes.",
+    portraitSrc: castHeroSrc("clives-man"),
     brainName: "Northline Field Ops Brain",
     maturityLabel: "Working Brain",
   },

@@ -13,6 +13,7 @@ import {
 } from "@/lib/platform/brains";
 import { BrainJar } from "./BrainJar";
 import { BrainNameplate } from "./BrainNameplate";
+import { StatusCartouche } from "./StatusCartouche";
 
 type BrainShrineProps = {
   initialSlug?: string;
@@ -136,6 +137,10 @@ export function BrainShrine({ initialSlug = DEFAULT_BRAIN_SLUG }: BrainShrinePro
             aria-label="Next brain"
             onClick={() => cycle(1)}
           />
+
+          <div className="brain-shrine__overlay brain-shrine__overlay--cartouche">
+            <StatusCartouche band={activeBrain.healthBand} />
+          </div>
 
           <div
             className="brain-shrine__overlay brain-shrine__overlay--audit shrine-slot"

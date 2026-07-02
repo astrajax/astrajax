@@ -1,13 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CliveStudyShell } from "@/components/chapter1/CliveStudyShell";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import type { CliveVideoStageHandle } from "@/components/chapter1/CliveVideoStage";
 import { ProposalCard } from "@/components/brain/ProposalCard";
-import { Nav } from "@/components/Nav";
-import { Footer } from "@/components/Footer";
 import {
   buildDocketSummaryMonologue,
   CURATION_SITTING_BEATS,
@@ -149,97 +146,85 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
     }
   }, [brainSlug, loadDocket]);
 
-  return (
+  const headerActions = (
     <>
-      <Nav />
-      <main className="platform-page">
-        <div className="platform-page__inner">
-          <header className="platform-page__header">
-            <Link href={`/brain/${brainSlug}`} className="text-sm text-apricot hover:underline">
-              ← {brainName}
-            </Link>
-            <h1 className="font-display mt-4 text-3xl font-semibold text-ink sm:text-4xl">
-              Sit with Clive
-            </h1>
-            <p className="mt-3 max-w-2xl text-lg text-ink-muted">
-              Curate {brainName}&apos;s context conversationally. Clive proposes; you confirm in one
-              click. Every action shows where it lands.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-3">
-              <button type="button" className="study-stage__ghost-btn" onClick={() => void handleDemoSeed()}>
-                Seed demo truths
-              </button>
-              {seedStatus ? <p className="text-sm text-ink-muted">{seedStatus}</p> : null}
-            </div>
-          </header>
-
-          <CliveStudyShell ref={videoRef} onReset={() => setIntroComplete(false)}>
-            {!introComplete ? (
-              <div className="clive-welcome">
-                {CURATION_SITTING_BEATS.map((beat) => (
-                  <div key={beat.id} className="mb-6">
-                    <p className="clive-welcome-caption clive-welcome-caption--visible">{beat.caption}</p>
-                    <div className="clive-welcome-monologue mt-4">
-                      <p className="clive-welcome-monologue__label">Clive Wigglesworth</p>
-                      <p className="clive-welcome-monologue__text clive-welcome-monologue__text--visible">
-                        {beat.monologue}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  className="btn-primary mt-4"
-                  onClick={() => setIntroComplete(true)}
-                >
-                  Begin curation
-                </button>
-              </div>
-            ) : (
-              <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-                <div>
-                  <CliveChatSurface
-                    sessionId={sessionId}
-                    studyMode
-                    userLabel="Architect"
-                    placeholder="Ask Clive about the docket, propose a truth, or promote a draft…"
-                    starterPrompts={[
-                      "What's on the docket?",
-                      "Summarise flagged conversations",
-                      "Propose a positioning truth from our docs",
-                    ]}
-                    loopContext={loopContext}
-                    initialMessages={initialMessages}
-                    onCustomSend={handleCustomSend}
-                  />
-                  {proposals.map((proposal) => (
-                    <ProposalCard
-                      key={proposal.id}
-                      proposal={proposal}
-                      confirming={confirmingId === proposal.id}
-                      onConfirm={handleConfirm}
-                    />
-                  ))}
-                </div>
-                <aside className="card p-4">
-                  <p className="section-label">Pending work</p>
-                  {docket ? (
-                    <ul className="mt-3 space-y-2 text-sm text-ink-muted">
-                      <li>{docket.trustedTruths.length} trusted truths</li>
-                      <li>{docket.drafts.length} workshop drafts</li>
-                      <li>{docket.flaggedInteractions.length} flagged interactions</li>
-                      <li>{docket.pendingSourceDocuments.length} source documents</li>
-                    </ul>
-                  ) : (
-                    <p className="mt-3 text-sm text-ink-muted">Loading docket…</p>
-                  )}
-                </aside>
-              </div>
-            )}
-          </CliveStudyShell>
-        </div>
-      </main>
-      <Footer />
+      <button type="button" className="study-stage__ghost-btn" onClick={() => void handleDemoSeed()}>
+        Seed demo truths
+      </button>
+      {seedStatus ? <span className="study-stage__header-note">{seedStatus}</span> : null}
     </>
+  );
+
+  return (
+    <CliveStudyShell
+      ref={videoRef}
+      onReset={() => setIntroComplete(false)}
+      label="Sit with Clive"
+      subtitle={brainName}
+      backHref={`/brain/${brainSlug}`}
+      backLabel={brainName}
+      headerActions={headerActions}
+    >
+      {!introComplete ? (
+        <div className="clive-welcome">
+          {CURATION_SITTING_BEATS.map((beat) => (
+            <div key={beat.id} className="mb-6">
+              <p className="clive-welcome-caption clive-welcome-caption--visible">{beat.caption}</p>
+              <div className="clive-welcome-monologue mt-4">
+                <p className="clive-welcome-monologue__label">Clive Wigglesworth</p>
+                <p className="clive-welcome-monologue__text clive-welcome-monologue__text--visible">
+                  {beat.monologue}
+                </p>
+              </div>
+            </div>
+          ))}
+          <button
+            type="button"
+            className="btn-primary mt-4"
+            onClick={() => setIntroComplete(true)}
+          >
+            Begin curation
+          </button>
+        </div>
+      ) : (
+        <div className="chapter1-conversation">
+          <CliveChatSurface
+            sessionId={sessionId}
+            studyMode
+            userLabel="Architect"
+            placeholder="Ask Clive about the docket, propose a truth, or promote a draft…"
+            starterPrompts={[
+              "What's on the docket?",
+              "Summarise flagged conversations",
+              "Propose a positioning truth from our docs",
+            ]}
+            loopContext={loopContext}
+            initialMessages={initialMessages}
+            onCustomSend={handleCustomSend}
+          />
+          {proposals.map((proposal) => (
+            <ProposalCard
+              key={proposal.id}
+              proposal={proposal}
+              confirming={confirmingId === proposal.id}
+              onConfirm={handleConfirm}
+            />
+          ))}
+          <div className="study-doc-card mt-4">
+            <p className="study-doc-card__title">Pending work</p>
+            {docket ? (
+              <ul className="study-doc-card__list mt-2">
+                <li>{docket.trustedTruths.length} trusted truths</li>
+                <li>{docket.drafts.length} workshop drafts</li>
+                <li>{docket.flaggedInteractions.length} flagged interactions</li>
+                <li>{docket.pendingSourceDocuments.length} source documents</li>
+              </ul>
+            ) : (
+              <p className="study-doc-card__body study-doc-card__body--muted mt-2">Loading docket…</p>
+            )}
+          </div>
+        </div>
+      )}
+    </CliveStudyShell>
   );
 }

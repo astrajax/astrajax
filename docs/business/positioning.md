@@ -212,8 +212,12 @@ Court Mode is the high-stakes version. It gives role-based perspectives before j
 - Clive: upside, adoption value, human meaning
 - Pam: weak assumptions, rabbit-hole risk, missing evidence
 - Doc: action readiness, implementation cost, operational risk
-- Iris: evidence quality, data confidence, measurement
-- Vera: stakeholder reaction, narrative risk, human adoption risk
+- Lazlo Marlowe: story coherence, believability, whether the matter holds together
+- Clive's Man: the record, provenance, what precedent the decision sets
+
+(Bench as seated 1 Jul 2026; Iris and Vera remain available voices and the composition may rotate.)
+
+Pam convenes the Court as clerk; she does not own it. The room holds caution, upside, evidence, cost, and stakeholder reaction in balanced tension, and no single voice sets its temperament. In the Court the cast speak fully in character, in live dialogue, and the richer the scene the more prominent the human judgement gate becomes. A user can also bring a novel idea straight to the Court at any time; the door is always open, but the framing stays high-stakes and earned.
 
 The Court surfaces perspectives. The human gives judgement.
 

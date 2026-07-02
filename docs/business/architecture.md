@@ -523,18 +523,28 @@ It should not be required for V1, but it should be visible in the business posit
 
 Court Mode gives the user a suite of role-based takes, then asks the human to choose the judgement they want to adopt.
 
-Possible roles:
+**Pam convenes the Court; she does not own it.** As clerk of the court she calls the session, keeps order, and makes sure caution is voiced. On the merits she remains one voice on a bench of peers. The Court may be hosted from Pam's base as an implementation detail, but its conceptual home is the panel, never the challenger lane. The room must not inherit any single voice's temperament.
+
+Roles (bench as seated, Matthew 1 Jul 2026):
 
 - **Clive:** positive case, adoption upside, human meaning.
-- **Pam Portiscue:** sceptical case, weak assumptions, rabbit-hole risk.
+- **Pam Portiscue:** sceptical case, weak assumptions, rabbit-hole risk. Also convener (see above).
 - **Doc:** implementation cost, operational risk, action readiness.
-- **Iris:** evidence quality, data confidence, measurement.
-- **Vera:** stakeholder reaction, narrative risk, how this lands with humans.
+- **Lazlo Marlowe:** the dramaturg's eye. Does this hold together as a story humans will believe?
+- **Clive's Man:** keeper of the record. What does the record actually say, and what precedent does this set?
 - **Judge:** summarises the cases, but does not decide.
+
+Lazlo Marlowe and Clive's Man stepped in for Iris (evidence quality) and Vera (stakeholder reaction) on 1 Jul 2026. Iris and Vera remain available voices; the bench composition is Matthew's call and may rotate.
 
 Core rule:
 
 > **The Court surfaces perspectives. The human gives judgement. Doc executes only after judgement is recorded.**
+
+**In-character dialogue.** In the Court the cast converse with each other fully in character: live dialogue, not only parallel takes. The theatre is deliberate adoption infrastructure, and it carries one binding constraint: the richer the scene, the MORE prominent the human judgement gate must become, never less. A well-performed scene must never feel like it reached a verdict. The Judge closes by handing the matter to the human; the scene visibly cannot conclude without them.
+
+**Two ways in.** Court Mode is reached by escalation from the human gate when stakes are high, or by standalone entry: a user may bring a novel idea directly to the Court at any time. The standalone door is always open, but the framing stays earned and high-stakes. Idle brainstorming belongs with Clive; the Court is the bench.
+
+The name is **Court Mode**. ("War Room" was considered and rejected as a mixed metaphor: war rooms command, courts deliberate, and war rooms have no judge. Matthew, 1 Jul 2026.)
 
 Court Mode should exist in all story modes:
 
@@ -543,6 +553,8 @@ Court Mode should exist in all story modes:
 - No Story Mode: plain multi-agent review.
 
 The substance is the same. The theatre is the interface.
+
+**Governance note (1 Jul 2026):** these v2 decisions (convener framing, in-character dialogue, standalone entry) were adopted by Matthew from a Clive assessment without a Pam stress-test, which Matthew explicitly deferred. Known governance exception; revisit with Pam before this section drives external claims or pricing.
 
 ### Step 4: Human Approval
 

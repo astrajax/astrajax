@@ -27,6 +27,7 @@ export function PortraitDoor({
   const router = useRouter();
   const { runWithPortraitTransition } = usePortraitTransition();
   const room = COMMAND_ROOMS[character];
+  const doorHref = room.doorPath ?? room.path;
 
   const handleClick = useCallback(
     (event: MouseEvent<HTMLAnchorElement>) => {
@@ -37,17 +38,17 @@ export function PortraitDoor({
       setReturnPortrait(character);
       runWithPortraitTransition(
         () => {
-          router.push(room.path);
+          router.push(doorHref);
         },
         { viewTransitionName: `portrait-${character}` },
       );
     },
-    [character, room.path, router, runWithPortraitTransition],
+    [character, doorHref, router, runWithPortraitTransition],
   );
 
   return (
     <Link
-      href={room.path}
+      href={doorHref}
       className={`hero-portrait-door group block ${className}`.trim()}
       aria-label={ariaLabel}
       data-portrait-door={character}

@@ -17,6 +17,13 @@ export type RoomStation = {
 export type RoomConfig = {
   slug: CommandRoomSlug;
   path: `/command/${CommandRoomSlug}`;
+  /**
+   * Optional override for the portrait door destination. When set, clicking the
+   * character's portrait navigates here instead of `path`. `path` stays the
+   * canonical room URL (still reachable directly). Pam's portrait opens the
+   * Court Book.
+   */
+  doorPath?: string;
   roomLabel: string;
   roomTitle: string;
   tagline: string;
@@ -109,6 +116,7 @@ export const COMMAND_ROOMS: Record<CommandRoomSlug, RoomConfig> = {
   pam: {
     slug: "pam",
     path: "/command/pam",
+    doorPath: "/court",
     roomLabel: "Pam's desk",
     roomTitle: "Brain bases & challenge",
     tagline: "This looks stale or thin. Stress-test before you fix it.",
