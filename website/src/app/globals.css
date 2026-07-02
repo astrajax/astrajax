@@ -506,7 +506,7 @@ body {
 }
 
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop {
-  width: min(58.8%, 9.1rem);
+  width: min(88.2%, 13.65rem);
   margin: 0;
   align-self: center;
   position: relative;
@@ -515,11 +515,14 @@ body {
 }
 
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop-grid {
-  gap: clamp(0.35rem, 0.77cqw, 0.56rem);
+  gap: clamp(0.525rem, 1.155cqw, 0.84rem);
 }
 
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop .hero-portrait-caption {
   margin-top: clamp(0.35rem, 0.7cqw, 0.56rem);
+  width: max-content;
+  max-width: none;
+  white-space: nowrap;
 }
 
 .hero-asymmetric-wall__slot--doc .hero-doc-workshop .hero-portrait-caption__name {
@@ -746,7 +749,7 @@ body {
 
 /* Lazlo Marlowe — bottom-right anchor, mirrors Pam on the left */
 .hero-asymmetric-wall__slot--lazlo {
-  bottom: -10%;
+  bottom: -14%;
   right: 9%;
   width: 28%;
   z-index: 4;
