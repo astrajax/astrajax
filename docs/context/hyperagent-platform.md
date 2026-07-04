@@ -2,7 +2,7 @@
 
 **Status:** Curated platform reference (Doc's Workshop preload).  
 **Owner:** Matthew.  
-**Last verified:** 2026-06-25 (release emails Jun 4 / Jun 18 / Jun 22 2026; prior UI pass 2026-05-31).  
+**Last verified:** 2026-07-03 (public docs site + hosted MCP web recheck; release emails Jun 4 / Jun 18 / Jun 22 2026; prior UI pass 2026-05-31).  
 **Authenticated UI pass:** Complete on `matt@butternutbox.com` workspace (38 agents; AstraJax Clive Curator/Intake/Scanner exports not yet imported here).  
 **Primary consumer:** Doc's Workshop when designing Hyperagent-deployed agents.  
 **Raw release log:** `docs/context/hyperagent-releases.json`.
@@ -26,6 +26,7 @@ primary runtime is Hyperagent.
 | `hyperagent/exports/agents/*.json` | Export schema v1, `toolSettings` keys, `allowedIntegrations`, schedules, model fields |
 | Downloaded DS agents (Skill Forge, Agent Factory, etc.) | Live `allowedIntegrations` slugs: `airtable`, `github`, `gmail`, `googlesheets`, `openai` |
 | `hyperagent/docs/clive-*-webhook-setup.md` | Webhook URL shape, agent-bound triggers, secret header, skip-on-202 failure mode |
+| Official public docs `hyperagent.com/docs` (web recheck 2026-07-03) | Docs section map (Lessons / Concepts / Reference / Migration), hosted MCP server + tool list, Search/Execute Integration tool model, Airtable Data Agent GitHub write-back case study |
 
 **Account note:** Matthew's live workspace is the Butternut DS bot fleet (~38 agents). AstraJax Clive agents (Curator, Intake, Scanner) are defined in-repo exports; import them before assuming they appear in Command Center or Agents list.
 
@@ -60,6 +61,9 @@ Registry folders are split by runtime:
 | URL | Role |
 |-----|------|
 | `https://hyperagent.com` | Public marketing site |
+| `https://www.hyperagent.com/docs` | **Official public docs** (web-verified 2026-07-03 — see section map below) |
+| `https://hyperagent.com/api/mcp` | **Hosted MCP server** — external MCP clients drive agents (web-verified 2026-07-03) |
+| `https://hyperagent.com/settings/mcp-access` | MCP client access configuration page |
 | `https://hyperagent.com/login` | Sign-in; also shows demo workflow gallery |
 | `https://hyperagent.com/api/auth/google/callback` | Google OAuth redirect (observed in OAuth flow) |
 | `https://hyperagent.com/api/webhooks/<id>/receive` | Inbound webhook for agent triggers (AstraJax pattern) |
@@ -83,6 +87,36 @@ Registry folders are split by runtime:
 Sign-in providers on `/login`: **Google**, **Apple**, **Microsoft**. Google OAuth scopes observed: `email`, `profile`, `openid`; `prompt=select_account`.
 
 Do not use `app.hyperagent.com` — it does not resolve (chrome error as of 2026-05-31).
+
+## Official public docs site (web-verified 2026-07-03)
+
+Hyperagent now publishes official public documentation at
+`https://www.hyperagent.com/docs`. The earlier "no official public docs exist"
+assumption is superseded.
+
+| Section | Pages |
+|---------|-------|
+| Lessons | what-is-hyperagent, your-first-thread, how-to-run-your-agent-from-anywhere, deploying-to-slack |
+| Concepts | agents, threads, skills, memories, teams, library |
+| Reference | agent-configuration, available-tools, mcp-server, data-deletion |
+| Migration | openclaw |
+
+Factory can now cite these pages as Hyperagent-owned public sources. Exact UI
+toggles and export field names remain UI/export-verified where the docs are
+silent.
+
+### Hosted MCP server (`/api/mcp`)
+
+Any MCP client can drive Hyperagent agents via the hosted MCP server at
+`https://hyperagent.com/api/mcp` (Claude Code:
+`claude mcp add --transport http hyperagent https://hyperagent.com/api/mcp`).
+
+| Item | Detail |
+|------|--------|
+| Tools | `list_agents`, `create_thread`, `send_message`, `get_thread`, `list_threads`, `create_attachment_upload` |
+| Auth | One-time browser sign-in (Google / Apple / Microsoft) |
+| Permissions | Connected clients inherit the user's existing Hyperagent permissions |
+| Config page | `hyperagent.com/settings/mcp-access` |
 
 ## Authenticated navigation (UI-verified)
 
@@ -525,6 +559,11 @@ configuration", not "unavailable".
 High-confidence sources for this document:
 
 - Matthew's Hyperagent release emails exported from Gmail.
+- **Official public docs at `hyperagent.com/docs`** (Lessons / Concepts /
+  Reference / Migration — web-verified 2026-07-03). This supersedes the earlier
+  finding that no official public documentation existed.
+- `https://www.hyperagent.com/blog/airtable-data-agent/` — official case study
+  confirming the GitHub write-back pattern (see GitHub Runtime).
 - `hyperagent.com`, which publicly describes Hyperagent as a fleet-of-agents
   product connected to tools and data.
 - Public posts/search snippets tied to Andrew Busse, Howie Liu, and Airtable
@@ -539,10 +578,17 @@ Rejected or non-canonical sources:
   Hyperagent.
 - Generic "hyperagents" research papers or SDK repos: name collision only.
 
-Public web recheck did **not** find an official Hyperagent action catalogue.
-Therefore Factory must not invent exact Slack, GitHub, MCP, task, permission,
-or webhook fields from public web docs. Use the current Hyperagent UI, exports,
-or Matthew-confirmed release emails for exact configuration.
+Action catalogue (updated 2026-07-03): the official docs
+(`/docs/reference/available-tools`) confirm there is **no static
+per-integration action catalogue by design**. Third-party integrations
+(GitHub, Airtable, etc.) run through two generic platform tools — **Search
+Integrations** (find available integrations and their actions) and **Execute
+Integration** (run actions on connected integrations) — with actions
+discovered dynamically from the connected MCP connector. So Factory still must
+not invent exact per-integration action lists; the verification method is a
+test thread using Search Integrations against the connected workspace, plus
+the current Hyperagent UI, exports, or Matthew-confirmed release emails for
+exact configuration.
 
 ### Integrations and MCP
 
@@ -564,6 +610,20 @@ or Matthew-confirmed release emails for exact configuration.
   warehouse access, and Slack/channel usage. Treat these as capability signals.
 - UI catalogue (2026-05-31): see **Workspace integrations catalogue** above for
   NATIVE/MCP/COMPOSIO split and featured connectors.
+- Official docs (`/docs/reference/available-tools`, web-verified 2026-07-03):
+  third-party integrations (GitHub, Airtable, etc.) are exercised via two
+  generic platform tools — **Search Integrations** (find available integrations
+  and their actions) and **Execute Integration** (run actions on connected
+  integrations, e.g. create a GitHub issue). There is no static
+  per-integration action catalogue; actions are discovered dynamically from
+  the connected MCP connector. To verify what an integration can do, run a
+  test thread using Search Integrations — not a UI catalogue lookup.
+- Hyperagent also runs a **hosted MCP server** at
+  `https://hyperagent.com/api/mcp` (see **Hosted MCP server** above): external
+  MCP clients such as Claude Code can list agents, create threads, and send
+  messages, inheriting the signed-in user's permissions. This is inbound
+  (client → Hyperagent) and separate from custom MCP connectors attached to
+  agents (Hyperagent → external service).
 - Downloaded DS agent exports confirm these `allowedIntegrations` slugs in live
   agent configs: `airtable`, `github`, `gmail`, `googlesheets`, and `openai`.
   They are stored as a JSON string array, not a native JSON array.
@@ -592,10 +652,21 @@ some GitHub OAuth tokens were affected, and later Hyperagent release material
 announced native integrations plus custom MCP. Matthew has also flagged GitHub
 as a real native integration path.
 
-Exact GitHub actions must be checked in the current Hyperagent UI before design
-or export. For AstraJax, default GitHub writes to human approval and treat merge,
-delete, release, permission, and repository-creation capabilities as high-risk
-unless Matthew explicitly narrows the scope.
+Per the official docs (2026-07-03), GitHub actions run through the generic
+**Search Integrations** / **Execute Integration** tools and are discovered
+dynamically from the connected MCP connector — there is no static GitHub
+action list to check. Verify available GitHub actions with a test thread using
+Search Integrations before design or export. For AstraJax, default GitHub
+writes to human approval and treat merge, delete, release, permission, and
+repository-creation capabilities as high-risk unless Matthew explicitly
+narrows the scope.
+
+The official **Airtable Data Agent case study**
+(`hyperagent.com/blog/airtable-data-agent/`) confirms the GitHub write-back
+pattern: the agent proposes context-file updates with reasoning, and on human
+approval writes them back to the file in the GitHub repo (the approval flow
+runs through Slack). PR/branch mechanics are **not** documented publicly —
+verify in a test thread before relying on branch or PR behaviour.
 
 ### Agent Autonomy Patterns
 
@@ -669,15 +740,30 @@ unless Matthew explicitly narrows the scope.
 
 ### Public Web Unknowns
 
+Resolved by the 2026-07-03 web recheck:
+
+- ~~exact GitHub **action** list~~ — resolved: no static list exists by design.
+  Actions are discovered dynamically via **Search Integrations** / **Execute
+  Integration** (official docs, `/docs/reference/available-tools`). The
+  verification method is a test thread using Search Integrations, not a UI
+  catalogue.
+- ~~whether Hyperagent exposes external-client MCP~~ — resolved: yes. Hosted
+  MCP server at `https://hyperagent.com/api/mcp` with documented tools (see
+  **Hosted MCP server** section).
+
 Still not verified in a Hyperagent-owned **public** doc (UI or exports may cover them):
 
-- exact Slack **action** list (deployment and @mention flow are UI-verified)
-- exact GitHub **action** list (MCP connector exists; actions are UI/runtime-specific)
+- exact Slack **action** list (deployment and @mention flow are UI-verified;
+  a `deploying-to-slack` lesson exists in the official docs but does not
+  enumerate actions — integration actions are dynamic, per above)
 - exact webhook configure form field names (URL + secret pattern confirmed in AstraJax setup docs)
-- whether Hyperagent exposes external-client MCP in the same way HyperFX does
+- GitHub PR/branch mechanics for the write-back pattern (file write-back on
+  human approval is confirmed by the Airtable Data Agent case study; branching
+  is not)
 
-Factory must ask Matthew to check the Hyperagent UI, inspect an export, or use a
-Matthew-confirmed release email before relying on those details.
+Factory must ask Matthew to check the Hyperagent UI, inspect an export, run a
+Search Integrations test thread, or use a Matthew-confirmed release email
+before relying on those details.
 
 ### Models and Context
 
@@ -766,6 +852,10 @@ respond to other bots or to self.
 Custom MCP support is confirmed by the reviewed Hyperagent release emails.
 Design around MCP only when it materially improves the agent, and still verify
 the exact server, authentication, and permission setup before final export.
+
+Separately, Hyperagent's own **hosted MCP server** (`/api/mcp`) lets external
+clients drive agents from outside the platform — see **Hosted MCP server**
+above. Do not confuse the two directions when designing.
 
 ### Webhooks and schedules (AstraJax operational truth)
 
