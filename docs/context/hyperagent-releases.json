@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "last_synced_at": "2026-06-25T06:18:00+00:00",
-  "last_sync_source": "manual_pdf_review:Hyperagent release emails Jun 4 / Jun 18 / Jun 22 2026",
+  "last_synced_at": "2026-07-04T01:24:41.080254+00:00",
+  "last_sync_source": "airtable",
   "curation_rule": "Scanner entries are unverified until Matthew promotes durable facts into docs/context/hyperagent-platform.md.",
   "releases": [
     {
