@@ -5,7 +5,6 @@ import { FounderProof } from "@/components/FounderProof";
 import { Problem } from "@/components/Problem";
 import { Method } from "@/components/Method";
 import { CitizenBuilder } from "@/components/CitizenBuilder";
-import { Proof } from "@/components/Proof";
 import { Adoption } from "@/components/Adoption";
 import { Offers } from "@/components/Offers";
 import { CliveSection } from "@/components/CliveSection";
@@ -29,7 +28,6 @@ export default function HomePage() {
         <Problem />
         <Method />
         <CitizenBuilder />
-        <Proof />
         <Adoption />
         <Offers />
         <CtaClose />

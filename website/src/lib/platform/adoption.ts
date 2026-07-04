@@ -37,9 +37,6 @@ export interface AdoptionSnapshot {
 export const ADOPTION_ENABLEMENT_NOTE =
   "Enablement, not surveillance. We celebrate teams and positive habits, never rank individuals or count who asked fewest questions.";
 
-export const ADOPTION_PROOF_NOTE =
-  "See the Butternut DS training hub: team sandboxes, training videos, and adoption ops in production (celebrate teams, not individuals).";
-
 export const DEFAULT_ADOPTION: AdoptionSnapshot = {
   hostName: "KK Kingsford",
   hostRole: "Scorekeeper, team momentum and XP",

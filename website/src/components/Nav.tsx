@@ -14,7 +14,6 @@ type NavLink = {
 const links: NavLink[] = [
   { href: "/#method", label: "Loop", hint: "How adoption works" },
   { href: "/#citizen-builder", label: "Citizen Builder", hint: "Why experts shape the AI" },
-  { href: "/#proof", label: "Proof", hint: "Built in production" },
   {
     href: "/brain",
     label: "Brain review",

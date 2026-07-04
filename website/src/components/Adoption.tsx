@@ -1,10 +1,8 @@
-import { TRAINING_HUB_URL } from "@/lib/site";
-
 const signals = [
-  { label: "Guided training", href: TRAINING_HUB_URL },
-  { label: "Safe sandboxes", href: TRAINING_HUB_URL },
-  { label: "Momentum loops", href: TRAINING_HUB_URL },
-  { label: "Characterful agents", href: TRAINING_HUB_URL },
+  "Guided training",
+  "Safe sandboxes",
+  "Momentum loops",
+  "Characterful agents",
 ];
 
 export function Adoption() {
@@ -22,31 +20,13 @@ export function Adoption() {
         </p>
         <div className="mt-6 flex flex-wrap gap-2">
           {signals.map((signal) => (
-            <a
-              key={signal.label}
-              href={signal.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border border-ink/10 bg-white px-3 py-1 text-xs font-medium text-ink-muted transition hover:border-apricot/40 hover:text-apricot"
+            <span
+              key={signal}
+              className="rounded-full border border-ink/10 bg-white px-3 py-1 text-xs font-medium text-ink-muted"
             >
-              {signal.label}
-            </a>
+              {signal}
+            </span>
           ))}
-        </div>
-        <div className="mt-8">
-          <a
-            href={TRAINING_HUB_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary"
-          >
-            Open the DS training hub
-            <span aria-hidden>→</span>
-          </a>
-          <p className="mt-3 max-w-xl text-sm text-ink-muted">
-            Live from production — walkthroughs, sandboxes, engagement loops and the training
-            habits that helped a non-technical team learn by using the system.
-          </p>
         </div>
       </div>
     </section>

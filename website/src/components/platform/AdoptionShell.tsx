@@ -3,8 +3,7 @@ import Link from "next/link";
 import { Nav } from "@/components/Nav";
 import { Footer } from "@/components/Footer";
 import { PlatformNav } from "@/components/platform/PlatformNav";
-import { DEFAULT_ADOPTION, ADOPTION_PROOF_NOTE } from "@/lib/platform/adoption";
-import { TRAINING_HUB_URL } from "@/lib/site";
+import { DEFAULT_ADOPTION } from "@/lib/platform/adoption";
 
 function formatWhen(iso: string): string {
   try {
@@ -108,19 +107,6 @@ export function AdoptionShell() {
               <p className="platform-adoption-metric mt-2 text-sm text-ink-muted">
                 {snapshot.xp.currentXp} / {snapshot.xp.xpRequired} XP
               </p>
-            </section>
-
-            <section className="card p-5">
-              <p className="section-label">Proof link</p>
-              <p className="mt-2 text-sm text-ink-muted">{ADOPTION_PROOF_NOTE}</p>
-              <a
-                href={TRAINING_HUB_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-secondary mt-4 inline-flex text-sm"
-              >
-                Open training hub
-              </a>
             </section>
 
             <section className="card p-5 sm:col-span-2">
