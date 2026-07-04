@@ -16,12 +16,6 @@ const links: NavLink[] = [
   { href: "/#citizen-builder", label: "Citizen Builder", hint: "Why experts shape the AI" },
   { href: "/#proof", label: "Proof", hint: "Built in production" },
   {
-    href: "/journey",
-    label: "Journey",
-    featured: true,
-    hint: "The Butternut story",
-  },
-  {
     href: "/brain",
     label: "Brain review",
     hint: "Score agent answers and flag stale context",

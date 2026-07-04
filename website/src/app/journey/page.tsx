@@ -1,12 +1,6 @@
-import type { Metadata } from "next";
-import { JourneyContent } from "@/components/JourneyContent";
+import { notFound } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Matthew's Journey — AstraJax",
-  description:
-    "The Airspace talk track: how a non-technical commercial leader built an AI-ready operating system — boring layer first, agents second.",
-};
-
+/** Journey is kept in-repo but not publicly served. Re-enable by restoring JourneyContent. */
 export default function JourneyPage() {
-  return <JourneyContent />;
+  notFound();
 }
