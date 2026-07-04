@@ -1,0 +1,1 @@
+build-pack-v0.1 was never landed as a file: it lived as an in-thread paste in the Proposer thread (`cmr6izwo32izq07ad06e0cw9a`, 2026-07-04) and is superseded by `build-pack-v0.2.md` in this directory.

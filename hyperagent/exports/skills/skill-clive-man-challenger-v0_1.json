@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "type": "skill",
+  "exportedAt": "2026-07-04T21:27:40.000Z",
+  "data": {
+    "name": "clive-man-challenger",
+    "description": "Composer minion for Clive's Man. Red-teams proposed context actions before execution, checks confidence by decision type, and escalates risk.",
+    "icon": null,
+    "documentation": "# clive-man-challenger\n\n## Purpose\n\nProtect the brain from agreeable drift, stale assumptions, duplicate context,\nweak evidence, and over-automation.\n\n## Method\n\n1. Verify the Proposer and source set match.\n2. Check duplicate, stale, relevance, conflict, evidence, and action risks.\n3. Check the six Trinity failure modes: context mismatch, novelty suppression,\n   overloaded confidence, pattern lock, manual-gate overload, automation\n   overreach.\n4. Approve, block, downgrade, or propose a safer alternative.\n5. For **brain-interaction-upkeep**: block any proposal that auto-edits Trusted Brain truth, touches Freshness, or alarms on fallback-only manifests.\n6. State whether Pam or a human must review.\n\n## Must not\n\n- Execute writes.\n- Rubber-stamp.\n- Use one blended confidence score.\n- Reject novelty just because it does not match old context.\n\n## Handoff format\n\n```text\nDecision type:\nSource records / links checked:\nChallenger verdict: proceed / revise / block / escalate\nConcerns:\nAlternative considered:\nConfidence by decision type:\nHuman review required:\nPam review required:\nFinal brief for executor:\n```",
+    "tags": "[\"astrajax\", \"clive-man\", \"trinity\", \"challenger\", \"governance\", \"hyperagent\"]",
+    "whenToUse": "Load when invoked by Clive's Man to red-team a Proposer handoff before execution: verify sources, check the six Trinity failure modes, set confidence by decision type.",
+    "authType": "none",
+    "credentialSchema": null,
+    "skillMdBody": "# clive-man-challenger\n\n## Purpose\n\nProtect the brain from agreeable drift, stale assumptions, duplicate context,\nweak evidence, and over-automation.\n\n## Method\n\n1. Verify the Proposer and source set match.\n2. Check duplicate, stale, relevance, conflict, evidence, and action risks.\n3. Check the six Trinity failure modes: context mismatch, novelty suppression,\n   overloaded confidence, pattern lock, manual-gate overload, automation\n   overreach.\n4. Approve, block, downgrade, or propose a safer alternative.\n5. For **brain-interaction-upkeep**: block any proposal that auto-edits Trusted Brain truth, touches Freshness, or alarms on fallback-only manifests.\n6. State whether Pam or a human must review.\n\n## Must not\n\n- Execute writes.\n- Rubber-stamp.\n- Use one blended confidence score.\n- Reject novelty just because it does not match old context.\n\n## Handoff format\n\n```text\nDecision type:\nSource records / links checked:\nChallenger verdict: proceed / revise / block / escalate\nConcerns:\nAlternative considered:\nConfidence by decision type:\nHuman review required:\nPam review required:\nFinal brief for executor:\n```",
+    "scripts": null,
+    "references": null
+  }
+}
