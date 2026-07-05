@@ -67,11 +67,20 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
   const [hoveredBook, setHoveredBook] = useState<HubBookId | null>(null);
   const [hubImageLoaded, setHubImageLoaded] = useState(false);
   const [motionAllowed, setMotionAllowed] = useState(true);
+  const [hoverCapable, setHoverCapable] = useState(false);
   const glowRefs = useRef<Partial<Record<HubBookId, HTMLVideoElement>>>({});
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const sync = () => setMotionAllowed(!media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const sync = () => setHoverCapable(media.matches);
     sync();
     media.addEventListener("change", sync);
     return () => media.removeEventListener("change", sync);
@@ -95,15 +104,37 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
     [motionAllowed],
   );
 
+  /**
+   * Pre-warm: nudge the lazy glow videos (preload="none") into the browser cache on
+   * first pointer contact with the desk, so the first hover glows instantly instead
+   * of waiting on a fetch. Runs once. Skipped where it would waste bytes: touch
+   * devices (no hover), reduced motion (glow layer not rendered), Save-Data users.
+   */
+  const warmedRef = useRef(false);
+
+  const warmGlowVideos = useCallback(() => {
+    if (warmedRef.current || !hoverCapable || !motionAllowed) return;
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } })
+      .connection;
+    if (connection?.saveData) return;
+    warmedRef.current = true;
+    for (const video of Object.values(glowRefs.current)) {
+      if (!video || !video.paused) continue;
+      video.preload = "auto";
+      video.load();
+    }
+  }, [hoverCapable, motionAllowed]);
+
   const handleBookEnter = useCallback(
     (bookId: HubBookId) => {
+      warmGlowVideos();
       if (hoveredBook && hoveredBook !== bookId) {
         stopGlow(hoveredBook);
       }
       setHoveredBook(bookId);
       startGlow(bookId);
     },
-    [hoveredBook, startGlow, stopGlow],
+    [hoveredBook, startGlow, stopGlow, warmGlowVideos],
   );
 
   const handleBookLeave = useCallback(
@@ -122,7 +153,7 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
       </header>
 
       <div className="clive-study-hub__desk">
-        <div className="clive-study-hub__surface">
+        <div className="clive-study-hub__surface" onPointerEnter={warmGlowVideos}>
           <Image
             src={HUB_IMAGE_SRC}
             alt="Bird's-eye view of Clive's desk with four leather-bound books: Welcome, Reasoning with Clive, The Architect Journal, and Brain Building"
