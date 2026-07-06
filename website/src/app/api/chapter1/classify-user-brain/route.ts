@@ -8,17 +8,42 @@ import {
   inferProfileFromIntake,
 } from "@/lib/aie-demo/user-brain-intake";
 import { USER_BRAIN_PROFILES } from "@/lib/aie-demo/demo-data";
+import { mergeCaptured } from "@/lib/aie-demo/intake-agenda";
 import type { IntakeAnswer, UserBrainIntake } from "@/lib/aie-demo/types";
+import type { ChatMessage } from "@/lib/clive/types";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const INTAKE_QUESTION_COUNT = 7;
+const MAX_TRANSCRIPT_TURNS = 48;
+const MAX_TRANSCRIPT_TURN_LENGTH = 800;
 
 type ClassifyRequest = {
   intake?: Partial<UserBrainIntake>;
   answers?: IntakeAnswer[];
+  /** Full intake conversation. When present, the model re-reads it as the
+   * authoritative source and extracts the fields from everything said. */
+  transcript?: ChatMessage[];
 };
+
+function sanitiseTranscript(raw: unknown): ChatMessage[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter(
+      (item): item is ChatMessage =>
+        typeof item === "object" &&
+        item !== null &&
+        (item.role === "user" || item.role === "assistant") &&
+        typeof item.content === "string" &&
+        item.content.trim().length > 0,
+    )
+    .slice(-MAX_TRANSCRIPT_TURNS)
+    .map((item) => ({
+      role: item.role,
+      content: item.content.trim().slice(0, MAX_TRANSCRIPT_TURN_LENGTH),
+    }));
+}
 
 function sanitiseAnswers(raw: unknown): IntakeAnswer[] {
   if (!Array.isArray(raw)) return [];
@@ -103,15 +128,36 @@ export async function POST(request: Request) {
     });
   }
 
+  const transcript = sanitiseTranscript(body.transcript);
+
   try {
     const modelId = process.env.CLIVE_MODEL ?? "claude-sonnet-4-6";
     const answerBlock = intake.rawAnswers
       .map((a) => `- ${a.question}\n  Answer: ${a.answer}`)
       .join("\n");
 
+    const hasTranscript = transcript.length > 0;
+
+    const fieldsContract = hasTranscript
+      ? `,"fields":{"name":"…","role":"…","businessSector":"…","devExperience":"…","aiComfort":"…","contextFamiliarity":"…","goal":"…"}`
+      : "";
+
+    const transcriptInstruction = hasTranscript
+      ? `
+
+A FULL CONVERSATION transcript is provided. Re-read it carefully — it is the authoritative source. The field values supplied are only a running draft: correct them wherever the conversation says otherwise, and fill anything the draft missed. In "fields", return short faithful values for all seven fields drawn from the user's own words (omit a field only if the conversation truly never covers it).`
+      : "";
+
+    const transcriptBlock = hasTranscript
+      ? `
+
+FULL CONVERSATION (authoritative — re-read before answering):
+${transcript.map((turn) => `${turn.role === "user" ? "Architect" : "Clive"}: ${turn.content}`).join("\n")}`
+      : "";
+
     const result = await generateText({
       model: anthropic(modelId),
-      system: `You classify a Chapter 1 user into exactly one User Brain profile for tone calibration.
+      system: `You classify a Chapter 1 user into exactly one User Brain profile for tone calibration.${transcriptInstruction}
 Profiles (pick one id only):
 ${USER_BRAIN_PROFILES.map((p) => `- ${p.id}: ${p.label}`).join("\n")}
 
@@ -122,7 +168,7 @@ Routing rules:
 - systems-expert: hands-on engineering or deep systems architecture.
 
 Respond with JSON only, no markdown:
-{"profileId":"<one of: ${PROFILE_IDS}>","reasoning":"<one sentence why, internal tone>","summary":"<2-3 warm sentences in Clive's voice synthesising what you heard — interpret their situation, do not quote answers verbatim or list fields. Do not name the profile label here.>"}`,
+{"profileId":"<one of: ${PROFILE_IDS}>","reasoning":"<one sentence why, internal tone>","summary":"<2-3 warm sentences in Clive's voice synthesising what you heard — interpret their situation, do not quote answers verbatim or list fields. Do not name the profile label here.>"${fieldsContract}}`,
       prompt: `Name: ${intake.name ?? "unknown"}
 Role: ${intake.role ?? "unknown"}
 Business / sector: ${intake.businessSector ?? "unknown"}
@@ -132,22 +178,28 @@ Context familiarity: ${intake.contextFamiliarity ?? "unknown"}
 Goal: ${intake.goal ?? "unknown"}
 
 Q&A:
-${answerBlock}`,
-      maxOutputTokens: 300,
+${answerBlock}${transcriptBlock}`,
+      maxOutputTokens: hasTranscript ? 700 : 300,
     });
 
     const parsed = JSON.parse(result.text.trim()) as {
       profileId?: string;
       summary?: string;
       reasoning?: string;
+      fields?: unknown;
     };
+
+    // The transcript re-read is authoritative: extracted fields override the
+    // running draft wherever the model corrected or filled them.
+    const extracted = hasTranscript ? mergeCaptured({}, parsed.fields) : {};
+    const effectiveIntake: UserBrainIntake = { ...intake, ...extracted };
 
     const profileId = USER_BRAIN_PROFILES.some((p) => p.id === parsed.profileId)
       ? parsed.profileId!
       : fallback.profileId;
     const profile = getProfileById(profileId)!;
     const summary = parsed.summary?.trim() || fallback.summary;
-    const { enriched, recommendations } = attachRecommendations(intake, profileId, summary);
+    const { enriched, recommendations } = attachRecommendations(effectiveIntake, profileId, summary);
 
     return NextResponse.json({
       profileId,
