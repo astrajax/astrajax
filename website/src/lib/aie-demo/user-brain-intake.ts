@@ -556,12 +556,24 @@ export type PersistedLoopSlice = Pick<
   "sessionId" | "userBrain" | "userBrainIntake" | "currentStep"
 >;
 
+/**
+ * The study keeps its ledger: the loop slice persists in localStorage so a
+ * returning architect is remembered across visits on the same browser —
+ * Clive recalls from the record, not from pretended memory. "Start again"
+ * clears it. Pre-W8 slices lived in sessionStorage (per-tab); the loader
+ * migrates them once.
+ */
 export function loadPersistedLoopSlice(): Partial<PersistedLoopSlice> | null {
   if (typeof window === "undefined") return null;
   try {
-    const raw = sessionStorage.getItem(INTAKE_STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as Partial<PersistedLoopSlice>;
+    const raw = window.localStorage.getItem(INTAKE_STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as Partial<PersistedLoopSlice>;
+
+    const legacy = window.sessionStorage.getItem(INTAKE_STORAGE_KEY);
+    if (!legacy) return null;
+    window.localStorage.setItem(INTAKE_STORAGE_KEY, legacy);
+    window.sessionStorage.removeItem(INTAKE_STORAGE_KEY);
+    return JSON.parse(legacy) as Partial<PersistedLoopSlice>;
   } catch {
     return null;
   }
@@ -570,16 +582,17 @@ export function loadPersistedLoopSlice(): Partial<PersistedLoopSlice> | null {
 export function persistLoopSlice(slice: PersistedLoopSlice): void {
   if (typeof window === "undefined") return;
   try {
-    sessionStorage.setItem(INTAKE_STORAGE_KEY, JSON.stringify(slice));
+    window.localStorage.setItem(INTAKE_STORAGE_KEY, JSON.stringify(slice));
   } catch {
-    // Private browsing or quota — ignore for v1
+    // Private browsing or quota — the ledger is best-effort
   }
 }
 
 export function clearPersistedLoopSlice(): void {
   if (typeof window === "undefined") return;
   try {
-    sessionStorage.removeItem(INTAKE_STORAGE_KEY);
+    window.localStorage.removeItem(INTAKE_STORAGE_KEY);
+    window.sessionStorage.removeItem(INTAKE_STORAGE_KEY);
   } catch {
     // ignore
   }

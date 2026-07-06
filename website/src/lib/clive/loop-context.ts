@@ -59,5 +59,10 @@ export function buildLoopContextSummary(context: {
     lines.push(`Business brain goal (workshop draft): ${context.businessGoal}`);
   }
   if (context.beat) lines.push(`Current beat: ${beatLabel(context.beat)}`);
+  if (context.userName) {
+    lines.push(
+      "Continuity: the study keeps this record between visits — it is the ledger, and the ledger is your memory. If asked whether you remember this architect, recall warmly from this record and only this record: greet them by name, name what is written here (their role, their goal, how far they got), and pick up from there. Never invent shared memories beyond the ledger; if something isn't recorded, say the ledger doesn't hold it and ask.",
+    );
+  }
   return lines.join("\n");
 }
