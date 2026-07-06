@@ -4,6 +4,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useState } from "react";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
+import { loadPersistedLoopSlice } from "@/lib/aie-demo/user-brain-intake";
 
 const HIDDEN_PATHS = ["/brain", "/chapter-1", "/aie-demo", "/command", "/court"];
 
@@ -19,13 +20,29 @@ function createSessionId(): string {
   return `web_${Date.now()}`;
 }
 
+type ReturningArchitect = {
+  name: string;
+  role?: string;
+  goal?: string;
+};
+
+function loadReturningArchitect(): ReturningArchitect | null {
+  const intake = loadPersistedLoopSlice()?.userBrainIntake;
+  const name = intake?.name?.trim();
+  if (!name) return null;
+  return { name, role: intake?.role, goal: intake?.goal };
+}
+
 export function GlobalCliveLauncher() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [returning, setReturning] = useState<ReturningArchitect | null>(null);
   const panelId = useId();
 
   useEffect(() => {
+    setReturning(loadReturningArchitect());
+
     const existing = window.localStorage.getItem(SESSION_STORAGE_KEY);
     if (existing?.trim()) {
       setSessionId(existing.trim());
@@ -54,6 +71,15 @@ export function GlobalCliveLauncher() {
   if (pathname === "/" || HIDDEN_PATHS.some((path) => pathname?.startsWith(path))) {
     return null;
   }
+
+  const greeting = returning
+    ? `Welcome back, ${returning.name}. ${GREETING}`
+    : GREETING;
+  const loopContext = returning
+    ? `Returning visitor previously mapped in Chapter 1 — name: ${returning.name}${
+        returning.role ? `; role: ${returning.role}` : ""
+      }${returning.goal ? `; goal: ${returning.goal}` : ""}. Greet them as a returning architect and keep continuity.`
+    : undefined;
 
   return (
     <>
@@ -95,8 +121,10 @@ export function GlobalCliveLauncher() {
             </button>
           </header>
           <CliveChatSurface
-            greeting={GREETING}
+            greeting={greeting}
+            loopContext={loopContext}
             sessionId={sessionId}
+            persistTranscript
             compact
             placeholder="Ask about adoption, context or Clive…"
             starterPrompts={[
