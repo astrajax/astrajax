@@ -287,7 +287,11 @@ export function getNextAssistantMessage(
   question: IntakeQuestion,
 ): string | null {
   const ack = acknowledgeAnswer(question, latestAnswer, intake.name ?? latestAnswer.trim());
-  const nextIndex = intake.questionIndex + 1;
+  // `intake` arrives here AFTER applyIntakeAnswer, so questionIndex already
+  // points at the next unanswered question. The former `+ 1` double-advanced
+  // the flow: the displayed question ran one ahead of the question being
+  // validated and stored, landing every answer in the previous field.
+  const nextIndex = intake.questionIndex;
 
   if (nextIndex < INTAKE_QUESTIONS.length) {
     return `${ack} ${INTAKE_QUESTIONS[nextIndex].text}`;
