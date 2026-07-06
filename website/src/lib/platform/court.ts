@@ -82,8 +82,21 @@ export const COURT_BOOK_LAYOUT = {
     lazlo: { x: 19.5, y: 56.5, width: 26, height: 9 },
     "clive-man": { x: 19.5, y: 70.6, width: 26, height: 9 },
   } as Record<Exclude<CourtRoleId, "judge">, CourtBookSlot>,
-  rightPageContent: { left: 55, top: 8, width: 34, height: 76 },
-  plaque: { x: 68.5, y: 82, width: 12, height: 12 },
+  /** Hit area for a painted miniature: an oval matching the gilt frames
+   * (percentages of the artwork, centred on each portrait's x/y). The old
+   * square 11%×11% region was wider than the paint and shorter than it. */
+  portraitHotspot: { width: 8, height: 14.5 },
+  /** The judge's painted strip (the sixth, otherwise-empty row beside his
+   * portrait) — carries his standing line as static ink, not a tooltip. */
+  judgeStrip: { x: 19.5, y: 84.1, width: 26, height: 9 },
+  /** The written record flows above the brass — content ends (y 72) just
+   * clear of the plaque's top edge, so live text never sits under the metal
+   * and the plaque hotspot never covers the input row. */
+  rightPageContent: { left: 55, top: 8, width: 34, height: 64 },
+  /** Measured against the painted plaque (inner face centre ≈ 71%, 81.5%).
+   * The old box (68.5, 82, 12×12) centred the engraved word at (74.5, 88) —
+   * off the brass entirely, hanging past the plaque's lower-right corner. */
+  plaque: { x: 65.5, y: 74, width: 11, height: 15 },
 } as const;
 
 export const COURT_ROLES: CourtRole[] = [
