@@ -5,6 +5,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { StudyAssistantText } from "@/components/chapter1/StudyAssistantText";
 import type { ChatMessage, ClivePersona } from "@/lib/clive/types";
 
+const TRANSCRIPT_STORAGE_PREFIX = "astrajax-clive-transcript-";
+const TRANSCRIPT_MAX_TURNS = 40;
+const SCROLL_PIN_THRESHOLD_PX = 48;
+
 type CliveChatSurfaceProps = {
   persona?: ClivePersona;
   greeting?: string;
@@ -18,11 +22,22 @@ type CliveChatSurfaceProps = {
   studyMode?: boolean;
   /** Label for the human side of the conversation (Chapter 1: "Architect {name}"). */
   userLabel?: string;
+  /** Max characters accepted by the input. */
+  maxLength?: number;
+  /**
+   * Persist the transcript to sessionStorage (keyed by sessionId) and restore
+   * it on mount. Intended for the Ask Clive panel and global launcher so a
+   * closed panel keeps its conversation. Loop surfaces manage their own state
+   * and should leave this off.
+   */
+  persistTranscript?: boolean;
   /** When set, skips /api/ask-clive and uses this handler for assistant replies. */
   onCustomSend?: (message: string, history: ChatMessage[]) => Promise<string>;
   onUserMessage?: (message: string) => void;
   onAssistantMessage?: (message: string) => void;
   onThinkingChange?: (thinking: boolean) => void;
+  /** Notified after a reply fails and the in-surface error affordance is shown. */
+  onError?: (detail: string) => void;
   disabled?: boolean;
   /** When set, renders as read-only transcript without input. */
   transcriptOnly?: boolean;
@@ -47,6 +62,41 @@ async function readTextStream(response: Response, onDelta: (chunk: string) => vo
   return full.trim();
 }
 
+function loadPersistedTranscript(sessionId: string): ChatMessage[] | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.sessionStorage.getItem(`${TRANSCRIPT_STORAGE_PREFIX}${sessionId}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as ChatMessage[];
+    if (!Array.isArray(parsed)) return null;
+    const turns = parsed.filter(
+      (turn) =>
+        (turn?.role === "user" || turn?.role === "assistant") &&
+        typeof turn?.content === "string",
+    );
+    return turns.length > 0 ? turns : null;
+  } catch {
+    return null;
+  }
+}
+
+function savePersistedTranscript(sessionId: string, messages: ChatMessage[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(
+      `${TRANSCRIPT_STORAGE_PREFIX}${sessionId}`,
+      JSON.stringify(messages.slice(-TRANSCRIPT_MAX_TURNS)),
+    );
+  } catch {
+    // Private browsing or quota — transcript persistence is best-effort.
+  }
+}
+
+function prefersReducedMotionNow(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 export function CliveChatSurface({
   persona = "clive",
   greeting,
@@ -58,40 +108,84 @@ export function CliveChatSurface({
   compact = false,
   studyMode = false,
   userLabel = "You",
+  maxLength = 500,
+  persistTranscript = false,
   onUserMessage,
   onAssistantMessage,
   onThinkingChange,
+  onError,
   disabled = false,
   transcriptOnly = false,
   initialMessages = [],
   onCustomSend,
 }: CliveChatSurfaceProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    if (persistTranscript && !transcriptOnly) {
+      const stored = loadPersistedTranscript(sessionId);
+      if (stored) return stored;
+    }
+    return initialMessages;
+  });
   const [input, setInput] = useState("");
   const [streamingText, setStreamingText] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [freshInk, setFreshInk] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
-  const lastAnimatedIndexRef = useRef(
-    initialMessages.length > 0 ? initialMessages.length - 1 : -1,
-  );
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const pinnedRef = useRef(true);
+  const lastAnimatedIndexRef = useRef(messages.length > 0 ? messages.length - 1 : -1);
+  const lastAnnouncedIndexRef = useRef(messages.length > 0 ? messages.length - 1 : -1);
   const skipNextAnimationRef = useRef(false);
   const [animatingIndex, setAnimatingIndex] = useState<number | null>(null);
 
-  const scrollToBottom = useCallback(() => {
+  const speakerName = studyMode
+    ? persona === "pam"
+      ? "Pam Portiscue"
+      : "Clive Wigglesworth"
+    : persona === "pam"
+      ? "Pam"
+      : "Clive";
+
+  const scrollToBottom = useCallback((force = false) => {
     requestAnimationFrame(() => {
       const node = listRef.current;
       if (!node) return;
+      if (!force && !pinnedRef.current) return;
       node.scrollTo({
         top: node.scrollHeight,
-        behavior: "smooth",
+        behavior: prefersReducedMotionNow() ? "auto" : "smooth",
       });
     });
   }, []);
 
+  const handleListScroll = useCallback(() => {
+    const node = listRef.current;
+    if (!node) return;
+    const distanceFromBottom = node.scrollHeight - node.scrollTop - node.clientHeight;
+    const pinned = distanceFromBottom < SCROLL_PIN_THRESHOLD_PX;
+    pinnedRef.current = pinned;
+    if (pinned) setFreshInk(false);
+  }, []);
+
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, streamingText, isThinking, scrollToBottom]);
+    if (pinnedRef.current) {
+      scrollToBottom();
+    } else if (messages.length > 0 || streamingText) {
+      setFreshInk(true);
+    }
+  }, [messages, streamingText, scrollToBottom]);
+
+  useEffect(() => {
+    if (isThinking) scrollToBottom();
+  }, [isThinking, scrollToBottom]);
+
+  useEffect(() => {
+    if (!persistTranscript || transcriptOnly) return;
+    if (messages.length === 0) return;
+    savePersistedTranscript(sessionId, messages);
+  }, [messages, persistTranscript, sessionId, transcriptOnly]);
 
   useEffect(() => {
     const lastIndex = messages.length - 1;
@@ -112,28 +206,51 @@ export function CliveChatSurface({
   }, [messages, streamingText]);
 
   useEffect(() => {
+    const lastIndex = messages.length - 1;
+    const lastMessage = messages[lastIndex];
+    if (
+      lastMessage?.role === "assistant" &&
+      lastIndex > lastAnnouncedIndexRef.current &&
+      !streamingText
+    ) {
+      lastAnnouncedIndexRef.current = lastIndex;
+      setStatusMessage(`${speakerName}: ${lastMessage.content}`);
+    }
+  }, [messages, speakerName, streamingText]);
+
+  useEffect(() => {
     onThinkingChange?.(isThinking);
   }, [isThinking, onThinkingChange]);
 
-  const sendMessage = useCallback(
-    async (raw: string) => {
-      const message = raw.trim();
-      if (!message || isThinking || disabled || transcriptOnly) return;
+  const thinkingLabel =
+    persona === "pam" ? "Pam is considering…" : "Clive's thinking…";
 
+  useEffect(() => {
+    if (isThinking && !streamingText) setStatusMessage(thinkingLabel);
+  }, [isThinking, streamingText, thinkingLabel]);
+
+  const resizeInput = useCallback(() => {
+    const node = inputRef.current;
+    if (!node) return;
+    node.style.height = "auto";
+    node.style.height = `${Math.min(node.scrollHeight, 132)}px`;
+  }, []);
+
+  useEffect(() => {
+    resizeInput();
+  }, [input, resizeInput]);
+
+  const requestReply = useCallback(
+    async (message: string, history: ChatMessage[], nextMessages: ChatMessage[]) => {
       setError(null);
-      setInput("");
       setIsThinking(true);
       setStreamingText("");
-      onUserMessage?.(message);
-
-      const nextMessages: ChatMessage[] = [...messages, { role: "user", content: message }];
-      setMessages(nextMessages);
 
       try {
         let reply: string;
 
         if (onCustomSend) {
-          reply = await onCustomSend(message, messages);
+          reply = await onCustomSend(message, history);
         } else {
           const response = await fetch("/api/ask-clive", {
             method: "POST",
@@ -143,7 +260,7 @@ export function CliveChatSurface({
             },
             body: JSON.stringify({
               message,
-              history: messages,
+              history,
               sessionId,
               persona,
               beat,
@@ -169,37 +286,57 @@ export function CliveChatSurface({
         const detail = err instanceof Error ? err.message : "Something went wrong.";
         setError(detail);
         setStreamingText("");
+        onError?.(detail);
       } finally {
         setIsThinking(false);
       }
     },
-    [
-      beat,
-      disabled,
-      isThinking,
-      loopContext,
-      messages,
-      onAssistantMessage,
-      onCustomSend,
-      onUserMessage,
-      persona,
-      sessionId,
-      transcriptOnly,
-    ],
+    [beat, loopContext, onAssistantMessage, onCustomSend, onError, persona, sessionId],
   );
+
+  const sendMessage = useCallback(
+    async (raw: string) => {
+      const message = raw.trim();
+      if (!message || isThinking || disabled || transcriptOnly) return;
+
+      setInput("");
+      onUserMessage?.(message);
+
+      const history = messages;
+      const nextMessages: ChatMessage[] = [...messages, { role: "user", content: message }];
+      setMessages(nextMessages);
+      pinnedRef.current = true;
+      setFreshInk(false);
+
+      await requestReply(message, history, nextMessages);
+    },
+    [disabled, isThinking, messages, onUserMessage, requestReply, transcriptOnly],
+  );
+
+  const canRetry =
+    Boolean(error) &&
+    messages.length > 0 &&
+    messages[messages.length - 1].role === "user";
+
+  const retryLastMessage = useCallback(async () => {
+    if (isThinking || disabled || transcriptOnly) return;
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage || lastMessage.role !== "user") return;
+    await requestReply(lastMessage.content, messages.slice(0, -1), messages);
+  }, [disabled, isThinking, messages, requestReply, transcriptOnly]);
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     void sendMessage(input);
   }
 
-  const speakerName = studyMode
-    ? persona === "pam"
-      ? "Pam Portiscue"
-      : "Clive Wigglesworth"
-    : persona === "pam"
-      ? "Pam"
-      : "Clive";
+  function handleInputKeyDown(event: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) {
+      event.preventDefault();
+      void sendMessage(input);
+    }
+  }
+
   const portraitSrc =
     persona === "pam" ? null : "/agent-cast/clive-wigglesworth.png";
 
@@ -211,8 +348,48 @@ export function CliveChatSurface({
     .filter(Boolean)
     .join(" ");
 
-  const thinkingLabel =
-    persona === "pam" ? "Pam is considering…" : "Clive's thinking…";
+  const errorLine =
+    persona === "pam"
+      ? "Pam couldn't get her verdict down just now."
+      : "The ink's run dry — give me a moment.";
+
+  const freshInkChip = freshInk ? (
+    <button
+      type="button"
+      className="clive-chat__fresh-ink"
+      onClick={() => {
+        setFreshInk(false);
+        scrollToBottom(true);
+      }}
+    >
+      Fresh ink below ↓
+    </button>
+  ) : null;
+
+  const statusNode = (
+    <p className="sr-only" role="status" aria-live="polite">
+      {statusMessage}
+    </p>
+  );
+
+  function renderErrorNotice(className: string) {
+    if (!error) return null;
+    return (
+      <p className={className} role="alert" title={error}>
+        {errorLine}
+        {canRetry && (
+          <button
+            type="button"
+            className="clive-chat__retry"
+            onClick={() => void retryLastMessage()}
+            disabled={isThinking || disabled}
+          >
+            Try again
+          </button>
+        )}
+      </p>
+    );
+  }
 
   function renderTurn(
     role: "assistant" | "user",
@@ -296,7 +473,7 @@ export function CliveChatSurface({
   if (studyMode) {
     return (
       <div className={chatClassName}>
-        <div ref={listRef} className="clive-chat__messages" aria-live="polite">
+        <div ref={listRef} onScroll={handleListScroll} className="clive-chat__messages">
           {greeting && messages.length === 0 && !streamingText &&
             renderStudyAssistantTurn(greeting, "greeting")}
 
@@ -316,7 +493,11 @@ export function CliveChatSurface({
               <span>{thinkingLabel}</span>
             </div>
           )}
+
+          {freshInkChip}
         </div>
+
+        {statusNode}
 
         {!transcriptOnly && (
           <>
@@ -339,11 +520,14 @@ export function CliveChatSurface({
             <form onSubmit={handleSubmit} className="clive-chat__form">
               <p className="clive-chat__architect-label">{userLabel}</p>
               <div className="clive-chat__form-row">
-                <input
+                <textarea
+                  ref={inputRef}
                   value={input}
                   onChange={(event) => setInput(event.target.value)}
+                  onKeyDown={handleInputKeyDown}
                   placeholder={placeholder}
-                  maxLength={500}
+                  maxLength={maxLength}
+                  rows={1}
                   disabled={isThinking || disabled}
                   className="clive-chat__input"
                   aria-label={`Message for ${speakerName}`}
@@ -360,18 +544,14 @@ export function CliveChatSurface({
           </>
         )}
 
-        {error && (
-          <p className="clive-chat__study-error" role="alert">
-            {error}
-          </p>
-        )}
+        {renderErrorNotice("clive-chat__study-error")}
       </div>
     );
   }
 
   return (
     <div className={chatClassName}>
-      <div ref={listRef} className="clive-chat__messages">
+      <div ref={listRef} onScroll={handleListScroll} className="clive-chat__messages">
         {greeting && messages.length === 0 && !streamingText &&
           renderTurn("assistant", greeting, "greeting")}
 
@@ -383,7 +563,11 @@ export function CliveChatSurface({
 
         {isThinking && !streamingText &&
           renderTurn("assistant", "Thinking…", "thinking", { muted: true })}
+
+        {freshInkChip}
       </div>
+
+      {statusNode}
 
       {!transcriptOnly && (
         <>
@@ -404,11 +588,14 @@ export function CliveChatSurface({
           )}
 
           <form onSubmit={handleSubmit} className="clive-chat__form">
-            <input
+            <textarea
+              ref={inputRef}
               value={input}
               onChange={(event) => setInput(event.target.value)}
+              onKeyDown={handleInputKeyDown}
               placeholder={placeholder}
-              maxLength={500}
+              maxLength={maxLength}
+              rows={1}
               disabled={isThinking || disabled}
               className="clive-chat__input"
               aria-label={`Message for ${speakerName}`}
@@ -424,11 +611,7 @@ export function CliveChatSurface({
         </>
       )}
 
-      {error && (
-        <p className="mt-3 text-xs text-apricot" role="alert">
-          {error}
-        </p>
-      )}
+      {renderErrorNotice("mt-3 text-xs text-apricot")}
     </div>
   );
 }
