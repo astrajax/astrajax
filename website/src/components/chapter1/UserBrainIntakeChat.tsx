@@ -47,6 +47,13 @@ type ClassifyResponse = {
   intake?: UserBrainIntake;
 };
 
+type IntakeChatTurnResponse = {
+  reply?: string;
+  captured?: unknown;
+  done?: boolean;
+  fallback?: boolean;
+};
+
 function capturedFromIntake(intake: UserBrainIntake): CapturedIntakeFields {
   return mergeCaptured(
     {},
@@ -245,12 +252,7 @@ export function UserBrainIntakeChat({
   /** The AI interview turn; on any failure it bridges to the script. */
   const handleAiTurn = useCallback(
     async (message: string, history: ChatMessage[]): Promise<string> => {
-      let data: {
-        reply?: string;
-        captured?: unknown;
-        done?: boolean;
-        fallback?: boolean;
-      } | null = null;
+      let data: IntakeChatTurnResponse | null = null;
 
       try {
         const response = await fetch("/api/chapter1/intake-chat", {
@@ -264,13 +266,13 @@ export function UserBrainIntakeChat({
           }),
         });
         if (response.ok) {
-          data = (await response.json()) as typeof data;
+          data = (await response.json()) as IntakeChatTurnResponse;
         }
       } catch {
         data = null;
       }
 
-      if (!data || data.fallback || !data.reply?.trim()) {
+      if (!data || data.fallback || !data.reply || !data.reply.trim()) {
         // Bridge to the scripted engine mid-conversation: captured fields
         // become answered questions and the script resumes at the first
         // uncovered one — the interview continues, degraded but unbroken.
