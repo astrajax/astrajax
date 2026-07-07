@@ -6454,3 +6454,121 @@ textarea.clive-chat__input {
     box-shadow: 0 0 0.45rem 0.1rem color-mix(in srgb, var(--color-apricot) 40%, transparent);
   }
 }
+
+/* ── W6: the curate docket made physical (chapter1-craft-build-pack) ── */
+
+/* Count rows on the docket summary card — real buttons, not list items.
+   Terracotta count plates, varnish focus rings per house input rules. */
+.study-docket__rows {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.study-docket__row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--book-ink) 14%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, #ffffff 38%, transparent);
+  color: var(--book-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.study-docket__row:hover {
+  border-color: rgba(203, 160, 86, 0.5);
+  background: color-mix(in srgb, #ffffff 55%, transparent);
+}
+
+.study-docket__row:focus-visible {
+  outline: 2px solid rgba(203, 160, 86, 0.6);
+  outline-offset: 2px;
+  box-shadow: 0 0 14px rgba(212, 168, 94, 0.3);
+}
+
+.study-docket__count {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8rem;
+  font-weight: 600;
+  min-width: 1.6rem;
+  color: #a95a2e;
+}
+
+.study-docket__label {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.study-docket__chevron {
+  color: color-mix(in srgb, var(--book-ink) 45%, transparent);
+  font-size: 1rem;
+}
+
+/* List views — ledger-ruled items under a header with a back control. */
+.study-docket__list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.study-docket__back {
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--book-ink);
+  background: none;
+  border: none;
+  padding: 0.15rem 0.2rem;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.study-docket__back:focus-visible {
+  outline: 2px solid rgba(203, 160, 86, 0.6);
+  outline-offset: 2px;
+}
+
+.study-docket__items {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.study-docket__item {
+  border-left: 2px solid rgba(203, 160, 86, 0.4);
+  padding-left: 0.6rem;
+}
+
+.study-docket__item-tag {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #a95a2e;
+}
+
+.study-docket__item-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--book-ink);
+}
+
+.study-docket__item-body {
+  margin-top: 0.15rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--book-ink) 62%, transparent);
+}
