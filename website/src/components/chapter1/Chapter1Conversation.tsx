@@ -35,6 +35,12 @@ import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { StudyStageDecisionPanel } from "@/components/chapter1/StudyStageDecisionPanel";
 import { UserBrainIntakeChat } from "@/components/chapter1/UserBrainIntakeChat";
 import type { CliveReaction } from "@/lib/clive/video-reactions";
+import {
+  BEAT_ENTRY_REACTIONS,
+  DECISION_REACTIONS,
+  thinkingReaction,
+  userMessageReaction,
+} from "@/lib/clive/reaction-map";
 
 type Chapter1ConversationProps = StepProps & {
   playCliveReaction?: (reaction: CliveReaction) => void;
@@ -116,6 +122,12 @@ export function Chapter1Conversation({
     state.currentStep === "pam_challenge" || state.currentStep === "truth_approval"
       ? "pam"
       : "clive";
+
+  // Beat-entry body language (reaction-map): fires once per step change.
+  useEffect(() => {
+    const reaction = BEAT_ENTRY_REACTIONS[state.currentStep];
+    if (reaction) playCliveReaction?.(reaction);
+  }, [state.currentStep, playCliveReaction]);
 
   const greeting = useMemo(() => {
     if (state.currentStep === "brains_intro") {
@@ -233,12 +245,13 @@ export function Chapter1Conversation({
         },
         brainMaturity: "working",
       });
+      playCliveReaction?.(DECISION_REACTIONS.doc_filed);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Doc could not file the brief.");
     } finally {
       setLoading(false);
     }
-  }, [onUpdate, state.approvalDecisionId, state.draftTruths, state.selectedDraftIds, state.sessionId]);
+  }, [onUpdate, playCliveReaction, state.approvalDecisionId, state.draftTruths, state.selectedDraftIds, state.sessionId]);
 
   const handleRequestAccess = useCallback(async () => {
     setLoading(true);
@@ -323,12 +336,13 @@ export function Chapter1Conversation({
       });
 
       onUpdate({ grant, snippets: retrieveResult.snippets });
+      playCliveReaction?.(DECISION_REACTIONS.access_granted);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not approve access.");
     } finally {
       setLoading(false);
     }
-  }, [onUpdate, state.demoScope, state.keyRequest, state.sessionId]);
+  }, [onUpdate, playCliveReaction, state.demoScope, state.keyRequest, state.sessionId]);
 
   const showChat =
     !isUserBrainStep && !(isTruthApprovalStep && architectPath);
@@ -529,13 +543,12 @@ export function Chapter1Conversation({
           studyMode
           userLabel={userLabel}
           onUserMessage={() => {
-            if (persona === "clive") playCliveReaction?.("listen");
+            const reaction = userMessageReaction(persona);
+            if (reaction) playCliveReaction?.(reaction);
           }}
           onThinkingChange={(thinking) => {
-            if (persona === "clive" && thinking) playCliveReaction?.("think");
-          }}
-          onAssistantMessage={() => {
-            if (persona === "clive") playCliveReaction?.("pleased");
+            const reaction = thinkingReaction(persona);
+            if (thinking && reaction) playCliveReaction?.(reaction);
           }}
         />
       ) : isTruthApprovalStep ? (
@@ -708,12 +721,13 @@ export function Chapter1Conversation({
                 type="button"
                 className="btn-primary chapter1-conversation__primary disabled:opacity-40"
                 disabled={state.selectedDraftIds.length === 0}
-                onClick={() =>
+                onClick={() => {
+                  playCliveReaction?.(DECISION_REACTIONS.human_approved);
                   onUpdate({
                     humanApproved: true,
                     approvalDecisionId: `session_${state.sessionId}`,
-                  })
-                }
+                  });
+                }}
               >
                 Make selected truths trusted — send to Doc
               </button>

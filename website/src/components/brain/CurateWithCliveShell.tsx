@@ -11,6 +11,11 @@ import {
   CURATION_SITTING_BEATS,
 } from "@/lib/clive/curation-sitting";
 import type { ChatMessage } from "@/lib/clive/types";
+import {
+  DECISION_REACTIONS,
+  thinkingReaction,
+  userMessageReaction,
+} from "@/lib/clive/reaction-map";
 import { destinationConfirmLabel } from "@/lib/curation/destinations";
 import type { CurationDocket, CurationProposal } from "@/lib/curation/types";
 
@@ -132,6 +137,7 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
       const data = (await response.json()) as CurationProposal;
       if (!response.ok) throw new Error("Confirm failed.");
       setProposals((prev) => prev.map((item) => (item.id === proposal.id ? data : item)));
+      videoRef.current?.playReaction(DECISION_REACTIONS.proposal_confirmed);
       void loadDocket();
     } catch {
       setProposals((prev) =>
@@ -276,6 +282,14 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
             loopContext={loopContext}
             initialMessages={initialMessages}
             onCustomSend={handleCustomSend}
+            onUserMessage={() => {
+              const reaction = userMessageReaction("clive");
+              if (reaction) videoRef.current?.playReaction(reaction);
+            }}
+            onThinkingChange={(thinking) => {
+              const reaction = thinkingReaction("clive");
+              if (thinking && reaction) videoRef.current?.playReaction(reaction);
+            }}
           />
           {leftProposals.map((proposal) => (
             <ProposalCard
