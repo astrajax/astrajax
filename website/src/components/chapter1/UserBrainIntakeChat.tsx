@@ -209,7 +209,8 @@ export function UserBrainIntakeChat({
 
       const nextMessage = getNextAssistantMessage(updatedIntake, message, question);
       if (nextMessage) {
-        playCliveReaction?.("pleased");
+        // Reaction dramaturgy (W2): pleased is reserved for completion —
+        // the journal inking on the right page is the per-answer feedback.
         return nextMessage;
       }
 
@@ -299,7 +300,6 @@ export function UserBrainIntakeChat({
         return reply;
       }
 
-      playCliveReaction?.("pleased");
       return reply;
     },
     [completeViaClassify, handleScriptTurn, onIntakeUpdate, playCliveReaction, sessionId],
@@ -323,8 +323,22 @@ export function UserBrainIntakeChat({
       ? buildIntakeSummaryCard(intake, userBrain)
       : null;
 
+  // The Architect's Journal (W5): the right page is present from the first
+  // question, inking in each field as the conversation captures it — the
+  // per-turn captured data from the AI interview (or the script's answers)
+  // is the feed. Empty lines read as awaiting ink, not as absence.
+  const journalRows: { label: string; value?: string }[] = [
+    { label: "Name", value: intake.name },
+    { label: "Role", value: intake.role },
+    { label: "Business", value: intake.businessSector },
+    { label: "Development", value: intake.devExperience },
+    { label: "AI comfort", value: intake.aiComfort },
+    { label: "Context systems", value: intake.contextFamiliarity },
+    { label: "Goal", value: intake.goal },
+  ];
+
   return (
-    <div className={`chapter1-intake-chat${summaryCard ? " chapter1-right-decision" : ""}`}>
+    <div className="chapter1-intake-chat chapter1-right-decision">
       <CliveChatSurface
         key="user-brain-intake"
         persona="clive"
@@ -348,29 +362,49 @@ export function UserBrainIntakeChat({
         onThinkingChange={(thinking) => {
           if (thinking) playCliveReaction?.("think");
         }}
-        onAssistantMessage={() => playCliveReaction?.("pleased")}
       />
 
-      {summaryCard ? (
-        <StudyStageDecisionPanel>
+      <StudyStageDecisionPanel>
+        <div className="study-doc-card__stack">
+          {summaryCard ? (
+            <article className="study-doc-card study-doc-card--selected">
+              <p className="study-doc-card__tag">Your profile</p>
+              {intake.classificationSummary ? (
+                <p className="study-doc-card__body">{intake.classificationSummary}</p>
+              ) : null}
+              <p className="study-doc-card__note">
+                Inferred profile: <strong>{summaryCard.profileLabel}</strong>
+                {summaryCard.sectorLabel ? (
+                  <>
+                    {" "}
+                    · Sector: <strong>{summaryCard.sectorLabel}</strong>
+                  </>
+                ) : null}{" "}
+                — shaped from your answers. Clive will adapt pace and tone from here.
+              </p>
+            </article>
+          ) : null}
+
           <article className="study-doc-card">
-            <p className="study-doc-card__tag">Your profile</p>
-            {intake.classificationSummary ? (
-              <p className="study-doc-card__body">{intake.classificationSummary}</p>
+            <p className="study-doc-card__tag">The Architect&apos;s Journal</p>
+            <dl className="study-doc-card__dl">
+              {journalRows.map((row) => (
+                <div key={row.label}>
+                  <dt>{row.label}</dt>
+                  <dd className={row.value ? undefined : "study-doc-card__note--muted"}>
+                    {row.value?.trim() || "…"}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            {!intakeComplete ? (
+              <p className="study-doc-card__note study-doc-card__note--muted">
+                Clive inks each line as your conversation covers it.
+              </p>
             ) : null}
-            <p className="study-doc-card__note">
-              Inferred profile: <strong>{summaryCard.profileLabel}</strong>
-              {summaryCard.sectorLabel ? (
-                <>
-                  {" "}
-                  · Sector: <strong>{summaryCard.sectorLabel}</strong>
-                </>
-              ) : null}{" "}
-              — shaped from your answers. Clive will adapt pace and tone from here.
-            </p>
           </article>
-        </StudyStageDecisionPanel>
-      ) : null}
+        </div>
+      </StudyStageDecisionPanel>
     </div>
   );
 }
