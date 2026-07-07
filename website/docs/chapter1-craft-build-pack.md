@@ -1,9 +1,28 @@
-# Chapter 1 & Clive Instance — Craft Build Pack v0.1
+# Chapter 1 & Clive Instance — Craft Build Pack v0.3
 
-**Status:** Proposed — this document's PR is the review surface; Matthew's merge locks it.
+**Status:** Locked v0.1 (PR #13). v0.2 landed with W5b (PR #16). v0.3 records the 6–7 Jul landings and the backlog.
 **Owner:** Kate (scenic workshop). **Approver:** Matthew. **Visual finish authority:** Kathryn / Tara-Lee.
-**Evidence base:** `main` @ `b00705b`, verified 6 Jul 2026 (website map + direct reads + five scout passes).
+**Evidence base:** `main` @ `b00705b`, verified 6 Jul 2026 (website map + direct reads + five scout passes). v0.2 deltas @ `35b3818`; v0.3 deltas @ the #19 merge.
 **Origin thread:** `cmr9bbfqo4asd07ad99socn41`.
+
+## v0.3 changelog (7 Jul, morning)
+
+- **W5b shipped** (PR #16): AI-led intake interview + transcript re-read. One build lesson recorded: a `typeof data` cast on a null-initialised variable broke the Vercel build (CFA resolves it to `null`); named response types are now the house style for fetch casts. The sandbox has no local `tsc` — Vercel is the type gate until a local typecheck is set up (offered, unscheduled).
+- **W8 shipped** (PR #17, unplanned workstream from Matthew's "remember me?" field test): loop slice persists in localStorage (one-time migration) and the loop context carries a continuity directive — recall from the ledger, never beyond it.
+- **W2 shipped** (PR #18): reaction dramaturgy as data in `lib/clive/reaction-map.ts`. Engine and 0.72 playback rate untouched (Matthew's rollback flag honoured — taste rollback = delete a map line, full rollback = revert one commit). Start-again sigh deliberately dropped: reset navigates instantly, the reaction could never be seen.
+- **W5 shipped** (PR #19): the Architect's Journal — right page present from question one, inking live from the W5b per-turn capture (or scripted answers). Per-answer `pleased` removed in step with W2.
+
+## Backlog (recorded, unscheduled)
+
+- **Server read-back of the Workshop user-brain save** — cross-device / cleared-storage "remember me". Verified 6 Jul: `/api/chapter1/user-brain` is save-only; read-back is new API surface (GET by session id + Workshop query shape verification first).
+- **Local typecheck for the workshop sandbox** — `tsc --noEmit` pre-push; needs a one-time npm registry access grant.
+
+## v0.2 changelog (6 Jul, evening)
+
+- **W1 shipped** (PR #14, merged): textarea, scroll pinning + fresh-ink chip, retry, SR status node, transcript persistence, returning-architect greeting, additive `onError` prop. StudyAssistantText verify item settled — the existing reduced-motion CSS block covers `studyLineIn`.
+- **Unplanned defect fix** (PR #15, merged): intake off-by-one — displayed question ran one ahead of the stored field. Root-caused from Matthew's field transcript.
+- **W5b added (Matthew's direction, supersedes the in-chat W5a proposal):** the intake interview becomes AI-led — canned clarification explainers rejected as a patch on a quiz. See W5b below.
+- **W7 delta:** book-glow pre-warm + lighter encodes already shipped via PRs #10/#11 (sibling thread) — strike that item from W7.
 
 ## Purpose
 
@@ -56,6 +75,13 @@ Presentation-layer craft pass on Chapter 1 in Clive's study and every mount of t
 **Files owned:** `UserBrainIntakeChat.tsx` only.
 **Changes:** right-page journal card that inks in each captured intake field as it lands (existing `StudyStageDecisionPanel` portal + `studyLineIn` entrance); the profile card remains the completion state.
 **DoD:** no left-page layout shift; screen reader announces each capture once.
+
+### W5b — AI-led intake interview (added v0.2 — Matthew's direction)
+**Files owned:** `lib/aie-demo/intake-agenda.ts` (new), `app/api/chapter1/intake-chat/route.ts` (new), `app/api/chapter1/classify-user-brain/route.ts`, `UserBrainIntakeChat.tsx`.
+**Direction (Matthew, 6 Jul):** "it truly needs to be AI so that users can clarify. Once complete, the AI needs to re-read the chat."
+**Changes:** Clive interviews from an **agenda, not a script** — the seven fields each carry an approved plain-words explainer he offers when asked what a question means (deterministic content, AI delivery). New `/api/chapter1/intake-chat` follows the ask-clive house pattern (`CLIVE_MODEL`, JSON-only contract `{reply, captured, done}`, per-turn running capture, ~20-turn bound). On completion the classify route receives the **full transcript and re-reads it as the authoritative pass** — extracting all seven fields from everything said before classifying. The scripted engine survives intact as the booth-safe fallback: no key, model error, or bad JSON mid-interview bridges captured fields into the script at the first uncovered question, so intake never dead-ends.
+**Contracts:** `LoopState.userBrainIntake` shape unchanged (downstream themes, journal, loopContext, Workshop save all inherit); `CliveChatSurface` untouched.
+**DoD:** clarifying questions get explanations, not rejections; short answers pass; fallback bridge verified by testing with the model path disabled; scrambled-slot regression from #15 impossible by construction (fields extracted holistically).
 
 ### W6 — Curate docket made physical
 **Files owned:** `CurateWithCliveShell.tsx`, `ProposalCard.tsx` (if list rendering is shared), `globals.css` (docket classes).
