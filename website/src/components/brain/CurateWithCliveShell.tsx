@@ -24,6 +24,39 @@ type CurateWithCliveShellProps = {
   brainName: string;
 };
 
+/**
+ * W6 — the docket made physical. Each count on the summary card is a real
+ * button opening its list on the right page; the monologue's promise
+ * ("ask me to summarise any item") is now kept by the UI as well as the chat.
+ */
+type DocketListView = "trusted" | "drafts" | "flagged" | "sources";
+
+const DOCKET_VIEWS: Record<DocketListView, { label: string; empty: string }> = {
+  trusted: {
+    label: "Trusted truths",
+    empty: "No trusted truths yet — nothing has been promoted.",
+  },
+  drafts: {
+    label: "Workshop drafts",
+    empty: "The workshop bench is clear.",
+  },
+  flagged: {
+    label: "Flagged interactions",
+    empty: "No conversations are flagged for review.",
+  },
+  sources: {
+    label: "Source documents",
+    empty: "No source documents waiting to be mined.",
+  },
+};
+
+const DOCKET_LIST_CAP = 8;
+
+function truncate(text: string, max = 140): string {
+  const trimmed = text.trim();
+  return trimmed.length > max ? `${trimmed.slice(0, max)}…` : trimmed;
+}
+
 function createSessionId(): string {
   return `cur_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -38,6 +71,7 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [seedStatus, setSeedStatus] = useState<string | null>(null);
   const [loopContext, setLoopContext] = useState<string>("");
+  const [docketView, setDocketView] = useState<DocketListView | null>(null);
 
   const loadDocket = useCallback(async () => {
     try {
@@ -215,21 +249,108 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
       );
     }
 
+    if (docketView) {
+      const view = DOCKET_VIEWS[docketView];
+      const items: { key: string; tag?: string; title: string; body?: string }[] =
+        docketView === "trusted"
+          ? docket.trustedTruths.map((row) => ({
+              key: row.recordId,
+              tag: row.category,
+              title: row.title,
+              body: truncate(row.canonicalText),
+            }))
+          : docketView === "drafts"
+            ? docket.drafts.map((draft) => ({
+                key: draft.recordId,
+                tag: [draft.proposedCategory, draft.status].filter(Boolean).join(" · "),
+                title: draft.title,
+                body: truncate(draft.canonicalText),
+              }))
+            : docketView === "flagged"
+              ? docket.flaggedInteractions.map((interaction) => ({
+                  key: interaction.recordId,
+                  tag: interaction.reviewStatus,
+                  title: `“${truncate(interaction.userMessage, 90)}”`,
+                  body: truncate(interaction.assistantReply),
+                }))
+              : docket.pendingSourceDocuments.map((doc) => ({
+                  key: doc.recordId,
+                  tag: doc.mineStatus,
+                  title: doc.title,
+                }));
+
+      return (
+        <StudyStageDecisionPanel>
+          <article className="study-doc-card">
+            <div className="study-docket__list-head">
+              <p className="study-doc-card__tag">Docket · {view.label}</p>
+              <button
+                type="button"
+                className="study-docket__back"
+                onClick={() => setDocketView(null)}
+              >
+                ← Docket
+              </button>
+            </div>
+            {items.length === 0 ? (
+              <p className="study-doc-card__body study-doc-card__body--muted">{view.empty}</p>
+            ) : (
+              <ul className="study-docket__items">
+                {items.slice(0, DOCKET_LIST_CAP).map((item) => (
+                  <li key={item.key} className="study-docket__item">
+                    {item.tag ? <p className="study-docket__item-tag">{item.tag}</p> : null}
+                    <p className="study-docket__item-title">{item.title}</p>
+                    {item.body ? <p className="study-docket__item-body">{item.body}</p> : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {items.length > DOCKET_LIST_CAP ? (
+              <p className="study-doc-card__note study-doc-card__note--muted">
+                +{items.length - DOCKET_LIST_CAP} more — ask Clive to take you through them.
+              </p>
+            ) : null}
+          </article>
+        </StudyStageDecisionPanel>
+      );
+    }
+
+    const docketRows: { view: DocketListView; count: number; label: string }[] = [
+      { view: "trusted", count: docket.trustedTruths.length, label: "trusted truths" },
+      { view: "drafts", count: docket.drafts.length, label: "workshop drafts" },
+      { view: "flagged", count: docket.flaggedInteractions.length, label: "flagged interactions" },
+      { view: "sources", count: docket.pendingSourceDocuments.length, label: "source documents" },
+    ];
+
     return (
       <StudyStageDecisionPanel>
         <article className="study-doc-card">
           <p className="study-doc-card__tag">Docket</p>
           <p className="study-doc-card__title">Pending work</p>
-          <ul className="study-doc-card__list">
-            <li>{docket.trustedTruths.length} trusted truths</li>
-            <li>{docket.drafts.length} workshop drafts</li>
-            <li>{docket.flaggedInteractions.length} flagged interactions</li>
-            <li>{docket.pendingSourceDocuments.length} source documents</li>
+          <ul className="study-docket__rows">
+            {docketRows.map((row) => (
+              <li key={row.view}>
+                <button
+                  type="button"
+                  className="study-docket__row"
+                  onClick={() => setDocketView(row.view)}
+                >
+                  <span className="study-docket__count">{row.count}</span>
+                  <span className="study-docket__label">{row.label}</span>
+                  <span className="study-docket__chevron" aria-hidden>
+                    ›
+                  </span>
+                </button>
+              </li>
+            ))}
           </ul>
+          <p className="study-doc-card__note study-doc-card__note--muted">
+            Open any line to read what's waiting.
+          </p>
         </article>
       </StudyStageDecisionPanel>
     );
-  }, [confirmingId, docket, handleConfirm, latestPendingProposal]);
+  }, [confirmingId, docket, docketView, handleConfirm, latestPendingProposal]);
 
   const headerActions = (
     <>
