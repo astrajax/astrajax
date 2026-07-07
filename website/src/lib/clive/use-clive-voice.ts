@@ -43,7 +43,9 @@ export function useCliveVoice({
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
-  const analyserDataRef = useRef<Uint8Array | null>(null);
+  // Pinned to ArrayBuffer (not ArrayBufferLike): getByteTimeDomainData
+  // rejects SharedArrayBuffer-backed views under TS 5.7+ typed arrays.
+  const analyserDataRef = useRef<Uint8Array<ArrayBuffer> | null>(null);
 
   const objectUrlRef = useRef<string | null>(null);
   const rafIdRef = useRef<number | null>(null);
