@@ -18,6 +18,8 @@ export type AskCliveRequest = {
   beat?: string;
   /** Extra loop context (user brain label, draft summary) — never trusted truth. */
   loopContext?: string;
+  /** Voice mode is on — answer in the spoken register (shorter, ear-shaped). */
+  spoken?: boolean;
   /** Request a streaming plain-text response. */
   stream?: boolean;
 };

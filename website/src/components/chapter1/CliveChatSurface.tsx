@@ -3,11 +3,13 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StudyAssistantText } from "@/components/chapter1/StudyAssistantText";
+import { useCliveVoice } from "@/lib/clive/use-clive-voice";
 import type { ChatMessage, ClivePersona } from "@/lib/clive/types";
 
 const TRANSCRIPT_STORAGE_PREFIX = "astrajax-clive-transcript-";
 const TRANSCRIPT_MAX_TURNS = 40;
 const SCROLL_PIN_THRESHOLD_PX = 48;
+const VOICE_STORAGE_KEY = "astrajax-clive-voice";
 
 type CliveChatSurfaceProps = {
   persona?: ClivePersona;
@@ -31,6 +33,12 @@ type CliveChatSurfaceProps = {
    * and should leave this off.
    */
   persistTranscript?: boolean;
+  /**
+   * Offer Clive's voice (T1): a "Hear him" toggle, spoken-register replies,
+   * and read-aloud playback with the amplitude glow. Pass only where the
+   * NEXT_PUBLIC_CLIVE_VOICE flag is on — see docs/clive-voice-t1-build-pack.md.
+   */
+  voice?: boolean;
   /** When set, skips /api/ask-clive and uses this handler for assistant replies. */
   onCustomSend?: (message: string, history: ChatMessage[]) => Promise<string>;
   onUserMessage?: (message: string) => void;
@@ -110,6 +118,7 @@ export function CliveChatSurface({
   userLabel = "You",
   maxLength = 500,
   persistTranscript = false,
+  voice = false,
   onUserMessage,
   onAssistantMessage,
   onThinkingChange,
@@ -139,6 +148,40 @@ export function CliveChatSurface({
   const lastAnnouncedIndexRef = useRef(messages.length > 0 ? messages.length - 1 : -1);
   const skipNextAnimationRef = useRef(false);
   const [animatingIndex, setAnimatingIndex] = useState<number | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [voiceOn, setVoiceOn] = useState(() => {
+    if (!voice || typeof window === "undefined") return false;
+    try {
+      return window.localStorage.getItem(VOICE_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [voiceNote, setVoiceNote] = useState<string | null>(null);
+
+  const { speak, stop: stopVoice, prime } = useCliveVoice({
+    enabled: voice && voiceOn,
+    targetRef: rootRef,
+    onVoiceError: () =>
+      setVoiceNote("His voice is resting — words on the page, as ever."),
+  });
+
+  // The enabling click doubles as the iOS gesture unlock (pack D3).
+  const toggleVoice = useCallback(() => {
+    setVoiceNote(null);
+    const next = !voiceOn;
+    if (next) {
+      prime();
+    } else {
+      stopVoice();
+    }
+    try {
+      window.localStorage.setItem(VOICE_STORAGE_KEY, next ? "1" : "0");
+    } catch {
+      // Private browsing — the preference just won't persist.
+    }
+    setVoiceOn(next);
+  }, [prime, stopVoice, voiceOn]);
 
   const speakerName = studyMode
     ? persona === "pam"
@@ -243,6 +286,7 @@ export function CliveChatSurface({
   const requestReply = useCallback(
     async (message: string, history: ChatMessage[], nextMessages: ChatMessage[]) => {
       setError(null);
+      setVoiceNote(null);
       setIsThinking(true);
       setStreamingText("");
 
@@ -265,6 +309,7 @@ export function CliveChatSurface({
               persona,
               beat,
               loopContext,
+              spoken: voice && voiceOn,
               stream: true,
             }),
           });
@@ -282,6 +327,9 @@ export function CliveChatSurface({
         setMessages([...nextMessages, assistantMessage]);
         setStreamingText("");
         onAssistantMessage?.(reply);
+        if (voice && voiceOn && reply) {
+          void speak(reply);
+        }
       } catch (err) {
         const detail = err instanceof Error ? err.message : "Something went wrong.";
         setError(detail);
@@ -291,7 +339,7 @@ export function CliveChatSurface({
         setIsThinking(false);
       }
     },
-    [beat, loopContext, onAssistantMessage, onCustomSend, onError, persona, sessionId],
+    [beat, loopContext, onAssistantMessage, onCustomSend, onError, persona, sessionId, speak, voice, voiceOn],
   );
 
   const sendMessage = useCallback(
@@ -472,7 +520,7 @@ export function CliveChatSurface({
 
   if (studyMode) {
     return (
-      <div className={chatClassName}>
+      <div ref={rootRef} className={chatClassName}>
         <div ref={listRef} onScroll={handleListScroll} className="clive-chat__messages">
           {greeting && messages.length === 0 && !streamingText &&
             renderStudyAssistantTurn(greeting, "greeting")}
@@ -550,7 +598,7 @@ export function CliveChatSurface({
   }
 
   return (
-    <div className={chatClassName}>
+    <div ref={rootRef} className={chatClassName}>
       <div ref={listRef} onScroll={handleListScroll} className="clive-chat__messages">
         {greeting && messages.length === 0 && !streamingText &&
           renderTurn("assistant", greeting, "greeting")}
@@ -600,6 +648,19 @@ export function CliveChatSurface({
               className="clive-chat__input"
               aria-label={`Message for ${speakerName}`}
             />
+            {voice && (
+              <button
+                type="button"
+                onClick={toggleVoice}
+                aria-pressed={voiceOn}
+                title="A temporary voice, pending casting — Clive reads his answers aloud."
+                className={`clive-chat__voice-toggle${
+                  voiceOn ? " clive-chat__voice-toggle--on" : ""
+                }`}
+              >
+                {voiceOn ? "Voice on" : "Hear him"}
+              </button>
+            )}
             <button
               type="submit"
               disabled={isThinking || disabled || !input.trim()}
@@ -611,6 +672,11 @@ export function CliveChatSurface({
         </>
       )}
 
+      {voiceNote && !error && (
+        <p className="clive-chat__voice-note" role="status">
+          {voiceNote}
+        </p>
+      )}
       {renderErrorNotice("mt-3 text-xs text-apricot")}
     </div>
   );
