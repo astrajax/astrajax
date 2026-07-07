@@ -1,17 +1,23 @@
-import { Suspense } from "react";
-import { AieDemoShell } from "@/components/aie-demo/AieDemoShell";
-import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Chapter 1 — Build the Brain with Clive",
-  description:
-    "Governed brain loop with Clive: user brain, business brain, Pam challenge, human approval, Doc filing.",
-};
-
-export default function AieDemoPage() {
-  return (
-    <Suspense fallback={null}>
-      <AieDemoShell />
-    </Suspense>
-  );
+/**
+ * W7 — route consolidation (externally visible, Matthew-gated by merge).
+ * /aie-demo rendered the same shell as /chapter-1; two public URLs for one
+ * experience. This route now forwards to /chapter-1, preserving query
+ * params (book, resume, newBrain). Temporary redirect (307) by design —
+ * upgrade to permanentRedirect once confident no external links depend on
+ * distinct behaviour.
+ */
+export default async function AieDemoPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (typeof value === "string") query.set(key, value);
+  }
+  const qs = query.toString();
+  redirect(qs ? `/chapter-1?${qs}` : "/chapter-1");
 }
