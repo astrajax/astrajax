@@ -1,50 +1,78 @@
 import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import type { BickerTurn, CourtRoleId } from "@/lib/platform/court";
+import type { BickerTurn, CourtAttendantId } from "@/lib/platform/court";
+import { COURT_ATTENDANT_POOL, DEFAULT_BENCH } from "@/lib/platform/court";
 import { COURT_CAST_PERSONAS, SHARED_COURT_RULES } from "@/lib/platform/court-cast";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const SEEDED_BICKER = [
-  { roleId: "clive" as CourtRoleId, line: "Poor things, we are all trying our best here." },
+/** Offline squabble lines, keyed by speaker — rotation is filtered to
+ * whoever is actually seated, so a custom bench never quotes an absent
+ * colleague. */
+const SEEDED_BICKER: Array<{ roleId: CourtAttendantId; line: string }> = [
+  { roleId: "clive", line: "Poor things, we are all trying our best here." },
   {
-    roleId: "pam" as CourtRoleId,
+    roleId: "pam",
     line: "Trying is not the same as evidence, Clive. What data have we actually seen?",
   },
   {
-    roleId: "doc" as CourtRoleId,
+    roleId: "doc",
     line: "Data matters. Effort matters more. I need one to execute the other.",
   },
   {
-    roleId: "lazlo" as CourtRoleId,
+    roleId: "lazlo",
     line: "And the story has to hold. If the narrative frays, neither data nor effort saves it.",
   },
   {
-    roleId: "clive-man" as CourtRoleId,
+    roleId: "clive-man",
     line: "What the record says now shapes what it says afterwards. Precision is not negotiable.",
   },
   {
-    roleId: "pam" as CourtRoleId,
+    roleId: "kate",
+    line: "Show me the first cut before the grand plan. A thing that cannot be built small cannot be trusted big.",
+  },
+  {
+    roleId: "pam",
     line: "Clive, I hear the optimism, but the pilot data on sign-off compliance is thin.",
   },
   {
-    roleId: "doc" as CourtRoleId,
+    roleId: "doc",
     line: "Then we gather the data before I execute. No record gets written on applause.",
   },
   {
-    roleId: "lazlo" as CourtRoleId,
+    roleId: "lazlo",
     line: "Unless the narrative itself teaches the discipline. Frame it well and reps will follow.",
   },
   {
-    roleId: "clive-man" as CourtRoleId,
+    roleId: "kate",
+    line: "Frames are lovely, Lazlo, until someone leans on one. Where is the rollback if it cracks?",
+  },
+  {
+    roleId: "clive-man",
     line: "Frame is not governance, Lazlo. The boundary is the boundary.",
   },
   {
-    roleId: "clive" as CourtRoleId,
+    roleId: "clive",
     line: "Then let us find the frame that makes the boundary easy to live with, yes?",
   },
 ];
+
+function parseAttendees(raw: unknown): CourtAttendantId[] {
+  if (!Array.isArray(raw)) return DEFAULT_BENCH;
+  const seen = new Set<CourtAttendantId>();
+  for (const id of raw) {
+    if (
+      typeof id === "string" &&
+      (COURT_ATTENDANT_POOL as string[]).includes(id)
+    ) {
+      seen.add(id as CourtAttendantId);
+    }
+  }
+  const list = [...seen];
+  if (list.length === 0 || list.length > 5) return DEFAULT_BENCH;
+  return list;
+}
 
 function extractJsonFromText(
   text: string
@@ -58,30 +86,23 @@ function extractJsonFromText(
   }
 }
 
-function isValidRoleId(val: unknown): val is CourtRoleId | "user" {
-  return (
-    val === "clive" ||
-    val === "pam" ||
-    val === "doc" ||
-    val === "lazlo" ||
-    val === "clive-man" ||
-    val === "judge" ||
-    val === "user"
-  );
-}
-
-function seedBickerRotation(transcriptLength: number): BickerTurn[] {
-  const startIdx = transcriptLength % SEEDED_BICKER.length;
+function seedBickerRotation(
+  transcriptLength: number,
+  attendees: CourtAttendantId[]
+): BickerTurn[] {
+  const pool = SEEDED_BICKER.filter((turn) => attendees.includes(turn.roleId));
+  if (pool.length === 0) return [];
+  const startIdx = transcriptLength % pool.length;
   const result: BickerTurn[] = [];
-  for (let i = 0; i < 3; i++) {
-    const idx = (startIdx + i) % SEEDED_BICKER.length;
-    result.push(SEEDED_BICKER[idx]);
+  for (let i = 0; i < Math.min(3, pool.length); i++) {
+    const idx = (startIdx + i) % pool.length;
+    result.push(pool[idx]);
   }
   return result;
 }
 
 export async function POST(request: Request) {
-  const { title, context, stakes, transcript, userMessage } =
+  const { title, context, stakes, transcript, userMessage, attendees: attendeesRaw } =
     await request.json();
 
   if (typeof title !== "string" || title.length === 0 || title.length > 500) {
@@ -114,6 +135,13 @@ export async function POST(request: Request) {
     );
   }
 
+  const attendees = parseAttendees(attendeesRaw);
+  const isSeatedRoleId = (val: unknown): val is BickerTurn["roleId"] =>
+    val === "judge" ||
+    val === "user" ||
+    (typeof val === "string" &&
+      (attendees as string[]).includes(val));
+
   const kept = transcript.slice(-14);
   const truncatedTranscript = kept
     .map((turn: { roleId: string; line: string }) => {
@@ -134,23 +162,23 @@ export async function POST(request: Request) {
 
   if (!apiKey) {
     return Response.json({
-      turns: seedBickerRotation(transcript.length),
+      turns: seedBickerRotation(transcript.length, attendees),
     });
   }
+
+  const personaBlock = [...attendees, "judge" as const]
+    .map((id) => COURT_CAST_PERSONAS[id])
+    .join("\n");
+  const roleIdList = [...attendees, "judge"].join("|");
 
   try {
     const response = await generateText({
       model: anthropic(model),
-      system: `${COURT_CAST_PERSONAS.clive}
-${COURT_CAST_PERSONAS.pam}
-${COURT_CAST_PERSONAS.doc}
-${COURT_CAST_PERSONAS.lazlo}
-${COURT_CAST_PERSONAS["clive-man"]}
-${COURT_CAST_PERSONAS.judge}
+      system: `${personaBlock}
 
 ${SHARED_COURT_RULES}
 
-Continue the squabble between the bench members about the matter. Produce the next 2 or 3 short turns as JSON {"turns":[{"roleId":"clive|pam|doc|lazlo|clive-man|judge","line":"..."}]}. Each line under 35 words. They bicker—interrupt, needle each other by name, disagree in character. They never conclude or vote. The judge speaks at most rarely and only to note the human decides.${userMsg ? ' If the transcript ends with a turn from the petitioner, the bench must respond to them directly (address them as "the petitioner" or by their words), at least one turn doing so.' : ""}`,
+Only these bench members are seated this session: ${attendees.join(", ")} (plus the judge). No other cast member is present; never speak for an absent colleague. Continue the squabble between the seated bench members about the matter. Produce the next 2 or 3 short turns as JSON {"turns":[{"roleId":"${roleIdList}","line":"..."}]}. Each line under 35 words. They bicker—interrupt, needle each other by name, disagree in character. They never conclude or vote. The judge speaks at most rarely and only to note the human decides.${userMsg ? ' If the transcript ends with a turn from the petitioner, the bench must respond to them directly (address them as "the petitioner" or by their words), at least one turn doing so.' : ""}`,
       prompt,
       maxOutputTokens: 300,
       temperature: 1,
@@ -164,7 +192,7 @@ Continue the squabble between the bench members about the matter. Produce the ne
           typeof turn === "object" &&
           "roleId" in turn &&
           "line" in turn &&
-          isValidRoleId((turn as { roleId: unknown }).roleId) &&
+          isSeatedRoleId((turn as { roleId: unknown }).roleId) &&
           typeof (turn as { line: unknown }).line === "string"
         );
       })
@@ -174,9 +202,9 @@ Continue the squabble between the bench members about the matter. Produce the ne
       }));
 
     return Response.json({ turns });
-  } catch (error) {
+  } catch {
     return Response.json({
-      turns: seedBickerRotation(transcript.length),
+      turns: seedBickerRotation(transcript.length, attendees),
     });
   }
 }

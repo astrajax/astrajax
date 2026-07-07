@@ -1,6 +1,7 @@
 import { generateText } from "ai";
 import { anthropic } from "@ai-sdk/anthropic";
-import type { AgentVerdict, CourtVerdict } from "@/lib/platform/court";
+import type { AgentVerdict, CourtAttendantId, CourtVerdict } from "@/lib/platform/court";
+import { COURT_ATTENDANT_POOL, DEFAULT_BENCH } from "@/lib/platform/court";
 import { COURT_CAST_PERSONAS, SHARED_COURT_RULES } from "@/lib/platform/court-cast";
 
 export const runtime = "nodejs";
@@ -15,38 +16,61 @@ const VALID_VERDICTS: CourtVerdict[] = [
   "HATE",
 ];
 
-const CANNED_VERDICTS: AgentVerdict[] = [
-  {
+/** Offline/failure verdicts, one per attendant — the bench never sits mute. */
+const CANNED_VERDICT_BY_ROLE: Record<CourtAttendantId, AgentVerdict> = {
+  clive: {
     roleId: "clive",
     verdict: "Approve",
     summary:
       "There is genuine upside here if we think of the humans who will benefit. Adoption follows helpfulness, and I see both.",
   },
-  {
+  pam: {
     roleId: "pam",
     verdict: "Disapprove",
     summary:
       "The weakest assumption is rep discipline. Without sign-off compliance data from the pilot, we are guessing. Evidence before enthusiasm.",
   },
-  {
+  doc: {
     roleId: "doc",
     verdict: "Approve",
     summary:
       "Execution is clean. One truth promote, two linked examples, one workshop row retired. I can move on recorded judgement.",
   },
-  {
+  lazlo: {
     roleId: "lazlo",
     verdict: "Strong approve",
     summary:
       "The narrative holds if we frame it as logged exceptions, not a culture of wiggle room. Leadership will believe that. The story lands.",
   },
-  {
+  "clive-man": {
     roleId: "clive-man",
     verdict: "Disapprove",
     summary:
       "The record must be exact. UK-only until Ireland evidence clears review. A narrow precedent now saves the record later.",
   },
-];
+  kate: {
+    roleId: "kate",
+    verdict: "Approve",
+    summary:
+      "Buildable as specified, and the change is reversible if we are wrong. Cut the smallest testable slice first, prove it on the bench, then widen. I have seen the seam and the rollback; I am content.",
+  },
+};
+
+function parseAttendees(raw: unknown): CourtAttendantId[] {
+  if (!Array.isArray(raw)) return DEFAULT_BENCH;
+  const seen = new Set<CourtAttendantId>();
+  for (const id of raw) {
+    if (
+      typeof id === "string" &&
+      (COURT_ATTENDANT_POOL as string[]).includes(id)
+    ) {
+      seen.add(id as CourtAttendantId);
+    }
+  }
+  const list = [...seen];
+  if (list.length === 0 || list.length > 5) return DEFAULT_BENCH;
+  return list;
+}
 
 function extractJsonFromText(text: string): {
   verdict?: string;
@@ -70,7 +94,8 @@ function normalizeVerdict(raw: string): CourtVerdict {
 }
 
 export async function POST(request: Request) {
-  const { title, context, stakes } = await request.json();
+  const { title, context, stakes, attendees: attendeesRaw } =
+    await request.json();
 
   if (typeof title !== "string" || title.length === 0 || title.length > 500) {
     return Response.json(
@@ -95,6 +120,7 @@ export async function POST(request: Request) {
     );
   }
 
+  const attendees = parseAttendees(attendeesRaw);
   const matter = `Title: ${title}\n\nContext: ${context}\n\nStakes: ${stakes}`;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -102,14 +128,11 @@ export async function POST(request: Request) {
 
   if (!apiKey) {
     return Response.json({
-      verdicts: CANNED_VERDICTS,
+      verdicts: attendees.map((id) => CANNED_VERDICT_BY_ROLE[id]),
     });
   }
 
-  type AgentId = Exclude<keyof typeof COURT_CAST_PERSONAS, "judge">;
-  const agents: AgentId[] = ["clive", "pam", "doc", "lazlo", "clive-man"];
-
-  const promises = agents.map(async (roleId) => {
+  const promises = attendees.map(async (roleId) => {
     try {
       const response = await generateText({
         model: anthropic(model),
@@ -127,31 +150,17 @@ export async function POST(request: Request) {
           : "Unable to form a clear perspective on this matter.";
 
       return { roleId, verdict, summary };
-    } catch (error) {
-      const cannedFor = CANNED_VERDICTS.find((v) => v.roleId === roleId);
-      return (
-        cannedFor || {
-          roleId,
-          verdict: "Disapprove" as CourtVerdict,
-          summary: "Unable to form a clear perspective on this matter.",
-        }
-      );
+    } catch {
+      return CANNED_VERDICT_BY_ROLE[roleId];
     }
   });
 
   const results = await Promise.allSettled(promises);
-  const verdicts: AgentVerdict[] = results.map((result) => {
+  const verdicts: AgentVerdict[] = results.map((result, i) => {
     if (result.status === "fulfilled") {
       return result.value;
     }
-    const cannedFor = CANNED_VERDICTS.find((v) => v.roleId === "clive");
-    return (
-      cannedFor || {
-        roleId: "clive" as const,
-        verdict: "Disapprove" as CourtVerdict,
-        summary: "Unable to form a clear perspective on this matter.",
-      }
-    );
+    return CANNED_VERDICT_BY_ROLE[attendees[i]];
   });
 
   return Response.json({ verdicts });

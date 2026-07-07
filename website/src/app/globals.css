@@ -4588,6 +4588,177 @@ body {
   color: color-mix(in srgb, var(--book-ink) 55%, transparent);
 }
 
+/* ── Cast layers on the blank book (art v2: the painting ships empty;
+   the bench is chosen, seated as oval layers, and the Judge breathes) ── */
+.platform-court__portrait-art {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Varnish seat: a soft inner shade so the miniature sits under the paint. */
+.platform-court__portrait-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 14px rgba(35, 25, 12, 0.5),
+    inset 0 -6px 12px rgba(35, 25, 12, 0.22);
+}
+
+.platform-court__portrait-art-img {
+  object-fit: cover;
+  object-position: center 15%;
+}
+
+/* The Judge's breathing loop — masked to the clip's own interior oval so
+   the painted gilt frame beneath does the framing; the video is scenery,
+   exactly as a portrait layer is. Poster fallback under reduced motion is
+   handled in the component. */
+.platform-court__judge-loop {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(
+    ellipse 36% 38% at 49.6% 48.6%,
+    #000 78%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 36% 38% at 49.6% 48.6%,
+    #000 78%,
+    transparent 100%
+  );
+}
+
+.platform-court__judge-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  /* Gentle widen: the clip's oval runs slightly narrower than the painted
+     opening; 8% is beneath notice on cloth. */
+  transform: scaleX(1.08);
+}
+
+/* A seat being recast holds its lamplight while the roster is open. */
+.platform-court__portrait-hotspot--picking::after {
+  opacity: 1;
+}
+
+/* ── Seat roster (intake right page): choose who takes the seat ── */
+.platform-court__seat-picker {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  color: var(--book-ink);
+}
+
+.platform-court__seat-picker-list {
+  list-style: none;
+  margin: 0.6rem 0 0;
+  padding: 0 0.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.platform-court__seat-picker-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.platform-court__seat-picker-list::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--book-ink) 25%, transparent);
+  border-radius: 2px;
+}
+
+.platform-court__seat-candidate {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--book-ink) 14%, transparent);
+  padding: 0.45rem 0.25rem;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-book);
+  color: var(--book-ink);
+  transition: background 0.15s ease;
+}
+
+.platform-court__seat-candidate:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--book-ink) 6%, transparent);
+}
+
+.platform-court__seat-candidate:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-apricot) 75%, transparent);
+  outline-offset: 2px;
+}
+
+.platform-court__seat-candidate:disabled {
+  cursor: default;
+}
+
+.platform-court__seat-candidate--current {
+  opacity: 0.6;
+}
+
+.platform-court__seat-candidate-thumb {
+  position: relative;
+  width: 2.3rem;
+  height: 2.8rem;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: inset 0 0 6px rgba(35, 25, 12, 0.4);
+}
+
+.platform-court__seat-candidate-img {
+  object-fit: cover;
+  object-position: center 15%;
+}
+
+.platform-court__seat-candidate-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.platform-court__seat-candidate-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.platform-court__seat-candidate-title {
+  font-size: 0.74rem;
+  color: color-mix(in srgb, var(--book-ink) 62%, transparent);
+}
+
+.platform-court__seat-candidate-state {
+  font-style: italic;
+  font-size: 0.72rem;
+  color: color-mix(in srgb, var(--book-ink) 55%, transparent);
+  white-space: nowrap;
+}
+
+.platform-court__seat-picker-note {
+  margin: 0.7rem 0 0;
+  font-style: italic;
+  font-size: 0.78rem;
+  color: color-mix(in srgb, var(--book-ink) 58%, transparent);
+}
+
 .platform-court__verdict-slot {
   position: absolute;
   display: flex;
@@ -5201,6 +5372,15 @@ body {
   .platform-court__intake-lede,
   .platform-court__bicker-turn {
     font-size: clamp(0.6rem, 2.4vw, 0.85rem);
+  }
+
+  .platform-court__seat-candidate-name {
+    font-size: clamp(0.62rem, 2.4vw, 0.9rem);
+  }
+
+  .platform-court__seat-candidate-title,
+  .platform-court__seat-candidate-state {
+    font-size: clamp(0.5rem, 1.9vw, 0.72rem);
   }
 }
 
