@@ -96,6 +96,35 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
       setVideoReady(true);
     }, []);
 
+    /**
+     * W7: warm the reaction clips once the stage is playing, so the first
+     * `listen` or `glance` cross-fades instantly instead of waiting on a
+     * fetch (~7.5MB across five clips). Idle-time, once, and skipped for
+     * reduced motion (reactions never play) and Save-Data users.
+     */
+    const warmedReactionsRef = useRef(false);
+
+    useEffect(() => {
+      if (!videoReady || warmedReactionsRef.current || prefersReducedMotion) return;
+      const connection = (navigator as Navigator & { connection?: { saveData?: boolean } })
+        .connection;
+      if (connection?.saveData) return;
+      warmedReactionsRef.current = true;
+
+      const warm = () => {
+        for (const [name, src] of Object.entries(CLIVE_REACTION_CLIPS)) {
+          if (name === "idle") continue;
+          void fetch(src, { cache: "force-cache" }).catch(() => {});
+        }
+      };
+
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(warm);
+      } else {
+        window.setTimeout(warm, 1200);
+      }
+    }, [prefersReducedMotion, videoReady]);
+
     const clearEndedHandler = useCallback(() => {
       const layer = activeLayerRef.current;
       const video = layerRefs[layer].current;

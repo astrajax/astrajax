@@ -1,63 +1,20 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { HubBookId } from "@/lib/chapter1/hub-books";
+import { isHubBookId, stepForBook, type HubBookId } from "@/lib/chapter1/hub-books";
+import { HUB_SCENE_MANIFEST } from "@/lib/chapter1/hub-manifest";
+import { loadPersistedLoopSlice } from "@/lib/aie-demo/user-brain-intake";
+import type { LoopStep } from "@/lib/aie-demo/types";
+import { beatLabel } from "@/lib/clive/loop-context";
 
 export type { HubBookId };
 
-const HUB_IMAGE_SRC = "/agent-cast/clive-wigglesworth/clive-study-hub.png";
-
-const BOOK_GLOW_VIDEOS: Record<HubBookId, string> = {
-  welcome: "/agent-cast/clive-wigglesworth/book-glow/welcome.mp4",
-  reason: "/agent-cast/clive-wigglesworth/book-glow/reasoning-with-clive.mp4",
-  architect: "/agent-cast/clive-wigglesworth/book-glow/architect-journal.mp4",
-  "brain-building": "/agent-cast/clive-wigglesworth/book-glow/brain-building.mp4",
+type ResumeMark = {
+  book: HubBookId;
+  stepLabel: string;
 };
-
-type BookHotspot = {
-  id: HubBookId;
-  ariaLabel: string;
-  left: string;
-  width: string;
-  top: string;
-  height: string;
-};
-
-const BOOK_HOTSPOTS: BookHotspot[] = [
-  {
-    id: "welcome",
-    ariaLabel: "Welcome — start Clive's welcome sequence",
-    left: "8%",
-    width: "14%",
-    top: "35%",
-    height: "50%",
-  },
-  {
-    id: "reason",
-    ariaLabel: "Reasoning with Clive — ask Clive about context and judgement",
-    left: "26%",
-    width: "22%",
-    top: "35%",
-    height: "50%",
-  },
-  {
-    id: "architect",
-    ariaLabel: "The Architect Journal — map your user brain and build the loop",
-    left: "52%",
-    width: "20%",
-    top: "35%",
-    height: "50%",
-  },
-  {
-    id: "brain-building",
-    ariaLabel: "Brain Building — learn how governed brains work",
-    left: "76%",
-    width: "19%",
-    top: "35%",
-    height: "50%",
-  },
-];
 
 type CliveStudyHubProps = {
   onSelectBook: (book: HubBookId) => void;
@@ -68,6 +25,7 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
   const [hubImageLoaded, setHubImageLoaded] = useState(false);
   const [motionAllowed, setMotionAllowed] = useState(true);
   const [hoverCapable, setHoverCapable] = useState(false);
+  const [resumeMark, setResumeMark] = useState<ResumeMark | null>(null);
   const glowRefs = useRef<Partial<Record<HubBookId, HTMLVideoElement>>>({});
 
   useEffect(() => {
@@ -84,6 +42,19 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
     sync();
     media.addEventListener("change", sync);
     return () => media.removeEventListener("change", sync);
+  }, []);
+
+  // W7: the bookmark ribbon. If the ledger holds a mid-read session (a book
+  // and a step beyond that book's opening page), hang a ribbon over the desk
+  // so a returning architect can resume where they left off. Brain-building
+  // is excluded — it opens the curate sitting, which keeps its own docket.
+  useEffect(() => {
+    const slice = loadPersistedLoopSlice();
+    const book = slice?.book;
+    const step = slice?.currentStep;
+    if (!book || !isHubBookId(book) || book === "brain-building" || !step) return;
+    if (step === stepForBook(book).currentStep) return;
+    setResumeMark({ book, stepLabel: beatLabel(step as LoopStep) });
   }, []);
 
   const stopGlow = useCallback((bookId: HubBookId) => {
@@ -155,8 +126,8 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
       <div className="clive-study-hub__desk">
         <div className="clive-study-hub__surface" onPointerEnter={warmGlowVideos}>
           <Image
-            src={HUB_IMAGE_SRC}
-            alt="Bird's-eye view of Clive's desk with four leather-bound books: Welcome, Reasoning with Clive, The Architect Journal, and Brain Building"
+            src={HUB_SCENE_MANIFEST.image}
+            alt={HUB_SCENE_MANIFEST.imageAlt}
             fill
             priority
             sizes="100vw"
@@ -168,7 +139,7 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
 
           {motionAllowed ? (
             <div className="clive-study-hub__glows" aria-hidden>
-              {BOOK_HOTSPOTS.map((book) => (
+              {HUB_SCENE_MANIFEST.hotspots.map((book) => (
                 <video
                   key={book.id}
                   ref={(node) => {
@@ -178,7 +149,7 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
                   className={`clive-study-hub__glow${
                     hoveredBook === book.id ? " clive-study-hub__glow--active" : ""
                   }`}
-                  src={BOOK_GLOW_VIDEOS[book.id]}
+                  src={book.glow}
                   muted
                   loop
                   playsInline
@@ -188,7 +159,7 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
             </div>
           ) : null}
 
-          {BOOK_HOTSPOTS.map((book) => (
+          {HUB_SCENE_MANIFEST.hotspots.map((book) => (
             <button
               key={book.id}
               type="button"
@@ -209,6 +180,17 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
               onBlur={() => handleBookLeave(book.id)}
             />
           ))}
+
+          {resumeMark ? (
+            <Link
+              href={`/chapter-1?book=${resumeMark.book}&resume=1`}
+              className="clive-study-hub__resume"
+              aria-label={`Resume where you left off — ${resumeMark.stepLabel}`}
+            >
+              <span>Resume</span>
+              <span className="clive-study-hub__resume-step">{resumeMark.stepLabel}</span>
+            </Link>
+          ) : null}
         </div>
       </div>
     </div>

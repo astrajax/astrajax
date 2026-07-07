@@ -63,19 +63,43 @@ function readBookParam(book: string | null): HubBookId | null {
   return isHubBookId(book) ? book : null;
 }
 
+/**
+ * W7 — resume from the ledger. With `?resume=1`, entry lands on the step the
+ * persisted slice recorded for this book (the hub's bookmark ribbon sets
+ * this), falling back to the book's opening step when the ledger doesn't
+ * match. Resuming past the welcome beat also skips the cinematic.
+ */
+function entryStepForBook(
+  book: HubBookId,
+  resume: boolean,
+): { currentStep: LoopStep; skipWelcomeSequence: boolean } {
+  const base = stepForBook(book);
+  if (!resume) return base;
+  const persisted = loadPersistedLoopSlice();
+  const step = persisted?.currentStep;
+  if (persisted?.book !== book || !step) return base;
+  const steps = getLoopStepsForBook(book);
+  if (!steps.includes(step)) return base;
+  return {
+    currentStep: step,
+    skipWelcomeSequence: base.skipWelcomeSequence || step !== "welcome",
+  };
+}
+
 export function AieDemoShell() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const bookParam = readBookParam(searchParams.get("book"));
   const newBrainParam = searchParams.get("newBrain")?.trim() || undefined;
+  const resumeParam = searchParams.get("resume") === "1";
   const cliveVideoRef = useRef<CliveVideoStageHandle>(null);
   const [hubSelection, setHubSelection] = useState<HubBookId | null>(() => bookParam);
   const [welcomeComplete, setWelcomeComplete] = useState(
-    () => (bookParam ? stepForBook(bookParam).skipWelcomeSequence : false),
+    () => (bookParam ? entryStepForBook(bookParam, resumeParam).skipWelcomeSequence : false),
   );
   const [state, setState] = useState<LoopState>(() =>
     bookParam
-      ? createInitialState(stepForBook(bookParam).currentStep, newBrainParam)
+      ? createInitialState(entryStepForBook(bookParam, resumeParam).currentStep, newBrainParam)
       : createInitialState(),
   );
 
@@ -97,19 +121,20 @@ export function AieDemoShell() {
       userBrain: state.userBrain,
       userBrainIntake: state.userBrainIntake,
       currentStep: state.currentStep,
+      book: bookParam,
     });
-  }, [state.sessionId, state.userBrain, state.userBrainIntake, state.currentStep]);
+  }, [state.sessionId, state.userBrain, state.userBrainIntake, state.currentStep, bookParam]);
 
   useEffect(() => {
     if (bookParam) {
-      const { currentStep, skipWelcomeSequence } = stepForBook(bookParam);
+      const { currentStep, skipWelcomeSequence } = entryStepForBook(bookParam, resumeParam);
       setHubSelection(bookParam);
       setWelcomeComplete(skipWelcomeSequence);
       setState(createInitialState(currentStep, newBrainParam));
       return;
     }
     router.replace("/command/clive");
-  }, [bookParam, newBrainParam, router]);
+  }, [bookParam, newBrainParam, resumeParam, router]);
 
   const loopSteps = useMemo(() => getLoopStepsForBook(bookParam), [bookParam]);
 

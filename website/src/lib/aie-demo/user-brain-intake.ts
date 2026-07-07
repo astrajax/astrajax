@@ -554,7 +554,10 @@ export function enrichIntakeWithThemeRecommendations(intake: UserBrainIntake): U
 export type PersistedLoopSlice = Pick<
   import("./types").LoopState,
   "sessionId" | "userBrain" | "userBrainIntake" | "currentStep"
->;
+> & {
+  /** W7: which desk book the session was in — powers the hub's resume ribbon. */
+  book?: string | null;
+};
 
 /**
  * The study keeps its ledger: the loop slice persists in localStorage so a

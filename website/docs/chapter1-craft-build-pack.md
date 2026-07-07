@@ -1,6 +1,6 @@
-# Chapter 1 & Clive Instance — Craft Build Pack v0.3
+# Chapter 1 & Clive Instance — Craft Build Pack v0.4
 
-**Status:** Locked v0.1 (PR #13). v0.2 landed with W5b (PR #16). v0.3 records the 6–7 Jul landings and the backlog.
+**Status:** Locked v0.1 (PR #13). v0.2 with W5b (#16); v0.3 with the landings PR (#21); v0.4 closes the build with W7.
 **Owner:** Kate (scenic workshop). **Approver:** Matthew. **Visual finish authority:** Kathryn / Tara-Lee.
 **Evidence base:** `main` @ `b00705b`, verified 6 Jul 2026 (website map + direct reads + five scout passes). v0.2 deltas @ `35b3818`; v0.3 deltas @ the #19 merge.
 **Origin thread:** `cmr9bbfqo4asd07ad99socn41`.
@@ -12,10 +12,20 @@
 - **W2 shipped** (PR #18): reaction dramaturgy as data in `lib/clive/reaction-map.ts`. Engine and 0.72 playback rate untouched (Matthew's rollback flag honoured — taste rollback = delete a map line, full rollback = revert one commit). Start-again sigh deliberately dropped: reset navigates instantly, the reaction could never be seen.
 - **W5 shipped** (PR #19): the Architect's Journal — right page present from question one, inking live from the W5b per-turn capture (or scripted answers). Per-answer `pleased` removed in step with W2.
 
+## v0.4 changelog (7 Jul, closing sweep)
+
+- **W4 shipped** (PR #24): paper trail resurrected as the ledger tab + drawer, render-slot plumbing (stage stays state-ignorant). **W6 shipped** (PR #25): docket counts became real buttons opening list views; pending proposals still supersede.
+- **W7 shipped** (this PR): hub hotspots + glow media moved to a scene manifest (`lib/chapter1/hub-manifest.ts` — typed data module, geometry as data per house convention); bookmark **resume ribbon** on the hub (ledger slice now records the book; `?resume=1` re-enters at the persisted step); **reaction clip pre-warm** on the video stage (idle-time, ~7.5MB, Save-Data and reduced-motion aware); `/aie-demo` now **redirects** to `/chapter-1` preserving query params (externally visible — 307, upgradeable to permanent).
+- **room-scripts disposition settled:** no live consumer anywhere (code-search complete-index zero + all traced paths). The 8 per-step narrations are good content — earmarked for guide-mode narration (Light/No-Story) or removal; Matthew's call. No deletion performed.
+- **" 2" duplicate sweep deliberately skipped** — file deletions need explicit instruction; the noise list stays in the website map.
+- **Video weight audit (145.3MB total across 30 files):** the five Brain shrine loops are the heavy end (11.5–13.5MB each, 62.4MB combined) — prime candidates for the CRF-20 recipe that cut book-glow 3×. Pam's idle-loop 11MB (known, pre-stage-use encode still required). `welcome-beat-1-talking.mp4` (4.5MB) is legacy-unused — removal candidate, Matthew's call. Everything else ≤3.2MB and proportionate.
+
 ## Backlog (recorded, unscheduled)
 
 - **Server read-back of the Workshop user-brain save** — cross-device / cleared-storage "remember me". Verified 6 Jul: `/api/chapter1/user-brain` is save-only; read-back is new API surface (GET by session id + Workshop query shape verification first).
 - **Local typecheck for the workshop sandbox** — `tsc --noEmit` pre-push; needs a one-time npm registry access grant.
+- **Brain shrine loop re-encodes** (CRF-20 recipe, ~62MB → ~20MB estimated) and the `welcome-beat-1-talking.mp4` removal call.
+- **room-scripts.ts** — wire as guide-mode narration or remove.
 
 ## v0.2 changelog (6 Jul, evening)
 
