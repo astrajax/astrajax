@@ -106,6 +106,7 @@ export async function POST(request: Request) {
   const sessionId = resolveSessionId(body.sessionId);
   const persona = body.persona === "pam" ? "pam" : "clive";
   const beat = resolveBeat(body.beat);
+  const spoken = body.spoken === true;
   const loopContext =
     typeof body.loopContext === "string" && body.loopContext.trim()
       ? body.loopContext.trim()
@@ -133,7 +134,7 @@ export async function POST(request: Request) {
 
   try {
     const { blocks, source, manifest } = await loadCliveContext();
-    const system = buildSystemPrompt(blocks, { persona, loopContext });
+    const system = buildSystemPrompt(blocks, { persona, loopContext, spoken });
     const messages = buildAnthropicMessages(history, message);
     const modelId = process.env.CLIVE_MODEL ?? "claude-sonnet-4-6";
 
@@ -141,7 +142,7 @@ export async function POST(request: Request) {
       model: anthropic(modelId),
       system,
       messages,
-      maxOutputTokens: 400,
+      maxOutputTokens: spoken ? 220 : 400,
       onFinish: async ({ text }) => {
         if (text.trim()) {
           await logReply({ sessionId, persona, message, reply: text.trim(), manifest });

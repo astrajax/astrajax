@@ -9,6 +9,8 @@ const GREETING =
 
 const SESSION_STORAGE_KEY = "astrajax-ask-clive-session";
 
+const VOICE_ENABLED = process.env.NEXT_PUBLIC_CLIVE_VOICE === "1";
+
 const STARTER_PROMPTS = [
   "What is the adoption operating system?",
   "Why should domain experts shape agents?",
@@ -76,6 +78,7 @@ export function AskClivePanel() {
         loopContext={loopContext}
         sessionId={sessionId}
         persistTranscript
+        voice={VOICE_ENABLED}
         placeholder="Ask about adoption, context or Clive…"
         starterPrompts={STARTER_PROMPTS}
       />
