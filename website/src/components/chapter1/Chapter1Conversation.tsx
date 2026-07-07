@@ -512,9 +512,12 @@ export function Chapter1Conversation({
 
   const showRightDecisionLayout = hasRightDecisionPanel;
 
+  // Re-keying per beat makes each step change a fresh leaf — the page-turn
+  // entrance (W3) plays as the new page mounts.
   return (
     <div
-      className={`chapter1-conversation${showRightDecisionLayout ? " chapter1-right-decision" : ""}`}
+      key={state.currentStep}
+      className={`chapter1-conversation chapter1-page-turn${showRightDecisionLayout ? " chapter1-right-decision" : ""}`}
     >
       {isUserBrainStep ? (
         <UserBrainIntakeChat
