@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import type { LoopState } from "@/lib/aie-demo/types";
 import { RECEIPT_CARDS, ACCESS_RECEIPT_LINE } from "@/lib/aie-demo/demo-data";
 import { MATURITY_LABELS } from "@/lib/aie-demo/types";
@@ -97,13 +97,29 @@ function buildTrail(state: LoopState, accessState: BrainKeyUiState): TrailEntry[
 
 export function PaperTrailDrawer({ open, onClose, state, accessState }: PaperTrailDrawerProps) {
   const trail = useMemo(() => buildTrail(state, accessState), [state, accessState]);
+  const drawerRef = useRef<HTMLElement>(null);
+
+  // W4: the ledger opens as a proper dialog — focus moves in, Escape closes.
+  // Focus return to the ledger tab is the stage's job (it owns the button).
+  useEffect(() => {
+    if (!open) return;
+
+    drawerRef.current?.focus();
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open, onClose]);
 
   if (!open) return null;
 
   return (
     <div className="paper-trail-overlay" role="dialog" aria-modal="true" aria-label="Paper trail">
       <button type="button" className="paper-trail-overlay__backdrop" onClick={onClose} aria-label="Close paper trail" />
-      <aside className="paper-trail-drawer">
+      <aside ref={drawerRef} tabIndex={-1} className="paper-trail-drawer">
         <header className="paper-trail-drawer__header">
           <div>
             <p className="section-label">Governance</p>

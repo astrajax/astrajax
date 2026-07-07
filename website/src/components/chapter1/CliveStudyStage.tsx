@@ -2,7 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { forwardRef, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   CliveVideoStage,
   type CliveVideoStageHandle,
@@ -19,18 +26,32 @@ type CliveStudyStageProps = {
   backHref?: string;
   backLabel?: string;
   headerActions?: ReactNode;
+  /**
+   * W4 — the ledger on the desk. When provided, the stage shows the
+   * paper-trail tab (bottom-left) and hands open/close control to the
+   * render slot: (open, onClose) => drawer. The stage stays ignorant of
+   * loop state; the consumer supplies the drawer with its own data.
+   */
+  paperTrail?: (open: boolean, onClose: () => void) => ReactNode;
 };
 
 export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStageProps>(
   function CliveStudyStage(
-    { children, onReset, label, subtitle, backHref, backLabel, headerActions },
+    { children, onReset, label, subtitle, backHref, backLabel, headerActions, paperTrail },
     ref,
   ) {
     const mainRef = useRef<HTMLElement>(null);
+    const ledgerRef = useRef<HTMLButtonElement>(null);
     const [rightPanelEl, setRightPanelEl] = useState<HTMLElement | null>(null);
+    const [trailOpen, setTrailOpen] = useState(false);
 
     useEffect(() => {
       mainRef.current?.focus();
+    }, []);
+
+    const closeTrail = useCallback(() => {
+      setTrailOpen(false);
+      ledgerRef.current?.focus();
     }, []);
 
     return (
@@ -84,6 +105,23 @@ export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStage
           className="study-stage__right-panel"
           aria-live="polite"
         />
+
+        {paperTrail ? (
+          <>
+            <button
+              ref={ledgerRef}
+              type="button"
+              className="study-stage__ledger"
+              aria-haspopup="dialog"
+              aria-expanded={trailOpen}
+              onClick={() => setTrailOpen(true)}
+            >
+              <span className="study-stage__ledger-ribbon" aria-hidden />
+              Paper trail
+            </button>
+            {paperTrail(trailOpen, closeTrail)}
+          </>
+        ) : null}
       </div>
       </StudyStageRightPanelProvider>
     );

@@ -6,6 +6,7 @@ import { Chapter1Conversation } from "@/components/chapter1/Chapter1Conversation
 import type { HubBookId } from "@/components/chapter1/CliveStudyHub";
 import { CliveStudyShell } from "@/components/chapter1/CliveStudyShell";
 import { CliveWelcomeSequence } from "@/components/chapter1/CliveWelcomeSequence";
+import { PaperTrailDrawer } from "@/components/chapter1/PaperTrailDrawer";
 import type { CliveVideoStageHandle } from "@/components/chapter1/CliveVideoStage";
 import type { CliveReaction } from "@/lib/clive/video-reactions";
 import {
@@ -173,7 +174,22 @@ export function AieDemoShell() {
 
   return (
     <>
-      <CliveStudyShell ref={cliveVideoRef} onReset={reset}>
+      <CliveStudyShell
+        ref={cliveVideoRef}
+        onReset={reset}
+        paperTrail={
+          showWelcomeSequence
+            ? undefined
+            : (open, onClose) => (
+                <PaperTrailDrawer
+                  open={open}
+                  onClose={onClose}
+                  state={state}
+                  accessState={accessState}
+                />
+              )
+        }
+      >
         {showWelcomeSequence ? (
           <CliveWelcomeSequence
             sessionId={state.sessionId}

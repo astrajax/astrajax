@@ -12,11 +12,13 @@ type CliveStudyShellProps = {
   backHref?: string;
   backLabel?: string;
   headerActions?: ReactNode;
+  /** W4 — forwarded to the stage: the ledger tab + drawer render slot. */
+  paperTrail?: (open: boolean, onClose: () => void) => ReactNode;
 };
 
 export const CliveStudyShell = forwardRef<CliveVideoStageHandle, CliveStudyShellProps>(
   function CliveStudyShell(
-    { children, onReset, label, subtitle, backHref, backLabel, headerActions },
+    { children, onReset, label, subtitle, backHref, backLabel, headerActions, paperTrail },
     ref,
   ) {
     return (
@@ -28,6 +30,7 @@ export const CliveStudyShell = forwardRef<CliveVideoStageHandle, CliveStudyShell
         backHref={backHref}
         backLabel={backLabel}
         headerActions={headerActions}
+        paperTrail={paperTrail}
       >
         {children}
       </CliveStudyStage>
