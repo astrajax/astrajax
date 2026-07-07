@@ -6394,6 +6394,67 @@ textarea.clive-chat__input {
   }
 }
 
+
+/* ── T1: Clive voice — he speaks (clive-voice-t1-build-pack v0.1) ──
+   use-clive-voice.ts writes --clive-speech-level (0–1) per frame and sets
+   data-clive-speaking on the surface root while audio plays. The avatar's
+   halo breathes with it — the court's lamplight grammar, at desk scale. */
+
+.clive-chat__voice-toggle {
+  flex-shrink: 0;
+  padding: 0.5rem 0.85rem;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in srgb, var(--color-parchment) 24%, transparent);
+  background: transparent;
+  color: color-mix(in srgb, var(--color-parchment) 80%, white);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.3s ease;
+}
+
+.clive-chat__voice-toggle:hover {
+  border-color: color-mix(in srgb, var(--color-parchment) 40%, transparent);
+}
+
+.clive-chat__voice-toggle:focus-visible {
+  outline: 2px solid rgba(203, 160, 86, 0.6);
+  outline-offset: 2px;
+}
+
+.clive-chat__voice-toggle--on {
+  border-color: color-mix(in srgb, var(--color-apricot) 55%, transparent);
+  color: color-mix(in srgb, var(--color-apricot) 85%, white);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-apricot) 25%, transparent);
+}
+
+.clive-chat__voice-note {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  font-style: italic;
+  color: color-mix(in srgb, var(--color-parchment) 65%, transparent);
+}
+
+/* Lamplight on the speaking portrait — halo size rides the live speech level. */
+.clive-chat[data-clive-speaking] .clive-chat__avatar {
+  box-shadow:
+    0 0 calc(0.3rem + 1.2rem * var(--clive-speech-level, 0))
+    calc(0.05rem + 0.25rem * var(--clive-speech-level, 0))
+    color-mix(in srgb, var(--color-apricot) 45%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clive-chat__voice-toggle {
+    transition: none;
+  }
+
+  /* A steady lamp, not a breathing one. */
+  .clive-chat[data-clive-speaking] .clive-chat__avatar {
+    box-shadow: 0 0 0.45rem 0.1rem color-mix(in srgb, var(--color-apricot) 40%, transparent);
+  }
+}
+
 /* ── W6: the curate docket made physical (chapter1-craft-build-pack) ── */
 
 /* Count rows on the docket summary card — real buttons, not list items.
