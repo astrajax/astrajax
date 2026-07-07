@@ -13,6 +13,8 @@ const GREETING =
 
 const SESSION_STORAGE_KEY = "astrajax-ask-clive-session";
 
+const VOICE_ENABLED = process.env.NEXT_PUBLIC_CLIVE_VOICE === "1";
+
 function createSessionId(): string {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
@@ -125,6 +127,7 @@ export function GlobalCliveLauncher() {
             loopContext={loopContext}
             sessionId={sessionId}
             persistTranscript
+            voice={VOICE_ENABLED}
             compact
             placeholder="Ask about adoption, context or Clive…"
             starterPrompts={[
