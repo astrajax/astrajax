@@ -22,6 +22,7 @@ import {
   COURT_BOOK_LAYOUT,
   COURT_MATTER_LIMITS,
   type CourtAttendantId,
+  type CourtBookSeat,
   type CourtDecision,
   type CourtRole,
   type CourtMatter,
@@ -75,9 +76,65 @@ function CourtBookArtwork({ children }: { children: ReactNode }) {
   );
 }
 
+/** A window onto the book painting itself, masked to the annulus of one
+ * frame's gilt — laid ABOVE a seat's portrait so the painted ring and its
+ * lip shadow overlap the portrait's rim. The frame hides the seam, as
+ * frames always have. Inside the window sits a full-stage copy of the
+ * same next/image rendition (sprite-window offsets from the manifest), so
+ * the ring is pixel-identical to the background it continues. */
+function FrameRing({ seat }: { seat: CourtBookSeat }) {
+  const ring = COURT_BOOK_LAYOUT.portraitHotspot;
+  // Opening half-extents as radii of the mask ellipse, relative to the box.
+  const rx = ((seat.width / ring.width) * 50).toFixed(2);
+  const ry = ((seat.height / ring.height) * 50).toFixed(2);
+  // Sprite-window: a stage-sized inner layer offset so this window shows
+  // exactly its own patch of the painting.
+  const innerW = (100 / ring.width) * 100;
+  const innerH = (100 / ring.height) * 100;
+  const offX = (-(seat.x - ring.width / 2) / ring.width) * 100;
+  const offY = (-(seat.y - ring.height / 2) / ring.height) * 100;
+  return (
+    <div
+      aria-hidden
+      className="platform-court__frame-ring"
+      style={
+        {
+          left: `${seat.x}%`,
+          top: `${seat.y}%`,
+          width: `${ring.width}%`,
+          height: `${ring.height}%`,
+          "--ring-rx": `${rx}%`,
+          "--ring-ry": `${ry}%`,
+        } as CSSProperties
+      }
+    >
+      <div
+        className="platform-court__frame-ring-inner"
+        style={{
+          width: `${innerW.toFixed(3)}%`,
+          height: `${innerH.toFixed(3)}%`,
+          left: `${offX.toFixed(3)}%`,
+          top: `${offY.toFixed(3)}%`,
+        }}
+      >
+        <Image
+          src={COURT_BOOK_IMAGE}
+          alt=""
+          fill
+          sizes="100vw"
+          className="platform-court__book-image"
+        />
+      </div>
+    </div>
+  );
+}
+
 /** The seated bench — one oval portrait layer per occupied seat, inside
- * the painted gilt frames. Scenery, not controls: hotspots sit above. */
+ * the painted gilt frames, each overdrawing its opening slightly; the
+ * frame-ring windows then lay the painting back over every rim. Scenery,
+ * not controls: hotspots sit above. */
 function BenchPortraits({ bench }: { bench: CourtAttendantId[] }) {
+  const over = COURT_BOOK_LAYOUT.portraitOvershoot;
   return (
     <>
       {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
@@ -91,8 +148,8 @@ function BenchPortraits({ bench }: { bench: CourtAttendantId[] }) {
             style={{
               left: `${pos.x}%`,
               top: `${pos.y}%`,
-              width: `${pos.width}%`,
-              height: `${pos.height}%`,
+              width: `${pos.width + over.width}%`,
+              height: `${pos.height + over.height}%`,
             }}
           >
             <Image
@@ -106,6 +163,10 @@ function BenchPortraits({ bench }: { bench: CourtAttendantId[] }) {
         );
       })}
       <JudgeLoop />
+      {COURT_BOOK_LAYOUT.seats.map((seat, i) =>
+        bench[i] ? <FrameRing key={`ring-${i}`} seat={seat} /> : null
+      )}
+      <FrameRing seat={COURT_BOOK_LAYOUT.judgeSeat} />
     </>
   );
 }
