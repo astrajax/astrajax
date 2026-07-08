@@ -123,33 +123,49 @@ export interface CourtBookSlot extends CourtBookPosition {
  * frame is the sixth, fixed, and carries his breathing loop. Measured
  * against the paint on a labelled grid, 7 Jul 2026.
  */
+export interface CourtBookSeat extends CourtBookPosition {
+  /** Painted opening size — the portrait layer fills exactly this box. */
+  width: number;
+  height: number;
+  /** Vertical centre of this seat's painted verdict strip (strips sit a
+   * whisker below frame centres; entries centre on the STRIP). */
+  slotY: number;
+}
+
 export const COURT_BOOK_LAYOUT = {
-  /** The five attendant seats, top of the page downward. */
+  /** The five attendant seats, top of the page downward. Per-seat boxes —
+   * the frames are hand-painted and each opening differs slightly.
+   * Measured programmatically (hue-separated interior masks; the gilt's
+   * red shadows match the interiors in luminance, so the separator is
+   * r−g, not darkness), then eye-tuned on 3× crops. The openings are
+   * nearly ROUND in true pixels (~0.99 w/h), not the 0.83 ovals of the
+   * first pass. Boxes carry a +0.35/+0.4 overshoot beyond the openings so
+   * each layer covers the opening's shadow rim — the CSS inner shade then
+   * rebuilds that rim on the portrait edge (seating noise vanishes under
+   * the varnish; a pale ground in a dark socket forgives nothing less). */
   seats: [
-    { x: 11.2, y: 13.3 },
-    { x: 11.2, y: 28.0 },
-    { x: 11.2, y: 42.8 },
-    { x: 11.2, y: 57.5 },
-    { x: 11.2, y: 72.1 },
-  ] as CourtBookPosition[],
+    { x: 10.78, y: 12.8, width: 5.4, height: 9.5, slotY: 13.1 },
+    { x: 11.05, y: 27.41, width: 5.35, height: 9.55, slotY: 27.59 },
+    { x: 10.83, y: 41.76, width: 5.4, height: 9.4, slotY: 41.81 },
+    { x: 10.94, y: 56.02, width: 5.35, height: 9.4, slotY: 56.06 },
+    { x: 11.05, y: 70.37, width: 5.3, height: 9.25, slotY: 70.32 },
+  ] as CourtBookSeat[],
   /** The Judge's frame — fixed, never seated by choice. */
-  judgeSeat: { x: 11.2, y: 86.7 } as CourtBookPosition,
-  /** The painted oval opening inside a gilt frame (portrait layer size). */
-  portraitInterior: { width: 4.4, height: 9.4 },
+  judgeSeat: { x: 11.05, y: 84.62, width: 4.9, height: 8.95, slotY: 84.8 } as CourtBookSeat,
   /** Hit area covering a frame's gilt (hotspots are ovals, per pass 1). */
-  portraitHotspot: { width: 7.4, height: 13.2 },
+  portraitHotspot: { width: 7.6, height: 13.4 },
   /** The breathing-judge video layer: masked to its own interior oval and
    * sized so that oval fills the painted opening (video is 528×720; its
    * interior occupies ~60%×65% of the clip). */
-  judgeVideo: { width: 6.0, height: 14.5 },
-  /** A verdict strip: x/width/height shared; y = its seat's centre. */
-  slot: { x: 15.5, width: 22.5, height: 8.6 },
+  judgeVideo: { width: 5.7, height: 13.8 },
+  /** A verdict strip: x/width/height shared; y = its seat's slotY. */
+  slot: { x: 15.3, width: 23.1, height: 8.6 },
   /** The written record flows above the brass; content ends clear of the
    * plaque's top edge so live text never sits under the metal. */
   rightPageContent: { left: 54, top: 7, width: 36, height: 60 },
   /** The wide brass plaque, bottom of the right page. Ornament box; the
-   * engraved word flex-centres at ≈ (71.25, 80.75) — the inner face. */
-  plaque: { x: 61, y: 73, width: 20.5, height: 15.5 },
+   * engraved word flex-centres at ≈ (71.35, 81.4) — the inner face. */
+  plaque: { x: 60.9, y: 74.0, width: 20.9, height: 14.8 },
 } as const;
 
 export const COURT_ROLES: CourtRole[] = [

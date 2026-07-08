@@ -78,7 +78,6 @@ function CourtBookArtwork({ children }: { children: ReactNode }) {
 /** The seated bench — one oval portrait layer per occupied seat, inside
  * the painted gilt frames. Scenery, not controls: hotspots sit above. */
 function BenchPortraits({ bench }: { bench: CourtAttendantId[] }) {
-  const interior = COURT_BOOK_LAYOUT.portraitInterior;
   return (
     <>
       {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
@@ -92,8 +91,8 @@ function BenchPortraits({ bench }: { bench: CourtAttendantId[] }) {
             style={{
               left: `${pos.x}%`,
               top: `${pos.y}%`,
-              width: `${interior.width}%`,
-              height: `${interior.height}%`,
+              width: `${pos.width}%`,
+              height: `${pos.height}%`,
             }}
           >
             <Image
@@ -407,7 +406,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
               style={
                 {
                   left: `${slot.x}%`,
-                  top: `${pos.y}%`,
+                  top: `${pos.slotY}%`,
                   width: `${slot.width}%`,
                   height: `${slot.height}%`,
                   "--slot-tilt": finish.tilt,
@@ -432,7 +431,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
           className="platform-court__judge-strip"
           style={{
             left: `${slot.x}%`,
-            top: `${COURT_BOOK_LAYOUT.judgeSeat.y}%`,
+            top: `${COURT_BOOK_LAYOUT.judgeSeat.slotY}%`,
             width: `${slot.width}%`,
             height: `${slot.height}%`,
           }}
