@@ -4598,15 +4598,51 @@ body {
   pointer-events: none;
 }
 
-/* Varnish seat: a soft inner shade so the miniature sits under the paint. */
+/* Light interior depth only — the frame-ring window lays the painted lip
+   over the rim, so the heavy seating shadow is no longer synthesised. */
 .platform-court__portrait-art::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: 50%;
   box-shadow:
-    inset 0 0 14px rgba(35, 25, 12, 0.5),
-    inset 0 -6px 12px rgba(35, 25, 12, 0.22);
+    inset 0 0 8px rgba(35, 25, 12, 0.28),
+    inset 0 -4px 8px rgba(35, 25, 12, 0.14);
+}
+
+/* ── Frame-ring windows: the painting laid back OVER the portrait rims.
+   Each window shows a stage-scaled copy of the book (sprite-window
+   offsets from the manifest) masked to an annulus — transparent across
+   the opening (the portrait shows through), painted gilt beyond it. The
+   feather straddles the opening edge, so the lip shadow lands on the
+   portrait rim exactly as paint. ── */
+.platform-court__frame-ring {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+  pointer-events: none;
+  /* Stops are percentages of (--ring-rx, --ring-ry), which ARE the true
+     painted opening's own radii — so 100% sits exactly on that edge. The
+     transparent stop must never read below 100%: anything less bleeds the
+     painted background into the still-visible portrait window, which is
+     the bug this replaces (an 88% stop hazed the photo itself, not just
+     its edge). The opaque stop sits past the portrait layer's overshot
+     hard edge (~104–107% of the true radius) so the ramp also swallows
+     that seam, antialiasing it rather than leaving a visible cutout. */
+  -webkit-mask-image: radial-gradient(
+    ellipse var(--ring-rx, 33%) var(--ring-ry, 34%) at 50% 50%,
+    transparent 99%,
+    #000 114%
+  );
+  mask-image: radial-gradient(
+    ellipse var(--ring-rx, 33%) var(--ring-ry, 34%) at 50% 50%,
+    transparent 99%,
+    #000 114%
+  );
+}
+
+.platform-court__frame-ring-inner {
+  position: absolute;
 }
 
 .platform-court__portrait-art-img {

@@ -139,33 +139,49 @@ export const COURT_BOOK_LAYOUT = {
    * red shadows match the interiors in luminance, so the separator is
    * r−g, not darkness), then eye-tuned on 3× crops. The openings are
    * nearly ROUND in true pixels (~0.99 w/h), not the 0.83 ovals of the
-   * first pass. Boxes carry a +0.35/+0.4 overshoot beyond the openings so
-   * each layer covers the opening's shadow rim — the CSS inner shade then
-   * rebuilds that rim on the portrait edge (seating noise vanishes under
-   * the varnish; a pale ground in a dark socket forgives nothing less). */
+   * first pass. Seats carry the TRUE painted openings; layers overdraw
+   * them by portraitOvershoot, and the frame-ring windows lay the painting
+   * back OVER the portrait rims — the frame hides the seam, as frames
+   * always have. */
   seats: [
-    { x: 10.78, y: 12.8, width: 5.4, height: 9.5, slotY: 13.1 },
-    { x: 11.05, y: 27.41, width: 5.35, height: 9.55, slotY: 27.59 },
-    { x: 10.83, y: 41.76, width: 5.4, height: 9.4, slotY: 41.81 },
-    { x: 10.94, y: 56.02, width: 5.35, height: 9.4, slotY: 56.06 },
-    { x: 11.05, y: 70.37, width: 5.3, height: 9.25, slotY: 70.32 },
+    { x: 10.78, y: 12.8, width: 5.05, height: 9.1, slotY: 13.1 },
+    { x: 11.05, y: 27.41, width: 5.0, height: 9.15, slotY: 27.59 },
+    { x: 10.83, y: 41.76, width: 5.05, height: 9.0, slotY: 41.81 },
+    { x: 10.94, y: 56.02, width: 5.0, height: 9.0, slotY: 56.06 },
+    { x: 11.05, y: 70.37, width: 4.95, height: 8.85, slotY: 70.32 },
   ] as CourtBookSeat[],
   /** The Judge's frame — fixed, never seated by choice. */
   judgeSeat: { x: 11.05, y: 84.62, width: 4.9, height: 8.95, slotY: 84.8 } as CourtBookSeat,
-  /** Hit area covering a frame's gilt (hotspots are ovals, per pass 1). */
+  /** How far a portrait layer overdraws its opening (each side), giving
+   * the frame-ring window a rim to cover. */
+  portraitOvershoot: { width: 0.35, height: 0.4 },
+  /** A frame's full gilt extent — the ring-window box, and the hotspot. */
   portraitHotspot: { width: 7.6, height: 13.4 },
   /** The breathing-judge video layer: masked to its own interior oval and
    * sized so that oval fills the painted opening (video is 528×720; its
    * interior occupies ~60%×65% of the clip). */
   judgeVideo: { width: 5.7, height: 13.8 },
-  /** A verdict strip: x/width/height shared; y = its seat's slotY. */
-  slot: { x: 15.3, width: 23.1, height: 8.6 },
+  /** A verdict strip: x/width/height shared across the five bench seats;
+   * y = each seat's own slotY. Measured directly against the painted
+   * strip rectangles (x 12.97-38.44 on the source PNG) — the previous
+   * box (x15.3/w23.1) was never updated after that measurement was taken,
+   * so it sat ~1.15pt right of the strip's true centre the whole time. */
+  slot: { x: 13.3, width: 24.8, height: 8.6 },
+  /** The Judge's strip is painted wider than the bench strips (measured
+   * x 12.97-40.73, vs 12.97-38.44 for seats 1-5) — its own box, not a
+   * reuse of `slot`, so his line centres on his actual painted rule. */
+  judgeSlot: { x: 13.3, width: 27.1, height: 8.6 },
   /** The written record flows above the brass; content ends clear of the
    * plaque's top edge so live text never sits under the metal. */
   rightPageContent: { left: 54, top: 7, width: 36, height: 60 },
-  /** The wide brass plaque, bottom of the right page. Ornament box; the
-   * engraved word flex-centres at ≈ (71.35, 81.4) — the inner face. */
-  plaque: { x: 60.9, y: 74.0, width: 20.9, height: 14.8 },
+  /** The wide brass plaque. Box = the full ornament (for the hotspot and
+   * glow — the hit area and light should cover the whole gilt casting).
+   * The engraved word centres on plaqueFace, the recessed wood-grain
+   * panel measured directly on a fine grid (x 62.8-79.6, y 77.3-84.1) —
+   * not the ornament's own centre, which the crest ornament above pulls
+   * upward from the true engravable surface. */
+  plaque: { x: 55.0, y: 72.8, width: 34.95, height: 20.55 },
+  plaqueFace: { x: 62.8, width: 16.8, height: 6.8, y: 77.3 },
 } as const;
 
 export const COURT_ROLES: CourtRole[] = [
