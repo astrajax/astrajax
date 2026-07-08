@@ -52,6 +52,24 @@ const SLOT_FINISH: Array<{ tilt: string; ink: number }> = [
   { tilt: "0.3deg", ink: 0.82 },
 ];
 
+// The plaque hotspot/glow use the FULL ornament box (a forgiving click
+// target and a glow that lights the whole casting). The engraved word
+// centres on plaqueFace instead — the recessed wood panel, measured
+// directly, which the crest ornament above pulls the ornament's own
+// centre away from. This computes plaqueFace as a position/size relative
+// to the plaque box, so the word wrapper can sit inside the button
+// without fighting its flex-centering.
+const PLAQUE_FACE_STYLE: CSSProperties = {
+  position: "absolute",
+  left: `${((COURT_BOOK_LAYOUT.plaqueFace.x - COURT_BOOK_LAYOUT.plaque.x) / COURT_BOOK_LAYOUT.plaque.width) * 100}%`,
+  top: `${((COURT_BOOK_LAYOUT.plaqueFace.y - COURT_BOOK_LAYOUT.plaque.y) / COURT_BOOK_LAYOUT.plaque.height) * 100}%`,
+  width: `${(COURT_BOOK_LAYOUT.plaqueFace.width / COURT_BOOK_LAYOUT.plaque.width) * 100}%`,
+  height: `${(COURT_BOOK_LAYOUT.plaqueFace.height / COURT_BOOK_LAYOUT.plaque.height) * 100}%`,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
 function roleById(id: CourtRoleId): CourtRole | undefined {
   return COURT_ROLES.find((r) => r.id === id);
 }
@@ -491,10 +509,10 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
           aria-hidden
           className="platform-court__judge-strip"
           style={{
-            left: `${slot.x}%`,
+            left: `${COURT_BOOK_LAYOUT.judgeSlot.x}%`,
             top: `${COURT_BOOK_LAYOUT.judgeSeat.slotY}%`,
-            width: `${slot.width}%`,
-            height: `${slot.height}%`,
+            width: `${COURT_BOOK_LAYOUT.judgeSlot.width}%`,
+            height: `${COURT_BOOK_LAYOUT.judgeSlot.height}%`,
           }}
         >
           <span className="platform-court__judge-strip-text">
@@ -588,7 +606,9 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
                 height: `${plaque.height}%`,
               }}
             >
-              <span className="platform-court__plaque-word">Decide</span>
+              <span style={PLAQUE_FACE_STYLE}>
+                <span className="platform-court__plaque-word">Decide</span>
+              </span>
             </button>
           </>
         )}
@@ -996,7 +1016,9 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
             height: `${plaque.height}%`,
           }}
         >
-          <span className="platform-court__plaque-word">Convene</span>
+          <span style={PLAQUE_FACE_STYLE}>
+            <span className="platform-court__plaque-word">Convene</span>
+          </span>
         </button>
         <button
           type="button"

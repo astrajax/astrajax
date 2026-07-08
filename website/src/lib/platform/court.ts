@@ -161,14 +161,27 @@ export const COURT_BOOK_LAYOUT = {
    * sized so that oval fills the painted opening (video is 528×720; its
    * interior occupies ~60%×65% of the clip). */
   judgeVideo: { width: 5.7, height: 13.8 },
-  /** A verdict strip: x/width/height shared; y = its seat's slotY. */
-  slot: { x: 15.3, width: 23.1, height: 8.6 },
+  /** A verdict strip: x/width/height shared across the five bench seats;
+   * y = each seat's own slotY. Measured directly against the painted
+   * strip rectangles (x 12.97-38.44 on the source PNG) — the previous
+   * box (x15.3/w23.1) was never updated after that measurement was taken,
+   * so it sat ~1.15pt right of the strip's true centre the whole time. */
+  slot: { x: 13.3, width: 24.8, height: 8.6 },
+  /** The Judge's strip is painted wider than the bench strips (measured
+   * x 12.97-40.73, vs 12.97-38.44 for seats 1-5) — its own box, not a
+   * reuse of `slot`, so his line centres on his actual painted rule. */
+  judgeSlot: { x: 13.3, width: 27.1, height: 8.6 },
   /** The written record flows above the brass; content ends clear of the
    * plaque's top edge so live text never sits under the metal. */
   rightPageContent: { left: 54, top: 7, width: 36, height: 60 },
-  /** The wide brass plaque, bottom of the right page. Ornament box; the
-   * engraved word flex-centres at ≈ (71.35, 81.4) — the inner face. */
-  plaque: { x: 60.9, y: 74.0, width: 20.9, height: 14.8 },
+  /** The wide brass plaque. Box = the full ornament (for the hotspot and
+   * glow — the hit area and light should cover the whole gilt casting).
+   * The engraved word centres on plaqueFace, the recessed wood-grain
+   * panel measured directly on a fine grid (x 62.8-79.6, y 77.3-84.1) —
+   * not the ornament's own centre, which the crest ornament above pulls
+   * upward from the true engravable surface. */
+  plaque: { x: 55.0, y: 72.8, width: 34.95, height: 20.55 },
+  plaqueFace: { x: 62.8, width: 16.8, height: 6.8, y: 77.3 },
 } as const;
 
 export const COURT_ROLES: CourtRole[] = [
