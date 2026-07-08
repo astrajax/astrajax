@@ -4621,15 +4621,23 @@ body {
   transform: translate(-50%, -50%);
   overflow: hidden;
   pointer-events: none;
+  /* Stops are percentages of (--ring-rx, --ring-ry), which ARE the true
+     painted opening's own radii — so 100% sits exactly on that edge. The
+     transparent stop must never read below 100%: anything less bleeds the
+     painted background into the still-visible portrait window, which is
+     the bug this replaces (an 88% stop hazed the photo itself, not just
+     its edge). The opaque stop sits past the portrait layer's overshot
+     hard edge (~104–107% of the true radius) so the ramp also swallows
+     that seam, antialiasing it rather than leaving a visible cutout. */
   -webkit-mask-image: radial-gradient(
     ellipse var(--ring-rx, 33%) var(--ring-ry, 34%) at 50% 50%,
-    transparent 88%,
-    #000 102%
+    transparent 99%,
+    #000 114%
   );
   mask-image: radial-gradient(
     ellipse var(--ring-rx, 33%) var(--ring-ry, 34%) at 50% 50%,
-    transparent 88%,
-    #000 102%
+    transparent 99%,
+    #000 114%
   );
 }
 
