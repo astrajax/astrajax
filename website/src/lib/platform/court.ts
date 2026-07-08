@@ -1,7 +1,50 @@
-import { castHeroByProduct } from "@/lib/agent-cast-assets";
 import type { PaperTrailLine } from "./brain-health";
 
-export type CourtRoleId = "clive" | "pam" | "doc" | "lazlo" | "clive-man" | "judge";
+export type CourtRoleId =
+  | "clive"
+  | "pam"
+  | "doc"
+  | "lazlo"
+  | "clive-man"
+  | "kate"
+  | "judge";
+
+/** Everyone who can take a seat on the bench. The Judge is not an
+ * attendant — he presides over every session and cannot be seated,
+ * swapped, or removed. */
+export type CourtAttendantId = Exclude<CourtRoleId, "judge">;
+
+export const COURT_ATTENDANT_POOL: CourtAttendantId[] = [
+  "clive",
+  "pam",
+  "doc",
+  "lazlo",
+  "clive-man",
+  "kate",
+];
+
+/** The standard bench — prefilled at intake; any seat can be swapped for
+ * another perspective from the pool. */
+export const DEFAULT_BENCH: CourtAttendantId[] = [
+  "clive",
+  "pam",
+  "doc",
+  "lazlo",
+  "clive-man",
+];
+
+export const BENCH_SEATS = 5;
+
+/** Court miniatures — oval-masked layers seated inside the painted gilt
+ * frames (the artwork ships with blank frames; the cast are layers). */
+export const COURT_PORTRAIT_SRC: Record<CourtAttendantId, string> = {
+  clive: "/agent-cast/court/portraits/clive.jpg",
+  pam: "/agent-cast/court/portraits/pam.jpg",
+  doc: "/agent-cast/court/portraits/doc.jpg",
+  lazlo: "/agent-cast/court/portraits/lazlo.jpg",
+  "clive-man": "/agent-cast/court/portraits/clive-man.jpg",
+  kate: "/agent-cast/court/portraits/kate.jpg",
+};
 
 export interface CourtRole {
   id: CourtRoleId;
@@ -22,7 +65,13 @@ export interface CourtDialogueTurn {
   line: string;
 }
 
-export type CourtVerdict = "Approve" | "Strong approve" | "Disapprove" | "Strong disapprove" | "LOVE" | "HATE";
+export type CourtVerdict =
+  | "Approve"
+  | "Strong approve"
+  | "Disapprove"
+  | "Strong disapprove"
+  | "LOVE"
+  | "HATE";
 
 export interface AgentVerdict {
   roleId: CourtRoleId;
@@ -42,6 +91,8 @@ export interface CourtDecision {
   title: string;
   context: string;
   stakes: string;
+  /** Who sits this session, in seat order (top of the page downward). */
+  attendees: CourtAttendantId[];
   roles: CourtRole[];
   takes: CourtTake[];
   dialogue: CourtDialogueTurn[];
@@ -53,9 +104,6 @@ export interface CourtDecision {
 export const COURT_RULE =
   "The Court surfaces perspectives; the human gives judgement.";
 
-export const CONVENING_LINE =
-  "Pam Portiscue convenes this session. She calls the Court to order; she does not own the verdict.";
-
 export interface CourtBookPosition {
   x: number;
   y: number;
@@ -66,79 +114,125 @@ export interface CourtBookSlot extends CourtBookPosition {
   height: number;
 }
 
+/**
+ * Scene manifest for the blank court book (art v2, July 2026).
+ *
+ * The painting ships with six EMPTY gilt frames down the left page and a
+ * wide brass plaque on the right — no faces, no text. Attendant portraits
+ * are oval layers seated per SEAT (positions, not names); the Judge's
+ * frame is the sixth, fixed, and carries his breathing loop. Measured
+ * against the paint on a labelled grid, 7 Jul 2026.
+ */
+export interface CourtBookSeat extends CourtBookPosition {
+  /** Painted opening size — the portrait layer fills exactly this box. */
+  width: number;
+  height: number;
+  /** Vertical centre of this seat's painted verdict strip (strips sit a
+   * whisker below frame centres; entries centre on the STRIP). */
+  slotY: number;
+}
+
 export const COURT_BOOK_LAYOUT = {
-  portraits: {
-    clive: { x: 15.9, y: 13.9 },
-    pam: { x: 15.6, y: 28.2 },
-    doc: { x: 15.9, y: 42.1 },
-    lazlo: { x: 15.4, y: 56.5 },
-    "clive-man": { x: 15.4, y: 70.6 },
-    judge: { x: 15.4, y: 84.1 },
-  } as Record<CourtRoleId, CourtBookPosition>,
-  verdictSlots: {
-    clive: { x: 19.5, y: 13.9, width: 26, height: 9 },
-    pam: { x: 19.5, y: 28.2, width: 26, height: 9 },
-    doc: { x: 19.5, y: 42.1, width: 26, height: 9 },
-    lazlo: { x: 19.5, y: 56.5, width: 26, height: 9 },
-    "clive-man": { x: 19.5, y: 70.6, width: 26, height: 9 },
-  } as Record<Exclude<CourtRoleId, "judge">, CourtBookSlot>,
-  /** Hit area for a painted miniature: an oval matching the gilt frames
-   * (percentages of the artwork, centred on each portrait's x/y). The old
-   * square 11%×11% region was wider than the paint and shorter than it. */
-  portraitHotspot: { width: 8, height: 14.5 },
-  /** The judge's painted strip (the sixth, otherwise-empty row beside his
-   * portrait) — carries his standing line as static ink, not a tooltip. */
-  judgeStrip: { x: 19.5, y: 84.1, width: 26, height: 9 },
-  /** The written record flows above the brass — content ends (y 72) just
-   * clear of the plaque's top edge, so live text never sits under the metal
-   * and the plaque hotspot never covers the input row. */
-  rightPageContent: { left: 55, top: 8, width: 34, height: 64 },
-  /** Measured against the painted plaque (inner face centre ≈ 71%, 81.5%).
-   * The old box (68.5, 82, 12×12) centred the engraved word at (74.5, 88) —
-   * off the brass entirely, hanging past the plaque's lower-right corner. */
-  plaque: { x: 65.5, y: 74, width: 11, height: 15 },
+  /** The five attendant seats, top of the page downward. Per-seat boxes —
+   * the frames are hand-painted and each opening differs slightly.
+   * Measured programmatically (hue-separated interior masks; the gilt's
+   * red shadows match the interiors in luminance, so the separator is
+   * r−g, not darkness), then eye-tuned on 3× crops. The openings are
+   * nearly ROUND in true pixels (~0.99 w/h), not the 0.83 ovals of the
+   * first pass. Boxes carry a +0.35/+0.4 overshoot beyond the openings so
+   * each layer covers the opening's shadow rim — the CSS inner shade then
+   * rebuilds that rim on the portrait edge (seating noise vanishes under
+   * the varnish; a pale ground in a dark socket forgives nothing less). */
+  seats: [
+    { x: 10.78, y: 12.8, width: 5.4, height: 9.5, slotY: 13.1 },
+    { x: 11.05, y: 27.41, width: 5.35, height: 9.55, slotY: 27.59 },
+    { x: 10.83, y: 41.76, width: 5.4, height: 9.4, slotY: 41.81 },
+    { x: 10.94, y: 56.02, width: 5.35, height: 9.4, slotY: 56.06 },
+    { x: 11.05, y: 70.37, width: 5.3, height: 9.25, slotY: 70.32 },
+  ] as CourtBookSeat[],
+  /** The Judge's frame — fixed, never seated by choice. */
+  judgeSeat: { x: 11.05, y: 84.62, width: 4.9, height: 8.95, slotY: 84.8 } as CourtBookSeat,
+  /** Hit area covering a frame's gilt (hotspots are ovals, per pass 1). */
+  portraitHotspot: { width: 7.6, height: 13.4 },
+  /** The breathing-judge video layer: masked to its own interior oval and
+   * sized so that oval fills the painted opening (video is 528×720; its
+   * interior occupies ~60%×65% of the clip). */
+  judgeVideo: { width: 5.7, height: 13.8 },
+  /** A verdict strip: x/width/height shared; y = its seat's slotY. */
+  slot: { x: 15.3, width: 23.1, height: 8.6 },
+  /** The written record flows above the brass; content ends clear of the
+   * plaque's top edge so live text never sits under the metal. */
+  rightPageContent: { left: 54, top: 7, width: 36, height: 60 },
+  /** The wide brass plaque, bottom of the right page. Ornament box; the
+   * engraved word flex-centres at ≈ (71.35, 81.4) — the inner face. */
+  plaque: { x: 60.9, y: 74.0, width: 20.9, height: 14.8 },
 } as const;
 
 export const COURT_ROLES: CourtRole[] = [
-    {
-      id: "clive",
-      name: "Clive Wigglesworth",
-      title: "Upside and adoption",
-      portraitSrc: castHeroByProduct("clive"),
-      focus: "Will reps actually use this, and does it make the brain feel helpful?",
-    },
-    {
-      id: "pam",
-      name: "Pam Portiscue",
-      title: "Risk and weak assumptions",
-      focus: "What could go wrong if we trust this too early?",
-    },
-    {
-      id: "doc",
-      name: "Doc Albright",
-      title: "Implementation cost and action readiness",
-      portraitSrc: castHeroByProduct("doc"),
-      focus: "Can we execute cleanly after judgement, with a paper trail?",
-    },
-    {
-      id: "lazlo",
-      name: "Lazlo Marlowe",
-      title: "Dramaturg's eye",
-      focus: "Does this hold together as a story humans will believe?",
-    },
-    {
-      id: "clive-man",
-      name: "Clive's Man",
-      title: "Keeper of the record",
-      focus: "What does the record actually say, and what will it say afterwards?",
-    },
-    {
-      id: "judge",
-      name: "The Judge",
-      title: "Summarises; does not decide",
-      focus: "Weighs the perspectives for the human; abstains from the final call.",
-    },
+  {
+    id: "clive",
+    name: "Clive Wigglesworth",
+    title: "Upside and adoption",
+    portraitSrc: COURT_PORTRAIT_SRC.clive,
+    focus: "Will people actually use this, and does it make the brain feel helpful?",
+  },
+  {
+    id: "pam",
+    name: "Pam Portiscue",
+    title: "Risk and weak assumptions",
+    portraitSrc: COURT_PORTRAIT_SRC.pam,
+    focus: "What could go wrong if we trust this too early?",
+  },
+  {
+    id: "doc",
+    name: "Doc Albright",
+    title: "Implementation cost and action readiness",
+    portraitSrc: COURT_PORTRAIT_SRC.doc,
+    focus: "Can we execute cleanly after judgement, with a paper trail?",
+  },
+  {
+    id: "lazlo",
+    name: "Lazlo Marlowe",
+    title: "Dramaturg's eye",
+    portraitSrc: COURT_PORTRAIT_SRC.lazlo,
+    focus: "Does this hold together as a story humans will believe?",
+  },
+  {
+    id: "clive-man",
+    name: "Clive's Man",
+    title: "Keeper of the record",
+    portraitSrc: COURT_PORTRAIT_SRC["clive-man"],
+    focus: "What does the record actually say, and what will it say afterwards?",
+  },
+  {
+    id: "kate",
+    name: "Kate",
+    title: "Scenic workshop — craft and reversibility",
+    portraitSrc: COURT_PORTRAIT_SRC.kate,
+    focus: "Does this hold together as built, and can we undo it if we are wrong?",
+  },
+  {
+    id: "judge",
+    name: "The Judge",
+    title: "Summarises; does not decide",
+    focus: "Weighs the perspectives for the human; abstains from the final call.",
+  },
 ];
+
+/** Each attendant's opening question when the Court convenes — used by
+ * conveneMatter to build the session's opening exchange for whoever is
+ * actually seated. */
+const OPENING_LINES: Record<CourtAttendantId, string> = {
+  clive:
+    "The upside first, as is proper. If this works, what does it make possible for the humans involved? That is the question I shall hold while the bench does its work.",
+  pam: "And I shall hold the other one. What is the weakest assumption underneath it, and what happens if that assumption is wrong? Evidence before enthusiasm.",
+  lazlo:
+    "And I will ask how it lands as a story. Stakeholders hear narratives, not specifications. If the story this tells is the wrong one, the specification will not save it.",
+  "clive-man":
+    "I will want to know what precedent this sets and how the record will hold it. Precision now saves second-guessing later.",
+  doc: "When judgement is recorded, I will name the cost of acting on it: effort, risk, and what gets retired. Not before.",
+  kate: "And I will ask what would actually be built. Show me the seam, show me the rollback, show me the first cut. A matter that cannot name its smallest testable slice is not ready for my bench.",
+};
 
 export const DEFAULT_COURT_DECISION: CourtDecision = {
   id: "court-discount-guardrail",
@@ -147,6 +241,7 @@ export const DEFAULT_COURT_DECISION: CourtDecision = {
     "Regional managers want reps to move faster on trusted accounts. Clive drafted a guardrail that allows a 10% off-script discount when two conditions are met: account tier is Gold+ and RM pre-approves in the brain log.",
   stakes:
     "High stakes: this becomes approved context agents will cite. Wrong guardrails propagate into live sales conversations and pricing claims.",
+  attendees: DEFAULT_BENCH,
   roles: COURT_ROLES,
   takes: [
     {
@@ -261,47 +356,50 @@ export const COURT_MATTER_LIMITS = {
   stakes: 300,
 } as const;
 
-export function conveneMatter(matter: CourtMatter): CourtDecision {
+export function conveneMatter(
+  matter: CourtMatter,
+  attendees: CourtAttendantId[] = DEFAULT_BENCH,
+): CourtDecision {
+  // Pam convenes when seated (it is her habit); otherwise the first seat.
+  const convenerId: CourtAttendantId = attendees.includes("pam")
+    ? "pam"
+    : attendees[0];
+  const cleanTitle = matter.title.replace(/[.?!]+$/, "");
+
+  const conveningLine: CourtDialogueTurn = {
+    roleId: convenerId,
+    line:
+      convenerId === "pam"
+        ? `The Court is in session. The matter before the bench: "${cleanTitle}". This door is always open, but it is not a casual one. I convene; I do not preside.`
+        : `The Court is in session. The matter before the bench: "${cleanTitle}". I convene; I do not preside. The bench will frame its questions.`,
+  };
+
+  // After convening, every attendee states their question in seat order —
+  // the convener included (convening and questioning are different acts).
+  const openings: CourtDialogueTurn[] = attendees.map((id) => ({
+    roleId: id,
+    line: OPENING_LINES[id],
+  }));
+
   return {
     id: `court-matter-${Date.now()}`,
     title: matter.title,
     context: matter.context,
     stakes: matter.stakes,
+    attendees,
     roles: COURT_ROLES,
     takes: [],
     dialogue: [
-      {
-        roleId: "pam",
-        line: `The Court is in session. The matter before the bench: "${matter.title.replace(/[.?!]+$/, "")}". This door is always open, but it is not a casual one. I convene; I do not preside. Clive, the constructive case, please.`,
-      },
-      {
-        roleId: "clive",
-        line: "The upside first, as is proper. If this works, what does it make possible for the humans involved? That is the question I shall hold while the bench does its work.",
-      },
-      {
-        roleId: "pam",
-        line: "And I shall hold the other one. What is the weakest assumption underneath it, and what happens if that assumption is wrong? Evidence before enthusiasm.",
-      },
-      {
-        roleId: "lazlo",
-        line: "And I will ask how it lands as a story. Stakeholders hear narratives, not specifications. If the story this tells is the wrong one, the specification will not save it.",
-      },
-      {
-        roleId: "clive-man",
-        line: "I will want to know what precedent this sets and how the record will hold it. Precision now saves second-guessing later.",
-      },
-      {
-        roleId: "doc",
-        line: "When judgement is recorded, I will name the cost of acting on it: effort, risk, and what gets retired. Not before.",
-      },
+      conveningLine,
+      ...openings,
       {
         roleId: "judge",
         line: "The bench has framed its questions. No verdict is available from this side of the room. The judgement, as ever, is yours.",
       },
     ],
     judgeSummary:
-      "Six perspectives on the table. I summarise; I do not choose. The chair that matters is yours.",
+      "The bench has spoken. I summarise; I do not choose. The chair that matters is yours.",
     ruleLine: COURT_RULE,
-    convenerId: "pam",
+    convenerId,
   };
 }

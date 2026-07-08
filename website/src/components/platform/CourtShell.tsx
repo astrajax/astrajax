@@ -13,10 +13,15 @@ import {
 import {
   createJudgementPaperTrail,
   DEFAULT_COURT_DECISION,
+  DEFAULT_BENCH,
+  COURT_ATTENDANT_POOL,
+  COURT_PORTRAIT_SRC,
+  COURT_ROLES,
   docExecutionLine,
   conveneMatter,
   COURT_BOOK_LAYOUT,
   COURT_MATTER_LIMITS,
+  type CourtAttendantId,
   type CourtDecision,
   type CourtRole,
   type CourtMatter,
@@ -27,28 +32,28 @@ import {
 } from "@/lib/platform/court";
 import type { PaperTrailLine } from "@/lib/platform/brain-health";
 
-const COURT_BOOK_IMAGE = "/agent-cast/court/court-book.jpg";
+// Art v2: the book ships BLANK — empty gilt frames, empty strips, blank
+// brass. The cast are layers; the text is live; the Judge breathes.
+const COURT_BOOK_IMAGE = "/agent-cast/court/court-book-blank.jpg";
+const JUDGE_VIDEO_SRC = "/agent-cast/court/court-judge.mp4";
+const JUDGE_POSTER_SRC = "/agent-cast/court/court-judge-poster.jpg";
 
-// A 16×9 thumb of the painting — the canvas emerging through varnish while
-// the full artwork loads.
-const COURT_BOOK_BLUR = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA4KCw0LCQ4NDA0QDw4RFiQXFhQUFiwgIRokNC43NjMuMjI6QVNGOj1OPjIySGJJTlZYXV5dOEVmbWVabFNbXVn/2wBDAQ8QEBYTFioXFypZOzI7WVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVn/wAARCAAJABADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwCx4YKf2PHuUEgEZI9q0r9of+EdlXCEi3GRjkDFcLZf8eyVM/8Ax5n/AHa5XHU6bn//2Q==";
+// A 16×9 thumb of the blank book — canvas emerging through varnish.
+const COURT_BOOK_BLUR = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA4KCw0LCQ4NDA0QDw4RFiQXFhQUFiwgIRokNC43NjMuMjI6QVNGOj1OPjIySGJJTlZYXV5dOEVmbWVabFNbXVn/2wBDAQ8QEBYTFioXFypZOzI7WVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVn/wAARCAAJABADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwC/ohX+yoiygna3J57Vemkg/sOWMCMuLY5XHI+WuFg/1Ef0p3/Lu3+5/SuTlOq5/9k=";
 
-const BENCH_ROLE_IDS = ["clive", "pam", "doc", "lazlo", "clive-man"] as const;
-const PORTRAIT_ROLE_IDS = [...BENCH_ROLE_IDS, "judge"] as const;
+// Written-by-hand variance per SEAT (positions, not names — whoever sits
+// in seat three inherits seat three's hand).
+const SLOT_FINISH: Array<{ tilt: string; ink: number }> = [
+  { tilt: "-0.35deg", ink: 0.84 },
+  { tilt: "0.25deg", ink: 0.8 },
+  { tilt: "0.4deg", ink: 0.86 },
+  { tilt: "-0.2deg", ink: 0.78 },
+  { tilt: "0.3deg", ink: 0.82 },
+];
 
-// Written-by-hand variance for the verdict entries: a whisper of tilt and ink
-// weight per slot so five entries don't read machine-stamped. Values feed the
-// --slot-tilt / --slot-ink custom properties in globals.css.
-const SLOT_FINISH: Record<
-  (typeof BENCH_ROLE_IDS)[number],
-  { tilt: string; ink: number }
-> = {
-  clive: { tilt: "-0.35deg", ink: 0.84 },
-  pam: { tilt: "0.25deg", ink: 0.8 },
-  doc: { tilt: "0.4deg", ink: 0.86 },
-  lazlo: { tilt: "-0.2deg", ink: 0.78 },
-  "clive-man": { tilt: "0.3deg", ink: 0.82 },
-};
+function roleById(id: CourtRoleId): CourtRole | undefined {
+  return COURT_ROLES.find((r) => r.id === id);
+}
 
 function CourtBookArtwork({ children }: { children: ReactNode }) {
   return (
@@ -70,20 +75,95 @@ function CourtBookArtwork({ children }: { children: ReactNode }) {
   );
 }
 
-function formatWhen(iso: string): string {
-  try {
-    return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(
-      new Date(iso),
-    );
-  } catch {
-    return iso;
-  }
+/** The seated bench — one oval portrait layer per occupied seat, inside
+ * the painted gilt frames. Scenery, not controls: hotspots sit above. */
+function BenchPortraits({ bench }: { bench: CourtAttendantId[] }) {
+  return (
+    <>
+      {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
+        const roleId = bench[seat];
+        if (!roleId) return null; // an empty frame reads as a vacant seat
+        return (
+          <div
+            key={`seat-art-${seat}`}
+            aria-hidden
+            className="platform-court__portrait-art"
+            style={{
+              left: `${pos.x}%`,
+              top: `${pos.y}%`,
+              width: `${pos.width}%`,
+              height: `${pos.height}%`,
+            }}
+          >
+            <Image
+              src={COURT_PORTRAIT_SRC[roleId]}
+              alt=""
+              fill
+              sizes="5vw"
+              className="platform-court__portrait-art-img"
+            />
+          </div>
+        );
+      })}
+      <JudgeLoop />
+    </>
+  );
 }
 
-/** Warm lamplight over a painted miniature — a masked radial layer,
- * screen-blended over the oil, faded in by opacity when its role speaks. */
-function PortraitGlow({ roleId, lit }: { roleId: CourtRoleId; lit: boolean }) {
-  const pos = COURT_BOOK_LAYOUT.portraits[roleId];
+/** The Judge breathes. A 16s seamless loop, masked to its interior oval
+ * and seated behind the painted frame like any other portrait layer —
+ * every seat is an art layer; his happens to move. Reduced motion (or a
+ * video that never arrives) leaves the frame-zero poster: the painting,
+ * still. */
+function JudgeLoop() {
+  const [reducedMotion, setReducedMotion] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReducedMotion(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  const pos = COURT_BOOK_LAYOUT.judgeSeat;
+  const size = COURT_BOOK_LAYOUT.judgeVideo;
+  return (
+    <div
+      aria-hidden
+      className="platform-court__judge-loop"
+      style={{
+        left: `${pos.x}%`,
+        top: `${pos.y}%`,
+        width: `${size.width}%`,
+        height: `${size.height}%`,
+      }}
+    >
+      {reducedMotion ? (
+        <Image
+          src={JUDGE_POSTER_SRC}
+          alt=""
+          fill
+          sizes="8vw"
+          className="platform-court__judge-media"
+        />
+      ) : (
+        <video
+          className="platform-court__judge-media"
+          src={JUDGE_VIDEO_SRC}
+          poster={JUDGE_POSTER_SRC}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      )}
+    </div>
+  );
+}
+
+/** Warm lamplight over a painted miniature — masked radial, screen-blended,
+ * faded in by opacity when its occupant speaks. */
+function SeatGlow({ pos, lit }: { pos: { x: number; y: number }; lit: boolean }) {
   return (
     <div
       aria-hidden
@@ -93,6 +173,16 @@ function PortraitGlow({ roleId, lit }: { roleId: CourtRoleId; lit: boolean }) {
       style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
     />
   );
+}
+
+function formatWhen(iso: string): string {
+  try {
+    return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(
+      new Date(iso),
+    );
+  } catch {
+    return iso;
+  }
 }
 
 function CourtBook({ decision }: { decision: CourtDecision }) {
@@ -110,6 +200,8 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
   const conveneGuardRef = useRef<string | null>(null);
   const bickerInFlightRef = useRef<boolean>(false);
 
+  const attendees = decision.attendees;
+
   const fetchBicker = useCallback(
     async (currentTranscript: BickerTurn[], options?: { force?: boolean }) => {
       if (judgement) return;
@@ -123,6 +215,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
             title: decision.title,
             context: decision.context,
             stakes: decision.stakes,
+            attendees: decision.attendees,
             transcript: currentTranscript,
           }),
         });
@@ -163,6 +256,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
             title: decision.title,
             context: decision.context,
             stakes: decision.stakes,
+            attendees: decision.attendees,
           }),
         });
         const data = await res.json();
@@ -239,7 +333,8 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
   };
 
   const verdictMap = Object.fromEntries(verdicts.map((v) => [v.roleId, v]));
-  const allVerdictsIn = verdicts.length === 5;
+  const allVerdictsIn =
+    attendees.length > 0 && verdicts.length === attendees.length;
 
   // The lamplight follows the floor: an open verdict panel wins; otherwise
   // the latest cast voice in the bicker.
@@ -247,34 +342,34 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
   const glowRoleId: CourtRoleId | null =
     openVerdictRoleId ?? ((lastAgentTurn?.roleId as CourtRoleId | undefined) ?? null);
 
-  const judgeRole = decision.roles.find((r) => r.id === "judge");
   const plaque = COURT_BOOK_LAYOUT.plaque;
+  const slot = COURT_BOOK_LAYOUT.slot;
 
   return (
     <div className="platform-court__book-stage">
       <CourtBookArtwork>
-        {/* Lamplight layers — one per miniature, lit for whoever holds the floor */}
-        {PORTRAIT_ROLE_IDS.map((roleId) => (
-          <PortraitGlow key={`glow-${roleId}`} roleId={roleId} lit={glowRoleId === roleId} />
-        ))}
+        <BenchPortraits bench={attendees} />
 
-        {/* Portrait hotspots — oval hit areas matching the painted gilt frames */}
-        {PORTRAIT_ROLE_IDS.map((roleId) => {
-          const isJudge = roleId === "judge";
-          const pos = COURT_BOOK_LAYOUT.portraits[roleId];
+        {/* Lamplight layers — per seat + the Judge's frame */}
+        {COURT_BOOK_LAYOUT.seats.map((pos, seat) => (
+          <SeatGlow
+            key={`glow-${seat}`}
+            pos={pos}
+            lit={attendees[seat] !== undefined && glowRoleId === attendees[seat]}
+          />
+        ))}
+        <SeatGlow pos={COURT_BOOK_LAYOUT.judgeSeat} lit={glowRoleId === "judge"} />
+
+        {/* Portrait hotspots — oval hit areas over the occupied frames */}
+        {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
+          const roleId = attendees[seat];
+          if (!roleId) return null;
           return (
             <button
-              key={roleId}
-              aria-label={
-                isJudge
-                  ? `${judgeRole?.name || "The Judge"} — summarises; does not decide`
-                  : `${decision.roles.find((r) => r.id === roleId)?.name || roleId}`
-              }
-              onClick={() => !isJudge && setOpenVerdictRoleId(roleId)}
-              disabled={isJudge}
-              className={`platform-court__portrait-hotspot${
-                isJudge ? " platform-court__portrait-hotspot--judge" : ""
-              }`}
+              key={`hotspot-${seat}`}
+              aria-label={roleById(roleId)?.name || roleId}
+              onClick={() => setOpenVerdictRoleId(roleId)}
+              className="platform-court__portrait-hotspot"
               style={{
                 left: `${pos.x}%`,
                 top: `${pos.y}%`,
@@ -285,20 +380,33 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
             />
           );
         })}
+        <button
+          aria-label="The Judge — summarises; does not decide"
+          disabled
+          className="platform-court__portrait-hotspot platform-court__portrait-hotspot--judge"
+          style={{
+            left: `${COURT_BOOK_LAYOUT.judgeSeat.x}%`,
+            top: `${COURT_BOOK_LAYOUT.judgeSeat.y}%`,
+            width: `${COURT_BOOK_LAYOUT.portraitHotspot.width}%`,
+            height: `${COURT_BOOK_LAYOUT.portraitHotspot.height}%`,
+            transform: "translate(-50%, -50%)",
+          }}
+        />
 
-        {/* Verdict slots — engraved entries with per-slot tilt and ink weight */}
-        {BENCH_ROLE_IDS.map((roleId) => {
-          const slot = COURT_BOOK_LAYOUT.verdictSlots[roleId];
+        {/* Verdict slots — engraved entries beside each occupied seat */}
+        {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
+          const roleId = attendees[seat];
+          if (!roleId) return null;
           const verdict = verdictMap[roleId];
-          const finish = SLOT_FINISH[roleId];
+          const finish = SLOT_FINISH[seat];
           return (
             <div
-              key={`slot-${roleId}`}
+              key={`slot-${seat}`}
               className="platform-court__verdict-slot"
               style={
                 {
                   left: `${slot.x}%`,
-                  top: `${slot.y}%`,
+                  top: `${pos.slotY}%`,
                   width: `${slot.width}%`,
                   height: `${slot.height}%`,
                   "--slot-tilt": finish.tilt,
@@ -317,17 +425,15 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
           );
         })}
 
-        {/* The judge's strip — his standing line, written into the record.
-            The painting carries a sixth blank row beside his portrait; this
-            is what it says. */}
+        {/* The judge's strip — his standing line, written into the record */}
         <div
           aria-hidden
           className="platform-court__judge-strip"
           style={{
-            left: `${COURT_BOOK_LAYOUT.judgeStrip.x}%`,
-            top: `${COURT_BOOK_LAYOUT.judgeStrip.y}%`,
-            width: `${COURT_BOOK_LAYOUT.judgeStrip.width}%`,
-            height: `${COURT_BOOK_LAYOUT.judgeStrip.height}%`,
+            left: `${slot.x}%`,
+            top: `${COURT_BOOK_LAYOUT.judgeSeat.slotY}%`,
+            width: `${slot.width}%`,
+            height: `${slot.height}%`,
           }}
         >
           <span className="platform-court__judge-strip-text">
@@ -347,7 +453,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
         >
           {openVerdictRoleId ? (
             <VerdictPanel
-              role={decision.roles.find((r) => r.id === openVerdictRoleId)!}
+              role={roleById(openVerdictRoleId)!}
               verdict={verdictMap[openVerdictRoleId]}
               onClose={handleCloseVerdict}
             />
@@ -372,7 +478,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
                     <span className="platform-court__bicker-speaker">
                       {turn.roleId === "user"
                         ? "You"
-                        : decision.roles.find((r) => r.id === turn.roleId)?.name || turn.roleId}
+                        : roleById(turn.roleId as CourtRoleId)?.name || turn.roleId}
                     </span>
                     : {turn.line}
                   </div>
@@ -399,8 +505,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
           )}
         </div>
 
-        {/* The plaque — the Court's one seal of action. When the bench is in,
-            the brass carries DECIDE and glows for the human's judgement. */}
+        {/* The plaque — the Court's one seal of action. */}
         {allVerdictsIn && !judgement && !showJudgement && (
           <>
             <div
@@ -580,25 +685,139 @@ function JudgementPanel({
   );
 }
 
+/** Choose who takes this seat — the pool laid out as a parchment roster.
+ * Picking someone already seated elsewhere swaps the two seats. */
+function SeatPicker({
+  bench,
+  seat,
+  onPick,
+  onClose,
+}: {
+  bench: CourtAttendantId[];
+  seat: number;
+  onPick: (candidate: CourtAttendantId) => void;
+  onClose: () => void;
+}) {
+  const current = bench[seat];
+  return (
+    <div className="platform-court__seat-picker">
+      <div className="platform-court__judgement-head">
+        <p className="platform-court__judgement-eyebrow">
+          Who takes seat {seat + 1}?
+        </p>
+        <button type="button" onClick={onClose} className="platform-court__inline-link">
+          Return to the matter
+        </button>
+      </div>
+      <ul className="platform-court__seat-picker-list">
+        {COURT_ATTENDANT_POOL.map((id) => {
+          const role = roleById(id)!;
+          const seatedAt = bench.indexOf(id);
+          const isCurrent = id === current;
+          return (
+            <li key={id}>
+              <button
+                type="button"
+                onClick={() => onPick(id)}
+                disabled={isCurrent}
+                className={`platform-court__seat-candidate${
+                  isCurrent ? " platform-court__seat-candidate--current" : ""
+                }`}
+              >
+                <span className="platform-court__seat-candidate-thumb" aria-hidden>
+                  <Image
+                    src={COURT_PORTRAIT_SRC[id]}
+                    alt=""
+                    fill
+                    sizes="48px"
+                    className="platform-court__seat-candidate-img"
+                  />
+                </span>
+                <span className="platform-court__seat-candidate-copy">
+                  <span className="platform-court__seat-candidate-name">{role.name}</span>
+                  <span className="platform-court__seat-candidate-title">{role.title}</span>
+                </span>
+                <span className="platform-court__seat-candidate-state">
+                  {isCurrent
+                    ? "this seat"
+                    : seatedAt >= 0
+                      ? "seated — will swap"
+                      : ""}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="platform-court__seat-picker-note">
+        The Judge attends every session. He summarises; he does not decide.
+      </p>
+    </div>
+  );
+}
+
 function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => void }) {
   const [title, setTitle] = useState("");
   const [context, setContext] = useState("");
   const [stakes, setStakes] = useState("");
+  const [bench, setBench] = useState<CourtAttendantId[]>([...DEFAULT_BENCH]);
+  const [pickerSeat, setPickerSeat] = useState<number | null>(null);
 
   const valid = Boolean(title.trim() && context.trim() && stakes.trim());
   const plaque = COURT_BOOK_LAYOUT.plaque;
+
+  const handlePick = (candidate: CourtAttendantId) => {
+    if (pickerSeat === null) return;
+    setBench((prev) => {
+      const next = [...prev];
+      const existingSeat = next.indexOf(candidate);
+      if (existingSeat >= 0 && existingSeat !== pickerSeat) {
+        // The candidate is already on the bench: the two occupants swap seats.
+        next[existingSeat] = next[pickerSeat];
+      }
+      next[pickerSeat] = candidate;
+      return next;
+    });
+    setPickerSeat(null);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!valid) return;
 
     const matter: CourtMatter = { title: title.trim(), context: context.trim(), stakes: stakes.trim() };
-    onDecisionSet(conveneMatter(matter));
+    onDecisionSet(conveneMatter(matter, bench));
   };
 
   return (
     <div className="platform-court__book-stage">
       <CourtBookArtwork>
+        <BenchPortraits bench={bench} />
+
+        {/* Seat hotspots — at intake the frames are how you choose the bench */}
+        {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
+          const occupant = roleById(bench[seat]);
+          const picking = pickerSeat === seat;
+          return (
+            <button
+              key={`seat-pick-${seat}`}
+              type="button"
+              aria-label={`Seat ${seat + 1} — ${occupant?.name || "empty"}. Choose who sits.`}
+              onClick={() => setPickerSeat(picking ? null : seat)}
+              className={`platform-court__portrait-hotspot${
+                picking ? " platform-court__portrait-hotspot--picking" : ""
+              }`}
+              style={{
+                left: `${pos.x}%`,
+                top: `${pos.y}%`,
+                width: `${COURT_BOOK_LAYOUT.portraitHotspot.width}%`,
+                height: `${COURT_BOOK_LAYOUT.portraitHotspot.height}%`,
+                transform: "translate(-50%, -50%)",
+              }}
+            />
+          );
+        })}
+
         <div
           className="platform-court__right-page-content platform-court__intake"
           style={{
@@ -608,82 +827,92 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
             height: `${COURT_BOOK_LAYOUT.rightPageContent.height}%`,
           }}
         >
-          <div className="platform-court__intake-scroll">
-            <div className="platform-court__intake-body">
-              <h2 className="platform-court__intake-title">Bring a matter to the Court</h2>
-              <p className="platform-court__intake-lede">
-                The Court sits for consequential calls. If this is idle curiosity, take it to Clive
-                first.
-              </p>
+          {pickerSeat !== null ? (
+            <SeatPicker
+              bench={bench}
+              seat={pickerSeat}
+              onPick={handlePick}
+              onClose={() => setPickerSeat(null)}
+            />
+          ) : (
+            <div className="platform-court__intake-scroll">
+              <div className="platform-court__intake-body">
+                <h2 className="platform-court__intake-title">Bring a matter to the Court</h2>
+                <p className="platform-court__intake-lede">
+                  The Court sits for consequential calls. If this is idle curiosity, take it to
+                  Clive first. Five seats hear the matter — the standard bench is seated; touch
+                  a portrait to change who attends. The Judge presides regardless.
+                </p>
 
-              <form id="court-intake-form" onSubmit={handleSubmit} className="platform-court__intake-form">
-              <label className="platform-court__field" htmlFor="matter-title">
-                <span className="platform-court__field-label">
-                  Matter title
-                  <span className="platform-court__field-count">
-                    {title.length}/{COURT_MATTER_LIMITS.title}
+                <form id="court-intake-form" onSubmit={handleSubmit} className="platform-court__intake-form">
+                <label className="platform-court__field" htmlFor="matter-title">
+                  <span className="platform-court__field-label">
+                    Matter title
+                    <span className="platform-court__field-count">
+                      {title.length}/{COURT_MATTER_LIMITS.title}
+                    </span>
                   </span>
-                </span>
-                {/* A textarea (not an input) so long titles wrap onto a second
-                    line instead of scrolling off the edge of the page. */}
-                <textarea
-                  id="matter-title"
-                  value={title}
-                  onChange={(e) =>
-                    setTitle(e.target.value.replace(/\n/g, " ").slice(0, COURT_MATTER_LIMITS.title))
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") e.preventDefault();
-                  }}
-                  rows={1}
-                  maxLength={COURT_MATTER_LIMITS.title}
-                  className="platform-court__underline-input platform-court__underline-input--area platform-court__underline-input--title"
-                  placeholder="Approve the off-script discount guardrail?…"
-                  required
-                />
-              </label>
-              <label className="platform-court__field" htmlFor="matter-context">
-                <span className="platform-court__field-label">
-                  Context
-                  <span className="platform-court__field-count">
-                    {context.length}/{COURT_MATTER_LIMITS.context}
+                  {/* A textarea (not an input) so long titles wrap onto a second
+                      line instead of scrolling off the edge of the page. */}
+                  <textarea
+                    id="matter-title"
+                    value={title}
+                    onChange={(e) =>
+                      setTitle(e.target.value.replace(/\n/g, " ").slice(0, COURT_MATTER_LIMITS.title))
+                    }
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") e.preventDefault();
+                    }}
+                    rows={1}
+                    maxLength={COURT_MATTER_LIMITS.title}
+                    className="platform-court__underline-input platform-court__underline-input--area platform-court__underline-input--title"
+                    placeholder="Approve the off-script discount guardrail?…"
+                    required
+                  />
+                </label>
+                <label className="platform-court__field" htmlFor="matter-context">
+                  <span className="platform-court__field-label">
+                    Context
+                    <span className="platform-court__field-count">
+                      {context.length}/{COURT_MATTER_LIMITS.context}
+                    </span>
                   </span>
-                </span>
-                <textarea
-                  id="matter-context"
-                  value={context}
-                  onChange={(e) => setContext(e.target.value.slice(0, COURT_MATTER_LIMITS.context))}
-                  maxLength={COURT_MATTER_LIMITS.context}
-                  className="platform-court__underline-input platform-court__underline-input--area"
-                  placeholder="What is the situation and why does it matter?…"
-                  required
-                />
-              </label>
-              <label className="platform-court__field" htmlFor="matter-stakes">
-                <span className="platform-court__field-label">
-                  Stakes
-                  <span className="platform-court__field-count">
-                    {stakes.length}/{COURT_MATTER_LIMITS.stakes}
+                  <textarea
+                    id="matter-context"
+                    value={context}
+                    onChange={(e) => setContext(e.target.value.slice(0, COURT_MATTER_LIMITS.context))}
+                    maxLength={COURT_MATTER_LIMITS.context}
+                    className="platform-court__underline-input platform-court__underline-input--area"
+                    placeholder="What is the situation and why does it matter?…"
+                    required
+                  />
+                </label>
+                <label className="platform-court__field" htmlFor="matter-stakes">
+                  <span className="platform-court__field-label">
+                    Stakes
+                    <span className="platform-court__field-count">
+                      {stakes.length}/{COURT_MATTER_LIMITS.stakes}
+                    </span>
                   </span>
-                </span>
-                <textarea
-                  id="matter-stakes"
-                  value={stakes}
-                  onChange={(e) => setStakes(e.target.value.slice(0, COURT_MATTER_LIMITS.stakes))}
-                  maxLength={COURT_MATTER_LIMITS.stakes}
-                  className="platform-court__underline-input platform-court__underline-input--area"
-                  placeholder="What happens if you decide wrong?…"
-                  required
-                />
-              </label>
-              </form>
+                  <textarea
+                    id="matter-stakes"
+                    value={stakes}
+                    onChange={(e) => setStakes(e.target.value.slice(0, COURT_MATTER_LIMITS.stakes))}
+                    maxLength={COURT_MATTER_LIMITS.stakes}
+                    className="platform-court__underline-input platform-court__underline-input--area"
+                    placeholder="What happens if you decide wrong?…"
+                    required
+                  />
+                </label>
+                </form>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Convene lives ON the painted brass — the same plaque that carries
             DECIDE once the bench is in. One seal of action, both states. */}
-        {valid ? (
+        {valid && pickerSeat === null ? (
           <div
             aria-hidden
             className="platform-court__plaque-glow"
@@ -696,7 +925,7 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
         <button
           type="submit"
           form="court-intake-form"
-          disabled={!valid}
+          disabled={!valid || pickerSeat !== null}
           aria-label="Convene the Court"
           className="platform-court__plaque-hotspot"
           style={{
@@ -716,7 +945,7 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
             // Above the brass, on blank parchment — below it is the book's
             // dark board, where ink would drown.
             left: `${plaque.x + plaque.width / 2}%`,
-            top: `${plaque.y - 2.4}%`,
+            top: `${plaque.y - 2.6}%`,
           }}
         >
           or hear the sample matter
