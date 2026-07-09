@@ -10,3 +10,4 @@ public/video/journey-clips/**/*.mp4
 public/video/journey-clips/**/*.mov
 .vercel
 .env*
+test-results

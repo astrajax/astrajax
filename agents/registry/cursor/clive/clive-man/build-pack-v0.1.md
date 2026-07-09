@@ -9,9 +9,9 @@ Composer minions for the Trinity flow:
 
 ```text
 Clive's Man (GPT)
-  -> Proposer (Composer)
-  -> Challenger (Composer)
-  -> Executor (Composer)
+  -> Proposer (Sonnet)
+  -> Challenger (Sonnet)
+  -> Executor (Haiku)
 ```
 
 This replaces the old active standalone context lane:
