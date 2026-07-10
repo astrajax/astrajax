@@ -7,6 +7,8 @@ export type CourtRoleId =
   | "lazlo"
   | "clive-man"
   | "kate"
+  | "halvard"
+  | "milo"
   | "judge";
 
 /** Everyone who can take a seat on the bench. The Judge is not an
@@ -21,6 +23,8 @@ export const COURT_ATTENDANT_POOL: CourtAttendantId[] = [
   "lazlo",
   "clive-man",
   "kate",
+  "halvard",
+  "milo",
 ];
 
 /** The standard bench — prefilled at intake; any seat can be swapped for
@@ -44,6 +48,8 @@ export const COURT_PORTRAIT_SRC: Record<CourtAttendantId, string> = {
   lazlo: "/agent-cast/court/portraits/lazlo.jpg",
   "clive-man": "/agent-cast/court/portraits/clive-man.jpg",
   kate: "/agent-cast/court/portraits/kate.jpg",
+  halvard: "/agent-cast/court/portraits/halvard.jpg",
+  milo: "/agent-cast/court/portraits/milo.jpg",
 };
 
 export interface CourtRole {
@@ -228,6 +234,20 @@ export const COURT_ROLES: CourtRole[] = [
     focus: "Does this hold together as built, and can we undo it if we are wrong?",
   },
   {
+    id: "halvard",
+    name: "Dr. Halvard Bjornson",
+    title: "Fleet health — diagnosis, never surgery",
+    portraitSrc: COURT_PORTRAIT_SRC.halvard,
+    focus: "What is being pretended, and what small symptom should be named while it is small?",
+  },
+  {
+    id: "milo",
+    name: "Milo Cadence",
+    title: "Timecraft — tempo and the moment",
+    portraitSrc: COURT_PORTRAIT_SRC.milo,
+    focus: "Is this the right moment, and what tempo does the change need to land?",
+  },
+  {
     id: "judge",
     name: "The Judge",
     title: "Summarises; does not decide",
@@ -248,6 +268,9 @@ const OPENING_LINES: Record<CourtAttendantId, string> = {
     "I will want to know what precedent this sets and how the record will hold it. Precision now saves second-guessing later.",
   doc: "When judgement is recorded, I will name the cost of acting on it: effort, risk, and what gets retired. Not before.",
   kate: "And I will ask what would actually be built. Show me the seam, show me the rollback, show me the first cut. A matter that cannot name its smallest testable slice is not ready for my bench.",
+  halvard:
+    "My question is the quiet one. What is this decision pretending is fine, and what will it cost the ones who must live inside it? Small things said early stay small.",
+  milo: "And I will keep the time. Is this the right moment, what tempo does the change want, and where will it stall mid-beat? A right decision at the wrong tempo still falls over.",
 };
 
 export const DEFAULT_COURT_DECISION: CourtDecision = {

@@ -53,6 +53,14 @@ const SEEDED_BICKER: Array<{ roleId: CourtAttendantId; line: string }> = [
     line: "Frame is not governance, Lazlo. The boundary is the boundary.",
   },
   {
+    roleId: "halvard",
+    line: "Half this room says fine and means tired, Pam. Treat the real condition, not the reported one.",
+  },
+  {
+    roleId: "milo",
+    line: "Tempo, friends. Even the right decision falls over at the wrong speed.",
+  },
+  {
     roleId: "clive",
     line: "Then let us find the frame that makes the boundary easy to live with, yes?",
   },

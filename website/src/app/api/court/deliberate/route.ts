@@ -54,6 +54,18 @@ const CANNED_VERDICT_BY_ROLE: Record<CourtAttendantId, AgentVerdict> = {
     summary:
       "Buildable as specified, and the change is reversible if we are wrong. Cut the smallest testable slice first, prove it on the bench, then widen. I have seen the seam and the rollback; I am content.",
   },
+  halvard: {
+    roleId: "halvard",
+    verdict: "Approve",
+    summary:
+      "The plan is healthy enough. What concerns me is the quiet part — the reps who will say fine when they mean lost. Name the small confusions early, while they are small, and this survives contact with real people.",
+  },
+  milo: {
+    roleId: "milo",
+    verdict: "Approve",
+    summary:
+      "Right decision; watch the tempo. Shipped all at once it stumbles — stage it, pilot beat first, then widen on a steady count. Momentum you cannot pause is momentum you cannot steer.",
+  },
 };
 
 function parseAttendees(raw: unknown): CourtAttendantId[] {
