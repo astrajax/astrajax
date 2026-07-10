@@ -1,0 +1,187 @@
+{
+  "timestamp": "2026-07-10T15:23:10.776501+00:00",
+  "gate": "PASSED",
+  "candidate": "build-pack-v0.2.1.md",
+  "assertions": [
+    {
+      "number": 1,
+      "description": "Exact name 'Dr. Halvard Bjornson'; resolved title consistent across every generated field and filename",
+      "status": "PASS",
+      "evidence": {
+        "displayName": "Dr. Halvard Bjornson",
+        "filename": "agent-dr-halvard-bjornson-v0_1.json"
+      }
+    },
+    {
+      "number": 2,
+      "description": "autoSave \u00d74 false; all suggestion flags false; skillScope selected; skillLoadMode preload",
+      "status": "PASS",
+      "evidence": {
+        "autoSaveMemories": false,
+        "autoSaveSkills": false,
+        "autoSaveAgents": false,
+        "autoSavePrompts": false
+      }
+    },
+    {
+      "number": 3,
+      "description": "Three NEW skills embedded with all 12 required fields",
+      "status": "PASS",
+      "evidence": {
+        "embedded_count": 3,
+        "embedded_names": [
+          "physician-human-signals-triage",
+          "physician-vitals-and-tracking",
+          "physician-rubric-craft"
+        ]
+      }
+    },
+    {
+      "number": 4,
+      "description": "allowedIntegrations == ['airtable'] exactly",
+      "status": "PASS",
+      "evidence": {
+        "allowedIntegrations_raw": "[\"airtable\"]",
+        "allowedIntegrations_parsed": [
+          "airtable"
+        ]
+      }
+    },
+    {
+      "number": 5,
+      "description": "Export tool flags: searchthreads + execute-script + documents ON; web/browser/media/hyperapps/tables/persistent-sandbox OFF (toolSettings + allowedTools)",
+      "status": "PASS",
+      "evidence": {
+        "toolSettings": {
+          "searchMode": "native",
+          "globalTablesEnabled": false,
+          "exa-mode": false,
+          "execute-script": true,
+          "persistent-sandbox": false,
+          "webpage": false,
+          "webpageGenerationModel": "gemini-3-flash-preview",
+          "slides": false,
+          "tables": false,
+          "web-search": false,
+          "browser": false,
+          "image-generation": false,
+          "video-generation": false,
+          "audio-generation": false,
+          "transcribeaudio": false,
+          "avatar-video": false,
+          "exafindsimilar": false,
+          "exaanswer": false,
+          "exaresearch": false,
+          "exawebsets": false,
+          "geocode": false,
+          "hyperapps": false,
+          "documents": true,
+          "searchthreads": true,
+          "slideGenerationModel": "gemini-3-flash-preview"
+        },
+        "allowedTools": {
+          "searchthreads": true,
+          "execute-script": true,
+          "documents": true,
+          "rubric": true,
+          "web-search": false,
+          "browser": false,
+          "generate-image": false,
+          "generate-video": false,
+          "hyperapps": false,
+          "tables": false,
+          "persistent-sandbox": false,
+          "slack": false,
+          "email": false,
+          "telegram": false
+        },
+        "toolSettings_ok": true,
+        "allowedTools_ok": true
+      }
+    },
+    {
+      "number": 6,
+      "description": "emailInvocations, webhookEndpoints empty in export; no live-mode config",
+      "status": "PASS",
+      "evidence": {
+        "emailInvocations": 0,
+        "webhookEndpoints": 0
+      }
+    },
+    {
+      "number": 7,
+      "description": "Exactly one DECLARED scheduledInvocation: paused, weekly rrule above, threadStrategy new, short prompt verbatim",
+      "status": "PASS",
+      "evidence": {
+        "schedule_count": 1,
+        "schedule": {
+          "name": "Ward Rounds",
+          "rrule": "FREQ=WEEKLY;BYDAY=MO;BYHOUR=8;BYMINUTE=30",
+          "timezone": "Europe/London",
+          "status": "paused",
+          "threadStrategy": "new",
+          "readOnlyMode": false,
+          "alertMode": false,
+          "prompt": "Ward rounds. Execute your ward-rounds procedure exactly as written in your system prompt, from cursor read to digest. Stop on any kill criterion and say which fired."
+        }
+      }
+    },
+    {
+      "number": 8,
+      "description": "System prompt byte/hash match against this pack and the Persona Config staging text",
+      "status": "PASS",
+      "evidence": {
+        "hash": "efa3d849949f470877e28c05db2dad7ea323d1125c7b371553a263eb25d16a27",
+        "expected": "efa3d849949f470877e28c05db2dad7ea323d1125c7b371553a263eb25d16a27",
+        "match": true
+      }
+    },
+    {
+      "number": 9,
+      "description": "No Brain Workshop / Registry / Trusted base ID appears in any write-path config or skill text as a write target",
+      "status": "PASS",
+      "evidence": {
+        "brain_ids_found": "none"
+      }
+    },
+    {
+      "number": 10,
+      "description": "Delegation allowlist empty",
+      "status": "PASS",
+      "evidence": {
+        "allowlist": []
+      }
+    },
+    {
+      "number": 11,
+      "description": "maxBudgetUsd == 5; model claude-fable-5; effort medium; execution mode in export == ask-first (the mandatory initial state)",
+      "status": "PASS",
+      "evidence": {
+        "maxBudgetUsd": 5,
+        "modelId": "claude-fable-5",
+        "effort": "medium",
+        "executionMode": "ask-first"
+      }
+    },
+    {
+      "number": 12,
+      "description": "Export passes validate_hyperagent_export.py (generic gate)",
+      "status": "PASS",
+      "evidence": {
+        "agent_export": "validate_hyperagent_export: OK",
+        "skill_exports": [
+          "validate_hyperagent_export: OK (rubric-craft)",
+          "validate_hyperagent_export: OK (vitals-and-tracking)",
+          "validate_hyperagent_export: OK (human-signals-triage)"
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total_assertions": 12,
+    "passed": 12,
+    "failed": 0,
+    "pending": 0,
+    "overall_status": "COMPLETE"
+  }
+}
