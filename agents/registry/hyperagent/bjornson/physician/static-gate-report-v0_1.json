@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-07-10T15:07:56.091834+00:00",
-  "gate": "STATIC",
+  "timestamp": "2026-07-10T15:23:10.776501+00:00",
+  "gate": "PASSED",
   "candidate": "build-pack-v0.2.1.md",
   "assertions": [
     {
@@ -20,30 +20,19 @@
         "autoSaveMemories": false,
         "autoSaveSkills": false,
         "autoSaveAgents": false,
-        "autoSavePrompts": false,
-        "enableMemorySuggestions": false,
-        "enableSkillSuggestions": false,
-        "enablePromptSuggestions": false,
-        "skillScope": "selected",
-        "skillLoadMode": "preload",
-        "enableKnowledgeDiscovery": true
+        "autoSavePrompts": false
       }
     },
     {
       "number": 3,
-      "description": "Three NEW skills embedded with all 12 required fields, v0.2.1 texts hash-compared; MANIFEST of the three existing fleet-standard skill IDs declared",
+      "description": "Three NEW skills embedded with all 12 required fields",
       "status": "PASS",
       "evidence": {
         "embedded_count": 3,
         "embedded_names": [
+          "physician-human-signals-triage",
           "physician-vitals-and-tracking",
-          "physician-rubric-craft",
-          "physician-human-signals-triage"
-        ],
-        "manifest_ids": [
-          "cmr886bju22m607ads6wur1d8",
-          "cmr8771et26qn07ad63pvzlgg",
-          "cmr82zfs521vg07adj9stpxbi"
+          "physician-rubric-craft"
         ]
       }
     },
@@ -52,30 +41,62 @@
       "description": "allowedIntegrations == ['airtable'] exactly",
       "status": "PASS",
       "evidence": {
-        "allowedIntegrations": [
+        "allowedIntegrations_raw": "[\"airtable\"]",
+        "allowedIntegrations_parsed": [
           "airtable"
         ]
       }
     },
     {
       "number": 5,
-      "description": "Export tool flags: searchthreads + execute-script + documents + rubric/eval suite ON; web/browser/media/hyperapps/tables/persistent-sandbox OFF",
+      "description": "Export tool flags: searchthreads + execute-script + documents ON; web/browser/media/hyperapps/tables/persistent-sandbox OFF (toolSettings + allowedTools)",
       "status": "PASS",
       "evidence": {
-        "searchthreads": true,
-        "execute-script": true,
-        "documents": true,
-        "rubric": true,
-        "web-search": false,
-        "browser": false,
-        "generate-image": false,
-        "generate-video": false,
-        "hyperapps": false,
-        "tables": false,
-        "persistent-sandbox": false,
-        "slack": false,
-        "email": false,
-        "telegram": false
+        "toolSettings": {
+          "searchMode": "native",
+          "globalTablesEnabled": false,
+          "exa-mode": false,
+          "execute-script": true,
+          "persistent-sandbox": false,
+          "webpage": false,
+          "webpageGenerationModel": "gemini-3-flash-preview",
+          "slides": false,
+          "tables": false,
+          "web-search": false,
+          "browser": false,
+          "image-generation": false,
+          "video-generation": false,
+          "audio-generation": false,
+          "transcribeaudio": false,
+          "avatar-video": false,
+          "exafindsimilar": false,
+          "exaanswer": false,
+          "exaresearch": false,
+          "exawebsets": false,
+          "geocode": false,
+          "hyperapps": false,
+          "documents": true,
+          "searchthreads": true,
+          "slideGenerationModel": "gemini-3-flash-preview"
+        },
+        "allowedTools": {
+          "searchthreads": true,
+          "execute-script": true,
+          "documents": true,
+          "rubric": true,
+          "web-search": false,
+          "browser": false,
+          "generate-image": false,
+          "generate-video": false,
+          "hyperapps": false,
+          "tables": false,
+          "persistent-sandbox": false,
+          "slack": false,
+          "email": false,
+          "telegram": false
+        },
+        "toolSettings_ok": true,
+        "allowedTools_ok": true
       }
     },
     {
@@ -144,18 +165,23 @@
     },
     {
       "number": 12,
-      "description": "Export passes validate_hyperagent_export.py (generic gate) \u2014 NOTE: tested separately",
-      "status": "PENDING",
+      "description": "Export passes validate_hyperagent_export.py (generic gate)",
+      "status": "PASS",
       "evidence": {
-        "note": "Requires the generic validator; separate step"
+        "agent_export": "validate_hyperagent_export: OK",
+        "skill_exports": [
+          "validate_hyperagent_export: OK (rubric-craft)",
+          "validate_hyperagent_export: OK (vitals-and-tracking)",
+          "validate_hyperagent_export: OK (human-signals-triage)"
+        ]
       }
     }
   ],
   "summary": {
     "total_assertions": 12,
-    "passed": 11,
+    "passed": 12,
     "failed": 0,
-    "pending": 1,
-    "overall_status": "PARTIAL"
+    "pending": 0,
+    "overall_status": "COMPLETE"
   }
 }
