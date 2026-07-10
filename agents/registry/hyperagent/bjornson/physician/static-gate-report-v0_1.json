@@ -1,0 +1,161 @@
+{
+  "timestamp": "2026-07-10T15:07:56.091834+00:00",
+  "gate": "STATIC",
+  "candidate": "build-pack-v0.2.1.md",
+  "assertions": [
+    {
+      "number": 1,
+      "description": "Exact name 'Dr. Halvard Bjornson'; resolved title consistent across every generated field and filename",
+      "status": "PASS",
+      "evidence": {
+        "displayName": "Dr. Halvard Bjornson",
+        "filename": "agent-dr-halvard-bjornson-v0_1.json"
+      }
+    },
+    {
+      "number": 2,
+      "description": "autoSave \u00d74 false; all suggestion flags false; skillScope selected; skillLoadMode preload",
+      "status": "PASS",
+      "evidence": {
+        "autoSaveMemories": false,
+        "autoSaveSkills": false,
+        "autoSaveAgents": false,
+        "autoSavePrompts": false,
+        "enableMemorySuggestions": false,
+        "enableSkillSuggestions": false,
+        "enablePromptSuggestions": false,
+        "skillScope": "selected",
+        "skillLoadMode": "preload",
+        "enableKnowledgeDiscovery": true
+      }
+    },
+    {
+      "number": 3,
+      "description": "Three NEW skills embedded with all 12 required fields, v0.2.1 texts hash-compared; MANIFEST of the three existing fleet-standard skill IDs declared",
+      "status": "PASS",
+      "evidence": {
+        "embedded_count": 3,
+        "embedded_names": [
+          "physician-vitals-and-tracking",
+          "physician-rubric-craft",
+          "physician-human-signals-triage"
+        ],
+        "manifest_ids": [
+          "cmr886bju22m607ads6wur1d8",
+          "cmr8771et26qn07ad63pvzlgg",
+          "cmr82zfs521vg07adj9stpxbi"
+        ]
+      }
+    },
+    {
+      "number": 4,
+      "description": "allowedIntegrations == ['airtable'] exactly",
+      "status": "PASS",
+      "evidence": {
+        "allowedIntegrations": [
+          "airtable"
+        ]
+      }
+    },
+    {
+      "number": 5,
+      "description": "Export tool flags: searchthreads + execute-script + documents + rubric/eval suite ON; web/browser/media/hyperapps/tables/persistent-sandbox OFF",
+      "status": "PASS",
+      "evidence": {
+        "searchthreads": true,
+        "execute-script": true,
+        "documents": true,
+        "rubric": true,
+        "web-search": false,
+        "browser": false,
+        "generate-image": false,
+        "generate-video": false,
+        "hyperapps": false,
+        "tables": false,
+        "persistent-sandbox": false,
+        "slack": false,
+        "email": false,
+        "telegram": false
+      }
+    },
+    {
+      "number": 6,
+      "description": "emailInvocations, webhookEndpoints empty in export; no live-mode config",
+      "status": "PASS",
+      "evidence": {
+        "emailInvocations": 0,
+        "webhookEndpoints": 0
+      }
+    },
+    {
+      "number": 7,
+      "description": "Exactly one DECLARED scheduledInvocation: paused, weekly rrule above, threadStrategy new, short prompt verbatim",
+      "status": "PASS",
+      "evidence": {
+        "schedule_count": 1,
+        "schedule": {
+          "name": "Ward Rounds",
+          "rrule": "FREQ=WEEKLY;BYDAY=MO;BYHOUR=8;BYMINUTE=30",
+          "timezone": "Europe/London",
+          "status": "paused",
+          "threadStrategy": "new",
+          "readOnlyMode": false,
+          "alertMode": false,
+          "prompt": "Ward rounds. Execute your ward-rounds procedure exactly as written in your system prompt, from cursor read to digest. Stop on any kill criterion and say which fired."
+        }
+      }
+    },
+    {
+      "number": 8,
+      "description": "System prompt byte/hash match against this pack and the Persona Config staging text",
+      "status": "PASS",
+      "evidence": {
+        "hash": "efa3d849949f470877e28c05db2dad7ea323d1125c7b371553a263eb25d16a27",
+        "expected": "efa3d849949f470877e28c05db2dad7ea323d1125c7b371553a263eb25d16a27",
+        "match": true
+      }
+    },
+    {
+      "number": 9,
+      "description": "No Brain Workshop / Registry / Trusted base ID appears in any write-path config or skill text as a write target",
+      "status": "PASS",
+      "evidence": {
+        "brain_ids_found": "none"
+      }
+    },
+    {
+      "number": 10,
+      "description": "Delegation allowlist empty",
+      "status": "PASS",
+      "evidence": {
+        "allowlist": []
+      }
+    },
+    {
+      "number": 11,
+      "description": "maxBudgetUsd == 5; model claude-fable-5; effort medium; execution mode in export == ask-first (the mandatory initial state)",
+      "status": "PASS",
+      "evidence": {
+        "maxBudgetUsd": 5,
+        "modelId": "claude-fable-5",
+        "effort": "medium",
+        "executionMode": "ask-first"
+      }
+    },
+    {
+      "number": 12,
+      "description": "Export passes validate_hyperagent_export.py (generic gate) \u2014 NOTE: tested separately",
+      "status": "PENDING",
+      "evidence": {
+        "note": "Requires the generic validator; separate step"
+      }
+    }
+  ],
+  "summary": {
+    "total_assertions": 12,
+    "passed": 11,
+    "failed": 0,
+    "pending": 1,
+    "overall_status": "PARTIAL"
+  }
+}

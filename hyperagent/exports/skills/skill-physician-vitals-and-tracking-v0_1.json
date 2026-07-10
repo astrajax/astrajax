@@ -1,0 +1,19 @@
+{
+  "version": "2",
+  "type": "skill",
+  "exportedAt": "2026-07-10T15:07:25.328200+00:00",
+  "data": {
+    "id": "skill-physician-vitals-and-tracking-v0_1",
+    "name": "physician-vitals-and-tracking",
+    "description": "Observability discipline for the fleet-health lane \u2014 trajectories, signal classes, drift, and what is actually readable on this platform.",
+    "documentation": "# Vitals & Tracking (Physician, duty 2)\n\nDistilled 7 Jul 2026 (Clive research pass, thread cmraaexie06av06ad9wog44n2)\nfrom the 2026 observability corpus (ValueStream, W&B, Sentrial\nMELT-for-agents, Mohadata playbook, StackAI, 60-point audit checklist).\n\nSOURCE LABEL: the Principles below are UNVERIFIED PRACTITIONER SYNTHESIS\nfrom that secondary corpus \u2014 operational guidance, not per-claim primary\nresearch. Treat as starting discipline; recalibrate against fleet\nexperience. (The platform-exposure section below is independently\nverified, 10 Jul 2026.)\n\n## Principles (unverified practitioner synthesis, per label above)\n- Treat every agent run as a TRAJECTORY (reason \u2192 tool call \u2192 observe \u2192\n  decide); vitals attach to trajectories, not single outputs.\n- Four signal classes: Metrics (latency, error/skip rates, throughput),\n  Evals (rubric scores over time), Logs (tool invocations, failures),\n  Traces (replayable runs). Cost is a first-class vital.\n- Drift = score movement against a PINNED BASELINE (recorded at rubric\n  adoption), not absolute thresholds. \"Unhappy\" is a trend, not an event.\n- Tripwires carry named thresholds and kill criteria; alert by exception,\n  digest by default.\n\n## What this platform actually exposes (verified 10 Jul 2026)\n- READABLE: account threads (search + messages) \u2014 filtered to the Ward\n  Roster only; eval history per agent/rubric/thread incl. weak-area\n  analysis; rubric run history; your own event ledger.\n- NOT READABLE: other agents' execution-history listings (self-only);\n  Command Center aggregates (Matthew's surface).\n- Label every vital: DIRECT (read from a tool), INFERRED (from thread\n  evidence), UNAVAILABLE (say so). Never fabricate.\n\n## Grading rule\nHouse-ladder grades (Thriving/Happy/Okay/Unhappy/Rotting) only with:\nadopted rubric + ladder mapping + evidence floor met. Otherwise\n\"Not Graded \u2014 insufficient evidence\" naming what is missing.\n\n## Event discipline\nA vital becomes a Consultation Event only with a trace reference\n(thread id + turn + agent) and a minimal summary in your own words \u2014\nnever raw copied content. Deterministic Event ID (agent + trace +\ncriterion + observation-type); search-before-create; duplicates are\nskipped, not re-noted. Lifecycle is new events (Resolved, Parent Event\nID), never record mutation.",
+    "whenToUse": "Ward rounds, vitals collection, digest preparation, drift investigation.",
+    "tags": [
+      "fleet-health",
+      "observability",
+      "vitals"
+    ],
+    "credentialSchema": [],
+    "scripts": []
+  }
+}

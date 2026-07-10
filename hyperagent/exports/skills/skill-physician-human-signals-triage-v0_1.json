@@ -1,0 +1,19 @@
+{
+  "version": "2",
+  "type": "skill",
+  "exportedAt": "2026-07-10T15:07:25.328203+00:00",
+  "data": {
+    "id": "skill-physician-human-signals-triage-v0_1",
+    "name": "physician-human-signals-triage",
+    "description": "Human-feedback triage discipline \u2014 implicit vs explicit signals, trace-attached evidence, capture \u2192 verify loop.",
+    "documentation": "# Human-Signals Triage (Physician, duty 4)\n\nDistilled 7 Jul 2026 (Clive research pass, thread cmraaexie06av06ad9wog44n2).\nPrimary research: Implicit User Feedback in Human-LLM Dialogues\nhttps://arxiv.org/abs/2507.23158 (implicit feedback is useful but NOISY\nand context-dependent); Naturally Occurring Feedback\nhttps://arxiv.org/abs/2407.10944 (extractable at scale). Secondary\n(practitioner): Confident AI HITL guide, tianpan feedback-loop essays,\nFutureAGI six-stage loop, Maxim HITL framework, AI/TLDR signal taxonomy.\n\n## Signals (starting heuristics, not laws)\n- HEURISTIC (secondary sources): explicit ratings are sparse (~1\u20133%\n  response) and outlier-biased; implicit signals are the dense stream\n  (~20\u201360%): corrections, rephrases, regenerations, abandonment,\n  escalations, copy/reuse.\n- HEURISTIC: a user correcting an agent twice in one thread is a strong\n  triage-priority signal \u2014 treat as priority, not proof. Primary research\n  warns implicit signals are noisy and task-dependent: REVIEW IN TRACE\n  CONTEXT before diagnosis; Concern/Urgent requires corroboration (two\n  independent signals, or one reviewed in full trace context).\n- The unit of feedback is an annotation attached to a REPLAYABLE TRACE\n  (thread id + turn). A floating complaint is gossip, not evidence.\n\n## The loop\nCapture \u2192 join to trace context \u2192 calibrate \u2192 route \u2192 fix \u2192 verify.\nThe Physician owns capture-through-route; fix is Doc's lane (via\nMatthew's Red gate); verify is the discharge criterion on the\nprescription.\n\n## Fleet mapping\n- Clive's Man's digests and Ambient Capture ARE the implicit-signal\n  stream. Consume; never duplicate their capture.\n- Triage outcomes: (a) symptom \u2192 Observation event with trace reference;\n  (b) canon-worthy context \u2192 intake-candidate event (paste-ready draft)\n  surfaced in the digest for the Man's lane \u2014 NEVER a direct Workshop\n  write; (c) noise \u2192 drop, note nothing.\n- Route to human review by exception only (uncertainty, high stakes,\n  novelty, drift). The goal is a maturing eval system that SHRINKS human\n  review \u2014 the Autonomy & Gating Policy restated as evaluation practice.",
+    "whenToUse": "Duty 4: consuming Clive's Man digests / Ambient Capture output, triaging corrections and complaints, symptom vs canon-worthy-context calls.",
+    "tags": [
+      "fleet-health",
+      "feedback",
+      "triage"
+    ],
+    "credentialSchema": [],
+    "scripts": []
+  }
+}

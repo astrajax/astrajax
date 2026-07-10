@@ -1,0 +1,25 @@
+{
+  "version": "1",
+  "type": "skill-manifest",
+  "exportedAt": "2026-07-10T15:07:25.328412+00:00",
+  "data": {
+    "agentId": "agent-dr-halvard-bjornson-v0_1",
+    "fleetStandardSkills": [
+      {
+        "id": "cmr886bju22m607ads6wur1d8",
+        "name": "Autonomy & Gating Policy",
+        "attachMode": "reference"
+      },
+      {
+        "id": "cmr82zfs521vg07adj9stpxbi",
+        "name": "Fleet Communication Standard",
+        "attachMode": "reference"
+      },
+      {
+        "id": "cmr8771et26qn07ad63pvzlgg",
+        "name": "Fleet Routing Standard",
+        "attachMode": "reference"
+      }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "version": "2",
+  "type": "skill",
+  "exportedAt": "2026-07-10T15:07:25.328192+00:00",
+  "data": {
+    "id": "skill-physician-rubric-craft-v0_1",
+    "name": "physician-rubric-craft",
+    "description": "Rubric design and calibration discipline for the fleet-health lane.",
+    "documentation": "# Rubric Craft (Physician, duty 1)\n\nDistilled 7 Jul 2026 (Clive research pass, thread cmraaexie06av06ad9wog44n2).\nPrimary sources: AdaRubric https://arxiv.org/abs/2603.21362 (task-specific,\northogonal dimensions; concrete level definitions); Autorubric\nhttps://arxiv.org/abs/2603.00077 (atomic criteria, coarse scales, explicit\nuncertainty, psychometric reliability). Secondary: LangChain\njudge-calibration guide, G-Eval 2026 guide, Deepchecks & luismori bias\ncatalogues.\n\n## Design (research-backed)\n- Derive dimensions from the task's success criteria \u2014 orthogonal,\n  complete, calibrated; reuse across a task family. [AdaRubric]\n- One dimension per criterion; prefer binary/coarse scales; define every\n  scale point concretely; include an explicit CANNOT_ASSESS verdict.\n  [Autorubric]\n- Tell the judge what to IGNORE (counters verbosity bias); require\n  score + one-line rationale; preserve judge reasoning for regression\n  diagnosis. [secondary guides]\n- General (style/process) vs fact-based (per-run ground truth) criteria\n  map 1:1 to the platform's rubric types; auto-eval is safe only for the\n  former.\n\n## Calibration (starting heuristics \u2014 operational, NOT universal laws)\n- Pin judge model + rubric version together; recalibrate when either\n  changes.\n- HEURISTIC: 50\u2013200 human-labelled examples per rubric, agreement target\n  Cohen's kappa \u2265 ~0.6 \u2014 a widely used starting point, not a law. At\n  current fleet volume, treat Matthew's explicit agreements/disagreements\n  with scores as the label stream and record them as calibration events.\n- Judge biases to control: verbosity, self-preference, score drift,\n  false precision.\n\n## Adoption contract (fleet-specific)\nAdopting a rubric for an agent REQUIRES, in the adoption record:\n(a) the rubric + judge-model version pair; (b) the rubric-score \u2192\nhouse-ladder mapping; (c) the evidence floor (minimum scored runs per\nwindow) below which the agent is Not Graded; (d) the pinned baseline for\ndrift detection.\n\n## Platform mapping\n- Eval-history insight types decide treatment: `rubric_mismatch` =\n  CALIBRATION work on the rubric; `confirmed_weak` = PRESCRIPTION work on\n  the agent. Never tune a threshold to make a bad score pass.\n- Rubric updates are confirm-gated; there is no pin action and no\n  suggestions-inbox action on the agent surface \u2014 record such needs as\n  platform-limited asks for Matthew.\n\n## Tiering\nDrafts GREEN; adoption AMBER (record + notify); canon promotion RED.",
+    "whenToUse": "Any rubric work: drafting, revising, calibrating, or judging whether a score problem is rubric mis-calibration or agent decline.",
+    "tags": [
+      "fleet-health",
+      "rubrics",
+      "evaluation"
+    ],
+    "credentialSchema": [],
+    "scripts": []
+  }
+}
