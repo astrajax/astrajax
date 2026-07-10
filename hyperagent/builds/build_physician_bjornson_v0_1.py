@@ -384,7 +384,14 @@ def build_agent_export():
             "effort": "medium",
             "maxBudgetUsd": 5,
             "executionMode": "ask-first",
-            "toolSettings": json_string(default_tool_settings(searchMode="native")),
+            "toolSettings": json_string(default_tool_settings(
+                searchMode="native",
+                **{
+                    "searchthreads": True,
+                    "execute-script": True,
+                    "documents": True,
+                }
+            )),
             "allowedIntegrations": json_string(["airtable"]),
             "allowedTools": {
                 "searchthreads": True,

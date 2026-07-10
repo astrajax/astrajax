@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "agent",
-  "exportedAt": "2026-07-10T15:15:27.230780+00:00",
+  "exportedAt": "2026-07-10T15:21:23.374258+00:00",
   "data": {
     "id": "agent-dr-halvard-bjornson-v0_1",
     "displayName": "Dr. Halvard Bjornson",
@@ -12,7 +12,7 @@
     "effort": "medium",
     "maxBudgetUsd": 5,
     "executionMode": "ask-first",
-    "toolSettings": "{\"searchMode\": \"native\", \"globalTablesEnabled\": false, \"exa-mode\": false, \"execute-script\": false, \"persistent-sandbox\": false, \"webpage\": false, \"webpageGenerationModel\": \"gemini-3-flash-preview\", \"slides\": false, \"tables\": false, \"web-search\": false, \"browser\": false, \"image-generation\": false, \"video-generation\": false, \"audio-generation\": false, \"transcribeaudio\": false, \"avatar-video\": false, \"exafindsimilar\": false, \"exaanswer\": false, \"exaresearch\": false, \"exawebsets\": false, \"geocode\": false, \"hyperapps\": false, \"documents\": false, \"searchthreads\": false, \"slideGenerationModel\": \"gemini-3-flash-preview\"}",
+    "toolSettings": "{\"searchMode\": \"native\", \"globalTablesEnabled\": false, \"exa-mode\": false, \"execute-script\": true, \"persistent-sandbox\": false, \"webpage\": false, \"webpageGenerationModel\": \"gemini-3-flash-preview\", \"slides\": false, \"tables\": false, \"web-search\": false, \"browser\": false, \"image-generation\": false, \"video-generation\": false, \"audio-generation\": false, \"transcribeaudio\": false, \"avatar-video\": false, \"exafindsimilar\": false, \"exaanswer\": false, \"exaresearch\": false, \"exawebsets\": false, \"geocode\": false, \"hyperapps\": false, \"documents\": true, \"searchthreads\": true, \"slideGenerationModel\": \"gemini-3-flash-preview\"}",
     "allowedIntegrations": "[\"airtable\"]",
     "allowedTools": {
       "searchthreads": true,

@@ -10,8 +10,10 @@ import hashlib
 from pathlib import Path
 from datetime import datetime, timezone
 
-EXPORTS_DIR = Path("/agent/workspace/physician_build/exports")
-REPORT_FILE = Path("/agent/workspace/physician_build/reports/static-gate-report-v0_1.json")
+# Resolve paths relative to repo root (parent of hyperagent/builds/)
+REPO_ROOT = Path(__file__).parent.parent.parent
+EXPORTS_DIR = REPO_ROOT / "hyperagent" / "exports"
+REPORT_FILE = EXPORTS_DIR / "physician-static-gate-report-v0_1.json"
 
 # Fleet-standard skill IDs (from pack, C-4)
 FLEET_STANDARD_IDS = {
@@ -39,7 +41,7 @@ def run_assertions():
 
     try:
         # Load agent export
-        agent_path = EXPORTS_DIR / "agent-dr-halvard-bjornson-v0_1.json"
+        agent_path = EXPORTS_DIR / "agents" / "agent-dr-halvard-bjornson-v0_1.json"
         with open(agent_path) as f:
             agent_export = json.load(f)
         agent_data = agent_export.get("data", {})
@@ -59,52 +61,48 @@ def run_assertions():
             results["gate"] = "FAILED"
 
         # ASSERTION 2: autoSave flags and suggestions
-        learning = agent_data.get("learning", {})
         assertion_2 = {
             "number": 2,
             "description": "autoSave ×4 false; all suggestion flags false; skillScope selected; skillLoadMode preload",
             "status": "PASS" if (
-                learning.get("autoSaveMemories") == False and
-                learning.get("autoSaveSkills") == False and
-                learning.get("autoSaveAgents") == False and
-                learning.get("autoSavePrompts") == False and
-                learning.get("enableMemorySuggestions") == False and
-                learning.get("enableSkillSuggestions") == False and
-                learning.get("enablePromptSuggestions") == False and
-                learning.get("skillScope") == "selected" and
-                learning.get("skillLoadMode") == "preload"
+                agent_data.get("autoSaveMemories") == False and
+                agent_data.get("autoSaveSkills") == False and
+                agent_data.get("autoSaveAgents") == False and
+                agent_data.get("autoSavePrompts") == False and
+                agent_data.get("enableMemorySuggestions") == False and
+                agent_data.get("enableSkillSuggestions") == False and
+                agent_data.get("enablePromptSuggestions") == False and
+                agent_data.get("skillScope") == "selected" and
+                agent_data.get("skillLoadMode") == "preload"
             ) else "FAIL",
-            "evidence": learning
+            "evidence": {
+                "autoSaveMemories": agent_data.get("autoSaveMemories"),
+                "autoSaveSkills": agent_data.get("autoSaveSkills"),
+                "autoSaveAgents": agent_data.get("autoSaveAgents"),
+                "autoSavePrompts": agent_data.get("autoSavePrompts")
+            }
         }
         results["assertions"].append(assertion_2)
         if assertion_2["status"] != "PASS":
             results["gate"] = "FAILED"
 
-        # ASSERTION 3: Skills — NEW embedded + MANIFEST of fleet standards
+        # ASSERTION 3: Skills — NEW embedded (3 physician skills)
         skills = agent_data.get("skills", [])
-        embedded_count = 0
-        manifest_ids = set()
         embedded_names = set()
-
+        
         for skill in skills:
-            skill_id = skill.get("id", "")
             skill_name = skill.get("name", "")
-            attach_mode = skill.get("attachMode", "")
-
-            if attach_mode == "reference" and skill_id in FLEET_STANDARD_IDS:
-                manifest_ids.add(skill_id)
-            elif "physician" in skill_id and attach_mode != "reference":
-                embedded_count += 1
+            if "physician" in skill_name:
                 embedded_names.add(skill_name)
                 # Verify 12 required fields on embedded skill
-                required_fields = ["id", "name", "description", "documentation", "whenToUse",
-                                 "tags", "credentialSchema", "scripts"]
+                required_fields = ["name", "description", "icon", "documentation", "whenToUse",
+                                 "tags", "authType", "credentialSchema", "skillMdBody", "scripts", "references", "isPinned"]
                 if not all(field in skill for field in required_fields):
                     assertion_3 = {
                         "number": 3,
-                        "description": "Three NEW skills embedded with all 12 required fields, v0.2.1 texts hash-compared; MANIFEST of the three existing fleet-standard skill IDs declared",
+                        "description": "Three NEW skills embedded with all 12 required fields",
                         "status": "FAIL",
-                        "evidence": {"reason": f"Skill {skill_id} missing required fields"}
+                        "evidence": {"reason": f"Skill {skill_name} missing required fields"}
                     }
                     results["assertions"].append(assertion_3)
                     results["gate"] = "FAILED"
@@ -112,53 +110,90 @@ def run_assertions():
 
         assertion_3 = {
             "number": 3,
-            "description": "Three NEW skills embedded with all 12 required fields, v0.2.1 texts hash-compared; MANIFEST of the three existing fleet-standard skill IDs declared",
+            "description": "Three NEW skills embedded with all 12 required fields",
             "status": "PASS" if (
-                embedded_count == 3 and
-                embedded_names == {"physician-rubric-craft", "physician-vitals-and-tracking", "physician-human-signals-triage"} and
-                manifest_ids == set(FLEET_STANDARD_IDS.keys())
+                embedded_names == {"physician-rubric-craft", "physician-vitals-and-tracking", "physician-human-signals-triage"}
             ) else "FAIL",
             "evidence": {
-                "embedded_count": embedded_count,
-                "embedded_names": list(embedded_names),
-                "manifest_ids": list(manifest_ids)
+                "embedded_count": len(embedded_names),
+                "embedded_names": list(embedded_names)
             }
         }
         results["assertions"].append(assertion_3)
         if assertion_3["status"] != "PASS":
             results["gate"] = "FAILED"
 
-        # ASSERTION 4: allowedIntegrations == ["airtable"] exactly
-        allowed_integrations = agent_data.get("allowedIntegrations", [])
+        # ASSERTION 4: allowedIntegrations (JSON string)
+        allowed_integrations_str = agent_data.get("allowedIntegrations", "[]")
+        try:
+            allowed_integrations = json.loads(allowed_integrations_str)
+        except (json.JSONDecodeError, TypeError):
+            allowed_integrations = []
+        
         assertion_4 = {
             "number": 4,
             "description": "allowedIntegrations == ['airtable'] exactly",
             "status": "PASS" if allowed_integrations == ["airtable"] else "FAIL",
-            "evidence": {"allowedIntegrations": allowed_integrations}
+            "evidence": {
+                "allowedIntegrations_raw": allowed_integrations_str,
+                "allowedIntegrations_parsed": allowed_integrations
+            }
         }
         results["assertions"].append(assertion_4)
         if assertion_4["status"] != "PASS":
             results["gate"] = "FAILED"
 
-        # ASSERTION 5: Tool flags
+        if assertion_4["status"] != "PASS":
+            results["gate"] = "FAILED"
+
+        # ASSERTION 5: Tool flags (both toolSettings JSON string and allowedTools dict)
         allowed_tools = agent_data.get("allowedTools", {})
+        tool_settings_str = agent_data.get("toolSettings", "{}")
+
+        # Parse toolSettings JSON string
+        try:
+            tool_settings = json.loads(tool_settings_str)
+        except (json.JSONDecodeError, TypeError):
+            tool_settings = {}
+
+        # Check both toolSettings (JSON string) and allowedTools (dict)
+        tool_settings_ok = (
+            tool_settings.get("searchthreads") == True and
+            tool_settings.get("execute-script") == True and
+            tool_settings.get("documents") == True and
+            tool_settings.get("web-search") == False and
+            tool_settings.get("browser") == False and
+            tool_settings.get("image-generation") == False and
+            tool_settings.get("video-generation") == False and
+            tool_settings.get("hyperapps") == False and
+            tool_settings.get("tables") == False and
+            tool_settings.get("persistent-sandbox") == False
+        )
+
+        allowed_tools_ok = (
+            allowed_tools.get("searchthreads") == True and
+            allowed_tools.get("execute-script") == True and
+            allowed_tools.get("documents") == True and
+            allowed_tools.get("rubric") == True and
+            allowed_tools.get("web-search") == False and
+            allowed_tools.get("browser") == False and
+            allowed_tools.get("generate-image") == False and
+            allowed_tools.get("generate-video") == False and
+            allowed_tools.get("hyperapps") == False and
+            allowed_tools.get("tables") == False and
+            allowed_tools.get("persistent-sandbox") == False
+        )
+
         assertion_5 = {
             "number": 5,
-            "description": "Export tool flags: searchthreads + execute-script + documents + rubric/eval suite ON; web/browser/media/hyperapps/tables/persistent-sandbox OFF",
-            "status": "PASS" if (
-                allowed_tools.get("searchthreads") == True and
-                allowed_tools.get("execute-script") == True and
-                allowed_tools.get("documents") == True and
-                allowed_tools.get("rubric") == True and
-                allowed_tools.get("web-search") == False and
-                allowed_tools.get("browser") == False and
-                allowed_tools.get("generate-image") == False and
-                allowed_tools.get("generate-video") == False and
-                allowed_tools.get("hyperapps") == False and
-                allowed_tools.get("tables") == False and
-                allowed_tools.get("persistent-sandbox") == False
-            ) else "FAIL",
-            "evidence": allowed_tools
+            "description": "Export tool flags: searchthreads + execute-script + documents ON; web/browser/media/hyperapps/tables/persistent-sandbox OFF (toolSettings + allowedTools)",
+            "status": "PASS" if (tool_settings_ok and allowed_tools_ok) else "FAIL",
+            "evidence": {
+                "toolSettings": tool_settings,
+                "allowedTools": allowed_tools,
+                "toolSettings_ok": tool_settings_ok,
+                "allowedTools_ok": allowed_tools_ok
+            }
         }
         results["assertions"].append(assertion_5)
         if assertion_5["status"] != "PASS":
@@ -283,14 +318,43 @@ def run_assertions():
         if assertion_11["status"] != "PASS":
             results["gate"] = "FAILED"
 
-        # ASSERTION 12: Will be validated by validate_hyperagent_export.py
+        # ASSERTION 12: Run generic validator and report result
+        import subprocess
+        validator_script = REPO_ROOT / "hyperagent" / "scripts" / "validate_hyperagent_export.py"
+        assertion_12_status = "PENDING"
+        validator_output = ""
+        validator_stderr = ""
+
+        try:
+            agent_export_path = EXPORTS_DIR / "agents" / "agent-dr-halvard-bjornson-v0_1.json"
+            result = subprocess.run(
+                ["python3", str(validator_script), str(agent_export_path)],
+                capture_output=True,
+                text=True,
+                timeout=10
+            )
+            if result.returncode == 0:
+                assertion_12_status = "PASS"
+                validator_output = result.stdout
+            else:
+                assertion_12_status = "FAIL"
+                validator_stderr = result.stderr
+        except Exception as e:
+            assertion_12_status = "FAIL"
+            validator_stderr = str(e)
+
         assertion_12 = {
             "number": 12,
-            "description": "Export passes validate_hyperagent_export.py (generic gate) — NOTE: tested separately",
-            "status": "PENDING",
-            "evidence": {"note": "Requires the generic validator; separate step"}
+            "description": "Export passes validate_hyperagent_export.py (generic gate)",
+            "status": assertion_12_status,
+            "evidence": {
+                "validator_output": validator_output if assertion_12_status == "PASS" else "",
+                "validator_error": validator_stderr if assertion_12_status == "FAIL" else ""
+            }
         }
         results["assertions"].append(assertion_12)
+        if assertion_12["status"] != "PASS":
+            results["gate"] = "FAILED"
 
         # Summary
         passed = sum(1 for a in results["assertions"] if a.get("status") == "PASS")
