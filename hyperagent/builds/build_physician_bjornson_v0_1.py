@@ -8,6 +8,14 @@ Date: 10 Jul 2026
 import json
 import hashlib
 from datetime import datetime, timezone
+import sys
+from pathlib import Path
+
+# Add builds dir to path for helper imports
+if str(Path(__file__).parent) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent))
+
+from _hyperagent_export import default_tool_settings, json_string
 
 # System prompt — EXACT byte match to build-pack v0.2.1 §System prompt v0.2
 SYSTEM_PROMPT = """# Dr. Halvard Bjornson — The Physician (On-Platform) System Prompt v0.1
@@ -363,7 +371,7 @@ prescription.
 def build_agent_export():
     """Build agent-dr-halvard-bjornson-v0_1.json"""
     export = {
-        "version": "2",
+        "version": 1,
         "type": "agent",
         "exportedAt": datetime.now(timezone.utc).isoformat(),
         "data": {
@@ -376,7 +384,8 @@ def build_agent_export():
             "effort": "medium",
             "maxBudgetUsd": 5,
             "executionMode": "ask-first",
-            "allowedIntegrations": ["airtable"],
+            "toolSettings": json_string(default_tool_settings(searchMode="native")),
+            "allowedIntegrations": json_string(["airtable"]),
             "allowedTools": {
                 "searchthreads": True,
                 "execute-script": True,
@@ -394,52 +403,48 @@ def build_agent_export():
                 "telegram": False,
             },
             "skills": [
-                # Fleet standards (attach-by-reference)
+                # Embedded skills (fleet-standards are loaded by reference at runtime)
                 {
-                    "id": "cmr886bju22m607ads6wur1d8",
-                    "name": "Autonomy & Gating Policy",
-                    "attachMode": "reference"
-                },
-                {
-                    "id": "cmr82zfs521vg07adj9stpxbi",
-                    "name": "Fleet Communication Standard",
-                    "attachMode": "reference"
-                },
-                {
-                    "id": "cmr8771et26qn07ad63pvzlgg",
-                    "name": "Fleet Routing Standard",
-                    "attachMode": "reference"
-                },
-                # New embedded skills
-                {
-                    "id": "skill-physician-rubric-craft-v0_1",
                     "name": "physician-rubric-craft",
                     "description": "Rubric design and calibration discipline for the fleet-health lane.",
+                    "icon": "📏",
                     "documentation": SKILL_RUBRIC_CRAFT_TEXT,
+                    "tags": json.dumps(["fleet-health", "rubrics", "evaluation"]),
                     "whenToUse": "Any rubric work: drafting, revising, calibrating, or judging whether a score problem is rubric mis-calibration or agent decline.",
-                    "tags": ["fleet-health", "rubrics", "evaluation"],
-                    "credentialSchema": [],
-                    "scripts": []
+                    "authType": "none",
+                    "credentialSchema": None,
+                    "skillMdBody": SKILL_RUBRIC_CRAFT_TEXT,
+                    "scripts": [],
+                    "references": [],
+                    "isPinned": False
                 },
                 {
-                    "id": "skill-physician-vitals-and-tracking-v0_1",
                     "name": "physician-vitals-and-tracking",
                     "description": "Observability discipline for the fleet-health lane — trajectories, signal classes, drift, and what is actually readable on this platform.",
+                    "icon": "📈",
                     "documentation": SKILL_VITALS_TEXT,
+                    "tags": json.dumps(["fleet-health", "observability", "vitals"]),
                     "whenToUse": "Ward rounds, vitals collection, digest preparation, drift investigation.",
-                    "tags": ["fleet-health", "observability", "vitals"],
-                    "credentialSchema": [],
-                    "scripts": []
+                    "authType": "none",
+                    "credentialSchema": None,
+                    "skillMdBody": SKILL_VITALS_TEXT,
+                    "scripts": [],
+                    "references": [],
+                    "isPinned": False
                 },
                 {
-                    "id": "skill-physician-human-signals-triage-v0_1",
                     "name": "physician-human-signals-triage",
                     "description": "Human-feedback triage discipline — implicit vs explicit signals, trace-attached evidence, capture → verify loop.",
+                    "icon": "🚨",
                     "documentation": SKILL_TRIAGE_TEXT,
+                    "tags": json.dumps(["fleet-health", "feedback", "triage"]),
                     "whenToUse": "Duty 4: consuming Clive's Man digests / Ambient Capture output, triaging corrections and complaints, symptom vs canon-worthy-context calls.",
-                    "tags": ["fleet-health", "feedback", "triage"],
-                    "credentialSchema": [],
-                    "scripts": []
+                    "authType": "none",
+                    "credentialSchema": None,
+                    "skillMdBody": SKILL_TRIAGE_TEXT,
+                    "scripts": [],
+                    "references": [],
+                    "isPinned": False
                 }
             ],
             "memories": [],
@@ -451,19 +456,16 @@ def build_agent_export():
                     "allowedTools": {}
                 }
             ],
-            "learning": {
-                "autoSaveMemories": False,
-                "autoSaveSkills": False,
-                "autoSaveAgents": False,
-                "autoSavePrompts": False,
-                "enableMemorySuggestions": False,
-                "enableSkillSuggestions": False,
-                "enablePromptSuggestions": False,
-                "enableMemorySuggestions": False,
-                "skillScope": "selected",
-                "skillLoadMode": "preload",
-                "enableKnowledgeDiscovery": True
-            },
+            "autoSaveMemories": False,
+            "autoSaveSkills": False,
+            "autoSaveAgents": False,
+            "autoSavePrompts": False,
+            "enableMemorySuggestions": False,
+            "enableSkillSuggestions": False,
+            "enablePromptSuggestions": False,
+            "skillScope": "selected",
+            "skillLoadMode": "preload",
+            "enableKnowledgeDiscovery": True,
             "scheduledInvocations": [
                 {
                     "name": "Ward Rounds",
@@ -490,48 +492,60 @@ def build_skill_exports():
     """Build the three embedded skill JSONs"""
     skills = {
         "skill-physician-rubric-craft-v0_1.json": {
-            "version": "2",
+            "version": 1,
             "type": "skill",
             "exportedAt": datetime.now(timezone.utc).isoformat(),
             "data": {
                 "id": "skill-physician-rubric-craft-v0_1",
                 "name": "physician-rubric-craft",
                 "description": "Rubric design and calibration discipline for the fleet-health lane.",
+                "icon": "📏",
                 "documentation": SKILL_RUBRIC_CRAFT_TEXT,
+                "tags": json.dumps(["fleet-health", "rubrics", "evaluation"]),
                 "whenToUse": "Any rubric work: drafting, revising, calibrating, or judging whether a score problem is rubric mis-calibration or agent decline.",
-                "tags": ["fleet-health", "rubrics", "evaluation"],
+                "authType": "none",
                 "credentialSchema": [],
-                "scripts": []
+                "skillMdBody": SKILL_RUBRIC_CRAFT_TEXT,
+                "scripts": [],
+                "references": []
             }
         },
         "skill-physician-vitals-and-tracking-v0_1.json": {
-            "version": "2",
+            "version": 1,
             "type": "skill",
             "exportedAt": datetime.now(timezone.utc).isoformat(),
             "data": {
                 "id": "skill-physician-vitals-and-tracking-v0_1",
                 "name": "physician-vitals-and-tracking",
                 "description": "Observability discipline for the fleet-health lane — trajectories, signal classes, drift, and what is actually readable on this platform.",
+                "icon": "📈",
                 "documentation": SKILL_VITALS_TEXT,
+                "tags": json.dumps(["fleet-health", "observability", "vitals"]),
                 "whenToUse": "Ward rounds, vitals collection, digest preparation, drift investigation.",
-                "tags": ["fleet-health", "observability", "vitals"],
+                "authType": "none",
                 "credentialSchema": [],
-                "scripts": []
+                "skillMdBody": SKILL_VITALS_TEXT,
+                "scripts": [],
+                "references": []
             }
         },
         "skill-physician-human-signals-triage-v0_1.json": {
-            "version": "2",
+            "version": 1,
             "type": "skill",
             "exportedAt": datetime.now(timezone.utc).isoformat(),
             "data": {
                 "id": "skill-physician-human-signals-triage-v0_1",
                 "name": "physician-human-signals-triage",
                 "description": "Human-feedback triage discipline — implicit vs explicit signals, trace-attached evidence, capture → verify loop.",
+                "icon": "🚨",
                 "documentation": SKILL_TRIAGE_TEXT,
+                "tags": json.dumps(["fleet-health", "feedback", "triage"]),
                 "whenToUse": "Duty 4: consuming Clive's Man digests / Ambient Capture output, triaging corrections and complaints, symptom vs canon-worthy-context calls.",
-                "tags": ["fleet-health", "feedback", "triage"],
+                "authType": "none",
                 "credentialSchema": [],
-                "scripts": []
+                "skillMdBody": SKILL_TRIAGE_TEXT,
+                "scripts": [],
+                "references": []
             }
         }
     }
@@ -541,7 +555,7 @@ def build_skill_exports():
 def build_skill_manifest():
     """Build the fleet-standard skill manifest"""
     manifest = {
-        "version": "1",
+        "version": 1,
         "type": "skill-manifest",
         "exportedAt": datetime.now(timezone.utc).isoformat(),
         "data": {
@@ -570,17 +584,25 @@ def build_skill_manifest():
 
 if __name__ == "__main__":
     # Build and write all exports
+    from pathlib import Path
+
+    # Ensure export directories exist
+    agents_dir = Path("hyperagent/exports/agents")
+    skills_dir = Path("hyperagent/exports/skills")
+    agents_dir.mkdir(parents=True, exist_ok=True)
+    skills_dir.mkdir(parents=True, exist_ok=True)
+
     agent_export = build_agent_export()
-    with open("/agent/workspace/physician_build/exports/agent-dr-halvard-bjornson-v0_1.json", "w") as f:
+    with open(agents_dir / "agent-dr-halvard-bjornson-v0_1.json", "w") as f:
         json.dump(agent_export, f, indent=2)
 
     skill_exports = build_skill_exports()
     for filename, skill_data in skill_exports.items():
-        with open(f"/agent/workspace/physician_build/exports/{filename}", "w") as f:
+        with open(skills_dir / filename, "w") as f:
             json.dump(skill_data, f, indent=2)
 
     manifest = build_skill_manifest()
-    with open("/agent/workspace/physician_build/exports/agent-dr-halvard-bjornson-v0_1.skill-manifest.json", "w") as f:
+    with open(agents_dir / "agent-dr-halvard-bjornson-v0_1.skill-manifest.json", "w") as f:
         json.dump(manifest, f, indent=2)
 
     # Hash the system prompt
