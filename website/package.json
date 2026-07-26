@@ -9,6 +9,7 @@
     "lint": "next lint",
     "test:brain-key": "vitest run src/lib/brains src/lib/clive",
     "test:command-centre": "vitest run src/lib/command-centre",
+    "test:platform-activity": "vitest run src/lib/platform-activity src/app/api/ask-clive/route.test.ts src/lib/brains/handlers/interaction-log-airtable.test.ts src/lib/brains/handlers/interaction-household.test.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {
