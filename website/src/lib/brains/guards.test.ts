@@ -18,6 +18,7 @@ import {
 import { handleTruthRetrieve } from "./handlers/truth-retrieve";
 import { handleKeyRequest } from "./handlers/key-request";
 import { handleInteractionLog, clearMemoryInteractionLogsForTests } from "./handlers/interaction-log";
+import { handleInteractionList } from "./handlers/interaction-list";
 import { handleDocPromote, clearMemoryPromotionsForTests } from "./handlers/doc-promote";
 import { containsSecretMaterial, sanitizeForClient } from "./secrets";
 
@@ -142,16 +143,19 @@ describe("Secret handling", () => {
     expect(out.BRAIN_TRUSTED_READ_TOKEN).toBe("[REDACTED]");
   });
 
-  it("rejects interaction logs containing secrets", async () => {
-    await expect(
-      handleInteractionLog({
-        sessionId: SESSION,
-        persona: "clive",
-        brainSlug: "astrajax-chapter-1",
-        userMessage: "Bearer patLeakedToken123456789012345",
-        assistantReply: "ok",
-      }),
-    ).rejects.toThrow(/secret-like material/);
+  it("redacts obvious credentials while preserving the interaction log", async () => {
+    await handleInteractionLog({
+      sessionId: SESSION,
+      persona: "clive",
+      brainSlug: "astrajax-chapter-1",
+      userMessage: "Please inspect Bearer patLeakedToken123456789012345 before coaching me.",
+      assistantReply: "ok",
+    });
+
+    const listed = await handleInteractionList({ brainSlug: "astrajax-chapter-1" });
+    expect(listed.interactions[0].userMessage).toBe(
+      "Please inspect [REDACTED_CREDENTIAL] before coaching me.",
+    );
   });
 });
 
