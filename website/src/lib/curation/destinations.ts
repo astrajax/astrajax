@@ -2,6 +2,7 @@ export type ContextDestination =
   | "workshop-draft-truth"
   | "workshop-source-document"
   | "workshop-interactions"
+  | "household-activity"
   | "trusted-brain-truth"
   | "registry-change-log";
 
@@ -30,6 +31,11 @@ export const DESTINATION_LABELS: Record<
     home: "Workshop review queue",
     table: "Brain Interactions",
     base: "Brain Workshop",
+  },
+  "household-activity": {
+    home: "Household review queue",
+    table: "Activity",
+    base: "Household Activity",
   },
   "trusted-brain-truth": {
     home: "Trusted Brain",

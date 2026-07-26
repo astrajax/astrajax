@@ -87,6 +87,8 @@ export async function loadCurationDocket(brainSlug: string): Promise<CurationDoc
     })),
     flaggedInteractions: interactionResult.interactions.map((item) => ({
       recordId: item.recordId,
+      source: item.source,
+      stableId: item.stableId,
       userMessage: item.userMessage,
       assistantReply: item.assistantReply,
       reviewStatus: item.reviewStatus,
@@ -125,7 +127,7 @@ export function formatDocketForPrompt(docket: CurationDocket): string {
   } else {
     for (const item of docket.flaggedInteractions) {
       lines.push(
-        `- [${item.recordId}] score=${item.qualityScore ?? "?"} flagged=${item.contextFlagged ?? "None"}: ${item.userMessage.slice(0, 120)}`,
+        `- [${item.source}:${item.recordId}] score=${item.qualityScore ?? "?"} flagged=${item.contextFlagged ?? "None"}: ${item.userMessage.slice(0, 120)}`,
       );
     }
   }

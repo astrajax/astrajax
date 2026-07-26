@@ -7,6 +7,12 @@ import {
 } from "@/lib/brains/handlers/draft-propose";
 import type { CurationProposal } from "@/lib/curation/types";
 import type { CurationToolName } from "@/lib/curation/tools";
+import type { InteractionRecordSource } from "@/lib/brains/types";
+
+function interactionSource(raw: unknown): InteractionRecordSource {
+  if (raw === "brain_interactions" || raw === "household_activity") return raw;
+  throw new Error("Interaction proposal is missing its source.");
+}
 
 export async function executeCurationProposal(input: {
   proposal: CurationProposal;
@@ -58,6 +64,7 @@ export async function executeCurationProposal(input: {
         recordId = (
           await flagInteraction({
             recordId: String(payload.recordId),
+            source: interactionSource(payload.source),
             brainSlug: proposal.brainSlug,
             quarantine: true,
             actor,
@@ -68,6 +75,8 @@ export async function executeCurationProposal(input: {
         recordId = (
           await markInteractionNoAction({
             recordId: String(payload.recordId),
+            source: interactionSource(payload.source),
+            brainSlug: proposal.brainSlug,
             reason: String(payload.reason),
             actor,
           })

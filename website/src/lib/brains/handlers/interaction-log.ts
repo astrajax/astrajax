@@ -1,4 +1,9 @@
-import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
+import {
+  getInteractionWriteTarget,
+  getWorkshopBaseId,
+  getWorkshopWriteToken,
+  useMemoryStore,
+} from "../config";
 import {
   BRAIN_INTERACTION_CONTEXT_FLAGGED,
   BRAIN_INTERACTION_REVIEW_STATUS,
@@ -43,6 +48,16 @@ export async function handleInteractionLog(body: InteractionLogBody) {
       storedManifestOnly: Boolean(entry.manifest?.grantId),
       interactionId: stored.interactionId,
       recordId: stored.recordId,
+    };
+  }
+
+  if (getInteractionWriteTarget() === "household_activity") {
+    return {
+      logged: true,
+      storedManifestOnly: Boolean(entry.manifest?.grantId),
+      interactionId: `platform_${entry.sessionId}`,
+      recordId: undefined,
+      source: "household_activity" as const,
     };
   }
 
@@ -107,8 +122,8 @@ async function writeToWorkshop(
     throw new Error(`Workshop interaction log failed (${response.status})`);
   }
 
-  const data = (await response.json()) as { records?: Array<{ id: string }> };
-  const recordId = data.records?.[0]?.id;
+  const data = (await response.json()) as { id?: string; records?: Array<{ id: string }> };
+  const recordId = data.id ?? data.records?.[0]?.id;
   if (!recordId) throw new Error("Workshop interaction log returned no record id.");
   return recordId;
 }

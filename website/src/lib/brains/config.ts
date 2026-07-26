@@ -8,6 +8,9 @@ import {
 
 /** Server-only Brain Key configuration. Never import from client components. */
 
+export type InteractionReadMode = "brain_only" | "dual" | "household_only";
+export type InteractionWriteTarget = "brain_interactions" | "household_activity";
+
 export interface TrustedBrainConfig {
   slug: string;
   baseId: string;
@@ -36,6 +39,18 @@ export function useMemoryStore(): boolean {
   return !process.env.BRAIN_REGISTRY_READ_TOKEN;
 }
 
+export function getInteractionReadMode(): InteractionReadMode {
+  const raw = process.env.INTERACTION_READ_MODE;
+  if (raw === "dual" || raw === "household_only") return raw;
+  return "brain_only";
+}
+
+export function getInteractionWriteTarget(): InteractionWriteTarget {
+  return process.env.INTERACTION_WRITE_TARGET === "household_activity"
+    ? "household_activity"
+    : "brain_interactions";
+}
+
 export function getRegistryBaseId(): string | undefined {
   return process.env.BRAIN_REGISTRY_BASE_ID ?? BRAIN_REGISTRY_BASE_ID;
 }
@@ -46,6 +61,22 @@ export function getRegistryReadToken(): string | undefined {
 
 export function getRegistryWriteToken(): string | undefined {
   return process.env.BRAIN_KEY_ADMIN_TOKEN ?? process.env.BRAIN_REGISTRY_WRITE_TOKEN;
+}
+
+export function getHouseholdActivityBaseId(): string {
+  return process.env.HOUSEHOLD_ACTIVITY_BASE_ID ?? "appF7jQD4ZKrDC7e1";
+}
+
+export function getHouseholdActivityTableId(): string {
+  return process.env.HOUSEHOLD_ACTIVITY_TABLE_ID ?? "tblNxNLyC31KDQbRl";
+}
+
+export function getHouseholdActivityReadToken(): string | undefined {
+  return process.env.HOUSEHOLD_ACTIVITY_READ_TOKEN;
+}
+
+export function getHouseholdActivityReviewToken(): string | undefined {
+  return process.env.HOUSEHOLD_ACTIVITY_REVIEW_TOKEN;
 }
 
 export function getWorkshopBaseId(): string | undefined {

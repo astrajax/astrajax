@@ -16,6 +16,8 @@ import {
   useMemoryStore,
 } from "../config";
 import type { ContextDestination } from "@/lib/curation/destinations";
+import type { InteractionRecordSource } from "../types";
+import { handleInteractionAction } from "./interaction-action";
 
 const TRUSTED_SCOPE_PATTERN = /^read:brain-truth:[a-z0-9-]+$/;
 
@@ -178,55 +180,45 @@ export async function promoteDraftToTrustedDemo(input: {
 
 export async function flagInteraction(input: {
   recordId: string;
+  source: InteractionRecordSource;
   brainSlug: string;
   quarantine?: boolean;
   actor?: string;
 }): Promise<{ recordId: string; destination: ContextDestination; mode: "airtable" | "memory" }> {
-  if (useMemoryStore() || !getWorkshopBaseId() || !getWorkshopWriteToken()) {
-    return { recordId: input.recordId, destination: "workshop-interactions", mode: "memory" };
-  }
-
-  const token = getWorkshopWriteToken()!;
-  await airtableUpdate(
-    getWorkshopBaseId()!,
-    BRAIN_WORKSHOP_TABLES.brainInteractions,
-    token,
-    input.recordId,
-    {
-      "Review Status": BRAIN_INTERACTION_REVIEW_STATUS.actionProposed,
-      "Context Flagged": input.quarantine
-        ? BRAIN_INTERACTION_CONTEXT_FLAGGED.quarantineProposed
-        : BRAIN_INTERACTION_CONTEXT_FLAGGED.flaggedForReview,
-      Reviewer: input.actor ?? "Architect",
-    },
-  );
-
-  return { recordId: input.recordId, destination: "workshop-interactions", mode: "airtable" };
+  await handleInteractionAction({
+    recordId: input.recordId,
+    source: input.source,
+    brainSlug: input.brainSlug,
+    action: "propose",
+    quarantine: input.quarantine,
+    actor: input.actor,
+  });
+  return {
+    recordId: input.recordId,
+    destination: "workshop-interactions",
+    mode: useMemoryStore() ? "memory" : "airtable",
+  };
 }
 
 export async function markInteractionNoAction(input: {
   recordId: string;
+  source: InteractionRecordSource;
+  brainSlug: string;
   reason: string;
   actor?: string;
 }): Promise<{ recordId: string; destination: ContextDestination; mode: "airtable" | "memory" }> {
-  if (useMemoryStore() || !getWorkshopBaseId() || !getWorkshopWriteToken()) {
-    return { recordId: input.recordId, destination: "workshop-interactions", mode: "memory" };
-  }
-
-  const token = getWorkshopWriteToken()!;
-  await airtableUpdate(
-    getWorkshopBaseId()!,
-    BRAIN_WORKSHOP_TABLES.brainInteractions,
-    token,
-    input.recordId,
-    {
-      "Review Status": BRAIN_INTERACTION_REVIEW_STATUS.noAction,
-      "Review Notes": input.reason.trim(),
-      Reviewer: input.actor ?? "Architect",
-    },
-  );
-
-  return { recordId: input.recordId, destination: "workshop-interactions", mode: "airtable" };
+  await handleInteractionAction({
+    recordId: input.recordId,
+    source: input.source,
+    brainSlug: input.brainSlug,
+    action: "dismiss",
+    actor: input.actor,
+  });
+  return {
+    recordId: input.recordId,
+    destination: "workshop-interactions",
+    mode: useMemoryStore() ? "memory" : "airtable",
+  };
 }
 
 export async function routeIntakeItem(input: {

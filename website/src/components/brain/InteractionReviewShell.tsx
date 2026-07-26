@@ -34,8 +34,10 @@ async function fetchInteractions(
 
 async function submitScore(payload: {
   recordId: string;
+  source: InteractionSummary["source"];
   brainSlug: string;
   qualityScore: number;
+  humanQuality?: number;
   reviewer: string;
   reviewNotes?: string;
   suspectedContextIssue?: boolean;
@@ -57,6 +59,7 @@ async function submitScore(payload: {
 
 async function submitUpkeepAction(payload: {
   recordId: string;
+  source: InteractionSummary["source"];
   brainSlug: string;
   action: "propose" | "dismiss";
   quarantine?: boolean;
@@ -149,6 +152,7 @@ function UpkeepActions({ interaction, brainSlug, reviewer, onUpdated }: UpkeepAc
     try {
       const updated = await submitUpkeepAction({
         recordId: interaction.recordId,
+        source: interaction.source,
         brainSlug,
         action,
         quarantine,
@@ -217,7 +221,8 @@ interface ScoreFormProps {
 }
 
 function ScoreForm({ interaction, brainSlug, reviewer, onSaved }: ScoreFormProps) {
-  const [score, setScore] = useState(interaction.qualityScore ?? 0);
+  const [score, setScore] = useState(interaction.agentQuality ?? interaction.qualityScore ?? 0);
+  const [humanScore, setHumanScore] = useState(interaction.humanQuality ?? 0);
   const [notes, setNotes] = useState(interaction.reviewNotes ?? "");
   const [flagContext, setFlagContext] = useState(Boolean(interaction.suspectedContextIssue));
   const [saving, setSaving] = useState(false);
@@ -241,8 +246,13 @@ function ScoreForm({ interaction, brainSlug, reviewer, onSaved }: ScoreFormProps
     try {
       const result = await submitScore({
         recordId: interaction.recordId,
+        source: interaction.source,
         brainSlug,
         qualityScore: score,
+        humanQuality:
+          interaction.source === "household_activity" && humanScore > 0
+            ? humanScore
+            : undefined,
         reviewer: reviewer.trim(),
         reviewNotes: notes.trim() || undefined,
         suspectedContextIssue: flagContext,
@@ -264,7 +274,7 @@ function ScoreForm({ interaction, brainSlug, reviewer, onSaved }: ScoreFormProps
   return (
     <div className="mt-4 rounded-2xl border border-ink/10 bg-cream-deep/40 p-4">
       <fieldset>
-        <legend className="section-label mb-2">Quality score</legend>
+        <legend className="section-label mb-2">Agent answer quality</legend>
         <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Quality score 1 to 5">
           {[1, 2, 3, 4, 5].map((value) => (
             <button
@@ -273,7 +283,7 @@ function ScoreForm({ interaction, brainSlug, reviewer, onSaved }: ScoreFormProps
               role="radio"
               aria-checked={score === value}
               onClick={() => setScore(value)}
-              className={`h-10 w-10 rounded-full border text-sm font-medium transition ${
+              className={`h-11 w-11 rounded-full border text-sm font-medium transition ${
                 score === value
                   ? "border-apricot bg-apricot text-white"
                   : "border-ink/20 bg-white text-ink hover:border-apricot"
@@ -284,6 +294,33 @@ function ScoreForm({ interaction, brainSlug, reviewer, onSaved }: ScoreFormProps
           ))}
         </div>
       </fieldset>
+
+      {interaction.source === "household_activity" ? (
+        <fieldset className="mt-4">
+          <legend className="section-label mb-2">Human prompt quality</legend>
+          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Human prompt quality 1 to 5">
+            {[1, 2, 3, 4, 5].map((value) => (
+              <button
+                key={value}
+                type="button"
+                role="radio"
+                aria-checked={humanScore === value}
+                onClick={() => setHumanScore(value)}
+                className={`h-11 w-11 rounded-full border text-sm font-medium transition ${
+                  humanScore === value
+                    ? "border-sage bg-sage text-white"
+                    : "border-ink/20 bg-white text-ink hover:border-sage"
+                }`}
+              >
+                {value}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-ink-muted">
+            Rates the prompt itself for coaching; it never changes the agent-answer score.
+          </p>
+        </fieldset>
+      ) : null}
 
       <label className="mt-4 block">
         <span className="section-label mb-2 block">Notes (optional)</span>
@@ -350,6 +387,9 @@ function InteractionCard({
           <span className="rounded-full bg-moss px-3 py-1 text-xs font-medium text-cream">
             {personaLabel(interaction.persona)}
           </span>
+          <span className="rounded-full bg-ink/5 px-3 py-1 text-xs font-medium text-ink-muted">
+            {interaction.source === "household_activity" ? "Household Activity" : "Brain Interactions"}
+          </span>
           {interaction.qualityScore ? (
             <span className="rounded-full bg-apricot/15 px-3 py-1 text-xs font-medium text-apricot">
               Scored {interaction.qualityScore}/5
@@ -359,6 +399,11 @@ function InteractionCard({
               Awaiting review
             </span>
           )}
+          {interaction.humanQuality ? (
+            <span className="rounded-full bg-sage/15 px-3 py-1 text-xs font-medium text-sage">
+              Prompt {interaction.humanQuality}/5
+            </span>
+          ) : null}
           {badge ? (
             <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
               {badge}
@@ -373,22 +418,33 @@ function InteractionCard({
       <div className="mt-4 space-y-3">
         <div>
           <p className="section-label mb-1">Question</p>
-          <p className="text-sm leading-relaxed text-ink">{interaction.userMessage}</p>
+          <p className="break-words whitespace-pre-wrap text-sm leading-relaxed text-ink">
+            {interaction.userMessage}
+          </p>
         </div>
         <div>
           <p className="section-label mb-1">Answer</p>
-          <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink-muted">
+          <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-ink-muted">
             {interaction.assistantReply}
           </p>
+          {interaction.contentComplete === false ? (
+            <p className="mt-1 text-xs text-ink-muted">
+              Household Activity stores the review digest here; use the linked session trail for the full exchange.
+            </p>
+          ) : null}
         </div>
       </div>
 
       <ManifestBlock interaction={interaction} />
-      <DestinationChip
-        destination="workshop-interactions"
-        brainSlug={interaction.brainSlug}
-        recordId={interaction.recordId}
-      />
+      {interaction.source === "brain_interactions" ? (
+        <DestinationChip
+          destination="workshop-interactions"
+          brainSlug={interaction.brainSlug}
+          recordId={interaction.recordId}
+        />
+      ) : (
+        <p className="mt-3 text-xs text-ink-muted">Source: Household Activity</p>
+      )}
 
       {view === "needsReview" || view === "actionProposed" ? (
         <UpkeepActions

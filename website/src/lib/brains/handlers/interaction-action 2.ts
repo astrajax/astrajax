@@ -83,6 +83,8 @@ export async function handleInteractionAction(body: InteractionActionBody) {
 
   const interaction: InteractionSummary = {
     recordId: record.id,
+    source: "brain_interactions",
+    stableId: `brain_interactions:${record.id}`,
     interactionId: String(record.fields["Interaction ID"] ?? record.id),
     sessionId: String(record.fields["Session ID"] ?? ""),
     persona: String(record.fields.Persona ?? "clive") as InteractionSummary["persona"],
@@ -109,6 +111,7 @@ export async function handleInteractionAction(body: InteractionActionBody) {
     suspectedContextIssue: Boolean(record.fields["Suspected Context Issue"]),
     reviewStatus: fields.reviewStatus,
     contextFlagged: fields.contextFlagged,
+    contentComplete: true,
   };
 
   return { interaction };

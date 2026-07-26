@@ -1,3 +1,5 @@
+import { scrubObviousSecrets } from "@/lib/platform-activity/scrub";
+
 /**
  * Secret handling for Brain Key routes.
  * Personas, browser, and persisted logs must never receive credentials or grant secrets.
@@ -68,12 +70,9 @@ export function sanitizeInteractionForPersistence(body: {
   assistantReply: string;
   manifest?: { grantId?: string; recordIds?: string[]; hashes?: string[] };
 } {
-  assertSafeForPersistence(body.userMessage);
-  assertSafeForPersistence(body.assistantReply);
-
   return {
-    userMessage: body.userMessage,
-    assistantReply: body.assistantReply,
+    userMessage: scrubObviousSecrets(body.userMessage),
+    assistantReply: scrubObviousSecrets(body.assistantReply),
     manifest: body.manifest,
   };
 }

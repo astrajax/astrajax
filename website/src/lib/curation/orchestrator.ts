@@ -19,6 +19,11 @@ import {
   type CurationToolName,
 } from "./tools";
 import type { CurationChatRequest, CurationChatResponse, CurationProposal } from "./types";
+import type { PlatformRouteManifest } from "@/lib/platform-activity/types";
+import {
+  queueChildModelCall,
+  queueTurnWithModelCall,
+} from "@/lib/platform-activity/server";
 
 const MAX_MESSAGE_LENGTH = 800;
 const MAX_TOOL_ROUNDS = 3;
@@ -42,7 +47,7 @@ async function callClaude(system: string, messages: AnthropicMessage[]) {
     /\/+$/,
     "",
   );
-
+  const startedAt = Date.now();
   const response = await fetch(`${apiBase}/v1/messages`, {
     method: "POST",
     headers: {
@@ -64,9 +69,17 @@ async function callClaude(system: string, messages: AnthropicMessage[]) {
     throw new Error(`Curation request failed (${response.status}): ${detail.slice(0, 200)}`);
   }
 
-  return (await response.json()) as {
+  const data = (await response.json()) as {
+    id?: string;
+    model?: string;
     content?: AnthropicContentBlock[];
     stop_reason?: string;
+    usage?: { input_tokens?: number; output_tokens?: number };
+  };
+  return {
+    ...data,
+    providerRequestId: response.headers.get("request-id") ?? undefined,
+    latencyMs: Date.now() - startedAt,
   };
 }
 
@@ -105,12 +118,18 @@ function buildProposal(
         ? input.reason
         : JSON.stringify(input).slice(0, 280);
 
+  const destination =
+    (toolName === "propose_quarantine" || toolName === "mark_no_action") &&
+    input.source === "household_activity"
+      ? "household-activity"
+      : toolDestination(toolName);
+
   return {
     id: `prop_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
     toolName,
     title,
     summary,
-    destination: toolDestination(toolName),
+    destination,
     brainSlug,
     payload: input,
     status: "pending",
@@ -137,10 +156,28 @@ export async function runCurationChat(
   );
 
   const proposals: CurationProposal[] = [];
+  const modelCalls: Array<{
+    requestedModel: string;
+    returnedModel?: string;
+    usage?: unknown;
+    finishReason?: string;
+    responseId?: string;
+    providerRequestId?: string;
+    latencyMs?: number;
+  }> = [];
   let reply = "";
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round += 1) {
     const data = await callClaude(system, messages);
+    modelCalls.push({
+      requestedModel: resolveCurationModel(),
+      returnedModel: data.model,
+      usage: data.usage,
+      finishReason: data.stop_reason,
+      responseId: data.id,
+      providerRequestId: data.providerRequestId,
+      latencyMs: data.latencyMs,
+    });
     const content = data.content ?? [];
     reply =
       content
@@ -161,6 +198,14 @@ export async function runCurationChat(
     for (const toolUse of toolUses) {
       const toolName = toolUse.name as CurationToolName;
       const parsed = parseToolInput(toolName, toolUse.input);
+      if (toolName === "propose_quarantine" || toolName === "mark_no_action") {
+        const matched = docket.flaggedInteractions.some(
+          (item) => item.recordId === parsed.recordId && item.source === parsed.source,
+        );
+        if (!matched) {
+          throw new Error("Interaction proposal did not match a source-qualified docket record.");
+        }
+      }
 
       if (toolName === "get_pending_docket") {
         toolResults.push({
@@ -225,6 +270,50 @@ export async function runCurationChat(
     docket,
     source: knowledgeSource,
   });
+
+  const platformManifest: PlatformRouteManifest = {
+    kind: "mixed",
+    recordIds: [
+      ...new Set([
+        ...trustedSnippets.map((snippet) => snippet.recordId),
+        ...docket.trustedTruths.map((item) => item.recordId),
+        ...docket.drafts.map((item) => item.recordId),
+        ...docket.flaggedInteractions.map((item) => item.recordId),
+        ...docket.pendingSourceDocuments.map((item) => item.recordId),
+      ]),
+    ],
+    urls: [],
+    promptVersion: "curation-chat-v1",
+    source: `curation-docket:${knowledgeSource}`,
+  };
+
+  if (modelCalls.length > 0) {
+    const first = modelCalls[0];
+    await queueTurnWithModelCall({
+      handle: input.platformHandle ?? null,
+      turnId: input.turnId ?? input.sessionId,
+      surface: "curation",
+      persona: "clive",
+      brainSlug: input.brainSlug,
+      userMessage: message,
+      assistantReply: reply || "…",
+      manifest: platformManifest,
+      ...first,
+      callIndex: 0,
+    }).catch(() => undefined);
+    await Promise.all(
+      modelCalls.slice(1).map((call, index) =>
+        queueChildModelCall({
+          handle: input.platformHandle ?? null,
+          turnId: input.turnId ?? input.sessionId,
+          surface: "curation",
+          manifest: platformManifest,
+          ...call,
+          callIndex: index + 1,
+        }).catch(() => undefined),
+      ),
+    );
+  }
 
   void handleInteractionLog({
     sessionId: input.sessionId,

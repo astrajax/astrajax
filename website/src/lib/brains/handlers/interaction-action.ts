@@ -5,6 +5,7 @@ import {
 } from "../airtable-ids";
 import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
 import { actionMemoryInteraction } from "./interaction-memory";
+import { actionHouseholdInteraction } from "./interaction-household-review";
 import type { InteractionActionBody, InteractionSummary } from "../types";
 
 export async function handleInteractionAction(body: InteractionActionBody) {
@@ -32,6 +33,21 @@ export async function handleInteractionAction(body: InteractionActionBody) {
         };
 
   const actor = body.actor?.trim();
+
+  if (body.source === "household_activity") {
+    return {
+      interaction: await actionHouseholdInteraction({
+        recordId,
+        brainSlug,
+        reviewer: actor,
+        reviewStatus: fields.reviewStatus,
+        contextFlagged: fields.contextFlagged,
+      }),
+    };
+  }
+  if (body.source !== "brain_interactions") {
+    throw new Error("A valid interaction source is required.");
+  }
 
   if (useMemoryStore()) {
     const interaction = actionMemoryInteraction(recordId, brainSlug, {
@@ -83,6 +99,8 @@ export async function handleInteractionAction(body: InteractionActionBody) {
 
   const interaction: InteractionSummary = {
     recordId: record.id,
+    source: "brain_interactions",
+    stableId: `brain_interactions:${record.id}`,
     interactionId: String(record.fields["Interaction ID"] ?? record.id),
     sessionId: String(record.fields["Session ID"] ?? ""),
     persona: String(record.fields.Persona ?? "clive") as InteractionSummary["persona"],
@@ -109,6 +127,7 @@ export async function handleInteractionAction(body: InteractionActionBody) {
     suspectedContextIssue: Boolean(record.fields["Suspected Context Issue"]),
     reviewStatus: fields.reviewStatus,
     contextFlagged: fields.contextFlagged,
+    contentComplete: true,
   };
 
   return { interaction };

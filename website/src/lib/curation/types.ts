@@ -1,5 +1,6 @@
 import type { ContextDestination } from "./destinations";
 import type { ChatMessage } from "@/lib/clive/types";
+import type { InteractionRecordSource } from "@/lib/brains/types";
 
 export type CurationChatMessage = ChatMessage;
 
@@ -21,6 +22,8 @@ export type DocketDraft = {
 
 export type DocketInteraction = {
   recordId: string;
+  source: InteractionRecordSource;
+  stableId: string;
   userMessage: string;
   assistantReply: string;
   reviewStatus?: string;
@@ -62,6 +65,8 @@ export type CurationChatRequest = {
   message: string;
   history: CurationChatMessage[];
   actor?: string;
+  platformHandle?: string | null;
+  turnId?: string;
 };
 
 export type CurationChatResponse = {

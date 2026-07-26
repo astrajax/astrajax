@@ -24,9 +24,12 @@ describe("Interaction review (memory mode)", () => {
     const listed = await handleInteractionList({ brainSlug: "astrajax-chapter-1" });
     expect(listed.interactions).toHaveLength(1);
     expect(listed.interactions[0].userMessage).toContain("positioning");
+    expect(listed.interactions[0].source).toBe("brain_interactions");
+    expect(listed.interactions[0].stableId).toContain(logged.recordId);
 
     const scored = await handleInteractionScore({
       recordId: logged.recordId!,
+      source: "brain_interactions",
       brainSlug: "astrajax-chapter-1",
       qualityScore: 4,
       reviewer: "Matthew",
@@ -52,6 +55,7 @@ describe("Interaction review (memory mode)", () => {
     await expect(
       handleInteractionScore({
         recordId: logged.recordId!,
+        source: "brain_interactions",
         brainSlug: "astrajax-chapter-1",
         qualityScore: 6,
         reviewer: "Matthew",
@@ -71,6 +75,7 @@ describe("Interaction review (memory mode)", () => {
 
     const scored = await handleInteractionScore({
       recordId: logged.recordId!,
+      source: "brain_interactions",
       brainSlug: "astrajax-chapter-1",
       qualityScore: 2,
       reviewer: "Client TL",
