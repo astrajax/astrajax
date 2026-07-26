@@ -3,6 +3,14 @@ import { anthropic } from "@ai-sdk/anthropic";
 import type { BickerTurn, CourtAttendantId } from "@/lib/platform/court";
 import { COURT_ATTENDANT_POOL, DEFAULT_BENCH } from "@/lib/platform/court";
 import { COURT_CAST_PERSONAS, SHARED_COURT_RULES } from "@/lib/platform/court-cast";
+import { codeManifest } from "@/lib/platform-activity/manifest";
+import {
+  queueChildModelCall,
+  queueTurnWithModelCall,
+  queueTurnWithoutModel,
+  readOptionalSessionHandle,
+  readTurnId,
+} from "@/lib/platform-activity/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -110,8 +118,15 @@ function seedBickerRotation(
 }
 
 export async function POST(request: Request) {
-  const { title, context, stakes, transcript, userMessage, attendees: attendeesRaw } =
-    await request.json();
+  const {
+    title,
+    context,
+    stakes,
+    transcript,
+    userMessage,
+    attendees: attendeesRaw,
+    callIndex: callIndexRaw,
+  } = await request.json();
 
   if (typeof title !== "string" || title.length === 0 || title.length > 500) {
     return Response.json(
@@ -159,6 +174,11 @@ export async function POST(request: Request) {
     .join("\n");
 
   const userMsg = userMessage ? String(userMessage).substring(0, 400) : "";
+  const platformHandle = readOptionalSessionHandle(request);
+  const turnId = readTurnId(request);
+  const callIndex =
+    typeof callIndexRaw === "number" && Number.isInteger(callIndexRaw) ? callIndexRaw : 5;
+  const manifest = codeManifest({ source: "court-personas", promptVersion: "court-bicker-v2" });
 
   const matter = `Title: ${title}\n\nContext: ${context}\n\nStakes: ${stakes}`;
   const prompt = userMsg
@@ -169,9 +189,21 @@ export async function POST(request: Request) {
   const model = process.env.COURT_MODEL || "claude-haiku-4-5-20251001";
 
   if (!apiKey) {
-    return Response.json({
-      turns: seedBickerRotation(transcript.length, attendees),
-    });
+    const turns = seedBickerRotation(transcript.length, attendees);
+    if (userMsg) {
+      await queueTurnWithoutModel({
+        handle: platformHandle,
+        turnId,
+        surface: "court-bicker",
+        persona: "bench",
+        brainSlug: "court",
+        userMessage: userMsg,
+        assistantReply: turns.map((turn) => `${turn.roleId}: ${turn.line}`).join("; "),
+        manifest,
+        outcome: "fallback",
+      }).catch(() => undefined);
+    }
+    return Response.json({ turns });
   }
 
   const personaBlock = [...attendees, "judge" as const]
@@ -179,6 +211,7 @@ export async function POST(request: Request) {
     .join("\n");
   const roleIdList = [...attendees, "judge"].join("|");
 
+  const startedAt = Date.now();
   try {
     const response = await generateText({
       model: anthropic(model),
@@ -209,10 +242,57 @@ Only these bench members are seated this session: ${attendees.join(", ")} (plus 
         line: String(turn.line).substring(0, 300),
       }));
 
+    const telemetry = {
+      handle: platformHandle,
+      turnId,
+      surface: "court-bicker",
+      manifest,
+      requestedModel: model,
+      returnedModel: response.response.modelId,
+      usage: response.usage,
+      finishReason: response.finishReason,
+      responseId: response.response.id,
+      latencyMs: Date.now() - startedAt,
+    };
+    if (userMsg) {
+      await queueTurnWithModelCall({
+        ...telemetry,
+        persona: "bench",
+        brainSlug: "court",
+        userMessage: userMsg,
+        assistantReply: turns.map((turn) => `${turn.roleId}: ${turn.line}`).join("; "),
+        callIndex,
+      }).catch(() => undefined);
+    } else {
+      await queueChildModelCall({ ...telemetry, callIndex }).catch(() => undefined);
+    }
     return Response.json({ turns });
   } catch {
-    return Response.json({
-      turns: seedBickerRotation(transcript.length, attendees),
-    });
+    const turns = seedBickerRotation(transcript.length, attendees);
+    if (userMsg) {
+      await queueTurnWithoutModel({
+        handle: platformHandle,
+        turnId,
+        surface: "court-bicker",
+        persona: "bench",
+        brainSlug: "court",
+        userMessage: userMsg,
+        assistantReply: turns.map((turn) => `${turn.roleId}: ${turn.line}`).join("; "),
+        manifest,
+        outcome: "fallback",
+      }).catch(() => undefined);
+    } else {
+      await queueChildModelCall({
+        handle: platformHandle,
+        turnId,
+        surface: "court-bicker",
+        manifest,
+        requestedModel: model,
+        fallback: true,
+        callIndex,
+        latencyMs: Date.now() - startedAt,
+      }).catch(() => undefined);
+    }
+    return Response.json({ turns });
   }
 }

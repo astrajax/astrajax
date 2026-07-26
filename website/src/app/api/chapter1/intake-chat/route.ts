@@ -8,6 +8,14 @@ import {
   type CapturedIntakeFields,
 } from "@/lib/aie-demo/intake-agenda";
 import type { ChatMessage } from "@/lib/clive/types";
+import { CHAPTER1_BRAIN_SLUG } from "@/lib/brains/airtable-ids";
+import { codeManifest } from "@/lib/platform-activity/manifest";
+import {
+  queueChildModelCall,
+  queueTurnWithModelCall,
+  readOptionalSessionHandle,
+  readTurnId,
+} from "@/lib/platform-activity/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -101,6 +109,12 @@ export async function POST(request: Request) {
 
   const history = sanitiseHistory(body.history);
   const captured = mergeCaptured({}, body.captured);
+  const platformHandle = readOptionalSessionHandle(request);
+  const turnId = readTurnId(request);
+  const manifest = codeManifest({
+    source: "chapter1-intake-agenda",
+    promptVersion: "chapter1-intake-chat-v1",
+  });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
@@ -109,8 +123,9 @@ export async function POST(request: Request) {
     return NextResponse.json(payload);
   }
 
+  const modelId = process.env.CLIVE_MODEL ?? "claude-sonnet-4-6";
+  const startedAt = Date.now();
   try {
-    const modelId = process.env.CLIVE_MODEL ?? "claude-sonnet-4-6";
     const result = await generateText({
       model: anthropic(modelId),
       system: buildSystemPrompt(captured),
@@ -138,10 +153,37 @@ export async function POST(request: Request) {
     const userTurns = history.filter((turn) => turn.role === "user").length + 1;
     const done = Boolean(parsed.done) || userTurns >= MAX_USER_TURNS;
 
+    await queueTurnWithModelCall({
+      handle: platformHandle,
+      turnId,
+      surface: "chapter1-intake",
+      persona: "clive",
+      brainSlug: CHAPTER1_BRAIN_SLUG,
+      userMessage: message,
+      assistantReply: reply,
+      manifest,
+      requestedModel: modelId,
+      returnedModel: result.response.modelId,
+      usage: result.usage,
+      finishReason: result.finishReason,
+      responseId: result.response.id,
+      latencyMs: Date.now() - startedAt,
+    }).catch(() => undefined);
+
     const payload: IntakeChatResponse = { reply, captured: nextCaptured, done };
     return NextResponse.json(payload);
   } catch (error) {
     const detail = error instanceof Error ? error.message : "Interview turn failed";
+    await queueChildModelCall({
+      handle: platformHandle,
+      turnId,
+      surface: "chapter1-intake",
+      manifest,
+      requestedModel: modelId,
+      fallback: true,
+      callIndex: 0,
+      latencyMs: Date.now() - startedAt,
+    }).catch(() => undefined);
     console.warn("Intake chat failed, signalling scripted fallback:", detail);
     // Signal fallback rather than inventing a reply — the client bridges the
     // captured fields into the scripted engine and the interview continues.

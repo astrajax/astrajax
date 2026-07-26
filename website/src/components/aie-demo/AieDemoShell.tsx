@@ -7,6 +7,8 @@ import type { HubBookId } from "@/components/chapter1/CliveStudyHub";
 import { CliveStudyShell } from "@/components/chapter1/CliveStudyShell";
 import { CliveWelcomeSequence } from "@/components/chapter1/CliveWelcomeSequence";
 import { PaperTrailDrawer } from "@/components/chapter1/PaperTrailDrawer";
+import { PlatformSessionControls } from "@/components/platform-session/PlatformSessionControls";
+import { usePlatformSession } from "@/components/platform-session/PlatformSessionProvider";
 import type { CliveVideoStageHandle } from "@/components/chapter1/CliveVideoStage";
 import type { CliveReaction } from "@/lib/clive/video-reactions";
 import {
@@ -88,6 +90,7 @@ function entryStepForBook(
 
 export function AieDemoShell() {
   const router = useRouter();
+  const { endSession, status: platformSessionStatus } = usePlatformSession();
   const searchParams = useSearchParams();
   const bookParam = readBookParam(searchParams.get("book"));
   const newBrainParam = searchParams.get("newBrain")?.trim() || undefined;
@@ -168,10 +171,15 @@ export function AieDemoShell() {
     });
   }, [loopSteps, welcomeComplete]);
 
-  const reset = useCallback(() => {
+  const reset = useCallback(async () => {
+    const closed =
+      platformSessionStatus === "disabled" || platformSessionStatus === "error"
+        ? true
+        : await endSession();
+    if (!closed) return;
     clearPersistedLoopSlice();
     router.push("/command/clive");
-  }, [router]);
+  }, [endSession, platformSessionStatus, router]);
 
   const completeWelcome = useCallback(() => {
     setWelcomeComplete(true);
@@ -201,7 +209,8 @@ export function AieDemoShell() {
     <>
       <CliveStudyShell
         ref={cliveVideoRef}
-        onReset={reset}
+        onReset={() => void reset()}
+        headerActions={<PlatformSessionControls compact />}
         paperTrail={
           showWelcomeSequence
             ? undefined

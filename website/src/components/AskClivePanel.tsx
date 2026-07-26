@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { loadPersistedLoopSlice } from "@/lib/aie-demo/user-brain-intake";
+import { PlatformSessionControls } from "@/components/platform-session/PlatformSessionControls";
 
 const GREETING =
   "Ask me about AstraJax, citizen-builders, the adoption loop, or how Clive keeps agent context clean.";
@@ -71,7 +72,10 @@ export function AskClivePanel() {
     <div className="card p-6">
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="section-label">Ask Clive</p>
-        <span className="status-pill status-pill--live">Live</span>
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <PlatformSessionControls compact />
+          <span className="status-pill status-pill--live">Live</span>
+        </div>
       </div>
       <CliveChatSurface
         greeting={greeting}

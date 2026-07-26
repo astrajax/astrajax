@@ -6,6 +6,7 @@ import { StudyStageDecisionPanel } from "@/components/chapter1/StudyStageDecisio
 import type { CliveReaction } from "@/lib/clive/video-reactions";
 import type { ChatMessage } from "@/lib/clive/types";
 import type { UserBrainIntake, UserBrainProfile } from "@/lib/aie-demo/types";
+import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 import { saveUserBrainToWorkshop } from "@/lib/aie-demo/brain-client";
 import { formatArchitectLabel } from "@/lib/chapter1/format-labels";
 import {
@@ -106,6 +107,33 @@ export function UserBrainIntakeChat({
 
   const userLabel = formatArchitectLabel(intake.name);
 
+  const queueScriptedTurn = useCallback(
+    async (message: string, reply: string, platformTurn?: PlatformTurnContext | null) => {
+      if (!platformTurn) return;
+      await fetch("/api/platform-activity/turn", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Platform-Session": platformTurn.handle,
+          "X-Platform-Turn-Id": platformTurn.turnId,
+        },
+        body: JSON.stringify({
+          handle: platformTurn.handle,
+          surface: "chapter1-intake",
+          persona: "clive",
+          brainSlug: "astrajax-chapter-1",
+          userMessage: message,
+          assistantReply: reply,
+          outcome: "scripted_fallback",
+          source: "chapter1-intake-script",
+          promptVersion: "chapter1-intake-script-v1",
+        }),
+        keepalive: true,
+      }).catch(() => undefined);
+    },
+    [],
+  );
+
   const finishWithProfile = useCallback(
     (completedIntake: UserBrainIntake, profile: UserBrainProfile, summary: string) => {
       onIntakeUpdate(completedIntake);
@@ -150,12 +178,24 @@ export function UserBrainIntakeChat({
    * and extracts the profile from everything said — not slot-by-slot.
    */
   const completeViaClassify = useCallback(
-    async (baseIntake: UserBrainIntake, transcript: ChatMessage[]): Promise<void> => {
+    async (
+      baseIntake: UserBrainIntake,
+      transcript: ChatMessage[],
+      platformTurn?: PlatformTurnContext | null,
+    ): Promise<void> => {
       setClassifying(true);
       try {
         const response = await fetch("/api/chapter1/classify-user-brain", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(platformTurn
+              ? {
+                  "X-Platform-Session": platformTurn.handle,
+                  "X-Platform-Turn-Id": platformTurn.turnId,
+                }
+              : {}),
+          },
           body: JSON.stringify({
             intake: baseIntake,
             answers: baseIntake.rawAnswers,
@@ -191,14 +231,21 @@ export function UserBrainIntakeChat({
 
   /** The scripted engine, unchanged in behaviour — now the fallback path. */
   const handleScriptTurn = useCallback(
-    async (message: string, currentIntake: UserBrainIntake): Promise<string> => {
+    async (
+      message: string,
+      currentIntake: UserBrainIntake,
+      platformTurn?: PlatformTurnContext | null,
+    ): Promise<string> => {
       const question = INTAKE_QUESTIONS[currentIntake.questionIndex];
       if (!question) {
-        return "Something went wobbly with the intake order. Refresh and we'll try again.";
+        const reply = "Something went wobbly with the intake order. Refresh and we'll try again.";
+        await queueScriptedTurn(message, reply, platformTurn);
+        return reply;
       }
 
       const validationError = validateIntakeAnswer(question, message);
       if (validationError) {
+        await queueScriptedTurn(message, validationError, platformTurn);
         return validationError;
       }
 
@@ -211,6 +258,7 @@ export function UserBrainIntakeChat({
       if (nextMessage) {
         // Reaction dramaturgy (W2): pleased is reserved for completion —
         // the journal inking on the right page is the per-answer feedback.
+        await queueScriptedTurn(message, nextMessage, platformTurn);
         return nextMessage;
       }
 
@@ -218,7 +266,15 @@ export function UserBrainIntakeChat({
       try {
         const response = await fetch("/api/chapter1/classify-user-brain", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(platformTurn
+              ? {
+                  "X-Platform-Session": platformTurn.handle,
+                  "X-Platform-Turn-Id": platformTurn.turnId,
+                }
+              : {}),
+          },
           body: JSON.stringify({
             intake: updatedIntake,
             answers: updatedIntake.rawAnswers,
@@ -237,28 +293,46 @@ export function UserBrainIntakeChat({
               });
           const profile = getProfileById(data.profileId) ?? data.profile;
           finishWithProfile(completedIntake, profile, data.summary);
-          return "I've captured your profile on the right-hand page — review it, then hit Continue when you're ready.";
+          const reply = "I've captured your profile on the right-hand page — review it, then hit Continue when you're ready.";
+          await queueScriptedTurn(message, reply, platformTurn);
+          return reply;
         }
 
-        return completeHeuristically(updatedIntake);
+        const reply = completeHeuristically(updatedIntake);
+        await queueScriptedTurn(message, reply, platformTurn);
+        return reply;
       } catch {
-        return completeHeuristically(updatedIntake);
+        const reply = completeHeuristically(updatedIntake);
+        await queueScriptedTurn(message, reply, platformTurn);
+        return reply;
       } finally {
         setClassifying(false);
       }
     },
-    [completeHeuristically, finishWithProfile, onIntakeUpdate, playCliveReaction],
+    [completeHeuristically, finishWithProfile, onIntakeUpdate, playCliveReaction, queueScriptedTurn],
   );
 
   /** The AI interview turn; on any failure it bridges to the script. */
   const handleAiTurn = useCallback(
-    async (message: string, history: ChatMessage[]): Promise<string> => {
+    async (
+      message: string,
+      history: ChatMessage[],
+      platformTurn?: PlatformTurnContext | null,
+    ): Promise<string> => {
       let data: IntakeChatTurnResponse | null = null;
 
       try {
         const response = await fetch("/api/chapter1/intake-chat", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...(platformTurn
+              ? {
+                  "X-Platform-Session": platformTurn.handle,
+                  "X-Platform-Turn-Id": platformTurn.turnId,
+                }
+              : {}),
+          },
           body: JSON.stringify({
             sessionId,
             message,
@@ -280,7 +354,7 @@ export function UserBrainIntakeChat({
         const bridged = intakeFromCaptured(capturedRef.current);
         setEngine("script");
         onIntakeUpdate(bridged);
-        return handleScriptTurn(message, bridged);
+        return handleScriptTurn(message, bridged, platformTurn);
       }
 
       playCliveReaction?.("listen");
@@ -296,7 +370,7 @@ export function UserBrainIntakeChat({
           { role: "user", content: message },
           { role: "assistant", content: reply },
         ];
-        await completeViaClassify(bridged, transcript);
+        await completeViaClassify(bridged, transcript, platformTurn);
         return reply;
       }
 
@@ -306,16 +380,22 @@ export function UserBrainIntakeChat({
   );
 
   const handleCustomSend = useCallback(
-    async (message: string, history: ChatMessage[]): Promise<string> => {
+    async (
+      message: string,
+      history: ChatMessage[],
+      platformTurn?: PlatformTurnContext | null,
+    ): Promise<string> => {
       if (intakeComplete) {
-        return "Your profile is set — hit Continue when you're ready.";
+        const reply = "Your profile is set — hit Continue when you're ready.";
+        await queueScriptedTurn(message, reply, platformTurn);
+        return reply;
       }
       if (engine === "ai") {
-        return handleAiTurn(message, history);
+        return handleAiTurn(message, history, platformTurn);
       }
-      return handleScriptTurn(message, intake);
+      return handleScriptTurn(message, intake, platformTurn);
     },
-    [engine, handleAiTurn, handleScriptTurn, intake, intakeComplete],
+    [engine, handleAiTurn, handleScriptTurn, intake, intakeComplete, queueScriptedTurn],
   );
 
   const summaryCard =

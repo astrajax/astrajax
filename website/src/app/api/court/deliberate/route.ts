@@ -3,6 +3,14 @@ import { anthropic } from "@ai-sdk/anthropic";
 import type { AgentVerdict, CourtAttendantId, CourtVerdict } from "@/lib/platform/court";
 import { COURT_ATTENDANT_POOL, DEFAULT_BENCH } from "@/lib/platform/court";
 import { COURT_CAST_PERSONAS, SHARED_COURT_RULES } from "@/lib/platform/court-cast";
+import { codeManifest } from "@/lib/platform-activity/manifest";
+import {
+  queueChildModelCall,
+  queueTurnWithModelCall,
+  queueTurnWithoutModel,
+  readOptionalSessionHandle,
+  readTurnId,
+} from "@/lib/platform-activity/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -134,17 +142,31 @@ export async function POST(request: Request) {
 
   const attendees = parseAttendees(attendeesRaw);
   const matter = `Title: ${title}\n\nContext: ${context}\n\nStakes: ${stakes}`;
+  const platformHandle = readOptionalSessionHandle(request);
+  const turnId = readTurnId(request);
+  const manifest = codeManifest({ source: "court-personas", promptVersion: "court-deliberate-v2" });
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   const model = process.env.COURT_MODEL || "claude-haiku-4-5-20251001";
 
   if (!apiKey) {
-    return Response.json({
-      verdicts: attendees.map((id) => CANNED_VERDICT_BY_ROLE[id]),
-    });
+    const verdicts = attendees.map((id) => CANNED_VERDICT_BY_ROLE[id]);
+    await queueTurnWithoutModel({
+      handle: platformHandle,
+      turnId,
+      surface: "court",
+      persona: "bench",
+      brainSlug: "court",
+      userMessage: matter,
+      assistantReply: verdicts.map((verdict) => `${verdict.roleId}: ${verdict.verdict}`).join("; "),
+      manifest,
+      outcome: "fallback",
+    }).catch(() => undefined);
+    return Response.json({ verdicts });
   }
 
   const promises = attendees.map(async (roleId) => {
+    const startedAt = Date.now();
     try {
       const response = await generateText({
         model: anthropic(model),
@@ -161,19 +183,60 @@ export async function POST(request: Request) {
           ? parsed.summary.substring(0, 500)
           : "Unable to form a clear perspective on this matter.";
 
-      return { roleId, verdict, summary };
+      return {
+        verdict: { roleId, verdict, summary } satisfies AgentVerdict,
+        meta: {
+          requestedModel: model,
+          returnedModel: response.response.modelId,
+          usage: response.usage,
+          finishReason: response.finishReason,
+          responseId: response.response.id,
+          latencyMs: Date.now() - startedAt,
+          fallback: false,
+        },
+      };
     } catch {
-      return CANNED_VERDICT_BY_ROLE[roleId];
+      return {
+        verdict: CANNED_VERDICT_BY_ROLE[roleId],
+        meta: {
+          requestedModel: model,
+          latencyMs: Date.now() - startedAt,
+          fallback: true,
+        },
+      };
     }
   });
 
-  const results = await Promise.allSettled(promises);
-  const verdicts: AgentVerdict[] = results.map((result, i) => {
-    if (result.status === "fulfilled") {
-      return result.value;
-    }
-    return CANNED_VERDICT_BY_ROLE[attendees[i]];
-  });
+  const results = await Promise.all(promises);
+  const verdicts = results.map((result) => result.verdict);
+  const replyDigest = verdicts.map((verdict) => `${verdict.roleId}: ${verdict.verdict}`).join("; ");
+  const first = results[0];
+  if (first) {
+    await queueTurnWithModelCall({
+      handle: platformHandle,
+      turnId,
+      surface: "court",
+      persona: "bench",
+      brainSlug: "court",
+      userMessage: matter,
+      assistantReply: replyDigest,
+      manifest,
+      ...first.meta,
+      callIndex: 0,
+    }).catch(() => undefined);
+    await Promise.all(
+      results.slice(1).map((result, index) =>
+        queueChildModelCall({
+          handle: platformHandle,
+          turnId,
+          surface: "court",
+          manifest,
+          ...result.meta,
+          callIndex: index + 1,
+        }).catch(() => undefined),
+      ),
+    );
+  }
 
   return Response.json({ verdicts });
 }

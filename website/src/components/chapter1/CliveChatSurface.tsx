@@ -3,8 +3,10 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StudyAssistantText } from "@/components/chapter1/StudyAssistantText";
+import { usePlatformSession } from "@/components/platform-session/PlatformSessionProvider";
 import { useCliveVoice } from "@/lib/clive/use-clive-voice";
 import type { ChatMessage, ClivePersona } from "@/lib/clive/types";
+import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 
 const TRANSCRIPT_STORAGE_PREFIX = "astrajax-clive-transcript-";
 const TRANSCRIPT_MAX_TURNS = 40;
@@ -40,7 +42,11 @@ type CliveChatSurfaceProps = {
    */
   voice?: boolean;
   /** When set, skips /api/ask-clive and uses this handler for assistant replies. */
-  onCustomSend?: (message: string, history: ChatMessage[]) => Promise<string>;
+  onCustomSend?: (
+    message: string,
+    history: ChatMessage[],
+    platformTurn?: PlatformTurnContext | null,
+  ) => Promise<string>;
   onUserMessage?: (message: string) => void;
   onAssistantMessage?: (message: string) => void;
   onThinkingChange?: (thinking: boolean) => void;
@@ -128,6 +134,7 @@ export function CliveChatSurface({
   initialMessages = [],
   onCustomSend,
 }: CliveChatSurfaceProps) {
+  const { beginTurn, headersFor } = usePlatformSession();
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (persistTranscript && !transcriptOnly) {
       const stored = loadPersistedTranscript(sessionId);
@@ -292,15 +299,17 @@ export function CliveChatSurface({
 
       try {
         let reply: string;
+        const platformTurn = await beginTurn();
 
         if (onCustomSend) {
-          reply = await onCustomSend(message, history);
+          reply = await onCustomSend(message, history, platformTurn);
         } else {
           const response = await fetch("/api/ask-clive", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               Accept: "text/plain",
+              ...headersFor(platformTurn),
             },
             body: JSON.stringify({
               message,
@@ -328,7 +337,7 @@ export function CliveChatSurface({
         setStreamingText("");
         onAssistantMessage?.(reply);
         if (voice && voiceOn && reply) {
-          void speak(reply);
+          void speak(reply, platformTurn);
         }
       } catch (err) {
         const detail = err instanceof Error ? err.message : "Something went wrong.";
@@ -339,7 +348,7 @@ export function CliveChatSurface({
         setIsThinking(false);
       }
     },
-    [beat, loopContext, onAssistantMessage, onCustomSend, onError, persona, sessionId, speak, voice, voiceOn],
+    [beat, beginTurn, headersFor, loopContext, onAssistantMessage, onCustomSend, onError, persona, sessionId, speak, voice, voiceOn],
   );
 
   const sendMessage = useCallback(

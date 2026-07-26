@@ -11,6 +11,12 @@ import { USER_BRAIN_PROFILES } from "@/lib/aie-demo/demo-data";
 import { mergeCaptured } from "@/lib/aie-demo/intake-agenda";
 import type { IntakeAnswer, UserBrainIntake } from "@/lib/aie-demo/types";
 import type { ChatMessage } from "@/lib/clive/types";
+import { codeManifest } from "@/lib/platform-activity/manifest";
+import {
+  queueChildModelCall,
+  readOptionalSessionHandle,
+  readTurnId,
+} from "@/lib/platform-activity/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -105,6 +111,12 @@ export async function POST(request: Request) {
 
   const intake = intakeFromBody(body);
   const fallback = inferProfileFromIntake(intake);
+  const platformHandle = readOptionalSessionHandle(request);
+  const turnId = readTurnId(request);
+  const manifest = codeManifest({
+    source: "chapter1-profile-classifier",
+    promptVersion: "chapter1-classify-v1",
+  });
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
   if (!apiKey) {
@@ -129,9 +141,10 @@ export async function POST(request: Request) {
   }
 
   const transcript = sanitiseTranscript(body.transcript);
+  const modelId = process.env.CLIVE_MODEL ?? "claude-sonnet-4-6";
+  const startedAt = Date.now();
 
   try {
-    const modelId = process.env.CLIVE_MODEL ?? "claude-sonnet-4-6";
     const answerBlock = intake.rawAnswers
       .map((a) => `- ${a.question}\n  Answer: ${a.answer}`)
       .join("\n");
@@ -201,6 +214,20 @@ ${answerBlock}${transcriptBlock}`,
     const summary = parsed.summary?.trim() || fallback.summary;
     const { enriched, recommendations } = attachRecommendations(effectiveIntake, profileId, summary);
 
+    await queueChildModelCall({
+      handle: platformHandle,
+      turnId,
+      surface: "chapter1-classify",
+      manifest,
+      requestedModel: modelId,
+      returnedModel: result.response.modelId,
+      usage: result.usage,
+      finishReason: result.finishReason,
+      responseId: result.response.id,
+      callIndex: 1,
+      latencyMs: Date.now() - startedAt,
+    }).catch(() => undefined);
+
     return NextResponse.json({
       profileId,
       profile,
@@ -215,6 +242,16 @@ ${answerBlock}${transcriptBlock}`,
     });
   } catch (error) {
     const detail = error instanceof Error ? error.message : "Classification failed";
+    await queueChildModelCall({
+      handle: platformHandle,
+      turnId,
+      surface: "chapter1-classify",
+      manifest,
+      requestedModel: modelId,
+      fallback: true,
+      callIndex: 1,
+      latencyMs: Date.now() - startedAt,
+    }).catch(() => undefined);
     console.warn("User brain classify failed, using heuristic:", detail);
     const profile = getProfileById(fallback.profileId)!;
     const { enriched, recommendations } = attachRecommendations(
