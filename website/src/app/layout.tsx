@@ -4,6 +4,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 import { GlobalCliveLauncher } from "@/components/GlobalCliveLauncher";
 import { StoryModeProvider } from "@/components/command-centre/StoryModeProvider";
+import { PlatformSessionProvider } from "@/components/platform-session/PlatformSessionProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -51,10 +52,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn(inter.variable, "font-sans")}>
       <body className={cn(inter.className, "antialiased")}>
-        <StoryModeProvider>
-          {children}
-          <GlobalCliveLauncher />
-        </StoryModeProvider>
+        <PlatformSessionProvider>
+          <StoryModeProvider>
+            {children}
+            <GlobalCliveLauncher />
+          </StoryModeProvider>
+        </PlatformSessionProvider>
       </body>
     </html>
   );

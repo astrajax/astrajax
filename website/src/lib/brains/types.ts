@@ -93,6 +93,7 @@ export interface InteractionLogBody {
 }
 
 export type InteractionReviewStatus =
+  | "Unreviewed"
   | "New"
   | "Reviewed"
   | "Action proposed"
@@ -104,8 +105,12 @@ export type InteractionContextFlagged =
   | "Quarantine proposed"
   | "Resolved";
 
+export type InteractionRecordSource = "brain_interactions" | "household_activity";
+
 export interface InteractionSummary {
   recordId: string;
+  source: InteractionRecordSource;
+  stableId: string;
   interactionId: string;
   sessionId: string;
   persona: PersonaId;
@@ -114,7 +119,10 @@ export interface InteractionSummary {
   assistantReply: string;
   channel: string;
   createdAt: string;
+  /** Backward-compatible alias for Agent Quality. */
   qualityScore?: number;
+  agentQuality?: number;
+  humanQuality?: number;
   reviewer?: string;
   reviewNotes?: string;
   reviewedAt?: string;
@@ -124,6 +132,7 @@ export interface InteractionSummary {
   manifestRecordIds?: string[];
   grantId?: string;
   isFallbackContext?: boolean;
+  contentComplete?: boolean;
 }
 
 export interface InteractionListQuery {
@@ -139,6 +148,7 @@ export type InteractionUpkeepAction = "propose" | "dismiss";
 
 export interface InteractionActionBody {
   recordId: string;
+  source: InteractionRecordSource;
   brainSlug: string;
   action: InteractionUpkeepAction;
   actor?: string;
@@ -148,8 +158,12 @@ export interface InteractionActionBody {
 
 export interface InteractionScoreBody {
   recordId: string;
+  source: InteractionRecordSource;
   brainSlug: string;
+  /** Agent-answer quality; maps to legacy Quality Score or Household Agent Quality. */
   qualityScore: number;
+  /** Human-prompt quality; Household Activity only. */
+  humanQuality?: number;
   reviewer: string;
   reviewNotes?: string;
   suspectedContextIssue?: boolean;

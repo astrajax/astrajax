@@ -18,6 +18,8 @@ import {
 } from "@/lib/clive/reaction-map";
 import { destinationConfirmLabel } from "@/lib/curation/destinations";
 import type { CurationDocket, CurationProposal } from "@/lib/curation/types";
+import type { PlatformTurnContext } from "@/lib/platform-activity/types";
+import { PlatformSessionControls } from "@/components/platform-session/PlatformSessionControls";
 
 type CurateWithCliveShellProps = {
   brainSlug: string;
@@ -133,13 +135,25 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
   }, [docket]);
 
   const handleCustomSend = useCallback(
-    async (message: string, history: ChatMessage[]) => {
+    async (
+      message: string,
+      history: ChatMessage[],
+      platformTurn?: PlatformTurnContext | null,
+    ) => {
       const response = await fetch("/api/brains/curation/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(platformTurn
+            ? {
+                "X-Platform-Session": platformTurn.handle,
+                "X-Platform-Turn-Id": platformTurn.turnId,
+              }
+            : {}),
+        },
         body: JSON.stringify({
           brainSlug,
-          sessionId,
+          sessionId: platformTurn?.publicSessionId ?? sessionId,
           message,
           history,
         }),
@@ -268,7 +282,7 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
               }))
             : docketView === "flagged"
               ? docket.flaggedInteractions.map((interaction) => ({
-                  key: interaction.recordId,
+                  key: interaction.stableId,
                   tag: interaction.reviewStatus,
                   title: `“${truncate(interaction.userMessage, 90)}”`,
                   body: truncate(interaction.assistantReply),
@@ -354,6 +368,7 @@ export function CurateWithCliveShell({ brainSlug, brainName }: CurateWithCliveSh
 
   const headerActions = (
     <>
+      <PlatformSessionControls compact />
       <button type="button" className="study-stage__ghost-btn" onClick={() => void handleDemoSeed()}>
         Seed demo truths
       </button>

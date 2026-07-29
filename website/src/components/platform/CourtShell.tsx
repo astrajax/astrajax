@@ -32,6 +32,9 @@ import {
   type CourtRoleId,
 } from "@/lib/platform/court";
 import type { PaperTrailLine } from "@/lib/platform/brain-health";
+import { usePlatformSession } from "@/components/platform-session/PlatformSessionProvider";
+import { PlatformSessionControls } from "@/components/platform-session/PlatformSessionControls";
+import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 
 // Art v2: the book ships BLANK — empty gilt frames, empty strips, blank
 // brass. The cast are layers; the text is live; the Judge breathes.
@@ -265,6 +268,7 @@ function formatWhen(iso: string): string {
 }
 
 function CourtBook({ decision }: { decision: CourtDecision }) {
+  const { beginTurn, headersFor, recordEvent } = usePlatformSession();
   const [verdicts, setVerdicts] = useState<AgentVerdict[]>([]);
   const [bicker, setBicker] = useState<BickerTurn[]>([]);
   const [userInput, setUserInput] = useState("");
@@ -278,24 +282,41 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
   const bickerfeedRef = useRef<HTMLDivElement>(null);
   const conveneGuardRef = useRef<string | null>(null);
   const bickerInFlightRef = useRef<boolean>(false);
+  const conveneTurnRef = useRef<PlatformTurnContext | null>(null);
+  const courtCallIndexRef = useRef(5);
 
   const attendees = decision.attendees;
 
   const fetchBicker = useCallback(
-    async (currentTranscript: BickerTurn[], options?: { force?: boolean }) => {
+    async (
+      currentTranscript: BickerTurn[],
+      options?: {
+        force?: boolean;
+        platformTurn?: PlatformTurnContext | null;
+        userMessage?: string;
+      },
+    ) => {
       if (judgement) return;
       if (bickerInFlightRef.current && !options?.force) return;
       bickerInFlightRef.current = true;
+      const platformTurn = options?.platformTurn ?? conveneTurnRef.current ?? (await beginTurn());
+      const callIndex = courtCallIndexRef.current;
+      courtCallIndexRef.current += 1;
       try {
         const res = await fetch("/api/court/bicker", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...headersFor(platformTurn),
+          },
           body: JSON.stringify({
             title: decision.title,
             context: decision.context,
             stakes: decision.stakes,
             attendees: decision.attendees,
             transcript: currentTranscript,
+            userMessage: options?.userMessage,
+            callIndex,
           }),
         });
         const data = await res.json();
@@ -315,7 +336,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
         bickerInFlightRef.current = false;
       }
     },
-    [decision, judgement]
+    [beginTurn, decision, headersFor, judgement]
   );
 
   // Convene: fetch initial verdicts and bicker (guarded against StrictMode double-mount)
@@ -327,10 +348,16 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
 
     const convene = async () => {
       setIsDeliberating(true);
+      const platformTurn = await beginTurn();
+      conveneTurnRef.current = platformTurn;
+      courtCallIndexRef.current = 5;
       try {
         const res = await fetch("/api/court/deliberate", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            ...headersFor(platformTurn),
+          },
           body: JSON.stringify({
             title: decision.title,
             context: decision.context,
@@ -355,12 +382,12 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
         setIsDeliberating(false);
       }
 
-      await fetchBicker([]);
+      await fetchBicker([], { platformTurn });
     };
 
     convene();
     return () => revealTimers.forEach(clearTimeout);
-  }, [decision, fetchBicker]);
+  }, [beginTurn, decision, fetchBicker, headersFor]);
 
   // Auto-bicker loop. The effect owns the interval outright: it re-registers
   // whenever the bench view returns (verdict panel or judgement page closed),
@@ -402,13 +429,25 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
 
     // The human always gets the floor: bypass the in-flight guard so an
     // auto-bicker cycle can't swallow their address to the bench.
-    await fetchBicker([...bicker, newTurn], { force: true });
+    const platformTurn = await beginTurn();
+    await fetchBicker([...bicker, newTurn], {
+      force: true,
+      platformTurn,
+      userMessage: newTurn.line,
+    });
   };
 
   const recordJudgement = (choice: Exclude<HumanJudgement, null>) => {
     if (!actor.trim()) return;
     setJudgement(choice);
     setPaperTrail((prev) => [...prev, createJudgementPaperTrail(choice, actor.trim())]);
+    void recordEvent({
+      eventType: "Decision",
+      summary: `Court judgement recorded: ${choice}`,
+      outcome: choice,
+      source: "court",
+      detail: { matterId: decision.id, actor: actor.trim() },
+    });
   };
 
   const verdictMap = Object.fromEntries(verdicts.map((v) => [v.roleId, v]));
@@ -1047,9 +1086,12 @@ export function CourtShell() {
         <div>
           <p className="court-stage__label">The Court</p>
         </div>
-        <Link href="/command/pam" className="court-stage__back-link">
-          ← Leave the courtroom
-        </Link>
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <PlatformSessionControls compact />
+          <Link href="/command/pam" className="court-stage__back-link">
+            ← Leave the courtroom
+          </Link>
+        </div>
       </header>
 
       <div className="court-stage__artwork">

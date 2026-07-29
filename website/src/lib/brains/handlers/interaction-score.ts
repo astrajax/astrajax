@@ -3,6 +3,7 @@ import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../con
 import { resolveReviewFieldsAfterScore } from "../interaction-upkeep";
 import { assertSafeForPersistence } from "../secrets";
 import { scoreMemoryInteraction } from "./interaction-memory";
+import { scoreHouseholdInteraction } from "./interaction-household-review";
 import type { InteractionScoreBody, InteractionSummary } from "../types";
 
 export async function handleInteractionScore(body: InteractionScoreBody) {
@@ -18,6 +19,15 @@ export async function handleInteractionScore(body: InteractionScoreBody) {
   if (!Number.isInteger(qualityScore) || qualityScore < 1 || qualityScore > 5) {
     throw new Error("qualityScore must be an integer from 1 to 5.");
   }
+  if (
+    body.humanQuality !== undefined &&
+    (!Number.isInteger(body.humanQuality) || body.humanQuality < 1 || body.humanQuality > 5)
+  ) {
+    throw new Error("humanQuality must be an integer from 1 to 5.");
+  }
+  if (body.source === "brain_interactions" && body.humanQuality !== undefined) {
+    throw new Error("Human Quality is available only on Household Activity rows.");
+  }
 
   if (body.reviewNotes?.trim()) {
     assertSafeForPersistence(body.reviewNotes);
@@ -29,6 +39,24 @@ export async function handleInteractionScore(body: InteractionScoreBody) {
     qualityScore,
     suspectedContextIssue,
   );
+
+  if (body.source === "household_activity") {
+    const interaction = await scoreHouseholdInteraction({
+      recordId,
+      brainSlug,
+      qualityScore,
+      humanQuality: body.humanQuality,
+      reviewer,
+      reviewNotes,
+      suspectedContextIssue,
+      reviewStatus,
+      contextFlagged,
+    });
+    return { interaction, autoProposed: qualityScore <= 2 };
+  }
+  if (body.source !== "brain_interactions") {
+    throw new Error("A valid interaction source is required.");
+  }
 
   if (useMemoryStore()) {
     const interaction = scoreMemoryInteraction(recordId, brainSlug, {
@@ -90,6 +118,8 @@ export async function handleInteractionScore(body: InteractionScoreBody) {
 
   const interaction: InteractionSummary = {
     recordId: record.id,
+    source: "brain_interactions",
+    stableId: `brain_interactions:${record.id}`,
     interactionId: String(record.fields["Interaction ID"] ?? record.id),
     sessionId: String(record.fields["Session ID"] ?? ""),
     persona: String(record.fields.Persona ?? "clive") as InteractionSummary["persona"],
@@ -99,12 +129,14 @@ export async function handleInteractionScore(body: InteractionScoreBody) {
     channel: String(record.fields.Channel ?? "website"),
     createdAt: record.createdTime,
     qualityScore,
+    agentQuality: qualityScore,
     reviewer,
     reviewNotes,
     reviewedAt,
     suspectedContextIssue,
     reviewStatus,
     contextFlagged,
+    contentComplete: true,
   };
 
   return { interaction, autoProposed: qualityScore <= 2 };

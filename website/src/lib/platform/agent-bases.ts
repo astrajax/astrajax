@@ -193,6 +193,8 @@ const CLIVE_DETAIL: AgentDetail = {
   recentInteractions: [
     {
       recordId: "seed-clive-1",
+      source: "brain_interactions",
+      stableId: "brain_interactions:seed-clive-1",
       interactionId: "INT-CLV-001",
       sessionId: "sess-ch1-demo",
       persona: "clive",
@@ -207,6 +209,8 @@ const CLIVE_DETAIL: AgentDetail = {
     },
     {
       recordId: "seed-clive-2",
+      source: "brain_interactions",
+      stableId: "brain_interactions:seed-clive-2",
       interactionId: "INT-CLV-002",
       sessionId: "sess-coach-demo",
       persona: "clive",
@@ -306,6 +310,8 @@ const PAM_DETAIL: AgentDetail = {
   recentInteractions: [
     {
       recordId: "seed-pam-1",
+      source: "brain_interactions",
+      stableId: "brain_interactions:seed-pam-1",
       interactionId: "INT-PAM-001",
       sessionId: "sess-ch1-demo",
       persona: "pam",

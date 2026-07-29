@@ -77,6 +77,7 @@ describe("Interaction upkeep (memory mode)", () => {
 
     await handleInteractionScore({
       recordId: good.recordId!,
+      source: "brain_interactions",
       brainSlug: "astrajax-chapter-1",
       qualityScore: 5,
       reviewer: "Matthew",
@@ -84,6 +85,7 @@ describe("Interaction upkeep (memory mode)", () => {
 
     await handleInteractionScore({
       recordId: bad.recordId!,
+      source: "brain_interactions",
       brainSlug: "astrajax-chapter-1",
       qualityScore: 2,
       reviewer: "Matthew",
@@ -113,6 +115,7 @@ describe("Interaction upkeep (memory mode)", () => {
 
     const scored = await handleInteractionScore({
       recordId: logged.recordId!,
+      source: "brain_interactions",
       brainSlug: "astrajax-chapter-1",
       qualityScore: 1,
       reviewer: "Client TL",
@@ -136,6 +139,7 @@ describe("Interaction upkeep (memory mode)", () => {
 
     await handleInteractionScore({
       recordId: logged.recordId!,
+      source: "brain_interactions",
       brainSlug: "astrajax-chapter-1",
       qualityScore: 3,
       reviewer: "Matthew",
@@ -144,6 +148,7 @@ describe("Interaction upkeep (memory mode)", () => {
 
     const proposed = await handleInteractionAction({
       recordId: logged.recordId!,
+      source: "brain_interactions",
       brainSlug: "astrajax-chapter-1",
       action: "propose",
     });
@@ -153,6 +158,7 @@ describe("Interaction upkeep (memory mode)", () => {
 
     const dismissed = await handleInteractionAction({
       recordId: logged.recordId!,
+      source: "brain_interactions",
       brainSlug: "astrajax-chapter-1",
       action: "dismiss",
     });

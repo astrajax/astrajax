@@ -1,6 +1,12 @@
 import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
 import { airtableSelect, type AirtableRecord } from "../airtable-rest";
-import { getWorkshopBaseId, getWorkshopReadToken, useMemoryStore } from "../config";
+import {
+  getInteractionReadMode,
+  getWorkshopBaseId,
+  getWorkshopReadToken,
+  useMemoryStore,
+} from "../config";
+import { listHouseholdInteractions } from "./interaction-household";
 import {
   buildActionProposedFormula,
   buildNeedsReviewFormula,
@@ -13,7 +19,7 @@ import type { InteractionListQuery, InteractionSummary, PersonaId } from "../typ
 const DEFAULT_LIMIT = 25;
 const MAX_LIMIT = 50;
 
-export async function handleInteractionList(query: InteractionListQuery): Promise<{
+async function listBrainInteractions(query: InteractionListQuery): Promise<{
   interactions: InteractionSummary[];
   warning?: string;
 }> {
@@ -72,6 +78,38 @@ export async function handleInteractionList(query: InteractionListQuery): Promis
   }
 }
 
+export async function handleInteractionList(query: InteractionListQuery): Promise<{
+  interactions: InteractionSummary[];
+  warning?: string;
+}> {
+  if (useMemoryStore()) return listBrainInteractions(query);
+
+  const mode = getInteractionReadMode();
+  if (mode === "brain_only") return listBrainInteractions(query);
+  if (mode === "household_only") return listHouseholdInteractions(query);
+
+  const [brain, household] = await Promise.all([
+    listBrainInteractions(query).catch((error) => ({
+      interactions: [],
+      warning: error instanceof Error ? error.message : "Brain Interactions read failed.",
+    })),
+    listHouseholdInteractions(query).catch((error) => ({
+      interactions: [],
+      warning: error instanceof Error ? error.message : "Household Activity read failed.",
+    })),
+  ]);
+  const limit = clampLimit(query.limit);
+  const byStableId = new Map<string, InteractionSummary>();
+  for (const interaction of [...brain.interactions, ...household.interactions]) {
+    byStableId.set(interaction.stableId, interaction);
+  }
+  const interactions = [...byStableId.values()]
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .slice(0, limit);
+  const warning = [brain.warning, household.warning].filter(Boolean).join(" ") || undefined;
+  return { interactions, warning };
+}
+
 function mapAirtableRecord(record: AirtableRecord): InteractionSummary {
   const fields = record.fields;
   const persona = String(fields.Persona ?? "clive");
@@ -80,6 +118,8 @@ function mapAirtableRecord(record: AirtableRecord): InteractionSummary {
 
   return {
     recordId: record.id,
+    source: "brain_interactions",
+    stableId: `brain_interactions:${record.id}`,
     interactionId: String(fields["Interaction ID"] ?? record.id),
     sessionId: String(fields["Session ID"] ?? ""),
     persona: persona as PersonaId,
@@ -98,6 +138,7 @@ function mapAirtableRecord(record: AirtableRecord): InteractionSummary {
     manifestRecordIds,
     grantId,
     isFallbackContext: manifestRecordIds.length > 0 && isFallbackManifest(manifestRecordIds),
+    contentComplete: true,
   };
 }
 

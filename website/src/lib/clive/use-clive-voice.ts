@@ -5,6 +5,7 @@
 // works exactly once per <audio> element; (2) prime() gesture-unlocks playback/AudioContext.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 
 type UseCliveVoiceOptions = {
   enabled: boolean;
@@ -13,7 +14,7 @@ type UseCliveVoiceOptions = {
 };
 
 type UseCliveVoiceResult = {
-  speak: (text: string) => Promise<void>;
+  speak: (text: string, platformTurn?: PlatformTurnContext | null) => Promise<void>;
   stop: () => void;
   speaking: boolean;
   prime: () => void;
@@ -198,7 +199,7 @@ export function useCliveVoice({
   }, [teardownPlaybackVisuals]);
 
   const speak = useCallback(
-    async (text: string) => {
+    async (text: string, platformTurn?: PlatformTurnContext | null) => {
       if (!enabled || !text.trim()) return;
 
       stop();
@@ -207,8 +208,16 @@ export function useCliveVoice({
       try {
         response = await fetch("/api/clive-voice", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text }),
+          headers: {
+            "Content-Type": "application/json",
+            ...(platformTurn
+              ? {
+                  "X-Platform-Session": platformTurn.handle,
+                  "X-Platform-Turn-Id": platformTurn.turnId,
+                }
+              : {}),
+          },
+          body: JSON.stringify({ text, turnId: platformTurn?.turnId }),
         });
       } catch {
         onVoiceError?.("Could not reach the voice service.");

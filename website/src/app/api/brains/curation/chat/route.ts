@@ -1,5 +1,6 @@
 import { runCurationChat, sanitiseCurationHistory } from "@/lib/curation/orchestrator";
 import { jsonError, jsonOk } from "@/lib/brains/http";
+import { readOptionalSessionHandle, readTurnId } from "@/lib/platform-activity/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,6 +21,8 @@ export async function POST(request: Request) {
       message: body.message ?? "",
       history: sanitiseCurationHistory(body.history),
       actor: body.actor,
+      platformHandle: readOptionalSessionHandle(request),
+      turnId: readTurnId(request),
     });
 
     return jsonOk(result);

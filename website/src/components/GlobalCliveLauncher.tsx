@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useState } from "react";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { loadPersistedLoopSlice } from "@/lib/aie-demo/user-brain-intake";
+import { PlatformSessionControls } from "@/components/platform-session/PlatformSessionControls";
 
 const HIDDEN_PATHS = ["/brain", "/chapter-1", "/aie-demo", "/command", "/court"];
 
@@ -118,9 +119,12 @@ export function GlobalCliveLauncher() {
                 <p className="text-xs text-ink-muted">Governed context · booth-safe fallback</p>
               </div>
             </div>
-            <button type="button" className="btn-secondary px-3 py-1.5 text-sm" onClick={close}>
-              Close
-            </button>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <PlatformSessionControls compact />
+              <button type="button" className="btn-secondary px-3 py-1.5 text-sm" onClick={close}>
+                Close
+              </button>
+            </div>
           </header>
           <CliveChatSurface
             greeting={greeting}

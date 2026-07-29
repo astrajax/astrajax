@@ -52,15 +52,16 @@ export const CURATION_TOOLS = [
   },
   {
     name: "propose_quarantine",
-    description: "Flag an interaction or draft for quarantine review.",
+    description: "Flag an interaction for quarantine review using its source-qualified record reference.",
     input_schema: {
       type: "object",
       properties: {
         recordId: { type: "string" },
-        recordType: { type: "string", enum: ["interaction", "draft"] },
+        source: { type: "string", enum: ["brain_interactions", "household_activity"] },
+        recordType: { type: "string", enum: ["interaction"] },
         reason: { type: "string" },
       },
-      required: ["recordId", "recordType", "reason"],
+      required: ["recordId", "source", "recordType", "reason"],
       additionalProperties: false,
     },
   },
@@ -85,9 +86,10 @@ export const CURATION_TOOLS = [
       type: "object",
       properties: {
         recordId: { type: "string" },
+        source: { type: "string", enum: ["brain_interactions", "household_activity"] },
         reason: { type: "string" },
       },
-      required: ["recordId", "reason"],
+      required: ["recordId", "source", "reason"],
       additionalProperties: false,
     },
   },
@@ -125,5 +127,14 @@ export function parseToolInput(toolName: CurationToolName, raw: unknown): Record
   if (!raw || typeof raw !== "object") {
     throw new Error(`Invalid input for ${toolName}`);
   }
-  return raw as Record<string, unknown>;
+  const parsed = raw as Record<string, unknown>;
+  if (toolName === "propose_quarantine" || toolName === "mark_no_action") {
+    if (
+      parsed.source !== "brain_interactions" &&
+      parsed.source !== "household_activity"
+    ) {
+      throw new Error(`${toolName} requires a valid interaction source.`);
+    }
+  }
+  return parsed;
 }

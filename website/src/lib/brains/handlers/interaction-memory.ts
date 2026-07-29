@@ -26,6 +26,8 @@ export function addMemoryInteraction(entry: InteractionLogBody): MemoryInteracti
   const manifestRecordIds = entry.manifest?.recordIds ?? [];
   const stored: MemoryInteraction = {
     recordId,
+    source: "brain_interactions",
+    stableId: `brain_interactions:${recordId}`,
     interactionId,
     sessionId: entry.sessionId,
     persona: entry.persona,
@@ -40,6 +42,7 @@ export function addMemoryInteraction(entry: InteractionLogBody): MemoryInteracti
     grantId: entry.manifest?.grantId,
     isFallbackContext: manifestRecordIds.length > 0 && isFallbackManifest(manifestRecordIds),
     manifestHashes: (entry.manifest?.hashes ?? []).join(", "),
+    contentComplete: true,
   };
   memoryInteractions.set(recordId, stored);
   return stored;
@@ -95,6 +98,7 @@ export function scoreMemoryInteraction(
   if (row.brainSlug !== brainSlug) throw new Error("Brain does not match this interaction.");
 
   row.qualityScore = patch.qualityScore;
+  row.agentQuality = patch.qualityScore;
   row.reviewer = patch.reviewer;
   row.reviewNotes = patch.reviewNotes?.trim() || undefined;
   row.reviewedAt = new Date().toISOString();
@@ -128,6 +132,8 @@ export function actionMemoryInteraction(
 function toSummary(row: MemoryInteraction): InteractionSummary {
   return {
     recordId: row.recordId,
+    source: row.source,
+    stableId: row.stableId,
     interactionId: row.interactionId,
     sessionId: row.sessionId,
     persona: row.persona,
@@ -137,6 +143,8 @@ function toSummary(row: MemoryInteraction): InteractionSummary {
     channel: row.channel,
     createdAt: row.createdAt,
     qualityScore: row.qualityScore,
+    agentQuality: row.agentQuality,
+    humanQuality: row.humanQuality,
     reviewer: row.reviewer,
     reviewNotes: row.reviewNotes,
     reviewedAt: row.reviewedAt,
