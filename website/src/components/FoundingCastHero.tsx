@@ -338,9 +338,9 @@ function CastPortrait({
   if (entry.slug === "clives-man") {
     return (
       <Link
-        href="/brain"
+        href="/man/receiving-wall"
         className="hero-portrait-door-wrap block"
-        aria-label="Enter the brain shrine"
+        aria-label="Enter the Receiving Wall — Clive's Man's context intake"
       >
         {portrait}
       </Link>
