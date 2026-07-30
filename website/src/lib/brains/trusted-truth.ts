@@ -30,14 +30,14 @@ type AirtableRecord = {
   };
 };
 
-/** Fallback snippets when Trusted Brain is not wired yet — public-safe positioning only. */
+/** Fallback snippets when Trusted Brain is not wired yet — from docs/business/one-pager.md. */
 export const FALLBACK_TRUSTED_SNIPPETS: ContextSnippet[] = [
   {
     recordId: "fallback-positioning",
     title: "What AstraJax is",
-    text: "AstraJax helps domain experts build the brain and shape the fleet. Clive reasons. Pam challenges. Humans decide. Doc acts.",
+    text: "AstraJax is the AI command centre for operators. It helps non-technical operators build with AI, reason with AI, and adopt agent fleets their teams actually use. Clive reasons. Pam challenges. The Architect decides. Doc executes.",
     contentHash: hashContent(
-      "AstraJax helps domain experts build the brain and shape the fleet. Clive reasons. Pam challenges. Humans decide. Doc acts.",
+      "AstraJax is the AI command centre for operators. It helps non-technical operators build with AI, reason with AI, and adopt agent fleets their teams actually use. Clive reasons. Pam challenges. The Architect decides. Doc executes.",
     ),
   },
 ];

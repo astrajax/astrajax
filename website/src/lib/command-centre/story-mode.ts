@@ -8,10 +8,14 @@ export const STORY_MODE_LABELS: Record<StoryMode, string> = {
   "no-story": "No story",
 };
 
-export const DEFAULT_STORY_MODE: StoryMode = "full";
+export const DEFAULT_STORY_MODE: StoryMode = "no-story";
 
-export function isPortraitNavigationEnabled(mode: StoryMode): boolean {
-  return mode !== "no-story";
+/**
+ * Portrait doors into the platform are unmounted from the public marketing site.
+ * Platform rooms remain in the repo for iteration on localhost / *.vercel.app.
+ */
+export function isPortraitNavigationEnabled(_mode: StoryMode): boolean {
+  return false;
 }
 
 export function parseStoryMode(value: string | null | undefined): StoryMode {

@@ -1,10 +1,34 @@
 const steps = [
-  { num: "01", title: "Pick your guide", body: "Full Story, Light Story or No Story." },
-  { num: "02", title: "Build the brain", body: "Capture context, rules and goals." },
-  { num: "03", title: "Design the fleet", body: "Personality editable, competence locked." },
-  { num: "04", title: "Package & deploy", body: "HyperAgent today, other runtimes tomorrow." },
-  { num: "05", title: "Celebrate & coach", body: "Keep momentum after week one." },
-  { num: "06", title: "The brain learns", body: "Feedback improves the context layer." },
+  {
+    num: "01",
+    title: "Map the operator",
+    body: "Understand the person in the chair before asking them to shape agents.",
+  },
+  {
+    num: "02",
+    title: "Build the brain",
+    body: "Capture the business, rules, goals, edge cases and what good looks like.",
+  },
+  {
+    num: "03",
+    title: "Shape the fleet",
+    body: "Task-scoped agents — personality editable, competence locked.",
+  },
+  {
+    num: "04",
+    title: "Challenge & decide",
+    body: "Clive reasons. Pam challenges. The Architect decides.",
+  },
+  {
+    num: "05",
+    title: "Doc dispatches",
+    body: "Approved briefs become records, packages or builds — then the runtime runs.",
+  },
+  {
+    num: "06",
+    title: "Coach & mature",
+    body: "Feedback improves the brain. Better context lowers cost.",
+  },
 ];
 
 export function Method() {
@@ -16,8 +40,8 @@ export function Method() {
           A closed loop for getting AI used.
         </h2>
         <p className="mt-4 max-w-2xl text-lg leading-relaxed text-parchment/80">
-          Guide → brain → fleet → runtime → coaching → feedback. Every step keeps the domain
-          expert in charge of what good means.
+          Operator map → brain → fleet → challenge → human approval → Doc → runtime → coaching.
+          Every step keeps the domain expert in charge of what good means.
         </p>
         <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {steps.map((step) => (
@@ -36,8 +60,8 @@ export function Method() {
         </blockquote>
         <p className="mt-4 text-sm text-parchment/60">
           People get creative control without being allowed to break the machine. That is how
-          citizen-builders stay safe while still feeling ownership. Story mode is configurable:
-          theatre when it helps adoption, restraint when the room needs it.
+          Architects stay safe while still feeling ownership. Story mode is configurable: theatre
+          when it helps adoption, restraint when the room needs it.
         </p>
       </div>
     </section>

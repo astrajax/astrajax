@@ -335,7 +335,7 @@ function CastPortrait({
     </figure>
   );
 
-  if (entry.slug === "clives-man") {
+  if (portraitDoorsEnabled && entry.slug === "clives-man") {
     return (
       <Link
         href="/brain"
@@ -406,19 +406,6 @@ export function FoundingCastHero() {
           ? ". Each portrait opens that character's command centre room."
           : ""}
       </p>
-      <noscript>
-        <ul className="hero-command-centre-fallback">
-          <li>
-            <a href="/command/clive">Clive&apos;s study</a>
-          </li>
-          <li>
-            <a href="/command/doc">Doc&apos;s workshop</a>
-          </li>
-          <li>
-            <a href="/command/pam">Pam&apos;s desk</a>
-          </li>
-        </ul>
-      </noscript>
 
       {/* Desktop: mockup gallery — Clive top-centre, Doc top-right, Pam bottom-left */}
       <div className="hero-asymmetric-wall__desktop hidden lg:block">

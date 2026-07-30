@@ -5,12 +5,11 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useState } from "react";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { loadPersistedLoopSlice } from "@/lib/aie-demo/user-brain-intake";
-import { PlatformSessionControls } from "@/components/platform-session/PlatformSessionControls";
 
 const HIDDEN_PATHS = ["/brain", "/chapter-1", "/aie-demo", "/command", "/court"];
 
 const GREETING =
-  "Ask me about AstraJax, citizen-builders, the adoption loop, or how Clive keeps agent context clean.";
+  "Ask me what AstraJax is, what Clive does, or how the brain stays clean and trusted.";
 
 const SESSION_STORAGE_KEY = "astrajax-ask-clive-session";
 
@@ -120,7 +119,6 @@ export function GlobalCliveLauncher() {
               </div>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">
-              <PlatformSessionControls compact />
               <button type="button" className="btn-secondary px-3 py-1.5 text-sm" onClick={close}>
                 Close
               </button>
@@ -133,10 +131,11 @@ export function GlobalCliveLauncher() {
             persistTranscript
             voice={VOICE_ENABLED}
             compact
-            placeholder="Ask about adoption, context or Clive…"
+            placeholder="Ask about AstraJax, Clive, or the brain…"
             starterPrompts={[
-              "What is the adoption operating system?",
-              "Why should domain experts shape agents?",
+              "What is AstraJax?",
+              "What does Clive actually do?",
+              "How does the brain stay trustworthy?",
             ]}
           />
         </div>

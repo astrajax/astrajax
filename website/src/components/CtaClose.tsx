@@ -25,7 +25,7 @@ export function CtaClose() {
               rel="noopener noreferrer"
               className="btn-primary mt-8"
             >
-              Book your Adoption Audit
+              Book your Adoption Readiness Audit
               <span aria-hidden>→</span>
             </a>
           </div>

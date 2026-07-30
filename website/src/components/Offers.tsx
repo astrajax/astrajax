@@ -1,23 +1,21 @@
 const offers = [
   {
-    title: "Adoption OS Audit",
+    title: "Adoption Readiness Audit",
     body: "Find the adoption gap.",
-    detail: "Where agents will fail: context, ownership, trust, workflow fit and feedback loops.",
+    detail:
+      "Where AI adoption is stalling: context readiness, trust gaps, workflow fit, model usage, and a clear roadmap.",
   },
   {
     title: "Brain & Fleet Sprint",
     body: "Build the first loop.",
-    detail: "A guided context brain, first agent fleet, approval rules and deployment package.",
+    detail:
+      "A done-with-you build of the first context brain, agent fleet, approval rules, and deployment package.",
   },
   {
-    title: "Domain Architect Enablement",
-    body: "Coach the citizen-builders.",
-    detail: "Your experts learn to shape, test and improve agents without becoming developers.",
-  },
-  {
-    title: "Clive",
-    body: "Keep the brain clean.",
-    detail: "Keeps agent context current, sourced, human-approved and ready for the runtime.",
+    title: "Partnership",
+    body: "Move faster with support.",
+    detail:
+      "Hands-on architecture, Architect training, context design, and adoption support for teams that want to go further.",
     highlight: true,
   },
 ];
@@ -26,11 +24,11 @@ export function Offers() {
   return (
     <section id="offers" className="border-b border-ink/10">
       <div className="mx-auto max-w-6xl px-6 py-16 lg:py-20">
-        <p className="section-label mb-4">Four ways in</p>
+        <p className="section-label mb-4">Three ways in</p>
         <h2 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
           Start where adoption usually breaks.
         </h2>
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {offers.map((offer) => (
             <article
               key={offer.title}
@@ -44,7 +42,7 @@ export function Offers() {
         </div>
         <div className="mt-8">
           <a href="#start" className="btn-primary">
-            Start with the Adoption Audit
+            Start with the Adoption Readiness Audit
             <span aria-hidden>→</span>
           </a>
         </div>

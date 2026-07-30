@@ -1,6 +1,7 @@
 const links = [
   { href: "/#method", label: "Loop" },
   { href: "/#citizen-builder", label: "Citizen Builder" },
+  { href: "/#clive", label: "Ask Clive" },
   { href: "/#start", label: "Contact" },
 ];
 

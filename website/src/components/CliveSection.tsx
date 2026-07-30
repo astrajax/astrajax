@@ -1,10 +1,22 @@
 import { AskClivePanel } from "@/components/AskClivePanel";
 
 const capabilities = [
-  { title: "Intake", body: "Extract the business, rules, goals and judgement calls." },
-  { title: "Curate", body: "Turn raw know-how into scoped, sourced context." },
-  { title: "Human approval", body: "Experts decide what becomes trusted agent knowledge." },
-  { title: "Improve", body: "Fold feedback back into the brain as agents are used." },
+  {
+    title: "Clive reasons",
+    body: "Explains, drafts, and helps shape context with the operator — he does not write canonical truth.",
+  },
+  {
+    title: "Pam challenges",
+    body: "Stress-tests assumptions, evidence, scope, and action readiness before anything sticks.",
+  },
+  {
+    title: "You decide",
+    body: "The Architect chooses what becomes trusted context, policy, or live action.",
+  },
+  {
+    title: "Doc executes",
+    body: "Approved work is dispatched with a paper trail. HyperAgent runs the agents.",
+  },
 ];
 
 export function CliveSection() {
@@ -14,18 +26,18 @@ export function CliveSection() {
         <div>
           <p className="section-label mb-4">Build the brain</p>
           <h2 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            Clive is the context engine inside AstraJax.
+            Agents are only as useful as the context they reason from.
           </h2>
           <p className="mt-3 text-sm font-medium text-apricot">
-            Not a chatbot. A human-approved brain for agent fleets.
+            Not a chatbot. Context as an operating layer.
           </p>
           <blockquote className="mt-6 font-display text-xl italic text-apricot">
             AstraJax structures adoption. Clive structures context. Agent runtimes execute the work.
           </blockquote>
           <p className="mt-6 text-lg leading-relaxed text-ink-muted">
-            Adoption only sticks if the agents actually work. Clive gives them the scoped, sourced
-            and human-approved context they reason from — then keeps that context current as people
-            use the system and correct what it gets wrong.
+            Clive reasons with you — explains, drafts, and helps shape context. He does not write
+            canonical truth. Pam challenges. You decide what becomes trusted. That is how the
+            command centre stays useful without becoming loose.
           </p>
           <dl className="mt-8 grid gap-x-6 gap-y-5 sm:grid-cols-2">
             {capabilities.map((capability) => (

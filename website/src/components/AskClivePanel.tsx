@@ -3,19 +3,18 @@
 import { useEffect, useState } from "react";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { loadPersistedLoopSlice } from "@/lib/aie-demo/user-brain-intake";
-import { PlatformSessionControls } from "@/components/platform-session/PlatformSessionControls";
 
 const GREETING =
-  "Ask me about AstraJax, citizen-builders, the adoption loop, or how Clive keeps agent context clean.";
+  "Ask me what AstraJax is, what Clive does, or how the brain stays clean and trusted.";
 
 const SESSION_STORAGE_KEY = "astrajax-ask-clive-session";
 
 const VOICE_ENABLED = process.env.NEXT_PUBLIC_CLIVE_VOICE === "1";
 
 const STARTER_PROMPTS = [
-  "What is the adoption operating system?",
-  "Why should domain experts shape agents?",
-  "How does Clive keep agents trustworthy?",
+  "What is AstraJax?",
+  "What does Clive actually do?",
+  "How does the brain stay trustworthy?",
 ];
 
 type ReturningArchitect = {
@@ -63,7 +62,7 @@ export function AskClivePanel() {
     ? `Welcome back, ${returning.name}. ${GREETING}`
     : GREETING;
   const loopContext = returning
-    ? `Returning visitor previously mapped in Chapter 1 — name: ${returning.name}${
+    ? `Returning visitor previously mapped — name: ${returning.name}${
         returning.role ? `; role: ${returning.role}` : ""
       }${returning.goal ? `; goal: ${returning.goal}` : ""}. Greet them as a returning architect and keep continuity.`
     : undefined;
@@ -72,10 +71,7 @@ export function AskClivePanel() {
     <div className="card p-6">
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="section-label">Ask Clive</p>
-        <div className="flex flex-wrap items-center justify-end gap-3">
-          <PlatformSessionControls compact />
-          <span className="status-pill status-pill--live">Live</span>
-        </div>
+        <span className="status-pill status-pill--live">Live</span>
       </div>
       <CliveChatSurface
         greeting={greeting}
@@ -83,11 +79,12 @@ export function AskClivePanel() {
         sessionId={sessionId}
         persistTranscript
         voice={VOICE_ENABLED}
-        placeholder="Ask about adoption, context or Clive…"
+        placeholder="Ask about AstraJax, Clive, or the brain…"
         starterPrompts={STARTER_PROMPTS}
       />
       <p className="mt-3 text-xs text-ink-muted">
-        Answers use approved AstraJax context. For the full governed loop, enter Chapter 1.
+        Answers use approved context from the AstraJax brain. Clive reasons; humans decide what
+        becomes trusted.
       </p>
     </div>
   );

@@ -14,11 +14,7 @@ type NavLink = {
 const links: NavLink[] = [
   { href: "/#method", label: "Loop", hint: "How adoption works" },
   { href: "/#citizen-builder", label: "Citizen Builder", hint: "Why experts shape the AI" },
-  {
-    href: "/brain",
-    label: "Brain review",
-    hint: "Score agent answers and flag stale context",
-  },
+  { href: "/#clive", label: "Ask Clive", hint: "A taste of the governed context brain" },
 ];
 
 const featuredLinks = links.filter((link) => link.featured);

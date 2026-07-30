@@ -6,10 +6,10 @@ import {
 } from "./story-mode";
 
 describe("story-mode", () => {
-  it("defaults to full story", () => {
+  it("defaults to no-story on the marketing site", () => {
     expect(parseStoryMode(null)).toBe(DEFAULT_STORY_MODE);
-    expect(parseStoryMode(undefined)).toBe("full");
-    expect(parseStoryMode("invalid")).toBe("full");
+    expect(parseStoryMode(undefined)).toBe("no-story");
+    expect(parseStoryMode("invalid")).toBe("no-story");
   });
 
   it("parses valid modes", () => {
@@ -18,8 +18,8 @@ describe("story-mode", () => {
     expect(parseStoryMode("full")).toBe("full");
   });
 
-  it("enables portrait doors only in full story", () => {
-    expect(isPortraitNavigationEnabled("full")).toBe(true);
+  it("keeps portrait doors unmounted from the public site", () => {
+    expect(isPortraitNavigationEnabled("full")).toBe(false);
     expect(isPortraitNavigationEnabled("light")).toBe(false);
     expect(isPortraitNavigationEnabled("no-story")).toBe(false);
   });

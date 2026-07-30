@@ -15,6 +15,7 @@ import { CHAPTER1_BRAIN_SLUG } from "@/lib/brains/airtable-ids";
 import { LOOP_STEPS, type LoopStep } from "@/lib/aie-demo/types";
 import { handleInteractionLog } from "@/lib/brains/handlers/interaction-log";
 import { brainManifest, codeManifest } from "@/lib/platform-activity/manifest";
+import { isPublicMarketingRequest } from "@/lib/public-host";
 import {
   queueTurnWithModelCall,
   queueTurnWithoutModel,
@@ -145,11 +146,19 @@ export async function POST(request: Request) {
   const sessionId = resolveSessionId(body.sessionId);
   const platformHandle = readOptionalSessionHandle(request);
   const turnId = readTurnId(request);
-  const persona = body.persona === "pam" ? "pam" : "clive";
-  const beat = resolveBeat(body.beat);
   const spoken = body.spoken === true;
-  const loopContext =
-    typeof body.loopContext === "string" && body.loopContext.trim()
+
+  /**
+   * On the public marketing host, persona and loop context are ignored so a
+   * caller cannot swap the website guardrails for the internal Chapter 1 or Pam
+   * prompts. The platform surfaces still pass them on localhost / previews.
+   */
+  const publicSurface = isPublicMarketingRequest(request.headers);
+  const persona = !publicSurface && body.persona === "pam" ? "pam" : "clive";
+  const beat = publicSurface ? undefined : resolveBeat(body.beat);
+  const loopContext = publicSurface
+    ? undefined
+    : typeof body.loopContext === "string" && body.loopContext.trim()
       ? body.loopContext.trim()
       : beat
         ? buildLoopContextSummary({ beat })
