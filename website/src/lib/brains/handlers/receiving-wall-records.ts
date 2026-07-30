@@ -50,8 +50,8 @@ function truncate(text: string, max = 160): string {
 }
 
 /** Map the new single-select (or a legacy label) onto our three sources. */
-function normaliseCaptureSource(raw: string | undefined): CaptureSource | null {
-  if (!raw) return null;
+function normaliseCaptureSource(raw: unknown): CaptureSource | null {
+  if (typeof raw !== "string" || !raw.trim()) return null;
   const value = raw.trim().toLowerCase();
   if (value.includes("external") || value.includes("sentinel")) return "external";
   if (value.includes("user") || value.includes("guided") || value.includes("manual"))
@@ -153,7 +153,12 @@ export async function handleReceivingWallRecords(): Promise<{
     });
 
     const mapped = records
-      .map(mapRecord)
+      .map((record) =>
+        mapRecord({
+          id: record.id,
+          fields: record.fields as DraftTruthFields,
+        }),
+      )
       .filter((row): row is ReceivingRecord => row !== null);
 
     if (mapped.length === 0) {
