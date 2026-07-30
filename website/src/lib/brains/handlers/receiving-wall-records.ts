@@ -12,10 +12,12 @@ import type { CaptureSource, ReceivingRecord } from "@/lib/receiving-wall";
  * seeded, clearly-labelled set so the wall is never blank in development.
  *
  * Source tinting is driven by the new `Capture Source` single-select on the
- * Draft Brain Truth table (Matthew to add it — see PR). Until a row carries
- * that value, its capture source is inferred from the proposing agent /
- * created-by fields, and `source: "derived"` tells the UI to note the tint is
- * inferred rather than read.
+ * Draft Brain Truth table (Matthew to add it — see PR). We only *request* that
+ * field once Matthew has set BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID to its
+ * field ID: requesting a not-yet-created field by name makes Airtable answer
+ * 422 "Unknown field name". Until then the source is inferred from the
+ * proposing agent / created-by fields, and `source: "derived"` tells the UI to
+ * note the tint is inferred rather than read.
  */
 
 type DraftTruthFields = {
@@ -26,21 +28,20 @@ type DraftTruthFields = {
   Status?: string;
   "Proposed By Agent"?: string;
   "Created By"?: string;
-  /** New single-select, to be added by Matthew. */
+  /** New single-select, present only once Matthew creates it. */
   "Capture Source"?: string;
 };
 
-const DRAFT_TRUTH_FIELDS_BY_NAME: Record<keyof DraftTruthFields, string> = {
-  Title: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title,
-  "Canonical Text": BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText,
-  "Brain Slug": BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainSlug,
-  "Proposed Category": BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedCategory,
-  Status: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status,
-  "Proposed By Agent": BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedByAgent,
-  "Created By": BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.createdBy,
-  "Capture Source":
-    process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID ?? "Capture Source",
-};
+/** Fields always present on the table — safe to request by ID. */
+const BASE_FIELD_IDS: string[] = [
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainSlug,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedCategory,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedByAgent,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.createdBy,
+];
 
 const WALL_CAP = 10;
 
@@ -146,9 +147,16 @@ export async function handleReceivingWallRecords(): Promise<{
     };
   }
 
+  // Only request the Capture Source field once Matthew has created it and set
+  // its field ID — asking for a not-yet-created field by name 422s the read.
+  const captureSourceFieldId = process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID;
+  const fieldIds = captureSourceFieldId
+    ? [...BASE_FIELD_IDS, captureSourceFieldId]
+    : BASE_FIELD_IDS;
+
   try {
     const records = await airtableSelect(baseId, tableId, token, {
-      fields: Object.values(DRAFT_TRUTH_FIELDS_BY_NAME),
+      fields: fieldIds,
       maxRecords: WALL_CAP,
     });
 
@@ -164,11 +172,11 @@ export async function handleReceivingWallRecords(): Promise<{
       };
     }
 
-    // If every row's tint came from inference (the field isn't populated yet),
-    // tell the UI the tints are derived, not read.
-    const anyExplicit = records.some((r) =>
-      normaliseCaptureSource(r.fields["Capture Source"]),
-    );
+    // The tint is only truly *read* once the field exists and at least one row
+    // carries a recognised value; until then it is inferred.
+    const anyExplicit =
+      Boolean(captureSourceFieldId) &&
+      records.some((r) => normaliseCaptureSource(r.fields["Capture Source"]));
 
     return { records: mapped, source: anyExplicit ? "live" : "derived" };
   } catch (error) {
