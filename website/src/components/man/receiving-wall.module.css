@@ -1,0 +1,494 @@
+/* The Receiving Wall — Clive's Man's intake landing surface.
+   Per-feature stylesheet (no globals.css tail). House palette tokens come from
+   @theme in globals.css; engraving uses Cinzel via the --font-wall variable. */
+
+.wall {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: var(--color-parchment);
+  background: var(--color-moss);
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+/* ---- Living wall ---- */
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+.stageVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.stageScrim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 20%, rgba(23, 26, 24, 0) 40%, rgba(23, 26, 24, 0.55) 100%),
+    linear-gradient(180deg, rgba(23, 26, 24, 0.25), rgba(23, 26, 24, 0.5));
+}
+
+.wall > *:not(.stage) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Header ---- */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: clamp(1.5rem, 4vh, 3rem);
+}
+.kicker {
+  font-family: var(--font-wall), serif;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  color: var(--color-parchment);
+  opacity: 0.8;
+  margin: 0;
+}
+.title {
+  font-family: var(--font-wall), serif;
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-weight: 700;
+  margin: 0.25rem 0 0;
+  color: #f2e8cf;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.6);
+}
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding-top: 0.5rem;
+}
+
+.summonBtn {
+  font-family: var(--font-wall), serif;
+  background: var(--color-parchment);
+  color: var(--color-moss);
+  border: none;
+  border-radius: 999px;
+  padding: 0.65rem 1.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.summonBtn:hover {
+  background: #f2e3bd;
+  transform: translateY(-1px);
+}
+.ghostLink,
+.ghostBtn {
+  font-family: var(--font-wall), serif;
+  color: var(--color-parchment);
+  text-decoration: none;
+  font-size: 0.9rem;
+  background: transparent;
+  border: 1px solid rgba(231, 209, 173, 0.4);
+  border-radius: 999px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.ghostLink:hover,
+.ghostBtn:hover {
+  border-color: rgba(231, 209, 173, 0.9);
+  background: rgba(231, 209, 173, 0.08);
+}
+
+.note {
+  font-size: 0.85rem;
+  color: #f0e6cc;
+  background: rgba(32, 42, 27, 0.7);
+  border: 1px solid rgba(231, 209, 173, 0.25);
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  max-width: 42rem;
+}
+
+/* ---- The engraved ledger ---- */
+.ledger {
+  max-width: 56rem;
+  margin: 0 auto;
+}
+.ledgerHint {
+  font-family: var(--font-wall), serif;
+  text-align: center;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  color: var(--color-parchment);
+  opacity: 0.7;
+  margin: 0 0 2rem;
+}
+.sourceList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 3vh, 2rem);
+}
+
+.sourceRow {
+  --tint: #e7d1ad;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid rgba(231, 209, 173, 0.14);
+  transition: transform 0.18s ease;
+}
+.sourceRow:hover {
+  transform: translateX(4px);
+}
+.sourceRow:focus-visible {
+  outline: 2px solid var(--tint);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* Incised letterpress: dark inner shadow above, tinted catch on the lower lip. */
+.sourceIncision {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.sourceName {
+  font-family: var(--font-wall), serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3.6vw, 2.5rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #efe6cd;
+  text-shadow:
+    0 -1px 1px rgba(0, 0, 0, 0.85),
+    0 1px 0 var(--tint),
+    0 2px 10px rgba(0, 0, 0, 0.5);
+}
+.sourceRow:hover .sourceName {
+  text-shadow:
+    0 -1px 1px rgba(0, 0, 0, 0.9),
+    0 1px 0 var(--tint),
+    0 0 18px var(--tint);
+}
+.sourceBlurb {
+  font-size: 0.85rem;
+  color: rgba(240, 230, 204, 0.72);
+  font-style: italic;
+}
+.sourceCount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.sourceCountNum {
+  font-family: var(--font-wall), serif;
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700;
+  color: var(--tint);
+  text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.8);
+}
+.sourceCountWord {
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(240, 230, 204, 0.6);
+  margin-top: 0.3rem;
+}
+
+/* ---- Source zoom ---- */
+.zoom {
+  max-width: 52rem;
+  margin: 0 auto;
+  animation: zoomIn 0.3s ease both;
+}
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.985) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.zoomHead {
+  margin-bottom: 1.75rem;
+}
+.backBtn {
+  font-family: var(--font-wall), serif;
+  background: transparent;
+  border: none;
+  color: var(--color-parchment);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 0.9rem;
+  opacity: 0.85;
+}
+.backBtn:hover {
+  opacity: 1;
+}
+.zoomTitle {
+  font-family: var(--font-wall), serif;
+  font-size: clamp(1.75rem, 4vw, 2.75rem);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #f2e8cf;
+  margin: 0;
+  text-shadow:
+    0 -1px 1px rgba(0, 0, 0, 0.85),
+    0 1px 0 var(--tint),
+    0 2px 12px rgba(0, 0, 0, 0.5);
+}
+.zoomBlurb {
+  font-style: italic;
+  color: rgba(240, 230, 204, 0.72);
+  margin: 0.4rem 0 0;
+}
+
+.recordList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.recordRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(231, 209, 173, 0.12);
+  padding: 1rem 0.25rem;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.15s ease;
+}
+.recordRow:hover {
+  transform: translateX(3px);
+}
+.recordRow:focus-visible {
+  outline: 2px solid var(--tint);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.recordIncision {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.recordTitle {
+  font-family: var(--font-wall), serif;
+  font-weight: 600;
+  font-size: clamp(1.15rem, 2.4vw, 1.6rem);
+  letter-spacing: 0.04em;
+  color: #ece3c9;
+  text-shadow:
+    0 -1px 1px rgba(0, 0, 0, 0.8),
+    0 1px 0 rgba(231, 209, 173, 0.5);
+}
+.recordProvenance {
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(240, 230, 204, 0.55);
+}
+.recordChevron {
+  font-family: var(--font-wall), serif;
+  font-size: 1.5rem;
+  color: var(--tint);
+  flex-shrink: 0;
+}
+
+/* ---- The letter (open record) ---- */
+.letter {
+  margin: 0.5rem 0 1.5rem;
+  background: linear-gradient(180deg, rgba(32, 42, 27, 0.92), rgba(23, 26, 24, 0.94));
+  border: 1px solid rgba(231, 209, 173, 0.28);
+  border-left: 3px solid var(--tint);
+  border-radius: 0.5rem;
+  padding: 1.5rem 1.75rem;
+  animation: zoomIn 0.22s ease both;
+}
+.letterTitle {
+  font-family: var(--font-wall), serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #f4ecd6;
+  margin: 0 0 0.5rem;
+}
+.letterMeta {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tint);
+  margin: 0 0 1rem;
+}
+.letterBody {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #efe7d0;
+  margin: 0 0 1rem;
+  white-space: pre-wrap;
+}
+.letterNote {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: rgba(240, 230, 204, 0.66);
+  margin: 0 0 1.25rem;
+}
+.letterActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.empty {
+  font-style: italic;
+  color: rgba(240, 230, 204, 0.7);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+/* ---- Clive pop-out ---- */
+.popOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(18, 22, 17, 0.72);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  animation: fadeIn 0.2s ease both;
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.popPanel {
+  width: min(560px, 100%);
+  background: var(--color-cream-paper);
+  color: var(--color-ink);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -18px 0 50px rgba(0, 0, 0, 0.5);
+  animation: slideIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes slideIn {
+  from {
+    transform: translateX(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.popHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.4rem 1.5rem 1rem;
+  border-bottom: 1px solid rgba(23, 26, 24, 0.1);
+}
+.popKicker {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+  margin: 0;
+}
+.popTitle {
+  font-family: var(--font-wall), serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-moss);
+  margin: 0.2rem 0 0;
+}
+.popClose {
+  background: transparent;
+  border: 1px solid rgba(23, 26, 24, 0.2);
+  border-radius: 999px;
+  width: 2.25rem;
+  height: 2.25rem;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--color-ink);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.popClose:hover {
+  background: rgba(23, 26, 24, 0.06);
+}
+.popBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem 1.5rem 1.5rem;
+}
+
+/* ---- Responsive & reduced motion ---- */
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+  }
+  .sourceRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .sourceCount {
+    align-items: flex-start;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stageVideo {
+    display: none;
+  }
+  .stage {
+    background: url("/agent-cast/clives-man/receiving-wall-poster.jpg") center / cover no-repeat;
+  }
+  .zoom,
+  .letter,
+  .popOverlay,
+  .popPanel {
+    animation: none;
+  }
+  .sourceRow,
+  .recordRow,
+  .summonBtn {
+    transition: none;
+  }
+}
