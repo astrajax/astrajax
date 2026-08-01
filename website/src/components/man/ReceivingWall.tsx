@@ -20,6 +20,12 @@ type WallData = {
   message?: string;
 };
 
+/** Transparent frame overlay (Kathryn/TL commission) — once it lands in
+ *  /agent-cast/clives-man/, the arch/sconces/shelves/ledge pass IN FRONT of the
+ *  engraving so the words sit behind the room's frame. Until then the wall
+ *  ships the flat layering. */
+const FRAME_OVERLAY_SRC = "/agent-cast/clives-man/receiving-wall-frame.png";
+
 function createSessionId(): string {
   return `rw_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
@@ -29,6 +35,7 @@ export function ReceivingWall() {
   const [zoomed, setZoomed] = useState<CaptureSource | null>(null);
   const [openRecordId, setOpenRecordId] = useState<string | null>(null);
   const [cliveOpen, setCliveOpen] = useState(false);
+  const [frameOverlay, setFrameOverlay] = useState(false);
   const [sessionId] = useState(createSessionId);
   const [chatSeed, setChatSeed] = useState<ChatMessage[]>([]);
 
@@ -43,6 +50,20 @@ export function ReceivingWall() {
         /* leave wall in its loading state */
       }
     })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Detect the frame overlay asset — enable the occlusion layer only when the
+  // commissioned PNG is actually deployed.
+  useEffect(() => {
+    let cancelled = false;
+    const probe = new window.Image();
+    probe.onload = () => {
+      if (!cancelled) setFrameOverlay(true);
+    };
+    probe.src = FRAME_OVERLAY_SRC;
     return () => {
       cancelled = true;
     };
@@ -103,7 +124,10 @@ export function ReceivingWall() {
   }, [cliveOpen, openRecordId, zoomed, closeZoom]);
 
   return (
-    <main className={styles.wall} aria-label="The Receiving Wall">
+    <main
+      className={`${styles.wall} ${frameOverlay ? styles.wallFramed : ""}`}
+      aria-label="The Receiving Wall"
+    >
       {/* Living wall */}
       <div className={styles.stage} aria-hidden>
         <video
@@ -249,6 +273,12 @@ export function ReceivingWall() {
           )}
         </section>
       )}
+
+      {/* Frame overlay — the room's architecture passes in front of the
+          engraving once the commissioned PNG is deployed. */}
+      {frameOverlay ? (
+        <div className={styles.frameOverlay} aria-hidden />
+      ) : null}
 
       {/* Clive pop-out */}
       {cliveOpen ? (
