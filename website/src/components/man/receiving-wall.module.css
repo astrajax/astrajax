@@ -31,9 +31,22 @@
     linear-gradient(180deg, rgba(23, 26, 24, 0.25), rgba(23, 26, 24, 0.5));
 }
 
-.wall > *:not(.stage) {
+/* Content sits above the wall but BELOW the frame overlay when present. */
+.wall > *:not(.stage):not(.frameOverlay) {
   position: relative;
   z-index: 1;
+}
+
+/* ---- Frame overlay (Kathryn/TL commission) ----
+   The room's architecture passes IN FRONT of the engraving. Pointer-events are
+   off so the ledger stays fully interactive beneath it. Only rendered when the
+   commissioned PNG is deployed (the .wallFramed gate). */
+.frameOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: url("/agent-cast/clives-man/receiving-wall-frame.png") center / cover no-repeat;
 }
 
 /* ---- Header ---- */
