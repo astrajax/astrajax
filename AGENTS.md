@@ -132,3 +132,34 @@ AI-ready operating systems; Clive reasons, and Clive's Man stewards the context 
 specifics **out of this file and any shareable/committed doc**. The behavioural
 takeaway is enough: Matthew works best where effort maps directly to outcomes, and
 he externalises executive function into systems.
+
+## Cursor Cloud specific instructions
+
+The one runnable product is the **`website/`** Next.js app (Next.js 15 + React 19,
+App Router). Its API routes (`src/app/api/*`) are the backend — there is **no
+separate server, database, or Docker** to start. Everything under `hyperagent/`,
+`scripts/`, and `agents/` is offline Python tooling / specs (stdlib-only, run with
+`python3 <file>.py`, needs Airtable tokens) and is not part of the core app.
+
+- **Run the app (dev):** `cd website && npm run dev` → http://localhost:3000.
+  Standard commands live in `website/README.md` and `website/package.json`.
+- **Local env:** the startup script (see below) creates `website/.env.local` from
+  `website/.env.example` if it is missing. It is gitignored. It sets
+  `BRAIN_KEY_USE_MEMORY=true` so all Brain Key / brain routes work fully offline
+  with an in-memory store — **no Airtable needed** for local dev.
+- **Ask Clive without a key:** with `ANTHROPIC_API_KEY` empty, `POST /api/ask-clive`
+  still returns `200` with a canned fallback reply (`"fallback": true`). This is by
+  design — the UI works end to end offline. Add a real `ANTHROPIC_API_KEY` to
+  `website/.env.local` for live Claude replies (Court routes use `COURT_MODEL`,
+  Clive voice uses `OPENAI_API_KEY`).
+- **Lint:** `npm run lint` (`next lint`) is **not usable non-interactively** — no
+  ESLint config or dependency exists, so it drops into an interactive setup prompt.
+  Use `npx tsc --noEmit` in `website/` as the static check instead.
+- **Tests:** `npm run test:brain-key`, `npm run test:command-centre`,
+  `npm run test:platform-activity` (vitest); `npm run test:e2e` (Playwright — needs
+  `npx playwright install` for browsers). As of this setup, one pre-existing vitest
+  failure exists in `src/lib/command-centre/story-mode.test.ts` and one pre-existing
+  `tsc` error in `src/lib/brains/handlers/receiving-wall-records.ts` (the latter can
+  block `next build`; `next dev` is unaffected). These are not environment issues.
+- **Platform telemetry** (`PLATFORM_*`) and the `vercel.json` crons default **off**
+  and are not needed for local dev/testing.
