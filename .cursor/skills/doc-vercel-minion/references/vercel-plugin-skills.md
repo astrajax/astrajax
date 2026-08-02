@@ -9,6 +9,42 @@ skills by name when Doc or the Vercel Minion names them.
 files** before Phase B work on that topic. Do not guess Vercel API behaviour when
 a skill exists.
 
+Upstream plugin (skills, specialist agents, slash commands):
+[vercel/vercel-plugin](https://github.com/vercel/vercel-plugin). Skills are
+on-demand — not auto-injected every chat. Specialist agents when useful:
+`deployment-expert`, `performance-optimizer`, `ai-architect`.
+
+---
+
+## Vercel auth & project identity (check before deploy / MCP work)
+
+Matthew has **two** Vercel logins. The Cursor Vercel plugin can land on the wrong
+one. AstraJax website work must use the **AstraJax** team — not Direct Sales
+(Butternut).
+
+| | AstraJax (correct for `website/`) | Wrong account |
+|--|-----------------------------------|---------------|
+| Team | **AstraJax** (`astra-jax`) | Direct Sales |
+| Team ID | `team_sYfTdTAvtNfhoDtc8QUsQSEf` | `team_cyh9S0mA4yZsHaFp4YDCmXvD` |
+| Project | **astrajax** | `ds-brains` |
+| Project ID | `prj_qpGvaEbXHn4JXu1eDTbNFDJ6kxQQ` | — |
+| Root directory | `website/` | — |
+| Domains | `astrajax.com`, `www.astrajax.com` | — |
+
+Local link files (gitignored): `website/.vercel/project.json` and repo-root
+`.vercel/project.json` should match the AstraJax IDs above.
+
+**Healthy check (Vercel MCP):** `list_teams` shows **AstraJax**; `get_project`
+for `astrajax` / the project ID above succeeds.
+
+**Broken check:** only **Direct Sales** / `ds-brains` visible, or AstraJax
+project returns **403**. Fix: re-auth the Vercel plugin (`mcp_auth` on
+`plugin-vercel-plugin-vercel`) and sign in with the **AstraJax** Vercel
+account — not the Butternut / Direct Sales login. Browser auto-pick of the
+wrong Google/GitHub account is the usual cause.
+
+Do not store secrets here. IDs and team names only.
+
 ---
 
 ## AstraJax defaults (most jobs)

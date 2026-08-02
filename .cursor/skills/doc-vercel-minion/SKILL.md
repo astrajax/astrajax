@@ -121,6 +121,11 @@ root). Doc names which ones apply; you **read and follow** those skills in Phase
 **Picker reference (read when planning):**
 `.cursor/skills/doc-vercel-minion/references/vercel-plugin-skills.md`
 
+**Auth / project identity:** before deploy or Vercel MCP work, confirm the
+plugin is on the **AstraJax** team (`astrajax` project, root `website/`) — not
+Direct Sales. Full IDs, healthy-check, and re-auth steps are in the picker under
+**Vercel auth & project identity**.
+
 **Default stack for `website/`:**
 
 | Skill | When |
