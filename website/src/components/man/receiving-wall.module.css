@@ -10,6 +10,9 @@
         while the zoomed painting (.stageZoomed) crossfades over the wide loop
         late in the move — the dissolve hides the video's resolution cliff, and
         the painting's own brushwork and edge-light take over at arrival.
+        Scale 1.38 settles with the arch mouldings just inside the frame edges
+        (their inner edges measure x≈0.20 / x≈0.80 in the wide master); 1.49
+        pushed clean past them into bare field (Matthew, 2 Aug 2026).
      3. The bay's records fade in (.contentEnter) once the wall has settled.
 
    Text never scales; only the wall moves. All motion is transform/opacity on
@@ -54,7 +57,7 @@
   pointer-events: none;
 }
 .stage.zooming {
-  transform: scale(1.49);
+  transform: scale(1.38);
 }
 .stage.zooming .stageZoomed {
   opacity: 1;
