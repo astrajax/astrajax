@@ -7,10 +7,12 @@ import {
   CAPTURE_SOURCE_LABEL,
   CAPTURE_SOURCE_ORDER,
   CAPTURE_SOURCE_TINT,
+  isReceivingRecordActioned,
   type CaptureSource,
   type ReceivingRecord,
 } from "@/lib/receiving-wall";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
+import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 import type { ChatMessage } from "@/lib/clive/types";
 import styles from "./receiving-wall.module.css";
 
@@ -21,33 +23,36 @@ type WallData = {
 };
 
 /**
- * The dolly-zoom, in one sentence: the ledger fades out, the camera pushes into
- * the arch field while the zoomed painting crossfades over the wide loop, then
- * the bay's records fade in at rest. Text never scales — only the wall moves.
- *
- * Timings are orchestrated by CSS (see receiving-wall.module.css); the JS only
- * tracks which beat we're in so the DOM swaps line up with the visual ones:
+ * Portal dolly — ledger fades out, camera pushes into the arch field, bay
+ * records rise before the camera settles. Text never scales; only the wall
+ * moves. Timings orchestrated against CSS --dolly-ms (1500ms push, 900ms pull).
  *
  *   idle     — wide wall + ledger
- *   exiting  — ledger fading/lifting out (~260ms)
- *   zooming  — the dolly: wall scales toward the arch, painting crossfades in
- *   zoomedIn — arrived: zoomed painting holds, bay list fading in
- *   returning— reverse: bay list out, dolly pulls back, ledger returns
+ *   exiting  — ledger fading out; zoomed still null
+ *   zooming  — zoomed set, bay hidden, wall dollies in
+ *   zoomedIn — bay fades in
+ *   returning— bay fades out; wall stays pushed until RETURN_MS
+ *   settling — pull-back running; ledger held out until SETTLE_MS
  *
- * The wall transform/crossfade is pure CSS transition on the .zooming class,
- * so reduced-motion users get the same state change as a plain crossfade.
+ * Spec: website/docs/receiving-wall-portal-spec.md
  */
-type Beat = "idle" | "exiting" | "zooming" | "zoomedIn" | "returning";
+type Beat = "idle" | "exiting" | "zooming" | "zoomedIn" | "returning" | "settling";
 
-const EXIT_MS = 260; // ledger fade-out before the dolly begins
-const ARRIVE_MS = 1160; // dolly + painting crossfade, matching CSS
-const RETURN_MS = 260; // bay fade-out before the pull-back
+const TIMINGS = {
+  normal: { EXIT: 220, ARRIVE: 1420, RETURN: 260, SETTLE: 880 },
+  reduced: { EXIT: 120, ARRIVE: 240, RETURN: 120, SETTLE: 240 },
+} as const;
+
+type AcceptState = "idle" | "pending" | "success" | "error";
 
 function createSessionId(): string {
   return `rw_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export function ReceivingWall() {
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const T = prefersReducedMotion ? TIMINGS.reduced : TIMINGS.normal;
+
   const [data, setData] = useState<WallData | null>(null);
   const [beat, setBeat] = useState<Beat>("idle");
   const [zoomed, setZoomed] = useState<CaptureSource | null>(null);
@@ -55,6 +60,8 @@ export function ReceivingWall() {
   const [cliveOpen, setCliveOpen] = useState(false);
   const [sessionId] = useState(createSessionId);
   const [chatSeed, setChatSeed] = useState<ChatMessage[]>([]);
+  const [acceptState, setAcceptState] = useState<AcceptState>("idle");
+  const [acceptError, setAcceptError] = useState<string | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
@@ -71,7 +78,13 @@ export function ReceivingWall() {
     return () => {
       cancelled = true;
       timers.current.forEach(clearTimeout);
+      timers.current = [];
     };
+  }, []);
+
+  const clearPending = useCallback(() => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
   }, []);
 
   const after = useCallback((ms: number, fn: () => void) => {
@@ -91,211 +104,364 @@ export function ReceivingWall() {
 
   const openSource = useCallback(
     (source: CaptureSource) => {
-      if (beat === "exiting" || beat === "zooming") return;
-      setZoomed(source);
+      if (beat === "exiting" || beat === "zooming" || beat === "returning") return;
+
+      if (beat === "settling") {
+        clearPending();
+        setOpenRecordId(null);
+        setZoomed(null);
+        setBeat("exiting");
+        after(T.EXIT, () => {
+          setZoomed(source);
+          setBeat("zooming");
+        });
+        after(T.ARRIVE, () => setBeat("zoomedIn"));
+        return;
+      }
+
+      if (beat === "zoomedIn") {
+        if (source === zoomed) return;
+        clearPending();
+        setOpenRecordId(null);
+        setZoomed(source);
+        setBeat("zooming");
+        after(T.EXIT, () => setBeat("zoomedIn"));
+        return;
+      }
+
+      clearPending();
       setOpenRecordId(null);
       setBeat("exiting");
-      after(EXIT_MS, () => setBeat("zooming"));
-      after(ARRIVE_MS, () => setBeat("zoomedIn"));
+      after(T.EXIT, () => {
+        setZoomed(source);
+        setBeat("zooming");
+      });
+      after(T.ARRIVE, () => setBeat("zoomedIn"));
     },
-    [beat, after],
+    [beat, zoomed, after, clearPending, T.EXIT, T.ARRIVE],
   );
 
   const closeZoom = useCallback(() => {
-    if (beat !== "zoomedIn") return;
-    setOpenRecordId(null);
-    setBeat("returning");
-    after(RETURN_MS, () => {
+    if (beat === "exiting") {
+      clearPending();
+      setBeat("idle");
+      return;
+    }
+    if (beat === "zooming") {
+      clearPending();
+      setOpenRecordId(null);
       setZoomed(null);
       setBeat("idle");
+      return;
+    }
+    if (beat === "settling") {
+      clearPending();
+      setOpenRecordId(null);
+      setZoomed(null);
+      setBeat("idle");
+      return;
+    }
+    if (beat !== "zoomedIn") return;
+    clearPending();
+    setOpenRecordId(null);
+    setBeat("returning");
+    after(T.RETURN, () => {
+      setZoomed(null);
+      setBeat("settling");
     });
-  }, [beat, after]);
+    after(T.SETTLE, () => setBeat("idle"));
+  }, [beat, after, clearPending, T.RETURN, T.SETTLE]);
 
-  const summonClive = useCallback(() => {
+  const summonClive = useCallback((contextRecord?: ReceivingRecord | null) => {
+    const recordLine = contextRecord
+      ? `You have "${contextRecord.title}" open — read it properly or tell me what it should become.`
+      : "Tell me which record you'd like to read properly, or ask me to walk the bench and propose what each should become.";
     setChatSeed([
       {
         role: "assistant",
-        content:
-          "The wall holds what the household has captured but not yet decided. Tell me which record you'd like to read properly, or ask me to walk the bench and propose what each should become.",
+        content: `The wall holds what the household has captured but not yet decided. ${recordLine}`,
       },
     ]);
     setCliveOpen(true);
   }, []);
+
+  const acceptRecord = useCallback(
+    async (record: ReceivingRecord) => {
+      if (isReceivingRecordActioned(record.status)) return;
+      setAcceptState("pending");
+      setAcceptError(null);
+      try {
+        const response = await fetch("/api/brains/receiving-wall/accept", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ recordId: record.recordId, actor: "Architect" }),
+        });
+        const json = (await response.json()) as {
+          record?: ReceivingRecord;
+          error?: string;
+        };
+        if (!response.ok) {
+          throw new Error(json.error ?? "Could not accept this record.");
+        }
+        if (!json.record) {
+          throw new Error("Accept succeeded but no record was returned.");
+        }
+        setData((current) =>
+          current
+            ? {
+                ...current,
+                records: current.records.map((row) =>
+                  row.recordId === json.record!.recordId ? json.record! : row,
+                ),
+              }
+            : current,
+        );
+        setAcceptState("success");
+      } catch (error) {
+        setAcceptState("error");
+        setAcceptError(error instanceof Error ? error.message : "Could not accept this record.");
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    setAcceptState("idle");
+    setAcceptError(null);
+  }, [openRecordId]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         if (cliveOpen) setCliveOpen(false);
         else if (openRecordId) setOpenRecordId(null);
-        else if (beat === "zoomedIn") closeZoom();
+        else if (
+          beat === "zoomedIn" ||
+          beat === "zooming" ||
+          beat === "exiting" ||
+          beat === "settling"
+        ) {
+          closeZoom();
+        }
       }
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [cliveOpen, openRecordId, beat, closeZoom]);
 
-  const moving = beat === "zooming" || beat === "zoomedIn";
-  const stageState = moving ? styles.zooming : "";
-  const ledgerState =
-    beat === "exiting" ? styles.contentExit : beat === "idle" ? styles.contentEnter : "";
-  const bayState = beat === "zoomedIn" ? styles.contentEnter : "";
+  const moving = beat === "zooming" || beat === "zoomedIn" || beat === "returning";
+  const wallZoomed = moving && zoomed !== null;
+  const wallClasses = [
+    styles.wall,
+    wallZoomed ? styles.zoomed : "",
+    beat === "settling" ? styles.settling : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const ledgerState = beat === "idle" ? styles.contentEnter : styles.contentExit;
+  const bayState = beat === "zoomedIn" ? styles.contentEnter : styles.contentExit;
+
+  const idleTint = "#e7d1ad";
 
   return (
-    <main className={styles.wall} aria-label="The Receiving Wall">
-      {/* Living wall — two layers: the wide loop, and the zoomed painting that
-          crossfades over it as the dolly arrives. Both scale together. */}
-      <div className={`${styles.stage} ${stageState}`} aria-hidden>
-        <video
-          className={styles.stageVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          poster="/agent-cast/clives-man/receiving-wall-poster.jpg"
-        >
-          <source src="/agent-cast/clives-man/receiving-wall.mp4" type="video/mp4" />
-        </video>
-        <div
-          className={styles.stageZoomed}
-          style={{
-            backgroundImage: "url(/agent-cast/clives-man/receiving-wall-zoomed.jpg)",
-          }}
-        />
+    <main
+      className={wallClasses}
+      aria-label="The Receiving Wall"
+      style={{ ["--tint" as string]: zoomed ? CAPTURE_SOURCE_TINT[zoomed] : idleTint }}
+    >
+      <div className={styles.stage} aria-hidden>
+        <div className={styles.plate}>
+          <div className={styles.plateBreath}>
+            <video
+              className={styles.stageVideo}
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster="/agent-cast/clives-man/receiving-wall-poster.jpg"
+            >
+              <source src="/agent-cast/clives-man/receiving-wall.mp4" type="video/mp4" />
+            </video>
+            <div className={styles.plateRecess} />
+          </div>
+        </div>
         <div className={styles.stageScrim} />
       </div>
 
-      {/* Header */}
-      <header className={styles.header}>
-        <div>
-          <p className={styles.kicker}>The Receiving Wall</p>
-          <h1 className={styles.title}>Clive&rsquo;s Man</h1>
-        </div>
-        <div className={styles.headerActions}>
-          <button type="button" className={styles.summonBtn} onClick={summonClive}>
-            Sit with Clive
-          </button>
-          <Link href="/brain" className={styles.ghostLink}>
-            To the brains →
-          </Link>
-        </div>
-      </header>
+      <nav className={styles.navExit} aria-label="Leave the wall">
+        <Link href="/brain" className={styles.ghostLink}>
+          To the brains →
+        </Link>
+      </nav>
 
-      {data?.source !== "live" && data?.message ? (
-        <p className={styles.note} role="status">
-          {data.source === "derived"
-            ? "Showing live records — source tinting is inferred until the Capture Source field is set."
-            : data.message}
-        </p>
-      ) : null}
-
-      {/* The engraved ledger — visible on the wide wall, fades out for the dolly */}
-      {!zoomed ? (
-        <section className={`${styles.ledger} ${ledgerState}`} aria-label="Captured context">
-          <p className={styles.ledgerHint}>
-            Choose a door to read what waits within.
+      <div className={styles.aperture}>
+        {data?.source !== "live" && data?.message ? (
+          <p className={styles.note} role="status">
+            {data.source === "derived"
+              ? "Showing live records — source tinting is inferred until the Capture Source field is set."
+              : data.message}
           </p>
-          <ul className={styles.sourceList}>
-            {CAPTURE_SOURCE_ORDER.map((source) => {
-              const count = records.filter((r) => r.captureSource === source).length;
-              return (
-                <li key={source}>
-                  <button
-                    type="button"
-                    className={styles.sourceRow}
-                    style={{ ["--tint" as string]: CAPTURE_SOURCE_TINT[source] }}
-                    onClick={() => openSource(source)}
-                    aria-label={`${CAPTURE_SOURCE_LABEL[source]} — ${count} record${count === 1 ? "" : "s"}`}
-                  >
-                    <span className={styles.sourceIncision}>
-                      <span className={styles.sourceName}>{CAPTURE_SOURCE_LABEL[source]}</span>
-                      <span className={styles.sourceBlurb}>{CAPTURE_SOURCE_BLURB[source]}</span>
-                    </span>
-                    <span className={styles.sourceCount}>
-                      <span className={styles.sourceCountNum}>{count}</span>
-                      <span className={styles.sourceCountWord}>within</span>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ) : (
-        /* The bay — arrives once the dolly has settled on the painting */
-        <section
-          className={`${styles.zoom} ${bayState}`}
-          aria-label={CAPTURE_SOURCE_LABEL[zoomed]}
-          style={{ ["--tint" as string]: CAPTURE_SOURCE_TINT[zoomed] }}
-        >
-          <div className={styles.zoomHead}>
-            <button type="button" className={styles.backBtn} onClick={closeZoom}>
-              ← The wall
-            </button>
-            <h2 className={styles.zoomTitle}>{CAPTURE_SOURCE_LABEL[zoomed]}</h2>
-            <p className={styles.zoomBlurb}>{CAPTURE_SOURCE_BLURB[zoomed]}</p>
-          </div>
+        ) : null}
 
-          {zoomedRecords.length === 0 ? (
-            <p className={styles.empty}>Nothing waits in this bay yet.</p>
-          ) : (
-            <ul className={styles.recordList}>
-              {zoomedRecords.map((record) => (
-                <li key={record.recordId}>
-                  <button
-                    type="button"
-                    className={`${styles.recordRow} ${
-                      openRecordId === record.recordId ? styles.recordRowOpen : ""
-                    }`}
-                    onClick={() =>
-                      setOpenRecordId(openRecordId === record.recordId ? null : record.recordId)
-                    }
-                  >
-                    <span className={styles.recordIncision}>
-                      <span className={styles.recordTitle}>{record.title}</span>
-                      <span className={styles.recordProvenance}>{record.provenance}</span>
-                    </span>
-                    <span className={styles.recordChevron} aria-hidden>
-                      {openRecordId === record.recordId ? "−" : "+"}
-                    </span>
-                  </button>
-
-                  {openRecordId === record.recordId && openRecord ? (
-                    <div className={styles.letter} role="region" aria-label={`${record.title} — full record`}>
-                      <p className={styles.letterTitle}>{openRecord.title}</p>
-                      <p className={styles.letterMeta}>
-                        {openRecord.provenance}
-                        {openRecord.status ? ` · ${openRecord.status}` : ""}
-                        {openRecord.brainSlug ? ` · → ${openRecord.brainSlug}` : ""}
-                      </p>
-                      <p className={styles.letterBody}>
-                        {openRecord.canonicalText || openRecord.snippet}
-                      </p>
-                      <p className={styles.letterNote}>
-                        To decide what this becomes, sit with Clive — he files the record and
-                        writes the paper trail.
-                      </p>
-                      <div className={styles.letterActions}>
-                        <button type="button" className={styles.summonBtn} onClick={summonClive}>
-                          Decide with Clive
-                        </button>
-                        <button
-                          type="button"
-                          className={styles.ghostBtn}
-                          onClick={() => setOpenRecordId(null)}
-                        >
-                          Fold the letter
-                        </button>
-                      </div>
-                    </div>
-                  ) : null}
-                </li>
-              ))}
+        {!zoomed ? (
+          <section className={`${styles.ledger} ${ledgerState}`} aria-label="Captured context">
+            <ul className={styles.sourceList}>
+              {CAPTURE_SOURCE_ORDER.map((source) => {
+                const count = records.filter((r) => r.captureSource === source).length;
+                return (
+                  <li key={source}>
+                    <button
+                      type="button"
+                      className={styles.sourceRow}
+                      style={{ ["--tint" as string]: CAPTURE_SOURCE_TINT[source] }}
+                      onClick={() => openSource(source)}
+                      aria-label={`${CAPTURE_SOURCE_LABEL[source]} — ${count} record${count === 1 ? "" : "s"}`}
+                    >
+                      <span className={styles.sourceIncision}>
+                        <span className={styles.sourceName}>{CAPTURE_SOURCE_LABEL[source]}</span>
+                        <span className={styles.sourceBlurb}>{CAPTURE_SOURCE_BLURB[source]}</span>
+                      </span>
+                      <span className={styles.sourceCount}>
+                        <span className={styles.sourceCountNum}>{count}</span>
+                        <span className={styles.sourceCountWord}>within</span>
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
             </ul>
-          )}
-        </section>
-      )}
 
-      {/* Clive pop-out */}
+            <section className={styles.bench} aria-label="The bench">
+              <div className={styles.benchRule} aria-hidden />
+              <p className={styles.benchKicker}>THE BENCH</p>
+              <p className={styles.benchLine}>He waits here between readings.</p>
+              <button
+                type="button"
+                className={styles.incisedAction}
+                onClick={() => summonClive()}
+              >
+                Sit with Clive →
+              </button>
+            </section>
+          </section>
+        ) : (
+          <section
+            key={zoomed}
+            className={`${styles.zoom} ${bayState}`}
+            aria-label={CAPTURE_SOURCE_LABEL[zoomed]}
+          >
+            <div className={styles.zoomHead}>
+              <button type="button" className={styles.backBtn} onClick={closeZoom}>
+                ← The wall
+              </button>
+              <h2 className={styles.zoomTitle}>{CAPTURE_SOURCE_LABEL[zoomed]}</h2>
+              <p className={styles.zoomBlurb}>{CAPTURE_SOURCE_BLURB[zoomed]}</p>
+            </div>
+
+            {zoomedRecords.length === 0 ? (
+              <p className={styles.empty}>Nothing waits in this bay yet.</p>
+            ) : (
+              <ul className={styles.recordList}>
+                {zoomedRecords.map((record) => (
+                  <li key={record.recordId}>
+                    <button
+                      type="button"
+                      className={`${styles.recordRow} ${
+                        openRecordId === record.recordId ? styles.recordRowOpen : ""
+                      }`}
+                      onClick={() =>
+                        setOpenRecordId(openRecordId === record.recordId ? null : record.recordId)
+                      }
+                    >
+                      <span className={styles.recordIncision}>
+                        <span className={styles.recordTitle}>{record.title}</span>
+                        <span className={styles.recordProvenance}>{record.provenance}</span>
+                      </span>
+                      <span className={styles.recordChevron} aria-hidden>
+                        {openRecordId === record.recordId ? "−" : "+"}
+                      </span>
+                    </button>
+
+                    {openRecordId === record.recordId && openRecord ? (
+                      <div className={styles.letter} role="region" aria-label={`${record.title} — full record`}>
+                        <p className={styles.letterTitle}>{openRecord.title}</p>
+                        <p className={styles.letterMeta}>
+                          {openRecord.provenance}
+                          {openRecord.status ? ` · ${openRecord.status}` : ""}
+                          {openRecord.brainSlug ? ` · → ${openRecord.brainSlug}` : ""}
+                        </p>
+                        <p className={styles.letterBody}>
+                          {openRecord.canonicalText || openRecord.snippet}
+                        </p>
+                        {acceptState === "success" ? (
+                          <p className={styles.letterStatus} role="status">
+                            Accepted — recorded on the bench with a paper trail.
+                          </p>
+                        ) : null}
+                        {acceptState === "error" && acceptError ? (
+                          <p className={styles.letterError} role="alert">
+                            {acceptError}
+                          </p>
+                        ) : null}
+                        <div className={styles.letterActions}>
+                          <button
+                            type="button"
+                            className={styles.acceptBtn}
+                            disabled={
+                              acceptState === "pending" ||
+                              isReceivingRecordActioned(openRecord.status)
+                            }
+                            onClick={() => void acceptRecord(openRecord)}
+                          >
+                            {acceptState === "pending"
+                              ? "Accepting…"
+                              : isReceivingRecordActioned(openRecord.status)
+                                ? "Accepted"
+                                : "Accept"}
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.incisedAction}
+                            onClick={() => summonClive(openRecord)}
+                          >
+                            Discuss with Clive
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.ghostBtn}
+                            onClick={() => setOpenRecordId(null)}
+                          >
+                            Fold the letter
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <div className={styles.margin}>
+              <p className={styles.marginText}>
+                Clive can read this bay and propose what each record becomes.
+              </p>
+              <button
+                type="button"
+                className={styles.incisedAction}
+                onClick={() => summonClive()}
+              >
+                Sit with Clive →
+              </button>
+            </div>
+          </section>
+        )}
+      </div>
+
+      <div className={styles.varnishTint} aria-hidden />
+      <div className={styles.varnishShade} aria-hidden />
+      <div className={styles.varnishGrain} aria-hidden />
+
       {cliveOpen ? (
         <div className={styles.popOverlay} role="dialog" aria-modal="true" aria-label="Sit with Clive">
           <div className={styles.popPanel}>

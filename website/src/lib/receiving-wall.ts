@@ -52,3 +52,16 @@ export const CAPTURE_SOURCE_ORDER: CaptureSource[] = [
   "user-guided",
   "chat",
 ];
+
+/** Status values that mean the human has already acted on the Receiving Wall. */
+export const RECEIVING_WALL_ACCEPTED_STATUSES = new Set([
+  "Approved",
+  "Promoted",
+  "Quarantined",
+  "Rejected",
+]);
+
+export function isReceivingRecordActioned(status?: string): boolean {
+  if (!status?.trim()) return false;
+  return RECEIVING_WALL_ACCEPTED_STATUSES.has(status.trim());
+}

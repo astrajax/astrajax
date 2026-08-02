@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { GlobalCliveLauncher } from "@/components/GlobalCliveLauncher";
 import { StoryModeProvider } from "@/components/command-centre/StoryModeProvider";
 import { PlatformSessionProvider } from "@/components/platform-session/PlatformSessionProvider";
 
@@ -55,7 +54,6 @@ export default function RootLayout({
         <PlatformSessionProvider>
           <StoryModeProvider>
             {children}
-            <GlobalCliveLauncher />
           </StoryModeProvider>
         </PlatformSessionProvider>
       </body>
