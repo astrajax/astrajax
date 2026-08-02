@@ -129,6 +129,26 @@ const SEED_RECORDS: ReceivingRecord[] = [
   },
 ];
 
+/** Field list for the wall read. Capture Source is optional until Matthew adds it. */
+export function buildReceivingWallFieldIds(): string[] {
+  const fields: string[] = [
+    DRAFT_TRUTH_FIELDS_BY_NAME.Title,
+    DRAFT_TRUTH_FIELDS_BY_NAME["Canonical Text"],
+    DRAFT_TRUTH_FIELDS_BY_NAME["Brain Slug"],
+    DRAFT_TRUTH_FIELDS_BY_NAME["Proposed Category"],
+    DRAFT_TRUTH_FIELDS_BY_NAME.Status,
+    DRAFT_TRUTH_FIELDS_BY_NAME["Proposed By Agent"],
+    DRAFT_TRUTH_FIELDS_BY_NAME["Created By"],
+  ];
+  const captureSourceFieldId = process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID?.trim();
+  if (captureSourceFieldId) {
+    fields.push(captureSourceFieldId);
+  }
+  return fields;
+}
+
+export const RECEIVING_WALL_DRAFT_FILTER = "{Status}='Draft'";
+
 export async function handleReceivingWallRecords(): Promise<{
   records: ReceivingRecord[];
   source: "live" | "derived" | "seed";
@@ -148,8 +168,11 @@ export async function handleReceivingWallRecords(): Promise<{
 
   try {
     const records = await airtableSelect(baseId, tableId, token, {
-      fields: Object.values(DRAFT_TRUTH_FIELDS_BY_NAME),
+      fields: buildReceivingWallFieldIds(),
+      filterByFormula: RECEIVING_WALL_DRAFT_FILTER,
       maxRecords: WALL_CAP,
+      sortField: "Title",
+      sortDirection: "asc",
     });
 
     const mapped = records

@@ -1,7 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { mapHouseholdRecord } from "./interaction-household";
+import {
+  buildHouseholdBrainTurnFormula,
+  mapHouseholdRecord,
+} from "./interaction-household";
 
 describe("Household Activity interaction projection", () => {
+  it("filters Turns by brainSlug inside Detail before the global fetch cap", () => {
+    expect(buildHouseholdBrainTurnFormula("astrajax-chapter-1")).toBe(
+      `AND({Event Type}='Turn', FIND('"brainSlug":"astrajax-chapter-1"', {Detail}))`,
+    );
+    expect(buildHouseholdBrainTurnFormula("brain's-slug")).toBe(
+      `AND({Event Type}='Turn', FIND('"brainSlug":"brain\\'s-slug"', {Detail}))`,
+    );
+  });
+
   it("maps Agent Quality without touching Human Quality and preserves source identity", () => {
     const interaction = mapHouseholdRecord({
       id: "recActivity1",

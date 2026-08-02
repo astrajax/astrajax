@@ -63,6 +63,27 @@ describe("Interaction review (memory mode)", () => {
     ).rejects.toThrow(/1 to 5/);
   });
 
+  it("refuses to score an interaction against the wrong brain", async () => {
+    const logged = await handleInteractionLog({
+      sessionId: "sess-review-wrong-brain",
+      persona: "clive",
+      brainSlug: "astrajax-chapter-1",
+      userMessage: "What is our thesis?",
+      assistantReply: "Domain experts can become architects.",
+      channel: "website",
+    });
+
+    await expect(
+      handleInteractionScore({
+        recordId: logged.recordId!,
+        source: "brain_interactions",
+        brainSlug: "some-other-brain",
+        qualityScore: 3,
+        reviewer: "Matthew",
+      }),
+    ).rejects.toThrow(/Brain does not match/);
+  });
+
   it("flags context when suspected issue is checked", async () => {
     const logged = await handleInteractionLog({
       sessionId: "sess-review-3",
