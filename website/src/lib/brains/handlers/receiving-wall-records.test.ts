@@ -1,6 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
-import { handleReceivingWallRecords } from "./receiving-wall-records";
+import {
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS,
+  BRAIN_WORKSHOP_TABLES,
+} from "../airtable-ids";
+import {
+  RECEIVING_WALL_DRAFT_FILTER,
+  buildReceivingWallFieldIds,
+  handleReceivingWallRecords,
+} from "./receiving-wall-records";
 
 const originalEnv = { ...process.env };
 
@@ -31,6 +38,15 @@ function mockAirtableRecords(
   return mockFetch;
 }
 
+function expectDraftOnlyRequest(requestedUrl: string) {
+  expect(requestedUrl).toContain(BRAIN_WORKSHOP_TABLES.draftBrainTruth);
+  expect(requestedUrl).toContain("maxRecords=10");
+  expect(decodeURIComponent(requestedUrl)).toContain(
+    `filterByFormula=${RECEIVING_WALL_DRAFT_FILTER}`,
+  );
+  expect(requestedUrl).not.toContain("Capture%20Source");
+}
+
 describe("handleReceivingWallRecords", () => {
   it("returns seeded records when the Workshop read token is missing", async () => {
     const result = await handleReceivingWallRecords();
@@ -46,16 +62,54 @@ describe("handleReceivingWallRecords", () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
+  it("requests only Draft rows and omits Capture Source until its field id is configured", async () => {
+    process.env.BRAIN_WORKSHOP_READ_TOKEN = "patRead";
+    const mockFetch = mockAirtableRecords([
+      {
+        id: "recDraft1",
+        fields: {
+          Title: "Core · Definition",
+          "Canonical Text": "A working definition.",
+          Status: "Draft",
+          "Proposed By Agent": "Clive",
+          "Brain Slug": "astrajax-chapter-1",
+        },
+      },
+    ]);
+
+    const result = await handleReceivingWallRecords();
+
+    expect(result.source).toBe("derived");
+    expect(result.records).toHaveLength(1);
+    expect(result.records[0].recordId).toBe("recDraft1");
+    expectDraftOnlyRequest(String(mockFetch.mock.calls[0]?.[0]));
+    expect(buildReceivingWallFieldIds()).toEqual([
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title,
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText,
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainSlug,
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedCategory,
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status,
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedByAgent,
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.createdBy,
+    ]);
+  });
+
+  it("includes Capture Source only when the field id env is set", () => {
+    process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID = "fldCaptureSource";
+    expect(buildReceivingWallFieldIds()).toContain("fldCaptureSource");
+  });
+
   it("maps live Capture Source values and reports source as live", async () => {
     process.env.BRAIN_WORKSHOP_READ_TOKEN = "patRead";
-    mockAirtableRecords([
+    process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID = "fldCaptureSource";
+    const mockFetch = mockAirtableRecords([
       {
         id: "recExternal",
         fields: {
           Title: " Sentinel finding ",
           "Canonical Text": "A short canonical body.",
           "Brain Slug": "astrajax-chapter-1",
-          Status: "Ready for review",
+          Status: "Draft",
           "Proposed By Agent": "External Context Scanner",
           "Capture Source": "External Context Capture",
         },
@@ -65,6 +119,7 @@ describe("handleReceivingWallRecords", () => {
         fields: {
           Title: "Manual note",
           "Canonical Text": "Human asked for this.",
+          Status: "Draft",
           "Created By": "Matthew",
           "Capture Source": "User Guided Capture",
         },
@@ -74,6 +129,7 @@ describe("handleReceivingWallRecords", () => {
         fields: {
           Title: "Chat extract",
           "Canonical Text": "From a reviewed session.",
+          Status: "Draft",
           "Proposed By Agent": "Clive's Man",
           "Capture Source": "Chat Session",
         },
@@ -91,16 +147,19 @@ describe("handleReceivingWallRecords", () => {
       provenance: "External Context Scanner",
       captureSource: "external",
       brainSlug: "astrajax-chapter-1",
-      status: "Ready for review",
+      status: "Draft",
     });
     expect(result.records[1].captureSource).toBe("user-guided");
     expect(result.records[2].captureSource).toBe("chat");
 
-    const mockFetch = vi.mocked(fetch);
     expect(mockFetch).toHaveBeenCalledTimes(1);
     const requestedUrl = String(mockFetch.mock.calls[0][0]);
     expect(requestedUrl).toContain(BRAIN_WORKSHOP_TABLES.draftBrainTruth);
     expect(requestedUrl).toContain("maxRecords=10");
+    expect(decodeURIComponent(requestedUrl)).toContain(
+      `filterByFormula=${RECEIVING_WALL_DRAFT_FILTER}`,
+    );
+    expect(requestedUrl).toContain("fldCaptureSource");
   });
 
   it("infers capture source from proposer when Capture Source is absent or non-string", async () => {
@@ -111,6 +170,7 @@ describe("handleReceivingWallRecords", () => {
         fields: {
           Title: "Intake scrape",
           "Canonical Text": "Found by the scanner.",
+          Status: "Draft",
           "Proposed By Agent": "Context Sentinel",
           // Airtable can surface unexpected types; the PR #43 fix must not throw.
           "Capture Source": ["not", "a", "string"],
@@ -121,6 +181,7 @@ describe("handleReceivingWallRecords", () => {
         fields: {
           Title: "Session note",
           "Canonical Text": "From Clive.",
+          Status: "Draft",
           "Created By": "Chat Interaction Logger",
           "Capture Source": 12,
         },
@@ -130,6 +191,7 @@ describe("handleReceivingWallRecords", () => {
         fields: {
           Title: "Untitled human ask",
           "Canonical Text": "Someone submitted this.",
+          Status: "Draft",
           "Created By": "Matthew",
           "Capture Source": null,
         },
@@ -148,6 +210,7 @@ describe("handleReceivingWallRecords", () => {
 
   it("skips untitled rows, truncates long snippets, and falls back to seed on empty mapping", async () => {
     process.env.BRAIN_WORKSHOP_READ_TOKEN = "patRead";
+    process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID = "fldCaptureSource";
     const longBody = "x".repeat(200);
     mockAirtableRecords([
       {
@@ -155,6 +218,7 @@ describe("handleReceivingWallRecords", () => {
         fields: {
           Title: "   ",
           "Canonical Text": "Should be ignored.",
+          Status: "Draft",
           "Capture Source": "External",
         },
       },
@@ -163,6 +227,7 @@ describe("handleReceivingWallRecords", () => {
         fields: {
           Title: "Long truth",
           "Canonical Text": longBody,
+          Status: "Draft",
           "Proposed By Agent": "Doc Brain Base Builder",
           "Capture Source": "external sentinel",
         },
@@ -178,7 +243,7 @@ describe("handleReceivingWallRecords", () => {
     mockAirtableRecords([
       {
         id: "recBlank",
-        fields: { Title: "", "Canonical Text": "No title means drop." },
+        fields: { Title: "", "Canonical Text": "No title means drop.", Status: "Draft" },
       },
     ]);
     const emptyMapped = await handleReceivingWallRecords();
@@ -210,6 +275,7 @@ describe("handleReceivingWallRecords", () => {
         id: "recTitleOnly",
         fields: {
           Title: "Title stands in",
+          Status: "Draft",
           "Proposed By Agent": "Manual intake",
           "Capture Source": "guided manual",
         },
