@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   CAPTURE_SOURCE_BLURB,
@@ -20,17 +20,42 @@ type WallData = {
   message?: string;
 };
 
+/**
+ * The dolly-zoom, in one sentence: the ledger fades out, the camera pushes into
+ * the arch field while the zoomed painting crossfades over the wide loop, then
+ * the bay's records fade in at rest. Text never scales — only the wall moves.
+ *
+ * Timings are orchestrated by CSS (see receiving-wall.module.css); the JS only
+ * tracks which beat we're in so the DOM swaps line up with the visual ones:
+ *
+ *   idle     — wide wall + ledger
+ *   exiting  — ledger fading/lifting out (~260ms)
+ *   zooming  — the dolly: wall scales toward the arch, painting crossfades in
+ *   zoomedIn — arrived: zoomed painting holds, bay list fading in
+ *   returning— reverse: bay list out, dolly pulls back, ledger returns
+ *
+ * The wall transform/crossfade is pure CSS transition on the .zooming class,
+ * so reduced-motion users get the same state change as a plain crossfade.
+ */
+type Beat = "idle" | "exiting" | "zooming" | "zoomedIn" | "returning";
+
+const EXIT_MS = 260; // ledger fade-out before the dolly begins
+const ARRIVE_MS = 1160; // dolly + painting crossfade, matching CSS
+const RETURN_MS = 260; // bay fade-out before the pull-back
+
 function createSessionId(): string {
   return `rw_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
 export function ReceivingWall() {
   const [data, setData] = useState<WallData | null>(null);
+  const [beat, setBeat] = useState<Beat>("idle");
   const [zoomed, setZoomed] = useState<CaptureSource | null>(null);
   const [openRecordId, setOpenRecordId] = useState<string | null>(null);
   const [cliveOpen, setCliveOpen] = useState(false);
   const [sessionId] = useState(createSessionId);
   const [chatSeed, setChatSeed] = useState<ChatMessage[]>([]);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -45,39 +70,46 @@ export function ReceivingWall() {
     })();
     return () => {
       cancelled = true;
+      timers.current.forEach(clearTimeout);
     };
   }, []);
 
-  const records = useMemo(() => data?.records ?? [], [data]);
-
-  const counts = useMemo(() => {
-    const map = new Map<CaptureSource, number>();
-    for (const source of CAPTURE_SOURCE_ORDER) map.set(source, 0);
-    for (const record of records) {
-      map.set(record.captureSource, (map.get(record.captureSource) ?? 0) + 1);
-    }
-    return map;
-  }, [records]);
-
-  const zoomedRecords = useMemo(
-    () => (zoomed ? records.filter((r) => r.captureSource === zoomed) : []),
-    [records, zoomed],
-  );
-
-  const openRecord = useMemo(
-    () => records.find((r) => r.recordId === openRecordId) ?? null,
-    [records, openRecordId],
-  );
-
-  const openSource = useCallback((source: CaptureSource) => {
-    setZoomed(source);
-    setOpenRecordId(null);
+  const after = useCallback((ms: number, fn: () => void) => {
+    const id = setTimeout(fn, ms);
+    timers.current.push(id);
   }, []);
+
+  const records = data?.records ?? [];
+
+  const zoomedRecords = zoomed
+    ? records.filter((r) => r.captureSource === zoomed)
+    : [];
+
+  const openRecord = openRecordId
+    ? (records.find((r) => r.recordId === openRecordId) ?? null)
+    : null;
+
+  const openSource = useCallback(
+    (source: CaptureSource) => {
+      if (beat === "exiting" || beat === "zooming") return;
+      setZoomed(source);
+      setOpenRecordId(null);
+      setBeat("exiting");
+      after(EXIT_MS, () => setBeat("zooming"));
+      after(ARRIVE_MS, () => setBeat("zoomedIn"));
+    },
+    [beat, after],
+  );
 
   const closeZoom = useCallback(() => {
-    setZoomed(null);
+    if (beat !== "zoomedIn") return;
     setOpenRecordId(null);
-  }, []);
+    setBeat("returning");
+    after(RETURN_MS, () => {
+      setZoomed(null);
+      setBeat("idle");
+    });
+  }, [beat, after]);
 
   const summonClive = useCallback(() => {
     setChatSeed([
@@ -95,17 +127,24 @@ export function ReceivingWall() {
       if (event.key === "Escape") {
         if (cliveOpen) setCliveOpen(false);
         else if (openRecordId) setOpenRecordId(null);
-        else if (zoomed) closeZoom();
+        else if (beat === "zoomedIn") closeZoom();
       }
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [cliveOpen, openRecordId, zoomed, closeZoom]);
+  }, [cliveOpen, openRecordId, beat, closeZoom]);
+
+  const moving = beat === "zooming" || beat === "zoomedIn";
+  const stageState = moving ? styles.zooming : "";
+  const ledgerState =
+    beat === "exiting" ? styles.contentExit : beat === "idle" ? styles.contentEnter : "";
+  const bayState = beat === "zoomedIn" ? styles.contentEnter : "";
 
   return (
     <main className={styles.wall} aria-label="The Receiving Wall">
-      {/* Living wall */}
-      <div className={styles.stage} aria-hidden>
+      {/* Living wall — two layers: the wide loop, and the zoomed painting that
+          crossfades over it as the dolly arrives. Both scale together. */}
+      <div className={`${styles.stage} ${stageState}`} aria-hidden>
         <video
           className={styles.stageVideo}
           autoPlay
@@ -116,6 +155,12 @@ export function ReceivingWall() {
         >
           <source src="/agent-cast/clives-man/receiving-wall.mp4" type="video/mp4" />
         </video>
+        <div
+          className={styles.stageZoomed}
+          style={{
+            backgroundImage: "url(/agent-cast/clives-man/receiving-wall-zoomed.jpg)",
+          }}
+        />
         <div className={styles.stageScrim} />
       </div>
 
@@ -143,15 +188,15 @@ export function ReceivingWall() {
         </p>
       ) : null}
 
-      {/* The engraved ledger */}
+      {/* The engraved ledger — visible on the wide wall, fades out for the dolly */}
       {!zoomed ? (
-        <section className={styles.ledger} aria-label="Captured context">
+        <section className={`${styles.ledger} ${ledgerState}`} aria-label="Captured context">
           <p className={styles.ledgerHint}>
             Choose a door to read what waits within.
           </p>
           <ul className={styles.sourceList}>
             {CAPTURE_SOURCE_ORDER.map((source) => {
-              const count = counts.get(source) ?? 0;
+              const count = records.filter((r) => r.captureSource === source).length;
               return (
                 <li key={source}>
                   <button
@@ -176,9 +221,9 @@ export function ReceivingWall() {
           </ul>
         </section>
       ) : (
-        /* Source zoom — the frame comes into the wall */
+        /* The bay — arrives once the dolly has settled on the painting */
         <section
-          className={`${styles.zoom} ${zoomed ? styles.zoomOpen : ""}`}
+          className={`${styles.zoom} ${bayState}`}
           aria-label={CAPTURE_SOURCE_LABEL[zoomed]}
           style={{ ["--tint" as string]: CAPTURE_SOURCE_TINT[zoomed] }}
         >
