@@ -41,6 +41,34 @@ function writeToken(): string | undefined {
   return getDocPromoteToken() ?? getWorkshopWriteToken();
 }
 
+function escapeRecordId(recordId: string): string {
+  return recordId.replace(/'/g, "\\'");
+}
+
+/** Refuse promote/quarantine when the draft is the wrong brain or not still a Draft. */
+export function assertDraftEligibleForPromote(input: {
+  draftRecordId: string;
+  brainSlug: string;
+  fields: Record<string, unknown>;
+}): { title: string; canonicalText: string } {
+  const recordBrain = String(input.fields["Brain Slug"] ?? "").trim();
+  if (recordBrain !== input.brainSlug.trim()) {
+    throw new Error("Brain does not match this draft.");
+  }
+  const status = String(input.fields.Status ?? "").trim();
+  if (status !== "Draft") {
+    throw new Error(
+      `Draft ${input.draftRecordId} is not in Draft status (current: ${status || "empty"}).`,
+    );
+  }
+  const title = String(input.fields.Title ?? "").trim();
+  const canonicalText = String(input.fields["Canonical Text"] ?? "").trim();
+  if (!title || !canonicalText) {
+    throw new Error("Draft is missing Title or Canonical Text.");
+  }
+  return { title, canonicalText };
+}
+
 export async function createDraftTruth(input: {
   brainSlug: string;
   title: string;
@@ -104,21 +132,25 @@ export async function promoteDraftToTrustedDemo(input: {
   }
 
   if (useMemoryStore() || !getWorkshopBaseId() || !writeToken()) {
-    const draft =
-      memoryDrafts.find((row) => row.recordId === input.draftRecordId) ??
-      ({
-        recordId: input.draftRecordId,
-        title: "Demo truth",
-        canonicalText: "Demo promoted truth.",
-        brainSlug: input.brainSlug,
-        status: "Draft",
-      } satisfies MemoryDraft);
+    const draft = memoryDrafts.find((row) => row.recordId === input.draftRecordId);
+    if (!draft) throw new Error(`Draft record not found: ${input.draftRecordId}`);
+    assertDraftEligibleForPromote({
+      draftRecordId: input.draftRecordId,
+      brainSlug: input.brainSlug,
+      fields: {
+        Title: draft.title,
+        "Canonical Text": draft.canonicalText,
+        "Brain Slug": draft.brainSlug,
+        Status: draft.status,
+      },
+    });
     const recordId = nextMemoryId("mem_trusted");
     memoryTrusted.push({
       recordId,
       title: draft.title,
       canonicalText: draft.canonicalText,
     });
+    draft.status = "Quarantined";
     return { recordId, destination: "trusted-brain-truth", mode: "memory" };
   }
 
@@ -127,15 +159,15 @@ export async function promoteDraftToTrustedDemo(input: {
     getWorkshopBaseId()!,
     BRAIN_WORKSHOP_TABLES.draftBrainTruth,
     token,
-    `RECORD_ID()='${input.draftRecordId}'`,
+    `RECORD_ID()='${escapeRecordId(input.draftRecordId)}'`,
   );
   if (!draft) throw new Error(`Draft record not found: ${input.draftRecordId}`);
 
-  const title = String(draft.fields.Title ?? "");
-  const canonicalText = String(draft.fields["Canonical Text"] ?? "");
-  if (!title || !canonicalText) {
-    throw new Error("Draft is missing Title or Canonical Text.");
-  }
+  const { title, canonicalText } = assertDraftEligibleForPromote({
+    draftRecordId: input.draftRecordId,
+    brainSlug: input.brainSlug,
+    fields: draft.fields,
+  });
 
   const trustedBaseId = process.env.BRAIN_TRUSTED_BASE_ID ?? BRAIN_TRUSTED_CHAPTER1_BASE_ID;
   const trustedTableId =

@@ -57,6 +57,8 @@ describe("Doc promote (airtable mode)", () => {
                 fields: {
                   Title: "Draft title",
                   "Canonical Text": "Draft canonical body",
+                  "Brain Slug": "astrajax-chapter-1",
+                  Status: "Draft",
                   "Proposed Category": "Positioning",
                   "Proposed By Agent": "Clive Curator",
                 },
@@ -138,5 +140,81 @@ describe("Doc promote (airtable mode)", () => {
         reason: "approved brief",
       }),
     ).rejects.toThrow(/category/);
+  });
+
+  it("rejects promote when the draft belongs to another brain", async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          records: [
+            {
+              id: "recDraft1",
+              fields: {
+                Title: "Draft title",
+                "Canonical Text": "Draft canonical body",
+                "Brain Slug": "astrajax-brand",
+                Status: "Draft",
+              },
+            },
+          ],
+        }),
+        { status: 200 },
+      ),
+    );
+
+    await expect(
+      handleDocPromote({
+        approvalDecisionId: "apd_test123",
+        brainSlug: "astrajax-chapter-1",
+        promotions: [
+          {
+            draftRecordId: "recDraft1",
+            category: "Positioning",
+            scope: "read:brain-truth:positioning",
+          },
+        ],
+        approver: "Matthew",
+        reason: "approved brief",
+      }),
+    ).rejects.toThrow(/Brain does not match/);
+  });
+
+  it("rejects promote when the draft is no longer in Draft status", async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          records: [
+            {
+              id: "recDraft1",
+              fields: {
+                Title: "Draft title",
+                "Canonical Text": "Draft canonical body",
+                "Brain Slug": "astrajax-chapter-1",
+                Status: "Quarantined",
+              },
+            },
+          ],
+        }),
+        { status: 200 },
+      ),
+    );
+
+    await expect(
+      handleDocPromote({
+        approvalDecisionId: "apd_test123",
+        brainSlug: "astrajax-chapter-1",
+        promotions: [
+          {
+            draftRecordId: "recDraft1",
+            category: "Positioning",
+            scope: "read:brain-truth:positioning",
+          },
+        ],
+        approver: "Matthew",
+        reason: "approved brief",
+      }),
+    ).rejects.toThrow(/not in Draft status/);
   });
 });
