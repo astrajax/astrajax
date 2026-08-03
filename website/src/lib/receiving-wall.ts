@@ -61,13 +61,22 @@ export const RECEIVING_WALL_ACCEPTED_STATUSES = new Set([
   "Rejected",
 ]);
 
-export function isReceivingRecordActioned(status?: string): boolean {
+/**
+ * Whether a Receiving Wall record has already been acted on.
+ *
+ * `customAcceptStatus` must be passed from a Server Component (or other
+ * server-resolved source) when this runs in the browser — the env var is
+ * server-only and is not available under `process.env` on the client.
+ * On the server, omitting it falls back to BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS.
+ */
+export function isReceivingRecordActioned(
+  status?: string,
+  customAcceptStatus: string | undefined = process.env
+    .BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS,
+): boolean {
   if (!status?.trim()) return false;
   const normalized = status.trim();
   if (RECEIVING_WALL_ACCEPTED_STATUSES.has(normalized)) return true;
-  // Honor BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS so a custom accept
-  // value still blocks re-accept and disables the Accept control.
-  const customAccept =
-    process.env.BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS?.trim();
+  const customAccept = customAcceptStatus?.trim();
   return Boolean(customAccept && normalized === customAccept);
 }

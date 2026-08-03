@@ -18,9 +18,14 @@ export const metadata: Metadata = {
 };
 
 export default function ReceivingWallPage() {
+  // Server-only env — serialize into the client tree so Accept gating can
+  // honor a custom accept status (NEXT_PUBLIC_ is intentionally not used).
+  const customAcceptStatus =
+    process.env.BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS?.trim() || undefined;
+
   return (
     <div className={wallFont.variable}>
-      <ReceivingWall />
+      <ReceivingWall customAcceptStatus={customAcceptStatus} />
     </div>
   );
 }

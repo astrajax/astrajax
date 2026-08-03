@@ -50,7 +50,12 @@ function createSessionId(): string {
   return `rw_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export function ReceivingWall() {
+export function ReceivingWall({
+  customAcceptStatus,
+}: {
+  /** Server-resolved accept status; required for custom env values in the browser. */
+  customAcceptStatus?: string;
+} = {}) {
   const prefersReducedMotion = usePrefersReducedMotion();
   const T = prefersReducedMotion ? TIMINGS.reduced : TIMINGS.normal;
 
@@ -190,7 +195,7 @@ export function ReceivingWall() {
 
   const acceptRecord = useCallback(
     async (record: ReceivingRecord) => {
-      if (isReceivingRecordActioned(record.status)) return;
+      if (isReceivingRecordActioned(record.status, customAcceptStatus)) return;
       const acceptedRecordId = record.recordId;
       setAcceptState("pending");
       setAcceptError(null);
@@ -221,7 +226,7 @@ export function ReceivingWall() {
         }
       }
     },
-    [],
+    [customAcceptStatus],
   );
 
   useEffect(() => {
@@ -419,7 +424,10 @@ export function ReceivingWall() {
                               styles.acceptBtn,
                               acceptState === "pending" ? styles.acceptBtnPending : "",
                               acceptState === "success" ||
-                              isReceivingRecordActioned(openRecord.status)
+                              isReceivingRecordActioned(
+                                openRecord.status,
+                                customAcceptStatus,
+                              )
                                 ? styles.acceptBtnSuccess
                                 : "",
                             ]
@@ -427,7 +435,10 @@ export function ReceivingWall() {
                               .join(" ")}
                             disabled={
                               acceptState === "pending" ||
-                              isReceivingRecordActioned(openRecord.status) ||
+                              isReceivingRecordActioned(
+                                openRecord.status,
+                                customAcceptStatus,
+                              ) ||
                               acceptState === "success"
                             }
                             aria-busy={acceptState === "pending"}
@@ -435,7 +446,10 @@ export function ReceivingWall() {
                               acceptState === "pending"
                                 ? "Accepting record"
                                 : acceptState === "success" ||
-                                    isReceivingRecordActioned(openRecord.status)
+                                    isReceivingRecordActioned(
+                                      openRecord.status,
+                                      customAcceptStatus,
+                                    )
                                   ? "Record accepted"
                                   : `Accept ${openRecord.title}`
                             }
@@ -444,7 +458,10 @@ export function ReceivingWall() {
                             {acceptState === "pending"
                               ? "Accepting…"
                               : acceptState === "success" ||
-                                  isReceivingRecordActioned(openRecord.status)
+                                  isReceivingRecordActioned(
+                                    openRecord.status,
+                                    customAcceptStatus,
+                                  )
                                 ? "Accepted"
                                 : "Accept"}
                           </button>
