@@ -38,7 +38,8 @@ export function verifyBrainKeyAdmin(request: Request): void {
   }
 }
 
-export function verifyDocPromoteAuth(request: Request): void {
+/** Shared promote gate for API routes and server actions. */
+export function assertDocPromoteAuthorized(headerValue: string | null): void {
   const secret = process.env.BRAIN_DOC_PROMOTE_TOKEN ?? process.env.BRAIN_KEY_ADMIN_SECRET;
   if (!secret) {
     if (process.env.NODE_ENV === "production") {
@@ -46,8 +47,11 @@ export function verifyDocPromoteAuth(request: Request): void {
     }
     return;
   }
-  const header = request.headers.get("x-brain-doc-promote");
-  if (header !== secret) {
+  if (headerValue !== secret) {
     throw new GrantValidationError("Doc promote authorization required.", "GRANT_NOT_FOUND");
   }
+}
+
+export function verifyDocPromoteAuth(request: Request): void {
+  assertDocPromoteAuthorized(request.headers.get("x-brain-doc-promote"));
 }
