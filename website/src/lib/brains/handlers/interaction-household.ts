@@ -13,6 +13,17 @@ import type {
 
 const HOUSEHOLD_FETCH_LIMIT = 100;
 
+function escapeFormulaValue(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
+/** Airtable formula that keeps Turns for one brain before the global fetch cap applies. */
+export function buildHouseholdBrainTurnFormula(brainSlug: string): string {
+  const escaped = escapeFormulaValue(brainSlug.trim());
+  // brainSlug is stored inside Detail JSON by the platform outbox mapper.
+  return `AND({Event Type}='Turn', FIND('"brainSlug":"${escaped}"', {Detail}))`;
+}
+
 type ActivityDetail = {
   surface?: string;
   persona?: string;
@@ -91,6 +102,9 @@ export async function listHouseholdInteractions(query: InteractionListQuery): Pr
   interactions: InteractionSummary[];
   warning?: string;
 }> {
+  const brainSlug = query.brainSlug?.trim();
+  if (!brainSlug) throw new Error("brainSlug is required.");
+
   const token = getHouseholdActivityReadToken();
   if (!token) {
     return {
@@ -104,7 +118,7 @@ export async function listHouseholdInteractions(query: InteractionListQuery): Pr
     getHouseholdActivityTableId(),
     token,
     {
-      filterByFormula: `{Event Type}='Turn'`,
+      filterByFormula: buildHouseholdBrainTurnFormula(brainSlug),
       maxRecords: HOUSEHOLD_FETCH_LIMIT,
       sortField: "Timestamp",
       sortDirection: "desc",
@@ -114,7 +128,7 @@ export async function listHouseholdInteractions(query: InteractionListQuery): Pr
   const limit = Math.min(Math.max(1, query.limit ?? 25), 50);
   const interactions = records
     .map(mapHouseholdRecord)
-    .filter((item) => item.brainSlug === query.brainSlug)
+    .filter((item) => item.brainSlug === brainSlug)
     .filter((item) => {
       if (query.actionProposed) return item.reviewStatus === "Action proposed";
       if (query.shortlist) {

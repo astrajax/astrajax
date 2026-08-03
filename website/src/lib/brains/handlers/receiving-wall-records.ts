@@ -30,17 +30,6 @@ type DraftTruthFields = {
   "Capture Source"?: string;
 };
 
-const DRAFT_TRUTH_FIELD_IDS = [
-  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title,
-  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText,
-  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainSlug,
-  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedCategory,
-  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status,
-  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedByAgent,
-  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.createdBy,
-  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.captureSource,
-] as const;
-
 const WALL_CAP = 10;
 
 function truncate(text: string, max = 160): string {
@@ -129,6 +118,26 @@ const SEED_RECORDS: ReceivingRecord[] = [
   },
 ];
 
+/** Field list for the wall read. Capture Source is optional until configured. */
+export function buildReceivingWallFieldIds(): string[] {
+  const fields: string[] = [
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainSlug,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedCategory,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedByAgent,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.createdBy,
+  ];
+  const captureSourceFieldId = process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID?.trim();
+  if (captureSourceFieldId) {
+    fields.push(captureSourceFieldId);
+  }
+  return fields;
+}
+
+export const RECEIVING_WALL_DRAFT_FILTER = "{Status}='Draft'";
+
 export async function handleReceivingWallRecords(): Promise<{
   records: ReceivingRecord[];
   source: "live" | "derived" | "seed";
@@ -148,8 +157,11 @@ export async function handleReceivingWallRecords(): Promise<{
 
   try {
     const records = await airtableSelect(baseId, tableId, token, {
-      fields: [...DRAFT_TRUTH_FIELD_IDS],
+      fields: buildReceivingWallFieldIds(),
+      filterByFormula: RECEIVING_WALL_DRAFT_FILTER,
       maxRecords: WALL_CAP,
+      sortField: "Title",
+      sortDirection: "asc",
     });
 
     const mapped = records

@@ -2,6 +2,7 @@ import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
 import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
 import { resolveReviewFieldsAfterScore } from "../interaction-upkeep";
 import { assertSafeForPersistence } from "../secrets";
+import { assertBrainInteractionBelongsToBrain } from "./interaction-brain-guard";
 import { scoreMemoryInteraction } from "./interaction-memory";
 import { scoreHouseholdInteraction } from "./interaction-household-review";
 import type { InteractionScoreBody, InteractionSummary } from "../types";
@@ -78,6 +79,14 @@ export async function handleInteractionScore(body: InteractionScoreBody) {
   if (!workshopBaseId || !workshopToken || !tableId) {
     throw new Error("Workshop interaction scoring is not configured.");
   }
+
+  await assertBrainInteractionBelongsToBrain({
+    baseId: workshopBaseId,
+    tableId,
+    token: workshopToken,
+    recordId,
+    brainSlug,
+  });
 
   const reviewedAt = new Date().toISOString();
 

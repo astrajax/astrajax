@@ -4,6 +4,7 @@ import {
   BRAIN_WORKSHOP_TABLES,
 } from "../airtable-ids";
 import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
+import { assertBrainInteractionBelongsToBrain } from "./interaction-brain-guard";
 import { actionMemoryInteraction } from "./interaction-memory";
 import { actionHouseholdInteraction } from "./interaction-household-review";
 import type { InteractionActionBody, InteractionSummary } from "../types";
@@ -65,6 +66,14 @@ export async function handleInteractionAction(body: InteractionActionBody) {
   if (!workshopBaseId || !workshopToken || !tableId) {
     throw new Error("Workshop interaction action is not configured.");
   }
+
+  await assertBrainInteractionBelongsToBrain({
+    baseId: workshopBaseId,
+    tableId,
+    token: workshopToken,
+    recordId,
+    brainSlug,
+  });
 
   const url = `https://api.airtable.com/v0/${workshopBaseId}/${tableId}`;
   const response = await fetch(url, {
