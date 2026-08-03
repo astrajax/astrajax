@@ -63,5 +63,11 @@ export const RECEIVING_WALL_ACCEPTED_STATUSES = new Set([
 
 export function isReceivingRecordActioned(status?: string): boolean {
   if (!status?.trim()) return false;
-  return RECEIVING_WALL_ACCEPTED_STATUSES.has(status.trim());
+  const normalized = status.trim();
+  if (RECEIVING_WALL_ACCEPTED_STATUSES.has(normalized)) return true;
+  // Honor BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS so a custom accept
+  // value still blocks re-accept and disables the Accept control.
+  const customAccept =
+    process.env.BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS?.trim();
+  return Boolean(customAccept && normalized === customAccept);
 }
