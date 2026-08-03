@@ -15,20 +15,12 @@ import {
   BRAIN_WORKSHOP_TABLES,
 } from "../airtable-ids";
 import { airtableCreate, airtableFindOne, airtableUpdate } from "../airtable-rest";
+import { assertDraftEligibleForPromote } from "./draft-propose";
 import type { DocPromoteBody, DocPromoteItem } from "../types";
 
 const memoryPromotions: DocPromoteBody[] = [];
 
 const TRUSTED_SCOPE_PATTERN = /^read:brain-truth:[a-z0-9-]+$/;
-
-type DraftFields = {
-  Title?: string;
-  "Canonical Text"?: string;
-  "Brain Slug"?: string;
-  Status?: string;
-  "Proposed By Agent"?: string;
-  "Created By"?: string;
-};
 
 function assertPromotionItem(item: DocPromoteItem): void {
   if (!item.draftRecordId?.trim()) {
@@ -88,24 +80,25 @@ export async function handleDocPromote(body: DocPromoteBody) {
   const promotedRecordIds: string[] = [];
   const today = new Date().toISOString().slice(0, 10);
 
+  const brainSlug = body.brainSlug.trim();
+
   for (const { draftRecordId, category, scope } of body.promotions) {
     const draft = await airtableFindOne(
       workshopBaseId,
       BRAIN_WORKSHOP_TABLES.draftBrainTruth,
       docToken,
-      `RECORD_ID()='${draftRecordId}'`,
+      `RECORD_ID()='${draftRecordId.replace(/'/g, "\\'")}'`,
     );
 
     if (!draft) {
       throw new Error(`Draft record not found: ${draftRecordId}`);
     }
 
-    const fields = draft.fields as DraftFields;
-    const title = fields.Title;
-    const canonicalText = fields["Canonical Text"];
-    if (!title || !canonicalText) {
-      throw new Error(`Draft ${draftRecordId} is missing Title or Canonical Text.`);
-    }
+    const { title, canonicalText } = assertDraftEligibleForPromote({
+      draftRecordId,
+      brainSlug,
+      fields: draft.fields,
+    });
 
     const authority = body.approver.trim();
 
