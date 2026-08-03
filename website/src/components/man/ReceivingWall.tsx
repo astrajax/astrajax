@@ -370,12 +370,16 @@ export function ReceivingWall() {
                       className={`${styles.recordRow} ${
                         openRecordId === record.recordId ? styles.recordRowOpen : ""
                       }`}
+                      aria-expanded={openRecordId === record.recordId}
+                      aria-controls={`letter-${record.recordId}`}
                       onClick={() =>
                         setOpenRecordId(openRecordId === record.recordId ? null : record.recordId)
                       }
                     >
                       <span className={styles.recordIncision}>
-                        <span className={styles.recordTitle}>{record.title}</span>
+                        <span id={`record-title-${record.recordId}`} className={styles.recordTitle}>
+                          {record.title}
+                        </span>
                         <span className={styles.recordProvenance}>{record.provenance}</span>
                       </span>
                       <span className={styles.recordChevron} aria-hidden>
@@ -384,8 +388,12 @@ export function ReceivingWall() {
                     </button>
 
                     {openRecordId === record.recordId && openRecord ? (
-                      <div className={styles.letter} role="region" aria-label={`${record.title} — full record`}>
-                        <p className={styles.letterTitle}>{openRecord.title}</p>
+                      <div
+                        id={`letter-${record.recordId}`}
+                        className={styles.letter}
+                        role="region"
+                        aria-labelledby={`record-title-${record.recordId}`}
+                      >
                         <p className={styles.letterMeta}>
                           {openRecord.provenance}
                           {openRecord.status ? ` · ${openRecord.status}` : ""}
@@ -407,16 +415,36 @@ export function ReceivingWall() {
                         <div className={styles.letterActions}>
                           <button
                             type="button"
-                            className={styles.acceptBtn}
+                            className={[
+                              styles.acceptBtn,
+                              acceptState === "pending" ? styles.acceptBtnPending : "",
+                              acceptState === "success" ||
+                              isReceivingRecordActioned(openRecord.status)
+                                ? styles.acceptBtnSuccess
+                                : "",
+                            ]
+                              .filter(Boolean)
+                              .join(" ")}
                             disabled={
                               acceptState === "pending" ||
-                              isReceivingRecordActioned(openRecord.status)
+                              isReceivingRecordActioned(openRecord.status) ||
+                              acceptState === "success"
+                            }
+                            aria-busy={acceptState === "pending"}
+                            aria-label={
+                              acceptState === "pending"
+                                ? "Accepting record"
+                                : acceptState === "success" ||
+                                    isReceivingRecordActioned(openRecord.status)
+                                  ? "Record accepted"
+                                  : `Accept ${openRecord.title}`
                             }
                             onClick={() => void acceptRecord(openRecord)}
                           >
                             {acceptState === "pending"
                               ? "Accepting…"
-                              : isReceivingRecordActioned(openRecord.status)
+                              : acceptState === "success" ||
+                                  isReceivingRecordActioned(openRecord.status)
                                 ? "Accepted"
                                 : "Accept"}
                           </button>
@@ -429,8 +457,9 @@ export function ReceivingWall() {
                           </button>
                           <button
                             type="button"
-                            className={styles.ghostBtn}
+                            className={styles.incisedActionMuted}
                             onClick={() => setOpenRecordId(null)}
+                            aria-label={`Fold the letter — ${openRecord.title}`}
                           >
                             Fold the letter
                           </button>

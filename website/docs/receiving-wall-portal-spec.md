@@ -168,76 +168,90 @@ you want.
 
 Use `svh`, not `vh` — the mobile URL bar must not resize the plate mid-scroll.
 
-### 1.2 The settled dolly: 1.25, not 1.49
+### 1.2 The settled dolly: 1.38 at 16:9 — "standing in the opening"
 
-**Target framing at rest-in-portal: the viewport shows source x 10% → 90%.** That is the design
-constant. It puts, on each side, in order from the edge inward: the candle flame (10.4% / 89.5%),
-~5pp of lit plaster, the 2.3pp stone moulding band, then the void. Both candles stay just inside
-frame — the light source that justifies the whole warm falloff is *visible*, and the moulding legs
-read unmistakably as a frame around the content.
+> **Amendment (Matthew, Aug 2026).** Kate's original §1.2 optimised for *the arch frames the
+> content* — visible source-x 10%–90%, candles and lit plaster inside frame, moulding legs as
+> frame around content. **Matthew overruled:** the intent is *standing in the opening* — mouldings
+> hard at the frame edges, bookshelves and candle sconces out of frame. Settled framing at 16:9 is
+> now **source-x 13.8% → 86.2%** (equivalent to the old `scale(1.38)` under the pre-plate
+> architecture, commit `0fa9c60`). The candles are **deliberately out of frame** by choice.
+
+**Target framing at rest-in-portal: the viewport shows source x 13.8% → 86.2% at 16:9.** Stone
+moulding legs sit at or very near the left and right frame edges; lit plaster and bookshelves are
+cropped out. This is the inverse of Kate's original pass/fail test (§7).
 
 Because visible-x fraction = `100vw / (--plate-w × --dolly)`, and `--plate-w` depends on viewport
 aspect, `--dolly` must be bucketed by aspect. CSS cannot divide a length by a length, so this is
-media queries, not calc. Four buckets, ordered so later rules win:
+media queries, not calc. Target visible-x fraction = **0.7246** (13.8%–86.2%). Four buckets, ordered
+so later rules win; **add `min-aspect-ratio: 16/9`** so exactly 16:9 gets 1.38 (otherwise
+`max-aspect-ratio: 16/9` would apply at equality and undershoot):
 
 ```css
-.wall {                                    /* default = the widest bucket */
-  --dolly-in: 1.25;
+.wall {                                    /* default = ultrawide */
+  --dolly-in: 1.38;
   --dolly-in-y: 2.5vh;
 }
-@media (max-aspect-ratio: 16/9) {   .wall { --dolly-in: 1.12; --dolly-in-y: 2.5vh; } }
-@media (max-aspect-ratio: 3/2)   {  .wall { --dolly-in: 1.00; --dolly-in-y: 3vh;   } }
+@media (max-aspect-ratio: 16/9) {   .wall { --dolly-in: 1.24; --dolly-in-y: 2.5vh; } }
+@media (min-aspect-ratio: 16/9) {   .wall { --dolly-in: 1.38; } }   /* 16:9 equality — Matthew's framing */
+@media (max-aspect-ratio: 3/2)   {  .wall { --dolly-in: 1.04; --dolly-in-y: 3vh;   } }
 @media (max-aspect-ratio: 6/5)   {  .wall { --dolly-in: 1.00; --dolly-in-y: 0;     } }  /* nave mode, §2.4 */
 ```
 
-Resulting framing (verified arithmetic, not estimate):
+Resulting framing (verified arithmetic, target visible-x = 0.7246):
 
-| Viewport aspect | `--dolly-in` | Visible source-x | Moulding legs | Candles | Crown |
+| Viewport aspect | `--dolly-in` | Visible source-x | Moulding legs at edges | Candles | Crown |
 |---|---|---|---|---|---|
-| 2.10 (ultrawide) | 1.25 | 10% – 90% | ✅ | ✅ | off top edge |
-| 1.778 (16:9) | 1.25 | 10% – 90% | ✅ | ✅ | at top edge |
-| 1.60 (16:10) | 1.12 | 9.8% – 90.2% | ✅ | ✅ | ✅ |
-| 1.50 (3:2) | 1.12 | 12.3% – 87.7% | ✅ | just out | ✅ |
-| 1.33 (4:3) | 1.00 | 12.5% – 87.5% | ✅ | just out | ✅ |
-| 1.20 | 1.00 | 16.2% – 83.8% | ✅ (tight) | ❌ | ✅ |
+| 2.10 (ultrawide) | 1.38 | 13.8% – 86.2% | ✅ at edges | ❌ (by choice) | off top edge |
+| 1.778 (16:9) | 1.38 | 13.8% – 86.2% | ✅ at edges | ❌ (by choice) | at top edge |
+| 1.60 (16:10) | 1.24 | ~13.7% – 86.3% | ✅ at edges | ❌ (by choice) | ✅ |
+| 1.50 (3:2) | 1.24 | ~16.0% – 84.0% | ✅ (slightly inset) | ❌ | ✅ |
+| 1.33 (4:3) | 1.04 | ~13.7% – 86.3% | ✅ at edges | ❌ | ✅ |
+| 1.20 | 1.04 | ~16.8% – 83.2% | ✅ (tight) | ❌ | ✅ |
 | < 1.20 | nave mode | — | — | — | ✅ |
 
 Two things fall out of this table that are worth stating plainly, because they change how the whole
 page should be built:
 
-- **Horizontal framing is constant for every viewport wider than 16:9.** Only the vertical crop
-  grows. Above ~1.9:1 the crown is already at the top edge at rest and leaves frame when we push;
-  that's unavoidable with a full-bleed 16:9 plate and it is fine — the *legs* do the framing work,
-  and `.plateRecess` (§3.2) plus the content's top mask-fade (§2.3) supply the "under an arch" cue
-  when the crown is out of shot.
+- **Horizontal framing targets the same visible-x band (~13.8%–86.2%) on every bucket tuned for
+  Matthew's test viewports (1920×1080, 1440×900).** Above ~1.9:1 the crown is already at the top edge
+  at rest and leaves frame when we push; that's unavoidable with a full-bleed 16:9 plate and it is
+  fine — the *legs* do the framing work at the sides, and `.plateRecess` (§3.2) plus the content's
+  top mask-fade (§2.3) supply the "under an arch" cue when the crown is out of shot.
 - **Below ~1.5:1 the cover crop has already framed the arch.** The dolly there is a vertical settle
   and a content crossfade, not a scale change. Don't force a push that the framing doesn't need.
+
+*(Kate's original §1.2 text — 10%–90%, `--dolly-in: 1.25`, candles in frame — is superseded by this
+amendment. Retained in git history only.)*
 
 ### 1.3 Resolution ceiling — how far we can actually push
 
 The source is 1080p. Upscale factor in **device** pixels is
 `(--plate-w × --dolly × devicePixelRatio) / 1920`.
 
-| Window | DPR | At rest | At `--dolly: 1.25` | At today's `1.49` |
+| Window | DPR | At rest | At `--dolly: 1.38` (settled, Matthew) | At today's `1.49` |
 |---|---|---|---|---|
-| 1440 CSS px, 16:9 | 2 | 1.50× | 1.88× | 2.23× |
-| 1920 CSS px, 16:9 | 1 | 1.00× | 1.25× | 1.49× |
-| 2560 CSS px, 16:9 | 2 | 2.67× | 3.33× | 3.97× |
-| 3840 CSS px (4K) | 1 | 2.00× | 2.50× | 2.98× |
+| 1440 CSS px, 16:9 | 2 | 1.50× | 2.07× | 2.23× |
+| 1920 CSS px, 16:9 | 1 | 1.00× | 1.38× | 1.49× |
+| 2560 CSS px, 16:9 | 2 | 2.67× | 3.68× | 3.97× |
+| 3840 CSS px (4K) | 1 | 2.00× | 2.76× | 2.98× |
 
 House rule of thumb for soft oil paint under a grain overlay: **≤2.0× is invisible, 2.0–2.6× reads
 as varnish-soft (acceptable, arguably flattering), >2.6× smears** — the moulding highlights lose
 their edge and the bookshelf spines turn to porridge.
 
-**Ruling: `--dolly` must never exceed 1.30.** 1.25 is both the correct framing and a real quality
-win over 1.49 — a 16% reduction in upscale everywhere. On a 27" 5K display we are over budget even
-at rest and there is nothing CSS can do about that.
+> **Amendment (Matthew, Aug 2026).** Kate's original ruling: **`--dolly` must never exceed 1.30** —
+> 1.25 was both correct framing and a quality win. Matthew accepted **`--dolly-in: 1.38` at 16:9**
+> as a deliberate trade for tighter "standing in the opening" framing (§1.2 amendment). This
+> **exceeds the 1.30 ceiling** on settled viewports; the documented remedy remains the deferred
+> **3840×2160 still** of the settled framing (`receiving-wall-zoomed.jpg` now exists in `public/` but
+> is **not** crossfaded in — Matthew confirmed zoom is held on the video plate with no `.stageZoomed`
+> layer). Backing the zoom off to satisfy 1.30 would fail the moulding-at-edges test.
 
 **Do not crop or letterbox instead.** Letterboxing a full-bleed painted room to preserve pixels
 trades the one thing the surface has (immersion) for a defect nobody has complained about. If the
-softness ever does bother Kathryn or Tara-Lee, the correct answer is the one `.stageZoomed` was
-reaching for and never got: **commission a 3840×2160 still of the settled framing** and crossfade it
-in late. That is a real option, deliberately deferred — not the thing to build now.
+softness ever does bother Kathryn or Tara-Lee, the correct answer is the **3840×2160 still** of the
+settled framing — deliberately deferred for this pass, not a reason to revert §1.2.
 
 **Mitigation that ships now:** the grain layer (§3.3). Fine tileable noise over an upscaled soft
 image restores apparent high-frequency detail and reads as canvas tooth rather than as artefact.
@@ -948,6 +962,33 @@ The header keeps only `To the brains →` (`.ghostLink`, unchanged). With the be
 and the margin note in every bay, Clive is reachable in both states without a persistent control —
 which is the point: he is a person in the room, not a support widget in the corner.
 
+### 6.4 The expanded letter — incised, not panelled
+
+**Amendment (Matthew, Aug 2026).** An open record ("the letter") must read as text carved into the
+plaster like every other element on the wall — not as a UI card dropped onto the painting.
+
+When a record expands:
+
+- **No panel.** Remove background fill, border, border-radius, and coloured left-edge stripe. The
+  letter sits directly on the void/plaster.
+- **Separation from the collapsed row** uses a scored hairline rule (§3.5 two-tone gradient, fading
+  at the ends) plus type hierarchy — larger incised title, uppercase meta line, body prose — not a
+  box.
+- **Actions are incised text, not buttons.** `Accept`, `Discuss with Clive`, and `Fold the letter`
+  remain real `<button>` elements for accessibility, but visually match `.incisedAction` (§6.3):
+  small caps, letter-spaced, gold/warm carved treatment. No pill chrome, no filled backgrounds.
+- **Hierarchy without boxes.** `Accept` is primary: slightly larger weight and size, brighter incised
+  stack (same four-shadow structure as `.recordTitle`). `Discuss with Clive` uses `.incisedAction`.
+  `Fold the letter` uses a muted incised variant (`.incisedActionMuted`).
+- **Accept states stay legible incised:** pending (`Accepting…`, reduced opacity, `cursor: wait`),
+  success (`Accepted`, sage-tinted incised text), error (italic incised line in warm red — no alert
+  box).
+- **Accessibility non-negotiable:** visible `:focus-visible` ring (tint outline, 5px offset), explicit
+  `aria-label` / `aria-busy` on Accept, touch targets ≥ 44×44px via padding on the incised buttons
+  (font size stays small).
+
+Do not reintroduce `.acceptBtn` fill/border styling or `.ghostBtn` pill borders on the letter surface.
+
 ---
 
 ## §7 — Build order, acceptance, and what needs Kathryn / Tara-Lee
@@ -968,8 +1009,15 @@ which is the point: he is a person in the room, not a support widget in the corn
 
 ### Acceptance checks
 
-- At every bucket in §1.2, **both moulding legs are visible at the settled state** with lit plaster
-  outside them. This is the single pass/fail test for "portal".
+> **Amendment (Matthew, Aug 2026).** Kate's original pass/fail: *both moulding legs visible with
+> lit plaster outside them* (candles in frame). **Superseded.** New pass/fail at settled zoom:
+> **stone moulding legs at or very near the left and right frame edges; bookshelves and candle
+> sconces out of frame.** If bookshelves are visible either side, zoom is not far enough. Verify at
+> 1920×1080 and 1440×900. Content safe box (source-x 24%–76%) must still clear the stone mouldings
+> (~16.7%–19% / ~81%–83.3%) — confirm no text overlaps stone.
+
+- At every bucket in §1.2 (amended table), **moulding legs at frame edges at settled state**;
+  bookshelves and sconces cropped out. This is the single pass/fail test for "portal".
 - No content element ever crosses source x 24%/76% or y 22%/86%. Check by temporarily setting
   `.aperture { outline: 1px solid red }` against the arch.
 - The move: 1500ms, no dead stop, bay rising before the camera settles, wall never fully static.
@@ -985,9 +1033,8 @@ which is the point: he is a person in the room, not a support widget in the corn
 
 ### Open calls — Kathryn / Tara-Lee judge, Matthew approves
 
-1. **Settled framing.** 10%–90% is my recommendation, not a law. Tighter (12%–88%) is more intimate
-   and loses the candles; wider (8%–92%) shows bookshelf edges and reads more as *room* than
-   *portal*. One `--dolly-in` value per bucket, trivially retuned.
+1. **Settled framing.** ~~10%–90% is my recommendation~~ **Superseded (Matthew, Aug 2026):**
+   13.8%–86.2% at 16:9, `--dolly-in: 1.38`, "standing in the opening" — see §1.2 amendment.
 2. **`--dolly-in-y: 2.5vh`.** The composition sinks slightly as we push, so we see a touch more above
    the crown. Could equally hold the horizon at 0. Taste.
 3. **Grain weight** (`--varnishGrain` at 0.09). The whole "does the type belong" question turns on
