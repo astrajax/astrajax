@@ -30,18 +30,6 @@ type DraftTruthFields = {
   "Capture Source"?: string;
 };
 
-const DRAFT_TRUTH_FIELDS_BY_NAME: Record<keyof DraftTruthFields, string> = {
-  Title: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title,
-  "Canonical Text": BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText,
-  "Brain Slug": BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainSlug,
-  "Proposed Category": BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedCategory,
-  Status: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status,
-  "Proposed By Agent": BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedByAgent,
-  "Created By": BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.createdBy,
-  "Capture Source":
-    process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID ?? "Capture Source",
-};
-
 const WALL_CAP = 10;
 
 function truncate(text: string, max = 160): string {
@@ -72,25 +60,26 @@ function inferCaptureSource(fields: DraftTruthFields): CaptureSource {
   return "user-guided";
 }
 
-function mapRecord(record: {
+export function mapDraftTruthToReceivingRecord(record: {
   id: string;
-  fields: DraftTruthFields;
+  fields: Record<string, unknown>;
 }): ReceivingRecord | null {
-  const title = record.fields.Title?.trim();
+  const fields = record.fields as DraftTruthFields;
+  const title = fields.Title?.trim();
   if (!title) return null;
-  const canonicalText = record.fields["Canonical Text"]?.trim() ?? "";
-  const read = normaliseCaptureSource(record.fields["Capture Source"]);
+  const canonicalText = fields["Canonical Text"]?.trim() ?? "";
+  const read = normaliseCaptureSource(fields["Capture Source"]);
   return {
     recordId: record.id,
     title,
     snippet: truncate(canonicalText || title),
     provenance:
-      record.fields["Proposed By Agent"]?.trim() ||
-      record.fields["Created By"]?.trim() ||
+      fields["Proposed By Agent"]?.trim() ||
+      fields["Created By"]?.trim() ||
       "Clive's Man",
-    captureSource: read ?? inferCaptureSource(record.fields),
-    brainSlug: record.fields["Brain Slug"]?.trim() || undefined,
-    status: record.fields.Status?.trim() || undefined,
+    captureSource: read ?? inferCaptureSource(fields),
+    brainSlug: fields["Brain Slug"]?.trim() || undefined,
+    status: fields.Status?.trim() || undefined,
     canonicalText,
   };
 }
@@ -129,16 +118,16 @@ const SEED_RECORDS: ReceivingRecord[] = [
   },
 ];
 
-/** Field list for the wall read. Capture Source is optional until Matthew adds it. */
+/** Field list for the wall read. Capture Source is optional until configured. */
 export function buildReceivingWallFieldIds(): string[] {
   const fields: string[] = [
-    DRAFT_TRUTH_FIELDS_BY_NAME.Title,
-    DRAFT_TRUTH_FIELDS_BY_NAME["Canonical Text"],
-    DRAFT_TRUTH_FIELDS_BY_NAME["Brain Slug"],
-    DRAFT_TRUTH_FIELDS_BY_NAME["Proposed Category"],
-    DRAFT_TRUTH_FIELDS_BY_NAME.Status,
-    DRAFT_TRUTH_FIELDS_BY_NAME["Proposed By Agent"],
-    DRAFT_TRUTH_FIELDS_BY_NAME["Created By"],
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainSlug,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedCategory,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedByAgent,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.createdBy,
   ];
   const captureSourceFieldId = process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID?.trim();
   if (captureSourceFieldId) {
@@ -176,12 +165,7 @@ export async function handleReceivingWallRecords(): Promise<{
     });
 
     const mapped = records
-      .map((record) =>
-        mapRecord({
-          id: record.id,
-          fields: record.fields as DraftTruthFields,
-        }),
-      )
+      .map((record) => mapDraftTruthToReceivingRecord(record))
       .filter((row): row is ReceivingRecord => row !== null);
 
     if (mapped.length === 0) {

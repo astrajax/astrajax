@@ -13,6 +13,27 @@ export const BRAIN_REGISTRY_TABLES = {
   keyRequests: "tblhaWR5UNd8n01tn",
   accessGrants: "tblWLRYSGfLipR53P",
   changeLog: "tbliAMUuKKW4DDRXF",
+  /** Build velocity Track 2 — architecture §9 job queue (2 Aug 2026). */
+  implementationJobs: "tblkNN9hqnPPAseMl",
+} as const;
+
+/** Registry Implementation Jobs — Opus/Doc brief → worker → Draft ready. */
+export const IMPLEMENTATION_JOBS_FIELDS = {
+  jobId: "fldUfmV9MpDosM6Ou",
+  approvedBriefId: "fldccVKnS7apJ4pIg",
+  actionType: "fldcrVuOJqckBwW92",
+  status: "fldx0QyJhpQ7cN93w",
+  idempotencyKey: "fldmHOloKiTGvtCKM",
+  promptHash: "fldTFO56QXMMqJVSk",
+  executionPrompt: "fldEdJGGUO3hPB3B6",
+  generatorPath: "fld50kHOOO3V1FOpv",
+  artifactPaths: "fldOzSeoa9qHAG7l7",
+  diffSummary: "fldobGTFXprVM9I6y",
+  error: "fld6RFObhYCq3wOYg",
+  executingAgent: "fldvLK5IAV472YXfV",
+  approvedBy: "fldIvvvbSiyl5fh1e",
+  changeLogEntryId: "fld8lZ65h3hmco6CK",
+  notes: "fldnntiTCTtm4YuxG",
 } as const;
 
 /** Registry Brains table — Chapter 1 context structure fields (Phase B, 29 Jun 2026). */
@@ -98,6 +119,36 @@ export const BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS = {
   proposedByAgent: "flde1d1sda9lWwrj9",
   createdBy: "fldEonKVeEsrbiwkm",
   supersedesTrustedTruthId: "fldbWiOWBg5nmNMJv",
+  /** Receiving Wall source tint — single-select (2 Aug 2026). */
+  captureSource: "fld9zhLHPvjnq8lHT",
+} as const;
+
+/** Workshop Approval Decisions — human judgement before Doc acts. */
+export const BRAIN_WORKSHOP_APPROVAL_DECISIONS_FIELDS = {
+  decisionId: "fldjWPtPUG4qbYYPu",
+  decisionSummary: "fld2vfAWivLZQ4MOY",
+  approver: "fldPM8QKDbTly7SnP",
+  decision: "fldprV0FC3V4Q29Jo",
+  decisionNotes: "fldOlS9O6SgCeD853",
+  sendToDoc: "fldLdTmnkAnzlEWMR",
+} as const;
+
+/** Draft Brain Truth Status — live single-select values (verify in Airtable UI). */
+export const DRAFT_TRUTH_STATUS = {
+  draft: "Draft",
+  quarantined: "Quarantined",
+  rejected: "Rejected",
+  promoted: "Promoted",
+  /** Human confirmed on the Receiving Wall — add this option in Airtable if missing. */
+  approved: "Approved",
+} as const;
+
+/** Approval Decisions Decision — live single-select values. */
+export const APPROVAL_DECISION_VALUE = {
+  approved: "Approved",
+  approvedWithCaveat: "Approved with caveat",
+  rejected: "Rejected",
+  needsMoreWork: "Needs more work",
 } as const;
 
 /** Brain Interactions table — client review / scoring fields (26 Jun 2026). */
@@ -324,8 +375,16 @@ export const DOC_TIER_SEED_RECORDS = {
   memoryFoundIt: "recgZKuvyBNuaQLG8",
 } as const;
 
-/** Doc Persona Config — Approved Operational v0.2 (27 Jun 2026). Canonical technical role spec. */
+/**
+ * Doc Persona Config (Doc Agent base).
+ * v0.3 Approved (canonical technical role). v0.2 Retired. v0.4 On-Platform Pending.
+ * Cursor skill still lagging HA v0.4 — see build-velocity-tracks.md Track 0a.
+ */
 export const DOC_PERSONA_CONFIG = {
+  operationalV02Retired: "rec0KNMfpdSlPWQuf",
+  operationalV03: "recdOn7bnhn7sMK0Y",
+  operationalV04OnPlatformPending: "recIgO57oqkERrJ93",
+  /** @deprecated use operationalV03 — kept temporarily for old imports */
   operationalV02: "rec0KNMfpdSlPWQuf",
 } as const;
 
@@ -337,8 +396,14 @@ export const CLIVE_MAN_AGENT_TABLES = {
   minions: "tblqvGSnKOKReBX41",
 } as const satisfies AgentBaseTables;
 
-/** Clive's Man Persona Config — Approved Operational v0.2 (27 Jun 2026). Canonical technical role spec. */
+/**
+ * Clive's Man Persona Config.
+ * v0.3 Approved (2 Aug 2026 check). v0.2 Retired.
+ */
 export const CLIVE_MAN_PERSONA_CONFIG = {
+  operationalV02Retired: "rec6b8PB3HY3yv0Wq",
+  operationalV03: "rect04amPJAZrWCi4",
+  /** @deprecated use operationalV03 */
   operationalV02: "rec6b8PB3HY3yv0Wq",
 } as const;
 
