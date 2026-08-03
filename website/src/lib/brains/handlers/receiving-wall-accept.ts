@@ -6,10 +6,20 @@ import {
   BRAIN_WORKSHOP_TABLES,
   DRAFT_TRUTH_STATUS,
 } from "../airtable-ids";
-import { airtableCreate, airtableFindOne, airtableUpdate } from "../airtable-rest";
+import {
+  airtableCreate,
+  airtableFindOne,
+  airtableUpdate,
+  escapeAirtableString,
+} from "../airtable-rest";
 import { getWorkshopBaseId, getWorkshopWriteToken } from "../config";
-import type { ReceivingRecord } from "@/lib/receiving-wall";
+import {
+  isReceivingRecordActioned,
+  type ReceivingRecord,
+} from "@/lib/receiving-wall";
 import { mapDraftTruthToReceivingRecord } from "./receiving-wall-records";
+
+const AIRTABLE_RECORD_ID_RE = /^rec[a-zA-Z0-9]{14}$/;
 
 const RECEIVING_WALL_SURFACE = "Receiving Wall";
 
@@ -63,6 +73,9 @@ export async function handleReceivingWallAccept(input: {
   if (recordId.startsWith("seed-")) {
     throw new Error("Seeded demo records cannot be accepted — wire live Workshop drafts first.");
   }
+  if (!AIRTABLE_RECORD_ID_RE.test(recordId)) {
+    throw new Error("Invalid recordId.");
+  }
 
   const baseId = getWorkshopBaseId();
   const token = getWorkshopWriteToken();
@@ -78,7 +91,7 @@ export async function handleReceivingWallAccept(input: {
     baseId,
     tableId,
     token,
-    `RECORD_ID()='${recordId}'`,
+    `RECORD_ID()='${escapeAirtableString(recordId)}'`,
   );
   if (!existing) {
     throw new Error(`Draft record not found: ${recordId}`);
@@ -90,6 +103,11 @@ export async function handleReceivingWallAccept(input: {
   }
 
   const priorStatus = String(existing.fields.Status ?? DRAFT_TRUTH_STATUS.draft);
+  if (isReceivingRecordActioned(priorStatus)) {
+    throw new Error(
+      `This record is already ${priorStatus} and cannot be accepted again.`,
+    );
+  }
   const targetStatus = acceptStatusValue();
   const approvalDecisionId = nextApprovalDecisionId();
 

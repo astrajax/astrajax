@@ -13,6 +13,7 @@ import {
 } from "@/lib/receiving-wall";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
+import { acceptReceivingWallRecord } from "@/lib/brains/actions/receiving-wall-accept";
 import type { ChatMessage } from "@/lib/clive/types";
 import styles from "./receiving-wall.module.css";
 
@@ -63,6 +64,8 @@ export function ReceivingWall() {
   const [acceptState, setAcceptState] = useState<AcceptState>("idle");
   const [acceptError, setAcceptError] = useState<string | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const openRecordIdRef = useRef<string | null>(null);
+  openRecordIdRef.current = openRecordId;
 
   useEffect(() => {
     let cancelled = false;
@@ -154,7 +157,7 @@ export function ReceivingWall() {
       setBeat("idle");
       return;
     }
-    if (beat === "settling") {
+    if (beat === "returning" || beat === "settling") {
       clearPending();
       setOpenRecordId(null);
       setZoomed(null);
@@ -188,38 +191,34 @@ export function ReceivingWall() {
   const acceptRecord = useCallback(
     async (record: ReceivingRecord) => {
       if (isReceivingRecordActioned(record.status)) return;
+      const acceptedRecordId = record.recordId;
       setAcceptState("pending");
       setAcceptError(null);
       try {
-        const response = await fetch("/api/brains/receiving-wall/accept", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ recordId: record.recordId, actor: "Architect" }),
+        const result = await acceptReceivingWallRecord({
+          recordId: acceptedRecordId,
+          actor: "Architect",
         });
-        const json = (await response.json()) as {
-          record?: ReceivingRecord;
-          error?: string;
-        };
-        if (!response.ok) {
-          throw new Error(json.error ?? "Could not accept this record.");
-        }
-        if (!json.record) {
-          throw new Error("Accept succeeded but no record was returned.");
-        }
         setData((current) =>
           current
             ? {
                 ...current,
                 records: current.records.map((row) =>
-                  row.recordId === json.record!.recordId ? json.record! : row,
+                  row.recordId === result.record.recordId ? result.record : row,
                 ),
               }
             : current,
         );
-        setAcceptState("success");
+        if (openRecordIdRef.current === acceptedRecordId) {
+          setAcceptState("success");
+        }
       } catch (error) {
-        setAcceptState("error");
-        setAcceptError(error instanceof Error ? error.message : "Could not accept this record.");
+        if (openRecordIdRef.current === acceptedRecordId) {
+          setAcceptState("error");
+          setAcceptError(
+            error instanceof Error ? error.message : "Could not accept this record.",
+          );
+        }
       }
     },
     [],
@@ -239,6 +238,7 @@ export function ReceivingWall() {
           beat === "zoomedIn" ||
           beat === "zooming" ||
           beat === "exiting" ||
+          beat === "returning" ||
           beat === "settling"
         ) {
           closeZoom();

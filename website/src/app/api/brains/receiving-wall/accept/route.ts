@@ -1,11 +1,12 @@
 import { handleReceivingWallAccept } from "@/lib/brains/handlers/receiving-wall-accept";
-import { jsonError, jsonOk } from "@/lib/brains/http";
+import { jsonError, jsonOk, verifyDocPromoteAuth } from "@/lib/brains/http";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   try {
+    verifyDocPromoteAuth(request);
     const body = (await request.json()) as {
       recordId?: string;
       actor?: string;
@@ -19,6 +20,9 @@ export async function POST(request: Request) {
     });
     return jsonOk(result);
   } catch (error) {
-    return jsonError(error);
+    return jsonError(
+      error,
+      error instanceof Error && error.message.includes("authorization") ? 401 : 400,
+    );
   }
 }
