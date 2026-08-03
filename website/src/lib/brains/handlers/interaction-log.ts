@@ -1,5 +1,4 @@
 import {
-  getInteractionWriteTarget,
   getWorkshopBaseId,
   getWorkshopWriteToken,
   useMemoryStore,
@@ -16,6 +15,15 @@ import type { InteractionLogBody } from "../types";
 
 const memoryLogs: InteractionLogBody[] = [];
 
+/**
+ * Persists an interaction to Workshop (or the in-memory store).
+ *
+ * Household Activity / platform outbox writes are owned by
+ * `queueTurnWithModelCall` and friends. Callers that successfully queue a
+ * platform Turn should skip this helper so review history is not dual-written.
+ * This helper must never pretend a write succeeded without persisting —
+ * that silently drops conversations from the review queue.
+ */
 export async function handleInteractionLog(body: InteractionLogBody) {
   validatePersona(body.persona);
 
@@ -48,16 +56,6 @@ export async function handleInteractionLog(body: InteractionLogBody) {
       storedManifestOnly: Boolean(entry.manifest?.grantId),
       interactionId: stored.interactionId,
       recordId: stored.recordId,
-    };
-  }
-
-  if (getInteractionWriteTarget() === "household_activity") {
-    return {
-      logged: true,
-      storedManifestOnly: Boolean(entry.manifest?.grantId),
-      interactionId: `platform_${entry.sessionId}`,
-      recordId: undefined,
-      source: "household_activity" as const,
     };
   }
 

@@ -19,6 +19,7 @@ import {
   type CurationToolName,
 } from "./tools";
 import type { CurationChatRequest, CurationChatResponse, CurationProposal } from "./types";
+import { platformActivityEventWritesEnabled } from "@/lib/platform-activity/config";
 import type { PlatformRouteManifest } from "@/lib/platform-activity/types";
 import {
   queueChildModelCall,
@@ -287,48 +288,59 @@ export async function runCurationChat(
     source: `curation-docket:${knowledgeSource}`,
   };
 
-  if (modelCalls.length > 0) {
-    const first = modelCalls[0];
-    await queueTurnWithModelCall({
-      handle: input.platformHandle ?? null,
-      turnId: input.turnId ?? input.sessionId,
-      surface: "curation",
+  const preferPlatform =
+    Boolean(input.platformHandle) && platformActivityEventWritesEnabled();
+  let platformQueued = false;
+
+  if (modelCalls.length > 0 && preferPlatform) {
+    try {
+      const first = modelCalls[0];
+      await queueTurnWithModelCall({
+        handle: input.platformHandle ?? null,
+        turnId: input.turnId ?? input.sessionId,
+        surface: "curation",
+        persona: "clive",
+        brainSlug: input.brainSlug,
+        userMessage: message,
+        assistantReply: reply || "…",
+        manifest: platformManifest,
+        ...first,
+        callIndex: 0,
+      });
+      platformQueued = true;
+      await Promise.all(
+        modelCalls.slice(1).map((call, index) =>
+          queueChildModelCall({
+            handle: input.platformHandle ?? null,
+            turnId: input.turnId ?? input.sessionId,
+            surface: "curation",
+            manifest: platformManifest,
+            ...call,
+            callIndex: index + 1,
+          }).catch(() => undefined),
+        ),
+      );
+    } catch {
+      platformQueued = false;
+    }
+  }
+
+  if (!platformQueued) {
+    void handleInteractionLog({
+      sessionId: input.sessionId,
       persona: "clive",
       brainSlug: input.brainSlug,
       userMessage: message,
       assistantReply: reply || "…",
-      manifest: platformManifest,
-      ...first,
-      callIndex: 0,
+      channel: "website",
+      manifest: {
+        recordIds: extractManifestRecordIds(manifest),
+        hashes: [],
+        grantId: "",
+        retrievedAt: new Date().toISOString(),
+      },
     }).catch(() => undefined);
-    await Promise.all(
-      modelCalls.slice(1).map((call, index) =>
-        queueChildModelCall({
-          handle: input.platformHandle ?? null,
-          turnId: input.turnId ?? input.sessionId,
-          surface: "curation",
-          manifest: platformManifest,
-          ...call,
-          callIndex: index + 1,
-        }).catch(() => undefined),
-      ),
-    );
   }
-
-  void handleInteractionLog({
-    sessionId: input.sessionId,
-    persona: "clive",
-    brainSlug: input.brainSlug,
-    userMessage: message,
-    assistantReply: reply || "…",
-    channel: "website",
-    manifest: {
-      recordIds: extractManifestRecordIds(manifest),
-      hashes: [],
-      grantId: "",
-      retrievedAt: new Date().toISOString(),
-    },
-  }).catch(() => undefined);
 
   return {
     reply: reply || "I'm here — what shall we curate?",

@@ -14,6 +14,7 @@ import type { AskCliveRequest, AskCliveResponse, ChatMessage } from "@/lib/clive
 import { CHAPTER1_BRAIN_SLUG } from "@/lib/brains/airtable-ids";
 import { LOOP_STEPS, type LoopStep } from "@/lib/aie-demo/types";
 import { handleInteractionLog } from "@/lib/brains/handlers/interaction-log";
+import { platformActivityEventWritesEnabled } from "@/lib/platform-activity/config";
 import { brainManifest, codeManifest } from "@/lib/platform-activity/manifest";
 import {
   queueTurnWithModelCall,
@@ -74,7 +75,41 @@ async function logReply(params: {
   responseId?: string;
   latencyMs?: number;
 }) {
-  const legacy = handleInteractionLog({
+  const preferPlatform =
+    Boolean(params.platformHandle) && platformActivityEventWritesEnabled();
+
+  if (preferPlatform) {
+    try {
+      await queueTurnWithModelCall({
+        handle: params.platformHandle,
+        turnId: params.turnId,
+        surface: "ask-clive",
+        persona: params.persona,
+        brainSlug: CHAPTER1_BRAIN_SLUG,
+        userMessage: params.message,
+        assistantReply: params.reply,
+        manifest: brainManifest({
+          recordIds: params.manifest.recordIds,
+          source: params.source,
+          promptVersion: "ask-clive-v1",
+        }),
+        requestedModel: params.requestedModel,
+        returnedModel: params.returnedModel,
+        usage: params.usage,
+        finishReason: params.finishReason,
+        responseId: params.responseId,
+        latencyMs: params.latencyMs,
+      });
+      return;
+    } catch (logError) {
+      console.warn(
+        "Ask Clive platform activity queue failed; falling back to Workshop log:",
+        logError,
+      );
+    }
+  }
+
+  await handleInteractionLog({
     sessionId: params.sessionId,
     persona: params.persona,
     brainSlug: CHAPTER1_BRAIN_SLUG,
@@ -86,33 +121,57 @@ async function logReply(params: {
     },
     channel: "website",
   }).catch((logError) => {
-    console.warn("Ask Clive legacy interaction log failed:", logError);
+    console.warn("Ask Clive Workshop interaction log failed:", logError);
   });
+}
 
-  const platform = queueTurnWithModelCall({
-    handle: params.platformHandle,
-    turnId: params.turnId,
-    surface: "ask-clive",
+async function logFallbackExchange(params: {
+  sessionId: string;
+  platformHandle: string | null;
+  turnId: string;
+  persona: "clive" | "pam";
+  message: string;
+  reply: string;
+  source: string;
+}) {
+  const preferPlatform =
+    Boolean(params.platformHandle) && platformActivityEventWritesEnabled();
+
+  if (preferPlatform) {
+    try {
+      await queueTurnWithoutModel({
+        handle: params.platformHandle,
+        turnId: params.turnId,
+        surface: "ask-clive",
+        persona: params.persona,
+        brainSlug: CHAPTER1_BRAIN_SLUG,
+        userMessage: params.message,
+        assistantReply: params.reply,
+        manifest: codeManifest({
+          source: params.source,
+          promptVersion: "ask-clive-fallback-v1",
+        }),
+        outcome: "fallback",
+      });
+      return;
+    } catch (logError) {
+      console.warn(
+        "Ask Clive fallback platform queue failed; falling back to Workshop log:",
+        logError,
+      );
+    }
+  }
+
+  await handleInteractionLog({
+    sessionId: params.sessionId,
     persona: params.persona,
     brainSlug: CHAPTER1_BRAIN_SLUG,
     userMessage: params.message,
     assistantReply: params.reply,
-    manifest: brainManifest({
-      recordIds: params.manifest.recordIds,
-      source: params.source,
-      promptVersion: "ask-clive-v1",
-    }),
-    requestedModel: params.requestedModel,
-    returnedModel: params.returnedModel,
-    usage: params.usage,
-    finishReason: params.finishReason,
-    responseId: params.responseId,
-    latencyMs: params.latencyMs,
+    channel: "website",
   }).catch((logError) => {
-    console.warn("Ask Clive platform activity queue failed:", logError);
+    console.warn("Ask Clive fallback Workshop log failed:", logError);
   });
-
-  await Promise.all([legacy, platform]);
 }
 
 function resolveBeat(raw: unknown): LoopStep | undefined {
@@ -159,17 +218,15 @@ export async function POST(request: Request) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     const reply = getSeededReply(persona, message, beat ?? undefined);
-    await queueTurnWithoutModel({
-      handle: platformHandle,
+    await logFallbackExchange({
+      sessionId,
+      platformHandle,
       turnId,
-      surface: "ask-clive",
       persona,
-      brainSlug: CHAPTER1_BRAIN_SLUG,
-      userMessage: message,
-      assistantReply: reply,
-      manifest: codeManifest({ source: "chapter1-fallback", promptVersion: "ask-clive-fallback-v1" }),
-      outcome: "fallback",
-    }).catch(() => undefined);
+      message,
+      reply,
+      source: "chapter1-fallback",
+    });
     if (stream) {
       return new Response(buildFallbackStream(reply), {
         headers: { "Content-Type": "text/plain; charset=utf-8", "X-Clive-Fallback": "1" },
@@ -178,7 +235,7 @@ export async function POST(request: Request) {
     const payload: AskCliveResponse = {
       reply,
       contextSource: "fallback",
-      interactionLogged: false,
+      interactionLogged: true,
       fallback: true,
     };
     return NextResponse.json(payload);
@@ -239,17 +296,15 @@ export async function POST(request: Request) {
     return NextResponse.json(payload);
   } catch (error) {
     const reply = getSeededReply(persona, message, beat ?? undefined);
-    await queueTurnWithoutModel({
-      handle: platformHandle,
+    await logFallbackExchange({
+      sessionId,
+      platformHandle,
       turnId,
-      surface: "ask-clive",
       persona,
-      brainSlug: CHAPTER1_BRAIN_SLUG,
-      userMessage: message,
-      assistantReply: reply,
-      manifest: codeManifest({ source: "chapter1-fallback", promptVersion: "ask-clive-fallback-v1" }),
-      outcome: "fallback",
-    }).catch(() => undefined);
+      message,
+      reply,
+      source: "chapter1-fallback",
+    });
     if (stream) {
       return new Response(buildFallbackStream(reply), {
         headers: { "Content-Type": "text/plain; charset=utf-8", "X-Clive-Fallback": "1" },
