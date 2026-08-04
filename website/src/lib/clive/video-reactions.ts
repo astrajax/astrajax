@@ -7,34 +7,35 @@ export type CliveReaction = "idle" | "listen" | "think" | "pleased" | "sigh" | "
 
 const CLIVE_ANIMATIONS_BASE = "/agent-cast/clive-wigglesworth/animations";
 
-/** Beat 1 welcome narration — legacy single talking loop (kept for reference). */
-export const CLIVE_WELCOME_BEAT_1_TALKING = `${CLIVE_ANIMATIONS_BASE}/welcome-beat-1-talking.mp4`;
+/** Beat 1 welcome — warm welcome gesture (kept for reference / alternate staging). */
+export const CLIVE_WELCOME_BEAT_1_TALKING = `${CLIVE_ANIMATIONS_BASE}/gesture-warm-welcome.mp4`;
 
-/** Beat 1 welcome — seven micro-clips stitched in order; plays once, holds last frame. */
-export const CLIVE_WELCOME_BEAT_1_STITCHED = `${CLIVE_ANIMATIONS_BASE}/welcome-beat-1-stitched.mp4`;
+/** Beat 1 welcome — full welcome transition; plays once, holds last frame. */
+export const CLIVE_WELCOME_BEAT_1_STITCHED = `${CLIVE_ANIMATIONS_BASE}/welcome-transition.mp4`;
 
 /** Ambient idle playlist — cycled during the welcome cinematic and default idle reel. */
 export const CLIVE_IDLE_REEL: readonly string[] = [
-  `${CLIVE_ANIMATIONS_BASE}/idle-blinking.mp4`,
-  `${CLIVE_ANIMATIONS_BASE}/idle.mp4`,
-  `${CLIVE_ANIMATIONS_BASE}/head-move.mp4`,
-  `${CLIVE_ANIMATIONS_BASE}/looking-up.mp4`,
-  `${CLIVE_ANIMATIONS_BASE}/look-up-left.mp4`,
-  `${CLIVE_ANIMATIONS_BASE}/look-left-and-right.mp4`,
-  `${CLIVE_ANIMATIONS_BASE}/plays-with-ears.mp4`,
-  `${CLIVE_ANIMATIONS_BASE}/lean-back-proud.mp4`,
-  `${CLIVE_ANIMATIONS_BASE}/clive-look-away.mp4`,
+  `${CLIVE_ANIMATIONS_BASE}/gesture-smiling-warmly.mp4`,
+  `${CLIVE_ANIMATIONS_BASE}/hero-loop-reading.mp4`,
+  `${CLIVE_ANIMATIONS_BASE}/gesture-book-raised.mp4`,
+  `${CLIVE_ANIMATIONS_BASE}/gesture-looking-up-thought.mp4`,
+  `${CLIVE_ANIMATIONS_BASE}/gesture-happy.mp4`,
+  `${CLIVE_ANIMATIONS_BASE}/gesture-laughing.mp4`,
+  `${CLIVE_ANIMATIONS_BASE}/gesture-lean-in.mp4`,
+  `${CLIVE_ANIMATIONS_BASE}/gesture-advising-caution.mp4`,
+  `${CLIVE_ANIMATIONS_BASE}/gesture-warm-welcome.mp4`,
 ];
 
 /** Maps chat/study reactions to public video URLs. */
 export const CLIVE_REACTION_CLIPS: Record<CliveReaction, string> = {
   /** Default ambient loop when idle reel is not active — study uses animation clips, not homepage hero. */
-  idle: `${CLIVE_ANIMATIONS_BASE}/idle-blinking.mp4`,
-  listen: `${CLIVE_ANIMATIONS_BASE}/head-move.mp4`,
-  think: `${CLIVE_ANIMATIONS_BASE}/looking-up.mp4`,
-  pleased: `${CLIVE_ANIMATIONS_BASE}/lean-back-proud.mp4`,
-  sigh: `${CLIVE_ANIMATIONS_BASE}/clive-look-away.mp4`,
-  glance: `${CLIVE_ANIMATIONS_BASE}/look-left-and-right.mp4`,
+  idle: `${CLIVE_ANIMATIONS_BASE}/gesture-smiling-warmly.mp4`,
+  listen: `${CLIVE_ANIMATIONS_BASE}/gesture-lean-in.mp4`,
+  think: `${CLIVE_ANIMATIONS_BASE}/gesture-looking-up-thought.mp4`,
+  pleased: `${CLIVE_ANIMATIONS_BASE}/gesture-happy.mp4`,
+  sigh: `${CLIVE_ANIMATIONS_BASE}/gesture-sad.mp4`,
+  /** Pam-challenge beat — caution reads cleaner than a side-glance on the new set. */
+  glance: `${CLIVE_ANIMATIONS_BASE}/gesture-advising-caution.mp4`,
 };
 
 export const CLIVE_VIDEO_CROSSFADE_MS = 200;

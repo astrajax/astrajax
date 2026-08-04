@@ -378,6 +378,7 @@ export function ReceivingWall({
   useEffect(() => {
     setAcceptState("idle");
     setAcceptError(null);
+    setReadOffset(0);
   }, [openRecordId]);
 
   useEffect(() => {
@@ -400,9 +401,9 @@ export function ReceivingWall({
     const onWheel = (event: WheelEvent) => {
       const max = measureReadTravel();
       if (max <= 0) return;
+      event.preventDefault();
       const next = clampReadOffset(readOffsetRef.current + event.deltaY);
       if (next === readOffsetRef.current) return;
-      event.preventDefault();
       setReadOffset(next);
     };
 
@@ -499,6 +500,17 @@ export function ReceivingWall({
       };
       const delta = scrollKeys[event.key];
       if (delta === undefined) return;
+      if (measureReadTravel() <= 0) return;
+
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          target.closest("input, textarea, button, select, a, [contenteditable]"))
+      ) {
+        return;
+      }
+
       if (event.key === "Home") {
         event.preventDefault();
         setReadOffset(0);
@@ -507,14 +519,6 @@ export function ReceivingWall({
       if (event.key === "End") {
         event.preventDefault();
         setReadOffset(measureReadTravel());
-        return;
-      }
-
-      const target = event.target;
-      if (
-        target instanceof HTMLElement &&
-        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
-      ) {
         return;
       }
 
