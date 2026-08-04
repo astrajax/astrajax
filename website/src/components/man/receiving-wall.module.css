@@ -47,6 +47,7 @@
 
   /* --- aperture (manifest APERTURE.safeBox) --- */
   --wall-w: calc(var(--plate-w) * var(--dolly));
+  --wall-h: calc(var(--plate-h) * var(--dolly));
   --ap-safe-w: calc(var(--wall-w) * 0.52);
   --ap-base-w: calc(var(--plate-w) * 0.52);
 
@@ -60,6 +61,11 @@
   --dolly-y: var(--dolly-in-y);
   --scroll-y: -50%;
   --scroll-delay: 380ms;
+}
+
+/* After entry completes, lock the track — reading scroll is bayTravel only. */
+.wall.reading .interiorTrack {
+  transition: none;
 }
 
 .wall.settling {
@@ -144,12 +150,34 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  /*
+   * Portal interior — brightest at centre (the opening glows).
+   * Palette: voidBloomPeak #677367 → voidCentre #3b4039 → voidInnerEdge #161712
+   */
   background: radial-gradient(
-    ellipse 42% 48% at 50% 52%,
-    #3b4039 0%,
-    #22211d 42%,
+    ellipse 36% 40% at 50% 44%,
+    #6d786e 0%,
+    #525a50 32%,
+    #3b4039 58%,
+    #252622 82%,
     #161712 100%
   );
+}
+
+/* Bright core — portal is the light source, not the floor */
+.portalCore {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 26% 30% at 50% 42%,
+      rgba(158, 176, 158, 0.42) 0%,
+      rgba(103, 115, 103, 0.22) 38%,
+      transparent 68%
+    );
+  mix-blend-mode: screen;
 }
 
 .interiorTrack {
@@ -166,6 +194,61 @@
   flex: 0 0 52%;
   width: 100%;
   overflow: hidden;
+}
+
+.bayPlate {
+  overflow: hidden;
+}
+
+/* Bay scroll viewport — full plate; no rectangular clip on imagery.
+   Arch curve is .roomStatic clip-path only. */
+.bayWindow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.bayTravel {
+  position: relative;
+  will-change: transform;
+  min-height: 100%;
+}
+
+/* Full-bleed travelling surface — fills plate; boundary is the arch hole only. */
+.bayTravel > .surfaceBackdrop {
+  position: absolute;
+  inset: 0;
+  min-height: 100%;
+}
+
+/* Text safe box — layout only (manifest 24%→76% × 22%→86%), no clip. */
+.bayContent {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  padding: 23% 24% 15%;
+}
+
+.bayTravel .surfaceContent {
+  position: relative;
+  inset: auto;
+  left: auto;
+  top: auto;
+  bottom: auto;
+  translate: none;
+  width: 100%;
+  max-width: none;
+  overflow: visible;
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 2.75rem,
+    #000 calc(100% - 2.75rem),
+    transparent 100%
+  );
+  padding: 0 0.15rem 2.5rem;
 }
 
 .surfaceBackdrop {
@@ -223,12 +306,59 @@
   transition: opacity 280ms ease;
 }
 
-.frameOverlay {
+/* Static room plate — untouched poster, arch punched out; sconces/shelves never move. */
+.roomStatic {
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background: url("/agent-cast/clives-man/receiving-wall-frame.png") center / 100% 100% no-repeat;
+  background: url("/agent-cast/clives-man/receiving-wall-poster.jpg") center / 100% 100% no-repeat;
+  clip-path: var(--room-static-clip);
+}
+
+/*
+ * Portal spill onto the room — light radiates outward from the aperture.
+ * Sconce positions from manifest SCONCES (10.4%/89.5% × 34.4%).
+ * All gradients are radial/elliptical; no rectangular edges.
+ */
+.roomStatic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: var(--room-static-clip);
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 12% 18% at 10.4% 34.4%,
+      rgba(232, 178, 108, 0.18) 0%,
+      rgba(180, 130, 72, 0.06) 42%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 12% 18% at 89.5% 34.4%,
+      rgba(232, 178, 108, 0.18) 0%,
+      rgba(180, 130, 72, 0.06) 42%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 20% 34% at 50% 46%,
+      rgba(199, 165, 119, 0.16) 0%,
+      rgba(113, 97, 71, 0.07) 44%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 52% 58% at 50% 52%,
+      rgba(103, 115, 103, 0.14) 0%,
+      rgba(71, 82, 68, 0.07) 48%,
+      transparent 76%
+    ),
+    radial-gradient(
+      ellipse 34% 20% at 50% 86%,
+      rgba(103, 115, 103, 0.11) 0%,
+      rgba(60, 68, 57, 0.04) 50%,
+      transparent 100%
+    );
+  mix-blend-mode: soft-light;
 }
 
 @keyframes wallBreath {
@@ -251,18 +381,19 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  /* Edge falloff only — depth without a bottom-up uplight */
   background: radial-gradient(
-    ellipse 33% 42% at 50% 52%,
-    rgba(9, 11, 8, 0) 58%,
-    rgba(9, 11, 8, 0.45) 86%,
-    rgba(9, 11, 8, 0.70) 100%
+    ellipse 33% 42% at 50% 46%,
+    rgba(9, 11, 8, 0) 54%,
+    rgba(9, 11, 8, 0.28) 84%,
+    rgba(9, 11, 8, 0.48) 100%
   );
 }
 
 .stageScrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(18, 20, 15, 0.45) 0%, rgba(18, 20, 15, 0) 22%);
+  background: linear-gradient(180deg, rgba(18, 20, 15, 0.32) 0%, rgba(18, 20, 15, 0) 20%);
   pointer-events: none;
 }
 
@@ -272,8 +403,9 @@
   left: 50%;
   translate: -50% 0;
   width: min(var(--ap-safe-w), calc(100vw - 3rem), 68rem);
-  top: 22%;
-  bottom: 14%;
+  /* manifest safeBox yFrom 22% / yTo 86% on idle ledger plate */
+  top: 23%;
+  bottom: 15%;
   pointer-events: auto;
 
   display: flex;
@@ -287,10 +419,59 @@
   mask-image: linear-gradient(
     180deg,
     transparent 0,
-    #000 3.5rem,
-    #000 calc(100% - 3.5rem),
+    #000 2.75rem,
+    #000 calc(100% - var(--content-mask-bottom, 2.75rem)),
     transparent 100%
   );
+}
+
+/* Idle ledger — keep full bench block visible on shorter laptop viewports */
+@media (max-height: 920px) and (min-aspect-ratio: 6/5) {
+  .surfaceContent {
+    --content-mask-bottom: 0.75rem;
+    bottom: 11%;
+  }
+
+  .surfaceContent .note {
+    margin-bottom: 0.65rem;
+  }
+
+  .surfaceContent .sourceList {
+    gap: clamp(0.75rem, 2.2vh, 1.35rem);
+  }
+
+  .surfaceContent .bench {
+    padding-top: 1.35rem;
+    flex-shrink: 0;
+  }
+
+  .surfaceContent .benchRule {
+    margin-bottom: 0.85rem;
+  }
+
+  .surfaceContent .benchLine {
+    margin-bottom: 0.45rem;
+  }
+}
+
+@media (max-height: 820px) and (min-aspect-ratio: 6/5) {
+  .surfaceContent {
+    --content-mask-bottom: 0.35rem;
+    bottom: 9%;
+    top: 22%;
+  }
+
+  .surfaceContent .sourceList {
+    gap: clamp(0.6rem, 1.8vh, 1rem);
+  }
+
+  .surfaceContent .bench {
+    padding-top: 1rem;
+  }
+
+  .surfaceContent .benchRule {
+    margin-bottom: 0.65rem;
+  }
 }
 
 .surfaceContent::-webkit-scrollbar {
@@ -340,44 +521,17 @@
 }
 .contentExit {
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 }
 .contentEnter {
   opacity: 1;
 }
 
-/* ---- Exit nav ---- */
-.navExit {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: clamp(0.5rem, 2vh, 1rem);
-  padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2.5rem) 0;
-}
-
-.ghostLink {
-  font-family: var(--font-wall), serif;
-  font-size: 0.9rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-decoration: none;
-  background: transparent;
-  border: 0;
-  padding: 0.4rem 0;
-  cursor: pointer;
-  color: #ddd0ae;
-  text-shadow:
-    0 -1px 0 rgba(12, 14, 10, 0.9),
-    0 1px 0 color-mix(in oklab, var(--tint) 55%, transparent);
-  transition: color 0.18s ease, letter-spacing 0.18s ease;
-}
-.ghostLink:hover {
-  color: #f0e5c6;
-  letter-spacing: 0.17em;
-}
+/* ---- Exit nav — removed; /brain remains reachable via site nav ---- */
 
 /* Shared keyboard focus ring — all incised interactives in the bay */
 .wall :is(
-  .ghostLink,
   .incisedActionMuted,
   .sourceRow,
   .incisedAction,
@@ -543,18 +697,7 @@
   padding: 2.5rem 0 0.5rem;
   margin-top: auto;
   position: relative;
-}
-.bench::before {
-  content: "";
-  position: absolute;
-  inset: 0 -12% -20%;
-  background: radial-gradient(
-    ellipse 46% 78% at 50% 62%,
-    color-mix(in oklab, var(--color-parchment) 22%, transparent),
-    transparent 70%
-  );
-  opacity: 0.5;
-  pointer-events: none;
+  flex-shrink: 0;
 }
 .benchRule {
   width: 40%;
@@ -670,11 +813,10 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   min-height: 0;
-  padding-top: clamp(0.25rem, 1.5vh, 1rem);
-  /* Keep margin note above the 3.5rem aperture mask fade */
-  padding-bottom: 4rem;
+  padding-top: 0.35rem;
+  padding-bottom: 1.5rem;
 }
 .zoomHead {
   margin-bottom: 1.75rem;
@@ -758,6 +900,8 @@
   font-size: clamp(1.15rem, calc(var(--ap-base-w) * 0.032), 1.6rem);
   letter-spacing: 0.04em;
   color: #ddd0ae;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
   text-shadow:
     0 -1px 0 rgba(12, 14, 10, 0.92),
     0 -2px 2px rgba(12, 14, 10, 0.5),
@@ -839,7 +983,8 @@
   color: rgba(239, 231, 208, 0.88);
   margin: 0 0 1.15rem;
   white-space: pre-wrap;
-  max-width: 46rem;
+  max-width: 100%;
+  overflow-wrap: anywhere;
   text-shadow: 0 1px 2px rgba(12, 14, 10, 0.65);
 }
 .letterStatus {
@@ -900,9 +1045,9 @@
 .varnishShade {
   background: radial-gradient(
     ellipse 78% 72% at 50% 52%,
-    rgba(9, 11, 8, 0) 62%,
-    rgba(9, 11, 8, 0.30) 88%,
-    rgba(9, 11, 8, 0.52) 100%
+    rgba(9, 11, 8, 0) 56%,
+    rgba(9, 11, 8, 0.22) 86%,
+    rgba(9, 11, 8, 0.36) 100%
   );
 }
 
@@ -1014,7 +1159,7 @@
 
   .interiorViewport,
   .interiorTrack,
-  .frameOverlay {
+  .roomStatic {
     display: none;
   }
 
@@ -1133,5 +1278,15 @@
   .incisedActionMuted,
   .acceptBtn {
     transition: none;
+  }
+  .bayWindow {
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .bayWindow::-webkit-scrollbar {
+    display: none;
+  }
+  .bayTravel {
+    transform: none !important;
   }
 }

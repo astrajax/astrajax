@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
   CAPTURE_SOURCE_BLURB,
@@ -15,6 +14,7 @@ import {
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 import { acceptReceivingWallRecord } from "@/lib/brains/actions/receiving-wall-accept";
+import { roomStaticClipPath } from "@/lib/man/receiving-wall-arch-mask";
 import {
   DOLLY_IN_DEFAULT,
   DOLLY_IN_LADDER,
@@ -97,6 +97,15 @@ export function ReceivingWall({
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const openRecordIdRef = useRef<string | null>(null);
   openRecordIdRef.current = openRecordId;
+  const interiorViewportRef = useRef<HTMLDivElement>(null);
+  const plateRef = useRef<HTMLDivElement>(null);
+  const bayWindowRef = useRef<HTMLDivElement>(null);
+  const bayTravelRef = useRef<HTMLDivElement>(null);
+  const [readOffset, setReadOffset] = useState(0);
+  const readOffsetRef = useRef(0);
+  readOffsetRef.current = readOffset;
+  const touchStartY = useRef<number | null>(null);
+  const touchStartOffset = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -136,6 +145,47 @@ export function ReceivingWall({
     ? (records.find((r) => r.recordId === openRecordId) ?? null)
     : null;
 
+  const measureReadTravel = useCallback(() => {
+    const windowEl = bayWindowRef.current;
+    const travelEl = bayTravelRef.current;
+    if (!windowEl || !travelEl) return 0;
+    return Math.max(0, travelEl.scrollHeight - windowEl.clientHeight);
+  }, []);
+
+  const clampReadOffset = useCallback(
+    (next: number) => Math.max(0, Math.min(next, measureReadTravel())),
+    [measureReadTravel],
+  );
+
+  const applyReadDelta = useCallback(
+    (delta: number) => {
+      setReadOffset((current) => clampReadOffset(current + delta));
+    },
+    [clampReadOffset],
+  );
+
+  const scrollFocusedIntoView = useCallback(() => {
+    const windowEl = bayWindowRef.current;
+    const travelEl = bayTravelRef.current;
+    const focused = document.activeElement;
+    if (!windowEl || !travelEl || !(focused instanceof HTMLElement)) return;
+    if (!travelEl.contains(focused)) return;
+
+    const windowRect = windowEl.getBoundingClientRect();
+    const focusRect = focused.getBoundingClientRect();
+    const pad = 12;
+
+    if (focusRect.top < windowRect.top + pad) {
+      setReadOffset((current) =>
+        clampReadOffset(current - (windowRect.top + pad - focusRect.top)),
+      );
+    } else if (focusRect.bottom > windowRect.bottom - pad) {
+      setReadOffset((current) =>
+        clampReadOffset(current + (focusRect.bottom - (windowRect.bottom - pad))),
+      );
+    }
+  }, [clampReadOffset]);
+
   const openSource = useCallback(
     (source: CaptureSource) => {
       if (beat === "exiting" || beat === "zooming" || beat === "returning") return;
@@ -143,6 +193,7 @@ export function ReceivingWall({
       const beginZoom = () => {
         clearPending();
         setOpenRecordId(null);
+        setReadOffset(0);
         setZoomed(source);
         setBeat("zooming");
         after(T.ARRIVE, () => setBeat("zoomedIn"));
@@ -207,6 +258,7 @@ export function ReceivingWall({
     if (beat !== "zoomedIn") return;
     clearPending();
     setOpenRecordId(null);
+    setReadOffset(0);
     setBeat("returning");
     after(T.RETURN, () => {
       setZoomed(null);
@@ -329,6 +381,96 @@ export function ReceivingWall({
   }, [openRecordId]);
 
   useEffect(() => {
+    if (beat !== "zoomedIn") return;
+    const travelEl = bayTravelRef.current;
+    if (!travelEl) return;
+    const observer = new ResizeObserver(() => {
+      setReadOffset((current) => clampReadOffset(current));
+    });
+    observer.observe(travelEl);
+    return () => observer.disconnect();
+  }, [beat, zoomed, openRecordId, zoomedRecords.length, clampReadOffset]);
+
+  useEffect(() => {
+    if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
+
+    const surface = bayWindowRef.current;
+    if (!surface) return;
+
+    const onWheel = (event: WheelEvent) => {
+      const max = measureReadTravel();
+      if (max <= 0) return;
+      const next = clampReadOffset(readOffsetRef.current + event.deltaY);
+      if (next === readOffsetRef.current) return;
+      event.preventDefault();
+      setReadOffset(next);
+    };
+
+    surface.addEventListener("wheel", onWheel, { passive: false });
+    return () => surface.removeEventListener("wheel", onWheel);
+  }, [
+    beat,
+    isNave,
+    prefersReducedMotion,
+    cliveOpen,
+    clampReadOffset,
+    measureReadTravel,
+  ]);
+
+  useEffect(() => {
+    if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
+
+    const surface = bayWindowRef.current;
+    if (!surface) return;
+
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length !== 1) return;
+      touchStartY.current = event.touches[0].clientY;
+      touchStartOffset.current = readOffsetRef.current;
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      if (touchStartY.current === null || event.touches.length !== 1) return;
+      const max = measureReadTravel();
+      if (max <= 0) return;
+      const delta = touchStartY.current - event.touches[0].clientY;
+      const next = clampReadOffset(touchStartOffset.current + delta);
+      if (next !== readOffsetRef.current) event.preventDefault();
+      setReadOffset(next);
+    };
+
+    const onTouchEnd = () => {
+      touchStartY.current = null;
+    };
+
+    surface.addEventListener("touchstart", onTouchStart, { passive: true });
+    surface.addEventListener("touchmove", onTouchMove, { passive: false });
+    surface.addEventListener("touchend", onTouchEnd);
+    surface.addEventListener("touchcancel", onTouchEnd);
+    return () => {
+      surface.removeEventListener("touchstart", onTouchStart);
+      surface.removeEventListener("touchmove", onTouchMove);
+      surface.removeEventListener("touchend", onTouchEnd);
+      surface.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [
+    beat,
+    isNave,
+    prefersReducedMotion,
+    cliveOpen,
+    clampReadOffset,
+    measureReadTravel,
+  ]);
+
+  useEffect(() => {
+    if (beat !== "zoomedIn" || cliveOpen) return;
+
+    const onFocusIn = () => scrollFocusedIntoView();
+    document.addEventListener("focusin", onFocusIn);
+    return () => document.removeEventListener("focusin", onFocusIn);
+  }, [beat, cliveOpen, scrollFocusedIntoView]);
+
+  useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         if (cliveOpen) setCliveOpen(false);
@@ -342,17 +484,63 @@ export function ReceivingWall({
         ) {
           closeZoom();
         }
+        return;
       }
+
+      if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
+
+      const scrollKeys: Record<string, number> = {
+        ArrowDown: 48,
+        ArrowUp: -48,
+        PageDown: 320,
+        PageUp: -320,
+        Home: -Infinity,
+        End: Infinity,
+      };
+      const delta = scrollKeys[event.key];
+      if (delta === undefined) return;
+      if (event.key === "Home") {
+        event.preventDefault();
+        setReadOffset(0);
+        return;
+      }
+      if (event.key === "End") {
+        event.preventDefault();
+        setReadOffset(measureReadTravel());
+        return;
+      }
+
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      applyReadDelta(delta);
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [cliveOpen, openRecordId, beat, closeZoom]);
+  }, [
+    cliveOpen,
+    openRecordId,
+    beat,
+    closeZoom,
+    isNave,
+    prefersReducedMotion,
+    applyReadDelta,
+    measureReadTravel,
+  ]);
 
   const wallZoomed = zoomed !== null;
+  const reading = beat === "zoomedIn";
   const wallClasses = [
     styles.wall,
     wallZoomed ? styles.zoomed : "",
     beat === "settling" ? styles.settling : "",
+    reading ? styles.reading : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -558,14 +746,16 @@ export function ReceivingWall({
       style={{
         ["--tint" as string]: zoomed ? CAPTURE_SOURCE_TINT[zoomed] : idleTint,
         ["--dolly-in-16-9" as string]: String(dollyIn169),
+        ["--room-static-clip" as string]: roomStaticClipPath(),
       }}
     >
       <div className={styles.stage}>
-        <div className={styles.plate}>
-          <div className={styles.interiorViewport}>
+        <div className={styles.plate} ref={plateRef}>
+          <div className={styles.interiorViewport} ref={interiorViewportRef}>
             <div className={styles.voidFill} aria-hidden />
+            <div className={styles.portalCore} aria-hidden />
             <div className={styles.interiorTrack}>
-              <div className={styles.surfacePlate}>
+              <div className={styles.surfacePlate} inert={zoomed !== null && !isNave ? true : undefined}>
                 <div className={styles.surfaceBackdrop}>
                   <div className={styles.plateBreath}>
                     <video
@@ -586,32 +776,40 @@ export function ReceivingWall({
                   {!isNave ? ledgerSection : null}
                 </div>
               </div>
-              <div className={styles.surfacePlate}>
-                <div className={styles.surfaceBackdrop}>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className={styles.surfaceStill}
-                    src="/agent-cast/clives-man/receiving-wall-zoomed.jpg"
-                    alt=""
-                  />
-                  <div className={styles.plateRecess} />
-                </div>
-                <div className={styles.surfaceContent}>
-                  {!isNave && zoomed !== null ? baySection : null}
+              <div className={`${styles.surfacePlate} ${styles.bayPlate}`}>
+                <div className={styles.bayWindow} ref={bayWindowRef} aria-hidden={!reading}>
+                  <div
+                    className={styles.bayTravel}
+                    ref={bayTravelRef}
+                    style={
+                      reading && !prefersReducedMotion
+                        ? { transform: `translateY(${-readOffset}px)` }
+                        : undefined
+                    }
+                  >
+                    <div className={styles.surfaceBackdrop}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        className={styles.surfaceStill}
+                        src="/agent-cast/clives-man/receiving-wall-zoomed.jpg"
+                        alt=""
+                      />
+                      <div className={styles.plateRecess} />
+                    </div>
+                    <div className={styles.bayContent}>
+                      <div className={styles.surfaceContent}>
+                        {!isNave && zoomed !== null ? baySection : null}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div className={styles.frameOverlay} />
+          <div className={styles.roomStatic} aria-hidden />
         </div>
         <div className={styles.stageScrim} />
       </div>
-
-      <nav className={styles.navExit} aria-label="Leave the wall">
-        <Link href="/brain" className={styles.ghostLink}>
-          To the brains →
-        </Link>
-      </nav>
 
       {isNave ? (
         <div className={styles.aperture}>

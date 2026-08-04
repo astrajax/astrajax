@@ -84,13 +84,24 @@ async function main() {
   const browser = await chromium.launch();
   const shots = [
     { name: "receiving-wall-1920x1080-zoomed-expanded", width: 1920, height: 1080 },
+    { name: "receiving-wall-1440x900-zoomed-expanded", width: 1440, height: 900 },
+    { name: "receiving-wall-1920x1080-zoomed-records", width: 1920, height: 1080, recordsOnly: true },
     { name: "receiving-wall-390x844-mobile-expanded", width: 390, height: 844 },
   ];
 
-  for (const { name, width, height } of shots) {
+  for (const { name, width, height, recordsOnly } of shots) {
     const context = await browser.newContext({ viewport: { width, height } });
     const page = await context.newPage();
-    await openExpandedLetter(page);
+    if (recordsOnly) {
+      await page.goto(`${BASE}/man/receiving-wall`, { waitUntil: "domcontentloaded" });
+      await page.waitForTimeout(1500);
+      const door = page.getByRole("button", { name: /External Context Capture/i });
+      await door.waitFor({ state: "visible", timeout: 60000 });
+      await door.click();
+      await page.waitForTimeout(2000);
+    } else {
+      await openExpandedLetter(page);
+    }
     await page.screenshot({ path: `${OUT}/${name}.png`, fullPage: false });
     await context.close();
     console.log(`Wrote ${OUT}/${name}.png`);
