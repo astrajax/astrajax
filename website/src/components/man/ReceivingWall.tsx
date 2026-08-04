@@ -796,8 +796,10 @@ export function ReceivingWall({
                       />
                       <div className={styles.plateRecess} />
                     </div>
-                    <div className={styles.surfaceContent}>
-                      {!isNave && zoomed !== null ? baySection : null}
+                    <div className={styles.bayContent}>
+                      <div className={styles.surfaceContent}>
+                        {!isNave && zoomed !== null ? baySection : null}
+                      </div>
                     </div>
                   </div>
                 </div>
