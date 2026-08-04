@@ -28,7 +28,10 @@ const AIRTABLE_RECORD_ID_RE = /^rec[a-zA-Z0-9]{14}$/;
 const RECEIVING_WALL_SURFACE = "Receiving Wall";
 
 function acceptStatusValue(): string {
-  return process.env.BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS ?? DRAFT_TRUTH_STATUS.approved;
+  return (
+    process.env.BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS ??
+    DRAFT_TRUTH_STATUS.approved
+  );
 }
 
 function nextApprovalDecisionId(): string {
@@ -49,8 +52,15 @@ function userFacingAcceptError(
 
   if (stage === "lookup") {
     if (detail.includes("403")) {
+      // getWorkshopReadToken() falls back to WRITE_TOKEN when READ is unset;
+      // name the credential that was actually used for the failing request.
+      if (process.env.BRAIN_WORKSHOP_READ_TOKEN) {
+        return new Error(
+          "This record could not be loaded for approval — the Workshop read token on the server may be missing or lack access. Check BRAIN_WORKSHOP_READ_TOKEN in Vercel.",
+        );
+      }
       return new Error(
-        "This record could not be loaded for approval — the Workshop read token on the server may be missing or lack access. Check BRAIN_WORKSHOP_READ_TOKEN in Vercel.",
+        "This record could not be loaded for approval — the Workshop write token lacks permission to read drafts. Check BRAIN_WORKSHOP_WRITE_TOKEN in Vercel.",
       );
     }
     return new Error(
@@ -98,7 +108,9 @@ export async function handleReceivingWallAccept(input: {
     throw new Error("recordId is required.");
   }
   if (recordId.startsWith("seed-")) {
-    throw new Error("Seeded demo records cannot be accepted — wire live Workshop drafts first.");
+    throw new Error(
+      "Seeded demo records cannot be accepted — wire live Workshop drafts first.",
+    );
   }
   if (!AIRTABLE_RECORD_ID_RE.test(recordId)) {
     throw new Error("Invalid recordId.");
@@ -135,7 +147,9 @@ export async function handleReceivingWallAccept(input: {
     throw new Error("Draft record is missing a Title.");
   }
 
-  const priorStatus = String(existing.fields.Status ?? DRAFT_TRUTH_STATUS.draft);
+  const priorStatus = String(
+    existing.fields.Status ?? DRAFT_TRUTH_STATUS.draft,
+  );
   if (isReceivingRecordActioned(priorStatus)) {
     throw new Error(
       `This record is already ${priorStatus} and cannot be accepted again.`,
@@ -154,18 +168,23 @@ export async function handleReceivingWallAccept(input: {
   }
 
   try {
-    await airtableCreate(baseId, BRAIN_WORKSHOP_TABLES.approvalDecisions, writeToken, {
-      "Decision ID": approvalDecisionId,
-      "Decision Summary": `Accepted draft truth: ${title}`,
-      Approver: actor,
-      Decision: APPROVAL_DECISION_VALUE.approved,
-      "Decision Notes": [
-        `Surface: ${RECEIVING_WALL_SURFACE}`,
-        `Accepted at: ${acceptedAt}`,
-        `Draft record: ${recordId}`,
-      ].join("\n"),
-      "Send To Doc": false,
-    });
+    await airtableCreate(
+      baseId,
+      BRAIN_WORKSHOP_TABLES.approvalDecisions,
+      writeToken,
+      {
+        "Decision ID": approvalDecisionId,
+        "Decision Summary": `Accepted draft truth: ${title}`,
+        Approver: actor,
+        Decision: APPROVAL_DECISION_VALUE.approved,
+        "Decision Notes": [
+          `Surface: ${RECEIVING_WALL_SURFACE}`,
+          `Accepted at: ${acceptedAt}`,
+          `Draft record: ${recordId}`,
+        ].join("\n"),
+        "Send To Doc": false,
+      },
+    );
   } catch (cause) {
     try {
       await airtableUpdate(baseId, tableId, writeToken, recordId, {

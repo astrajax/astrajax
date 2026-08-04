@@ -1,8 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  BRAIN_WORKSHOP_TABLES,
-  DRAFT_TRUTH_STATUS,
-} from "../airtable-ids";
+import { BRAIN_WORKSHOP_TABLES, DRAFT_TRUTH_STATUS } from "../airtable-ids";
 import { handleReceivingWallAccept } from "./receiving-wall-accept";
 
 const originalEnv = { ...process.env };
@@ -91,6 +88,26 @@ describe("handleReceivingWallAccept", () => {
     await expect(
       handleReceivingWallAccept({ recordId: VALID_RECORD_ID }),
     ).rejects.toThrow(/Workshop read token/i);
+  });
+
+  it("names the write token on lookup 403 when read token falls back", async () => {
+    delete process.env.BRAIN_WORKSHOP_READ_TOKEN;
+    mockFetchSequence([
+      {
+        status: 403,
+        body: {
+          error: {
+            type: "INVALID_PERMISSIONS",
+            message:
+              "Invalid permissions, or the requested model was not found.",
+          },
+        },
+      },
+    ]);
+
+    await expect(
+      handleReceivingWallAccept({ recordId: VALID_RECORD_ID }),
+    ).rejects.toThrow(/BRAIN_WORKSHOP_WRITE_TOKEN/);
   });
 
   it("rejects seeded demo record ids", async () => {
