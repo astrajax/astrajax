@@ -753,7 +753,7 @@ export function ReceivingWall({
         <div className={styles.plate} ref={plateRef}>
           <div className={styles.interiorViewport} ref={interiorViewportRef}>
             <div className={styles.voidFill} aria-hidden />
-            <div className={styles.portalEdge} aria-hidden />
+            <div className={styles.portalCore} aria-hidden />
             <div className={styles.interiorTrack}>
               <div className={styles.surfacePlate} inert={zoomed !== null && !isNave ? true : undefined}>
                 <div className={styles.surfaceBackdrop}>
@@ -769,8 +769,6 @@ export function ReceivingWall({
                       <source src="/agent-cast/clives-man/receiving-wall.mp4" type="video/mp4" />
                     </video>
                     <div className={styles.plateRecess} />
-                    <div className={styles.platePortalDepth} aria-hidden />
-                    <div className={styles.platePortalEdge} aria-hidden />
                   </div>
                 </div>
                 <div className={styles.surfaceContent}>
@@ -797,8 +795,6 @@ export function ReceivingWall({
                         alt=""
                       />
                       <div className={styles.plateRecess} />
-                      <div className={styles.platePortalDepth} aria-hidden />
-                      <div className={styles.platePortalEdge} aria-hidden />
                     </div>
                     <div className={styles.bayContent}>
                       <div className={styles.surfaceContent}>
@@ -811,7 +807,6 @@ export function ReceivingWall({
             </div>
           </div>
           <div className={styles.roomStatic} aria-hidden />
-          <div className={styles.portalRim} aria-hidden />
         </div>
         <div className={styles.stageScrim} />
       </div>

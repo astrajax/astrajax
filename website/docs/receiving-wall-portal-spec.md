@@ -1045,6 +1045,46 @@ Do not reintroduce `.acceptBtn` fill/border styling or `.ghostBtn` pill borders 
    candle on the ledge.
 6. **Nave-mode skirt seam** (§2.4b). Colours are exact; the handover point is not verified rendered.
 
+7. **Portal back-light — artwork required (Matthew, Aug 2026).** Two CSS attempts to make the
+   aperture read as *emitting* light failed the same way: geometric ellipses painted on top of the
+   painting, washing out incised text. **Do not retry in CSS.** The approved baseline is lifted room
+   spill via soft-light on `.roomStatic::after` (sconces + gentle room lift); the portal interior
+   stays a dark recess for cream-text contrast until art carries the rim.
+
+   **What to commission (designer brief — Kathryn / Tara-Lee / Matthew):**
+
+   | Option | Asset | When to use |
+   |---|---|---|
+   | **A (preferred)** | Regrade of `receiving-wall-poster.jpg` (1920×1080, same camera as today) | Light baked into the room plate — mouldings, plaster, ledge catch it naturally |
+   | **B** | Separate **rim/spill overlay** PNG, 1920×1080, transparent outside effect | If the base poster must stay untouched; composite above poster, below UI text |
+
+   **What the light must do (plain language):**
+
+   - Hottest at the **aperture edge** where the opening meets the stone — a back-lit rim, not a white
+     oval centred on the wall.
+   - **Follow the arch curve** from `ARCH_CURVE` in `website/src/lib/man/receiving-wall-manifest.ts`
+     (inner edge x 19%→81%, crown apex y ≈ 8.15%, void bottom y ≈ 89.5%). No straight lines, no
+     rectangles, no lens-flare blob across the mouldings.
+   - **Spill onto the room side:** inner faces of the mouldings catch light; lit plaster either side
+     falls off with distance; a soft throw onto the **stone ledge and letters/quill** in front of the
+     opening (manifest `LEDGE_STILL_LIFE`: x 27%→44%, y 87%→93%).
+   - **Interior stays deep** inside the hole — the cream UI text lives there. A hint of warmth/brighter
+     tone *deep back* in the void is fine; do not brighten the whole interior surface.
+
+   **Alignment:** overlay (option B) must register pixel-perfect with the existing static plate at
+   `object-fit: fill` on a 16:9 plate. The arch hole is already cut by `roomStaticClipPath()` /
+   `ARCH_CURVE`; spill belongs on the **room** side of that boundary (and optionally a very subtle
+   inner-edge rim *inside* the hole, but must not compete with text).
+
+   **Format:** PNG, sRGB, 1920×1080. Option B: alpha channel — fully transparent where there is no
+   light effect; premultiplied or straight alpha documented. Deliver a still that matches
+   `receiving-wall-poster.jpg` framing exactly.
+
+   **Compositing (when art lands):** add as a layer on `.plate` — e.g. `roomStatic` background +
+   optional `portalSpillArt` overlay sharing the same clip-path as the room plate (outside arch) and/or
+   an interior-edge layer masked to the arch interior only, **below** `.surfaceContent` (z-index). Remove
+   or reduce CSS spill gradients that duplicate the art. UI incised text stays on top, untouched.
+
 ### One thing worth commissioning later, deliberately not now
 
 A **3840×2160 still of the settled framing** — the asset `.stageZoomed` was always reaching for. It
