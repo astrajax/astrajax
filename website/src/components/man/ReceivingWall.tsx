@@ -69,6 +69,7 @@ export function ReceivingWall({
   const [chatSeed, setChatSeed] = useState<ChatMessage[]>([]);
   const [cliveFocusedRecord, setCliveFocusedRecord] = useState<ReceivingRecord | null>(null);
   const [cliveContextRecords, setCliveContextRecords] = useState<ReceivingRecord[]>([]);
+  const [cliveBaySource, setCliveBaySource] = useState<CaptureSource | null>(null);
   const [acceptState, setAcceptState] = useState<AcceptState>("idle");
   const [acceptError, setAcceptError] = useState<string | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -198,6 +199,7 @@ export function ReceivingWall({
 
       setCliveFocusedRecord(contextRecord ?? null);
       setCliveContextRecords(contextRecords);
+      setCliveBaySource(zoomed);
 
       const recordLine = contextRecord
         ? `You have "${contextRecord.title}" open — read it properly or tell me what it should become.`
@@ -236,6 +238,7 @@ export function ReceivingWall({
           history,
           focusedRecord: cliveFocusedRecord,
           records: cliveContextRecords,
+          baySource: cliveBaySource,
           actor: "Architect",
         }),
       });
@@ -245,7 +248,7 @@ export function ReceivingWall({
       }
       return data.reply ?? "…";
     },
-    [cliveContextRecords, cliveFocusedRecord, sessionId],
+    [cliveBaySource, cliveContextRecords, cliveFocusedRecord, sessionId],
   );
 
   const acceptRecord = useCallback(

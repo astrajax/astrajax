@@ -7,8 +7,14 @@ import {
 } from "@/lib/clive/receiving-wall-prompt";
 import type { ChatMessage } from "@/lib/clive/types";
 import { CHAPTER1_BRAIN_SLUG } from "@/lib/brains/airtable-ids";
+import { platformActivityEventWritesEnabled } from "@/lib/platform-activity/config";
+import { brainManifest } from "@/lib/platform-activity/manifest";
+import {
+  queueTurnWithModelCall,
+  queueTurnWithoutModel,
+} from "@/lib/platform-activity/server";
 import { handleInteractionLog } from "./interaction-log";
-import type { ReceivingRecord } from "@/lib/receiving-wall";
+import type { CaptureSource, ReceivingRecord } from "@/lib/receiving-wall";
 
 const MAX_MESSAGE_LENGTH = 800;
 
@@ -18,7 +24,10 @@ export type ReceivingWallCliveRequest = {
   history: ChatMessage[];
   focusedRecord?: ReceivingRecord | null;
   records?: ReceivingRecord[];
+  baySource?: CaptureSource | null;
   actor?: string;
+  platformHandle?: string | null;
+  turnId?: string;
 };
 
 export type ReceivingWallCliveResponse = {
@@ -72,6 +81,11 @@ export function sanitiseReceivingWallCliveHistory(raw: unknown): ChatMessage[] {
     }));
 }
 
+function sanitiseBaySource(raw: unknown): CaptureSource | null {
+  if (raw === "external" || raw === "user-guided" || raw === "chat") return raw;
+  return null;
+}
+
 function buildContext(input: ReceivingWallCliveRequest): ReceivingWallCliveContext {
   const records = (input.records ?? [])
     .map(sanitiseRecord)
@@ -80,6 +94,7 @@ function buildContext(input: ReceivingWallCliveRequest): ReceivingWallCliveConte
   return {
     focusedRecord,
     records: records.length > 0 ? records : focusedRecord ? [focusedRecord] : [],
+    baySource: sanitiseBaySource(input.baySource),
   };
 }
 
@@ -147,12 +162,60 @@ export async function handleReceivingWallClive(
   const system = buildReceivingWallSystemPrompt(context);
   const messages = buildReceivingWallMessages(input.history, message);
   const recordIds = context.records.map((record) => record.recordId);
+  const brainSlug = context.focusedRecord?.brainSlug ?? CHAPTER1_BRAIN_SLUG;
+  const platformManifest = brainManifest({
+    recordIds,
+    source: "receiving-wall",
+    promptVersion: "receiving-wall-clive-v1",
+  });
 
-  const logExchange = async (reply: string, fallback: boolean) => {
+  const logExchange = async (
+    reply: string,
+    options: { fallback: boolean; requestedModel?: string; returnedModel?: string },
+  ) => {
+    const preferPlatform =
+      Boolean(input.platformHandle) && platformActivityEventWritesEnabled();
+
+    if (preferPlatform) {
+      try {
+        if (options.fallback) {
+          await queueTurnWithoutModel({
+            handle: input.platformHandle ?? null,
+            turnId: input.turnId ?? input.sessionId,
+            surface: "receiving-wall",
+            persona: "clive",
+            brainSlug,
+            userMessage: message,
+            assistantReply: reply,
+            manifest: platformManifest,
+            outcome: "fallback",
+          });
+        } else {
+          await queueTurnWithModelCall({
+            handle: input.platformHandle ?? null,
+            turnId: input.turnId ?? input.sessionId,
+            surface: "receiving-wall",
+            persona: "clive",
+            brainSlug,
+            userMessage: message,
+            assistantReply: reply,
+            manifest: platformManifest,
+            requestedModel:
+              options.requestedModel ?? resolveReceivingWallCliveModel(),
+            returnedModel: options.returnedModel,
+            fallback: false,
+          });
+        }
+        return;
+      } catch {
+        // Fall through to Workshop interaction log.
+      }
+    }
+
     await handleInteractionLog({
       sessionId: input.sessionId,
       persona: "clive",
-      brainSlug: context.focusedRecord?.brainSlug ?? CHAPTER1_BRAIN_SLUG,
+      brainSlug,
       userMessage: message,
       assistantReply: reply,
       channel: "website",
@@ -161,22 +224,25 @@ export async function handleReceivingWallClive(
         hashes: [],
       },
     }).catch(() => undefined);
-    void fallback;
   };
 
   if (!process.env.ANTHROPIC_API_KEY) {
     const reply = getReceivingWallCliveFallbackReply(message, context);
-    await logExchange(reply, true);
+    await logExchange(reply, { fallback: true });
     return { reply, fallback: true };
   }
 
   try {
-    const { reply } = await callReceivingWallClive(system, messages);
-    await logExchange(reply, false);
+    const { reply, model } = await callReceivingWallClive(system, messages);
+    await logExchange(reply, {
+      fallback: false,
+      requestedModel: model,
+      returnedModel: model,
+    });
     return { reply };
   } catch {
     const reply = getReceivingWallCliveFallbackReply(message, context);
-    await logExchange(reply, true);
+    await logExchange(reply, { fallback: true });
     return { reply, fallback: true };
   }
 }

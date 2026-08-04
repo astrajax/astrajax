@@ -4,6 +4,7 @@ import {
   type ReceivingWallCliveRequest,
 } from "@/lib/brains/handlers/receiving-wall-clive";
 import { jsonError, jsonOk } from "@/lib/brains/http";
+import { readOptionalSessionHandle, readTurnId } from "@/lib/platform-activity/server";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,6 +17,7 @@ export async function POST(request: Request) {
       history?: unknown;
       focusedRecord?: unknown;
       records?: unknown;
+      baySource?: unknown;
       actor?: string;
     };
 
@@ -28,7 +30,10 @@ export async function POST(request: Request) {
           ? null
           : (body.focusedRecord as ReceivingWallCliveRequest["focusedRecord"]),
       records: Array.isArray(body.records) ? body.records : [],
+      baySource: body.baySource as ReceivingWallCliveRequest["baySource"],
       actor: body.actor,
+      platformHandle: readOptionalSessionHandle(request),
+      turnId: readTurnId(request),
     });
 
     return jsonOk(result);
