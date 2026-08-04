@@ -15,6 +15,7 @@ import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 import { acceptReceivingWallRecord } from "@/lib/brains/actions/receiving-wall-accept";
 import type { ChatMessage } from "@/lib/clive/types";
+import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 import styles from "./receiving-wall.module.css";
 
 type WallData = {
@@ -66,6 +67,8 @@ export function ReceivingWall({
   const [cliveOpen, setCliveOpen] = useState(false);
   const [sessionId] = useState(createSessionId);
   const [chatSeed, setChatSeed] = useState<ChatMessage[]>([]);
+  const [cliveFocusedRecord, setCliveFocusedRecord] = useState<ReceivingRecord | null>(null);
+  const [cliveContextRecords, setCliveContextRecords] = useState<ReceivingRecord[]>([]);
   const [acceptState, setAcceptState] = useState<AcceptState>("idle");
   const [acceptError, setAcceptError] = useState<string | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -180,18 +183,70 @@ export function ReceivingWall({
     after(T.SETTLE, () => setBeat("idle"));
   }, [beat, after, clearPending, T.RETURN, T.SETTLE]);
 
-  const summonClive = useCallback((contextRecord?: ReceivingRecord | null) => {
-    const recordLine = contextRecord
-      ? `You have "${contextRecord.title}" open — read it properly or tell me what it should become.`
-      : "Tell me which record you'd like to read properly, or ask me to walk the bench and propose what each should become.";
-    setChatSeed([
-      {
-        role: "assistant",
-        content: `The wall holds what the household has captured but not yet decided. ${recordLine}`,
-      },
-    ]);
-    setCliveOpen(true);
-  }, []);
+  const summonClive = useCallback(
+    (contextRecord?: ReceivingRecord | null) => {
+      const bayRecords = zoomed
+        ? records.filter((record) => record.captureSource === zoomed)
+        : records;
+      const contextRecords =
+        contextRecord &&
+        bayRecords.some((record) => record.recordId === contextRecord.recordId)
+          ? bayRecords
+          : contextRecord
+            ? [contextRecord]
+            : bayRecords;
+
+      setCliveFocusedRecord(contextRecord ?? null);
+      setCliveContextRecords(contextRecords);
+
+      const recordLine = contextRecord
+        ? `You have "${contextRecord.title}" open — read it properly or tell me what it should become.`
+        : "Tell me which record you'd like to read properly, or ask me to walk the bench and propose what each should become.";
+      setChatSeed([
+        {
+          role: "assistant",
+          content: `The wall holds what the household has captured but not yet decided. ${recordLine}`,
+        },
+      ]);
+      setCliveOpen(true);
+    },
+    [records, zoomed],
+  );
+
+  const handleReceivingWallCliveSend = useCallback(
+    async (
+      message: string,
+      history: ChatMessage[],
+      platformTurn?: PlatformTurnContext | null,
+    ) => {
+      const response = await fetch("/api/brains/receiving-wall/clive", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(platformTurn
+            ? {
+                "X-Platform-Session": platformTurn.handle,
+                "X-Platform-Turn-Id": platformTurn.turnId,
+              }
+            : {}),
+        },
+        body: JSON.stringify({
+          sessionId: platformTurn?.publicSessionId ?? sessionId,
+          message,
+          history,
+          focusedRecord: cliveFocusedRecord,
+          records: cliveContextRecords,
+          actor: "Architect",
+        }),
+      });
+      const data = (await response.json()) as { reply?: string; error?: string };
+      if (!response.ok) {
+        throw new Error(data.error ?? "Receiving Wall curation chat failed.");
+      }
+      return data.reply ?? "…";
+    },
+    [cliveContextRecords, cliveFocusedRecord, sessionId],
+  );
 
   const acceptRecord = useCallback(
     async (record: ReceivingRecord) => {
@@ -542,6 +597,7 @@ export function ReceivingWall({
                   "Read the first record properly",
                 ]}
                 initialMessages={chatSeed}
+                onCustomSend={handleReceivingWallCliveSend}
               />
             </div>
           </div>
