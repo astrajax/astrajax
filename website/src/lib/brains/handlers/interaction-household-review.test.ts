@@ -63,12 +63,12 @@ describe("Household Activity review writes", () => {
 
   it("refuses to score or action a Turn that belongs to another brain", async () => {
     const mockFetch = vi.mocked(fetch);
-    mockFetch.mockResolvedValue(
+    const foreignBrainBody = () =>
       new Response(JSON.stringify({ records: [householdTurn()] }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
-      }),
-    );
+      });
+    mockFetch.mockResolvedValueOnce(foreignBrainBody()).mockResolvedValueOnce(foreignBrainBody());
 
     await expect(
       scoreHouseholdInteraction({
