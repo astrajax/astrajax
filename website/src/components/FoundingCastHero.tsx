@@ -90,7 +90,7 @@ const DOC_WORKSHOP_ROBOT_SIZE = 1024;
 const HERO_FRAME_SIZE: Record<string, { width: number; height: number }> = {
   "pam-portiscue": { width: 2560, height: 1440 },
   "doc-albright": { width: 2752, height: 1536 },
-  "clive-wigglesworth": { width: 1024, height: 571 },
+  "clive-wigglesworth": { width: 1928, height: 1072 },
   "clives-man": { width: 1024, height: 764 },
   "lazlo-marlowe": { width: 1024, height: 571 },
 };

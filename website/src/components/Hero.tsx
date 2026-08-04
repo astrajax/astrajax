@@ -11,6 +11,7 @@ export function Hero() {
         aria-hidden
         fill
         priority
+        quality={90}
         sizes="100vw"
         className="hero-victorian-wall__bg"
       />
