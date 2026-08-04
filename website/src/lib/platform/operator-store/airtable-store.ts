@@ -1,12 +1,10 @@
 /**
  * Airtable backend for operator state, against the Brain Registry base
- * (appbdTVHevH6Bl5ZZ). The Operator State table does not exist yet — its
- * spec lives in docs/initiatives/ia-three-modes-build-plan.md and the
- * scaffold is a doc-brain-base-builder job. Until it is created, set
- * OPERATOR_STATE_TABLE_ID (and reuse BRAIN_REGISTRY_READ_TOKEN /
- * BRAIN_REGISTRY_WRITE_TOKEN); with no table id configured the memory
- * backend is selected instead (see ./index resolution in operator-state
- * handlers).
+ * (appbdTVHevH6Bl5ZZ), Operator State table (airtable-ids.ts
+ * operatorState; OPERATOR_STATE_TABLE_ID overrides). Reuses
+ * BRAIN_REGISTRY_WRITE_TOKEN / BRAIN_REGISTRY_READ_TOKEN. With
+ * OPERATOR_STATE_USE_MEMORY=true (or no table id) the memory backend is
+ * selected instead — see ./get-store.ts.
  *
  * One record per operator; the six §2 facts are stored as scalar columns
  * plus JSON text columns for the list-shaped facts, so the record stays
@@ -20,7 +18,7 @@ import {
   escapeAirtableString,
   type AirtableRecord,
 } from "../../brains/airtable-rest";
-import { BRAIN_REGISTRY_BASE_ID } from "../../brains/airtable-ids";
+import { BRAIN_REGISTRY_BASE_ID, BRAIN_REGISTRY_TABLES } from "../../brains/airtable-ids";
 import type { OperatorState } from "../operator-state";
 import type { OperatorStore } from "./index";
 
@@ -39,7 +37,7 @@ export const OPERATOR_STATE_FIELDS = {
 } as const;
 
 export function operatorStateTableId(): string | undefined {
-  return process.env.OPERATOR_STATE_TABLE_ID;
+  return process.env.OPERATOR_STATE_TABLE_ID ?? BRAIN_REGISTRY_TABLES.operatorState;
 }
 
 function writeToken(): string {
