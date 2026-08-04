@@ -151,32 +151,32 @@
   inset: 0;
   pointer-events: none;
   /*
-   * Portal interior — brightest at centre (the opening glows).
-   * Palette: voidBloomPeak #677367 → voidCentre #3b4039 → voidInnerEdge #161712
+   * Deep recess — interior stays dark for cream text contrast.
+   * Faint warmth at centre only, as if source is far back inside.
    */
   background: radial-gradient(
-    ellipse 36% 40% at 50% 44%,
-    #6d786e 0%,
-    #525a50 32%,
-    #3b4039 58%,
-    #252622 82%,
-    #161712 100%
+    ellipse 34% 38% at 50% 46%,
+    #2a2e28 0%,
+    #1e211c 38%,
+    #161712 68%,
+    #111210 100%
   );
 }
 
-/* Bright core — portal is the light source, not the floor */
-.portalCore {
+/* Fallback under track when video hidden (reduced motion) */
+.portalEdge {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  background:
-    radial-gradient(
-      ellipse 26% 30% at 50% 42%,
-      rgba(158, 176, 158, 0.42) 0%,
-      rgba(103, 115, 103, 0.22) 38%,
-      transparent 68%
-    );
+  background: radial-gradient(
+    ellipse 46% 50% at 50% 47%,
+    transparent 54%,
+    rgba(175, 195, 165, 0.14) 70%,
+    rgba(225, 238, 205, 0.32) 77%,
+    rgba(248, 252, 235, 0.4) 80%,
+    transparent 92%
+  );
   mix-blend-mode: screen;
 }
 
@@ -317,9 +317,9 @@
 }
 
 /*
- * Portal spill onto the room — light radiates outward from the aperture.
- * Sconce positions from manifest SCONCES (10.4%/89.5% × 34.4%).
- * All gradients are radial/elliptical; no rectangular edges.
+ * Aperture rim + spill — light from behind the opening onto the room side.
+ * ARCH_CURVE / APERTURE positions from receiving-wall-manifest.ts.
+ * Clipped to room plate only; interior stays dark for text contrast.
  */
 .roomStatic::after {
   content: "";
@@ -330,35 +330,101 @@
   background:
     radial-gradient(
       ellipse 12% 18% at 10.4% 34.4%,
-      rgba(232, 178, 108, 0.18) 0%,
-      rgba(180, 130, 72, 0.06) 42%,
+      rgba(232, 178, 108, 0.2) 0%,
+      rgba(180, 130, 72, 0.07) 42%,
       transparent 72%
     ),
     radial-gradient(
       ellipse 12% 18% at 89.5% 34.4%,
-      rgba(232, 178, 108, 0.18) 0%,
-      rgba(180, 130, 72, 0.06) 42%,
+      rgba(232, 178, 108, 0.2) 0%,
+      rgba(180, 130, 72, 0.07) 42%,
       transparent 72%
     ),
     radial-gradient(
-      ellipse 20% 34% at 50% 46%,
-      rgba(199, 165, 119, 0.16) 0%,
-      rgba(113, 97, 71, 0.07) 44%,
-      transparent 70%
+      ellipse 5% 26% at 19.2% 52%,
+      rgba(230, 210, 170, 0.22) 0%,
+      rgba(180, 155, 115, 0.1) 38%,
+      transparent 68%
     ),
     radial-gradient(
-      ellipse 52% 58% at 50% 52%,
-      rgba(103, 115, 103, 0.14) 0%,
-      rgba(71, 82, 68, 0.07) 48%,
-      transparent 76%
+      ellipse 5% 26% at 80.8% 52%,
+      rgba(230, 210, 170, 0.22) 0%,
+      rgba(180, 155, 115, 0.1) 38%,
+      transparent 68%
     ),
     radial-gradient(
-      ellipse 34% 20% at 50% 86%,
-      rgba(103, 115, 103, 0.11) 0%,
-      rgba(60, 68, 57, 0.04) 50%,
+      ellipse 30% 10% at 50% 8.5%,
+      rgba(210, 195, 155, 0.18) 0%,
+      rgba(160, 145, 110, 0.07) 45%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 48% 16% at 50% 90%,
+      rgba(190, 180, 145, 0.2) 0%,
+      rgba(130, 125, 100, 0.08) 48%,
       transparent 100%
+    ),
+    radial-gradient(
+      ellipse 14% 22% at 16.8% 52%,
+      rgba(199, 165, 119, 0.14) 0%,
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 14% 22% at 83.2% 52%,
+      rgba(199, 165, 119, 0.14) 0%,
+      transparent 62%
     );
   mix-blend-mode: soft-light;
+}
+
+/*
+ * Hot rim at the aperture edge — reads as light behind the doorway.
+ * Sits above roomStatic so moulding inner faces catch brightest.
+ */
+.portalRim {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  clip-path: var(--room-static-clip);
+  background:
+    radial-gradient(
+      ellipse 2.6% 32% at 19.3% 50%,
+      rgba(255, 250, 225, 0.92) 0%,
+      rgba(235, 220, 180, 0.42) 26%,
+      rgba(200, 180, 140, 0.12) 48%,
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 2.6% 32% at 80.7% 50%,
+      rgba(255, 250, 225, 0.92) 0%,
+      rgba(235, 220, 180, 0.42) 26%,
+      rgba(200, 180, 140, 0.12) 48%,
+      transparent 62%
+    ),
+    radial-gradient(
+      ellipse 26% 8% at 50% 8%,
+      rgba(255, 245, 215, 0.75) 0%,
+      rgba(220, 205, 165, 0.28) 38%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 44% 14% at 50% 90%,
+      rgba(245, 235, 200, 0.55) 0%,
+      rgba(200, 190, 155, 0.2) 42%,
+      transparent 100%
+    ),
+    radial-gradient(
+      ellipse 7% 16% at 19% 28%,
+      rgba(250, 240, 210, 0.45) 0%,
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 7% 16% at 81% 28%,
+      rgba(250, 240, 210, 0.45) 0%,
+      transparent 55%
+    );
+  mix-blend-mode: screen;
 }
 
 @keyframes wallBreath {
@@ -381,13 +447,41 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  /* Edge falloff only — depth without a bottom-up uplight */
+  /* Centre depth for text contrast — edges left for rim overlay */
   background: radial-gradient(
-    ellipse 33% 42% at 50% 46%,
-    rgba(9, 11, 8, 0) 54%,
-    rgba(9, 11, 8, 0.28) 84%,
-    rgba(9, 11, 8, 0.48) 100%
+    ellipse 28% 34% at 50% 46%,
+    rgba(9, 11, 8, 0.42) 0%,
+    rgba(9, 11, 8, 0.22) 52%,
+    rgba(9, 11, 8, 0) 72%
   );
+}
+
+/* On the live video/still stack — interior stays dark, rim reads from behind */
+.platePortalDepth {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 14% 18% at 50% 44%,
+    rgba(85, 95, 82, 0.14) 0%,
+    transparent 58%
+  );
+}
+
+.platePortalEdge {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 46% 50% at 50% 47%,
+    transparent 54%,
+    rgba(175, 195, 165, 0.16) 70%,
+    rgba(225, 238, 205, 0.38) 77%,
+    rgba(248, 252, 235, 0.48) 80%,
+    rgba(185, 200, 168, 0.12) 86%,
+    transparent 92%
+  );
+  mix-blend-mode: screen;
 }
 
 .stageScrim {
@@ -420,9 +514,58 @@
     180deg,
     transparent 0,
     #000 2.75rem,
-    #000 calc(100% - 2.75rem),
+    #000 calc(100% - var(--content-mask-bottom, 2.75rem)),
     transparent 100%
   );
+}
+
+/* Idle ledger — keep full bench block visible on shorter laptop viewports */
+@media (max-height: 920px) and (min-aspect-ratio: 6/5) {
+  .surfaceContent {
+    --content-mask-bottom: 0.75rem;
+    bottom: 11%;
+  }
+
+  .surfaceContent .note {
+    margin-bottom: 0.65rem;
+  }
+
+  .surfaceContent .sourceList {
+    gap: clamp(0.75rem, 2.2vh, 1.35rem);
+  }
+
+  .surfaceContent .bench {
+    padding-top: 1.35rem;
+    flex-shrink: 0;
+  }
+
+  .surfaceContent .benchRule {
+    margin-bottom: 0.85rem;
+  }
+
+  .surfaceContent .benchLine {
+    margin-bottom: 0.45rem;
+  }
+}
+
+@media (max-height: 820px) and (min-aspect-ratio: 6/5) {
+  .surfaceContent {
+    --content-mask-bottom: 0.35rem;
+    bottom: 9%;
+    top: 22%;
+  }
+
+  .surfaceContent .sourceList {
+    gap: clamp(0.6rem, 1.8vh, 1rem);
+  }
+
+  .surfaceContent .bench {
+    padding-top: 1rem;
+  }
+
+  .surfaceContent .benchRule {
+    margin-bottom: 0.65rem;
+  }
 }
 
 .surfaceContent::-webkit-scrollbar {
@@ -648,6 +791,7 @@
   padding: 2.5rem 0 0.5rem;
   margin-top: auto;
   position: relative;
+  flex-shrink: 0;
 }
 .benchRule {
   width: 40%;
@@ -1109,7 +1253,8 @@
 
   .interiorViewport,
   .interiorTrack,
-  .roomStatic {
+  .roomStatic,
+  .portalRim {
     display: none;
   }
 
