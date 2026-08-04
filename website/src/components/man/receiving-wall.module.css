@@ -178,22 +178,31 @@
   overflow: hidden;
 }
 
-/* Full plate — arch hole punched in .roomStatic clip-path; interior travels behind it. */
+/* Bay reading window — manifest safeBox 24%→76% × 22%→86% on the plate.
+   Width is plate-local (52%); .plate scale(var(--dolly)) handles magnification.
+   Arch curve comes from .roomStatic clip-path hole, not a rectangular clip here. */
 .bayWindow {
   position: absolute;
-  inset: 0;
+  left: 24%;
+  width: 52%;
+  top: 23%;
+  bottom: 15%;
   overflow: hidden;
   pointer-events: auto;
   z-index: 1;
+
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 2.75rem,
+    #000 calc(100% - 2.75rem),
+    transparent 100%
+  );
 }
 
 .bayTravel {
   position: relative;
   will-change: transform;
-  min-height: 100%;
-  box-sizing: border-box;
-  /* safe-box vertical inset — layout only; arch curve from .roomStatic clip-path hole */
-  padding: 23% 0 15%;
 }
 
 .bayTravel .surfaceBackdrop {
@@ -204,16 +213,9 @@
 
 .bayTravel .surfaceContent {
   position: relative;
-  width: min(var(--ap-safe-w), calc(100vw - 3rem), 68rem);
-  margin: 0 auto;
+  width: 100%;
   overflow: visible;
-  mask-image: linear-gradient(
-    180deg,
-    transparent 0,
-    #000 2.75rem,
-    #000 calc(100% - 2.75rem),
-    transparent 100%
-  );
+  mask-image: none;
   padding: 0 0.15rem 2.5rem;
   z-index: 1;
 }
