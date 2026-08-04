@@ -57,11 +57,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      if (typeof token.operatorId === "string" && session.user?.email) {
+      // Identity comes from the verified token; state enriches it. A missing
+      // state record must NOT erase identity — /enter needs the identity to
+      // route that case to recovery (§2 case 5a) instead of visitor.
+      if (typeof token.operatorId === "string") {
         const state = await getOperatorStore().getById(token.operatorId);
-        session.operator = state
-          ? { operatorId: state.operatorId, email: state.email, role: state.role }
-          : undefined;
+        session.operator = {
+          operatorId: token.operatorId,
+          email: state?.email ?? session.user?.email ?? "",
+          role: state?.role ?? "owner",
+        };
       }
       return session;
     },
