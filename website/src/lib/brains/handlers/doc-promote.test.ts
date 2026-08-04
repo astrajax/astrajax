@@ -180,7 +180,7 @@ describe("Doc promote (airtable mode)", () => {
     ).rejects.toThrow(/Brain does not match/);
   });
 
-  it("rejects promote when the draft is no longer in Draft status", async () => {
+  it("rejects promote when the draft is already terminal", async () => {
     const mockFetch = vi.mocked(fetch);
     mockFetch.mockResolvedValue(
       new Response(
@@ -215,6 +215,79 @@ describe("Doc promote (airtable mode)", () => {
         approver: "Matthew",
         reason: "approved brief",
       }),
-    ).rejects.toThrow(/not in Draft status/);
+    ).rejects.toThrow(/not eligible to promote/);
+  });
+
+  it("promotes a wall-Approved draft to Trusted then quarantines it", async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockImplementation(async (input, init) => {
+      const url = String(input);
+      const method = init?.method ?? "GET";
+
+      if (method === "GET" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
+        return new Response(
+          JSON.stringify({
+            records: [
+              {
+                id: "recDraftApproved",
+                fields: {
+                  Title: "Wall-accepted title",
+                  "Canonical Text": "Human confirmed on the Receiving Wall.",
+                  "Brain Slug": "astrajax-chapter-1",
+                  Status: "Approved",
+                },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
+
+      if (method === "POST" && url.includes(BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth)) {
+        return new Response(JSON.stringify({ id: "recTrustedApproved", fields: {} }), {
+          status: 200,
+        });
+      }
+
+      if (method === "PATCH" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
+        const body = JSON.parse(String(init?.body)) as { fields: Record<string, string> };
+        expect(body.fields.Status).toBe("Quarantined");
+        return new Response(
+          JSON.stringify({ id: "recDraftApproved", fields: body.fields }),
+          { status: 200 },
+        );
+      }
+
+      if (method === "GET" && url.includes(BRAIN_REGISTRY_TABLES.changeLog)) {
+        return new Response(JSON.stringify({ records: [] }), { status: 200 });
+      }
+
+      if (method === "POST" && url.includes(BRAIN_REGISTRY_TABLES.changeLog)) {
+        return new Response(JSON.stringify({ id: "recLog" }), { status: 200 });
+      }
+
+      if (method === "GET" && url.includes(BRAIN_REGISTRY_TABLES.accessGrants)) {
+        return new Response(JSON.stringify({ records: [] }), { status: 200 });
+      }
+
+      return new Response(JSON.stringify({ records: [] }), { status: 200 });
+    });
+
+    const result = await handleDocPromote({
+      approvalDecisionId: "apd_wall_accept",
+      brainSlug: "astrajax-chapter-1",
+      promotions: [
+        {
+          draftRecordId: "recDraftApproved",
+          category: "Positioning",
+          scope: "read:brain-truth:positioning",
+        },
+      ],
+      approver: "Matthew",
+      reason: "accepted on the Receiving Wall",
+    });
+
+    expect(result.status).toBe("promoted");
+    expect(result.promotedRecordIds).toEqual(["recTrustedApproved"]);
   });
 });

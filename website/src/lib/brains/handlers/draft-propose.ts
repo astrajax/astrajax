@@ -8,6 +8,7 @@ import {
   BRAIN_TRUSTED_CHAPTER1_TABLES,
   BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS,
   BRAIN_WORKSHOP_TABLES,
+  DRAFT_TRUTH_STATUS,
 } from "../airtable-ids";
 import {
   getDocPromoteToken,
@@ -45,7 +46,23 @@ function escapeRecordId(recordId: string): string {
   return recordId.replace(/'/g, "\\'");
 }
 
-/** Refuse promote/quarantine when the draft is the wrong brain or not still a Draft. */
+/**
+ * Statuses that may still be promoted to Trusted.
+ * Draft = pending on the bench; Approved = human confirmed on the Receiving Wall.
+ * Terminal statuses (Quarantined / Promoted / Rejected) stay blocked.
+ */
+function isPromoteEligibleStatus(status: string): boolean {
+  if (
+    status === DRAFT_TRUTH_STATUS.draft ||
+    status === DRAFT_TRUTH_STATUS.approved
+  ) {
+    return true;
+  }
+  const customAccept = process.env.BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS?.trim();
+  return Boolean(customAccept && status === customAccept);
+}
+
+/** Refuse promote/quarantine when the draft is the wrong brain or already terminal. */
 export function assertDraftEligibleForPromote(input: {
   draftRecordId: string;
   brainSlug: string;
@@ -56,9 +73,9 @@ export function assertDraftEligibleForPromote(input: {
     throw new Error("Brain does not match this draft.");
   }
   const status = String(input.fields.Status ?? "").trim();
-  if (status !== "Draft") {
+  if (!isPromoteEligibleStatus(status)) {
     throw new Error(
-      `Draft ${input.draftRecordId} is not in Draft status (current: ${status || "empty"}).`,
+      `Draft ${input.draftRecordId} is not eligible to promote (current status: ${status || "empty"}).`,
     );
   }
   const title = String(input.fields.Title ?? "").trim();

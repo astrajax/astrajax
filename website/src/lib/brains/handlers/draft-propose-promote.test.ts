@@ -26,7 +26,48 @@ describe("assertDraftEligibleForPromote", () => {
     });
   });
 
-  it("rejects cross-brain and non-Draft rows", () => {
+  it("accepts a wall-Approved draft for the matching brain", () => {
+    expect(
+      assertDraftEligibleForPromote({
+        draftRecordId: "recDraft1",
+        brainSlug: "astrajax-chapter-1",
+        fields: {
+          Title: "Wall-accepted line",
+          "Canonical Text": "Human confirmed on the Receiving Wall.",
+          "Brain Slug": "astrajax-chapter-1",
+          Status: "Approved",
+        },
+      }),
+    ).toEqual({
+      title: "Wall-accepted line",
+      canonicalText: "Human confirmed on the Receiving Wall.",
+    });
+  });
+
+  it("accepts a custom Receiving Wall accept status when configured", () => {
+    process.env.BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS = "Ready for Doc";
+    try {
+      expect(
+        assertDraftEligibleForPromote({
+          draftRecordId: "recDraft1",
+          brainSlug: "astrajax-chapter-1",
+          fields: {
+            Title: "Custom accept status",
+            "Canonical Text": "Accepted under a custom status label.",
+            "Brain Slug": "astrajax-chapter-1",
+            Status: "Ready for Doc",
+          },
+        }),
+      ).toEqual({
+        title: "Custom accept status",
+        canonicalText: "Accepted under a custom status label.",
+      });
+    } finally {
+      delete process.env.BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS;
+    }
+  });
+
+  it("rejects cross-brain and terminal-status rows", () => {
     expect(() =>
       assertDraftEligibleForPromote({
         draftRecordId: "recDraft1",
@@ -51,7 +92,7 @@ describe("assertDraftEligibleForPromote", () => {
           Status: "Quarantined",
         },
       }),
-    ).toThrow(/not in Draft status/);
+    ).toThrow(/not eligible to promote/);
   });
 });
 
@@ -99,6 +140,6 @@ describe("promoteDraftToTrustedDemo memory path", () => {
         category: "Positioning",
         scope: "read:brain-truth:positioning",
       }),
-    ).rejects.toThrow(/not in Draft status/);
+    ).rejects.toThrow(/not eligible to promote/);
   });
 });
