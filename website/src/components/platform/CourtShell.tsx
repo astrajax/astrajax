@@ -39,7 +39,7 @@ import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 
 // Art v2: the book ships BLANK — empty gilt frames, empty strips, blank
 // brass. The cast are layers; the text is live; the Judge breathes.
-const COURT_BOOK_IMAGE = "/agent-cast/court/court-book-blank.jpg";
+const COURT_BOOK_IMAGE = "/agent-cast/court/court-book-blank-v3.jpg";
 const JUDGE_VIDEO_WEBM_SRC = COURT_JUDGE_MEDIA.webm;
 const JUDGE_VIDEO_MP4_SRC = COURT_JUDGE_MEDIA.mp4;
 const JUDGE_POSTER_SRC = COURT_JUDGE_MEDIA.poster;
@@ -1006,6 +1006,7 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
                     value={context}
                     onChange={(e) => setContext(e.target.value.slice(0, COURT_MATTER_LIMITS.context))}
                     maxLength={COURT_MATTER_LIMITS.context}
+                    rows={2}
                     className="platform-court__underline-input platform-court__underline-input--area"
                     placeholder="What is the situation and why does it matter?…"
                     required
@@ -1023,6 +1024,7 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
                     value={stakes}
                     onChange={(e) => setStakes(e.target.value.slice(0, COURT_MATTER_LIMITS.stakes))}
                     maxLength={COURT_MATTER_LIMITS.stakes}
+                    rows={2}
                     className="platform-court__underline-input platform-court__underline-input--area"
                     placeholder="What happens if you decide wrong?…"
                     required
@@ -1068,10 +1070,10 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
           onClick={() => onDecisionSet(DEFAULT_COURT_DECISION)}
           className="platform-court__plaque-under platform-court__inline-link"
           style={{
-            // Above the brass, on blank parchment — below it is the book's
-            // dark board, where ink would drown.
+            // Above the brass, on blank parchment — sits in the reserved
+            // band between the form box and the plaque (not over inputs).
             left: `${plaque.x + plaque.width / 2}%`,
-            top: `${plaque.y - 2.6}%`,
+            top: `${plaque.y - 3.2}%`,
           }}
         >
           or hear the sample matter
