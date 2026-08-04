@@ -8,6 +8,7 @@ import { HUB_SCENE_MANIFEST } from "@/lib/chapter1/hub-manifest";
 import { loadPersistedLoopSlice } from "@/lib/aie-demo/user-brain-intake";
 import type { LoopStep } from "@/lib/aie-demo/types";
 import { beatLabel } from "@/lib/clive/loop-context";
+import { CLIVE_REACTION_CLIPS } from "@/lib/clive/video-reactions";
 
 export type { HubBookId };
 
@@ -43,6 +44,24 @@ export function CliveStudyHub({ onSelectBook }: CliveStudyHubProps) {
     media.addEventListener("change", sync);
     return () => media.removeEventListener("change", sync);
   }, []);
+
+  /**
+   * Every book choice leads to the same first thing: Clive's ambient idle
+   * clip. It's ~11MB and previously only started downloading after the
+   * user had already clicked a book and landed on /chapter-1 — on
+   * anything slower than localhost, that's a real multi-second wait
+   * staring at the poster. Warm it here instead, the moment the study
+   * opens, so it's substantially cached before the click happens. Applies
+   * to every device (not gated on hover, unlike the per-book glow warm
+   * below) since every visitor ends up watching this same clip.
+   */
+  useEffect(() => {
+    if (!motionAllowed) return;
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } })
+      .connection;
+    if (connection?.saveData) return;
+    void fetch(CLIVE_REACTION_CLIPS.idle, { cache: "force-cache" }).catch(() => {});
+  }, [motionAllowed]);
 
   // W7: the bookmark ribbon. If the ledger holds a mid-read session (a book
   // and a step beyond that book's opening page), hang a ribbon over the desk
