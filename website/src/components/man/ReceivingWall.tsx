@@ -753,7 +753,7 @@ export function ReceivingWall({
           <div className={styles.interiorViewport} ref={interiorViewportRef}>
             <div className={styles.voidFill} aria-hidden />
             <div className={styles.interiorTrack}>
-              <div className={styles.surfacePlate}>
+              <div className={styles.surfacePlate} inert={zoomed !== null && !isNave ? true : undefined}>
                 <div className={styles.surfaceBackdrop}>
                   <div className={styles.plateBreath}>
                     <video
