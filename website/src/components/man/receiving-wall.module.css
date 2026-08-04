@@ -116,6 +116,9 @@
 .stage {
   z-index: 0;
 }
+.roomStatic {
+  z-index: 5;
+}
 .popOverlay {
   z-index: 30;
 }
@@ -306,14 +309,27 @@
   transition: opacity 280ms ease;
 }
 
-/* Static room plate — untouched poster, arch punched out; sconces/shelves never move. */
+/*
+ * Static room plate — pinned on .wall, outside .plate's dolly transform.
+ * SVG mask (viewBox 0 0 1 1) keeps mouldings visible; interior scales behind the hole.
+ */
 .roomStatic {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: var(--plate-w);
+  aspect-ratio: 16 / 9;
+  transform: translate(-50%, -50%);
+  transform-origin: 50% 50%;
+  z-index: 5;
   pointer-events: none;
   background: url("/agent-cast/clives-man/receiving-wall-poster.jpg") center / 100% 100% no-repeat;
-  clip-path: var(--room-static-clip);
+  -webkit-mask-image: var(--room-static-mask);
+  mask-image: var(--room-static-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 /*
@@ -325,7 +341,12 @@
   content: "";
   position: absolute;
   inset: 0;
-  clip-path: var(--room-static-clip);
+  -webkit-mask-image: inherit;
+  mask-image: inherit;
+  -webkit-mask-size: inherit;
+  mask-size: inherit;
+  -webkit-mask-repeat: inherit;
+  mask-repeat: inherit;
   pointer-events: none;
   background:
     radial-gradient(
