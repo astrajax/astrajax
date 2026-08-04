@@ -172,9 +172,12 @@ export const airtableOperatorStore: OperatorStore = {
   },
 };
 
-/** Backend resolution: Airtable when the table is configured, memory otherwise. */
+/** Backend resolution: Airtable when a table id AND token are configured, memory otherwise (brains config.ts convention). */
 export function useMemoryOperatorStore(): boolean {
   if (process.env.OPERATOR_STATE_USE_MEMORY === "true") return true;
   if (process.env.OPERATOR_STATE_USE_MEMORY === "false") return false;
-  return !operatorStateTableId();
+  return (
+    !operatorStateTableId() ||
+    !(process.env.BRAIN_REGISTRY_WRITE_TOKEN ?? process.env.BRAIN_REGISTRY_READ_TOKEN)
+  );
 }
