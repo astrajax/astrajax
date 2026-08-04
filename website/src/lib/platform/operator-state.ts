@@ -109,7 +109,10 @@ export function initialOperatorState(input: {
     ownedBrainSlugs: [],
     configuredFunctions: [],
     introducedMembers: [],
-    lastSafeDestination: null,
+    // Chapter 1's entry grammar is book-based; "welcome" is its opening.
+    // Written here so /enter's resume-URL preference lands a brand-new
+    // operator inside the chapter instead of on its no-book fallback.
+    lastSafeDestination: "/chapter-1?book=welcome",
     updatedAt: input.now ?? new Date().toISOString(),
   };
 }

@@ -1,7 +1,11 @@
 import type { OperatorState } from "../operator-state";
 import type { OperatorStore } from "./index";
 
-const byId = new Map<string, OperatorState>();
+// globalThis-backed so every route entry and HMR generation shares one map —
+// Next dev can otherwise give each compiled entry its own module instance,
+// making state written at sign-in invisible to /enter.
+const globalStore = globalThis as { __operatorMemoryStore?: Map<string, OperatorState> };
+const byId = (globalStore.__operatorMemoryStore ??= new Map<string, OperatorState>());
 
 function clone(state: OperatorState): OperatorState {
   return structuredClone(state);

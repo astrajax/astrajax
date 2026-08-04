@@ -125,6 +125,16 @@ describe("guardrails", () => {
     expect(dest).toEqual({ kind: "visitor", path: "/" });
   });
 
+  it("a brand-new operator lands on chapter 1's welcome book, not the bare step path", () => {
+    const dest = resolveEnterDestination({
+      identity,
+      state: fresh(),
+      showroomRequested: false,
+    });
+    expect(dest).toMatchObject({ kind: "journey", chapter: 1 });
+    expect(dest.path).toBe("/chapter-1?book=welcome");
+  });
+
   it("a server-authored resume URL for the current chapter wins over the generic path", () => {
     const state = fresh();
     state.journey = { chapter: 1, step: "draft-truths", completedChapters: [] };
