@@ -15,6 +15,7 @@ import {
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 import { acceptReceivingWallRecord } from "@/lib/brains/actions/receiving-wall-accept";
+import { roomStaticClipPath } from "@/lib/man/receiving-wall-arch-mask";
 import {
   DOLLY_IN_DEFAULT,
   DOLLY_IN_LADDER,
@@ -746,6 +747,7 @@ export function ReceivingWall({
       style={{
         ["--tint" as string]: zoomed ? CAPTURE_SOURCE_TINT[zoomed] : idleTint,
         ["--dolly-in-16-9" as string]: String(dollyIn169),
+        ["--room-static-clip" as string]: roomStaticClipPath(),
       }}
     >
       <div className={styles.stage}>
@@ -802,7 +804,7 @@ export function ReceivingWall({
               </div>
             </div>
           </div>
-          <div className={styles.frameOverlay} />
+          <div className={styles.roomStatic} aria-hidden />
         </div>
         <div className={styles.stageScrim} />
       </div>

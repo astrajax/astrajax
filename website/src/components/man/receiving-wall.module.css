@@ -178,29 +178,22 @@
   overflow: hidden;
 }
 
-/* Usable interior — manifest safeBox 24%→76% × 22%→86% on the plate (scales with dolly). */
+/* Full plate — arch hole punched in .roomStatic clip-path; interior travels behind it. */
 .bayWindow {
   position: absolute;
-  left: 24%;
-  width: 52%;
-  top: 23%;
-  bottom: 15%;
+  inset: 0;
   overflow: hidden;
   pointer-events: auto;
   z-index: 1;
-
-  mask-image: linear-gradient(
-    180deg,
-    transparent 0,
-    #000 2.75rem,
-    #000 calc(100% - 2.75rem),
-    transparent 100%
-  );
 }
 
 .bayTravel {
   position: relative;
   will-change: transform;
+  min-height: 100%;
+  box-sizing: border-box;
+  /* safe-box vertical inset — layout only; arch curve from .roomStatic clip-path hole */
+  padding: 23% 0 15%;
 }
 
 .bayTravel .surfaceBackdrop {
@@ -211,13 +204,16 @@
 
 .bayTravel .surfaceContent {
   position: relative;
-  left: auto;
-  translate: none;
-  width: 100%;
-  top: auto;
-  bottom: auto;
+  width: min(var(--ap-safe-w), calc(100vw - 3rem), 68rem);
+  margin: 0 auto;
   overflow: visible;
-  mask-image: none;
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 2.75rem,
+    #000 calc(100% - 2.75rem),
+    transparent 100%
+  );
   padding: 0 0.15rem 2.5rem;
   z-index: 1;
 }
@@ -277,12 +273,14 @@
   transition: opacity 280ms ease;
 }
 
-.frameOverlay {
+/* Static room plate — untouched poster, arch punched out; sconces/shelves never move. */
+.roomStatic {
   position: absolute;
   inset: 0;
   z-index: 2;
   pointer-events: none;
-  background: url("/agent-cast/clives-man/receiving-wall-frame.png") center / 100% 100% no-repeat;
+  background: url("/agent-cast/clives-man/receiving-wall-poster.jpg") center / 100% 100% no-repeat;
+  clip-path: var(--room-static-clip);
 }
 
 @keyframes wallBreath {
@@ -1078,7 +1076,7 @@
 
   .interiorViewport,
   .interiorTrack,
-  .frameOverlay {
+  .roomStatic {
     display: none;
   }
 
