@@ -1,6 +1,6 @@
 /**
- * Motion verification — locked arch vs scrolling interior.
- * Captures mid-transition frames and diffs arch moulding vs void regions.
+ * Motion verification — locked arch vs scrolling interior while reading.
+ * Captures mid-reading travel frames (content still visible).
  * Usage: node e2e/receiving-wall-scroll-verify.mjs
  */
 import { chromium } from "playwright";
@@ -39,45 +39,59 @@ print(json.dumps(stats(a, b, box)))
   return JSON.parse(out.trim());
 }
 
+async function openBayWithLongLetter(page) {
+  await page.goto(`${BASE}/man/receiving-wall`, { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(1500);
+  const door = page.getByRole("button", { name: /External Context Capture/i });
+  await door.waitFor({ state: "visible", timeout: 60000 });
+  await door.click();
+  await page.waitForTimeout(2000);
+  const record = page.getByRole("button", { name: /Goals \(long-term\)/i });
+  await record.waitFor({ state: "visible", timeout: 30000 });
+  await record.click();
+  await page.locator('[id^="letter-"]').waitFor({ state: "visible", timeout: 10000 });
+  await page.waitForTimeout(400);
+  /* Seed letter is one line — extend in-DOM so reading travel has range. */
+  await page.evaluate(() => {
+    const body = document.querySelector('[class*="letterBody"]');
+    if (!body) return;
+    body.textContent = `${body.textContent ?? ""}\n\n${"The household keeps this on the wall until a human signs it off. ".repeat(48)}`;
+  });
+  await page.waitForTimeout(200);
+}
+
 async function main() {
   const browser = await chromium.launch();
   const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
   const page = await context.newPage();
 
-  await page.goto(`${BASE}/man/receiving-wall`, { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1500);
+  await openBayWithLongLetter(page);
 
-  const idlePath = `${OUT}/rw-scroll-idle.png`;
-  await page.screenshot({ path: idlePath, fullPage: false });
-  console.log(`Wrote ${idlePath}`);
+  const settledPath = `${OUT}/rw-scroll-settled.png`;
+  await page.screenshot({ path: settledPath, fullPage: false });
+  console.log(`Wrote ${settledPath}`);
 
-  const door = page.getByRole("button", { name: /External Context Capture/i });
-  await door.waitFor({ state: "visible", timeout: 60000 });
-  await door.click();
-
-  const midFrames = [];
-  for (const pct of [0.25, 0.5, 0.75]) {
-    await page.waitForTimeout(375);
-    const path = `${OUT}/rw-scroll-mid-${Math.round(pct * 100)}.png`;
+  const readFrames = [];
+  for (let i = 0; i < 6; i++) {
+    await page.mouse.wheel(0, 320);
+    await page.waitForTimeout(180);
+    const path = `${OUT}/rw-scroll-read-${i + 1}.png`;
     await page.screenshot({ path, fullPage: false });
-    midFrames.push(path);
+    readFrames.push(path);
     console.log(`Wrote ${path}`);
   }
 
-  await page.waitForTimeout(900);
-  const zoomedPath = `${OUT}/rw-scroll-zoomed.png`;
-  await page.screenshot({ path: zoomedPath, fullPage: false });
-  console.log(`Wrote ${zoomedPath}`);
+  /* Opaque frame mouldings at dolly 1.54 — 1920×1080 (calibrated on frame overlay). */
+  const archRegion = [118, 312, 72, 420];
+  const rightArchRegion = [1730, 312, 72, 420];
+  /* Letter body column — moves during reading travel. */
+  const interiorRegion = [680, 520, 360, 220];
 
-  const archRegion = [290, 220, 80, 500];
-  const rightArchRegion = [1550, 220, 80, 500];
-  const interiorRegion = [560, 280, 800, 400];
-
-  const mid50 = `${OUT}/rw-scroll-mid-50.png`;
-  const mid75 = `${OUT}/rw-scroll-mid-75.png`;
-  const leftArch = regionDiff(mid50, mid75, archRegion);
-  const rightArch = regionDiff(mid50, mid75, rightArchRegion);
-  const interiorDiff = regionDiff(mid50, mid75, interiorRegion);
+  const read1 = `${OUT}/rw-scroll-read-1.png`;
+  const read4 = `${OUT}/rw-scroll-read-4.png`;
+  const leftArch = regionDiff(read1, read4, archRegion);
+  const rightArch = regionDiff(read1, read4, rightArchRegion);
+  const interiorDiff = regionDiff(read1, read4, interiorRegion);
   const archStabilityMean = (leftArch.mean + rightArch.mean) / 2;
 
   const report = {
@@ -87,17 +101,18 @@ async function main() {
     archStability: { leftMoulding: leftArch, rightMoulding: rightArch, mean: archStabilityMean },
     interiorMotion: interiorDiff,
     ratioInteriorToArch: interiorDiff.mean / Math.max(archStabilityMean, 0.001),
-    frames: [idlePath, ...midFrames, zoomedPath],
+    frames: [settledPath, ...readFrames],
+    phase: "reading-travel",
   };
 
   const reportPath = `${OUT}/receiving-wall-scroll-diff-report.json`;
   writeFileSync(reportPath, JSON.stringify(report, null, 2));
   console.log(`\nReport: ${reportPath}`);
   console.log(
-    `Arch stability (mid50→mid75, mouldings): mean=${archStabilityMean.toFixed(2)} (L=${leftArch.mean.toFixed(2)} R=${rightArch.mean.toFixed(2)})`,
+    `Arch stability (read1→read4, mouldings): mean=${archStabilityMean.toFixed(2)} (L=${leftArch.mean.toFixed(2)} R=${rightArch.mean.toFixed(2)})`,
   );
   console.log(
-    `Interior motion (mid50→mid75): mean=${interiorDiff.mean.toFixed(2)} max=${interiorDiff.max}`,
+    `Interior motion (read1→read4): mean=${interiorDiff.mean.toFixed(2)} max=${interiorDiff.max}`,
   );
 
   await context.close();
@@ -106,7 +121,9 @@ async function main() {
   const mobilePage = await mobile.newPage();
   await mobilePage.goto(`${BASE}/man/receiving-wall`, { waitUntil: "domcontentloaded" });
   await mobilePage.waitForTimeout(1500);
-  const mobilePath = `${OUT}/rw-scroll-mobile-idle.png`;
+  await mobilePage.click('button:has-text("External")').catch(() => {});
+  await mobilePage.waitForTimeout(2000);
+  const mobilePath = `${OUT}/rw-scroll-mobile-bay.png`;
   await mobilePage.screenshot({ path: mobilePath, fullPage: false });
   console.log(`Wrote ${mobilePath}`);
   await mobile.close();
