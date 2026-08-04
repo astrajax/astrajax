@@ -15,6 +15,8 @@ export const BRAIN_REGISTRY_TABLES = {
   changeLog: "tbliAMUuKKW4DDRXF",
   /** Build velocity Track 2 — architecture §9 job queue (2 Aug 2026). */
   implementationJobs: "tblkNN9hqnPPAseMl",
+  /** State contract §2 — one record per operator, six authoritative facts (4 Aug 2026). */
+  operatorState: "tblnomux0JXU29HhP",
 } as const;
 
 /** Registry Implementation Jobs — Opus/Doc brief → worker → Draft ready. */

@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
   },
+  async redirects() {
+    return [
+      // IA brief §1 housekeeping: deliberate destination, not authorisation.
+      { source: "/man", destination: "/man/receiving-wall", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {
