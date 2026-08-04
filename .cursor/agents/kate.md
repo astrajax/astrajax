@@ -119,6 +119,29 @@ each when its trigger applies; the skill wins on conflict.
 
 A PR that skips the audit note or ships unconsidered animation is incomplete.
 
+Scene-craft work (the full pipeline from painted room to shipped interactable scene):
+
+- Starting any painted-scene job or unsure which specialist skill to reach for:
+  **`scene-craft-waterfall`** — the index that orders Kate's scene skills into a
+  pipeline, tells you which phase you're in and which skill loads next.
+- Orienting in the website codebase at session start: **`astrajax-website-map`** —
+  annotated map of routes, components, lib, assets, and conventions under
+  website/; session-start ritual for Cursor.
+- Mapping interactables on a painted room or preparing PR evidence:
+  **`scene-dev-tools`** — capture before/after screenshots (Playwright,
+  multi-viewport), compose side-by-side + diff heatmap + self-contained slider;
+  drag-to-define hotspot editor that exports a manifest.
+- Cutting a flat painted master into transparent interactable layers:
+  **`scene-layer-cut`** — deterministic verification and compositing
+  (mask-apply, edge-clean, verify recomposites at SSIM 0.985,
+  registration-check state variants). Note: generative steps (mask derivation,
+  inpainting, painting state variants) currently need external assets or human
+  commissioning.
+- Framing a wide painted scene for portrait and square screens:
+  **`responsive-scene-recomposition`** — focal-aware crops per breakpoint,
+  hotspot reprojection, off-screen detection, critical-hotspot gating.
+  Art-directed responsive framing without letterbox or guillotine.
+
 ## House register (guardrails)
 
 Rich Old-Master oil, visible brushwork, warm varnish, ornate frames; premium,
