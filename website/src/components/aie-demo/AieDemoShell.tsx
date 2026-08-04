@@ -200,10 +200,15 @@ export function AieDemoShell() {
 
   const showWelcomeSequence = hubSelection === "welcome" && !welcomeComplete;
 
+  // Start the ambient idle reel once, on entry (or when switching books).
+  // `returnToIdle()` (called internally after any reaction clip) already
+  // resumes the reel from where it left off — this effect must NOT depend
+  // on state.currentStep, or every step transition resets the reel back to
+  // clip 0 and re-fetches it, fighting the video that's already playing.
   useEffect(() => {
     if (showWelcomeSequence) return;
     cliveVideoRef.current?.startIdleReel();
-  }, [showWelcomeSequence, bookParam, state.currentStep]);
+  }, [showWelcomeSequence, bookParam]);
 
   if (!bookParam || hubSelection === null) {
     return null;
