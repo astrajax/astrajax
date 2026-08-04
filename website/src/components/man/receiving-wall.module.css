@@ -324,12 +324,9 @@
   z-index: 5;
   pointer-events: none;
   background: url("/agent-cast/clives-man/receiving-wall-poster.jpg") center / 100% 100% no-repeat;
-  -webkit-mask-image: var(--room-static-mask);
-  mask-image: var(--room-static-mask);
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+  /* clip-path punches the arch hole; SVG mask-image left the interior opaque (poster void). */
+  clip-path: var(--room-static-clip);
+  -webkit-clip-path: var(--room-static-clip);
 }
 
 /*
@@ -341,12 +338,8 @@
   content: "";
   position: absolute;
   inset: 0;
-  -webkit-mask-image: inherit;
-  mask-image: inherit;
-  -webkit-mask-size: inherit;
-  mask-size: inherit;
-  -webkit-mask-repeat: inherit;
-  mask-repeat: inherit;
+  clip-path: inherit;
+  -webkit-clip-path: inherit;
   pointer-events: none;
   background:
     radial-gradient(
