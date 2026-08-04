@@ -34,6 +34,8 @@ Before planning, output:
 
 If the job is not a minion lane, say who owns it (Clive's Man, Clive, Pam, etc.) and stop.
 
+**Design stays at Doc's tier.** Schema design, auth/identity architecture, state contracts, and routing hierarchies are Phase A work done by Doc himself. Minions run on cheap models and receive an approved design to implement — they never originate one. If a job's design isn't settled, settle it in Phase A before naming the minion's build steps.
+
 When routing to **Vercel Minion**, also list **Vercel plugin skills** for the job (Functions, CLI, etc.). Pick the smallest set and say why. Picker: `doc-vercel-minion/references/vercel-plugin-skills.md`
 
 ## Two phases
