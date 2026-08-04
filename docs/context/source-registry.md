@@ -1,6 +1,6 @@
 # Context Bootstrap Source Registry
 
-**Status:** Current inventory (updated 30 Jun 2026).
+**Status:** Current inventory (updated 4 Aug 2026).
 **Owner:** Matthew.  
 **Purpose:** Source inventory for Clive context surfaces — bootstrap packs, skills, and operational docs.
 
@@ -40,6 +40,7 @@ the current roster.
 | `SRC-AJ-BRAIN-SHRINE` | `docs/initiatives/brain-shrine-build-plan.md`; `website/src/app/brain/page.tsx`; `website/src/components/brain/BrainShrine.tsx`; `website/src/lib/platform/brains.ts`; `website/src/app/api/brains/list/route.ts`; `website/public/brain/shrine-stage.png` | Working spec / Website UI | Matthew | Working current | Current | Context governance entry — single-brain shrine, per-brain workspace at `/brain/[slug]`; seeded shelf until Registry list wired |
 | `SRC-AJ-BRAIN-UPKEEP` | `docs/initiatives/brain-upkeep.md`; `website/src/lib/brains/interaction-upkeep.ts`; `website/src/app/api/brains/interactions/action/route.ts`; `website/src/lib/brains/handlers/interaction-action.ts`; `website/src/lib/brains/handlers/interaction-upkeep.test.ts` | Working spec / Website API implementation | Matthew | Current implementation reference | Current | Thin Brain Upkeep loop: Needs Review shortlist and Workshop-only propose/dismiss actions |
 | `SRC-AJ-SOURCE-DOC-MINE` | `docs/initiatives/source-document-mining.md`; `website/src/lib/brains/source-document-mining.ts`; `website/src/lib/brains/source-document-mining.test.ts`; `website/src/lib/brains/handlers/source-document-mine.ts`; `website/src/app/api/brains/source-documents/mine/route.ts` | Working spec / Website API implementation | Matthew | Current implementation reference | Current | Clive's Man V1: Workshop Source Documents summary-only mine → Draft Brain Truth proposals; Pam category ceiling; never Trusted |
+| `SRC-AJ-OPERATOR-STATE` | `docs/initiatives/ia-three-modes-build-plan.md`; `docs/initiatives/brain-key-schema.md` § Operator State; `docs/initiatives/brain-key-wiring.md` § Operator Session Model; `website/src/lib/platform/operator-state.ts`; `website/src/lib/platform/operator-store/`; `website/src/lib/platform/enter-routing.ts`; `website/src/lib/auth/`; `website/src/app/enter/`; `website/src/app/house/`; `website/src/app/showroom/`; `website/src/app/api/auth/`; `website/src/app/api/journey/progress/route.ts` | Working spec / Website implementation | Matthew | Current implementation reference | Current | Phase 1+2 IA build (PR #64, 4 Aug 2026): operator state contract, Auth.js v5 JWT sign-in, server-authored `/enter` routing, back-of-house role gating on dispatch/deploy/fleet/command |
 
 ## Character and roster sources
 

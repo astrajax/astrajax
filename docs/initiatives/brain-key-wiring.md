@@ -2,7 +2,7 @@
 
 **Status:** Working spec for AIE Chapter 1  
 **Owner:** Matthew  
-**Last updated:** 26 June 2026  
+**Last updated:** 26 June 2026; Operator Session Model added 4 Aug 2026  
 **Canonical architecture:** `[docs/business/architecture.md](../business/architecture.md)`
 
 ### Naming and surfacing
@@ -25,7 +25,7 @@ Clive and Pam can **request** access to a trusted Brain. They are **blind** to t
 
 | Base                                    | Role                     | Holds                                                                                                                        | Never holds                                                                                     |
 | --------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| **Brain Registry**                      | Index + governance       | Brain metadata, **agent metadata**, maturity, workshop/trusted/agent base IDs, Brain Key Requests, Access Grants, Change Log | Trusted context text, persona memory text, API tokens                                           |
+| **Brain Registry**                      | Index + governance       | Brain metadata, **agent metadata**, maturity, workshop/trusted/agent base IDs, Brain Key Requests, Access Grants, Change Log, Implementation Jobs, Operator State | Trusted context text, persona memory text, API tokens                                           |
 | **Brain Workshop**                      | Draft / propose          | Draft Brain Truth, Brain Interactions, Pam Reviews, pending Approval Decisions, Doc Actions, User Brains                     | Approved canonical context, persona memories                                                    |
 | **Trusted Brain** (one per Brain theme) | Canonical business truth | Approved Brain Truth, Brain Memories (working shared recall)                                                                 | Draft or quarantined records, character narrative, persona config |
 | **Agent** (one per agent)               | Character + role memory  | Narrative Arch, Persona Config, Persona Memories, Minions                                                                    | Canonical business truth, other agents' state                                                   |
@@ -96,13 +96,37 @@ This is **not** HyperAgent `autoSaveMemories`. Governed fleet exports keep `auto
 
 **Tier 1 and Tier 2 are different from auto-save.** Persona Memories (Tier 3) auto-form without a per-record gate. **Super Objective (Tier 1) and Known Truths (Tier 2)** are canonical character bedrock, so character-craft agent writes there default to **Provenance Status = Pending** and only Matthew promotes them to **Approved-Canonical**. Same spirit as the no-memory and promotion rules: an agent proposes, a human promotes before it counts.
 
+## Operator Session Model
+
+**Decision (Phase 1 IA build, 4 Aug 2026 — `ia-three-modes-build-plan.md` "Decision required before Phase 1 builds").** Operator (human user) identity is separate from the Clive/Pam persona-grant model above. It is authenticated via:
+
+- **Auth.js (NextAuth v5)**, Credentials provider, `session: { strategy: "jwt" }` — JWT session, not database-backed.
+- **Identity proof:** a stateless one-time email code. `POST /api/auth/request-code` issues a 6-digit code and an HMAC `proof` (signed with `AUTH_SECRET`, 10-minute validity, in `website/src/lib/auth/email-code.ts`); the code is emailed, never returned in the response. Sign-in resubmits email + code + proof; the Credentials provider recomputes the HMAC (`timingSafeEqual`). No server-side code storage — no Auth.js adapter needed.
+- **Allow-list:** `isAllowedOperatorEmail()` (`website/src/lib/auth/allow-list.ts`) checks the `OPERATOR_ALLOWLIST` env var (comma-separated emails). Unset ⇒ deny all in production, allow any in development.
+- **First sign-in** writes an initial `OperatorState` row (`initialOperatorState()`) — so a verified identity with no state record is treated as anomalous (`/enter` recovery case), not silently provisioned again.
+- **Credentials:** reuses `BRAIN_REGISTRY_WRITE_TOKEN` (falling back to `BRAIN_REGISTRY_READ_TOKEN`) against the Registry base's Operator State table — no new dedicated operator-state token. `OPERATOR_STATE_TABLE_ID` env var can override the live table id.
+
+### Back-of-house role gating
+
+`requireInternalOperator()` (`website/src/lib/auth/require-internal.ts`) gates `/dispatch`, `/deploy`, `/fleet`, `/command/*` layouts: session `operator.role !== "internal"` → Next.js `notFound()` (404 by role, not link-obscurity).
+
+### Resume URL governance
+
+**Hard rule:** `lastSafeDestination` (Operator State "Last Safe Destination") is **server-authored only**.
+
+- Written by `POST /api/journey/progress` as journey steps advance, and by the state contract on sign-in — never supplied by the client.
+- `resolveEnterDestination()` (`website/src/lib/platform/enter-routing.ts`) is the sole `/enter` router: pure function `(identity, state, showroomRequested) → destination`, covering visitor / showroom / journey-resume / house / recovery. Missing or self-contradictory state (`findStateContradictions()`) always yields the explicit recovery case, never a guessed destination.
+- `/` performs no state-aware redirect logic, by design — only `/enter` is state-aware.
+
+This prevents resumption spoofing and keeps journey state authoritative on the server; device-local storage (e.g. Chapter 1 `localStorage`) remains an accelerator only, never the decider.
+
 ---
 
 ## Registry tables
 
 Full field-level blueprint: `[brain-key-schema.md](./brain-key-schema.md)`.
 
-Summary: **Brains**, **Agents**, **Brain Key Requests**, **Access Grants**, **Change Log**.
+Summary: **Brains**, **Agents**, **Brain Key Requests**, **Access Grants**, **Change Log**, **Implementation Jobs**, **Operator State**.
 
 ---
 
@@ -371,6 +395,26 @@ Server-side `BRAIN_WORKSHOP_WRITE_TOKEN` only.
 
 Reads draft **Title** and **Canonical Text** from Workshop only. **Category** and **Scope** come from the promote payload (Trusted-only fields). Creates new Trusted rows, quarantines drafts, writes Change Log, revokes related grants.
 
+### `POST /api/auth/request-code`
+
+**Auth:** None (public) — same-shaped response for allow-listed and non-allow-listed emails (no account enumeration).
+
+```json
+{ "email": "operator@example.com" }
+```
+
+**Response:** `{ "ok": true, "proof": "<hmac-proof-or-null>" }`. Code delivered by email only, never in the response body.
+
+### `POST /api/journey/progress`
+
+**Auth:** Signed-in operator session required (`auth()` session `operator.operatorId`); 401 if absent.
+
+```json
+{ "chapter": 1, "step": "step-3", "book": "optional-chapter-1-book-slug" }
+```
+
+**Response:** `{ "ok": true, "journey": { "chapter": 1, "step": "step-3", "completedChapters": [] }, "resumeUrl": "/chapter-1?book=...&resume=1" }`. 409 if no operator state record exists yet (treated as an `/enter` recovery case, never silently created here). `GET /api/journey/progress` returns `{ journey, resumeUrl }` for the signed-in operator, 401 if not signed in.
+
 ---
 
 ## Chapter 1 UI states
@@ -420,7 +464,7 @@ Automated in `[website/src/lib/brains/guards.ts](../../website/src/lib/brains/gu
 
 | Base                                   | ID                  | Purpose                                                            |
 | -------------------------------------- | ------------------- | ------------------------------------------------------------------ |
-| **AstraJax Brain Registry**            | `appbdTVHevH6Bl5ZZ` | Brains, **Agents**, Brain Key Requests, Access Grants, Change Log  |
+| **AstraJax Brain Registry**            | `appbdTVHevH6Bl5ZZ` | Brains, **Agents**, Brain Key Requests, Access Grants, Change Log, **Implementation Jobs**, **Operator State** |
 | **AstraJax Brain Workshop**            | `appL2fdnGmhA02WXd` | Draft Brain Truth, interactions, Pam reviews, approvals, Doc queue |
 | **AstraJax Trusted Brain — Chapter 1** | `app6tjzzG0L0lOeVb` | Brain Truth, Brain Memories                                        |
 | **AstraJax Agent — Clive**             | `appBd9tudgvOSrhSX` | Narrative Arch, Persona Config, Persona Memories, Minions          |

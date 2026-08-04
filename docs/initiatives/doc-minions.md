@@ -8,12 +8,24 @@
 
 ## How Matthew invokes
 
-**Primary entry point:** `@doc`
+**Primary entry point:** `@doc` (Cursor lane)
 
-Doc triages the task, tells you which minion fits and why, then runs that minion's
-two-phase workflow (propose → you approve → build in Agent mode).
+Doc tiers the job (Household Conduct), triages the minion, then runs that minion's
+workflow. Twin map / HA Doc: [`build-velocity-tracks.md`](./build-velocity-tracks.md).
 
 Direct minion invoke still works if you already know the lane: `@doc-brain-base-builder`, `@doc-vercel-minion`, `@doc-workshop-proposer`, `@doc-workshop-challenger`, `@doc-workshop-cursor`, `@doc-workshop-hyperagent`.
+
+## Household Conduct tiers (shared)
+
+Canonical language: [`docs/context/household-conduct-standard.md`](../context/household-conduct-standard.md).
+
+| Tier | Minion / Doc behaviour |
+|------|-------------------------|
+| **Green** | Reversible + bounded. Standing Green or `green go` → Phase B without a fresh Phase A. |
+| **Amber** | Phase A → Matthew yes → Phase B (or act-then-notify for standing Amber). |
+| **Red** | Propose only; Pam/Trinity where required; no build until Matthew approves. |
+
+Every Doc reply opens with `**Tier:** Green|Amber|Red`. Uncertain → higher tier.
 
 ## Skill sources (two types)
 
@@ -42,12 +54,13 @@ HyperAgent is **not** a minion. HyperAgent runs **deployed fleet agents**. Minio
 
 ## Minion rules (all minions)
 
-1. **Two phases:** Phase A propose (Ask or Agent, read-only). Phase B build (Agent mode only, explicit approval).
-2. **One lane each:** A minion does not become Clive, Pam, Clive's Man, or HyperAgent.
-3. **No canonical truth:** Minions implement structure and code; humans approve what becomes trusted context.
-4. **Paper trail:** Say what changed, what Matthew still does manually, preview/deploy links when relevant.
-5. **Clive's Man (executors only):** After Phase B, invoke `@clive-man` with build decisions so canonical context sources stay in sync (`doc` skill — Clive's Man handoff).
-6. **Still forbidden unless Matthew asks:** `git commit`, `git push`, production promote, exposing secrets.
+1. **Tier first, then phases:** Follow Household Conduct. Phase A is not automatic for every Green job.
+2. **Two phases when required:** Phase A propose (Ask or Agent, read-only). Phase B build (Agent mode only, approval when tier requires it).
+3. **One lane each:** A minion does not become Clive, Pam, Clive's Man, or HyperAgent On-Platform Doc.
+4. **No canonical truth:** Minions implement structure and code; humans approve what becomes trusted context.
+5. **Paper trail:** Say what changed, what Matthew still does manually, preview/deploy links when relevant. HyperAgent builders must emit a handoff card (`hyperagent-handoff-contract.md`).
+6. **Clive's Man (executors only):** After Phase B, invoke `@clive-man` with build decisions so canonical context sources stay in sync (`doc` skill — Clive's Man handoff).
+7. **Still forbidden unless Matthew asks:** `git commit`, `git push`, production promote, exposing secrets.
 
 ---
 

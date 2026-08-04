@@ -16,6 +16,7 @@ import {
   DEFAULT_BENCH,
   COURT_ATTENDANT_POOL,
   COURT_PORTRAIT_SRC,
+  COURT_JUDGE_MEDIA,
   COURT_ROLES,
   docExecutionLine,
   conveneMatter,
@@ -39,8 +40,9 @@ import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 // Art v2: the book ships BLANK — empty gilt frames, empty strips, blank
 // brass. The cast are layers; the text is live; the Judge breathes.
 const COURT_BOOK_IMAGE = "/agent-cast/court/court-book-blank.jpg";
-const JUDGE_VIDEO_SRC = "/agent-cast/court/court-judge.mp4";
-const JUDGE_POSTER_SRC = "/agent-cast/court/court-judge-poster.jpg";
+const JUDGE_VIDEO_WEBM_SRC = COURT_JUDGE_MEDIA.webm;
+const JUDGE_VIDEO_MP4_SRC = COURT_JUDGE_MEDIA.mp4;
+const JUDGE_POSTER_SRC = COURT_JUDGE_MEDIA.poster;
 
 // A 16×9 thumb of the blank book — canvas emerging through varnish.
 const COURT_BOOK_BLUR = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA4KCw0LCQ4NDA0QDw4RFiQXFhQUFiwgIRokNC43NjMuMjI6QVNGOj1OPjIySGJJTlZYXV5dOEVmbWVabFNbXVn/2wBDAQ8QEBYTFioXFypZOzI7WVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVn/wAARCAAJABADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwC/ohX+yoiygna3J57Vemkg/sOWMCMuLY5XHI+WuFg/1Ef0p3/Lu3+5/SuTlOq5/9k=";
@@ -192,7 +194,7 @@ function BenchPortraits({ bench }: { bench: CourtAttendantId[] }) {
   );
 }
 
-/** The Judge breathes. A 16s seamless loop, masked to its interior oval
+/** The Judge breathes. An 8s seamless loop, masked to its interior oval
  * and seated behind the painted frame like any other portrait layer —
  * every seat is an art layer; his happens to move. Reduced motion (or a
  * video that never arrives) leaves the frame-zero poster: the painting,
@@ -231,13 +233,15 @@ function JudgeLoop() {
       ) : (
         <video
           className="platform-court__judge-media"
-          src={JUDGE_VIDEO_SRC}
           poster={JUDGE_POSTER_SRC}
           autoPlay
           muted
           loop
           playsInline
-        />
+        >
+          <source src={JUDGE_VIDEO_WEBM_SRC} type="video/webm" />
+          <source src={JUDGE_VIDEO_MP4_SRC} type="video/mp4" />
+        </video>
       )}
     </div>
   );

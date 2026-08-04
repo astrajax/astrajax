@@ -71,7 +71,7 @@ For each mine run (non–dry-run):
 2. **Challenger** — verifies category ceiling, summary-only input, no Trusted write, eligible Mine Status.
 3. **Executor** — calls mine API or handler; writes Workshop only.
 
-Routine mine batches can digest rather than per-row human gates. Escalate when Challenger flags sensitivity, category overflow, or empty/ low-quality summaries.
+**Default (Track 5):** Routine mine batches **must** digest rather than per-row human gates. Clive's Man returns one pack of Draft proposals. Escalate when Challenger flags sensitivity, category overflow, or empty/low-quality summaries. Per-row approval theatre for routine Green rows is a governance failure mode (Household Conduct).
 
 ---
 
@@ -118,14 +118,12 @@ Routine mine batches can digest rather than per-row human gates. Escalate when C
 
 ## Matthew — manual steps in Airtable UI
 
-1. **Open** AstraJax Brain Workshop → **Source Documents**.
-2. **Create row:** set **Title**, attach file in **Attachment**, set **Brain Slug** (default `astrajax-chapter-1`), **Created By** = Matthew.
-3. **Convert Attachment Summary to AI summarise** (one-time base setup if not done): field type = Airtable AI summarise, source = **Attachment**. See `brain-key-schema.md` § Source Documents.
-4. **Run summarise** on the row (Airtable AI button / refresh) — wait until summary text appears.
-5. **Set Mine Status** to **Summarised** when the summary is good enough to mine (or use automation later — not V1).
-6. **Invoke mine** — `POST /api/brains/source-documents/mine` (or `@clive-man` workflow calling the route).
-7. **Review** linked **Draft Brain Truth** rows in Workshop; edit, reject, or send through normal human approval + Doc promote.
-8. To ignore a file: set **Mine Status** = **Skipped** (mine route will not pick it up).
+Shrunk path (digest default):
+
+1. **Upload** — Workshop → **Source Documents**: Title, Attachment, Brain Slug, Created By = Matthew.
+2. **Summarise** — run Attachment Summary (Airtable AI); set **Mine Status** = **Summarised** when good enough (or **Skipped** to ignore).
+3. **Digest review** — invoke mine via `@clive-man` / `POST /api/brains/source-documents/mine`; review the **digest** of Draft Brain Truth (not one gate per row). Edit, reject, or promote later through normal human approval + Doc.
+4. One-time base setup if needed: Attachment Summary = AI summarise on Attachment (`brain-key-schema.md`).
 
 ---
 
