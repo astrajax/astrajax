@@ -11,6 +11,7 @@ import { PlatformSessionControls } from "@/components/platform-session/PlatformS
 import { usePlatformSession } from "@/components/platform-session/PlatformSessionProvider";
 import type { CliveVideoStageHandle } from "@/components/chapter1/CliveVideoStage";
 import type { CliveReaction } from "@/lib/clive/video-reactions";
+import { syncJourneyProgress } from "@/lib/journey-progress/client";
 import {
   DEFAULT_BUSINESS_BRAIN,
   DEFAULT_PAM_REVIEW,
@@ -126,6 +127,9 @@ export function AieDemoShell() {
       currentStep: state.currentStep,
       book: bookParam,
     });
+    // Server is the authority (state contract §2); localStorage above is
+    // the accelerator. Silent no-op for anonymous visitors.
+    syncJourneyProgress({ chapter: 1, step: state.currentStep, book: bookParam });
   }, [state.sessionId, state.userBrain, state.userBrainIntake, state.currentStep, bookParam]);
 
   useEffect(() => {

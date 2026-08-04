@@ -2,11 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "website-dev",
+      "name": "website-dev-worktree",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "website"],
-      "port": 3000,
-      "autoPort": true
+      "runtimeArgs": ["run", "dev", "--prefix", "/Users/matthewhopkinson/Documents/AstraJax/.claude/worktrees/phase1-state-contract/website", "--", "--port", "3001"],
+      "port": 3001
     }
   ]
 }

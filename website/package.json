@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:brain-key": "vitest run src/lib/brains src/lib/clive src/lib/curation src/lib/receiving-wall.test.ts",
+    "test:brain-key": "vitest run src/lib/brains src/lib/clive src/lib/curation src/lib/man src/lib/receiving-wall.test.ts",
     "test:command-centre": "vitest run src/lib/command-centre",
     "test:platform-activity": "vitest run src/lib/platform-activity src/app/api/ask-clive/route.test.ts src/lib/brains/handlers/interaction-log-airtable.test.ts src/lib/brains/handlers/interaction-household.test.ts",
     "test:e2e": "playwright test"
@@ -21,6 +21,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^1.21.0",
     "next": "^15.3.3",
+    "next-auth": "^5.0.0-beta.32",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "shadcn": "^4.11.1",
