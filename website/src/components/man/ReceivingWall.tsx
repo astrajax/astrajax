@@ -551,12 +551,14 @@ export function ReceivingWall({
         </Link>
       </nav>
 
-      {isNave ? (
-        <div className={styles.aperture}>
-          {statusNote}
-          {!zoomed ? ledgerSection : baySection}
-        </div>
-      ) : null}
+      {/* Always mount — CSS hides on desktop (min-aspect-ratio 6/5).
+          Gating the whole tree on isNave left narrow viewports empty until
+          matchMedia ran. Bay stays isNave-only to avoid duplicate letter IDs
+          with the desktop surface copy. */}
+      <div className={styles.aperture}>
+        {statusNote}
+        {!zoomed ? ledgerSection : isNave ? baySection : null}
+      </div>
 
       <div className={styles.varnishTint} aria-hidden />
       <div className={styles.varnishShade} aria-hidden />

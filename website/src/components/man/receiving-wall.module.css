@@ -1012,10 +1012,30 @@
     aspect-ratio: auto;
   }
 
-  .interiorViewport,
-  .interiorTrack,
-  .frameOverlay {
+  /* Keep the living-wall video painted; only drop scroll chrome / second plate.
+     Hiding .interiorViewport would also hide .stageVideo (now nested inside it). */
+  .frameOverlay,
+  .voidFill,
+  .surfaceContent,
+  .surfacePlate:last-child {
     display: none;
+  }
+
+  .interiorTrack {
+    height: 100%;
+    transform: none;
+    transition: none;
+  }
+
+  .surfacePlate:first-child {
+    flex-basis: 100%;
+    height: 100%;
+  }
+
+  .wall.zoomed .surfacePlate:first-child .surfaceBackdrop,
+  .wall.settling .surfacePlate:first-child .surfaceBackdrop {
+    opacity: 1;
+    transition: none;
   }
 
   .stageVideo {
