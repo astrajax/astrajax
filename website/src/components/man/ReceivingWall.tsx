@@ -14,7 +14,7 @@ import {
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 import { acceptReceivingWallRecord } from "@/lib/brains/actions/receiving-wall-accept";
-import { roomStaticClipPath } from "@/lib/man/receiving-wall-arch-mask";
+import { roomStaticClipPath, roomStaticMaskUrl } from "@/lib/man/receiving-wall-arch-mask";
 import {
   DOLLY_IN_DEFAULT,
   DOLLY_IN_LADDER,
@@ -35,7 +35,7 @@ type WallData = {
  *   idle     — wide wall at dolly 1 + ledger on the upper plate
  *   exiting  — ledger fading (nave only; desktop scroll carries text)
  *   zooming  — dolly push to close framing, then interior scroll; plates crossfade
- *   zoomedIn — bay on the lower plate; arch pinned, interior only moves between bays
+ *   zoomedIn — bay on the lower plate; arch pinned on .roomStatic, interior only moves
  *   returning— bay fades out; camera holds close until RETURN_MS
  *   settling — dolly pull-back + scroll return; ledger held out until SETTLE_MS
  *
@@ -751,6 +751,7 @@ export function ReceivingWall({
         ["--tint" as string]: zoomed ? CAPTURE_SOURCE_TINT[zoomed] : idleTint,
         ["--dolly-in-16-9" as string]: String(dollyIn169),
         ["--room-static-clip" as string]: roomStaticClipPath(),
+        ["--room-static-mask" as string]: roomStaticMaskUrl(),
       }}
     >
       <div className={styles.stage}>
@@ -810,10 +811,11 @@ export function ReceivingWall({
               </div>
             </div>
           </div>
-          <div className={styles.roomStatic} aria-hidden />
         </div>
         <div className={styles.stageScrim} />
       </div>
+
+      <div className={styles.roomStatic} aria-hidden />
 
       {isNave ? (
         <div className={styles.aperture}>
