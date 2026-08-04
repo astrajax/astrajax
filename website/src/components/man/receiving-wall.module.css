@@ -150,12 +150,34 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  /*
+   * Portal interior — brightest at centre (the opening glows).
+   * Palette: voidBloomPeak #677367 → voidCentre #3b4039 → voidInnerEdge #161712
+   */
   background: radial-gradient(
-    ellipse 42% 48% at 50% 52%,
-    #3b4039 0%,
-    #22211d 42%,
+    ellipse 36% 40% at 50% 44%,
+    #6d786e 0%,
+    #525a50 32%,
+    #3b4039 58%,
+    #252622 82%,
     #161712 100%
   );
+}
+
+/* Bright core — portal is the light source, not the floor */
+.portalCore {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 26% 30% at 50% 42%,
+      rgba(158, 176, 158, 0.42) 0%,
+      rgba(103, 115, 103, 0.22) 38%,
+      transparent 68%
+    );
+  mix-blend-mode: screen;
 }
 
 .interiorTrack {
@@ -294,6 +316,51 @@
   clip-path: var(--room-static-clip);
 }
 
+/*
+ * Portal spill onto the room — light radiates outward from the aperture.
+ * Sconce positions from manifest SCONCES (10.4%/89.5% × 34.4%).
+ * All gradients are radial/elliptical; no rectangular edges.
+ */
+.roomStatic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  clip-path: var(--room-static-clip);
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 12% 18% at 10.4% 34.4%,
+      rgba(232, 178, 108, 0.18) 0%,
+      rgba(180, 130, 72, 0.06) 42%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 12% 18% at 89.5% 34.4%,
+      rgba(232, 178, 108, 0.18) 0%,
+      rgba(180, 130, 72, 0.06) 42%,
+      transparent 72%
+    ),
+    radial-gradient(
+      ellipse 20% 34% at 50% 46%,
+      rgba(199, 165, 119, 0.16) 0%,
+      rgba(113, 97, 71, 0.07) 44%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 52% 58% at 50% 52%,
+      rgba(103, 115, 103, 0.14) 0%,
+      rgba(71, 82, 68, 0.07) 48%,
+      transparent 76%
+    ),
+    radial-gradient(
+      ellipse 34% 20% at 50% 86%,
+      rgba(103, 115, 103, 0.11) 0%,
+      rgba(60, 68, 57, 0.04) 50%,
+      transparent 100%
+    );
+  mix-blend-mode: soft-light;
+}
+
 @keyframes wallBreath {
   from {
     transform: scale(1) translateY(0);
@@ -314,18 +381,19 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  /* Edge falloff only — depth without a bottom-up uplight */
   background: radial-gradient(
-    ellipse 33% 42% at 50% 52%,
-    rgba(9, 11, 8, 0) 58%,
-    rgba(9, 11, 8, 0.45) 86%,
-    rgba(9, 11, 8, 0.70) 100%
+    ellipse 33% 42% at 50% 46%,
+    rgba(9, 11, 8, 0) 54%,
+    rgba(9, 11, 8, 0.28) 84%,
+    rgba(9, 11, 8, 0.48) 100%
   );
 }
 
 .stageScrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(18, 20, 15, 0.45) 0%, rgba(18, 20, 15, 0) 22%);
+  background: linear-gradient(180deg, rgba(18, 20, 15, 0.32) 0%, rgba(18, 20, 15, 0) 20%);
   pointer-events: none;
 }
 
@@ -411,44 +479,10 @@
   opacity: 1;
 }
 
-/* ---- Exit nav ---- */
-.navExit {
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: clamp(0.5rem, 2vh, 1rem);
-  padding: clamp(1rem, 3vw, 2.5rem) clamp(1rem, 3vw, 2.5rem) 0;
-  transition: opacity 0.22s ease;
-}
-
-.wall.reading .navExit {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.ghostLink {
-  font-family: var(--font-wall), serif;
-  font-size: 0.9rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  text-decoration: none;
-  background: transparent;
-  border: 0;
-  padding: 0.4rem 0;
-  cursor: pointer;
-  color: #ddd0ae;
-  text-shadow:
-    0 -1px 0 rgba(12, 14, 10, 0.9),
-    0 1px 0 color-mix(in oklab, var(--tint) 55%, transparent);
-  transition: color 0.18s ease, letter-spacing 0.18s ease;
-}
-.ghostLink:hover {
-  color: #f0e5c6;
-  letter-spacing: 0.17em;
-}
+/* ---- Exit nav — removed; /brain remains reachable via site nav ---- */
 
 /* Shared keyboard focus ring — all incised interactives in the bay */
 .wall :is(
-  .ghostLink,
   .incisedActionMuted,
   .sourceRow,
   .incisedAction,
@@ -614,18 +648,6 @@
   padding: 2.5rem 0 0.5rem;
   margin-top: auto;
   position: relative;
-}
-.bench::before {
-  content: "";
-  position: absolute;
-  inset: 0 -12% -20%;
-  background: radial-gradient(
-    ellipse 46% 78% at 50% 62%,
-    color-mix(in oklab, var(--color-parchment) 22%, transparent),
-    transparent 70%
-  );
-  opacity: 0.5;
-  pointer-events: none;
 }
 .benchRule {
   width: 40%;
@@ -973,9 +995,9 @@
 .varnishShade {
   background: radial-gradient(
     ellipse 78% 72% at 50% 52%,
-    rgba(9, 11, 8, 0) 62%,
-    rgba(9, 11, 8, 0.30) 88%,
-    rgba(9, 11, 8, 0.52) 100%
+    rgba(9, 11, 8, 0) 56%,
+    rgba(9, 11, 8, 0.22) 86%,
+    rgba(9, 11, 8, 0.36) 100%
   );
 }
 

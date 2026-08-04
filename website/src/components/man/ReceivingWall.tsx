@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
   CAPTURE_SOURCE_BLURB,
@@ -754,6 +753,7 @@ export function ReceivingWall({
         <div className={styles.plate} ref={plateRef}>
           <div className={styles.interiorViewport} ref={interiorViewportRef}>
             <div className={styles.voidFill} aria-hidden />
+            <div className={styles.portalCore} aria-hidden />
             <div className={styles.interiorTrack}>
               <div className={styles.surfacePlate} inert={zoomed !== null && !isNave ? true : undefined}>
                 <div className={styles.surfaceBackdrop}>
@@ -810,12 +810,6 @@ export function ReceivingWall({
         </div>
         <div className={styles.stageScrim} />
       </div>
-
-      <nav className={styles.navExit} aria-label="Leave the wall">
-        <Link href="/brain" className={styles.ghostLink}>
-          To the brains →
-        </Link>
-      </nav>
 
       {isNave ? (
         <div className={styles.aperture}>
