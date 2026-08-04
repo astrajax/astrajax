@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   CAPTURE_SOURCE_BLURB,
   CAPTURE_SOURCE_LABEL,
@@ -14,6 +15,10 @@ import {
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 import { acceptReceivingWallRecord } from "@/lib/brains/actions/receiving-wall-accept";
+import {
+  DOLLY_IN_DEFAULT,
+  DOLLY_IN_LADDER,
+} from "@/lib/man/receiving-wall-manifest";
 import type { ChatMessage } from "@/lib/clive/types";
 import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 import styles from "./receiving-wall.module.css";
@@ -25,17 +30,16 @@ type WallData = {
 };
 
 /**
- * Portal dolly — ledger fades out, camera pushes into the arch field, bay
- * records rise before the camera settles. Text never scales; only the wall
- * moves. Timings orchestrated against CSS --dolly-ms (1500ms push, 900ms pull).
+ * Portal — push-in to enter, locked-arch scroll inside.
  *
- *   idle     — wide wall + ledger
- *   exiting  — ledger fading out; zoomed still null
- *   zooming  — zoomed set, bay hidden, wall dollies in
- *   zoomedIn — bay fades in
- *   returning— bay fades out; wall stays pushed until RETURN_MS
- *   settling — pull-back running; ledger held out until SETTLE_MS
+ *   idle     — wide wall at dolly 1 + ledger on the upper plate
+ *   exiting  — ledger fading (nave only; desktop scroll carries text)
+ *   zooming  — dolly push to close framing, then interior scroll; plates crossfade
+ *   zoomedIn — bay on the lower plate; arch pinned, interior only moves between bays
+ *   returning— bay fades out; camera holds close until RETURN_MS
+ *   settling — dolly pull-back + scroll return; ledger held out until SETTLE_MS
  *
+ * Close framing: `--dolly-in-16-9` (default 1.54). Ladder via ?dolly=1.46|1.54|1.62.
  * Spec: website/docs/receiving-wall-portal-spec.md
  */
 type Beat = "idle" | "exiting" | "zooming" | "zoomedIn" | "returning" | "settling";
@@ -51,14 +55,33 @@ function createSessionId(): string {
   return `rw_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function parseDollyParam(raw: string | null): number {
+  if (!raw) return DOLLY_IN_DEFAULT;
+  const n = Number.parseFloat(raw);
+  if (!Number.isFinite(n)) return DOLLY_IN_DEFAULT;
+  return (DOLLY_IN_LADDER as readonly number[]).includes(n) ? n : DOLLY_IN_DEFAULT;
+}
+
 export function ReceivingWall({
   customAcceptStatus,
 }: {
   /** Server-resolved accept status; required for custom env values in the browser. */
   customAcceptStatus?: string;
 } = {}) {
+  const searchParams = useSearchParams();
+  const dollyIn169 = parseDollyParam(searchParams.get("dolly"));
+
   const prefersReducedMotion = usePrefersReducedMotion();
   const T = prefersReducedMotion ? TIMINGS.reduced : TIMINGS.normal;
+
+  const [isNave, setIsNave] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-aspect-ratio: 6/5)");
+    const sync = () => setIsNave(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   const [data, setData] = useState<WallData | null>(null);
   const [beat, setBeat] = useState<Beat>("idle");
@@ -117,16 +140,24 @@ export function ReceivingWall({
     (source: CaptureSource) => {
       if (beat === "exiting" || beat === "zooming" || beat === "returning") return;
 
+      const beginZoom = () => {
+        clearPending();
+        setOpenRecordId(null);
+        setZoomed(source);
+        setBeat("zooming");
+        after(T.ARRIVE, () => setBeat("zoomedIn"));
+      };
+
       if (beat === "settling") {
         clearPending();
         setOpenRecordId(null);
         setZoomed(null);
+        if (!isNave) {
+          beginZoom();
+          return;
+        }
         setBeat("exiting");
-        after(T.EXIT, () => {
-          setZoomed(source);
-          setBeat("zooming");
-        });
-        after(T.ARRIVE, () => setBeat("zoomedIn"));
+        after(T.EXIT, beginZoom);
         return;
       }
 
@@ -140,16 +171,17 @@ export function ReceivingWall({
         return;
       }
 
+      if (!isNave) {
+        beginZoom();
+        return;
+      }
+
       clearPending();
       setOpenRecordId(null);
       setBeat("exiting");
-      after(T.EXIT, () => {
-        setZoomed(source);
-        setBeat("zooming");
-      });
-      after(T.ARRIVE, () => setBeat("zoomedIn"));
+      after(T.EXIT, beginZoom);
     },
-    [beat, zoomed, after, clearPending, T.EXIT, T.ARRIVE],
+    [beat, zoomed, after, clearPending, T.EXIT, T.ARRIVE, isNave],
   );
 
   const closeZoom = useCallback(() => {
@@ -316,8 +348,7 @@ export function ReceivingWall({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [cliveOpen, openRecordId, beat, closeZoom]);
 
-  const moving = beat === "zooming" || beat === "zoomedIn" || beat === "returning";
-  const wallZoomed = moving && zoomed !== null;
+  const wallZoomed = zoomed !== null;
   const wallClasses = [
     styles.wall,
     wallZoomed ? styles.zoomed : "",
@@ -331,27 +362,247 @@ export function ReceivingWall({
 
   const idleTint = "#e7d1ad";
 
+  const statusNote =
+    data?.source !== "live" && data?.message ? (
+      <p className={styles.note} role="status">
+        {data.source === "derived"
+          ? "Showing live records — source tinting is inferred until the Capture Source field is set."
+          : data.message}
+      </p>
+    ) : null;
+
+  const ledgerSection = (
+    <section
+      className={`${styles.ledger} ${isNave ? ledgerState : styles.contentEnter}`}
+      aria-label="Captured context"
+    >
+      <ul className={styles.sourceList}>
+        {CAPTURE_SOURCE_ORDER.map((source) => {
+          const count = records.filter((r) => r.captureSource === source).length;
+          return (
+            <li key={source}>
+              <button
+                type="button"
+                className={styles.sourceRow}
+                style={{ ["--tint" as string]: CAPTURE_SOURCE_TINT[source] }}
+                onClick={() => openSource(source)}
+                aria-label={`${CAPTURE_SOURCE_LABEL[source]} — ${count} record${count === 1 ? "" : "s"}`}
+              >
+                <span className={styles.sourceIncision}>
+                  <span className={styles.sourceName}>{CAPTURE_SOURCE_LABEL[source]}</span>
+                  <span className={styles.sourceBlurb}>{CAPTURE_SOURCE_BLURB[source]}</span>
+                </span>
+                <span className={styles.sourceCount}>
+                  <span className={styles.sourceCountNum}>{count}</span>
+                  <span className={styles.sourceCountWord}>within</span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      <section className={styles.bench} aria-label="The bench">
+        <div className={styles.benchRule} aria-hidden />
+        <p className={styles.benchKicker}>THE BENCH</p>
+        <p className={styles.benchLine}>He waits here between readings.</p>
+        <button type="button" className={styles.incisedAction} onClick={() => summonClive()}>
+          Sit with Clive →
+        </button>
+      </section>
+    </section>
+  );
+
+  const baySection =
+    zoomed !== null ? (
+      <section
+        key={zoomed}
+        className={`${styles.zoom} ${bayState}`}
+        aria-label={CAPTURE_SOURCE_LABEL[zoomed]}
+      >
+        <div className={styles.zoomHead}>
+          <button type="button" className={styles.backBtn} onClick={closeZoom}>
+            ← The wall
+          </button>
+          <h2 className={styles.zoomTitle}>{CAPTURE_SOURCE_LABEL[zoomed]}</h2>
+          <p className={styles.zoomBlurb}>{CAPTURE_SOURCE_BLURB[zoomed]}</p>
+        </div>
+
+        {zoomedRecords.length === 0 ? (
+          <p className={styles.empty}>Nothing waits in this bay yet.</p>
+        ) : (
+          <ul className={styles.recordList}>
+            {zoomedRecords.map((record) => (
+              <li key={record.recordId}>
+                <button
+                  type="button"
+                  className={`${styles.recordRow} ${
+                    openRecordId === record.recordId ? styles.recordRowOpen : ""
+                  }`}
+                  aria-expanded={openRecordId === record.recordId}
+                  aria-controls={`letter-${record.recordId}`}
+                  onClick={() =>
+                    setOpenRecordId(openRecordId === record.recordId ? null : record.recordId)
+                  }
+                >
+                  <span className={styles.recordIncision}>
+                    <span id={`record-title-${record.recordId}`} className={styles.recordTitle}>
+                      {record.title}
+                    </span>
+                    <span className={styles.recordProvenance}>{record.provenance}</span>
+                  </span>
+                  <span className={styles.recordChevron} aria-hidden>
+                    {openRecordId === record.recordId ? "−" : "+"}
+                  </span>
+                </button>
+
+                {openRecordId === record.recordId && openRecord ? (
+                  <div
+                    id={`letter-${record.recordId}`}
+                    className={styles.letter}
+                    role="region"
+                    aria-labelledby={`record-title-${record.recordId}`}
+                  >
+                    <p className={styles.letterMeta}>
+                      {openRecord.provenance}
+                      {openRecord.status ? ` · ${openRecord.status}` : ""}
+                      {openRecord.brainSlug ? ` · → ${openRecord.brainSlug}` : ""}
+                    </p>
+                    <p className={styles.letterBody}>
+                      {openRecord.canonicalText || openRecord.snippet}
+                    </p>
+                    {acceptState === "success" ? (
+                      <p className={styles.letterStatus} role="status">
+                        Accepted — recorded on the bench with a paper trail.
+                      </p>
+                    ) : null}
+                    {acceptState === "error" && acceptError ? (
+                      <p className={styles.letterError} role="alert">
+                        {acceptError}
+                      </p>
+                    ) : null}
+                    <div className={styles.letterActions}>
+                      <button
+                        type="button"
+                        className={[
+                          styles.acceptBtn,
+                          acceptState === "pending" ? styles.acceptBtnPending : "",
+                          acceptState === "success" ||
+                          isReceivingRecordActioned(openRecord.status, customAcceptStatus)
+                            ? styles.acceptBtnSuccess
+                            : "",
+                        ]
+                          .filter(Boolean)
+                          .join(" ")}
+                        disabled={
+                          acceptState === "pending" ||
+                          isReceivingRecordActioned(openRecord.status, customAcceptStatus) ||
+                          acceptState === "success"
+                        }
+                        aria-busy={acceptState === "pending"}
+                        aria-label={
+                          acceptState === "pending"
+                            ? "Accepting record"
+                            : acceptState === "success" ||
+                                isReceivingRecordActioned(openRecord.status, customAcceptStatus)
+                              ? "Record accepted"
+                              : `Accept ${openRecord.title}`
+                        }
+                        onClick={() => void acceptRecord(openRecord)}
+                      >
+                        {acceptState === "pending"
+                          ? "Accepting…"
+                          : acceptState === "success" ||
+                              isReceivingRecordActioned(openRecord.status, customAcceptStatus)
+                            ? "Accepted"
+                            : "Accept"}
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.incisedAction}
+                        onClick={() => summonClive(openRecord)}
+                      >
+                        Discuss with Clive
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.incisedActionMuted}
+                        onClick={() => setOpenRecordId(null)}
+                        aria-label={`Fold the letter — ${openRecord.title}`}
+                      >
+                        Fold the letter
+                      </button>
+                    </div>
+                  </div>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className={styles.margin}>
+          <p className={styles.marginText}>
+            Clive can read this bay and propose what each record becomes.
+          </p>
+          <button type="button" className={styles.incisedAction} onClick={() => summonClive()}>
+            Sit with Clive →
+          </button>
+        </div>
+      </section>
+    ) : null;
+
   return (
     <main
       className={wallClasses}
       aria-label="The Receiving Wall"
-      style={{ ["--tint" as string]: zoomed ? CAPTURE_SOURCE_TINT[zoomed] : idleTint }}
+      style={{
+        ["--tint" as string]: zoomed ? CAPTURE_SOURCE_TINT[zoomed] : idleTint,
+        ["--dolly-in-16-9" as string]: String(dollyIn169),
+      }}
     >
-      <div className={styles.stage} aria-hidden>
+      <div className={styles.stage}>
         <div className={styles.plate}>
-          <div className={styles.plateBreath}>
-            <video
-              className={styles.stageVideo}
-              autoPlay
-              muted
-              loop
-              playsInline
-              poster="/agent-cast/clives-man/receiving-wall-poster.jpg"
-            >
-              <source src="/agent-cast/clives-man/receiving-wall.mp4" type="video/mp4" />
-            </video>
-            <div className={styles.plateRecess} />
+          <div className={styles.interiorViewport}>
+            <div className={styles.voidFill} aria-hidden />
+            <div className={styles.interiorTrack}>
+              <div className={styles.surfacePlate}>
+                <div className={styles.surfaceBackdrop}>
+                  <div className={styles.plateBreath}>
+                    <video
+                      className={styles.stageVideo}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      poster="/agent-cast/clives-man/receiving-wall-poster.jpg"
+                    >
+                      <source src="/agent-cast/clives-man/receiving-wall.mp4" type="video/mp4" />
+                    </video>
+                    <div className={styles.plateRecess} />
+                  </div>
+                </div>
+                <div className={styles.surfaceContent}>
+                  {statusNote}
+                  {!isNave ? ledgerSection : null}
+                </div>
+              </div>
+              <div className={styles.surfacePlate}>
+                <div className={styles.surfaceBackdrop}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    className={styles.surfaceStill}
+                    src="/agent-cast/clives-man/receiving-wall-zoomed.jpg"
+                    alt=""
+                  />
+                  <div className={styles.plateRecess} />
+                </div>
+                <div className={styles.surfaceContent}>
+                  {!isNave && zoomed !== null ? baySection : null}
+                </div>
+              </div>
+            </div>
           </div>
+          <div className={styles.frameOverlay} />
         </div>
         <div className={styles.stageScrim} />
       </div>
@@ -362,209 +613,12 @@ export function ReceivingWall({
         </Link>
       </nav>
 
-      <div className={styles.aperture}>
-        {data?.source !== "live" && data?.message ? (
-          <p className={styles.note} role="status">
-            {data.source === "derived"
-              ? "Showing live records — source tinting is inferred until the Capture Source field is set."
-              : data.message}
-          </p>
-        ) : null}
-
-        {!zoomed ? (
-          <section className={`${styles.ledger} ${ledgerState}`} aria-label="Captured context">
-            <ul className={styles.sourceList}>
-              {CAPTURE_SOURCE_ORDER.map((source) => {
-                const count = records.filter((r) => r.captureSource === source).length;
-                return (
-                  <li key={source}>
-                    <button
-                      type="button"
-                      className={styles.sourceRow}
-                      style={{ ["--tint" as string]: CAPTURE_SOURCE_TINT[source] }}
-                      onClick={() => openSource(source)}
-                      aria-label={`${CAPTURE_SOURCE_LABEL[source]} — ${count} record${count === 1 ? "" : "s"}`}
-                    >
-                      <span className={styles.sourceIncision}>
-                        <span className={styles.sourceName}>{CAPTURE_SOURCE_LABEL[source]}</span>
-                        <span className={styles.sourceBlurb}>{CAPTURE_SOURCE_BLURB[source]}</span>
-                      </span>
-                      <span className={styles.sourceCount}>
-                        <span className={styles.sourceCountNum}>{count}</span>
-                        <span className={styles.sourceCountWord}>within</span>
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <section className={styles.bench} aria-label="The bench">
-              <div className={styles.benchRule} aria-hidden />
-              <p className={styles.benchKicker}>THE BENCH</p>
-              <p className={styles.benchLine}>He waits here between readings.</p>
-              <button
-                type="button"
-                className={styles.incisedAction}
-                onClick={() => summonClive()}
-              >
-                Sit with Clive →
-              </button>
-            </section>
-          </section>
-        ) : (
-          <section
-            key={zoomed}
-            className={`${styles.zoom} ${bayState}`}
-            aria-label={CAPTURE_SOURCE_LABEL[zoomed]}
-          >
-            <div className={styles.zoomHead}>
-              <button type="button" className={styles.backBtn} onClick={closeZoom}>
-                ← The wall
-              </button>
-              <h2 className={styles.zoomTitle}>{CAPTURE_SOURCE_LABEL[zoomed]}</h2>
-              <p className={styles.zoomBlurb}>{CAPTURE_SOURCE_BLURB[zoomed]}</p>
-            </div>
-
-            {zoomedRecords.length === 0 ? (
-              <p className={styles.empty}>Nothing waits in this bay yet.</p>
-            ) : (
-              <ul className={styles.recordList}>
-                {zoomedRecords.map((record) => (
-                  <li key={record.recordId}>
-                    <button
-                      type="button"
-                      className={`${styles.recordRow} ${
-                        openRecordId === record.recordId ? styles.recordRowOpen : ""
-                      }`}
-                      aria-expanded={openRecordId === record.recordId}
-                      aria-controls={`letter-${record.recordId}`}
-                      onClick={() =>
-                        setOpenRecordId(openRecordId === record.recordId ? null : record.recordId)
-                      }
-                    >
-                      <span className={styles.recordIncision}>
-                        <span id={`record-title-${record.recordId}`} className={styles.recordTitle}>
-                          {record.title}
-                        </span>
-                        <span className={styles.recordProvenance}>{record.provenance}</span>
-                      </span>
-                      <span className={styles.recordChevron} aria-hidden>
-                        {openRecordId === record.recordId ? "−" : "+"}
-                      </span>
-                    </button>
-
-                    {openRecordId === record.recordId && openRecord ? (
-                      <div
-                        id={`letter-${record.recordId}`}
-                        className={styles.letter}
-                        role="region"
-                        aria-labelledby={`record-title-${record.recordId}`}
-                      >
-                        <p className={styles.letterMeta}>
-                          {openRecord.provenance}
-                          {openRecord.status ? ` · ${openRecord.status}` : ""}
-                          {openRecord.brainSlug ? ` · → ${openRecord.brainSlug}` : ""}
-                        </p>
-                        <p className={styles.letterBody}>
-                          {openRecord.canonicalText || openRecord.snippet}
-                        </p>
-                        {acceptState === "success" ? (
-                          <p className={styles.letterStatus} role="status">
-                            Accepted — recorded on the bench with a paper trail.
-                          </p>
-                        ) : null}
-                        {acceptState === "error" && acceptError ? (
-                          <p className={styles.letterError} role="alert">
-                            {acceptError}
-                          </p>
-                        ) : null}
-                        <div className={styles.letterActions}>
-                          <button
-                            type="button"
-                            className={[
-                              styles.acceptBtn,
-                              acceptState === "pending" ? styles.acceptBtnPending : "",
-                              acceptState === "success" ||
-                              isReceivingRecordActioned(
-                                openRecord.status,
-                                customAcceptStatus,
-                              )
-                                ? styles.acceptBtnSuccess
-                                : "",
-                            ]
-                              .filter(Boolean)
-                              .join(" ")}
-                            disabled={
-                              acceptState === "pending" ||
-                              isReceivingRecordActioned(
-                                openRecord.status,
-                                customAcceptStatus,
-                              ) ||
-                              acceptState === "success"
-                            }
-                            aria-busy={acceptState === "pending"}
-                            aria-label={
-                              acceptState === "pending"
-                                ? "Accepting record"
-                                : acceptState === "success" ||
-                                    isReceivingRecordActioned(
-                                      openRecord.status,
-                                      customAcceptStatus,
-                                    )
-                                  ? "Record accepted"
-                                  : `Accept ${openRecord.title}`
-                            }
-                            onClick={() => void acceptRecord(openRecord)}
-                          >
-                            {acceptState === "pending"
-                              ? "Accepting…"
-                              : acceptState === "success" ||
-                                  isReceivingRecordActioned(
-                                    openRecord.status,
-                                    customAcceptStatus,
-                                  )
-                                ? "Accepted"
-                                : "Accept"}
-                          </button>
-                          <button
-                            type="button"
-                            className={styles.incisedAction}
-                            onClick={() => summonClive(openRecord)}
-                          >
-                            Discuss with Clive
-                          </button>
-                          <button
-                            type="button"
-                            className={styles.incisedActionMuted}
-                            onClick={() => setOpenRecordId(null)}
-                            aria-label={`Fold the letter — ${openRecord.title}`}
-                          >
-                            Fold the letter
-                          </button>
-                        </div>
-                      </div>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            <div className={styles.margin}>
-              <p className={styles.marginText}>
-                Clive can read this bay and propose what each record becomes.
-              </p>
-              <button
-                type="button"
-                className={styles.incisedAction}
-                onClick={() => summonClive()}
-              >
-                Sit with Clive →
-              </button>
-            </div>
-          </section>
-        )}
-      </div>
+      {isNave ? (
+        <div className={styles.aperture}>
+          {statusNote}
+          {!zoomed ? ledgerSection : baySection}
+        </div>
+      ) : null}
 
       <div className={styles.varnishTint} aria-hidden />
       <div className={styles.varnishShade} aria-hidden />

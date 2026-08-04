@@ -65,6 +65,23 @@ export const LEDGE_STILL_LIFE = {
 } as const;
 
 /** Palette sampled from the paint — use these, not invented values. */
+/**
+ * Close portal framing — 16:9 bucket. Matthew picks from the ladder; other aspect
+ * buckets scale proportionally (ratios vs the old 1.38 reference in the spec).
+ */
+export const DOLLY_IN_LADDER = [1.46, 1.54, 1.62] as const;
+export const DOLLY_IN_DEFAULT = 1.54;
+/** Legacy spec reference scale — used to derive aspect-ratio bucket multipliers. */
+export const DOLLY_IN_REFERENCE = 1.38;
+export const DOLLY_ASPECT_RATIOS = {
+  /** max-aspect-ratio: 16/9 (taller than 16:9) */
+  tall169: 1.24 / DOLLY_IN_REFERENCE,
+  /** max-aspect-ratio: 3/2 */
+  threeTwo: 1.04 / DOLLY_IN_REFERENCE,
+  /** max-aspect-ratio: 6/5 — nave mode, absolute 1.0 */
+  nave: 1,
+} as const;
+
 export const PALETTE = {
   voidInnerEdge: "#161712",
   voidCentre: "#3b4039",

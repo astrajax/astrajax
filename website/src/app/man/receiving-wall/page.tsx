@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { ReceivingWall } from "@/components/man/ReceivingWall";
 import { Cinzel } from "next/font/google";
 import type { Metadata } from "next";
@@ -25,7 +26,9 @@ export default function ReceivingWallPage() {
 
   return (
     <div className={wallFont.variable}>
-      <ReceivingWall customAcceptStatus={customAcceptStatus} />
+      <Suspense fallback={null}>
+        <ReceivingWall customAcceptStatus={customAcceptStatus} />
+      </Suspense>
     </div>
   );
 }
