@@ -1,0 +1,20 @@
+/*
+ * Standalone-mode dressing — App Shells pack D5.
+ * ONLY @media (display-mode: standalone) hooks and safe-area padding live
+ * here. Pack law: no shell CSS ever touches the globals.css tail.
+ */
+
+@media (display-mode: standalone) {
+  body {
+    /* Respect notch / home-indicator insets when framed as an app. */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* The install invitation is noise inside the installed frame. */
+  [data-install-cta] {
+    display: none;
+  }
+}
