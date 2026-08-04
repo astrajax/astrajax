@@ -15,7 +15,21 @@ import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 import { acceptReceivingWallRecord } from "@/lib/brains/actions/receiving-wall-accept";
 import type { ChatMessage } from "@/lib/clive/types";
+import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 import styles from "./receiving-wall.module.css";
+
+function toCliveRecordPayload(record: ReceivingRecord) {
+  return {
+    recordId: record.recordId,
+    title: record.title,
+    snippet: record.snippet,
+    canonicalText: record.canonicalText,
+    provenance: record.provenance,
+    captureSource: record.captureSource,
+    brainSlug: record.brainSlug,
+    status: record.status,
+  };
+}
 
 type WallData = {
   records: ReceivingRecord[];
@@ -61,6 +75,9 @@ export function ReceivingWall() {
   const [cliveOpen, setCliveOpen] = useState(false);
   const [sessionId] = useState(createSessionId);
   const [chatSeed, setChatSeed] = useState<ChatMessage[]>([]);
+  const [cliveContextRecord, setCliveContextRecord] = useState<ReceivingRecord | null>(
+    null,
+  );
   const [acceptState, setAcceptState] = useState<AcceptState>("idle");
   const [acceptError, setAcceptError] = useState<string | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -176,9 +193,11 @@ export function ReceivingWall() {
   }, [beat, after, clearPending, T.RETURN, T.SETTLE]);
 
   const summonClive = useCallback((contextRecord?: ReceivingRecord | null) => {
-    const recordLine = contextRecord
-      ? `You have "${contextRecord.title}" open — read it properly or tell me what it should become.`
+    const record = contextRecord ?? null;
+    const recordLine = record
+      ? `You have "${record.title}" open — read it properly or tell me what it should become.`
       : "Tell me which record you'd like to read properly, or ask me to walk the bench and propose what each should become.";
+    setCliveContextRecord(record);
     setChatSeed([
       {
         role: "assistant",
@@ -187,6 +206,42 @@ export function ReceivingWall() {
     ]);
     setCliveOpen(true);
   }, []);
+
+  const handleCliveSend = useCallback(
+    async (
+      message: string,
+      history: ChatMessage[],
+      platformTurn?: PlatformTurnContext | null,
+    ) => {
+      const response = await fetch("/api/brains/receiving-wall/clive", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(platformTurn
+            ? {
+                "X-Platform-Session": platformTurn.handle,
+                "X-Platform-Turn-Id": platformTurn.turnId,
+              }
+            : {}),
+        },
+        body: JSON.stringify({
+          message,
+          history,
+          sessionId: platformTurn?.publicSessionId ?? sessionId,
+          openRecord: cliveContextRecord
+            ? toCliveRecordPayload(cliveContextRecord)
+            : null,
+          bayRecords: zoomedRecords.map((row) => toCliveRecordPayload(row)),
+        }),
+      });
+      const data = (await response.json()) as { reply?: string; error?: string };
+      if (!response.ok) {
+        throw new Error(data.error ?? "Clive could not answer right now.");
+      }
+      return data.reply ?? "…";
+    },
+    [cliveContextRecord, sessionId, zoomedRecords],
+  );
 
   const acceptRecord = useCallback(
     async (record: ReceivingRecord) => {
@@ -232,8 +287,10 @@ export function ReceivingWall() {
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        if (cliveOpen) setCliveOpen(false);
-        else if (openRecordId) setOpenRecordId(null);
+        if (cliveOpen) {
+          setCliveOpen(false);
+          setCliveContextRecord(null);
+        } else if (openRecordId) setOpenRecordId(null);
         else if (
           beat === "zoomedIn" ||
           beat === "zooming" ||
@@ -502,7 +559,10 @@ export function ReceivingWall() {
               <button
                 type="button"
                 className={styles.popClose}
-                onClick={() => setCliveOpen(false)}
+                onClick={() => {
+                  setCliveOpen(false);
+                  setCliveContextRecord(null);
+                }}
                 aria-label="Close"
               >
                 ×
@@ -518,6 +578,7 @@ export function ReceivingWall() {
                   "Read the first record properly",
                 ]}
                 initialMessages={chatSeed}
+                onCustomSend={handleCliveSend}
               />
             </div>
           </div>
