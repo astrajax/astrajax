@@ -204,12 +204,19 @@ export function ReceivingWall({
           recordId: acceptedRecordId,
           actor: "Architect",
         });
+        if (!result.ok) {
+          if (openRecordIdRef.current === acceptedRecordId) {
+            setAcceptState("error");
+            setAcceptError(result.error);
+          }
+          return;
+        }
         setData((current) =>
           current
             ? {
                 ...current,
                 records: current.records.map((row) =>
-                  row.recordId === result.record.recordId ? result.record : row,
+                  row.recordId === result.data.record.recordId ? result.data.record : row,
                 ),
               }
             : current,

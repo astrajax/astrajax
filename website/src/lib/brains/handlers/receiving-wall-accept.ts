@@ -12,7 +12,11 @@ import {
   airtableUpdate,
   escapeAirtableString,
 } from "../airtable-rest";
-import { getWorkshopBaseId, getWorkshopWriteToken } from "../config";
+import {
+  getWorkshopBaseId,
+  getWorkshopReadToken,
+  getWorkshopWriteToken,
+} from "../config";
 import {
   isReceivingRecordActioned,
   type ReceivingRecord,
@@ -36,11 +40,29 @@ function resolveActor(actor?: string): string {
   return value || "Architect";
 }
 
-function userFacingAcceptError(cause: unknown, stage: "status" | "approval" | "revert"): Error {
+function userFacingAcceptError(
+  cause: unknown,
+  stage: "lookup" | "status" | "approval" | "revert",
+): Error {
   const detail = cause instanceof Error ? cause.message : String(cause);
   console.error(`Receiving Wall accept failed during ${stage}:`, detail);
 
+  if (stage === "lookup") {
+    if (detail.includes("403")) {
+      return new Error(
+        "This record could not be loaded for approval — the Workshop read token on the server may be missing or lack access. Check BRAIN_WORKSHOP_READ_TOKEN in Vercel.",
+      );
+    }
+    return new Error(
+      "This record could not be loaded for approval. Please refresh the wall and try again.",
+    );
+  }
   if (stage === "status") {
+    if (detail.includes("403")) {
+      return new Error(
+        "This record could not be approved — the Workshop write token lacks permission to update draft status. Check BRAIN_WORKSHOP_WRITE_TOKEN in Vercel.",
+      );
+    }
     return new Error(
       "This record could not be approved — the draft status could not be updated. Nothing was recorded as approved. Please try again in a moment.",
     );
@@ -48,6 +70,11 @@ function userFacingAcceptError(cause: unknown, stage: "status" | "approval" | "r
   if (stage === "revert") {
     return new Error(
       "This record was marked approved but the approval paper trail could not be saved, and we could not undo the status change automatically. Please check the draft in Airtable before trying again.",
+    );
+  }
+  if (detail.includes("403")) {
+    return new Error(
+      "This record could not be approved — the Workshop write token lacks permission to create Approval Decision rows. Check BRAIN_WORKSHOP_WRITE_TOKEN in Vercel.",
     );
   }
   return new Error(
@@ -78,8 +105,9 @@ export async function handleReceivingWallAccept(input: {
   }
 
   const baseId = getWorkshopBaseId();
-  const token = getWorkshopWriteToken();
-  if (!baseId || !token) {
+  const writeToken = getWorkshopWriteToken();
+  const readToken = getWorkshopReadToken();
+  if (!baseId || !writeToken) {
     throw new Error("Workshop write access is not configured on the server.");
   }
 
@@ -87,12 +115,17 @@ export async function handleReceivingWallAccept(input: {
   const acceptedAt = new Date().toISOString();
   const tableId = BRAIN_WORKSHOP_TABLES.draftBrainTruth;
 
-  const existing = await airtableFindOne(
-    baseId,
-    tableId,
-    token,
-    `RECORD_ID()='${escapeAirtableString(recordId)}'`,
-  );
+  let existing;
+  try {
+    existing = await airtableFindOne(
+      baseId,
+      tableId,
+      readToken ?? writeToken,
+      `RECORD_ID()='${escapeAirtableString(recordId)}'`,
+    );
+  } catch (cause) {
+    throw userFacingAcceptError(cause, "lookup");
+  }
   if (!existing) {
     throw new Error(`Draft record not found: ${recordId}`);
   }
@@ -113,7 +146,7 @@ export async function handleReceivingWallAccept(input: {
 
   let updated;
   try {
-    updated = await airtableUpdate(baseId, tableId, token, recordId, {
+    updated = await airtableUpdate(baseId, tableId, writeToken, recordId, {
       Status: targetStatus,
     });
   } catch (cause) {
@@ -121,7 +154,7 @@ export async function handleReceivingWallAccept(input: {
   }
 
   try {
-    await airtableCreate(baseId, BRAIN_WORKSHOP_TABLES.approvalDecisions, token, {
+    await airtableCreate(baseId, BRAIN_WORKSHOP_TABLES.approvalDecisions, writeToken, {
       "Decision ID": approvalDecisionId,
       "Decision Summary": `Accepted draft truth: ${title}`,
       Approver: actor,
@@ -135,7 +168,7 @@ export async function handleReceivingWallAccept(input: {
     });
   } catch (cause) {
     try {
-      await airtableUpdate(baseId, tableId, token, recordId, {
+      await airtableUpdate(baseId, tableId, writeToken, recordId, {
         Status: priorStatus,
       });
     } catch (revertCause) {
