@@ -2,6 +2,8 @@ const links = [
   { href: "/#method", label: "Loop" },
   { href: "/#citizen-builder", label: "Citizen Builder" },
   { href: "/#start", label: "Contact" },
+  // Open call 4 copy — drafted for Matthew's approval.
+  { href: "/install", label: "Keep the study on your desk" },
 ];
 
 export function Footer() {
