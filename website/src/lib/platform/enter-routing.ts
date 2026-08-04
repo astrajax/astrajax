@@ -66,15 +66,18 @@ export function resolveEnterDestination(input: EnterInput): EnterDestination {
   }
 
   // 3. Verified identity + incomplete setup → resume the Journey exactly
-  // where the server says the operator is.
+  // where the server says the operator is. A server-authored resume URL for
+  // the current chapter wins over the generic path — it carries the chapter
+  // surface's own step grammar (e.g. chapter 1's book param). Still a
+  // server fact: it was written by /api/journey/progress, never the device.
   if (input.state.journey) {
     const { chapter, step } = input.state.journey;
-    return {
-      kind: "journey",
-      path: journeyPath(chapter, step),
-      chapter,
-      step,
-    };
+    const resume = input.state.lastSafeDestination;
+    const path =
+      resume?.startsWith(`/chapter-${chapter}`) === true
+        ? resume
+        : journeyPath(chapter, step);
+    return { kind: "journey", path, chapter, step };
   }
 
   // Journey null but household not minimally usable and not contradictory:

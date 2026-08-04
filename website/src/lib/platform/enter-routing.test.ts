@@ -125,6 +125,22 @@ describe("guardrails", () => {
     expect(dest).toEqual({ kind: "visitor", path: "/" });
   });
 
+  it("a server-authored resume URL for the current chapter wins over the generic path", () => {
+    const state = fresh();
+    state.journey = { chapter: 1, step: "draft-truths", completedChapters: [] };
+    state.lastSafeDestination = "/chapter-1?book=the-ledger&resume=1";
+    const dest = resolveEnterDestination({ identity, state, showroomRequested: false });
+    expect(dest.path).toBe("/chapter-1?book=the-ledger&resume=1");
+  });
+
+  it("a stale resume URL from another chapter is ignored", () => {
+    const state = fresh();
+    state.journey = { chapter: 2, step: "mine-sources", completedChapters: [1] };
+    state.lastSafeDestination = "/chapter-1?book=the-ledger&resume=1";
+    const dest = resolveEnterDestination({ identity, state, showroomRequested: false });
+    expect(dest.path).toBe("/chapter-2?step=mine-sources");
+  });
+
   it("cleared-cookie / new-device resume: same server state → same destination", () => {
     const state = fresh();
     state.journey = { chapter: 3, step: "meet-doc", completedChapters: [1, 2] };
