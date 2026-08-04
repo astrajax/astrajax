@@ -2,6 +2,11 @@
    Geometry from lib/man/receiving-wall-manifest.ts (§0).
    Build spec: website/docs/receiving-wall-portal-spec.md */
 
+@property --scroll-y {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 0%;
+}
 @property --dolly {
   syntax: "<number>";
   inherits: true;
@@ -28,26 +33,21 @@
   --plate-w: max(100vw, calc(100svh * 16 / 9));
   --plate-h: calc(var(--plate-w) * 9 / 16);
 
-  /* --- camera (§2.1, manifest: lib/man/receiving-wall-manifest.ts) --- */
+  /* --- camera + scroll (push-in to enter, locked arch scroll inside) --- */
   --dolly: 1;
   --dolly-y: 0px;
-  --dolly-ms: 1500ms;
-  --dolly-ease: cubic-bezier(0.30, 0.10, 0.30, 1);
-  --dolly-ease-out: cubic-bezier(0.40, 0.00, 0.20, 1);
-  --dolly-in: 1.38;
+  --dolly-in-16-9: 1.54;
+  --dolly-in: var(--dolly-in-16-9);
   --dolly-in-y: 2.5vh;
+  --scroll-y: 0%;
+  --scroll-ms: 1500ms;
+  --scroll-ease: cubic-bezier(0.30, 0.10, 0.30, 1);
+  --scroll-ease-out: cubic-bezier(0.40, 0.00, 0.20, 1);
+  --scroll-delay: 0ms;
 
-  /* --- plate on screen after dolly --- */
+  /* --- aperture (manifest APERTURE.safeBox) --- */
   --wall-w: calc(var(--plate-w) * var(--dolly));
-  --wall-h: calc(var(--plate-h) * var(--dolly));
-
-  /* --- aperture (manifest APERTURE.safeBox / openingWidth) --- */
-  --ap-w: calc(var(--wall-w) * 0.62);
   --ap-safe-w: calc(var(--wall-w) * 0.52);
-  --ap-safe-t: calc(50svh + var(--dolly-y) - var(--wall-h) * 0.28);
-  --ap-safe-b: calc(50svh + var(--dolly-y) + var(--wall-h) * 0.36);
-
-  /* type scale deliberately omits --dolly */
   --ap-base-w: calc(var(--plate-w) * 0.52);
 
   /* Keyboard focus — warm gold, high contrast on dark plaster */
@@ -55,39 +55,52 @@
   --focus-glow: rgba(232, 201, 122, 0.55);
 }
 
+.wall.zoomed {
+  --dolly: var(--dolly-in);
+  --dolly-y: var(--dolly-in-y);
+  --scroll-y: -50%;
+  --scroll-delay: 380ms;
+}
+
+.wall.settling {
+  --dolly: 1;
+  --dolly-y: 0px;
+  --scroll-y: 0%;
+  --scroll-delay: 0ms;
+}
+
+.wall.settling .plate {
+  transition-duration: 900ms;
+  transition-timing-function: var(--scroll-ease-out);
+}
+
+.wall.settling .interiorTrack {
+  transition-duration: 900ms;
+  transition-timing-function: var(--scroll-ease-out);
+}
+
+/* Aspect buckets — scale proportionally from --dolly-in-16-9 (spec §1.2 ratios). */
 @media (max-aspect-ratio: 16/9) {
   .wall {
-    --dolly-in: 1.24;
-    --dolly-in-y: 2.5vh;
+    --dolly-in: calc(var(--dolly-in-16-9) * 0.899);
   }
 }
-/* 16:9 and wider share plate_w = 100vw — 1.38 hits 13.8%–86.2%; must win over max-aspect 16/9 at equality */
 @media (min-aspect-ratio: 16/9) {
   .wall {
-    --dolly-in: 1.38;
+    --dolly-in: var(--dolly-in-16-9);
   }
 }
 @media (max-aspect-ratio: 3/2) {
   .wall {
-    --dolly-in: 1.04;
+    --dolly-in: calc(var(--dolly-in-16-9) * 0.754);
     --dolly-in-y: 3vh;
   }
 }
 @media (max-aspect-ratio: 6/5) {
   .wall {
-    --dolly-in: 1.00;
+    --dolly-in: 1;
     --dolly-in-y: 0;
   }
-}
-
-.wall.zoomed {
-  --dolly: var(--dolly-in);
-  --dolly-y: var(--dolly-in-y);
-}
-
-.wall.settling .plate {
-  transition-duration: 900ms;
-  transition-timing-function: var(--dolly-ease-out);
 }
 
 /* §3.1 — no z-index on content wrappers (blend isolation bug) */
@@ -115,19 +128,107 @@
   top: 50%;
   width: var(--plate-w);
   aspect-ratio: 16 / 9;
-  transform:
-    translate(-50%, -50%)
-    translateY(var(--dolly-y))
-    scale(var(--dolly));
+  transform: translate(-50%, -50%) translateY(var(--dolly-y)) scale(var(--dolly));
   transform-origin: 50% 50%;
-  transition: transform var(--dolly-ms) var(--dolly-ease);
+  transition: transform var(--scroll-ms) var(--scroll-ease);
   will-change: transform;
+}
+
+.interiorViewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.voidFill {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 42% 48% at 50% 52%,
+    #3b4039 0%,
+    #22211d 42%,
+    #161712 100%
+  );
+}
+
+.interiorTrack {
+  display: flex;
+  flex-direction: column;
+  height: 204%;
+  transform: translateY(var(--scroll-y));
+  transition: transform var(--scroll-ms) var(--scroll-ease) var(--scroll-delay);
+  will-change: transform;
+}
+
+.surfacePlate {
+  position: relative;
+  flex: 0 0 52%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.surfaceBackdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 420ms ease;
 }
 
 .plateBreath {
   position: absolute;
   inset: 0;
   animation: wallBreath 22s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate;
+}
+
+.surfaceStill {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+  /*
+   * Colour-match to idle void — sampled void_centre idle 45/46/40 vs zoom 51/59/40.
+   * brightness ×0.90, desaturate, slight warm hue-rotate pulls green down toward idle.
+   */
+  filter: brightness(0.86) saturate(0.76) hue-rotate(-14deg);
+}
+
+/* Continuous surface — crossfade plates during entry so the void never goes blank. */
+.surfacePlate:first-child .surfaceBackdrop {
+  opacity: 1;
+}
+
+.surfacePlate:last-child .surfaceBackdrop {
+  opacity: 0;
+  transition: opacity 520ms ease 240ms;
+}
+
+.wall.zoomed .surfacePlate:first-child .surfaceBackdrop {
+  opacity: 0;
+  transition: opacity 560ms ease 720ms;
+}
+
+.wall.zoomed .surfacePlate:last-child .surfaceBackdrop {
+  opacity: 1;
+  transition: opacity 640ms ease 120ms;
+}
+
+.wall.settling .surfacePlate:first-child .surfaceBackdrop {
+  opacity: 1;
+  transition: opacity 320ms ease 120ms;
+}
+
+.wall.settling .surfacePlate:last-child .surfaceBackdrop {
+  opacity: 0;
+  transition: opacity 280ms ease;
+}
+
+.frameOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: url("/agent-cast/clives-man/receiving-wall-frame.png") center / 100% 100% no-repeat;
 }
 
 @keyframes wallBreath {
@@ -165,17 +266,46 @@
   pointer-events: none;
 }
 
-/* ---- Aperture content box (§2) ---- */
+/* ---- Surface content — rides the scrolling plate (§2) ---- */
+.surfaceContent {
+  position: absolute;
+  left: 50%;
+  translate: -50% 0;
+  width: min(var(--ap-safe-w), calc(100vw - 3rem), 68rem);
+  top: 22%;
+  bottom: 14%;
+  pointer-events: auto;
+
+  display: flex;
+  flex-direction: column;
+  align-content: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  z-index: 1;
+
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 3.5rem,
+    #000 calc(100% - 3.5rem),
+    transparent 100%
+  );
+}
+
+.surfaceContent::-webkit-scrollbar {
+  display: none;
+}
+
+/* Nave / mobile — fixed aperture outside the scroll plate */
 .aperture {
   position: fixed;
   left: 50%;
   translate: -50% 0;
   width: min(var(--ap-safe-w), calc(100vw - 3rem), 68rem);
-  top: max(var(--ap-safe-t), 4svh);
-  bottom: max(calc(100svh - var(--ap-safe-b)), 4svh);
+  top: max(22%, 4svh);
+  bottom: max(14%, 4svh);
 
-  /* Flex, not 1fr/auto grid — a leading .note + main section as grid siblings
-     parked the bay in row 2 at the bottom (void above, mask-clipped margin below). */
   display: flex;
   flex-direction: column;
   align-content: flex-start;
@@ -196,6 +326,12 @@
   display: none;
 }
 
+@media (min-aspect-ratio: 6/5) {
+  .aperture {
+    display: none;
+  }
+}
+
 /* ---- Content beats ---- */
 .ledger,
 .zoom {
@@ -204,12 +340,10 @@
 }
 .contentExit {
   opacity: 0;
-  transform: translateY(-10px);
   pointer-events: none;
 }
 .contentEnter {
   opacity: 1;
-  transform: translateY(0);
 }
 
 /* ---- Exit nav ---- */
@@ -878,6 +1012,12 @@
     aspect-ratio: auto;
   }
 
+  .interiorViewport,
+  .interiorTrack,
+  .frameOverlay {
+    display: none;
+  }
+
   .stageVideo {
     object-fit: cover;
     object-position: 50% 8%;
@@ -937,26 +1077,45 @@
   .stageVideo {
     display: none;
   }
-  .plate {
-    background: url("/agent-cast/clives-man/receiving-wall-poster.jpg") center / cover no-repeat;
-    transition: none;
-    will-change: auto;
-  }
   .plateBreath {
     animation: none;
   }
+  .plate {
+    transition: none;
+    will-change: auto;
+  }
+  .interiorTrack {
+    transition: none;
+    will-change: auto;
+  }
   .wall,
-  .wall.zoomed {
+  .wall.zoomed,
+  .wall.settling {
     --dolly: 1;
     --dolly-y: 0px;
+    --scroll-delay: 0ms;
+  }
+  .wall.zoomed .surfacePlate:first-child {
+    display: none;
+  }
+  .wall.zoomed .interiorTrack {
+    transform: none;
+  }
+  .wall:not(.zoomed) .surfacePlate:last-child {
+    display: none;
+  }
+  .surfacePlate:last-child .surfaceBackdrop,
+  .wall.zoomed .surfacePlate:last-child .surfaceBackdrop {
+    opacity: 1;
+    transition: none;
+  }
+  .wall.zoomed .surfacePlate:first-child .surfaceBackdrop {
+    opacity: 0;
+    transition: none;
   }
   .ledger,
   .zoom {
     transition: opacity 0.2s ease;
-  }
-  .contentExit,
-  .contentEnter {
-    transform: none;
   }
   .varnishTint {
     transition: none;
