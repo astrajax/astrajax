@@ -14,3 +14,6 @@ hyperagent/logs/
 # Personal/admin PDFs (do not commit)
 IHT435_*.pdf
 .vercel
+
+# Visual-iteration scratch screenshots (kept on disk, out of git)
+website/e2e/artifacts/

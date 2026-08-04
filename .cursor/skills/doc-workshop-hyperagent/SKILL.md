@@ -61,17 +61,27 @@ When the build is same character, both runtimes (the Kathryn and Lazlo pattern):
 ## Validation gate
 After the generator runs, run the export check (recommended hyperagent/scripts/validate_hyperagent_export.py <export.json>). It must confirm: (1) wrapper is { version:1, type:"agent"|"skill", data:{...} }; (2) toolSettings and allowedIntegrations parse as JSON strings; (3) all four autoSave* flags are false (or the brief logged an exception); (4) every embedded skill carries the eleven required fields; (5) skillScope="selected", skillLoadMode="preload" for governed agents. If the check script is not present yet, perform the same checks by reading the file and say in the report that an automated validator is still owed.
 
-## Deploy handoff (Matthew manual)
-After Phase B, include in the summary: (1) First-time import (default): import agent JSON only when the export embeds full skill objects in skills[]. Hyperagent creates and attaches the skill(s) in one step. (2) Separate skill JSON: still ship it in the repo, but import separately only when the skill is shared across agents, has credentials or scripts to configure first, or it is a skill-only update. (3) After import: credentials on skill (if any) -> webhook in UI (if needed) -> Agent Environments URL row -> Slack/repo attach. (4) Golden rule: do not delete the Hyperagent agent unless retiring it (playbook). (5) Smoke test script paths when relevant (hyperagent/scripts/test_*). You never perform import or deploy.
+## Deploy handoff (Matthew manual) — Lane B
+Contract: `docs/initiatives/hyperagent-handoff-contract.md` (Lane A = on-platform Executor; Lane B = repo → UI import).
+
+**Phase B is incomplete** until you run:
+
+```bash
+python3 hyperagent/scripts/handoff_hyperagent_export.py <export.json>
+```
+
+That script validates, then prints the handoff card + ordered checklist. Paste the card into the Phase B summary.
+
+Also include: (1) First-time import (default): import agent JSON only when the export embeds full skill objects in skills[]. (2) Separate skill JSON only when shared, credentialed, or skill-only update. (3) After import: credentials on skill (if any) -> webhook in UI (if needed) -> Agent Environments / Slack/repo attach. (4) Golden rule: do not delete the Hyperagent agent unless retiring it (playbook). (5) Smoke test script paths when relevant. You never perform import or deploy.
 
 ## Phase rules
-Phase A — Confirm brief (default): read-only. List Hyperagent artifacts, governed defaults, eval/rubric notes, and the import handoff text (agent-only vs separate skill JSON). Phase B — Build: create/update files; run the generator; run the validation gate; report paths, governed-default confirmation, and Matthew's manual steps.
+Phase A — Confirm brief (default): read-only. List Hyperagent artifacts, governed defaults, eval/rubric notes, lane (A vs B), and the import handoff text (agent-only vs separate skill JSON). Phase B — Build: create/update files; run the generator; run `handoff_hyperagent_export.py` (validation + card); report paths, governed-default confirmation, handoff card, and Matthew's manual steps.
 
 ## Must not
 Design the agent or red-team the pack. Hand-edit export JSON instead of fixing the generator. Import JSON to Hyperagent, create webhooks, or store credentials in git. Commit, push, or delete live Hyperagent agents. Copy legacy DS Factory broad browser/Exa/sandbox defaults into governed Clive agents without brief justification.
 
 ## Phase B completion checklist
-1. Generator + exports written at contracted paths. 2. Generator run succeeded. 3. Validation gate passed (or owed-validator note included). 4. Summary: files changed, governed defaults confirmed, import guidance, playbook pointers, what Matthew does in the Hyperagent UI. 5. Clive's Man handoff — Task clive-man with export/deploy decisions (see doc skill). 6. Stop. Do not commit.
+1. Generator + exports written at contracted paths. 2. Generator run succeeded. 3. `handoff_hyperagent_export.py` passed (validation + handoff card in summary). 4. Summary: files changed, governed defaults confirmed, handoff card, playbook pointers, what Matthew does in the Hyperagent UI. 5. Clive's Man handoff — Task clive-man with export/deploy decisions (see doc skill). 6. Stop. Do not commit.
 
 ## Risk tier
 Medium (repo writes). Deploy remains High — human only.

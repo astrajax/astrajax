@@ -2,7 +2,7 @@
 
 **Status:** Replicable schema reference (context-agnostic)  
 **Owner:** Matthew  
-**Last updated:** 29 June 2026 (Context Health Phase 2 schema pending)  
+**Last updated:** 29 June 2026 (Context Health Phase 2 schema pending); Operator State table added 4 Aug 2026  
 **Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance), [`chapter1-context-structure.md`](./chapter1-context-structure.md) (canonical brain themes + categories), [`doc-brain-base-builder.md`](./doc-brain-base-builder.md) (scaffold/extend bases via Doc Brain Base Builder)
 
 Any agent (especially **@doc-brain-base-builder**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
@@ -149,6 +149,52 @@ Primary field: **Entry ID** (singleLineText). App-generated.
 | Previous Hash | singleLineText | Hash chain |
 | Entry Hash | singleLineText | Hash chain |
 | Notes | multilineText | Never secrets |
+
+### Table: Implementation Jobs
+
+Primary field: **Job ID** (singleLineText). Live table `tblkNN9hqnPPAseMl` (2 Aug 2026). Architecture §9 thin slice — see [`build-velocity-tracks.md`](./build-velocity-tracks.md).
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Job ID | singleLineText | Primary |
+| Approved Brief ID | singleLineText | Required — no orphan worker runs |
+| Action Type | singleSelect | hyperagent_export_regen, cursor_repo_build, other |
+| Status | singleSelect | Approved, Running, Draft ready, Failed, Needs review |
+| Idempotency Key | singleLineText | brief+action; refuse duplicate Draft ready |
+| Prompt Hash | singleLineText | |
+| Execution Prompt | multilineText | No secrets |
+| Generator Path | singleLineText | Repo-relative for regen jobs |
+| Artifact Paths | multilineText | Draft outputs |
+| Diff Summary | multilineText | |
+| Error | multilineText | |
+| Executing Agent | singleLineText | |
+| Approved By | singleLineText | |
+| Change Log Entry ID | singleLineText | String link to Change Log |
+| Notes | multilineText | Never secrets |
+
+Worker: `scripts/process_implementation_job.py`. Owner: Cursor Doc dispatch + worker (not HA On-Platform Doc).
+
+### Table: Operator State
+
+Primary field: **Operator ID** (singleLineText). Live table `tblnomux0JXU29HhP` (4 Aug 2026, Phase 1 IA build, PR #64). One record per operator; the state contract's six authoritative facts (`website/src/lib/platform/operator-state.ts`).
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Operator ID | singleLineText | Primary. e.g. `op_…` |
+| Email | singleLineText | |
+| Role | singleSelect | `owner`, `member`, `internal` — Fact 5 (permissions). `internal` unlocks back-of-house (`/dispatch`, `/deploy`, `/fleet`, `/command`) |
+| Journey Chapter | number | 1, 2, or 3. Null once journey is retired — Fact 1 |
+| Journey Step | singleLineText | Free-form step id owned by the chapter's own step machine. Null with Journey Chapter |
+| Completed Chapters | multilineText | JSON array of chapter numbers |
+| Owned Brain Slugs | multilineText | JSON array of brain slugs — Fact 2 |
+| Configured Functions | multilineText | JSON array of household function ids (`study`, `court`, `brain-vault`, `receiving-wall`, `workshop`, `lodge`, `physician`, `coach`) — Fact 3 |
+| Introduced Members | multilineText | JSON array of Court role ids the curriculum has introduced — Fact 4 |
+| Last Safe Destination | singleLineText | Server-authored resume URL. **Never client-supplied** — written only by `/api/journey/progress` and sign-in. Fact 6 |
+| Updated At | dateTime | ISO 8601 |
+
+**Field-name convention departure:** unlike other Registry/Workshop/Trusted tables, this table's Airtable backend (`website/src/lib/platform/operator-store/airtable-store.ts`, `OPERATOR_STATE_FIELDS`) addresses columns by **field name string**, not a `BRAIN_REGISTRY_*_FIELDS` field-ID map in `airtable-ids.ts`. Only the table ID (`BRAIN_REGISTRY_TABLES.operatorState`) is exported. Keep this doc in sync with `airtable-store.ts` if fields change — that file, not `airtable-ids.ts`, is the field-name source of truth for this table.
+
+**Backend fallback:** `useMemoryOperatorStore()` selects the in-memory store instead of Airtable when `OPERATOR_STATE_TABLE_ID`/`BRAIN_REGISTRY_WRITE_TOKEN` (or `_READ_TOKEN`) are unset, or when `OPERATOR_STATE_USE_MEMORY=true`. Intentional graceful degradation, not a failure mode — same convention as other brains config fallbacks.
 
 ---
 
@@ -527,6 +573,8 @@ Empty Minions table is valid (Pam may have zero minions). Shape must be consiste
 **Live Chapter 1 Phase B migration (completed 29 Jun 2026):** Registry Brains `Brain Type` + `Scope Area`; Workshop User Brains identity + Operator Development fields; Draft/Trusted `Brain Theme` + `Horizon`. Field IDs in `airtable-ids.ts`. Manual UI: universal Category/Scope select options + LEGACY Scope field delete — see Trusted Brain Truth section above.
 
 **Live Chapter 1 Source Documents (completed 29 Jun 2026):** Workshop **Source Documents** table for Clive's Man attachment mining. Field IDs in `BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS`. Manual UI: convert **Attachment Summary** to Airtable AI summarise field.
+
+**Live Operator State table (completed 4 Aug 2026, PR #64):** Registry **Operator State** table for the Phase 1 IA state contract. Field names (not a field-ID map) in `operator-store/airtable-store.ts`. See table section above.
 
 ---
 

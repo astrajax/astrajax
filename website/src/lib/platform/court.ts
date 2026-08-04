@@ -42,15 +42,25 @@ export const BENCH_SEATS = 5;
 /** Court miniatures — oval-masked layers seated inside the painted gilt
  * frames (the artwork ships with blank frames; the cast are layers). */
 export const COURT_PORTRAIT_SRC: Record<CourtAttendantId, string> = {
-  clive: "/agent-cast/court/portraits/clive.jpg",
-  pam: "/agent-cast/court/portraits/pam.jpg",
-  doc: "/agent-cast/court/portraits/doc.jpg",
-  lazlo: "/agent-cast/court/portraits/lazlo.jpg",
-  "clive-man": "/agent-cast/court/portraits/clive-man.jpg",
-  kate: "/agent-cast/court/portraits/kate.jpg",
-  halvard: "/agent-cast/court/portraits/halvard.jpg",
-  milo: "/agent-cast/court/portraits/milo.jpg",
+  clive: "/agent-cast/court/portraits/clive.webp",
+  pam: "/agent-cast/court/portraits/pam.webp",
+  doc: "/agent-cast/court/portraits/doc.webp",
+  lazlo: "/agent-cast/court/portraits/lazlo.webp",
+  "clive-man": "/agent-cast/court/portraits/clive-man.webp",
+  kate: "/agent-cast/court/portraits/kate.webp",
+  halvard: "/agent-cast/court/portraits/halvard.webp",
+  milo: "/agent-cast/court/portraits/milo.webp",
 };
+
+/** The Judge's breathing loop and its frame-zero poster. Two encodes of
+ * the same 8s loop: VP9 WebM first, H.264 MP4 for older Safari, which
+ * cannot play VP9 — without the pair he simply stops breathing there.
+ * The poster doubles as the reduced-motion still. */
+export const COURT_JUDGE_MEDIA = {
+  webm: "/agent-cast/court/court-judge.webm",
+  mp4: "/agent-cast/court/court-judge.mp4",
+  poster: "/agent-cast/court/court-judge-poster.png",
+} as const;
 
 export interface CourtRole {
   id: CourtRoleId;
@@ -141,30 +151,27 @@ export interface CourtBookSeat extends CourtBookPosition {
 export const COURT_BOOK_LAYOUT = {
   /** The five attendant seats, top of the page downward. Per-seat boxes —
    * the frames are hand-painted and each opening differs slightly.
-   * Measured programmatically (hue-separated interior masks; the gilt's
-   * red shadows match the interiors in luminance, so the separator is
-   * r−g, not darkness), then eye-tuned on 3× crops. The openings are
-   * nearly ROUND in true pixels (~0.99 w/h), not the 0.83 ovals of the
-   * first pass. Seats carry the TRUE painted openings; layers overdraw
-   * them by portraitOvershoot, and the frame-ring windows lay the painting
-   * back OVER the portrait rims — the frame hides the seam, as frames
-   * always have. */
+   * Widths are the painted openings as they read on the stage (taller
+   * ovals, not circles) — an earlier pass treated them as nearly round
+   * and the portraits spilled over the left and right gilt. Heights held.
+   * Layers overdraw by portraitOvershoot; the frame-ring windows lay the
+   * painting back OVER the portrait rims — the frame hides the seam. */
   seats: [
-    { x: 10.78, y: 12.8, width: 5.05, height: 9.1, slotY: 13.1 },
-    { x: 11.05, y: 27.41, width: 5.0, height: 9.15, slotY: 27.59 },
-    { x: 10.83, y: 41.76, width: 5.05, height: 9.0, slotY: 41.81 },
-    { x: 10.94, y: 56.02, width: 5.0, height: 9.0, slotY: 56.06 },
-    { x: 11.05, y: 70.37, width: 4.95, height: 8.85, slotY: 70.32 },
+    { x: 10.78, y: 12.8, width: 4.44, height: 9.1, slotY: 13.1 },
+    { x: 11.05, y: 27.41, width: 4.4, height: 9.15, slotY: 27.59 },
+    { x: 10.83, y: 41.76, width: 4.44, height: 9.0, slotY: 41.81 },
+    { x: 10.94, y: 56.02, width: 4.4, height: 9.0, slotY: 56.06 },
+    { x: 11.05, y: 70.37, width: 4.36, height: 8.85, slotY: 70.32 },
   ] as CourtBookSeat[],
   /** The Judge's frame — fixed, never seated by choice. */
-  judgeSeat: { x: 11.05, y: 84.62, width: 4.9, height: 8.95, slotY: 84.8 } as CourtBookSeat,
+  judgeSeat: { x: 11.05, y: 84.62, width: 4.31, height: 8.95, slotY: 84.8 } as CourtBookSeat,
   /** How far a portrait layer overdraws its opening (each side), giving
    * the frame-ring window a rim to cover. */
-  portraitOvershoot: { width: 0.35, height: 0.4 },
+  portraitOvershoot: { width: 0.31, height: 0.4 },
   /** A frame's full gilt extent — the ring-window box, and the hotspot. */
   portraitHotspot: { width: 7.6, height: 13.4 },
   /** The breathing-judge video layer: masked to its own interior oval and
-   * sized so that oval fills the painted opening (video is 528×720; its
+   * sized so that oval fills the painted opening (video is 176×240; its
    * interior occupies ~60%×65% of the clip). */
   judgeVideo: { width: 5.7, height: 13.8 },
   /** A verdict strip: x/width/height shared across the five bench seats;

@@ -41,6 +41,8 @@ Active initiatives that **point at** the canonical docs — they never copy them
 - `tara-lee-visual-brief.md` — visual brief for the founding cast.
 - `character-provenance.md` — character rationale, life goals, and design decisions (founding cast).
 - `doc-minions.md` — Doc (`@doc`) triages build work to minions (Airtable, Vercel).
+- `build-velocity-tracks.md` — one-track factory roadmap (Doc twins, tiers, handoff, job queue, generator, digests).
+- `hyperagent-handoff-contract.md` — HyperAgent import/on-platform handoff lanes.
 
 ## Archive (`docs/archive/`)
 

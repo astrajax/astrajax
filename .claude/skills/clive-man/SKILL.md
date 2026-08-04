@@ -2,16 +2,18 @@
 name: clive-man
 description: >-
   Sync artifact for Clive's Man operational spec. Canonical technical
-  responsibilities live in the Clive's Man Agent base Persona Config
-  (Operational v0.2, rec6b8PB3HY3yv0Wq). Orchestrates Composer minions through Trinity.
+  responsibilities live in Persona Config Operational v0.3 (rect04amPJAZrWCi4).
+  Generated sync: agents/registry/cursor/clive/clive-man/persona-config.generated.md
 ---
 
 # clive-man
 
 > **Canonical source:** Clive's Man Agent base (`appZ71CSKBlhnb4hR`) → **Persona Config**
-> → `Operational v0.2` (`rec6b8PB3HY3yv0Wq`). System prompt, rules, and output format
-> are authored there per `docs/business/architecture.md` Agent Authoring Surface.
-> This SKILL file is a repo sync until the generator emits it from Airtable.
+> → `Operational v0.3` (`rect04amPJAZrWCi4`, Approved). v0.2 (`rec6b8PB3HY3yv0Wq`) is Retired.
+> Generated Airtable sync (do not hand-edit):
+> `agents/registry/cursor/clive/clive-man/persona-config.generated.md`
+> (`python3 scripts/generate_persona_config_sync.py --agent clive-man`).
+> This SKILL remains the Cursor operating contract; Persona Config owns role text.
 
 ## Purpose
 
@@ -176,11 +178,14 @@ Canonical scope: `docs/initiatives/brain-upkeep.md`.
 
 Use when Workshop **Source Documents** have **Mine Status = Summarised** and Matthew wants draft brain rows from uploaded material. Canonical scope: `docs/initiatives/source-document-mining.md`.
 
-1. **Proposer** — Structure draft candidates from **Attachment Summary** only (never Attachment). Map to V1 categories: Definition, Knowledge, Open Questions. Route gaps to Open Questions.
-2. **Challenger** — Verify Pam gates: summary-only input, eligible Mine Status, category ceiling, Workshop-only writes, no Trusted path.
-3. **Executor** — `POST /api/brains/source-documents/mine` (or handler in tests). Creates Draft Brain Truth + sets source **Proposed** + **Linked Drafts**. Use `dryRun: true` to preview without writes.
+**Default: digest, not per-row gates** (Build velocity Track 5 / Household Conduct Green). Routine mine batches → one digest of Draft proposals for Matthew. Escalate only when Challenger flags sensitivity, category overflow, empty/low-quality summary, or Red stakes.
 
-**Hard stops:** No auto-mine on upload. No Attachment fetch in V1 agent loop. No Trusted Brain writes. Skipped and Proposed rows are not re-mined.
+1. **Proposer** — Structure draft candidates from **Attachment Summary** only (never Attachment). Map to V1 categories: Definition, Knowledge, Open Questions. Route gaps to Open Questions.
+2. **Challenger** — Verify Pam gates: summary-only input, eligible Mine Status, category ceiling, Workshop-only writes, no Trusted path. Flag escalations; do not invent per-row approval theatre for routine Green rows.
+3. **Executor** — `POST /api/brains/source-documents/mine` (or handler in tests). Creates Draft Brain Truth + sets source **Proposed** + **Linked Drafts**. Use `dryRun: true` to preview without writes.
+4. **Digest** — Return a morning-pack style digest: count proposed, sample titles, escalations only, next human move (review Drafts / promote later). Not one approval ask per draft.
+
+**Hard stops:** No auto-mine on upload. No Attachment fetch in V1 agent loop. No Trusted Brain writes. Skipped and Proposed rows are not re-mined. No auto-promote to Trusted.
 
 ## Human-load policy
 
