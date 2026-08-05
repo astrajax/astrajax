@@ -60,13 +60,17 @@ export function StudyAssistantText({ content, animate = false }: StudyAssistantT
   return (
     <div className="clive-chat__prompt-text clive-chat__prompt-text--revealing clive-chat__prompt-text--md">
       {lines.map((line, index) => (
-        <span
+        // A line may render block Markdown (p/ul/ol/hr), so the animated
+        // wrapper must be a valid BLOCK element — never a <span>, which
+        // cannot legally contain block children. div + the prompt-line
+        // animation class keeps the staggered reveal on valid DOM.
+        <div
           key={`${index}-${line.slice(0, 24)}`}
           className="clive-chat__prompt-line"
           style={{ animationDelay: `${staggerDelay(index)}ms` }}
         >
           <StudyMarkdown content={line} paragraphClassName="clive-chat__md-para" />
-        </span>
+        </div>
       ))}
     </div>
   );

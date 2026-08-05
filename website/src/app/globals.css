@@ -4344,12 +4344,17 @@ body {
 .court-stage {
   /* The Court owns its ink. --book-ink previously resolved only inside
      .study-stage (chapter 1); on /court it was undefined, so every border
-     and muted tone built on it was silently dropped. Written record voice =
-     Georgia (matching the study book); engraved brass = Cinzel via
-     --font-engraved, page-scoped in court/page.tsx like the Brain Shrine. */
+     and muted tone built on it was silently dropped. Book UI voice = Cinzel
+     (same face as Clive's Man Receiving Wall), page-scoped via
+     --font-engraved in court/page.tsx. */
   --book-ink: #23271b;
   --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
-  --font-book: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  --font-book: var(--font-engraved, "Cinzel"), "Palatino Linotype", "Times New Roman", serif;
+  --font-wall: var(--font-engraved, "Cinzel"), "Palatino Linotype", "Times New Roman", serif;
+  --court-engraved-shadow:
+    0 -1px 0 rgba(26, 16, 8, 0.32),
+    0 1px 0 rgba(255, 244, 220, 0.42),
+    0 2px 1px rgba(26, 16, 8, 0.12);
   position: relative;
   height: 100vh;
   height: 100dvh;
@@ -4392,7 +4397,7 @@ body {
 
 .court-stage__back-link {
   pointer-events: auto;
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-size: 0.85rem;
   color: color-mix(in srgb, var(--color-parchment) 78%, transparent);
 }
@@ -4475,8 +4480,16 @@ body {
 }
 
 .platform-court__book-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center;
+  /* Native 4096×2304 — plain img from /public, no optimizer. */
+  image-rendering: auto;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .platform-court__portrait-hotspot,
@@ -4564,16 +4577,29 @@ body {
   position: absolute;
   display: flex;
   align-items: center;
-  padding-inline: 4%;
+  justify-content: center;
+  padding: 0 6%;
+  box-sizing: border-box;
   transform: translateY(-50%);
   pointer-events: none;
+  text-align: center;
 }
 
 .platform-court__judge-strip-text {
-  font-family: var(--font-book);
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  font-family: var(--font-wall);
   font-style: italic;
-  font-size: clamp(0.62rem, 1vw, 0.9rem);
-  color: color-mix(in srgb, var(--book-ink) 55%, transparent);
+  font-weight: 600;
+  font-size: clamp(0.52rem, 0.82vw, 0.78rem);
+  line-height: 1.25;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-wrap: balance;
+  color: color-mix(in srgb, var(--book-ink) 72%, transparent);
+  text-shadow: var(--court-engraved-shadow);
+  margin-right: -0.04em;
 }
 
 /* ── Cast layers beneath the punched plate (art v3) ── */
@@ -4666,7 +4692,7 @@ body {
   padding: 0.45rem 0.25rem;
   cursor: pointer;
   text-align: left;
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   color: var(--book-ink);
   transition: background 0.15s ease;
 }
@@ -4739,8 +4765,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-inline: 4%;
+  padding: 0;
   overflow: hidden;
+  text-align: center;
   /* Layout y-coordinates are the vertical centre of the painted square.
      --slot-tilt gives each entry a written-by-hand whisper of rotation. */
   transform: translateY(-50%) rotate(var(--slot-tilt, 0deg));
@@ -4751,15 +4778,15 @@ body {
    light below, dark above — presses the ink into the paint. --slot-ink
    varies the ink weight per entry. */
 .platform-court__verdict-text {
+  width: 100%;
+  text-align: center;
   color: var(--book-ink);
   opacity: var(--slot-ink, 0.85);
-  font-family: var(--font-engraved, "Iowan Old Style"), "Palatino Linotype", "Times New Roman", serif;
+  font-family: var(--font-wall);
   font-weight: 600;
   font-size: clamp(0.74rem, 1.2vw, 1.1rem);
   letter-spacing: 0.06em;
-  text-shadow:
-    0 1px 0 rgba(255, 244, 220, 0.4),
-    0 -0.5px 0 rgba(26, 16, 8, 0.28);
+  text-shadow: var(--court-engraved-shadow);
   animation: verdictInkIn 0.9s ease-out both;
 }
 
@@ -4774,21 +4801,63 @@ body {
   }
 }
 
-.platform-court__verdict-placeholder {
-  color: var(--book-ink);
-  opacity: 0.85;
-  font-family: var(--font-engraved, "Iowan Old Style"), "Palatino Linotype", "Times New Roman", serif;
-  font-size: 0.55rem;
-  letter-spacing: 0.2em;
-  animation: verdictPulse 1.2s ease-in-out infinite;
+/* Pending verdict strips: name + Court role before the engraved verdict lands. */
+.platform-court__verdict-pending {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  text-align: center;
+  line-height: 1.15;
+  padding: 0 6%;
+  box-sizing: border-box;
 }
 
-@keyframes verdictPulse {
+.platform-court__verdict-pending-name {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  font-family: var(--font-wall);
+  font-weight: 700;
+  font-size: clamp(0.52rem, 0.74vw, 0.68rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--book-ink);
+  text-shadow: var(--court-engraved-shadow);
+  text-wrap: balance;
+  /* Cancel trailing letter-spacing gap so flex centre matches optical centre. */
+  margin-right: -0.06em;
+}
+
+.platform-court__verdict-pending-title {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  font-family: var(--font-wall);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(0.46rem, 0.64vw, 0.6rem);
+  letter-spacing: 0.03em;
+  color: color-mix(in srgb, var(--book-ink) 72%, transparent);
+  text-shadow: var(--court-engraved-shadow);
+  text-wrap: balance;
+  margin-right: -0.03em;
+}
+
+.platform-court__verdict-pending--deliberating {
+  animation: verdictPendingPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes verdictPendingPulse {
   0%, 100% {
-    opacity: 0.85;
+    opacity: 0.92;
   }
   50% {
-    opacity: 0.4;
+    opacity: 0.62;
   }
 }
 
@@ -4807,7 +4876,7 @@ body {
   padding: 0;
   box-shadow: none;
   color: var(--book-ink);
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
 }
 
 .platform-court__bicker-head {
@@ -4818,7 +4887,7 @@ body {
 }
 
 .platform-court__matter-title {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-size: clamp(1.05rem, 1.6vw, 1.5rem);
   font-weight: 600;
   margin: 0;
@@ -4856,7 +4925,7 @@ body {
 }
 
 .platform-court__bicker-speaker {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-weight: 600;
   color: var(--book-ink);
 }
@@ -4897,12 +4966,16 @@ body {
 }
 
 .platform-court__plaque-hotspot {
-  width: 12%;
-  height: 12%;
   border-radius: 0.5rem;
+  display: block;
+  overflow: visible;
+}
+
+.platform-court__plaque-face {
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .platform-court__plaque-word {
@@ -4911,15 +4984,17 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  /* Optical centring: the letter-spacing adds a trailing gap after the last glyph. */
-  padding-left: 0.18em;
-  color: color-mix(in srgb, var(--book-ink) 78%, transparent);
+  color: color-mix(in srgb, var(--book-ink) 94%, #1a0800);
   text-shadow:
-    0 1px 0 rgba(255, 244, 220, 0.45),
-    0 -0.5px 0 rgba(26, 16, 8, 0.3);
+    0 1px 0 rgba(255, 244, 220, 0.55),
+    0 -1px 0 rgba(26, 16, 8, 0.55),
+    0 2px 2px rgba(26, 16, 8, 0.22);
   pointer-events: none;
   user-select: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, color 0.2s ease;
+  /* Cancel trailing letter-spacing so flex centre = optical centre. */
+  margin-right: -0.18em;
+  text-align: center;
 }
 
 .platform-court__plaque-hotspot:disabled {
@@ -4931,7 +5006,7 @@ body {
 }
 
 .platform-court__plaque-hotspot:not(:disabled):hover .platform-court__plaque-word {
-  color: color-mix(in srgb, var(--book-ink) 92%, transparent);
+  color: color-mix(in srgb, var(--book-ink) 98%, #1a0800);
 }
 
 .platform-court__plaque-hotspot:focus-visible {
@@ -4977,25 +5052,31 @@ body {
 /* ── Intake on the book (right page, parchment) ── */
 .platform-court__intake {
   color: var(--book-ink);
+  align-items: center;
+  justify-content: center;
 }
 
 .platform-court__intake-scroll {
   display: flex;
   flex-direction: column;
   flex: 1;
+  width: 100%;
   height: 100%;
   min-height: 0;
   overflow: hidden;
+  align-items: center;
+  justify-content: center;
 }
 
 .platform-court__intake-body {
-  flex: 1;
+  width: 100%;
+  max-width: 92%;
+  margin-inline: auto;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-right: 0.5rem;
-  /* Keep the last field's descenders clear of the scrollport edge */
-  padding-bottom: 0.5rem;
+  padding: 0 0.5rem 0.5rem 0;
+  text-align: center;
 }
 
 .platform-court__intake-body::-webkit-scrollbar {
@@ -5007,25 +5088,37 @@ body {
 }
 
 .platform-court__intake-title {
-  font-family: var(--font-book);
-  font-weight: 600;
-  font-size: clamp(1.05rem, 1.6vw, 1.45rem);
-  line-height: 1.2;
+  font-family: var(--font-wall);
+  font-weight: 700;
+  font-size: clamp(0.95rem, 1.35vw, 1.25rem);
+  line-height: 1.25;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--book-ink);
   margin: 0;
+  text-shadow: var(--court-engraved-shadow);
+  text-wrap: balance;
 }
 
 .platform-court__intake-lede {
-  margin: 0.35rem 0 0.7rem;
-  font-size: clamp(0.78rem, 0.95vw, 0.9rem);
-  line-height: 1.4;
-  color: color-mix(in srgb, var(--book-ink) 82%, transparent);
+  margin: 0.45rem auto 0.85rem;
+  max-width: 34em;
+  font-family: var(--font-wall);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(0.72rem, 0.88vw, 0.84rem);
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--book-ink) 78%, transparent);
+  text-shadow: var(--court-engraved-shadow);
 }
 
 .platform-court__intake-form {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
+  text-align: left;
+  max-width: 100%;
 }
 
 .platform-court__field {
@@ -5039,11 +5132,13 @@ body {
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem;
-  font-family: var(--font-book);
-  font-size: 0.7rem;
+  font-family: var(--font-wall);
+  font-weight: 600;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: color-mix(in srgb, var(--book-ink) 60%, transparent);
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--book-ink) 62%, transparent);
+  text-shadow: var(--court-engraved-shadow);
 }
 
 .platform-court__field-count {
@@ -5061,11 +5156,13 @@ body {
   min-width: 0;
   max-width: 100%;
   overflow-wrap: break-word;
-  font-size: 0.875rem;
+  font-family: var(--font-wall);
+  font-weight: 600;
+  font-size: 0.82rem;
   line-height: 1.45;
+  letter-spacing: 0.02em;
   background: transparent;
   color: var(--book-ink);
-  font-family: inherit;
   width: 100%;
   box-sizing: border-box;
 }
@@ -5101,7 +5198,7 @@ body {
 .platform-court__seal-btn {
   align-self: flex-start;
   margin-top: 0.25rem;
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-size: 0.85rem;
   font-weight: 700;
   font-variant-caps: small-caps;
@@ -5129,7 +5226,7 @@ body {
   border: none;
   padding: 0;
   cursor: pointer;
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-style: italic;
   font-size: 0.85rem;
   color: color-mix(in srgb, var(--book-ink) 78%, transparent);
@@ -5181,7 +5278,7 @@ body {
 }
 
 .platform-court__judgement-eyebrow {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -5216,7 +5313,7 @@ body {
 }
 
 .platform-court__judgement-verdict {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-style: italic;
   font-weight: 600;
   margin: 0;
@@ -5266,7 +5363,7 @@ body {
 
 /* Verdict panel voices (right page). */
 .platform-court__role-name {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-weight: 600;
   font-size: 1.05rem;
   margin: 0;
@@ -7442,13 +7539,18 @@ textarea.clive-chat__input {
 
 .court-stage {
   --court-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.55'/%3E%3C/svg%3E");
+  /* Slightly denser than folio — Court parchment reads warmer/darker in art. */
   --court-ink-body-shadow:
-    0 0 0.4px rgba(35, 39, 27, 0.28),
-    0.3px 0.3px 0 rgba(35, 39, 27, 0.1);
+    0 0 0.55px rgba(35, 39, 27, 0.38),
+    0.35px 0.35px 0 rgba(35, 39, 27, 0.14),
+    0 0.6px 0.8px rgba(35, 39, 27, 0.06);
   --court-ink-display-shadow:
-    0 0 0.6px rgba(35, 39, 27, 0.4),
-    0.4px 0.4px 0 rgba(35, 39, 27, 0.16);
-  --court-ink-label-shadow: 0 0 0.3px rgba(35, 39, 27, 0.2);
+    0 0 0.75px rgba(35, 39, 27, 0.48),
+    0.45px 0.45px 0 rgba(35, 39, 27, 0.2),
+    0 0.8px 1px rgba(35, 39, 27, 0.08);
+  --court-ink-label-shadow:
+    0 0 0.4px rgba(35, 39, 27, 0.28),
+    0.25px 0.25px 0 rgba(35, 39, 27, 0.1);
 }
 
 .platform-court__book-container::before,
@@ -7460,7 +7562,7 @@ textarea.clive-chat__input {
   background-image: var(--court-fibre);
   background-size: 240px 240px;
   background-repeat: repeat;
-  opacity: 0.035;
+  opacity: 0.048;
   -webkit-mask-image: radial-gradient(
     ellipse 92% 88% at 50% 50%,
     #000 62%,
@@ -7489,7 +7591,6 @@ textarea.clive-chat__input {
 
 /* BODY — bicker, intake, judgement copy, inputs */
 .court-stage .platform-court__bicker-turn,
-.court-stage .platform-court__intake-lede,
 .court-stage .platform-court__judgement-summary,
 .court-stage .platform-court__judgement-docline,
 .court-stage .platform-court__paper-action,
@@ -7502,24 +7603,32 @@ textarea.clive-chat__input {
   text-shadow: var(--court-ink-body-shadow);
 }
 
+.court-stage .platform-court__underline-input::placeholder,
+.court-stage .platform-court__input::placeholder {
+  color: color-mix(in srgb, var(--book-ink) 42%, transparent);
+  text-shadow: var(--court-ink-label-shadow);
+  opacity: 1;
+}
+
 /* DISPLAY — titles and headlines */
 .court-stage .platform-court__matter-title,
-.court-stage .platform-court__intake-title,
 .court-stage .platform-court__role-name,
 .court-stage .platform-court__verdict-headline,
 .court-stage .platform-court__judgement-verdict,
 .court-stage .platform-court__seat-candidate-name {
+  color: var(--book-ink);
   text-shadow: var(--court-ink-display-shadow);
 }
 
 /* LABEL — small caps, field labels, speaker names */
-.court-stage .platform-court__field-label,
 .court-stage .platform-court__field-count,
 .court-stage .platform-court__bicker-speaker,
 .court-stage .platform-court__judgement-eyebrow,
 .court-stage .platform-court__seat-candidate-title,
 .court-stage .platform-court__seat-candidate-state,
-.court-stage .platform-court__muted {
+.court-stage .platform-court__muted,
+.court-stage .platform-court__inline-link {
+  color: var(--book-ink);
   text-shadow: var(--court-ink-label-shadow);
 }
 
@@ -7779,24 +7888,31 @@ textarea.clive-chat__input {
    copyable and screen-reader-safe.
    ════════════════════════════════════════════════════════════════════════ */
 
+/* Assistant markdown block wrapper — a valid <div>, not a <p>, so it can
+   legally contain the p/ul/ol/hr that StudyMarkdown emits. Same body ink. */
+.study-stage--book .clive-chat__md {
+  color: var(--book-ink);
+  text-shadow: var(--folio-ink-body-shadow);
+}
+
 /* The markdown body paragraphs sit inside the prompt-text wrapper; remove
    the default paragraph margins so the rhythm matches the page, and keep
    the body ink impression. */
 .study-stage--book .clive-chat__prompt-text--md .clive-chat__md-para,
-.study-stage--book .clive-chat__bubble p .clive-chat__md-para {
+.study-stage--book .clive-chat__md .clive-chat__md-para {
   margin: 0 0 0.55em;
   color: var(--book-ink);
   text-shadow: var(--folio-ink-body-shadow);
 }
 
 .study-stage--book .clive-chat__prompt-text--md .clive-chat__md-para:last-child,
-.study-stage--book .clive-chat__bubble p .clive-chat__md-para:last-child {
+.study-stage--book .clive-chat__md .clive-chat__md-para:last-child {
   margin-bottom: 0;
 }
 
 /* Lists read as printed items, not dotted UI. */
 .study-stage--book .clive-chat__prompt-text--md .clive-chat__list,
-.study-stage--book .clive-chat__bubble .clive-chat__list {
+.study-stage--book .clive-chat__md .clive-chat__list {
   margin: 0 0 0.55em;
   padding-left: 1.35em;
   color: var(--book-ink);
@@ -7805,13 +7921,13 @@ textarea.clive-chat__input {
 }
 
 .study-stage--book .clive-chat__prompt-text--md .clive-chat__list li,
-.study-stage--book .clive-chat__bubble .clive-chat__list li {
+.study-stage--book .clive-chat__md .clive-chat__list li {
   margin: 0.18em 0;
   position: relative;
 }
 
 .study-stage--book .clive-chat__prompt-text--md .clive-chat__list li::before,
-.study-stage--book .clive-chat__bubble .clive-chat__list li::before {
+.study-stage--book .clive-chat__md .clive-chat__list li::before {
   content: "·";
   position: absolute;
   left: -0.85em;
@@ -7819,25 +7935,25 @@ textarea.clive-chat__input {
 }
 
 .study-stage--book .clive-chat__prompt-text--md .clive-chat__list--ordered,
-.study-stage--book .clive-chat__bubble .clive-chat__list--ordered {
+.study-stage--book .clive-chat__md .clive-chat__list--ordered {
   list-style: none;
   counter-reset: folio-md;
 }
 
 .study-stage--book .clive-chat__prompt-text--md .clive-chat__list--ordered li,
-.study-stage--book .clive-chat__bubble .clive-chat__list--ordered li {
+.study-stage--book .clive-chat__md .clive-chat__list--ordered li {
   counter-increment: folio-md;
 }
 
 .study-stage--book .clive-chat__prompt-text--md .clive-chat__list--ordered li::before,
-.study-stage--book .clive-chat__bubble .clive-chat__list--ordered li::before {
+.study-stage--book .clive-chat__md .clive-chat__list--ordered li::before {
   content: counter(folio-md) ".";
   color: color-mix(in srgb, var(--book-ink) 62%, var(--color-sage));
 }
 
 /* Thematic break: a brass rule in the page's engraved grammar, not ---. */
 .study-stage--book .clive-chat__prompt-text--md .clive-chat__hr,
-.study-stage--book .clive-chat__bubble .clive-chat__hr {
+.study-stage--book .clive-chat__md .clive-chat__hr {
   border: none;
   height: 1px;
   margin: 0.85em 0;
@@ -7853,13 +7969,13 @@ textarea.clive-chat__input {
 
 /* Emphasis reads as the same ink pressed harder; links keep the body ink. */
 .study-stage--book .clive-chat__prompt-text--md strong,
-.study-stage--book .clive-chat__bubble strong {
+.study-stage--book .clive-chat__md strong {
   font-weight: 600;
   text-shadow: var(--folio-ink-display-shadow);
 }
 
 .study-stage--book .clive-chat__prompt-text--md a,
-.study-stage--book .clive-chat__bubble a {
+.study-stage--book .clive-chat__md a {
   color: var(--book-ink);
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -7868,7 +7984,7 @@ textarea.clive-chat__input {
 }
 
 .study-stage--book .clive-chat__prompt-text--md a:hover,
-.study-stage--book .clive-chat__bubble a:hover {
+.study-stage--book .clive-chat__md a:hover {
   text-decoration-color: var(--folio-gold-deep);
 }
 
@@ -7878,10 +7994,10 @@ textarea.clive-chat__input {
   .study-stage--book .clive-chat__prompt-text--md .clive-chat__list,
   .study-stage--book .clive-chat__prompt-text--md strong,
   .study-stage--book .clive-chat__prompt-text--md a,
-  .study-stage--book .clive-chat__bubble p .clive-chat__md-para,
-  .study-stage--book .clive-chat__bubble .clive-chat__list,
-  .study-stage--book .clive-chat__bubble strong,
-  .study-stage--book .clive-chat__bubble a {
+  .study-stage--book .clive-chat__md .clive-chat__md-para,
+  .study-stage--book .clive-chat__md .clive-chat__list,
+  .study-stage--book .clive-chat__md strong,
+  .study-stage--book .clive-chat__md a {
     text-shadow: none;
   }
 }

@@ -513,10 +513,19 @@ export function CliveChatSurface({
             P
           </div>
         )}
-        <p className={options?.muted ? "text-ink-muted" : undefined}>
-          <span className="clive-chat__speaker">{label}:</span>{" "}
-          {isAssistant ? <StudyMarkdown content={content} /> : content}
-        </p>
+        {isAssistant ? (
+          // Assistant copy may carry block Markdown (p/ul/ol/hr), so it needs
+          // a BLOCK wrapper — never a <p>, which cannot legally contain block
+          // elements. User turns stay simple inline text.
+          <div className={`clive-chat__md ${options?.muted ? "text-ink-muted" : ""}`}>
+            <span className="clive-chat__speaker">{label}:</span>{" "}
+            <StudyMarkdown content={content} />
+          </div>
+        ) : (
+          <p className={options?.muted ? "text-ink-muted" : undefined}>
+            <span className="clive-chat__speaker">{label}:</span> {content}
+          </p>
+        )}
       </div>
     );
   }
