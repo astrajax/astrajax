@@ -144,32 +144,29 @@ export const COURT_PAGE_ZONES = {
 /**
  * Scene manifest for the blank court book (art v2, July 2026).
  *
- * Horizontal placement lives in the left-page roster grid (CSS). Seats
- * keep opening dimensions for frame-ring masks and portrait scaling only.
+ * Portrait column is centred in the left-page grid (CSS). Seats keep
+ * opening dimensions for frame-ring masks; strip boxes stay at stage %
+ * measured on the art grid (7 Jul 2026).
  */
 export interface CourtBookSeat {
   /** Painted opening width — portrait layer and ring mask sizing. */
   width: number;
   height: number;
+  /** Vertical centre of this seat's painted verdict strip. */
+  slotY: number;
 }
 
 export const COURT_BOOK_LAYOUT = {
-  /** The five attendant seats, top of the page downward. Per-seat boxes —
-   * the frames are hand-painted and each opening differs slightly.
-   * Widths are the painted openings as they read on the stage (taller
-   * ovals, not circles) — an earlier pass treated them as nearly round
-   * and the portraits spilled over the left and right gilt. Heights held.
-   * Layers overdraw by portraitOvershoot; the frame-ring windows lay the
-   * painting back OVER the portrait rims — the frame hides the seam. */
+  /** The five attendant seats, top of the page downward. */
   seats: [
-    { width: 4.44, height: 9.1 },
-    { width: 4.4, height: 9.15 },
-    { width: 4.44, height: 9.0 },
-    { width: 4.4, height: 9.0 },
-    { width: 4.36, height: 8.85 },
+    { width: 4.44, height: 9.1, slotY: 13.1 },
+    { width: 4.4, height: 9.15, slotY: 27.59 },
+    { width: 4.44, height: 9.0, slotY: 41.81 },
+    { width: 4.4, height: 9.0, slotY: 56.06 },
+    { width: 4.36, height: 8.85, slotY: 70.32 },
   ] as CourtBookSeat[],
   /** The Judge's frame — fixed, never seated by choice. */
-  judgeSeat: { width: 4.31, height: 8.95 } as CourtBookSeat,
+  judgeSeat: { width: 4.31, height: 8.95, slotY: 84.8 } as CourtBookSeat,
   /** How far a portrait layer overdraws its opening (each side), giving
    * the frame-ring window a rim to cover. */
   portraitOvershoot: { width: 0.31, height: 0.4 },
@@ -179,8 +176,10 @@ export const COURT_BOOK_LAYOUT = {
    * sized so that oval fills the painted opening (video is 176×240; its
    * interior occupies ~60%×65% of the clip). */
   judgeVideo: { width: 5.7, height: 13.8 },
-  /** Verdict strip height — width comes from the roster grid's second column. */
-  stripHeight: 8.6,
+  /** Bench verdict strips — shared x/width/height; y = each seat's slotY. */
+  slot: { x: 13.3, width: 24.8, height: 8.6 },
+  /** The Judge's strip is painted wider than the bench strips. */
+  judgeSlot: { x: 13.3, width: 27.1, height: 8.6 },
   /** The written record flows above the brass; content ends clear of the
    * plaque's top edge so live text never sits under the metal. */
   rightPageContent: { left: 54, top: 7, width: 36, height: 60 },
