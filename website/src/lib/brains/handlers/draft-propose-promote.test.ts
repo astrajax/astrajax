@@ -105,6 +105,9 @@ describe("promoteDraftToTrustedDemo memory path", () => {
   afterEach(() => {
     clearMemoryDraftProposalsForTests();
     delete process.env.BRAIN_KEY_USE_MEMORY;
+    delete process.env.BRAIN_WORKSHOP_BASE_ID;
+    delete process.env.BRAIN_WORKSHOP_WRITE_TOKEN;
+    delete process.env.BRAIN_DOC_PROMOTE_TOKEN;
   });
 
   it("refuses unknown drafts and marks promoted memory drafts Quarantined", async () => {
@@ -141,5 +144,20 @@ describe("promoteDraftToTrustedDemo memory path", () => {
         scope: "read:brain-truth:positioning",
       }),
     ).rejects.toThrow(/not eligible to promote/);
+  });
+
+  it("refuses live Airtable Trusted writes from the curation shortcut", async () => {
+    process.env.BRAIN_KEY_USE_MEMORY = "false";
+    process.env.BRAIN_WORKSHOP_BASE_ID = "appWorkshopLive";
+    process.env.BRAIN_WORKSHOP_WRITE_TOKEN = "patWorkshopLive";
+
+    await expect(
+      promoteDraftToTrustedDemo({
+        brainSlug: "astrajax-chapter-1",
+        draftRecordId: "recAnyDraft00001",
+        category: "Positioning",
+        scope: "read:brain-truth:positioning",
+      }),
+    ).rejects.toThrow(/requires Doc promote/);
   });
 });

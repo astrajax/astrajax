@@ -121,4 +121,28 @@ describe("executeCurationProposal", () => {
     expect(result.status).toBe("failed");
     expect(result.error).toMatch(/Brain does not match/);
   });
+
+  it("refuses live Trusted promote via curation confirm when tokens are wired", async () => {
+    process.env.BRAIN_KEY_USE_MEMORY = "false";
+    process.env.BRAIN_WORKSHOP_BASE_ID = "appWorkshopLive";
+    process.env.BRAIN_WORKSHOP_WRITE_TOKEN = "patWorkshopLive";
+
+    const result = await executeCurationProposal({
+      proposal: baseProposal({
+        toolName: "promote_to_trusted",
+        destination: "trusted-brain-truth",
+        payload: {
+          draftRecordId: "recAnyDraft00001",
+          category: "Knowledge",
+          scope: "read:brain-truth:governance",
+        },
+      }),
+    });
+
+    expect(result.status).toBe("failed");
+    expect(result.error).toMatch(/requires Doc promote/);
+
+    delete process.env.BRAIN_WORKSHOP_BASE_ID;
+    delete process.env.BRAIN_WORKSHOP_WRITE_TOKEN;
+  });
 });
