@@ -113,14 +113,14 @@ function BenchVerdictSlots({
             {verdict ? (
               <span className="platform-court__verdict-text">{verdict.verdict}</span>
             ) : (
-              <span
+              <div
                 className={`platform-court__verdict-pending${
                   isDeliberating ? " platform-court__verdict-pending--deliberating" : ""
                 }`}
               >
                 <span className="platform-court__verdict-pending-name">{role?.name}</span>
                 <span className="platform-court__verdict-pending-title">{role?.title}</span>
-              </span>
+              </div>
             )}
           </div>
         );
