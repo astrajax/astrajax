@@ -6,24 +6,21 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import { castHeroByProduct } from "@/lib/agent-cast-assets";
 import {
+  CLIVE_AMBIENT_PLAYBACK_RATE,
   CLIVE_IDLE_REEL,
   CLIVE_REACTION_CLIPS,
-  CLIVE_VIDEO_CROSSFADE_MS,
+  reactionPlaybackRate,
   type CliveReaction,
 } from "@/lib/clive/video-reactions";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 
 const POSTER_SRC =
   castHeroByProduct("clive") ?? "/agent-cast/clive-wigglesworth/hero.png";
-const AMBIENT_PLAYBACK_RATE = 0.72;
-
-type LayerIndex = 0 | 1;
 
 export type CliveVideoStageHandle = {
   playReaction: (reaction: CliveReaction) => void;
@@ -42,7 +39,7 @@ function loadAndPlay(
   video: HTMLVideoElement,
   src: string,
   loop: boolean,
-  playbackRate = AMBIENT_PLAYBACK_RATE,
+  playbackRate = CLIVE_AMBIENT_PLAYBACK_RATE,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const onReady = () => {
@@ -73,12 +70,8 @@ function loadAndPlay(
 export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStageProps>(
   function CliveVideoStage({ className = "" }, ref) {
     const prefersReducedMotion = usePrefersReducedMotion();
-    const [activeLayer, setActiveLayer] = useState<LayerIndex>(0);
     const [videoReady, setVideoReady] = useState(false);
-    const layer0Ref = useRef<HTMLVideoElement>(null);
-    const layer1Ref = useRef<HTMLVideoElement>(null);
-    const layerRefs = useMemo(() => [layer0Ref, layer1Ref] as const, []);
-    const activeLayerRef = useRef<LayerIndex>(0);
+    const videoRef = useRef<HTMLVideoElement>(null);
     const actionPlayingRef = useRef(false);
     const idleReelActiveRef = useRef(false);
     const idleReelIndexRef = useRef(0);
@@ -86,21 +79,15 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
     const bootstrapPromiseRef = useRef<Promise<void> | null>(null);
     const endedHandlerRef = useRef<(() => void) | null>(null);
 
-    const setActive = useCallback((layer: LayerIndex) => {
-      activeLayerRef.current = layer;
-      setActiveLayer(layer);
-    }, []);
-
     const markVideoReady = useCallback(() => {
       videoReadyRef.current = true;
       setVideoReady(true);
     }, []);
 
     /**
-     * W7: warm the reaction clips once the stage is playing, so the first
-     * `listen` or `glance` cross-fades instantly instead of waiting on a
-     * fetch (~7.5MB across five clips). Idle-time, once, and skipped for
-     * reduced motion (reactions never play) and Save-Data users.
+     * Warm reaction clips once the stage is playing so the first listen/think
+     * hard-cut is instant. Idle-time, once; skipped for reduced motion and
+     * Save-Data users.
      */
     const warmedReactionsRef = useRef(false);
 
@@ -126,13 +113,12 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
     }, [prefersReducedMotion, videoReady]);
 
     const clearEndedHandler = useCallback(() => {
-      const layer = activeLayerRef.current;
-      const video = layerRefs[layer].current;
+      const video = videoRef.current;
       if (video && endedHandlerRef.current) {
         video.removeEventListener("ended", endedHandlerRef.current);
         endedHandlerRef.current = null;
       }
-    }, [layerRefs]);
+    }, []);
 
     const attachEndedHandler = useCallback(
       (video: HTMLVideoElement, onEnded: () => void) => {
@@ -143,54 +129,38 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
       [clearEndedHandler],
     );
 
-    const crossfadeToClip = useCallback(
+    /** Hard-cut to a clip on the single video layer — no crossfade, no scene blend. */
+    const cutToClip = useCallback(
       async (
         src: string,
         loop: boolean,
-        playbackRate = AMBIENT_PLAYBACK_RATE,
+        playbackRate = CLIVE_AMBIENT_PLAYBACK_RATE,
       ): Promise<HTMLVideoElement | null> => {
-        const current = activeLayerRef.current;
-        const next: LayerIndex = current === 0 ? 1 : 0;
-        const nextVideo = layerRefs[next].current;
-        if (!nextVideo) return null;
-
-        await loadAndPlay(nextVideo, src, loop, playbackRate);
-        setActive(next);
-        return nextVideo;
-      },
-      [layerRefs, setActive],
-    );
-
-    const bootstrapFirstClip = useCallback(
-      async (
-        src: string,
-        loop: boolean,
-        playbackRate = AMBIENT_PLAYBACK_RATE,
-      ): Promise<HTMLVideoElement | null> => {
-        if (videoReadyRef.current) return layerRefs[activeLayerRef.current].current;
-
-        if (bootstrapPromiseRef.current) {
-          await bootstrapPromiseRef.current;
-          return layerRefs[activeLayerRef.current].current;
-        }
-
-        const video = layerRefs[0].current;
+        const video = videoRef.current;
         if (!video) return null;
 
-        const bootstrap = loadAndPlay(video, src, loop, playbackRate).then(() => {
-          setActive(0);
-          markVideoReady();
-        });
-
-        bootstrapPromiseRef.current = bootstrap;
-        try {
-          await bootstrap;
-          return video;
-        } finally {
-          bootstrapPromiseRef.current = null;
+        if (!videoReadyRef.current) {
+          if (bootstrapPromiseRef.current) {
+            await bootstrapPromiseRef.current;
+          } else {
+            const bootstrap = loadAndPlay(video, src, loop, playbackRate).then(() => {
+              markVideoReady();
+            });
+            bootstrapPromiseRef.current = bootstrap;
+            try {
+              await bootstrap;
+            } finally {
+              bootstrapPromiseRef.current = null;
+            }
+            return video;
+          }
         }
+
+        await loadAndPlay(video, src, loop, playbackRate);
+        markVideoReady();
+        return video;
       },
-      [layerRefs, markVideoReady, setActive],
+      [markVideoReady],
     );
 
     const playIdleReelClip = useCallback(async () => {
@@ -204,9 +174,7 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
       idleReelIndexRef.current = (idleReelIndexRef.current + 1) % CLIVE_IDLE_REEL.length;
 
       try {
-        const video = videoReadyRef.current
-          ? await crossfadeToClip(src, false)
-          : await bootstrapFirstClip(src, false);
+        const video = await cutToClip(src, false);
         if (!video || !idleReelActiveRef.current) return;
 
         const onEnded = () => {
@@ -219,13 +187,7 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
         idleReelIndexRef.current =
           (idleReelIndexRef.current + CLIVE_IDLE_REEL.length - 1) % CLIVE_IDLE_REEL.length;
       }
-    }, [
-      attachEndedHandler,
-      bootstrapFirstClip,
-      clearEndedHandler,
-      crossfadeToClip,
-      prefersReducedMotion,
-    ]);
+    }, [attachEndedHandler, clearEndedHandler, cutToClip, prefersReducedMotion]);
 
     const returnToIdle = useCallback(async () => {
       clearEndedHandler();
@@ -237,16 +199,12 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
       }
 
       try {
-        if (videoReadyRef.current) {
-          await crossfadeToClip(CLIVE_REACTION_CLIPS.idle, true);
-        } else {
-          await bootstrapFirstClip(CLIVE_REACTION_CLIPS.idle, true);
-        }
+        await cutToClip(CLIVE_REACTION_CLIPS.idle, true);
       } catch {
         videoReadyRef.current = false;
         setVideoReady(false);
       }
-    }, [bootstrapFirstClip, clearEndedHandler, crossfadeToClip, playIdleReelClip]);
+    }, [clearEndedHandler, cutToClip, playIdleReelClip]);
 
     const startIdleReel = useCallback(() => {
       if (prefersReducedMotion) return;
@@ -270,9 +228,7 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
         actionPlayingRef.current = true;
 
         try {
-          const nextVideo = videoReadyRef.current
-            ? await crossfadeToClip(src, loop)
-            : await bootstrapFirstClip(src, loop);
+          const nextVideo = await cutToClip(src, loop);
           if (!nextVideo) {
             actionPlayingRef.current = false;
             return;
@@ -292,9 +248,8 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
       },
       [
         attachEndedHandler,
-        bootstrapFirstClip,
         clearEndedHandler,
-        crossfadeToClip,
+        cutToClip,
         prefersReducedMotion,
         returnToIdle,
       ],
@@ -316,7 +271,7 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
         actionPlayingRef.current = true;
 
         try {
-          const nextVideo = await crossfadeToClip(src, false);
+          const nextVideo = await cutToClip(src, false, reactionPlaybackRate(reaction));
           if (!nextVideo) {
             actionPlayingRef.current = false;
             return;
@@ -332,7 +287,7 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
           actionPlayingRef.current = false;
         }
       },
-      [attachEndedHandler, clearEndedHandler, crossfadeToClip, prefersReducedMotion, returnToIdle],
+      [attachEndedHandler, clearEndedHandler, cutToClip, prefersReducedMotion, returnToIdle],
     );
 
     useImperativeHandle(
@@ -377,25 +332,21 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
             className="clive-video-stage__poster"
           />
         ) : null}
-        {([0, 1] as const).map((index) => (
-          <video
-            key={index}
-            ref={layerRefs[index]}
-            className={`clive-video-stage__layer ${
-              videoReady && activeLayer === index
-                ? "clive-video-stage__layer--active"
-                : "clive-video-stage__layer--inactive"
-            }`}
-            muted
-            playsInline
-            preload="metadata"
-            poster={POSTER_SRC}
-            aria-hidden
-          />
-        ))}
+        <video
+          ref={videoRef}
+          className={[
+            "clive-video-stage__layer",
+            videoReady
+              ? "clive-video-stage__layer--active"
+              : "clive-video-stage__layer--inactive",
+          ].join(" ")}
+          muted
+          playsInline
+          preload="metadata"
+          poster={POSTER_SRC}
+          aria-hidden
+        />
       </div>
     );
   },
 );
-
-export { CLIVE_VIDEO_CROSSFADE_MS };

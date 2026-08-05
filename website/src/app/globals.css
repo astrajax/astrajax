@@ -1481,19 +1481,18 @@ body {
   height: 100%;
   overflow: hidden;
   isolation: isolate;
-  --clive-feather-vignette: color-mix(in srgb, var(--color-cream-paper) 92%, transparent);
-  --clive-feather-mid: color-mix(in srgb, var(--color-parchment) 72%, transparent);
-  --clive-feather-edge: color-mix(in srgb, var(--color-cream) 58%, transparent);
-  --clive-feather-soft: color-mix(in srgb, var(--color-cream) 42%, transparent);
+  --clive-feather-vignette: color-mix(in srgb, var(--color-cream-paper) 55%, transparent);
+  --clive-feather-mid: color-mix(in srgb, var(--color-parchment) 32%, transparent);
+  --clive-feather-edge: color-mix(in srgb, var(--color-cream) 22%, transparent);
+  --clive-feather-soft: color-mix(in srgb, var(--color-cream) 14%, transparent);
+  /* Tight edge softener only — most of the plate stays fully solid. */
   --clive-feather-mask: radial-gradient(
-    ellipse 68% 64% at 50% 44%,
+    ellipse 96% 94% at 50% 48%,
     #000 0%,
-    #000 18%,
-    color-mix(in srgb, #000 88%, transparent) 34%,
-    color-mix(in srgb, #000 52%, transparent) 50%,
-    color-mix(in srgb, #000 22%, transparent) 64%,
-    color-mix(in srgb, #000 6%, transparent) 76%,
-    transparent 88%
+    #000 72%,
+    color-mix(in srgb, #000 78%, transparent) 86%,
+    color-mix(in srgb, #000 35%, transparent) 94%,
+    transparent 100%
   );
   -webkit-mask-image: var(--clive-feather-mask);
   mask-image: var(--clive-feather-mask);
@@ -1510,17 +1509,16 @@ body {
   content: "";
   pointer-events: none;
   position: absolute;
-  inset: -18%;
+  inset: -6%;
   z-index: 2;
   background: radial-gradient(
-    ellipse 72% 68% at 50% 44%,
-    transparent 28%,
-    var(--clive-feather-soft) 58%,
-    var(--clive-feather-mid) 82%,
+    ellipse 98% 96% at 50% 48%,
+    transparent 74%,
+    var(--clive-feather-soft) 90%,
     var(--clive-feather-vignette) 100%
   );
   mix-blend-mode: normal;
-  opacity: 1;
+  opacity: 0.55;
 }
 
 .study-stage__clive-feather::after,
@@ -1708,7 +1706,8 @@ body {
 }
 
 .clive-video-stage__layer {
-  transition: opacity 200ms ease-in-out;
+  /* Hard cuts only — no crossfade between clips. */
+  transition: none;
 }
 
 .clive-video-stage__layer--active {
@@ -1728,12 +1727,13 @@ body {
 .study-stage__clive-feather .clive-video-stage__layer,
 .clive-portrait-feather .clive-video-stage__poster,
 .clive-portrait-feather .clive-video-stage__layer {
-  transform: scale(calc(1.14 / var(--clive-study-video-scale, 1)));
+  /* Stable framing — no per-clip zoom that reads as the scene drifting. */
+  transform: none;
   transform-origin: center center;
   -webkit-mask-image: var(--clive-feather-mask);
   mask-image: var(--clive-feather-mask);
-  -webkit-mask-size: 108% 108%;
-  mask-size: 108% 108%;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
   -webkit-mask-position: center;
   mask-position: center;
   -webkit-mask-repeat: no-repeat;
@@ -1875,7 +1875,9 @@ body {
 }
 
 .study-stage__content:has(.chapter1-conversation) {
-  overflow-y: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .study-stage--book .clive-welcome,
@@ -1962,10 +1964,10 @@ body {
 
 /* Dark study entry — feather into moss backdrop instead of book cream */
 .portrait-entry--study .portrait-entry__frame.clive-portrait-feather {
-  --clive-feather-vignette: color-mix(in srgb, #1a2218 88%, transparent);
-  --clive-feather-mid: color-mix(in srgb, #243028 52%, transparent);
-  --clive-feather-edge: color-mix(in srgb, #2a3424 36%, transparent);
-  --clive-feather-soft: color-mix(in srgb, #1a2218 28%, transparent);
+  --clive-feather-vignette: color-mix(in srgb, #1a2218 48%, transparent);
+  --clive-feather-mid: color-mix(in srgb, #243028 28%, transparent);
+  --clive-feather-edge: color-mix(in srgb, #2a3424 18%, transparent);
+  --clive-feather-soft: color-mix(in srgb, #1a2218 12%, transparent);
 }
 
 .clive-welcome {
@@ -2093,16 +2095,26 @@ body {
 }
 
 .study-stage--book .study-stage__content:has(.chapter1-conversation) {
-  overflow: hidden;
-  padding-bottom: 0.35rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  /* Keep Back / Continue clear of the page lip once scrolled into view */
+  padding-bottom: clamp(1.25rem, 3vh, 2rem);
 }
 
 .study-stage--book .chapter1-conversation,
 .study-stage--book .chapter1-intake-chat {
-  flex: 1;
+  flex: 1 0 auto;
   gap: clamp(0.35rem, 1vh, 0.5rem);
-  min-height: 0;
-  overflow: hidden;
+  min-height: min-content;
+  /* Let the left page be the one scroll surface — do not clip the buttons */
+  overflow: visible;
+}
+
+.study-stage--book .chapter1-conversation .clive-chat--study {
+  flex: 0 1 auto;
+  min-height: min(28vh, 12rem);
 }
 
 /* Book spread — study chat must stay ink-on-parchment, not the default moss panel */
@@ -4011,10 +4023,9 @@ body {
     transform: none;
   }
 
-  /* Static study zoom-out is framing, not motion — keep it for reduced-motion users */
   .study-stage__clive-feather .clive-video-stage__layer,
   .study-stage__clive-feather .clive-video-stage__poster {
-    transform: scale(calc(1 / var(--clive-study-video-scale)));
+    transform: none;
   }
 
   .clive-video-stage__layer {

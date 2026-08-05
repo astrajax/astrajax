@@ -5,9 +5,9 @@ import type { CliveReaction } from "@/lib/clive/video-reactions";
  * Beat-scoped reaction dramaturgy — the study's staging notes as data.
  *
  * Design intent (build pack W2, Matthew's rollback flag honoured):
- * - The reaction ENGINE is untouched: clip set, crossfade, and the 0.72
- *   ambient playback rate stay exactly as shipped — that slowness is the
- *   approved feel.
+ * - The reaction ENGINE is untouched: clip set, hard cuts (no crossfade),
+ *   and the ambient playback rate stay as shipped — that slowness is the
+ *   approved feel. Listen (chat entry) uses warm-welcome at 0.8.
  * - Every mapping below is one line. Taste adjustment = delete a line.
  *   Full rollback = revert the wiring commit; the components fall back to
  *   their previous behaviour with no residue.
