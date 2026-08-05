@@ -23,7 +23,6 @@ import {
   COURT_BOOK_LAYOUT,
   COURT_MATTER_LIMITS,
   type CourtAttendantId,
-  type CourtBookSeat,
   type CourtDecision,
   type CourtRole,
   type CourtMatter,
@@ -37,9 +36,9 @@ import { usePlatformSession } from "@/components/platform-session/PlatformSessio
 import { PlatformSessionControls } from "@/components/platform-session/PlatformSessionControls";
 import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 
-// Art v2: the book ships BLANK — empty gilt frames, empty strips, blank
-// brass. The cast are layers; the text is live; the Judge breathes.
-const COURT_BOOK_IMAGE = "/agent-cast/court/court-book-blank-v3.jpg";
+// Art v3: punched alpha holes — portraits sit beneath the plate; gilt
+// frames live in the art. The cast are layers; the text is live.
+const COURT_BOOK_IMAGE = "/agent-cast/court/court-book-blank.png";
 const JUDGE_VIDEO_WEBM_SRC = COURT_JUDGE_MEDIA.webm;
 const JUDGE_VIDEO_MP4_SRC = COURT_JUDGE_MEDIA.mp4;
 const JUDGE_POSTER_SRC = COURT_JUDGE_MEDIA.poster;
@@ -79,10 +78,22 @@ function roleById(id: CourtRoleId): CourtRole | undefined {
   return COURT_ROLES.find((r) => r.id === id);
 }
 
-function CourtBookArtwork({ children }: { children: ReactNode }) {
+function CourtBookArtwork({
+  portraits,
+  underPlate,
+  children,
+}: {
+  portraits: ReactNode;
+  underPlate?: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <div className="platform-court__book-container">
-      <div className="platform-court__book-media" aria-hidden>
+      <div className="platform-court__portraits-layer">{portraits}</div>
+      {underPlate ? (
+        <div className="platform-court__under-plate">{underPlate}</div>
+      ) : null}
+      <div className="platform-court__book-plate" aria-hidden>
         <Image
           src={COURT_BOOK_IMAGE}
           alt=""
@@ -94,75 +105,18 @@ function CourtBookArtwork({ children }: { children: ReactNode }) {
           className="platform-court__book-image"
         />
       </div>
-      {children}
+      <div className="platform-court__book-ui">{children}</div>
     </div>
   );
 }
 
-/** A window onto the book painting itself, masked to the annulus of one
- * frame's gilt — laid ABOVE a seat's portrait so the painted ring and its
- * lip shadow overlap the portrait's rim. The frame hides the seam, as
- * frames always have. Inside the window sits a full-stage copy of the
- * same next/image rendition (sprite-window offsets from the manifest), so
- * the ring is pixel-identical to the background it continues. */
-function FrameRing({ seat }: { seat: CourtBookSeat }) {
-  const ring = COURT_BOOK_LAYOUT.portraitHotspot;
-  // Opening half-extents as radii of the mask ellipse, relative to the box.
-  const rx = ((seat.width / ring.width) * 50).toFixed(2);
-  const ry = ((seat.height / ring.height) * 50).toFixed(2);
-  // Sprite-window: a stage-sized inner layer offset so this window shows
-  // exactly its own patch of the painting.
-  const innerW = (100 / ring.width) * 100;
-  const innerH = (100 / ring.height) * 100;
-  const offX = (-(seat.x - ring.width / 2) / ring.width) * 100;
-  const offY = (-(seat.y - ring.height / 2) / ring.height) * 100;
-  return (
-    <div
-      aria-hidden
-      className="platform-court__frame-ring"
-      style={
-        {
-          left: `${seat.x}%`,
-          top: `${seat.y}%`,
-          width: `${ring.width}%`,
-          height: `${ring.height}%`,
-          "--ring-rx": `${rx}%`,
-          "--ring-ry": `${ry}%`,
-        } as CSSProperties
-      }
-    >
-      <div
-        className="platform-court__frame-ring-inner"
-        style={{
-          width: `${innerW.toFixed(3)}%`,
-          height: `${innerH.toFixed(3)}%`,
-          left: `${offX.toFixed(3)}%`,
-          top: `${offY.toFixed(3)}%`,
-        }}
-      >
-        <Image
-          src={COURT_BOOK_IMAGE}
-          alt=""
-          fill
-          sizes="100vw"
-          className="platform-court__book-image"
-        />
-      </div>
-    </div>
-  );
-}
-
-/** The seated bench — one oval portrait layer per occupied seat, inside
- * the painted gilt frames, each overdrawing its opening slightly; the
- * frame-ring windows then lay the painting back over every rim. Scenery,
- * not controls: hotspots sit above. */
+/** Portrait and judge layers beneath the punched book plate. */
 function BenchPortraits({ bench }: { bench: CourtAttendantId[] }) {
-  const over = COURT_BOOK_LAYOUT.portraitOvershoot;
   return (
     <>
       {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
         const roleId = bench[seat];
-        if (!roleId) return null; // an empty frame reads as a vacant seat
+        if (!roleId) return null;
         return (
           <div
             key={`seat-art-${seat}`}
@@ -171,8 +125,8 @@ function BenchPortraits({ bench }: { bench: CourtAttendantId[] }) {
             style={{
               left: `${pos.x}%`,
               top: `${pos.y}%`,
-              width: `${pos.width + over.width}%`,
-              height: `${pos.height + over.height}%`,
+              width: `${pos.width}%`,
+              height: `${pos.height}%`,
             }}
           >
             <Image
@@ -186,10 +140,6 @@ function BenchPortraits({ bench }: { bench: CourtAttendantId[] }) {
         );
       })}
       <JudgeLoop />
-      {COURT_BOOK_LAYOUT.seats.map((seat, i) =>
-        bench[i] ? <FrameRing key={`ring-${i}`} seat={seat} /> : null
-      )}
-      <FrameRing seat={COURT_BOOK_LAYOUT.judgeSeat} />
     </>
   );
 }
@@ -469,19 +419,21 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
 
   return (
     <div className="platform-court__book-stage">
-      <CourtBookArtwork>
-        <BenchPortraits bench={attendees} />
-
-        {/* Lamplight layers — per seat + the Judge's frame */}
-        {COURT_BOOK_LAYOUT.seats.map((pos, seat) => (
-          <SeatGlow
-            key={`glow-${seat}`}
-            pos={pos}
-            lit={attendees[seat] !== undefined && glowRoleId === attendees[seat]}
-          />
-        ))}
-        <SeatGlow pos={COURT_BOOK_LAYOUT.judgeSeat} lit={glowRoleId === "judge"} />
-
+      <CourtBookArtwork
+        portraits={<BenchPortraits bench={attendees} />}
+        underPlate={
+          <>
+            {COURT_BOOK_LAYOUT.seats.map((pos, seat) => (
+              <SeatGlow
+                key={`glow-${seat}`}
+                pos={pos}
+                lit={attendees[seat] !== undefined && glowRoleId === attendees[seat]}
+              />
+            ))}
+            <SeatGlow pos={COURT_BOOK_LAYOUT.judgeSeat} lit={glowRoleId === "judge"} />
+          </>
+        }
+      >
         {/* Portrait hotspots — oval hit areas over the occupied frames */}
         {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
           const roleId = attendees[seat];
@@ -915,9 +867,7 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
 
   return (
     <div className="platform-court__book-stage">
-      <CourtBookArtwork>
-        <BenchPortraits bench={bench} />
-
+      <CourtBookArtwork portraits={<BenchPortraits bench={bench} />}>
         {/* Seat hotspots — at intake the frames are how you choose the bench */}
         {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
           const occupant = roleById(bench[seat]);
