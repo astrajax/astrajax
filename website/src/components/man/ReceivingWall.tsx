@@ -14,7 +14,7 @@ import {
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 import { acceptReceivingWallRecord } from "@/lib/brains/actions/receiving-wall-accept";
-import { roomStaticClipPath, roomStaticMaskUrl } from "@/lib/man/receiving-wall-arch-mask";
+import { roomStaticClipPath } from "@/lib/man/receiving-wall-arch-mask";
 import {
   DOLLY_IN_DEFAULT,
   DOLLY_IN_LADDER,
@@ -565,7 +565,7 @@ export function ReceivingWall({
 
   const ledgerSection = (
     <section
-      className={`${styles.ledger} ${isNave ? ledgerState : styles.contentEnter}`}
+      className={`${styles.ledger} ${ledgerState}`}
       aria-label="Captured context"
     >
       <ul className={styles.sourceList}>
@@ -751,7 +751,6 @@ export function ReceivingWall({
         ["--tint" as string]: zoomed ? CAPTURE_SOURCE_TINT[zoomed] : idleTint,
         ["--dolly-in-16-9" as string]: String(dollyIn169),
         ["--room-static-clip" as string]: roomStaticClipPath(),
-        ["--room-static-mask" as string]: roomStaticMaskUrl(),
       }}
     >
       <div className={styles.stage}>
@@ -778,7 +777,7 @@ export function ReceivingWall({
                 </div>
                 <div className={styles.surfaceContent}>
                   {statusNote}
-                  {!isNave ? ledgerSection : null}
+                  {ledgerSection}
                 </div>
               </div>
               <div className={`${styles.surfacePlate} ${styles.bayPlate}`}>
@@ -803,7 +802,7 @@ export function ReceivingWall({
                     </div>
                     <div className={styles.bayContent}>
                       <div className={styles.surfaceContent}>
-                        {!isNave && zoomed !== null ? baySection : null}
+                        {zoomed !== null ? baySection : null}
                       </div>
                     </div>
                   </div>
@@ -816,13 +815,6 @@ export function ReceivingWall({
       </div>
 
       <div className={styles.roomStatic} aria-hidden />
-
-      {isNave ? (
-        <div className={styles.aperture}>
-          {statusNote}
-          {!zoomed ? ledgerSection : baySection}
-        </div>
-      ) : null}
 
       <div className={styles.varnishTint} aria-hidden />
       <div className={styles.varnishShade} aria-hidden />

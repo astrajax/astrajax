@@ -131,21 +131,26 @@ export interface CourtBookSlot extends CourtBookPosition {
 }
 
 /**
- * Scene manifest for the blank court book (art v3 — left-page roster
- * centred Aug 2026; measured originally against v2 paint, 7 Jul 2026).
- *
- * The painting ships with six EMPTY gilt frames down the left page and a
- * wide brass plaque on the right — no faces, no text. Attendant portraits
- * are oval layers seated per SEAT (positions, not names); the Judge's
- * frame is the sixth, fixed, and carries his breathing loop.
+ * Left/right page zones on the 16:9 court book stage. Measured once from
+ * the blank-book art (parchment inset after binding, spine edge). Overlays
+ * anchor to these boxes — not magic x% nudges on the full stage.
  */
-export interface CourtBookSeat extends CourtBookPosition {
-  /** Painted opening size — the portrait layer fills exactly this box. */
+export const COURT_PAGE_ZONES = {
+  leftPageInset: 7.4,
+  leftPageEnd: 48.1,
+  rightPageStart: 52,
+} as const;
+
+/**
+ * Scene manifest for the blank court book (art v2, July 2026).
+ *
+ * Horizontal placement lives in the left-page roster grid (CSS). Seats
+ * keep opening dimensions for frame-ring masks and portrait scaling only.
+ */
+export interface CourtBookSeat {
+  /** Painted opening width — portrait layer and ring mask sizing. */
   width: number;
   height: number;
-  /** Vertical centre of this seat's painted verdict strip (strips sit a
-   * whisker below frame centres; entries centre on the STRIP). */
-  slotY: number;
 }
 
 export const COURT_BOOK_LAYOUT = {
@@ -157,14 +162,14 @@ export const COURT_BOOK_LAYOUT = {
    * Layers overdraw by portraitOvershoot; the frame-ring windows lay the
    * painting back OVER the portrait rims — the frame hides the seam. */
   seats: [
-    { x: 15.78, y: 12.8, width: 4.44, height: 9.1, slotY: 13.1 },
-    { x: 16.05, y: 27.41, width: 4.4, height: 9.15, slotY: 27.59 },
-    { x: 15.83, y: 41.76, width: 4.44, height: 9.0, slotY: 41.81 },
-    { x: 15.94, y: 56.02, width: 4.4, height: 9.0, slotY: 56.06 },
-    { x: 16.05, y: 70.37, width: 4.36, height: 8.85, slotY: 70.32 },
+    { width: 4.44, height: 9.1 },
+    { width: 4.4, height: 9.15 },
+    { width: 4.44, height: 9.0 },
+    { width: 4.4, height: 9.0 },
+    { width: 4.36, height: 8.85 },
   ] as CourtBookSeat[],
   /** The Judge's frame — fixed, never seated by choice. */
-  judgeSeat: { x: 16.05, y: 84.62, width: 4.31, height: 8.95, slotY: 84.8 } as CourtBookSeat,
+  judgeSeat: { width: 4.31, height: 8.95 } as CourtBookSeat,
   /** How far a portrait layer overdraws its opening (each side), giving
    * the frame-ring window a rim to cover. */
   portraitOvershoot: { width: 0.31, height: 0.4 },
@@ -174,19 +179,11 @@ export const COURT_BOOK_LAYOUT = {
    * sized so that oval fills the painted opening (video is 176×240; its
    * interior occupies ~60%×65% of the clip). */
   judgeVideo: { width: 5.7, height: 13.8 },
-  /** A verdict strip: x/width/height shared across the five bench seats;
-   * y = each seat's own slotY. Originally measured at x 12.97-38.44; the
-   * left-page roster was later shifted +5% toward the page centre so the
-   * portrait+label column sits balanced on the parchment (not hugging the
-   * outer edge). */
-  slot: { x: 18.3, width: 24.8, height: 8.6 },
-  /** The Judge's strip is painted wider than the bench strips — its own
-   * box, not a reuse of `slot`, so his line centres on his actual rule.
-   * x tracks the same +5% left-page roster shift as `slot`. */
-  judgeSlot: { x: 18.3, width: 27.1, height: 8.6 },
-  /** The written record flows above the brass. Height leaves a parchment
-   * band for the sample-matter line, then the plaque — live text must not
-   * sit under either control. */
+  /** Verdict strip height — width comes from the roster grid's second column. */
+  stripHeight: 8.6,
+  /** The written record flows above the brass. Height (55, not the full
+   * 60 clear of the plaque) leaves a parchment band for the Bring-a-matter
+   * form copy to sit above Convene without crowding the plaque. */
   rightPageContent: { left: 54, top: 7, width: 36, height: 55 },
   /** The wide brass plaque. Box = the full ornament (for the hotspot and
    * glow — the hit area and light should cover the whole gilt casting).
