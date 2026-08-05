@@ -4498,6 +4498,11 @@ body {
   z-index: 1;
 }
 
+.platform-court__portrait-hotspot--bench,
+.platform-court__verdict-slot--clickable {
+  z-index: 4;
+}
+
 .platform-court__plaque-hotspot {
   z-index: 2;
 }
@@ -4762,15 +4767,32 @@ body {
 
 .platform-court__verdict-slot {
   position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   padding: 0;
   overflow: hidden;
   text-align: center;
   /* Layout y-coordinates are the vertical centre of the painted square.
      --slot-tilt gives each entry a written-by-hand whisper of rotation. */
   transform: translateY(-50%) rotate(var(--slot-tilt, 0deg));
+}
+
+.platform-court__verdict-slot--clickable {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.platform-court__verdict-slot--clickable:hover .platform-court__verdict-pending-name,
+.platform-court__verdict-slot--clickable:hover .platform-court__verdict-text {
+  opacity: 1;
+}
+
+.platform-court__verdict-slot--clickable:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-apricot) 75%, transparent);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 /* Engraved entries: Cinzel maps lowercase to small capitals, so "Strong
@@ -4873,7 +4895,7 @@ body {
   background: transparent;
   border: none;
   border-radius: 0;
-  padding: 0;
+  padding: 0.75rem 0.25rem 0 0.85rem;
   box-shadow: none;
   color: var(--book-ink);
   font-family: var(--font-wall);
@@ -4899,13 +4921,13 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.9em;
+  gap: 0.65rem;
   margin-bottom: 1rem;
-  padding-right: 0.5rem;
+  padding-right: 0.35rem;
   min-height: 150px;
   color: var(--book-ink);
-  opacity: 0.9;
-  mask-image: linear-gradient(180deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  opacity: 0.95;
+  mask-image: linear-gradient(180deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
 }
 
 .platform-court__bicker-feed::-webkit-scrollbar {
@@ -4918,16 +4940,80 @@ body {
 }
 
 .platform-court__bicker-turn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  max-width: 88%;
   font-size: 0.875rem;
   line-height: 1.4;
   color: var(--book-ink);
-  opacity: 0.9;
+  padding: 0.45rem 0.65rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--bicker-border, color-mix(in srgb, var(--book-ink) 18%, transparent));
+  background: var(--bicker-bubble, color-mix(in srgb, var(--book-ink) 5%, transparent));
+  animation: bickerTurnIn 0.45s ease-out both;
+}
+
+.platform-court__bicker-turn--left {
+  align-self: flex-start;
+  margin-right: auto;
+  animation-name: bickerTurnInLeft;
+}
+
+.platform-court__bicker-turn--right {
+  align-self: flex-end;
+  margin-left: auto;
+  text-align: right;
+  animation-name: bickerTurnInRight;
 }
 
 .platform-court__bicker-speaker {
   font-family: var(--font-wall);
-  font-weight: 600;
-  color: var(--book-ink);
+  font-weight: 700;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bicker-speaker, var(--book-ink));
+}
+
+.platform-court__bicker-line {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: color-mix(in srgb, var(--book-ink) 92%, transparent);
+}
+
+@keyframes bickerTurnInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bickerTurnInRight {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes bickerTurnIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .platform-court__bicker-input {
@@ -4984,11 +5070,11 @@ body {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.18em;
-  color: color-mix(in srgb, var(--book-ink) 94%, #1a0800);
+  color: #1a1008;
   text-shadow:
-    0 1px 0 rgba(255, 244, 220, 0.55),
-    0 -1px 0 rgba(26, 16, 8, 0.55),
-    0 2px 2px rgba(26, 16, 8, 0.22);
+    0 1px 0 rgba(255, 244, 220, 0.72),
+    0 -1px 0 rgba(26, 16, 8, 0.65),
+    0 2px 3px rgba(26, 16, 8, 0.28);
   pointer-events: none;
   user-select: none;
   transition: opacity 0.2s ease, color 0.2s ease;
@@ -5257,7 +5343,7 @@ body {
   height: 100%;
   min-height: 0;
   overflow-y: auto;
-  padding-right: 0.5rem;
+  padding: 0.85rem 0.35rem 0 0.95rem;
   color: var(--book-ink);
 }
 
@@ -5418,7 +5504,8 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .platform-court__verdict-text,
   .platform-court__verdict-placeholder,
-  .platform-court__wax-seal {
+  .platform-court__wax-seal,
+  .platform-court__bicker-turn {
     animation: none;
   }
 
@@ -7589,8 +7676,7 @@ textarea.clive-chat__input {
   bottom: calc(100% - 88.44%);
 }
 
-/* BODY — bicker, intake, judgement copy, inputs */
-.court-stage .platform-court__bicker-turn,
+/* BODY — intake, judgement copy, inputs */
 .court-stage .platform-court__judgement-summary,
 .court-stage .platform-court__judgement-docline,
 .court-stage .platform-court__paper-action,
@@ -7598,7 +7684,8 @@ textarea.clive-chat__input {
 .court-stage .platform-court__underline-input,
 .court-stage .platform-court__input,
 .court-stage .platform-court__verdict-panel-inner p,
-.court-stage .platform-court__seat-picker-note {
+.court-stage .platform-court__seat-picker-note,
+.court-stage .platform-court__bicker-line {
   color: var(--book-ink);
   text-shadow: var(--court-ink-body-shadow);
 }
@@ -7620,9 +7707,8 @@ textarea.clive-chat__input {
   text-shadow: var(--court-ink-display-shadow);
 }
 
-/* LABEL — small caps, field labels, speaker names */
+/* LABEL — small caps, field labels */
 .court-stage .platform-court__field-count,
-.court-stage .platform-court__bicker-speaker,
 .court-stage .platform-court__judgement-eyebrow,
 .court-stage .platform-court__seat-candidate-title,
 .court-stage .platform-court__seat-candidate-state,
@@ -7632,14 +7718,17 @@ textarea.clive-chat__input {
   text-shadow: var(--court-ink-label-shadow);
 }
 
+.court-stage .platform-court__bicker-speaker {
+  text-shadow: var(--court-ink-label-shadow);
+}
+
 .court-stage .platform-court__right-page-content strong {
   text-shadow: var(--court-ink-display-shadow);
 }
 
 @media (max-width: 767px) {
   .court-stage .platform-court__field-label,
-  .court-stage .platform-court__field-count,
-  .court-stage .platform-court__bicker-speaker {
+  .court-stage .platform-court__field-count {
     text-shadow: none;
   }
 }
@@ -7650,10 +7739,8 @@ textarea.clive-chat__input {
     content: none;
   }
 
-  .court-stage .platform-court__bicker-turn,
   .court-stage .platform-court__matter-title,
   .court-stage .platform-court__field-label,
-  .court-stage .platform-court__bicker-speaker,
   .court-stage .platform-court__intake-title,
   .court-stage .platform-court__judgement-summary,
   .court-stage .platform-court__right-page-content strong {
