@@ -10,7 +10,7 @@
     "test:brain-key": "vitest run src/lib/brains src/lib/clive src/lib/curation src/lib/man src/lib/receiving-wall.test.ts",
     "test:command-centre": "vitest run src/lib/command-centre",
     "test:platform-activity": "vitest run src/lib/platform-activity src/app/api/ask-clive/route.test.ts src/lib/brains/handlers/interaction-log-airtable.test.ts src/lib/brains/handlers/interaction-household.test.ts",
-    "test:platform": "vitest run src/lib/platform",
+    "test:platform": "vitest run src/lib/platform src/lib/auth src/app/api/journey/progress/route.test.ts src/app/command/gate-scope.test.ts",
     "test:e2e": "playwright test"
   },
   "dependencies": {
