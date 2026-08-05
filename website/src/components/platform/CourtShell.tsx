@@ -117,14 +117,23 @@ function useStageCenter(
   return center;
 }
 
-/** Left-page roster — portrait column + verdict strips, centred in the
- * parchment content box via flex (not absolute left% on the full stage). */
+/** Left-page roster — portrait column centred; strips staged beside it. */
 function CourtLeftPageRoster({ children }: { children: ReactNode }) {
   return (
     <div className="platform-court__left-page">
       <div className="platform-court__roster">{children}</div>
     </div>
   );
+}
+
+/** Stage % for the strip column — immediately right of centred portraits. */
+function courtStripColumnLeftPct(): number {
+  const inset = 6.04;
+  const end = 48.23;
+  const portraitW = COURT_BOOK_LAYOUT.portraitHotspot.width;
+  const pageW = end - inset;
+  const portraitLeft = inset + (pageW - portraitW) / 2;
+  return portraitLeft + portraitW + 1.2;
 }
 
 function RosterRow({ children }: { children: ReactNode }) {
@@ -169,6 +178,7 @@ function CourtBookArtwork({ children }: { children: ReactNode }) {
           className="platform-court__book-image"
         />
       </div>
+      <div className="platform-court__painted-frame-mask" aria-hidden />
       {children}
     </div>
   );
@@ -277,28 +287,20 @@ function JudgeLoopInCell() {
   );
 }
 
-/** One bench row: portrait cell + verdict strip (or picker hotspot at intake). */
+/** One bench row — portrait cell only (strips are staged separately). */
 function BenchRosterRow({
-  seatIndex,
   seat,
   stageRef,
   roleId,
   lit,
-  verdict,
-  isDeliberating,
-  finish,
   onPortraitClick,
   picking,
   pickLabel,
 }: {
-  seatIndex: number;
   seat: CourtBookSeat;
   stageRef: RefObject<HTMLElement | null>;
   roleId?: CourtAttendantId;
   lit?: boolean;
-  verdict?: AgentVerdict;
-  isDeliberating?: boolean;
-  finish?: { tilt: string; ink: number };
   onPortraitClick?: () => void;
   picking?: boolean;
   pickLabel?: string;
@@ -318,30 +320,78 @@ function BenchRosterRow({
           />
         ) : null}
       </PortraitCell>
-      {finish ? (
-        <div
-          className="platform-court__verdict-slot platform-court__verdict-slot--in-row"
-          style={
-            {
-              "--slot-tilt": finish.tilt,
-              "--slot-ink": finish.ink,
-            } as CSSProperties
-          }
-        >
-          {verdict ? (
-            <span className="platform-court__verdict-text">{verdict.verdict}</span>
-          ) : (
-            <span className="platform-court__verdict-placeholder">
-              {isDeliberating ? "⋯" : ""}
-            </span>
-          )}
-        </div>
-      ) : null}
     </RosterRow>
   );
 }
 
-/** Judge row — fixed sixth seat. */
+/** Verdict strip in the stage-anchored strip column. */
+function VerdictStripCell({
+  finish,
+  verdict,
+  isDeliberating,
+}: {
+  finish?: { tilt: string; ink: number };
+  verdict?: AgentVerdict;
+  isDeliberating?: boolean;
+}) {
+  return (
+    <div
+      className="platform-court__verdict-slot platform-court__verdict-slot--staged"
+      style={
+        finish
+          ? ({
+              "--slot-tilt": finish.tilt,
+              "--slot-ink": finish.ink,
+            } as CSSProperties)
+          : undefined
+      }
+    >
+      {verdict ? (
+        <span className="platform-court__verdict-text">{verdict.verdict}</span>
+      ) : (
+        <span className="platform-court__verdict-placeholder">
+          {isDeliberating ? "⋯" : ""}
+        </span>
+      )}
+    </div>
+  );
+}
+
+/** Strip column beside centred portraits — same six rows as the roster. */
+function CourtStripColumn({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const slot = COURT_BOOK_LAYOUT.slot;
+  return (
+    <div
+      className="platform-court__strip-column"
+      style={{
+        left: `${courtStripColumnLeftPct()}%`,
+        width: `${slot.width}%`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function JudgeStripCell() {
+  const judgeSlot = COURT_BOOK_LAYOUT.judgeSlot;
+  const slot = COURT_BOOK_LAYOUT.slot;
+  return (
+    <div
+      aria-hidden
+      className="platform-court__judge-strip platform-court__judge-strip--staged"
+      style={{ width: `${(judgeSlot.width / slot.width) * 100}%` }}
+    >
+      <span className="platform-court__judge-strip-text">summarises; does not decide</span>
+    </div>
+  );
+}
+
+/** Judge row — fixed sixth seat (portrait only; strip is in the strip column). */
 function JudgeRosterRow({
   stageRef,
   lit,
@@ -359,9 +409,6 @@ function JudgeRosterRow({
           className="platform-court__portrait-hotspot platform-court__portrait-hotspot--in-cell platform-court__portrait-hotspot--judge"
         />
       </PortraitCell>
-      <div aria-hidden className="platform-court__judge-strip platform-court__judge-strip--in-row">
-        <span className="platform-court__judge-strip-text">summarises; does not decide</span>
-      </div>
     </RosterRow>
   );
 }
@@ -582,14 +629,10 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
             return (
               <BenchRosterRow
                 key={`bench-row-${seatIndex}`}
-                seatIndex={seatIndex}
                 seat={seat}
                 stageRef={stageRef}
                 roleId={roleId}
                 lit={glowRoleId === roleId}
-                verdict={verdictMap[roleId]}
-                isDeliberating={isDeliberating}
-                finish={SLOT_FINISH[seatIndex]}
                 onPortraitClick={() => setOpenVerdictRoleId(roleId)}
                 pickLabel={roleById(roleId)?.name || roleId}
               />
@@ -597,6 +640,22 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
           })}
           <JudgeRosterRow stageRef={stageRef} lit={glowRoleId === "judge"} />
         </CourtLeftPageRoster>
+
+        <CourtStripColumn>
+          {COURT_BOOK_LAYOUT.seats.map((_, seatIndex) => {
+            const roleId = attendees[seatIndex];
+            if (!roleId) return <div key={`strip-${seatIndex}`} />;
+            return (
+              <VerdictStripCell
+                key={`strip-${seatIndex}`}
+                finish={SLOT_FINISH[seatIndex]}
+                verdict={verdictMap[roleId]}
+                isDeliberating={isDeliberating}
+              />
+            );
+          })}
+          <JudgeStripCell />
+        </CourtStripColumn>
 
         {/* Right page content area */}
         <div
@@ -959,7 +1018,6 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
             return (
               <BenchRosterRow
                 key={`intake-row-${seatIndex}`}
-                seatIndex={seatIndex}
                 seat={seat}
                 stageRef={stageRef}
                 roleId={occupant}
@@ -971,6 +1029,13 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
           })}
           <JudgeRosterRow stageRef={stageRef} />
         </CourtLeftPageRoster>
+
+        <CourtStripColumn>
+          {COURT_BOOK_LAYOUT.seats.map((_, seatIndex) => (
+            <div key={`intake-strip-${seatIndex}`} />
+          ))}
+          <JudgeStripCell />
+        </CourtStripColumn>
 
         <div
           className="platform-court__right-page-content platform-court__intake"

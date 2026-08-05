@@ -4340,12 +4340,15 @@ body {
   --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
   --font-book: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
   /* Left-page content box — parchment after binding, before spine.
-     Matches study-stage book zones; roster centres inside this box. */
-  --court-left-page-inset: 7.4%;
-  --court-left-page-end: 48.1%;
+     Measured on court-book-blank.jpg; portrait+strip block centres inside. */
+  --court-left-page-inset: 6.04%;
+  --court-left-page-end: 48.23%;
   --court-page-gutter: clamp(0.25rem, 0.8vw, 0.75rem);
-  --court-portrait-col: 24%;
-  --court-roster-width: min(100%, 94%);
+  --court-portrait-hotspot-w: 7.6%;
+  --court-portrait-hotspot-h: 13.4%;
+  --court-strip-w: 24.8%;
+  --court-roster-gap: 2.2%;
+  --court-left-block-w: 82%;
   position: relative;
   height: 100vh;
   height: 100dvh;
@@ -4403,15 +4406,15 @@ body {
   border-radius: 2px;
 }
 
-/* Artwork layer: aspect-ratio lock to preserve hotspot/slot percentages across viewports */
+/* Artwork layer: 16×9 fitted inside the viewport (contain, not cover-crop). */
 .court-stage__artwork {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   aspect-ratio: 16 / 9;
-  width: max(100vw, 177.78dvh);
-  height: max(100dvh, 56.25vw);
+  width: min(100vw, 177.78dvh);
+  height: min(100dvh, 56.25vw);
   z-index: 1;
 }
 
@@ -4422,7 +4425,7 @@ body {
   z-index: 1;
 }
 
-/* ── Left-page roster: portrait column centred in parchment content box ── */
+/* ── Left-page roster: portrait column centred in parchment box ── */
 .platform-court__left-page {
   position: absolute;
   z-index: 1;
@@ -4435,34 +4438,38 @@ body {
   align-items: stretch;
   pointer-events: none;
   overflow: visible;
-  padding-inline: 2%;
 }
 
 .platform-court__roster {
   display: grid;
   grid-template-rows: repeat(6, minmax(0, 1fr));
-  width: var(--court-roster-width);
+  width: 18.01%;
   height: 100%;
-  margin: 0 auto;
+  pointer-events: none;
+}
+
+.platform-court__strip-column {
+  position: absolute;
+  z-index: 1;
+  top: 7%;
+  bottom: 4%;
+  display: grid;
+  grid-template-rows: repeat(6, minmax(0, 1fr));
   pointer-events: none;
 }
 
 .platform-court__roster-row {
-  display: grid;
-  grid-template-columns: var(--court-portrait-col) minmax(0, 1fr);
+  display: flex;
   align-items: center;
-  column-gap: 3%;
+  justify-content: center;
   min-height: 0;
   pointer-events: none;
 }
 
 .platform-court__portrait-cell {
   position: relative;
-  justify-self: center;
-  align-self: center;
   width: 100%;
-  max-width: 5.8rem;
-  aspect-ratio: 0.52;
+  aspect-ratio: 7.6 / 13.4;
   max-height: 92%;
   pointer-events: auto;
 }
@@ -4481,56 +4488,39 @@ body {
 .platform-court__frame-ring--in-cell {
   position: absolute;
   inset: -10%;
-  width: auto;
-  height: auto;
   transform: none;
-  left: auto;
-  top: auto;
 }
 
 .platform-court__portrait-hotspot--in-cell {
   position: absolute;
   inset: -8%;
-  width: auto;
-  height: auto;
   transform: none;
-  left: auto;
-  top: auto;
   border-radius: 50%;
 }
 
 .platform-court__portrait-glow--in-cell {
   position: absolute;
   inset: -14%;
-  width: auto;
-  height: auto;
   transform: none;
-  left: auto;
-  top: auto;
 }
 
 .platform-court__judge-loop--in-cell {
   position: absolute;
   inset: -6%;
-  width: auto;
-  height: auto;
   transform: none;
-  left: auto;
-  top: auto;
 }
 
-.platform-court__verdict-slot--in-row,
-.platform-court__judge-strip--in-row {
+.platform-court__verdict-slot--staged,
+.platform-court__judge-strip--staged {
   position: relative;
-  left: auto;
-  top: auto;
-  width: auto;
+  align-self: center;
+  width: 100%;
   height: 58%;
   min-height: 0;
   pointer-events: auto;
 }
 
-.platform-court__judge-strip--in-row {
+.platform-court__judge-strip--staged {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4549,6 +4539,22 @@ body {
   inset: 0;
   z-index: 0;
   pointer-events: none;
+}
+
+/* Covers empty gilt frames once live portraits centre in the parchment box. */
+.platform-court__painted-frame-mask {
+  position: absolute;
+  z-index: 0;
+  top: 6%;
+  bottom: 3%;
+  left: 5.2%;
+  width: 13.5%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 120% 80% at 18% 12%, rgba(255, 244, 220, 0.55), transparent 58%),
+    radial-gradient(ellipse 90% 60% at 80% 88%, rgba(120, 90, 55, 0.12), transparent 52%),
+    linear-gradient(175deg, #e8dcc4 0%, #dcc9a3 42%, #d2bc94 100%);
+  box-shadow: inset -6px 0 14px rgba(80, 55, 30, 0.08);
 }
 
 .platform-court__book-image {
