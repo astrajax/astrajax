@@ -1,0 +1,1 @@
+Write-path probe from the Kate agent, 5 Aug 2026, verifying github__push_files works in-thread before answering a capability question. Branch and file are scratch; delete after verification.
