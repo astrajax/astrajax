@@ -4475,8 +4475,14 @@ body {
 }
 
 .platform-court__book-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: center;
+  /* Served at native 1920×1080 — no optimizer downscale/recompress. */
+  image-rendering: auto;
 }
 
 .platform-court__portrait-hotspot,
@@ -4774,21 +4780,44 @@ body {
   }
 }
 
-.platform-court__verdict-placeholder {
-  color: var(--book-ink);
-  opacity: 0.85;
-  font-family: var(--font-engraved, "Iowan Old Style"), "Palatino Linotype", "Times New Roman", serif;
-  font-size: 0.55rem;
-  letter-spacing: 0.2em;
-  animation: verdictPulse 1.2s ease-in-out infinite;
+/* Pending verdict strips: name + Court role before the engraved verdict lands. */
+.platform-court__verdict-pending {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.08rem;
+  width: 100%;
+  text-align: center;
+  line-height: 1.12;
+  padding-inline: 3%;
 }
 
-@keyframes verdictPulse {
+.platform-court__verdict-pending-name {
+  font-family: var(--font-book);
+  font-weight: 600;
+  font-size: clamp(0.56rem, 0.82vw, 0.76rem);
+  letter-spacing: 0.02em;
+  color: var(--book-ink);
+}
+
+.platform-court__verdict-pending-title {
+  font-family: var(--font-book);
+  font-style: italic;
+  font-size: clamp(0.48rem, 0.68vw, 0.64rem);
+  color: color-mix(in srgb, var(--book-ink) 68%, transparent);
+}
+
+.platform-court__verdict-pending--deliberating {
+  animation: verdictPendingPulse 1.4s ease-in-out infinite;
+}
+
+@keyframes verdictPendingPulse {
   0%, 100% {
-    opacity: 0.85;
+    opacity: 0.92;
   }
   50% {
-    opacity: 0.4;
+    opacity: 0.62;
   }
 }
 
@@ -4977,19 +5006,25 @@ body {
 /* ── Intake on the book (right page, parchment) ── */
 .platform-court__intake {
   color: var(--book-ink);
+  align-items: center;
 }
 
 .platform-court__intake-scroll {
   display: flex;
   flex-direction: column;
   flex: 1;
+  width: 100%;
   height: 100%;
   min-height: 0;
   overflow: hidden;
+  align-items: center;
 }
 
 .platform-court__intake-body {
   flex: 1;
+  width: 100%;
+  max-width: 88%;
+  margin-inline: auto;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
@@ -7436,13 +7471,18 @@ textarea.clive-chat__input {
 
 .court-stage {
   --court-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.55'/%3E%3C/svg%3E");
+  /* Slightly denser than folio — Court parchment reads warmer/darker in art. */
   --court-ink-body-shadow:
-    0 0 0.4px rgba(35, 39, 27, 0.28),
-    0.3px 0.3px 0 rgba(35, 39, 27, 0.1);
+    0 0 0.55px rgba(35, 39, 27, 0.38),
+    0.35px 0.35px 0 rgba(35, 39, 27, 0.14),
+    0 0.6px 0.8px rgba(35, 39, 27, 0.06);
   --court-ink-display-shadow:
-    0 0 0.6px rgba(35, 39, 27, 0.4),
-    0.4px 0.4px 0 rgba(35, 39, 27, 0.16);
-  --court-ink-label-shadow: 0 0 0.3px rgba(35, 39, 27, 0.2);
+    0 0 0.75px rgba(35, 39, 27, 0.48),
+    0.45px 0.45px 0 rgba(35, 39, 27, 0.2),
+    0 0.8px 1px rgba(35, 39, 27, 0.08);
+  --court-ink-label-shadow:
+    0 0 0.4px rgba(35, 39, 27, 0.28),
+    0.25px 0.25px 0 rgba(35, 39, 27, 0.1);
 }
 
 .platform-court__book-container::before,
@@ -7454,7 +7494,7 @@ textarea.clive-chat__input {
   background-image: var(--court-fibre);
   background-size: 240px 240px;
   background-repeat: repeat;
-  opacity: 0.035;
+  opacity: 0.048;
   -webkit-mask-image: radial-gradient(
     ellipse 92% 88% at 50% 50%,
     #000 62%,
@@ -7491,9 +7531,18 @@ textarea.clive-chat__input {
 .court-stage .platform-court__underline-input,
 .court-stage .platform-court__input,
 .court-stage .platform-court__verdict-panel-inner p,
-.court-stage .platform-court__seat-picker-note {
+.court-stage .platform-court__seat-picker-note,
+.court-stage .platform-court__verdict-pending-name,
+.court-stage .platform-court__verdict-pending-title {
   color: var(--book-ink);
   text-shadow: var(--court-ink-body-shadow);
+}
+
+.court-stage .platform-court__underline-input::placeholder,
+.court-stage .platform-court__input::placeholder {
+  color: color-mix(in srgb, var(--book-ink) 42%, transparent);
+  text-shadow: var(--court-ink-label-shadow);
+  opacity: 1;
 }
 
 /* DISPLAY — titles and headlines */
@@ -7503,6 +7552,7 @@ textarea.clive-chat__input {
 .court-stage .platform-court__verdict-headline,
 .court-stage .platform-court__judgement-verdict,
 .court-stage .platform-court__seat-candidate-name {
+  color: var(--book-ink);
   text-shadow: var(--court-ink-display-shadow);
 }
 
@@ -7513,7 +7563,9 @@ textarea.clive-chat__input {
 .court-stage .platform-court__judgement-eyebrow,
 .court-stage .platform-court__seat-candidate-title,
 .court-stage .platform-court__seat-candidate-state,
-.court-stage .platform-court__muted {
+.court-stage .platform-court__muted,
+.court-stage .platform-court__inline-link {
+  color: var(--book-ink);
   text-shadow: var(--court-ink-label-shadow);
 }
 
