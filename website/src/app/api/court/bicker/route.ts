@@ -104,13 +104,16 @@ function extractJsonFromText(
 
 function seedBickerRotation(
   transcriptLength: number,
-  attendees: CourtAttendantId[]
+  attendees: CourtAttendantId[],
+  flurry = false,
 ): BickerTurn[] {
   const pool = SEEDED_BICKER.filter((turn) => attendees.includes(turn.roleId));
   if (pool.length === 0) return [];
   const startIdx = transcriptLength % pool.length;
+  const batchSize =
+    flurry || transcriptLength === 0 ? Math.min(10, pool.length) : Math.min(5, pool.length);
   const result: BickerTurn[] = [];
-  for (let i = 0; i < Math.min(3, pool.length); i++) {
+  for (let i = 0; i < batchSize; i++) {
     const idx = (startIdx + i) % pool.length;
     result.push(pool[idx]);
   }
@@ -126,6 +129,7 @@ export async function POST(request: Request) {
     userMessage,
     attendees: attendeesRaw,
     callIndex: callIndexRaw,
+    openingFlurry,
   } = await request.json();
 
   if (typeof title !== "string" || title.length === 0 || title.length > 500) {
@@ -180,16 +184,20 @@ export async function POST(request: Request) {
     typeof callIndexRaw === "number" && Number.isInteger(callIndexRaw) ? callIndexRaw : 5;
   const manifest = codeManifest({ source: "court-personas", promptVersion: "court-bicker-v2" });
 
+  const isOpeningFlurry =
+    openingFlurry === true || (transcript.length === 0 && callIndex <= 6);
+  const turnBatch = isOpeningFlurry ? "6 to 10" : "4 to 5";
+
   const matter = `Title: ${title}\n\nContext: ${context}\n\nStakes: ${stakes}`;
   const prompt = userMsg
-    ? `${matter}\n\nRecent bench discussion:\n${truncatedTranscript}\n\nThe petitioner says: "${userMsg}"\n\nRespond with the next 2-3 short bench turns.`
-    : `${matter}\n\nRecent bench discussion:\n${truncatedTranscript}\n\nContinue the squabble with 2-3 more short turns.`;
+    ? `${matter}\n\nRecent bench discussion:\n${truncatedTranscript}\n\nThe petitioner says: "${userMsg}"\n\nRespond with the next ${turnBatch} short bench turns.`
+    : `${matter}\n\nRecent bench discussion:\n${truncatedTranscript}\n\nContinue the squabble with ${turnBatch} more short turns — a lively back-and-forth, not a tidy summary.`;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   const model = process.env.COURT_MODEL || "claude-haiku-4-5-20251001";
 
   if (!apiKey) {
-    const turns = seedBickerRotation(transcript.length, attendees);
+    const turns = seedBickerRotation(transcript.length, attendees, isOpeningFlurry);
     if (userMsg) {
       await queueTurnWithoutModel({
         handle: platformHandle,
@@ -219,9 +227,9 @@ export async function POST(request: Request) {
 
 ${SHARED_COURT_RULES}
 
-Only these bench members are seated this session: ${attendees.join(", ")} (plus the judge). No other cast member is present; never speak for an absent colleague. Continue the squabble between the seated bench members about the matter. Produce the next 2 or 3 short turns as JSON {"turns":[{"roleId":"${roleIdList}","line":"..."}]}. Each line under 35 words. They bicker—interrupt, needle each other by name, disagree in character. They never conclude or vote. The judge speaks at most rarely and only to note the human decides.${userMsg ? ' If the transcript ends with a turn from the petitioner, the bench must respond to them directly (address them as "the petitioner" or by their words), at least one turn doing so.' : ""}`,
+Only these bench members are seated this session: ${attendees.join(", ")} (plus the judge). No other cast member is present; never speak for an absent colleague. Continue the squabble between the seated bench members about the matter. Produce the next ${turnBatch} short turns as JSON {"turns":[{"roleId":"${roleIdList}","line":"..."}]}. Each line under 35 words. They bicker—interrupt, needle each other by name, disagree in character. They never conclude or vote. The judge speaks at most rarely and only to note the human decides.${userMsg ? ' If the transcript ends with a turn from the petitioner, the bench must respond to them directly (address them as "the petitioner" or by their words), at least one turn doing so.' : ""}`,
       prompt,
-      maxOutputTokens: 300,
+      maxOutputTokens: isOpeningFlurry ? 750 : 450,
       temperature: 1,
     });
 
@@ -268,7 +276,7 @@ Only these bench members are seated this session: ${attendees.join(", ")} (plus 
     }
     return Response.json({ turns });
   } catch {
-    const turns = seedBickerRotation(transcript.length, attendees);
+    const turns = seedBickerRotation(transcript.length, attendees, isOpeningFlurry);
     if (userMsg) {
       await queueTurnWithoutModel({
         handle: platformHandle,
