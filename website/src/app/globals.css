@@ -4344,12 +4344,15 @@ body {
 .court-stage {
   /* The Court owns its ink. --book-ink previously resolved only inside
      .study-stage (chapter 1); on /court it was undefined, so every border
-     and muted tone built on it was silently dropped. Written record voice =
-     Georgia (matching the study book); engraved brass = Cinzel via
-     --font-engraved, page-scoped in court/page.tsx like the Brain Shrine. */
+     and muted tone built on it was silently dropped. Book UI voice = Cinzel
+     (same face as Clive's Man Receiving Wall), page-scoped via
+     --font-engraved in court/page.tsx. */
   --book-ink: #23271b;
   --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
-  --font-book: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  --font-book: var(--font-engraved, "Cinzel"), "Palatino Linotype", "Times New Roman", serif;
+  --court-engraved-shadow:
+    0 1px 0 rgba(255, 244, 220, 0.38),
+    0 -0.5px 0 rgba(26, 16, 8, 0.26);
   position: relative;
   height: 100vh;
   height: 100dvh;
@@ -4481,7 +4484,7 @@ body {
   height: 100%;
   object-fit: cover;
   object-position: center;
-  /* Served at native 1920×1080 — no optimizer downscale/recompress. */
+  /* Served at native 4096×2304 — no optimizer downscale/recompress. */
   image-rendering: auto;
 }
 
@@ -4570,16 +4573,23 @@ body {
   position: absolute;
   display: flex;
   align-items: center;
-  padding-inline: 4%;
+  justify-content: center;
+  padding-inline: 5%;
   transform: translateY(-50%);
   pointer-events: none;
+  text-align: center;
 }
 
 .platform-court__judge-strip-text {
+  width: 100%;
   font-family: var(--font-book);
   font-style: italic;
-  font-size: clamp(0.62rem, 1vw, 0.9rem);
-  color: color-mix(in srgb, var(--book-ink) 55%, transparent);
+  font-size: clamp(0.56rem, 0.88vw, 0.82rem);
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+  text-align: center;
+  color: color-mix(in srgb, var(--book-ink) 58%, transparent);
+  text-shadow: var(--court-engraved-shadow);
 }
 
 /* ── Cast layers beneath the punched plate (art v3) ── */
@@ -4745,8 +4755,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-inline: 4%;
+  padding-inline: 5%;
   overflow: hidden;
+  text-align: center;
   /* Layout y-coordinates are the vertical centre of the painted square.
      --slot-tilt gives each entry a written-by-hand whisper of rotation. */
   transform: translateY(-50%) rotate(var(--slot-tilt, 0deg));
@@ -4757,15 +4768,15 @@ body {
    light below, dark above — presses the ink into the paint. --slot-ink
    varies the ink weight per entry. */
 .platform-court__verdict-text {
+  width: 100%;
+  text-align: center;
   color: var(--book-ink);
   opacity: var(--slot-ink, 0.85);
-  font-family: var(--font-engraved, "Iowan Old Style"), "Palatino Linotype", "Times New Roman", serif;
+  font-family: var(--font-book);
   font-weight: 600;
   font-size: clamp(0.74rem, 1.2vw, 1.1rem);
   letter-spacing: 0.06em;
-  text-shadow:
-    0 1px 0 rgba(255, 244, 220, 0.4),
-    0 -0.5px 0 rgba(26, 16, 8, 0.28);
+  text-shadow: var(--court-engraved-shadow);
   animation: verdictInkIn 0.9s ease-out both;
 }
 
@@ -4786,26 +4797,31 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.08rem;
+  gap: 0.1rem;
   width: 100%;
+  height: 100%;
   text-align: center;
-  line-height: 1.12;
-  padding-inline: 3%;
+  line-height: 1.15;
+  padding-inline: 4%;
 }
 
 .platform-court__verdict-pending-name {
   font-family: var(--font-book);
-  font-weight: 600;
-  font-size: clamp(0.56rem, 0.82vw, 0.76rem);
-  letter-spacing: 0.02em;
+  font-weight: 700;
+  font-size: clamp(0.54rem, 0.78vw, 0.72rem);
+  letter-spacing: 0.05em;
   color: var(--book-ink);
+  text-shadow: var(--court-engraved-shadow);
 }
 
 .platform-court__verdict-pending-title {
   font-family: var(--font-book);
   font-style: italic;
-  font-size: clamp(0.48rem, 0.68vw, 0.64rem);
+  font-weight: 600;
+  font-size: clamp(0.46rem, 0.64vw, 0.6rem);
+  letter-spacing: 0.03em;
   color: color-mix(in srgb, var(--book-ink) 68%, transparent);
+  text-shadow: var(--court-engraved-shadow);
 }
 
 .platform-court__verdict-pending--deliberating {
@@ -5007,6 +5023,7 @@ body {
 .platform-court__intake {
   color: var(--book-ink);
   align-items: center;
+  justify-content: center;
 }
 
 .platform-court__intake-scroll {
@@ -5018,19 +5035,18 @@ body {
   min-height: 0;
   overflow: hidden;
   align-items: center;
+  justify-content: center;
 }
 
 .platform-court__intake-body {
-  flex: 1;
   width: 100%;
-  max-width: 88%;
+  max-width: 92%;
   margin-inline: auto;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  padding-right: 0.5rem;
-  /* Keep the last field's descenders clear of the scrollport edge */
-  padding-bottom: 0.5rem;
+  padding: 0 0.5rem 0.5rem 0;
+  text-align: center;
 }
 
 .platform-court__intake-body::-webkit-scrollbar {
@@ -5043,24 +5059,34 @@ body {
 
 .platform-court__intake-title {
   font-family: var(--font-book);
-  font-weight: 600;
-  font-size: clamp(1.05rem, 1.6vw, 1.45rem);
-  line-height: 1.2;
+  font-weight: 700;
+  font-size: clamp(1rem, 1.45vw, 1.35rem);
+  line-height: 1.25;
+  letter-spacing: 0.06em;
   color: var(--book-ink);
   margin: 0;
+  text-shadow: var(--court-engraved-shadow);
 }
 
 .platform-court__intake-lede {
-  margin: 0.35rem 0 0.7rem;
-  font-size: clamp(0.78rem, 0.95vw, 0.9rem);
-  line-height: 1.4;
-  color: color-mix(in srgb, var(--book-ink) 82%, transparent);
+  margin: 0.45rem auto 0.85rem;
+  max-width: 36em;
+  font-family: var(--font-book);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(0.72rem, 0.9vw, 0.86rem);
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--book-ink) 78%, transparent);
+  text-shadow: var(--court-engraved-shadow);
 }
 
 .platform-court__intake-form {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
+  text-align: left;
+  max-width: 100%;
 }
 
 .platform-court__field {
@@ -5075,10 +5101,12 @@ body {
   justify-content: space-between;
   gap: 0.5rem;
   font-family: var(--font-book);
-  font-size: 0.7rem;
+  font-weight: 600;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: color-mix(in srgb, var(--book-ink) 60%, transparent);
+  letter-spacing: 0.14em;
+  color: color-mix(in srgb, var(--book-ink) 62%, transparent);
+  text-shadow: var(--court-engraved-shadow);
 }
 
 .platform-court__field-count {
@@ -5096,11 +5124,13 @@ body {
   min-width: 0;
   max-width: 100%;
   overflow-wrap: break-word;
-  font-size: 0.875rem;
+  font-family: var(--font-book);
+  font-weight: 600;
+  font-size: 0.82rem;
   line-height: 1.45;
+  letter-spacing: 0.02em;
   background: transparent;
   color: var(--book-ink);
-  font-family: inherit;
   width: 100%;
   box-sizing: border-box;
 }
