@@ -4750,6 +4750,18 @@ body {
   transform: scaleX(1.08);
 }
 
+/* In-cell cast layers anchor with symmetric inset on the portrait cell.
+   Base rules above use translate(-50%, -50%) for stage-anchored sprites;
+   those transforms must not win here or rings and portraits shift ~half
+   their box width left of the centred column (#79). */
+.platform-court__portrait-art--in-cell,
+.platform-court__frame-ring--in-cell,
+.platform-court__portrait-hotspot--in-cell,
+.platform-court__portrait-glow--in-cell,
+.platform-court__judge-loop--in-cell {
+  transform: none;
+}
+
 /* A seat being recast holds its lamplight while the roster is open. */
 .platform-court__portrait-hotspot--picking::after {
   opacity: 1;
