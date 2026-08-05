@@ -1,11 +1,6 @@
-import { appendChangeLog } from "../change-log";
 import { normalizeCreatedBy } from "../airtable-field-values";
-import { airtableCreate, airtableFindOne, airtableUpdate } from "../airtable-rest";
+import { airtableCreate } from "../airtable-rest";
 import {
-  BRAIN_INTERACTION_CONTEXT_FLAGGED,
-  BRAIN_INTERACTION_REVIEW_STATUS,
-  BRAIN_TRUSTED_CHAPTER1_BASE_ID,
-  BRAIN_TRUSTED_CHAPTER1_TABLES,
   BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS,
   BRAIN_WORKSHOP_TABLES,
   DRAFT_TRUTH_STATUS,
@@ -40,10 +35,6 @@ function nextMemoryId(prefix: string): string {
 
 function writeToken(): string | undefined {
   return getDocPromoteToken() ?? getWorkshopWriteToken();
-}
-
-function escapeRecordId(recordId: string): string {
-  return recordId.replace(/'/g, "\\'");
 }
 
 /**
@@ -136,6 +127,13 @@ export async function createDraftTruth(input: {
   return { recordId: created.id, destination: "workshop-draft-truth", mode: "airtable" };
 }
 
+/**
+ * Memory/demo promote only. Live Trusted Brain writes must go through
+ * `handleDocPromote` (approval decision + authenticated Doc promote route).
+ * The curation confirm shortcut used to call this against Airtable whenever
+ * workshop/doc tokens were set — an unauthenticated POST could write Trusted
+ * truth and quarantine drafts.
+ */
 export async function promoteDraftToTrustedDemo(input: {
   brainSlug: string;
   draftRecordId: string;
@@ -148,83 +146,32 @@ export async function promoteDraftToTrustedDemo(input: {
     throw new Error(`Invalid trusted scope: ${scope}`);
   }
 
-  if (useMemoryStore() || !getWorkshopBaseId() || !writeToken()) {
-    const draft = memoryDrafts.find((row) => row.recordId === input.draftRecordId);
-    if (!draft) throw new Error(`Draft record not found: ${input.draftRecordId}`);
-    assertDraftEligibleForPromote({
-      draftRecordId: input.draftRecordId,
-      brainSlug: input.brainSlug,
-      fields: {
-        Title: draft.title,
-        "Canonical Text": draft.canonicalText,
-        "Brain Slug": draft.brainSlug,
-        Status: draft.status,
-      },
-    });
-    const recordId = nextMemoryId("mem_trusted");
-    memoryTrusted.push({
-      recordId,
-      title: draft.title,
-      canonicalText: draft.canonicalText,
-    });
-    draft.status = "Quarantined";
-    return { recordId, destination: "trusted-brain-truth", mode: "memory" };
+  if (!(useMemoryStore() || !getWorkshopBaseId() || !writeToken())) {
+    throw new Error(
+      "Live Trusted Brain promote requires Doc promote with an approval decision.",
+    );
   }
 
-  const token = writeToken()!;
-  const draft = await airtableFindOne(
-    getWorkshopBaseId()!,
-    BRAIN_WORKSHOP_TABLES.draftBrainTruth,
-    token,
-    `RECORD_ID()='${escapeRecordId(input.draftRecordId)}'`,
-  );
+  const draft = memoryDrafts.find((row) => row.recordId === input.draftRecordId);
   if (!draft) throw new Error(`Draft record not found: ${input.draftRecordId}`);
-
-  const { title, canonicalText } = assertDraftEligibleForPromote({
+  assertDraftEligibleForPromote({
     draftRecordId: input.draftRecordId,
     brainSlug: input.brainSlug,
-    fields: draft.fields,
+    fields: {
+      Title: draft.title,
+      "Canonical Text": draft.canonicalText,
+      "Brain Slug": draft.brainSlug,
+      Status: draft.status,
+    },
   });
-
-  const trustedBaseId = process.env.BRAIN_TRUSTED_BASE_ID ?? BRAIN_TRUSTED_CHAPTER1_BASE_ID;
-  const trustedTableId =
-    process.env.BRAIN_TRUSTED_TRUTH_TABLE_ID ?? BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth;
-  const today = new Date().toISOString().slice(0, 10);
-
-  const trusted = await airtableCreate(trustedBaseId, trustedTableId, token, {
-    Title: title,
-    "Canonical Text": canonicalText,
-    Category: input.category.trim(),
-    Scope: scope,
-    Authority: input.actor ?? "Architect",
-    Freshness: "Current",
-    "Last Reviewed": today,
+  const recordId = nextMemoryId("mem_trusted");
+  memoryTrusted.push({
+    recordId,
+    title: draft.title,
+    canonicalText: draft.canonicalText,
   });
-
-  await airtableUpdate(
-    getWorkshopBaseId()!,
-    BRAIN_WORKSHOP_TABLES.draftBrainTruth,
-    token,
-    input.draftRecordId,
-    { Status: "Quarantined" },
-  );
-
-  try {
-    await appendChangeLog({
-      changeSummary: `Demo promote: ${title}`,
-      changeType: "Truth Promote",
-      changedBy: input.actor ?? "Architect",
-      approvedBy: input.actor ?? "Architect",
-      executingAgent: "Clive",
-      reason: "Demo curation sitting — direct promote",
-      affectedRecords: trusted.id,
-      source: "Curation API",
-    });
-  } catch {
-    /* non-blocking */
-  }
-
-  return { recordId: trusted.id, destination: "trusted-brain-truth", mode: "airtable" };
+  draft.status = "Quarantined";
+  return { recordId, destination: "trusted-brain-truth", mode: "memory" };
 }
 
 export async function flagInteraction(input: {
