@@ -4344,15 +4344,12 @@ body {
 .court-stage {
   /* The Court owns its ink. --book-ink previously resolved only inside
      .study-stage (chapter 1); on /court it was undefined, so every border
-     and muted tone built on it was silently dropped. Book UI voice = Cinzel
-     (same face as Clive's Man Receiving Wall), page-scoped via
-     --font-engraved in court/page.tsx. */
+     and muted tone built on it was silently dropped. Written record voice =
+     Georgia (matching the study book); engraved brass = Cinzel via
+     --font-engraved, page-scoped in court/page.tsx like the Brain Shrine. */
   --book-ink: #23271b;
   --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
-  --font-book: var(--font-engraved, "Cinzel"), "Palatino Linotype", "Times New Roman", serif;
-  --court-engraved-shadow:
-    0 1px 0 rgba(255, 244, 220, 0.38),
-    0 -0.5px 0 rgba(26, 16, 8, 0.26);
+  --font-book: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
   position: relative;
   height: 100vh;
   height: 100dvh;
@@ -4478,14 +4475,8 @@ body {
 }
 
 .platform-court__book-image {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
   object-fit: cover;
   object-position: center;
-  /* Served at native 4096×2304 — no optimizer downscale/recompress. */
-  image-rendering: auto;
 }
 
 .platform-court__portrait-hotspot,
@@ -4573,23 +4564,16 @@ body {
   position: absolute;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding-inline: 5%;
+  padding-inline: 4%;
   transform: translateY(-50%);
   pointer-events: none;
-  text-align: center;
 }
 
 .platform-court__judge-strip-text {
-  width: 100%;
   font-family: var(--font-book);
   font-style: italic;
-  font-size: clamp(0.56rem, 0.88vw, 0.82rem);
-  line-height: 1.2;
-  letter-spacing: 0.03em;
-  text-align: center;
-  color: color-mix(in srgb, var(--book-ink) 58%, transparent);
-  text-shadow: var(--court-engraved-shadow);
+  font-size: clamp(0.62rem, 1vw, 0.9rem);
+  color: color-mix(in srgb, var(--book-ink) 55%, transparent);
 }
 
 /* ── Cast layers beneath the punched plate (art v3) ── */
@@ -4755,9 +4739,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-inline: 5%;
+  padding-inline: 4%;
   overflow: hidden;
-  text-align: center;
   /* Layout y-coordinates are the vertical centre of the painted square.
      --slot-tilt gives each entry a written-by-hand whisper of rotation. */
   transform: translateY(-50%) rotate(var(--slot-tilt, 0deg));
@@ -4768,15 +4751,15 @@ body {
    light below, dark above — presses the ink into the paint. --slot-ink
    varies the ink weight per entry. */
 .platform-court__verdict-text {
-  width: 100%;
-  text-align: center;
   color: var(--book-ink);
   opacity: var(--slot-ink, 0.85);
-  font-family: var(--font-book);
+  font-family: var(--font-engraved, "Iowan Old Style"), "Palatino Linotype", "Times New Roman", serif;
   font-weight: 600;
   font-size: clamp(0.74rem, 1.2vw, 1.1rem);
   letter-spacing: 0.06em;
-  text-shadow: var(--court-engraved-shadow);
+  text-shadow:
+    0 1px 0 rgba(255, 244, 220, 0.4),
+    0 -0.5px 0 rgba(26, 16, 8, 0.28);
   animation: verdictInkIn 0.9s ease-out both;
 }
 
@@ -4791,49 +4774,21 @@ body {
   }
 }
 
-/* Pending verdict strips: name + Court role before the engraved verdict lands. */
-.platform-court__verdict-pending {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.1rem;
-  width: 100%;
-  height: 100%;
-  text-align: center;
-  line-height: 1.15;
-  padding-inline: 4%;
-}
-
-.platform-court__verdict-pending-name {
-  font-family: var(--font-book);
-  font-weight: 700;
-  font-size: clamp(0.54rem, 0.78vw, 0.72rem);
-  letter-spacing: 0.05em;
+.platform-court__verdict-placeholder {
   color: var(--book-ink);
-  text-shadow: var(--court-engraved-shadow);
+  opacity: 0.85;
+  font-family: var(--font-engraved, "Iowan Old Style"), "Palatino Linotype", "Times New Roman", serif;
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  animation: verdictPulse 1.2s ease-in-out infinite;
 }
 
-.platform-court__verdict-pending-title {
-  font-family: var(--font-book);
-  font-style: italic;
-  font-weight: 600;
-  font-size: clamp(0.46rem, 0.64vw, 0.6rem);
-  letter-spacing: 0.03em;
-  color: color-mix(in srgb, var(--book-ink) 68%, transparent);
-  text-shadow: var(--court-engraved-shadow);
-}
-
-.platform-court__verdict-pending--deliberating {
-  animation: verdictPendingPulse 1.4s ease-in-out infinite;
-}
-
-@keyframes verdictPendingPulse {
+@keyframes verdictPulse {
   0%, 100% {
-    opacity: 0.92;
+    opacity: 0.85;
   }
   50% {
-    opacity: 0.62;
+    opacity: 0.4;
   }
 }
 
@@ -5022,31 +4977,25 @@ body {
 /* ── Intake on the book (right page, parchment) ── */
 .platform-court__intake {
   color: var(--book-ink);
-  align-items: center;
-  justify-content: center;
 }
 
 .platform-court__intake-scroll {
   display: flex;
   flex-direction: column;
   flex: 1;
-  width: 100%;
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  align-items: center;
-  justify-content: center;
 }
 
 .platform-court__intake-body {
-  width: 100%;
-  max-width: 92%;
-  margin-inline: auto;
+  flex: 1;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  padding: 0 0.5rem 0.5rem 0;
-  text-align: center;
+  padding-right: 0.5rem;
+  /* Keep the last field's descenders clear of the scrollport edge */
+  padding-bottom: 0.5rem;
 }
 
 .platform-court__intake-body::-webkit-scrollbar {
@@ -5059,34 +5008,24 @@ body {
 
 .platform-court__intake-title {
   font-family: var(--font-book);
-  font-weight: 700;
-  font-size: clamp(1rem, 1.45vw, 1.35rem);
-  line-height: 1.25;
-  letter-spacing: 0.06em;
+  font-weight: 600;
+  font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+  line-height: 1.2;
   color: var(--book-ink);
   margin: 0;
-  text-shadow: var(--court-engraved-shadow);
 }
 
 .platform-court__intake-lede {
-  margin: 0.45rem auto 0.85rem;
-  max-width: 36em;
-  font-family: var(--font-book);
-  font-style: italic;
-  font-weight: 600;
-  font-size: clamp(0.72rem, 0.9vw, 0.86rem);
-  line-height: 1.45;
-  letter-spacing: 0.02em;
-  color: color-mix(in srgb, var(--book-ink) 78%, transparent);
-  text-shadow: var(--court-engraved-shadow);
+  margin: 0.35rem 0 0.7rem;
+  font-size: clamp(0.78rem, 0.95vw, 0.9rem);
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--book-ink) 82%, transparent);
 }
 
 .platform-court__intake-form {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
-  text-align: left;
-  max-width: 100%;
 }
 
 .platform-court__field {
@@ -5101,12 +5040,10 @@ body {
   justify-content: space-between;
   gap: 0.5rem;
   font-family: var(--font-book);
-  font-weight: 600;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: color-mix(in srgb, var(--book-ink) 62%, transparent);
-  text-shadow: var(--court-engraved-shadow);
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--book-ink) 60%, transparent);
 }
 
 .platform-court__field-count {
@@ -5124,13 +5061,11 @@ body {
   min-width: 0;
   max-width: 100%;
   overflow-wrap: break-word;
-  font-family: var(--font-book);
-  font-weight: 600;
-  font-size: 0.82rem;
+  font-size: 0.875rem;
   line-height: 1.45;
-  letter-spacing: 0.02em;
   background: transparent;
   color: var(--book-ink);
+  font-family: inherit;
   width: 100%;
   box-sizing: border-box;
 }
@@ -7501,18 +7436,13 @@ textarea.clive-chat__input {
 
 .court-stage {
   --court-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.55'/%3E%3C/svg%3E");
-  /* Slightly denser than folio — Court parchment reads warmer/darker in art. */
   --court-ink-body-shadow:
-    0 0 0.55px rgba(35, 39, 27, 0.38),
-    0.35px 0.35px 0 rgba(35, 39, 27, 0.14),
-    0 0.6px 0.8px rgba(35, 39, 27, 0.06);
-  --court-ink-display-shadow:
-    0 0 0.75px rgba(35, 39, 27, 0.48),
-    0.45px 0.45px 0 rgba(35, 39, 27, 0.2),
-    0 0.8px 1px rgba(35, 39, 27, 0.08);
-  --court-ink-label-shadow:
     0 0 0.4px rgba(35, 39, 27, 0.28),
-    0.25px 0.25px 0 rgba(35, 39, 27, 0.1);
+    0.3px 0.3px 0 rgba(35, 39, 27, 0.1);
+  --court-ink-display-shadow:
+    0 0 0.6px rgba(35, 39, 27, 0.4),
+    0.4px 0.4px 0 rgba(35, 39, 27, 0.16);
+  --court-ink-label-shadow: 0 0 0.3px rgba(35, 39, 27, 0.2);
 }
 
 .platform-court__book-container::before,
@@ -7524,7 +7454,7 @@ textarea.clive-chat__input {
   background-image: var(--court-fibre);
   background-size: 240px 240px;
   background-repeat: repeat;
-  opacity: 0.048;
+  opacity: 0.035;
   -webkit-mask-image: radial-gradient(
     ellipse 92% 88% at 50% 50%,
     #000 62%,
@@ -7561,18 +7491,9 @@ textarea.clive-chat__input {
 .court-stage .platform-court__underline-input,
 .court-stage .platform-court__input,
 .court-stage .platform-court__verdict-panel-inner p,
-.court-stage .platform-court__seat-picker-note,
-.court-stage .platform-court__verdict-pending-name,
-.court-stage .platform-court__verdict-pending-title {
+.court-stage .platform-court__seat-picker-note {
   color: var(--book-ink);
   text-shadow: var(--court-ink-body-shadow);
-}
-
-.court-stage .platform-court__underline-input::placeholder,
-.court-stage .platform-court__input::placeholder {
-  color: color-mix(in srgb, var(--book-ink) 42%, transparent);
-  text-shadow: var(--court-ink-label-shadow);
-  opacity: 1;
 }
 
 /* DISPLAY — titles and headlines */
@@ -7582,7 +7503,6 @@ textarea.clive-chat__input {
 .court-stage .platform-court__verdict-headline,
 .court-stage .platform-court__judgement-verdict,
 .court-stage .platform-court__seat-candidate-name {
-  color: var(--book-ink);
   text-shadow: var(--court-ink-display-shadow);
 }
 
@@ -7593,9 +7513,7 @@ textarea.clive-chat__input {
 .court-stage .platform-court__judgement-eyebrow,
 .court-stage .platform-court__seat-candidate-title,
 .court-stage .platform-court__seat-candidate-state,
-.court-stage .platform-court__muted,
-.court-stage .platform-court__inline-link {
-  color: var(--book-ink);
+.court-stage .platform-court__muted {
   text-shadow: var(--court-ink-label-shadow);
 }
 
@@ -7624,6 +7542,340 @@ textarea.clive-chat__input {
   .court-stage .platform-court__intake-title,
   .court-stage .platform-court__judgement-summary,
   .court-stage .platform-court__right-page-content strong {
+    text-shadow: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Live-QA repair (5 Aug): three live defects on /chapter-1
+
+   DEFECT 1 — Clive rendered as a hard-edged rectangular paste in both
+   folio positions. Root cause: the shared feather mask was a 96%-ellipse
+   (near-rectangular), so at the folio's wider 16:9 portal the edge read as
+   a hard rectangle, and the ::before vignette read as a white fog circle.
+
+   Fix: a hand-shaped feather with a useful SOLID CORE (his face/eyes and
+   gestures stay clear) and a real perimeter falloff into the parchment —
+   superellipse elliptical gradient, then softened by a second radial so the
+   corners dissolve rather than cut. Applied to BOTH the container and the
+   poster/layer so it holds whatever size/aspect the two states give it.
+   No white fog, no hard rectangle. -webkit-mask covered for Safari.
+   CliveVideoStage media, poster, reduced-motion and the reaction queue are
+   untouched — this is a mask change only.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.study-stage--book .study-stage__clive-spot {
+  /* Hand-shaped feather: solid core ~60%, then a long soft dissolve. Two
+     layered masks (multiplied): a superellipse for the broad shape and a
+     corner-weighted radial so the corners fade first. The composite reads
+     as ink bleeding into paper, not a geometric crop. */
+  --folio-clive-mask:
+    radial-gradient(
+      ellipse 78% 74% at 50% 47%,
+      #000 0%,
+      #000 58%,
+      rgba(0, 0, 0, 0.86) 72%,
+      rgba(0, 0, 0, 0.5) 84%,
+      rgba(0, 0, 0, 0.18) 93%,
+      transparent 100%
+    );
+  -webkit-mask-image: var(--folio-clive-mask);
+  mask-image: var(--folio-clive-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* The poster and the live layer take the same mask so the still and every
+   video clip dissolve identically — including mid-reaction. */
+.study-stage--book .study-stage__clive-spot .clive-video-stage__poster,
+.study-stage--book .study-stage__clive-spot .clive-video-stage__layer {
+  -webkit-mask-image: var(--folio-clive-mask);
+  mask-image: var(--folio-clive-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* Kill the white fog circle: the shared ::before vignette painted a pale
+   ellipse that read as a cloud behind him. Inside the folio the mask does
+   the dissolve on its own — drop the vignette entirely. */
+.study-stage--book .study-stage__clive-feather::before,
+.study-stage--book .clive-portrait-feather::before {
+  content: none;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   DEFECT 2 — digital controls survived on the live route. The folio's
+   engraved grammar only reached SOME controls: Send was a pale digital
+   button, Back a rounded pill, the message input a digital bordered
+   textarea. Below, every actual Chapter 1 control inherits the engraved
+   book-bound grammar wherever it renders — scoped to the real component
+   classes, not a bare .btn-primary that component rules override.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* The full control set inside the folio: primary + secondary + ghost
+   (Back/Continue/Start again), starter prompts, and the chat send button.
+   Engraved recessed aged-brass plate: thin brass rim, shallow engraved
+   face, Ink small-caps serif, faint contained warm-gold inner light. */
+.study-stage--book .btn-primary,
+.study-stage--book .btn-secondary,
+.study-stage--book .study-stage__ghost-btn,
+.study-stage--book .clive-chat__starter,
+.study-stage--book .clive-chat__form button[type="submit"] {
+  position: relative;
+  border-radius: 4px;
+  border: 1px solid var(--folio-gold-deep);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.14em;
+  color: var(--book-ink);
+  text-shadow: 0 1px 0 rgba(255, 240, 198, 0.35);
+  background: var(--folio-plate-face);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.28),
+    inset 0 -1px 0 rgba(94, 70, 28, 0.28),
+    inset 0 0 12px var(--folio-gold-light),
+    0 2px 10px rgba(26, 18, 12, 0.22);
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    filter 0.15s ease;
+}
+
+.study-stage--book .btn-primary:hover,
+.study-stage--book .btn-secondary:hover,
+.study-stage--book .study-stage__ghost-btn:hover,
+.study-stage--book .clive-chat__starter:hover,
+.study-stage--book .clive-chat__form button[type="submit"]:hover {
+  border-color: var(--folio-gold);
+  color: var(--book-ink);
+  background: var(--folio-plate-face);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.34),
+    inset 0 -1px 0 rgba(94, 70, 28, 0.28),
+    inset 0 0 18px rgba(232, 192, 122, 0.72),
+    0 3px 14px rgba(26, 18, 12, 0.26);
+}
+
+.study-stage--book .btn-primary:focus-visible,
+.study-stage--book .btn-secondary:focus-visible,
+.study-stage--book .study-stage__ghost-btn:focus-visible,
+.study-stage--book .clive-chat__starter:focus-visible,
+.study-stage--book .clive-chat__form button[type="submit"]:focus-visible {
+  outline: 2px solid rgba(203, 160, 86, 0.72);
+  outline-offset: 2px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.34),
+    inset 0 0 18px rgba(232, 192, 122, 0.72),
+    0 0 20px rgba(212, 168, 94, 0.4);
+}
+
+.study-stage--book .btn-primary:active,
+.study-stage--book .btn-secondary:active,
+.study-stage--book .study-stage__ghost-btn:active,
+.study-stage--book .clive-chat__starter:active,
+.study-stage--book .clive-chat__form button[type="submit"]:active {
+  box-shadow:
+    inset 0 2px 6px rgba(94, 70, 28, 0.38),
+    inset 0 0 10px var(--folio-gold-light),
+    0 1px 4px rgba(26, 18, 12, 0.2);
+}
+
+.study-stage--book .btn-primary:disabled,
+.study-stage--book .btn-secondary:disabled,
+.study-stage--book .study-stage__ghost-btn:disabled,
+.study-stage--book .clive-chat__starter:disabled,
+.study-stage--book .clive-chat__form button[type="submit"]:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+  filter: saturate(0.55) brightness(0.94);
+  color: color-mix(in srgb, var(--book-ink) 52%, transparent);
+  text-shadow: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.12),
+    inset 0 -1px 0 rgba(94, 70, 28, 0.18),
+    0 1px 4px rgba(26, 18, 12, 0.14);
+}
+
+/* The message input becomes an inset writing well on parchment: no digital
+   border box — a recessed line with a soft inner shadow, ink text, and a
+   brass focus glow. ≥16px mobile font preserved (iOS no-zoom), focus,
+   validation, scroll, keyboard and the aria-label all unchanged. */
+.study-stage--book .clive-chat__input {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: clamp(1.0625rem, 1.7vw, 1.1875rem); /* ≈17px ≥ 16px mobile */
+  color: var(--book-ink);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(94, 70, 28, 0.07) 0%,
+      rgba(250, 247, 237, 0.5) 18%,
+      rgba(250, 247, 237, 0.62) 100%
+    );
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--book-ink) 30%, transparent);
+  border-radius: 3px 3px 0 0;
+  padding: clamp(0.7rem, 1.5vh, 0.9rem) clamp(0.85rem, 1.6vw, 1.1rem);
+  box-shadow:
+    inset 0 2px 6px rgba(94, 70, 28, 0.12),
+    inset 0 1px 0 rgba(94, 70, 28, 0.08);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.study-stage--book .clive-chat__input::placeholder {
+  color: color-mix(in srgb, var(--book-ink) 42%, transparent);
+  font-style: italic;
+}
+
+.study-stage--book .clive-chat__input:focus {
+  outline: none;
+  border-bottom-color: rgba(203, 160, 86, 0.7);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(94, 70, 28, 0.06) 0%,
+      rgba(250, 247, 237, 0.6) 18%,
+      rgba(250, 247, 237, 0.72) 100%
+    );
+  box-shadow:
+    inset 0 2px 6px rgba(94, 70, 28, 0.12),
+    0 1px 0 rgba(203, 160, 86, 0.5),
+    0 6px 18px rgba(212, 168, 94, 0.22);
+}
+
+.study-stage--book .clive-chat__input:focus-visible {
+  outline: none;
+}
+
+/* The send row aligns: input well grows, the engraved Send plate sits
+   beside it — a writing line and its seal, not two digital boxes. */
+.study-stage--book .clive-chat__form-row {
+  align-items: flex-end;
+  gap: clamp(0.5rem, 1.2vw, 0.875rem);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   DEFECT 3 — assistant Markdown now renders as semantic live HTML
+   (StudyMarkdown.tsx: paragraphs, strong/em, ul/ol, hr, links — built as
+   React elements, never dangerouslySetInnerHTML, so sanitisation is
+   structural and arbitrary HTML is impossible). The folio ink presets
+   inherit onto these real elements; text stays selectable, searchable,
+   copyable and screen-reader-safe.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* The markdown body paragraphs sit inside the prompt-text wrapper; remove
+   the default paragraph margins so the rhythm matches the page, and keep
+   the body ink impression. */
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__md-para,
+.study-stage--book .clive-chat__bubble p .clive-chat__md-para {
+  margin: 0 0 0.55em;
+  color: var(--book-ink);
+  text-shadow: var(--folio-ink-body-shadow);
+}
+
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__md-para:last-child,
+.study-stage--book .clive-chat__bubble p .clive-chat__md-para:last-child {
+  margin-bottom: 0;
+}
+
+/* Lists read as printed items, not dotted UI. */
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__list,
+.study-stage--book .clive-chat__bubble .clive-chat__list {
+  margin: 0 0 0.55em;
+  padding-left: 1.35em;
+  color: var(--book-ink);
+  text-shadow: var(--folio-ink-body-shadow);
+  list-style: none;
+}
+
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__list li,
+.study-stage--book .clive-chat__bubble .clive-chat__list li {
+  margin: 0.18em 0;
+  position: relative;
+}
+
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__list li::before,
+.study-stage--book .clive-chat__bubble .clive-chat__list li::before {
+  content: "·";
+  position: absolute;
+  left: -0.85em;
+  color: color-mix(in srgb, var(--book-ink) 62%, var(--color-sage));
+}
+
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__list--ordered,
+.study-stage--book .clive-chat__bubble .clive-chat__list--ordered {
+  list-style: none;
+  counter-reset: folio-md;
+}
+
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__list--ordered li,
+.study-stage--book .clive-chat__bubble .clive-chat__list--ordered li {
+  counter-increment: folio-md;
+}
+
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__list--ordered li::before,
+.study-stage--book .clive-chat__bubble .clive-chat__list--ordered li::before {
+  content: counter(folio-md) ".";
+  color: color-mix(in srgb, var(--book-ink) 62%, var(--color-sage));
+}
+
+/* Thematic break: a brass rule in the page's engraved grammar, not ---. */
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__hr,
+.study-stage--book .clive-chat__bubble .clive-chat__hr {
+  border: none;
+  height: 1px;
+  margin: 0.85em 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(203, 160, 86, 0.22) 12%,
+    rgba(203, 160, 86, 0.55) 50%,
+    rgba(203, 160, 86, 0.22) 88%,
+    transparent 100%
+  );
+}
+
+/* Emphasis reads as the same ink pressed harder; links keep the body ink. */
+.study-stage--book .clive-chat__prompt-text--md strong,
+.study-stage--book .clive-chat__bubble strong {
+  font-weight: 600;
+  text-shadow: var(--folio-ink-display-shadow);
+}
+
+.study-stage--book .clive-chat__prompt-text--md a,
+.study-stage--book .clive-chat__bubble a {
+  color: var(--book-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in srgb, var(--book-ink) 45%, transparent);
+  text-shadow: var(--folio-ink-body-shadow);
+}
+
+.study-stage--book .clive-chat__prompt-text--md a:hover,
+.study-stage--book .clive-chat__bubble a:hover {
+  text-decoration-color: var(--folio-gold-deep);
+}
+
+/* High-contrast: no texture on the semantic markdown either. */
+@media (forced-colors: active) {
+  .study-stage--book .clive-chat__prompt-text--md .clive-chat__md-para,
+  .study-stage--book .clive-chat__prompt-text--md .clive-chat__list,
+  .study-stage--book .clive-chat__prompt-text--md strong,
+  .study-stage--book .clive-chat__prompt-text--md a,
+  .study-stage--book .clive-chat__bubble p .clive-chat__md-para,
+  .study-stage--book .clive-chat__bubble .clive-chat__list,
+  .study-stage--book .clive-chat__bubble strong,
+  .study-stage--book .clive-chat__bubble a {
     text-shadow: none;
   }
 }

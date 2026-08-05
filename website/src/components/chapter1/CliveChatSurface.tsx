@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StudyAssistantText } from "@/components/chapter1/StudyAssistantText";
+import { StudyMarkdown } from "@/components/chapter1/StudyMarkdown";
 import { useFolioStage } from "@/components/chapter1/FolioStageContext";
 import { usePlatformSession } from "@/components/platform-session/PlatformSessionProvider";
 import { useCliveVoice } from "@/lib/clive/use-clive-voice";
@@ -513,7 +514,8 @@ export function CliveChatSurface({
           </div>
         )}
         <p className={options?.muted ? "text-ink-muted" : undefined}>
-          <span className="clive-chat__speaker">{label}:</span> {content}
+          <span className="clive-chat__speaker">{label}:</span>{" "}
+          {isAssistant ? <StudyMarkdown content={content} /> : content}
         </p>
       </div>
     );

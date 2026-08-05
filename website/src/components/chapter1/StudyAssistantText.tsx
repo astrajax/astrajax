@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { StudyMarkdown } from "@/components/chapter1/StudyMarkdown";
 
 const SENTENCE_SPLIT = /(?<=[.!?…])\s+(?=[A-Z"'“(])/;
 
@@ -46,18 +47,25 @@ export function StudyAssistantText({ content, animate = false }: StudyAssistantT
   const lines = useMemo(() => splitIntoRevealLines(content), [content]);
 
   if (!animate) {
-    return <p className="clive-chat__prompt-text">{content}</p>;
+    // Render assistant Markdown structure as semantic live HTML, then let
+    // the folio ink presets inherit onto the real elements — never print
+    // raw `**`/`---` to the page.
+    return (
+      <div className="clive-chat__prompt-text clive-chat__prompt-text--md">
+        <StudyMarkdown content={content} paragraphClassName="clive-chat__md-para" />
+      </div>
+    );
   }
 
   return (
-    <div className="clive-chat__prompt-text clive-chat__prompt-text--revealing">
+    <div className="clive-chat__prompt-text clive-chat__prompt-text--revealing clive-chat__prompt-text--md">
       {lines.map((line, index) => (
         <span
           key={`${index}-${line.slice(0, 24)}`}
           className="clive-chat__prompt-line"
           style={{ animationDelay: `${staggerDelay(index)}ms` }}
         >
-          {line}
+          <StudyMarkdown content={line} paragraphClassName="clive-chat__md-para" />
         </span>
       ))}
     </div>
