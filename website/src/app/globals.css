@@ -4434,10 +4434,43 @@ body {
   overflow: hidden;
 }
 
-.platform-court__book-media {
+/* Portraits and judge loop sit beneath the punched plate. */
+.platform-court__portraits-layer {
   position: absolute;
   inset: 0;
   z-index: 0;
+  pointer-events: none;
+}
+
+/* Lamplight between portraits and the punched plate. */
+.platform-court__under-plate {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* The book plate with real alpha holes — gilt frames live in the art. */
+.platform-court__book-plate {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Hotspots, verdict strips, right-page content — above the plate. */
+.platform-court__book-ui {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.platform-court__book-ui > * {
+  pointer-events: auto;
+}
+
+.platform-court__book-ui > [aria-hidden="true"] {
   pointer-events: none;
 }
 
@@ -4543,8 +4576,7 @@ body {
   color: color-mix(in srgb, var(--book-ink) 55%, transparent);
 }
 
-/* ── Cast layers on the blank book (art v2: the painting ships empty;
-   the bench is chosen, seated as oval layers, and the Judge breathes) ── */
+/* ── Cast layers beneath the punched plate (art v3) ── */
 .platform-court__portrait-art {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -4553,74 +4585,26 @@ body {
   pointer-events: none;
 }
 
-/* Light interior depth only — the frame-ring window lays the painted lip
-   over the rim, so the heavy seating shadow is no longer synthesised. */
-.platform-court__portrait-art::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  box-shadow:
-    inset 0 0 8px rgba(35, 25, 12, 0.28),
-    inset 0 -4px 8px rgba(35, 25, 12, 0.14);
-}
-
-/* ── Frame-ring windows: the painting laid back OVER the portrait rims.
-   Each window shows a stage-scaled copy of the book (sprite-window
-   offsets from the manifest) masked to an annulus — transparent across
-   the opening (the portrait shows through), painted gilt beyond it. The
-   feather straddles the opening edge, so the lip shadow lands on the
-   portrait rim exactly as paint. ── */
-.platform-court__frame-ring {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  overflow: hidden;
-  pointer-events: none;
-  /* Stops are percentages of (--ring-rx, --ring-ry), which ARE the true
-     painted opening's own radii — so 100% sits exactly on that edge. The
-     transparent stop must never read below 100%: anything less bleeds the
-     painted background into the still-visible portrait window (an 88%
-     stop once hazed the photo itself, not just its edge). The opaque
-     stop must land AT or BEFORE the portrait's hard edge (~104–107% of
-     the opening), not past it — fully opaque by then, so the cream seam
-     is buried under gilt rather than half-showing through a soft ramp. */
-  -webkit-mask-image: radial-gradient(
-    ellipse var(--ring-rx, 33%) var(--ring-ry, 34%) at 50% 50%,
-    transparent 99%,
-    #000 103%
-  );
-  mask-image: radial-gradient(
-    ellipse var(--ring-rx, 33%) var(--ring-ry, 34%) at 50% 50%,
-    transparent 99%,
-    #000 103%
-  );
-}
-
-.platform-court__frame-ring-inner {
-  position: absolute;
-}
-
 .platform-court__portrait-art-img {
   object-fit: cover;
   object-position: center 15%;
 }
 
-/* The Judge's breathing loop — masked to the clip's own interior oval so
-   the painted gilt frame beneath does the framing; the video is scenery,
-   exactly as a portrait layer is. Poster fallback under reduced motion is
-   handled in the component. */
+/* The Judge's breathing loop — masked to the clip's interior oval; the
+   punched plate carries the gilt frame. Poster fallback under reduced
+   motion is handled in the component. */
 .platform-court__judge-loop {
   position: absolute;
   transform: translate(-50%, -50%);
   pointer-events: none;
   -webkit-mask-image: radial-gradient(
-    ellipse 36% 38% at 49.6% 48.6%,
-    #000 78%,
+    ellipse 38% 40% at 50% 48%,
+    #000 82%,
     transparent 100%
   );
   mask-image: radial-gradient(
-    ellipse 36% 38% at 49.6% 48.6%,
-    #000 78%,
+    ellipse 38% 40% at 50% 48%,
+    #000 82%,
     transparent 100%
   );
 }
@@ -7438,5 +7422,126 @@ textarea.clive-chat__input {
   .study-stage--book::after {
     animation: none;
     transition: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Court ink system — printed-into-parchment live text (ported from #84)
+
+   Same material grammar as the Living Folio ink addendum: restrained sub-
+   pixel text-shadow + one faint paper-fibre layer per page. Scoped to
+   .court-stage only. Engraved verdict strips and brass plaque labels keep
+   their own letterpress material and do NOT inherit body texture.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.court-stage {
+  --court-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.55'/%3E%3C/svg%3E");
+  --court-ink-body-shadow:
+    0 0 0.4px rgba(35, 39, 27, 0.28),
+    0.3px 0.3px 0 rgba(35, 39, 27, 0.1);
+  --court-ink-display-shadow:
+    0 0 0.6px rgba(35, 39, 27, 0.4),
+    0.4px 0.4px 0 rgba(35, 39, 27, 0.16);
+  --court-ink-label-shadow: 0 0 0.3px rgba(35, 39, 27, 0.2);
+}
+
+.platform-court__book-container::before,
+.platform-court__book-container::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  background-image: var(--court-fibre);
+  background-size: 240px 240px;
+  background-repeat: repeat;
+  opacity: 0.035;
+  -webkit-mask-image: radial-gradient(
+    ellipse 92% 88% at 50% 50%,
+    #000 62%,
+    transparent 98%
+  );
+  mask-image: radial-gradient(
+    ellipse 92% 88% at 50% 50%,
+    #000 62%,
+    transparent 98%
+  );
+}
+
+.platform-court__book-container::before {
+  left: 6.05%;
+  right: calc(100% - 48.83%);
+  top: 9.46%;
+  bottom: calc(100% - 88.44%);
+}
+
+.platform-court__book-container::after {
+  left: 50.78%;
+  right: calc(100% - 93.85%);
+  top: 9.46%;
+  bottom: calc(100% - 88.44%);
+}
+
+/* BODY — bicker, intake, judgement copy, inputs */
+.court-stage .platform-court__bicker-turn,
+.court-stage .platform-court__intake-lede,
+.court-stage .platform-court__judgement-summary,
+.court-stage .platform-court__judgement-docline,
+.court-stage .platform-court__paper-action,
+.court-stage .platform-court__paper-meta,
+.court-stage .platform-court__underline-input,
+.court-stage .platform-court__input,
+.court-stage .platform-court__verdict-panel-inner p,
+.court-stage .platform-court__seat-picker-note {
+  color: var(--book-ink);
+  text-shadow: var(--court-ink-body-shadow);
+}
+
+/* DISPLAY — titles and headlines */
+.court-stage .platform-court__matter-title,
+.court-stage .platform-court__intake-title,
+.court-stage .platform-court__role-name,
+.court-stage .platform-court__verdict-headline,
+.court-stage .platform-court__judgement-verdict,
+.court-stage .platform-court__seat-candidate-name {
+  text-shadow: var(--court-ink-display-shadow);
+}
+
+/* LABEL — small caps, field labels, speaker names */
+.court-stage .platform-court__field-label,
+.court-stage .platform-court__field-count,
+.court-stage .platform-court__bicker-speaker,
+.court-stage .platform-court__judgement-eyebrow,
+.court-stage .platform-court__seat-candidate-title,
+.court-stage .platform-court__seat-candidate-state,
+.court-stage .platform-court__muted {
+  text-shadow: var(--court-ink-label-shadow);
+}
+
+.court-stage .platform-court__right-page-content strong {
+  text-shadow: var(--court-ink-display-shadow);
+}
+
+@media (max-width: 767px) {
+  .court-stage .platform-court__field-label,
+  .court-stage .platform-court__field-count,
+  .court-stage .platform-court__bicker-speaker {
+    text-shadow: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .platform-court__book-container::before,
+  .platform-court__book-container::after {
+    content: none;
+  }
+
+  .court-stage .platform-court__bicker-turn,
+  .court-stage .platform-court__matter-title,
+  .court-stage .platform-court__field-label,
+  .court-stage .platform-court__bicker-speaker,
+  .court-stage .platform-court__intake-title,
+  .court-stage .platform-court__judgement-summary,
+  .court-stage .platform-court__right-page-content strong {
+    text-shadow: none;
   }
 }

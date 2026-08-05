@@ -7,9 +7,10 @@ Master assets for Court. **Not served live** — the site reads from
 
 ```text
 Court Mode/
-  book-blank.jpg       → live: court-book-blank.jpg
-  judge.mp4            → live: court-judge.mp4 (may differ if re-exported)
-  portraits/           → live: court/portraits/*.webp (converted for web)
+  book-blank-with-holes.png  → live: court-book-blank.png (punched alpha)
+  book-blank.jpg             → live backup: court-book-blank.prev.jpg
+  judge.mp4                  → live: court-judge.mp4 (may differ if re-exported)
+  portraits/                 → live: court/portraits/*.webp (converted for web)
 ```
 
 ## Live rule

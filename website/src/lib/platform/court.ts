@@ -131,13 +131,14 @@ export interface CourtBookSlot extends CourtBookPosition {
 }
 
 /**
- * Scene manifest for the blank court book (art v2, July 2026).
+ * Scene manifest for the blank court book (art v3, Aug 2026).
  *
- * The painting ships with six EMPTY gilt frames down the left page and a
- * wide brass plaque on the right — no faces, no text. Attendant portraits
- * are oval layers seated per SEAT (positions, not names); the Judge's
- * frame is the sixth, fixed, and carries his breathing loop. Measured
- * against the paint on a labelled grid, 7 Jul 2026.
+ * The painting ships with six PUNCHED oval openings down the left page
+ * (real alpha holes — portraits sit beneath the plate) and a wide brass
+ * plaque on the right. Attendant portraits are oval layers seated per SEAT
+ * (positions, not names); the Judge's opening is the sixth, fixed, and
+ * carries his breathing loop. Measured from book-blank-with-holes.png,
+ * 5 Aug 2026.
  */
 export interface CourtBookSeat extends CourtBookPosition {
   /** Painted opening size — the portrait layer fills exactly this box. */
@@ -149,31 +150,24 @@ export interface CourtBookSeat extends CourtBookPosition {
 }
 
 export const COURT_BOOK_LAYOUT = {
-  /** The five attendant seats, top of the page downward. Per-seat boxes —
-   * the frames are hand-painted and each opening differs slightly.
-   * Widths are the painted openings as they read on the stage (taller
-   * ovals, not circles) — an earlier pass treated them as nearly round
-   * and the portraits spilled over the left and right gilt. Heights held.
-   * Layers overdraw by portraitOvershoot; the frame-ring windows lay the
-   * painting back OVER the portrait rims — the frame hides the seam. */
+  /** The five attendant seats, top of the page downward. Centres measured
+   * on the punched oval openings in book-blank-with-holes.png; portraits
+   * fill the holes exactly — the gilt frames live in the plate art. */
   seats: [
-    { x: 10.78, y: 12.8, width: 4.44, height: 9.1, slotY: 13.1 },
-    { x: 11.05, y: 27.41, width: 4.4, height: 9.15, slotY: 27.59 },
-    { x: 10.83, y: 41.76, width: 4.44, height: 9.0, slotY: 41.81 },
-    { x: 10.94, y: 56.02, width: 4.4, height: 9.0, slotY: 56.06 },
-    { x: 11.05, y: 70.37, width: 4.36, height: 8.85, slotY: 70.32 },
+    { x: 13.22, y: 15.72, width: 3.65, height: 8.3, slotY: 15.9 },
+    { x: 13.22, y: 28.63, width: 3.65, height: 8.3, slotY: 28.8 },
+    { x: 13.21, y: 41.53, width: 3.65, height: 8.3, slotY: 41.7 },
+    { x: 13.22, y: 54.62, width: 3.65, height: 8.5, slotY: 54.8 },
+    { x: 13.21, y: 67.58, width: 3.65, height: 8.3, slotY: 67.75 },
   ] as CourtBookSeat[],
-  /** The Judge's frame — fixed, never seated by choice. */
-  judgeSeat: { x: 11.05, y: 84.62, width: 4.31, height: 8.95, slotY: 84.8 } as CourtBookSeat,
-  /** How far a portrait layer overdraws its opening (each side), giving
-   * the frame-ring window a rim to cover. */
-  portraitOvershoot: { width: 0.31, height: 0.4 },
-  /** A frame's full gilt extent — the ring-window box, and the hotspot. */
-  portraitHotspot: { width: 7.6, height: 13.4 },
-  /** The breathing-judge video layer: masked to its own interior oval and
-   * sized so that oval fills the painted opening (video is 176×240; its
-   * interior occupies ~60%×65% of the clip). */
-  judgeVideo: { width: 5.7, height: 13.8 },
+  /** The Judge's opening — fixed, never seated by choice. */
+  judgeSeat: { x: 13.22, y: 80.58, width: 3.65, height: 8.3, slotY: 80.75 } as CourtBookSeat,
+  /** Full gilt-frame extent for oval hit areas (larger than the punched
+   * opening so clicks land on the painted frame, not just the hole). */
+  portraitHotspot: { width: 7.4, height: 13.0 },
+  /** The breathing-judge video layer: masked to its interior oval and
+   * sized so that oval fills the punched opening (video is 176×240). */
+  judgeVideo: { width: 4.2, height: 9.6 },
   /** A verdict strip: x/width/height shared across the five bench seats;
    * y = each seat's own slotY. Measured directly against the painted
    * strip rectangles (x 12.97-38.44 on the source PNG) — the previous
