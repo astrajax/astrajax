@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 // Wall (see app/man/receiving-wall/page.tsx). Loaded page-scoped so only
 // /court pays for it. CSS uses var(--font-engraved) as --font-book on
 // .court-stage so every strip, label, and intake line matches the wall.
-const engravedFont = Cinzel({
+const courtFont = Cinzel({
   subsets: ["latin"],
   weight: ["600", "700"],
   variable: "--font-engraved",
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 
 export default function CourtPage() {
   return (
-    <div className={engravedFont.variable}>
+    <div className={courtFont.variable}>
       <CourtShell />
     </div>
   );

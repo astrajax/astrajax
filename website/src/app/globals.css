@@ -4350,9 +4350,11 @@ body {
   --book-ink: #23271b;
   --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
   --font-book: var(--font-engraved, "Cinzel"), "Palatino Linotype", "Times New Roman", serif;
+  --font-wall: var(--font-engraved, "Cinzel"), "Palatino Linotype", "Times New Roman", serif;
   --court-engraved-shadow:
-    0 1px 0 rgba(255, 244, 220, 0.38),
-    0 -0.5px 0 rgba(26, 16, 8, 0.26);
+    0 -1px 0 rgba(26, 16, 8, 0.32),
+    0 1px 0 rgba(255, 244, 220, 0.42),
+    0 2px 1px rgba(26, 16, 8, 0.12);
   position: relative;
   height: 100vh;
   height: 100dvh;
@@ -4395,7 +4397,7 @@ body {
 
 .court-stage__back-link {
   pointer-events: auto;
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-size: 0.85rem;
   color: color-mix(in srgb, var(--color-parchment) 78%, transparent);
 }
@@ -4581,13 +4583,17 @@ body {
 }
 
 .platform-court__judge-strip-text {
+  display: block;
   width: 100%;
-  font-family: var(--font-book);
+  max-width: 100%;
+  font-family: var(--font-wall);
   font-style: italic;
-  font-size: clamp(0.56rem, 0.88vw, 0.82rem);
-  line-height: 1.2;
-  letter-spacing: 0.03em;
+  font-weight: 600;
+  font-size: clamp(0.52rem, 0.82vw, 0.78rem);
+  line-height: 1.25;
+  letter-spacing: 0.04em;
   text-align: center;
+  text-wrap: balance;
   color: color-mix(in srgb, var(--book-ink) 58%, transparent);
   text-shadow: var(--court-engraved-shadow);
 }
@@ -4682,7 +4688,7 @@ body {
   padding: 0.45rem 0.25rem;
   cursor: pointer;
   text-align: left;
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   color: var(--book-ink);
   transition: background 0.15s ease;
 }
@@ -4772,7 +4778,7 @@ body {
   text-align: center;
   color: var(--book-ink);
   opacity: var(--slot-ink, 0.85);
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-weight: 600;
   font-size: clamp(0.74rem, 1.2vw, 1.1rem);
   letter-spacing: 0.06em;
@@ -4806,22 +4812,25 @@ body {
 }
 
 .platform-court__verdict-pending-name {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-weight: 700;
-  font-size: clamp(0.54rem, 0.78vw, 0.72rem);
-  letter-spacing: 0.05em;
+  font-size: clamp(0.52rem, 0.74vw, 0.68rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--book-ink);
   text-shadow: var(--court-engraved-shadow);
+  text-wrap: balance;
 }
 
 .platform-court__verdict-pending-title {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-style: italic;
   font-weight: 600;
   font-size: clamp(0.46rem, 0.64vw, 0.6rem);
   letter-spacing: 0.03em;
   color: color-mix(in srgb, var(--book-ink) 68%, transparent);
   text-shadow: var(--court-engraved-shadow);
+  text-wrap: balance;
 }
 
 .platform-court__verdict-pending--deliberating {
@@ -4852,7 +4861,7 @@ body {
   padding: 0;
   box-shadow: none;
   color: var(--book-ink);
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
 }
 
 .platform-court__bicker-head {
@@ -4863,7 +4872,7 @@ body {
 }
 
 .platform-court__matter-title {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-size: clamp(1.05rem, 1.6vw, 1.5rem);
   font-weight: 600;
   margin: 0;
@@ -4901,7 +4910,7 @@ body {
 }
 
 .platform-court__bicker-speaker {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-weight: 600;
   color: var(--book-ink);
 }
@@ -5058,23 +5067,25 @@ body {
 }
 
 .platform-court__intake-title {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-weight: 700;
-  font-size: clamp(1rem, 1.45vw, 1.35rem);
+  font-size: clamp(0.95rem, 1.35vw, 1.25rem);
   line-height: 1.25;
   letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--book-ink);
   margin: 0;
   text-shadow: var(--court-engraved-shadow);
+  text-wrap: balance;
 }
 
 .platform-court__intake-lede {
   margin: 0.45rem auto 0.85rem;
-  max-width: 36em;
-  font-family: var(--font-book);
+  max-width: 34em;
+  font-family: var(--font-wall);
   font-style: italic;
   font-weight: 600;
-  font-size: clamp(0.72rem, 0.9vw, 0.86rem);
+  font-size: clamp(0.72rem, 0.88vw, 0.84rem);
   line-height: 1.45;
   letter-spacing: 0.02em;
   color: color-mix(in srgb, var(--book-ink) 78%, transparent);
@@ -5100,7 +5111,7 @@ body {
   align-items: baseline;
   justify-content: space-between;
   gap: 0.5rem;
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-weight: 600;
   font-size: 0.68rem;
   text-transform: uppercase;
@@ -5124,7 +5135,7 @@ body {
   min-width: 0;
   max-width: 100%;
   overflow-wrap: break-word;
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-weight: 600;
   font-size: 0.82rem;
   line-height: 1.45;
@@ -5166,7 +5177,7 @@ body {
 .platform-court__seal-btn {
   align-self: flex-start;
   margin-top: 0.25rem;
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-size: 0.85rem;
   font-weight: 700;
   font-variant-caps: small-caps;
@@ -5194,7 +5205,7 @@ body {
   border: none;
   padding: 0;
   cursor: pointer;
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-style: italic;
   font-size: 0.85rem;
   color: color-mix(in srgb, var(--book-ink) 78%, transparent);
@@ -5246,7 +5257,7 @@ body {
 }
 
 .platform-court__judgement-eyebrow {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -5281,7 +5292,7 @@ body {
 }
 
 .platform-court__judgement-verdict {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-style: italic;
   font-weight: 600;
   margin: 0;
@@ -5331,7 +5342,7 @@ body {
 
 /* Verdict panel voices (right page). */
 .platform-court__role-name {
-  font-family: var(--font-book);
+  font-family: var(--font-wall);
   font-weight: 600;
   font-size: 1.05rem;
   margin: 0;
@@ -7553,7 +7564,6 @@ textarea.clive-chat__input {
 
 /* BODY — bicker, intake, judgement copy, inputs */
 .court-stage .platform-court__bicker-turn,
-.court-stage .platform-court__intake-lede,
 .court-stage .platform-court__judgement-summary,
 .court-stage .platform-court__judgement-docline,
 .court-stage .platform-court__paper-action,
@@ -7561,9 +7571,7 @@ textarea.clive-chat__input {
 .court-stage .platform-court__underline-input,
 .court-stage .platform-court__input,
 .court-stage .platform-court__verdict-panel-inner p,
-.court-stage .platform-court__seat-picker-note,
-.court-stage .platform-court__verdict-pending-name,
-.court-stage .platform-court__verdict-pending-title {
+.court-stage .platform-court__seat-picker-note {
   color: var(--book-ink);
   text-shadow: var(--court-ink-body-shadow);
 }
@@ -7577,7 +7585,6 @@ textarea.clive-chat__input {
 
 /* DISPLAY — titles and headlines */
 .court-stage .platform-court__matter-title,
-.court-stage .platform-court__intake-title,
 .court-stage .platform-court__role-name,
 .court-stage .platform-court__verdict-headline,
 .court-stage .platform-court__judgement-verdict,
@@ -7587,7 +7594,6 @@ textarea.clive-chat__input {
 }
 
 /* LABEL — small caps, field labels, speaker names */
-.court-stage .platform-court__field-label,
 .court-stage .platform-court__field-count,
 .court-stage .platform-court__bicker-speaker,
 .court-stage .platform-court__judgement-eyebrow,
