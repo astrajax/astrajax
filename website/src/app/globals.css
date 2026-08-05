@@ -4447,10 +4447,13 @@ body {
 }
 
 .platform-court__portrait-hotspot,
-.platform-court__plaque-hotspot,
 .platform-court__verdict-slot,
 .platform-court__right-page-content {
   z-index: 1;
+}
+
+.platform-court__plaque-hotspot {
+  z-index: 2;
 }
 
 .platform-court__portrait-hotspot,
@@ -4811,6 +4814,8 @@ body {
   display: flex;
   flex-direction: column;
   z-index: 1;
+  min-height: 0;
+  overflow: hidden;
   pointer-events: auto;
   background: transparent;
   border: none;
@@ -4977,9 +4982,10 @@ body {
   }
 }
 
-/* The whisper beneath the plaque (intake's sample-matter line). */
+/* The whisper above the plaque (intake's sample-matter line). */
 .platform-court__plaque-under {
   position: absolute;
+  z-index: 2;
   transform: translateX(-50%);
   white-space: nowrap;
 }
@@ -4992,6 +4998,7 @@ body {
 .platform-court__intake-scroll {
   display: flex;
   flex-direction: column;
+  flex: 1;
   height: 100%;
   min-height: 0;
   overflow: hidden;
@@ -5000,8 +5007,11 @@ body {
 .platform-court__intake-body {
   flex: 1;
   min-height: 0;
+  overflow-x: hidden;
   overflow-y: auto;
   padding-right: 0.5rem;
+  /* Keep the last field's descenders clear of the scrollport edge */
+  padding-bottom: 0.5rem;
 }
 
 .platform-court__intake-body::-webkit-scrollbar {
@@ -5015,28 +5025,29 @@ body {
 .platform-court__intake-title {
   font-family: var(--font-book);
   font-weight: 600;
-  font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+  font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+  line-height: 1.2;
   color: var(--book-ink);
   margin: 0;
 }
 
 .platform-court__intake-lede {
-  margin: 0.5rem 0 1.25rem;
-  font-size: clamp(0.82rem, 1.05vw, 0.95rem);
-  line-height: 1.5;
+  margin: 0.35rem 0 0.7rem;
+  font-size: clamp(0.78rem, 0.95vw, 0.9rem);
+  line-height: 1.4;
   color: color-mix(in srgb, var(--book-ink) 82%, transparent);
 }
 
 .platform-court__intake-form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.65rem;
 }
 
 .platform-court__field {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.2rem;
 }
 
 .platform-court__field-label {
@@ -5062,22 +5073,25 @@ body {
   border: none;
   border-bottom: 1px solid color-mix(in srgb, var(--book-ink) 30%, transparent);
   border-radius: 0;
-  padding: 0.4rem 0;
+  padding: 0.35rem 0 0.45rem;
   min-width: 0;
   max-width: 100%;
   overflow-wrap: break-word;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
   background: transparent;
   color: var(--book-ink);
   font-family: inherit;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .platform-court__underline-input--area {
   resize: none;
-  min-height: 2.6rem;
-  max-height: 5.5rem;
-  line-height: 1.4;
+  /* Two lines + padding so placeholder descenders (y, g) are never clipped */
+  min-height: 3.35rem;
+  max-height: 4.75rem;
+  line-height: 1.45;
   overflow-x: hidden;
   overflow-y: auto;
   white-space: pre-wrap;
@@ -5085,13 +5099,14 @@ body {
 }
 
 .platform-court__underline-input--title {
-  min-height: 2.6rem;
-  max-height: 3.6rem;
+  min-height: 2.35rem;
+  max-height: 3.2rem;
   overflow-y: auto;
 }
 
 .platform-court__underline-input::placeholder {
   color: color-mix(in srgb, var(--book-ink) 40%, transparent);
+  opacity: 1;
 }
 
 .platform-court__underline-input:focus {
@@ -5354,12 +5369,21 @@ body {
 
   .platform-court__intake-title,
   .platform-court__matter-title {
-    font-size: clamp(0.8rem, 3vw, 1.1rem);
+    font-size: clamp(0.75rem, 2.8vw, 1.05rem);
   }
 
   .platform-court__intake-lede,
   .platform-court__bicker-turn {
-    font-size: clamp(0.6rem, 2.4vw, 0.85rem);
+    font-size: clamp(0.55rem, 2.2vw, 0.8rem);
+  }
+
+  .platform-court__intake-form {
+    gap: 0.5rem;
+  }
+
+  .platform-court__underline-input--area {
+    min-height: 2.85rem;
+    max-height: 3.8rem;
   }
 
   .platform-court__seat-candidate-name {
