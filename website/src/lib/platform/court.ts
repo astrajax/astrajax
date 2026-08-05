@@ -154,14 +154,14 @@ export const COURT_BOOK_LAYOUT = {
    * on the punched oval openings in book-blank-with-holes.png; portraits
    * fill the holes exactly — the gilt frames live in the plate art. */
   seats: [
-    { x: 13.22, y: 15.72, width: 3.65, height: 8.3, slotY: 15.9 },
-    { x: 13.22, y: 28.63, width: 3.65, height: 8.3, slotY: 28.8 },
-    { x: 13.21, y: 41.53, width: 3.65, height: 8.3, slotY: 41.7 },
-    { x: 13.22, y: 54.62, width: 3.65, height: 8.5, slotY: 54.8 },
-    { x: 13.21, y: 67.58, width: 3.65, height: 8.3, slotY: 67.75 },
+    { x: 13.22, y: 15.72, width: 3.65, height: 8.3, slotY: 15.86 },
+    { x: 13.22, y: 28.63, width: 3.65, height: 8.3, slotY: 28.75 },
+    { x: 13.21, y: 41.53, width: 3.65, height: 8.3, slotY: 41.64 },
+    { x: 13.22, y: 54.62, width: 3.65, height: 8.5, slotY: 54.75 },
+    { x: 13.21, y: 67.58, width: 3.65, height: 8.3, slotY: 67.64 },
   ] as CourtBookSeat[],
   /** The Judge's opening — fixed, never seated by choice. */
-  judgeSeat: { x: 13.22, y: 80.58, width: 3.65, height: 8.3, slotY: 80.75 } as CourtBookSeat,
+  judgeSeat: { x: 13.22, y: 80.58, width: 3.65, height: 8.3, slotY: 80.66 } as CourtBookSeat,
   /** Full gilt-frame extent for oval hit areas (larger than the punched
    * opening so clicks land on the painted frame, not just the hole). */
   portraitHotspot: { width: 7.4, height: 13.0 },
@@ -173,14 +173,13 @@ export const COURT_BOOK_LAYOUT = {
    * strip rectangles (x 12.97-38.44 on the source PNG) — the previous
    * box (x15.3/w23.1) was never updated after that measurement was taken,
    * so it sat ~1.15pt right of the strip's true centre the whole time. */
-  slot: { x: 13.3, width: 24.8, height: 8.6 },
-  /** The Judge's strip is painted wider than the bench strips (measured
-   * x 12.97-40.73, vs 12.97-38.44 for seats 1-5) — its own box, not a
-   * reuse of `slot`, so his line centres on his actual painted rule. */
-  judgeSlot: { x: 13.3, width: 27.1, height: 8.6 },
+  /** Measured on native 4096×2304 court-book-blank.png (Aug 2026). */
+  slot: { x: 10.0, width: 32.0, height: 7.0 },
+  /** Judge strip shares the same painted rule width on the 4K master. */
+  judgeSlot: { x: 10.0, width: 32.0, height: 7.0 },
   /** The written record flows above the brass; content ends clear of the
    * plaque's top edge so live text never sits under the metal. */
-  rightPageContent: { left: 54, top: 7, width: 36, height: 60 },
+  rightPageContent: { left: 52.5, top: 8, width: 36.5, height: 58 },
   /** The wide brass plaque. Box = the full ornament (for the hotspot and
    * glow — the hit area and light should cover the whole gilt casting).
    * The engraved word centres on plaqueFace, the recessed wood-grain
