@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StudyAssistantText } from "@/components/chapter1/StudyAssistantText";
+import { useFolioStage } from "@/components/chapter1/FolioStageContext";
 import { usePlatformSession } from "@/components/platform-session/PlatformSessionProvider";
 import { useCliveVoice } from "@/lib/clive/use-clive-voice";
 import type { ChatMessage, ClivePersona } from "@/lib/clive/types";
@@ -135,6 +136,7 @@ export function CliveChatSurface({
   onCustomSend,
 }: CliveChatSurfaceProps) {
   const { beginTurn, headersFor } = usePlatformSession();
+  const folioStage = useFolioStage();
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (persistTranscript && !transcriptOnly) {
       const stored = loadPersistedTranscript(sessionId);
@@ -358,6 +360,9 @@ export function CliveChatSurface({
 
       setInput("");
       onUserMessage?.(message);
+      // The folio's thought-vein: one journey from the send plate to his
+      // portrait edge; the action record reveals only once it arrives.
+      folioStage?.fireMessagePulse();
 
       const history = messages;
       const nextMessages: ChatMessage[] = [...messages, { role: "user", content: message }];
@@ -374,6 +379,15 @@ export function CliveChatSurface({
     Boolean(error) &&
     messages.length > 0 &&
     messages[messages.length - 1].role === "user";
+
+  // Tell the folio stage whether this surface holds an active exchange —
+  // engagement flips the stage between the teaching and interaction
+  // compositions. UserBrainIntakeChat keeps its own transcript, so the
+  // conversation derives engagement for the intake step separately.
+  useEffect(() => {
+    if (!folioStage) return;
+    folioStage.setEngaged(messages.some((turn) => turn.role === "user"));
+  }, [folioStage, messages]);
 
   const retryLastMessage = useCallback(async () => {
     if (isThinking || disabled || transcriptOnly) return;

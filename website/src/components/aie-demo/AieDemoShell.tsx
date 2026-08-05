@@ -198,6 +198,13 @@ export function AieDemoShell() {
     void cliveVideoRef.current?.playReaction(reaction);
   }, []);
 
+  // Scope the reaction queue to the current beat: on a step change any cue
+  // queued under the old turn goes stale and drops on the next natural end
+  // (non-interruption contract — clear queued reactions on page/state change).
+  useEffect(() => {
+    cliveVideoRef.current?.setContextTurn(`${bookParam ?? "hub"}:${state.currentStep}`);
+  }, [bookParam, state.currentStep]);
+
   const showWelcomeSequence = hubSelection === "welcome" && !welcomeComplete;
 
   // Start the ambient idle reel once, on entry (or when switching books).

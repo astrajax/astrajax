@@ -213,7 +213,7 @@ export function CliveWelcomeSequence({
       stopAudio();
 
       if (index === 0) {
-        videoRef?.current?.playClip(CLIVE_WELCOME_BEAT_1_STITCHED, false, true);
+        videoRef?.current?.playScripted(CLIVE_WELCOME_BEAT_1_STITCHED, false, true);
       } else {
         videoRef?.current?.startIdleReel();
       }

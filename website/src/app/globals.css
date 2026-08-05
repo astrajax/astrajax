@@ -1578,8 +1578,8 @@ body {
 }
 
 .study-stage--book:has(.chapter1-right-decision) .study-stage__right-panel {
-  /* Anchor below Clive (3:2 aspect → height = width / 1.5) so they never overlap */
-  top: calc(var(--book-clive-top) + var(--book-clive-width) / 1.5 + clamp(0.75rem, 2vh, 1.25rem));
+  /* Anchor below Clive (16:9 portal → height ≈ width / 1.78) so they never overlap */
+  top: calc(var(--book-clive-top) + var(--book-clive-width) / 1.78 + clamp(0.75rem, 2vh, 1.25rem));
   bottom: var(--book-content-bottom);
   left: calc(var(--book-right-page-start) + var(--book-page-gutter));
   right: calc(var(--book-clive-right) + var(--book-page-gutter));
@@ -6818,5 +6818,625 @@ textarea.clive-chat__input {
 
   .clive-study-hub__resume:hover {
     transform: none;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Living Folio — the two-state chapter-1 spread (kate/living-folio)
+
+   State 1, TEACHING: Clive fills the left page; the lesson lives opposite.
+   State 2, INTERACTION: conversation left, Clive top-third right, his
+   action record in the lower two-thirds of the right page.
+
+   Everything below is gated on .study-stage--book so the command centre,
+   court, and every other surface keep their current styling. Controls are
+   recessed aged-brass plates bound into the page — thin brass rim, shallow
+   engraved face, Ink lettering, faint contained warm-gold inner light.
+   Primary/secondary hierarchy comes from engraving depth and light, never
+   digital fill colours. Text stays live in code (Route A).
+   ════════════════════════════════════════════════════════════════════════ */
+
+.study-stage--book {
+  /* Teaching state: Clive's portrait anchor on the LEFT page.
+     Interaction state re-points these vars below; positions are
+     transition-free — the state change rides the page-turn beat. */
+  --folio-clive-top: clamp(6.5rem, 14vh, 9.5rem);
+  --folio-clive-left: clamp(4.5%, 6vw, 8%);
+  --folio-clive-width: min(36vw, 30rem);
+  --folio-gold: rgba(203, 160, 86, 0.92);
+  --folio-gold-deep: rgba(154, 118, 52, 0.85);
+  --folio-gold-light: rgba(232, 192, 122, 0.55);
+  --folio-plate-face: linear-gradient(
+    180deg,
+    rgba(231, 209, 173, 0.5) 0%,
+    rgba(203, 160, 86, 0.34) 46%,
+    rgba(154, 118, 52, 0.42) 100%
+  );
+}
+
+/* ── Clive's portrait: teaching = left page, teaching-large ───────────── */
+.study-stage--book .study-stage__clive-spot {
+  /* Native 16:9 in both states — one portal box, no crop jump on the flip. */
+  aspect-ratio: 16 / 9;
+}
+
+.study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
+  right: auto;
+  left: var(--folio-clive-left);
+  top: var(--folio-clive-top);
+  width: var(--folio-clive-width);
+  max-width: calc(
+    var(--book-left-page-end) - var(--folio-clive-left) - var(--book-page-gutter)
+  );
+}
+
+/* Teaching state: the lesson fills the RIGHT page. */
+.study-stage--book[data-folio-state="teaching"] .study-stage__content {
+  left: calc(var(--book-right-page-start) + var(--book-page-gutter));
+  right: clamp(5%, 6.5vw, 8%);
+  max-width: calc(
+    100% - var(--book-right-page-start) - var(--book-page-gutter) - clamp(5%, 6.5vw, 8%)
+  );
+}
+
+/* Interaction state: conversation back on the left page (existing vars),
+   Clive to the top third of the right page. The existing
+   chapter1-right-decision rules already centre him above the action
+   record; here we formalise the anchor so the state is explicit even
+   before the first action card mounts. */
+.study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
+  right: auto;
+  left: calc(
+    var(--book-right-page-start) +
+    (100% - var(--book-right-page-start) - var(--book-clive-right)) / 2
+  );
+  transform: translateX(-50%);
+  top: clamp(4.75rem, 11vh, 6.25rem);
+  width: min(27vw, 21rem);
+  max-width: calc(
+    100% - var(--book-right-page-start) - var(--book-clive-right) - (var(--book-page-gutter) * 2)
+  );
+}
+
+@media (max-width: 767px) {
+  .study-stage--book {
+    --folio-clive-top: clamp(6.5rem, 13vh, 8.5rem);
+    --folio-clive-left: clamp(4%, 5vw, 6%);
+    --folio-clive-width: min(40vw, 13rem);
+  }
+
+  .study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
+    top: clamp(4.5rem, 11vh, 5.75rem);
+    width: min(32vw, 11rem);
+  }
+}
+
+/* ── Quiet folio header — integrated into the book margin ─────────────── */
+.study-stage--book .study-stage__header {
+  border-bottom: none;
+  background: none;
+  box-shadow: none;
+  padding: clamp(0.5rem, 1.4vh, 0.85rem) clamp(1rem, 2.5vw, 1.5rem) 0;
+}
+
+.study-stage--book .study-stage__label {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.16em;
+  text-transform: lowercase;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--color-parchment) 78%, transparent);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+.study-stage--book .study-stage__subtitle {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  color: color-mix(in srgb, var(--color-parchment) 52%, transparent);
+}
+
+.study-stage--book .study-stage__back-link {
+  color: color-mix(in srgb, var(--color-parchment) 66%, transparent);
+}
+
+.study-stage--book .study-stage__back-link:hover {
+  color: color-mix(in srgb, var(--color-parchment) 88%, transparent);
+}
+
+/* ── Engraved brass plates — buttons bound into the page ──────────────── */
+
+/* Shared plate face: thin brass rim, shallow engraved face, Ink lettering,
+   faint contained warm-gold inner light held inside the rim. */
+.study-stage--book .btn-primary,
+.study-stage--book .btn-secondary,
+.study-stage--book .clive-chat__starter {
+  position: relative;
+  border-radius: 4px;
+  border: 1px solid var(--folio-gold-deep);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.14em;
+  color: var(--book-ink);
+  text-shadow: 0 1px 0 rgba(255, 240, 198, 0.35);
+  background: var(--folio-plate-face);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.28),
+    inset 0 -1px 0 rgba(94, 70, 28, 0.28),
+    inset 0 0 12px var(--folio-gold-light),
+    0 2px 10px rgba(26, 18, 12, 0.22);
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    filter 0.15s ease;
+}
+
+/* Hover: the inner gold light lifts a shade — light, not colour fill. */
+.study-stage--book .btn-primary:hover,
+.study-stage--book .btn-secondary:hover,
+.study-stage--book .study-stage__header .study-stage__ghost-btn:hover,
+.study-stage--book .clive-chat__starter:hover {
+  border-color: var(--folio-gold);
+  color: var(--book-ink);
+  background: var(--folio-plate-face);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.34),
+    inset 0 -1px 0 rgba(94, 70, 28, 0.28),
+    inset 0 0 18px rgba(232, 192, 122, 0.72),
+    0 3px 14px rgba(26, 18, 12, 0.26);
+}
+
+/* Focus: varnish glow, unmistakable, per house input rules. */
+.study-stage--book .btn-primary:focus-visible,
+.study-stage--book .btn-secondary:focus-visible,
+.study-stage--book .study-stage__header .study-stage__ghost-btn:focus-visible,
+.study-stage--book .clive-chat__starter:focus-visible {
+  outline: 2px solid rgba(203, 160, 86, 0.72);
+  outline-offset: 2px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.34),
+    inset 0 0 18px rgba(232, 192, 122, 0.72),
+    0 0 20px rgba(212, 168, 94, 0.4);
+}
+
+/* Pressed: the plate seats deeper — the engraving deepens. */
+.study-stage--book .btn-primary:active,
+.study-stage--book .btn-secondary:active,
+.study-stage--book .study-stage__header .study-stage__ghost-btn:active,
+.study-stage--book .clive-chat__starter:active {
+  box-shadow:
+    inset 0 2px 6px rgba(94, 70, 28, 0.38),
+    inset 0 0 10px var(--folio-gold-light),
+    0 1px 4px rgba(26, 18, 12, 0.2);
+}
+
+/* Disabled: the light goes out — flat unlit brass, clearly inert. */
+.study-stage--book .btn-primary:disabled,
+.study-stage--book .btn-secondary:disabled,
+.study-stage--book .study-stage__header .study-stage__ghost-btn:disabled,
+.study-stage--book .clive-chat__starter:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+  filter: saturate(0.55) brightness(0.94);
+  color: color-mix(in srgb, var(--book-ink) 52%, transparent);
+  text-shadow: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.12),
+    inset 0 -1px 0 rgba(94, 70, 28, 0.18),
+    0 1px 4px rgba(26, 18, 12, 0.14);
+}
+
+/* The body ghost-btn (Back) keeps Ink lettering on the parchment plate —
+   the dark-margin variant below applies to the header's Start Again only. */
+.study-stage--book .study-stage__content .study-stage__ghost-btn:hover,
+.study-stage--book .chapter1-conversation__nav .study-stage__ghost-btn:hover {
+  color: var(--book-ink);
+}
+
+/* Primary carries the deeper cut + stronger lamp; secondary/ghost keep the
+   shallow face. Hierarchy by engraving depth and light, not fill colour. */
+.study-stage--book .btn-primary:not(:disabled) {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.36),
+    inset 0 -2px 3px rgba(94, 70, 28, 0.34),
+    inset 0 0 16px rgba(232, 192, 122, 0.66),
+    0 3px 12px rgba(26, 18, 12, 0.28);
+}
+
+/* ── The send row: input bound as a parchment recess beside its plate ─── */
+.study-stage--book .clive-chat--study .clive-chat__input {
+  border-radius: 3px;
+  border: 1px solid color-mix(in srgb, var(--book-ink) 26%, transparent);
+  background: color-mix(in srgb, var(--color-cream-paper) 62%, transparent);
+  box-shadow:
+    inset 0 2px 6px rgba(94, 70, 28, 0.14),
+    inset 0 0 0 1px rgba(255, 248, 235, 0.35);
+}
+
+.study-stage--book .clive-chat--study .clive-chat__input:focus {
+  border-color: rgba(203, 160, 86, 0.55);
+  box-shadow:
+    inset 0 2px 6px rgba(94, 70, 28, 0.14),
+    0 0 0 2px rgba(203, 160, 86, 0.3),
+    0 0 16px rgba(212, 168, 94, 0.22);
+}
+
+/* ── Paper trail — terracotta bookmark tab, desk object not button ────── */
+.study-stage--book .study-stage__ledger {
+  background:
+    linear-gradient(180deg, rgba(231, 209, 173, 0.16), rgba(94, 70, 28, 0.22)),
+    rgba(58, 42, 22, 0.62);
+  border-color: rgba(203, 160, 86, 0.44);
+  border-radius: 2px 6px 6px 2px;
+}
+
+/* ── Action record: rows reveal by opacity once the pulse arrives ─────── */
+.chapter1-right-decision-card[data-folio-reveal="pending"] {
+  opacity: 0;
+  /* The card-settle keyframes (W3) also animate this child on mount; the
+     folio reveal IS the settle here, so the settle stands down while the
+     pulse is in flight — one motion, not two. */
+  animation: none;
+}
+
+.chapter1-right-decision-card {
+  transition: opacity 480ms cubic-bezier(0.45, 0.05, 0.55, 0.95);
+}
+
+/* ── The message pulse — one thin thought-vein to Clive ───────────────── */
+.folio-pulse {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+}
+
+.folio-pulse__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.folio-pulse__vein {
+  stroke: var(--folio-gold, rgba(203, 160, 86, 0.92));
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 6px rgba(232, 192, 122, 0.65));
+  animation: folio-vein-travel 900ms cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
+}
+
+.folio-pulse__halo {
+  fill: rgba(232, 192, 122, 0.4);
+  opacity: 0;
+  filter: blur(6px);
+  animation: folio-halo-arrive 1400ms cubic-bezier(0.45, 0.05, 0.55, 0.95) 760ms forwards;
+}
+
+@keyframes folio-vein-travel {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  82% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes folio-halo-arrive {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Reduced motion: no travelling path. The vein resolves at its destination
+   and the halo answers with one gentle opacity change — same sequencing,
+   no travel. */
+.folio-pulse[data-reduced-motion="true"] .folio-pulse__vein {
+  animation: folio-vein-resolve 340ms ease forwards;
+  stroke-dashoffset: 0;
+}
+
+.folio-pulse[data-reduced-motion="true"] .folio-pulse__halo {
+  animation: folio-halo-resolve 900ms ease 120ms forwards;
+}
+
+@keyframes folio-vein-resolve {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes folio-halo-resolve {
+  0% {
+    opacity: 0;
+  }
+  35% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folio-pulse__vein {
+    animation: folio-vein-resolve 340ms ease forwards;
+    stroke-dashoffset: 0;
+  }
+
+  .folio-pulse__halo {
+    animation: folio-halo-resolve 900ms ease 120ms forwards;
+  }
+
+  .chapter1-right-decision-card {
+    transition-duration: 200ms;
+  }
+}
+
+
+/* Session controls inside the folio margin: quiet engraved-plate grammar.
+   The module's hashed class names are unreachable from globals, so this
+   styles the plain <button> descendants of the header-actions slot — the
+   only extra buttons mounted there are the session Pause/End pair. */
+.study-stage--book .study-stage__header-actions button,
+.study-stage--book .study-stage__header .study-stage__ghost-btn {
+  min-height: 0;
+  border-radius: 4px;
+  border: 1px solid var(--folio-gold-deep, rgba(154, 118, 52, 0.85));
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.12em;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--color-parchment) 78%, transparent);
+  text-shadow: 0 1px 0 rgba(26, 18, 12, 0.4);
+  background: linear-gradient(
+    180deg,
+    rgba(231, 209, 173, 0.22) 0%,
+    rgba(154, 118, 52, 0.26) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.16),
+    inset 0 0 10px rgba(232, 192, 122, 0.28),
+    0 1px 6px rgba(26, 18, 12, 0.24);
+  padding: 0.32rem 0.6rem;
+}
+
+.study-stage--book .study-stage__header-actions button:hover:not(:disabled),
+.study-stage--book .study-stage__header .study-stage__ghost-btn:hover:not(:disabled) {
+  border-color: rgba(203, 160, 86, 0.72);
+  color: color-mix(in srgb, var(--color-parchment) 94%, transparent);
+  background: linear-gradient(
+    180deg,
+    rgba(231, 209, 173, 0.28) 0%,
+    rgba(154, 118, 52, 0.3) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.22),
+    inset 0 0 14px rgba(232, 192, 122, 0.42),
+    0 2px 8px rgba(26, 18, 12, 0.28);
+}
+
+.study-stage--book .study-stage__header-actions button:focus-visible,
+.study-stage--book .study-stage__header .study-stage__ghost-btn:focus-visible {
+  outline: 2px solid rgba(203, 160, 86, 0.72);
+  outline-offset: 2px;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Folio ink system — printed-into-parchment live text (5 Aug addendum)
+
+   One scoped material system for dynamic folio typography: live, selectable,
+   searchable, responsive and accessible. NO pre-rendered/distressed text
+   assets — the texture is done with live rendering only.
+
+   SCOPING: everything below is gated on .study-stage--book and targets the
+   chapter-1 content classes, so normal site UI (command centre, court,
+   homepage, Ask Clive) is unaffected. Base ink is Ink #23271B — the surface
+   palette, not sepia.
+
+   IMPLEMENTATION CHOICE (recorded per the addendum): we do NOT use
+   mix-blend-mode:multiply, an SVG displacement filter, or text blur. Blend
+   modes gave muddy, browser-variable colour against the real parchment and
+   risked illegibility on small labels. Instead the material work is done
+   by (a) ONE faint seamless paper-fibre overlay per page surface, pointer-
+   events:none, sitting visually above the ink so the eye reads the ink as
+   belonging to the page, and (b) a restrained sub-pixel text-shadow whose
+   strength varies by preset. Crisp, performant, identical in Chromium and
+   Safari, and legibility is never traded.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* The paper-fibre texture: a seamless monochrome grain tile (inline SVG
+   feTurbulence, static — never animated). Rendered as a data-URI so it
+   tiles seamlessly and stays crisp at 1x and 2x DPR. Kept as a CSS var so
+   both pages share the identical tile. */
+.study-stage--book {
+  --folio-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.55'/%3E%3C/svg%3E");
+
+  /* Ink strength presets — restrained sub-pixel impression only. */
+  --folio-ink-body-shadow:
+    0 0 0.4px rgba(35, 39, 27, 0.28),
+    0.3px 0.3px 0 rgba(35, 39, 27, 0.1);
+  --folio-ink-display-shadow:
+    0 0 0.6px rgba(35, 39, 27, 0.4),
+    0.4px 0.4px 0 rgba(35, 39, 27, 0.16);
+  --folio-ink-label-shadow: 0 0 0.3px rgba(35, 39, 27, 0.2);
+}
+
+/* ── Paper surface: one faint fibre layer per page, above the ink ────────
+   Page-local pseudo-elements sized from the spread art's measured page
+   bounds (left 6.05–48.83%, right 50.78–93.85%; rows 9.46–88.44%). Both
+   are pointer-events:none and never touch selection, focus or hit targets.
+   Opacity is deliberately extremely low — felt before noticed. */
+.study-stage--book::before,
+.study-stage--book::after {
+  content: "";
+  position: absolute;
+  z-index: 4; /* above content ink (z-3), below the header margin (z-4=header is fine) */
+  pointer-events: none;
+  background-image: var(--folio-fibre);
+  background-size: 240px 240px;
+  background-repeat: repeat;
+  /* Normal composite — no blend mode, so no muddy colour or browser drift. */
+  opacity: 0.035;
+  /* Fade the grain toward the binding and outer lip so it never reads as a
+     hard-edged rectangle floating on the art. */
+  -webkit-mask-image: radial-gradient(
+    ellipse 92% 88% at 50% 50%,
+    #000 62%,
+    transparent 98%
+  );
+  mask-image: radial-gradient(
+    ellipse 92% 88% at 50% 50%,
+    #000 62%,
+    transparent 98%
+  );
+}
+
+.study-stage--book::before {
+  /* Left page */
+  left: 6.05%;
+  right: calc(100% - 48.83%);
+  top: 9.46%;
+  bottom: calc(100% - 88.44%);
+}
+
+.study-stage--book::after {
+  /* Right page */
+  left: 50.78%;
+  right: calc(100% - 93.85%);
+  top: 9.46%;
+  bottom: calc(100% - 88.44%);
+}
+
+/* ── Ink strength presets ──────────────────────────────────────────────── */
+
+/* BODY — normal readable ink absorption. Body/lesson copy, user messages,
+   action-record entries, monologue, prompt text. */
+.study-stage--book .clive-chat__prompt-text,
+.study-stage--book .clive-chat__bubble,
+.study-stage--book .study-doc-card__body,
+.study-stage--book .study-doc-card__title,
+.study-stage--book .study-doc-card__list,
+.study-stage--book .study-doc-card__dl,
+.study-stage--book .clive-welcome-monologue__text,
+.study-stage--book .chapter1-conversation__prompt,
+.study-stage--book .clive-chat__user-echo,
+.study-stage--book .clive-chat__thinking,
+.study-stage--book blockquote.study-doc-card {
+  color: var(--book-ink, #23271b);
+  text-shadow: var(--folio-ink-body-shadow);
+}
+
+/* DISPLAY — slightly denser impression for headings/display copy. */
+.study-stage--book .clive-welcome-caption,
+.study-stage--book .study-stage__label {
+  text-shadow: var(--folio-ink-display-shadow);
+}
+
+/* LABEL / CONTROL — least texture, highest edge clarity. Small labels,
+   tags, turn labels, architect label, button text stays near-crisp. */
+.study-stage--book .clive-chat__prompt-label,
+.study-stage--book .clive-chat__turn-label,
+.study-stage--book .clive-chat__architect-label,
+.study-stage--book .study-doc-card__tag,
+.study-stage--book .clive-welcome-monologue__label,
+.study-stage--book .study-doc-card__note,
+.study-stage--book .clive-chat__starter {
+  text-shadow: var(--folio-ink-label-shadow);
+}
+
+/* Engraved brass control labels (.btn-primary/.btn-secondary/ghost-btn) are
+   a separate material — crisp recessed lettering with the plate's own
+   letterpress text-shadow — and status seals/marks are separate SVG assets.
+   Neither inherits the paper-ink texture, so they are deliberately NOT in
+   the label preset above. */
+
+/* Links inside folio copy inherit the body ink + shadow; underline stays. */
+.study-stage--book .study-stage__content a,
+.study-stage--book .study-stage__right-panel a {
+  color: var(--book-ink, #23271b);
+  text-shadow: var(--folio-ink-body-shadow);
+}
+
+/* Bold/strong within folio copy takes the display impression, italic keeps
+   the body impression — so emphasis reads as the same ink pressed a shade
+   harder, not a new material. */
+.study-stage--book .study-stage__content strong,
+.study-stage--book .study-stage__right-panel strong {
+  text-shadow: var(--folio-ink-display-shadow);
+}
+
+/* ── Accessibility fallbacks ───────────────────────────────────────────── */
+
+/* Small-label safety: where folio text falls below the safe small-label
+   size, strip the texture entirely for maximum edge clarity. */
+@media (max-width: 767px) {
+  .study-stage--book .clive-chat__prompt-label,
+  .study-stage--book .clive-chat__turn-label,
+  .study-stage--book .study-doc-card__tag {
+    text-shadow: none;
+  }
+}
+
+/* Forced-colours / high-contrast: no texture, no fibre — let the platform
+   own colour so contrast is guaranteed. */
+@media (forced-colors: active) {
+  .study-stage--book::before,
+  .study-stage--book::after {
+    content: none;
+  }
+
+  .study-stage--book .clive-chat__prompt-text,
+  .study-stage--book .clive-chat__bubble,
+  .study-stage--book .study-doc-card__body,
+  .study-stage--book .study-doc-card__title,
+  .study-stage--book .study-doc-card__list,
+  .study-stage--book .study-doc-card__dl,
+  .study-stage--book .clive-welcome-monologue__text,
+  .study-stage--book .clive-welcome-caption,
+  .study-stage--book .study-stage__label,
+  .study-stage--book .clive-chat__prompt-label,
+  .study-stage--book .clive-chat__turn-label,
+  .study-stage--book .clive-chat__architect-label,
+  .study-stage--book .study-doc-card__tag,
+  .study-stage--book .clive-welcome-monologue__label,
+  .study-stage--book .study-doc-card__note,
+  .study-stage--book .study-stage__content strong,
+  .study-stage--book .study-stage__right-panel strong,
+  .study-stage--book .study-stage__content a,
+  .study-stage--book .study-stage__right-panel a {
+    text-shadow: none;
+  }
+}
+
+/* Reduced motion: the fibre is already static and the ink shadows are
+   static — nothing to disable, but guard the overlay against any future
+   animated grain. */
+@media (prefers-reduced-motion: reduce) {
+  .study-stage--book::before,
+  .study-stage--book::after {
+    animation: none;
+    transition: none;
   }
 }
