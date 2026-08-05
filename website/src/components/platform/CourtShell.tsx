@@ -43,9 +43,6 @@ const JUDGE_VIDEO_WEBM_SRC = COURT_JUDGE_MEDIA.webm;
 const JUDGE_VIDEO_MP4_SRC = COURT_JUDGE_MEDIA.mp4;
 const JUDGE_POSTER_SRC = COURT_JUDGE_MEDIA.poster;
 
-// A 16×9 thumb of the blank book — canvas emerging through varnish.
-const COURT_BOOK_BLUR = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAA4KCw0LCQ4NDA0QDw4RFiQXFhQUFiwgIRokNC43NjMuMjI6QVNGOj1OPjIySGJJTlZYXV5dOEVmbWVabFNbXVn/2wBDAQ8QEBYTFioXFypZOzI7WVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVn/wAARCAAJABADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwC/ohX+yoiygna3J57Vemkg/sOWMCMuLY5XHI+WuFg/1Ef0p3/Lu3+5/SuTlOq5/9k=";
-
 // Written-by-hand variance per SEAT (positions, not names — whoever sits
 // in seat three inherits seat three's hand).
 const SLOT_FINISH: Array<{ tilt: string; ink: number }> = [
@@ -78,6 +75,60 @@ function roleById(id: CourtRoleId): CourtRole | undefined {
   return COURT_ROLES.find((r) => r.id === id);
 }
 
+/** Verdict strips beside each occupied seat — role labels before deliberation,
+ *  engraved verdict once the agent has decided. Shared by intake and session. */
+function BenchVerdictSlots({
+  bench,
+  verdictMap,
+  isDeliberating = false,
+}: {
+  bench: CourtAttendantId[];
+  verdictMap?: Record<string, AgentVerdict>;
+  isDeliberating?: boolean;
+}) {
+  const slot = COURT_BOOK_LAYOUT.slot;
+  return (
+    <>
+      {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
+        const roleId = bench[seat];
+        if (!roleId) return null;
+        const role = roleById(roleId);
+        const verdict = verdictMap?.[roleId];
+        const finish = SLOT_FINISH[seat];
+        return (
+          <div
+            key={`slot-${seat}`}
+            className="platform-court__verdict-slot"
+            style={
+              {
+                left: `${slot.x}%`,
+                top: `${pos.slotY}%`,
+                width: `${slot.width}%`,
+                height: `${slot.height}%`,
+                "--slot-tilt": finish.tilt,
+                "--slot-ink": finish.ink,
+              } as CSSProperties
+            }
+          >
+            {verdict ? (
+              <span className="platform-court__verdict-text">{verdict.verdict}</span>
+            ) : (
+              <span
+                className={`platform-court__verdict-pending${
+                  isDeliberating ? " platform-court__verdict-pending--deliberating" : ""
+                }`}
+              >
+                <span className="platform-court__verdict-pending-name">{role?.name}</span>
+                <span className="platform-court__verdict-pending-title">{role?.title}</span>
+              </span>
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
 function CourtBookArtwork({
   portraits,
   underPlate,
@@ -94,14 +145,15 @@ function CourtBookArtwork({
         <div className="platform-court__under-plate">{underPlate}</div>
       ) : null}
       <div className="platform-court__book-plate" aria-hidden>
-        <Image
+        {/* Plain img — the punched-hole plate must not pass through the Next
+            image optimizer (AVIF/WebP recompression softens gilt + parchment).
+            Source is 1920×1080 PNG upscaled from the 1024 web export. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={COURT_BOOK_IMAGE}
           alt=""
-          fill
-          priority
-          sizes="100vw"
-          placeholder="blur"
-          blurDataURL={COURT_BOOK_BLUR}
+          decoding="async"
+          fetchPriority="high"
           className="platform-court__book-image"
         />
       </div>
@@ -468,36 +520,11 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
         />
 
         {/* Verdict slots — engraved entries beside each occupied seat */}
-        {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
-          const roleId = attendees[seat];
-          if (!roleId) return null;
-          const verdict = verdictMap[roleId];
-          const finish = SLOT_FINISH[seat];
-          return (
-            <div
-              key={`slot-${seat}`}
-              className="platform-court__verdict-slot"
-              style={
-                {
-                  left: `${slot.x}%`,
-                  top: `${pos.slotY}%`,
-                  width: `${slot.width}%`,
-                  height: `${slot.height}%`,
-                  "--slot-tilt": finish.tilt,
-                  "--slot-ink": finish.ink,
-                } as CSSProperties
-              }
-            >
-              {verdict ? (
-                <span className="platform-court__verdict-text">{verdict.verdict}</span>
-              ) : (
-                <span className="platform-court__verdict-placeholder">
-                  {isDeliberating ? "⋯" : ""}
-                </span>
-              )}
-            </div>
-          );
-        })}
+        <BenchVerdictSlots
+          bench={attendees}
+          verdictMap={verdictMap}
+          isDeliberating={isDeliberating}
+        />
 
         {/* The judge's strip — his standing line, written into the record */}
         <div
@@ -891,6 +918,25 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
             />
           );
         })}
+
+        {/* Role labels on the painted verdict strips — intake has no verdicts yet */}
+        <BenchVerdictSlots bench={bench} />
+
+        {/* The judge's standing line on the left page */}
+        <div
+          aria-hidden
+          className="platform-court__judge-strip"
+          style={{
+            left: `${COURT_BOOK_LAYOUT.judgeSlot.x}%`,
+            top: `${COURT_BOOK_LAYOUT.judgeSeat.slotY}%`,
+            width: `${COURT_BOOK_LAYOUT.judgeSlot.width}%`,
+            height: `${COURT_BOOK_LAYOUT.judgeSlot.height}%`,
+          }}
+        >
+          <span className="platform-court__judge-strip-text">
+            summarises; does not decide
+          </span>
+        </div>
 
         <div
           className="platform-court__right-page-content platform-court__intake"
