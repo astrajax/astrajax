@@ -7,8 +7,10 @@ import {
   useState,
   useCallback,
   useRef,
+  useLayoutEffect,
   type CSSProperties,
   type ReactNode,
+  type RefObject,
 } from "react";
 import {
   createJudgementPaperTrail,
@@ -79,6 +81,79 @@ function roleById(id: CourtRoleId): CourtRole | undefined {
   return COURT_ROLES.find((r) => r.id === id);
 }
 
+/** Stage-relative centre of a portrait cell — drives frame-ring sprite windows
+ * from layout, not manifest x/y nudges. */
+function useStageCenter(
+  cellRef: RefObject<HTMLElement | null>,
+  stageRef: RefObject<HTMLElement | null>,
+) {
+  const [center, setCenter] = useState({ x: 50, y: 50 });
+
+  useLayoutEffect(() => {
+    const update = () => {
+      const cell = cellRef.current;
+      const stage = stageRef.current;
+      if (!cell || !stage) return;
+      const cr = cell.getBoundingClientRect();
+      const sr = stage.getBoundingClientRect();
+      if (sr.width === 0 || sr.height === 0) return;
+      setCenter({
+        x: ((cr.left + cr.width / 2 - sr.left) / sr.width) * 100,
+        y: ((cr.top + cr.height / 2 - sr.top) / sr.height) * 100,
+      });
+    };
+
+    update();
+    const ro = new ResizeObserver(update);
+    if (cellRef.current) ro.observe(cellRef.current);
+    if (stageRef.current) ro.observe(stageRef.current);
+    window.addEventListener("resize", update);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, [cellRef, stageRef]);
+
+  return center;
+}
+
+/** Left-page roster — portrait column + verdict strips, centred in the
+ * parchment content box via flex (not absolute left% on the full stage). */
+function CourtLeftPageRoster({ children }: { children: ReactNode }) {
+  return (
+    <div className="platform-court__left-page">
+      <div className="platform-court__roster">{children}</div>
+    </div>
+  );
+}
+
+function RosterRow({ children }: { children: ReactNode }) {
+  return <div className="platform-court__roster-row">{children}</div>;
+}
+
+function PortraitCell({
+  seat,
+  stageRef,
+  lit,
+  children,
+}: {
+  seat: CourtBookSeat;
+  stageRef: RefObject<HTMLElement | null>;
+  lit?: boolean;
+  children?: ReactNode;
+}) {
+  const cellRef = useRef<HTMLDivElement>(null);
+  const center = useStageCenter(cellRef, stageRef);
+
+  return (
+    <div ref={cellRef} className="platform-court__portrait-cell">
+      {children}
+      <FrameRing seat={seat} center={center} />
+      {lit ? <div aria-hidden className="platform-court__portrait-glow platform-court__portrait-glow--lit platform-court__portrait-glow--in-cell" /> : null}
+    </div>
+  );
+}
+
 function CourtBookArtwork({ children }: { children: ReactNode }) {
   return (
     <div className="platform-court__book-container">
@@ -101,31 +176,28 @@ function CourtBookArtwork({ children }: { children: ReactNode }) {
 
 /** A window onto the book painting itself, masked to the annulus of one
  * frame's gilt — laid ABOVE a seat's portrait so the painted ring and its
- * lip shadow overlap the portrait's rim. The frame hides the seam, as
- * frames always have. Inside the window sits a full-stage copy of the
- * same next/image rendition (sprite-window offsets from the manifest), so
- * the ring is pixel-identical to the background it continues. */
-function FrameRing({ seat }: { seat: CourtBookSeat }) {
+ * lip shadow overlap the portrait's rim. Sprite offsets derive from the
+ * portrait cell's layout centre, not manifest x coordinates. */
+function FrameRing({
+  seat,
+  center,
+}: {
+  seat: CourtBookSeat;
+  center: { x: number; y: number };
+}) {
   const ring = COURT_BOOK_LAYOUT.portraitHotspot;
-  // Opening half-extents as radii of the mask ellipse, relative to the box.
   const rx = ((seat.width / ring.width) * 50).toFixed(2);
   const ry = ((seat.height / ring.height) * 50).toFixed(2);
-  // Sprite-window: a stage-sized inner layer offset so this window shows
-  // exactly its own patch of the painting.
   const innerW = (100 / ring.width) * 100;
   const innerH = (100 / ring.height) * 100;
-  const offX = (-(seat.x - ring.width / 2) / ring.width) * 100;
-  const offY = (-(seat.y - ring.height / 2) / ring.height) * 100;
+  const offX = (-(center.x - ring.width / 2) / ring.width) * 100;
+  const offY = (-(center.y - ring.height / 2) / ring.height) * 100;
   return (
     <div
       aria-hidden
-      className="platform-court__frame-ring"
+      className="platform-court__frame-ring platform-court__frame-ring--in-cell"
       style={
         {
-          left: `${seat.x}%`,
-          top: `${seat.y}%`,
-          width: `${ring.width}%`,
-          height: `${ring.height}%`,
           "--ring-rx": `${rx}%`,
           "--ring-ry": `${ry}%`,
         } as CSSProperties
@@ -152,54 +224,23 @@ function FrameRing({ seat }: { seat: CourtBookSeat }) {
   );
 }
 
-/** The seated bench — one oval portrait layer per occupied seat, inside
- * the painted gilt frames, each overdrawing its opening slightly; the
- * frame-ring windows then lay the painting back over every rim. Scenery,
- * not controls: hotspots sit above. */
-function BenchPortraits({ bench }: { bench: CourtAttendantId[] }) {
-  const over = COURT_BOOK_LAYOUT.portraitOvershoot;
+/** Portrait art layer — fills its grid cell. */
+function PortraitArt({ roleId }: { roleId: CourtAttendantId }) {
   return (
-    <>
-      {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
-        const roleId = bench[seat];
-        if (!roleId) return null; // an empty frame reads as a vacant seat
-        return (
-          <div
-            key={`seat-art-${seat}`}
-            aria-hidden
-            className="platform-court__portrait-art"
-            style={{
-              left: `${pos.x}%`,
-              top: `${pos.y}%`,
-              width: `${pos.width + over.width}%`,
-              height: `${pos.height + over.height}%`,
-            }}
-          >
-            <Image
-              src={COURT_PORTRAIT_SRC[roleId]}
-              alt=""
-              fill
-              sizes="5vw"
-              className="platform-court__portrait-art-img"
-            />
-          </div>
-        );
-      })}
-      <JudgeLoop />
-      {COURT_BOOK_LAYOUT.seats.map((seat, i) =>
-        bench[i] ? <FrameRing key={`ring-${i}`} seat={seat} /> : null
-      )}
-      <FrameRing seat={COURT_BOOK_LAYOUT.judgeSeat} />
-    </>
+    <div aria-hidden className="platform-court__portrait-art platform-court__portrait-art--in-cell">
+      <Image
+        src={COURT_PORTRAIT_SRC[roleId]}
+        alt=""
+        fill
+        sizes="5vw"
+        className="platform-court__portrait-art-img"
+      />
+    </div>
   );
 }
 
-/** The Judge breathes. An 8s seamless loop, masked to its interior oval
- * and seated behind the painted frame like any other portrait layer —
- * every seat is an art layer; his happens to move. Reduced motion (or a
- * video that never arrives) leaves the frame-zero poster: the painting,
- * still. */
-function JudgeLoop() {
+/** The Judge breathes inside his roster cell. */
+function JudgeLoopInCell() {
   const [reducedMotion, setReducedMotion] = useState(false);
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -209,19 +250,8 @@ function JudgeLoop() {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  const pos = COURT_BOOK_LAYOUT.judgeSeat;
-  const size = COURT_BOOK_LAYOUT.judgeVideo;
   return (
-    <div
-      aria-hidden
-      className="platform-court__judge-loop"
-      style={{
-        left: `${pos.x}%`,
-        top: `${pos.y}%`,
-        width: `${size.width}%`,
-        height: `${size.height}%`,
-      }}
-    >
+    <div aria-hidden className="platform-court__judge-loop platform-court__judge-loop--in-cell">
       {reducedMotion ? (
         <Image
           src={JUDGE_POSTER_SRC}
@@ -247,17 +277,92 @@ function JudgeLoop() {
   );
 }
 
-/** Warm lamplight over a painted miniature — masked radial, screen-blended,
- * faded in by opacity when its occupant speaks. */
-function SeatGlow({ pos, lit }: { pos: { x: number; y: number }; lit: boolean }) {
+/** One bench row: portrait cell + verdict strip (or picker hotspot at intake). */
+function BenchRosterRow({
+  seatIndex,
+  seat,
+  stageRef,
+  roleId,
+  lit,
+  verdict,
+  isDeliberating,
+  finish,
+  onPortraitClick,
+  picking,
+  pickLabel,
+}: {
+  seatIndex: number;
+  seat: CourtBookSeat;
+  stageRef: RefObject<HTMLElement | null>;
+  roleId?: CourtAttendantId;
+  lit?: boolean;
+  verdict?: AgentVerdict;
+  isDeliberating?: boolean;
+  finish?: { tilt: string; ink: number };
+  onPortraitClick?: () => void;
+  picking?: boolean;
+  pickLabel?: string;
+}) {
   return (
-    <div
-      aria-hidden
-      className={`platform-court__portrait-glow${
-        lit ? " platform-court__portrait-glow--lit" : ""
-      }`}
-      style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
-    />
+    <RosterRow>
+      <PortraitCell seat={seat} stageRef={stageRef} lit={lit}>
+        {roleId ? <PortraitArt roleId={roleId} /> : null}
+        {onPortraitClick ? (
+          <button
+            type="button"
+            aria-label={pickLabel || roleById(roleId!)?.name || "Choose seat"}
+            onClick={onPortraitClick}
+            className={`platform-court__portrait-hotspot platform-court__portrait-hotspot--in-cell${
+              picking ? " platform-court__portrait-hotspot--picking" : ""
+            }`}
+          />
+        ) : null}
+      </PortraitCell>
+      {finish ? (
+        <div
+          className="platform-court__verdict-slot platform-court__verdict-slot--in-row"
+          style={
+            {
+              "--slot-tilt": finish.tilt,
+              "--slot-ink": finish.ink,
+            } as CSSProperties
+          }
+        >
+          {verdict ? (
+            <span className="platform-court__verdict-text">{verdict.verdict}</span>
+          ) : (
+            <span className="platform-court__verdict-placeholder">
+              {isDeliberating ? "⋯" : ""}
+            </span>
+          )}
+        </div>
+      ) : null}
+    </RosterRow>
+  );
+}
+
+/** Judge row — fixed sixth seat. */
+function JudgeRosterRow({
+  stageRef,
+  lit,
+}: {
+  stageRef: RefObject<HTMLElement | null>;
+  lit?: boolean;
+}) {
+  return (
+    <RosterRow>
+      <PortraitCell seat={COURT_BOOK_LAYOUT.judgeSeat} stageRef={stageRef} lit={lit}>
+        <JudgeLoopInCell />
+        <button
+          aria-label="The Judge — summarises; does not decide"
+          disabled
+          className="platform-court__portrait-hotspot platform-court__portrait-hotspot--in-cell platform-court__portrait-hotspot--judge"
+        />
+      </PortraitCell>
+      <div aria-hidden className="platform-court__judge-strip platform-court__judge-strip--in-row">
+        <span className="platform-court__judge-strip-text">summarises; does not decide</span>
+      </div>
+    </RosterRow>
   );
 }
 
@@ -465,103 +570,33 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
     openVerdictRoleId ?? ((lastAgentTurn?.roleId as CourtRoleId | undefined) ?? null);
 
   const plaque = COURT_BOOK_LAYOUT.plaque;
-  const slot = COURT_BOOK_LAYOUT.slot;
+  const stageRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="platform-court__book-stage">
+    <div className="platform-court__book-stage" ref={stageRef}>
       <CourtBookArtwork>
-        <BenchPortraits bench={attendees} />
-
-        {/* Lamplight layers — per seat + the Judge's frame */}
-        {COURT_BOOK_LAYOUT.seats.map((pos, seat) => (
-          <SeatGlow
-            key={`glow-${seat}`}
-            pos={pos}
-            lit={attendees[seat] !== undefined && glowRoleId === attendees[seat]}
-          />
-        ))}
-        <SeatGlow pos={COURT_BOOK_LAYOUT.judgeSeat} lit={glowRoleId === "judge"} />
-
-        {/* Portrait hotspots — oval hit areas over the occupied frames */}
-        {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
-          const roleId = attendees[seat];
-          if (!roleId) return null;
-          return (
-            <button
-              key={`hotspot-${seat}`}
-              aria-label={roleById(roleId)?.name || roleId}
-              onClick={() => setOpenVerdictRoleId(roleId)}
-              className="platform-court__portrait-hotspot"
-              style={{
-                left: `${pos.x}%`,
-                top: `${pos.y}%`,
-                width: `${COURT_BOOK_LAYOUT.portraitHotspot.width}%`,
-                height: `${COURT_BOOK_LAYOUT.portraitHotspot.height}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            />
-          );
-        })}
-        <button
-          aria-label="The Judge — summarises; does not decide"
-          disabled
-          className="platform-court__portrait-hotspot platform-court__portrait-hotspot--judge"
-          style={{
-            left: `${COURT_BOOK_LAYOUT.judgeSeat.x}%`,
-            top: `${COURT_BOOK_LAYOUT.judgeSeat.y}%`,
-            width: `${COURT_BOOK_LAYOUT.portraitHotspot.width}%`,
-            height: `${COURT_BOOK_LAYOUT.portraitHotspot.height}%`,
-            transform: "translate(-50%, -50%)",
-          }}
-        />
-
-        {/* Verdict slots — engraved entries beside each occupied seat */}
-        {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
-          const roleId = attendees[seat];
-          if (!roleId) return null;
-          const verdict = verdictMap[roleId];
-          const finish = SLOT_FINISH[seat];
-          return (
-            <div
-              key={`slot-${seat}`}
-              className="platform-court__verdict-slot"
-              style={
-                {
-                  left: `${slot.x}%`,
-                  top: `${pos.slotY}%`,
-                  width: `${slot.width}%`,
-                  height: `${slot.height}%`,
-                  "--slot-tilt": finish.tilt,
-                  "--slot-ink": finish.ink,
-                } as CSSProperties
-              }
-            >
-              {verdict ? (
-                <span className="platform-court__verdict-text">{verdict.verdict}</span>
-              ) : (
-                <span className="platform-court__verdict-placeholder">
-                  {isDeliberating ? "⋯" : ""}
-                </span>
-              )}
-            </div>
-          );
-        })}
-
-        {/* The judge's strip — his standing line, written into the record */}
-        <div
-          aria-hidden
-          className="platform-court__judge-strip"
-          style={{
-            left: `${COURT_BOOK_LAYOUT.judgeSlot.x}%`,
-            top: `${COURT_BOOK_LAYOUT.judgeSeat.slotY}%`,
-            width: `${COURT_BOOK_LAYOUT.judgeSlot.width}%`,
-            height: `${COURT_BOOK_LAYOUT.judgeSlot.height}%`,
-          }}
-        >
-          <span className="platform-court__judge-strip-text">
-            summarises; does not decide
-          </span>
-        </div>
+        <CourtLeftPageRoster>
+          {COURT_BOOK_LAYOUT.seats.map((seat, seatIndex) => {
+            const roleId = attendees[seatIndex];
+            if (!roleId) return null;
+            return (
+              <BenchRosterRow
+                key={`bench-row-${seatIndex}`}
+                seatIndex={seatIndex}
+                seat={seat}
+                stageRef={stageRef}
+                roleId={roleId}
+                lit={glowRoleId === roleId}
+                verdict={verdictMap[roleId]}
+                isDeliberating={isDeliberating}
+                finish={SLOT_FINISH[seatIndex]}
+                onPortraitClick={() => setOpenVerdictRoleId(roleId)}
+                pickLabel={roleById(roleId)?.name || roleId}
+              />
+            );
+          })}
+          <JudgeRosterRow stageRef={stageRef} lit={glowRoleId === "judge"} />
+        </CourtLeftPageRoster>
 
         {/* Right page content area */}
         <div
@@ -889,6 +924,7 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
 
   const valid = Boolean(title.trim() && context.trim() && stakes.trim());
   const plaque = COURT_BOOK_LAYOUT.plaque;
+  const stageRef = useRef<HTMLDivElement>(null);
 
   const handlePick = (candidate: CourtAttendantId) => {
     if (pickerSeat === null) return;
@@ -914,33 +950,27 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
   };
 
   return (
-    <div className="platform-court__book-stage">
+    <div className="platform-court__book-stage" ref={stageRef}>
       <CourtBookArtwork>
-        <BenchPortraits bench={bench} />
-
-        {/* Seat hotspots — at intake the frames are how you choose the bench */}
-        {COURT_BOOK_LAYOUT.seats.map((pos, seat) => {
-          const occupant = roleById(bench[seat]);
-          const picking = pickerSeat === seat;
-          return (
-            <button
-              key={`seat-pick-${seat}`}
-              type="button"
-              aria-label={`Seat ${seat + 1} — ${occupant?.name || "empty"}. Choose who sits.`}
-              onClick={() => setPickerSeat(picking ? null : seat)}
-              className={`platform-court__portrait-hotspot${
-                picking ? " platform-court__portrait-hotspot--picking" : ""
-              }`}
-              style={{
-                left: `${pos.x}%`,
-                top: `${pos.y}%`,
-                width: `${COURT_BOOK_LAYOUT.portraitHotspot.width}%`,
-                height: `${COURT_BOOK_LAYOUT.portraitHotspot.height}%`,
-                transform: "translate(-50%, -50%)",
-              }}
-            />
-          );
-        })}
+        <CourtLeftPageRoster>
+          {COURT_BOOK_LAYOUT.seats.map((seat, seatIndex) => {
+            const occupant = bench[seatIndex];
+            const picking = pickerSeat === seatIndex;
+            return (
+              <BenchRosterRow
+                key={`intake-row-${seatIndex}`}
+                seatIndex={seatIndex}
+                seat={seat}
+                stageRef={stageRef}
+                roleId={occupant}
+                onPortraitClick={() => setPickerSeat(picking ? null : seatIndex)}
+                picking={picking}
+                pickLabel={`Seat ${seatIndex + 1} — ${occupant ? roleById(occupant)?.name : "empty"}. Choose who sits.`}
+              />
+            );
+          })}
+          <JudgeRosterRow stageRef={stageRef} />
+        </CourtLeftPageRoster>
 
         <div
           className="platform-court__right-page-content platform-court__intake"
