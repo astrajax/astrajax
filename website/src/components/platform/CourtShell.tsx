@@ -66,9 +66,6 @@ const PLAQUE_FACE_STYLE: CSSProperties = {
   top: `${((COURT_BOOK_LAYOUT.plaqueFace.y - COURT_BOOK_LAYOUT.plaque.y) / COURT_BOOK_LAYOUT.plaque.height) * 100}%`,
   width: `${(COURT_BOOK_LAYOUT.plaqueFace.width / COURT_BOOK_LAYOUT.plaque.width) * 100}%`,
   height: `${(COURT_BOOK_LAYOUT.plaqueFace.height / COURT_BOOK_LAYOUT.plaque.height) * 100}%`,
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
 };
 
 function roleById(id: CourtRoleId): CourtRole | undefined {
@@ -147,7 +144,7 @@ function CourtBookArtwork({
       <div className="platform-court__book-plate" aria-hidden>
         {/* Plain img — the punched-hole plate must not pass through the Next
             image optimizer (AVIF/WebP recompression softens gilt + parchment).
-            Source is 1920×1080 PNG upscaled from the 1024 web export. */}
+            Source is native 4096×2304 PNG served from /public as-is. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={COURT_BOOK_IMAGE}
@@ -628,7 +625,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
                 height: `${plaque.height}%`,
               }}
             >
-              <span style={PLAQUE_FACE_STYLE}>
+              <span className="platform-court__plaque-face" style={PLAQUE_FACE_STYLE}>
                 <span className="platform-court__plaque-word">Decide</span>
               </span>
             </button>
@@ -1057,7 +1054,7 @@ function CourtIntake({ onDecisionSet }: { onDecisionSet: (d: CourtDecision) => v
             height: `${plaque.height}%`,
           }}
         >
-          <span style={PLAQUE_FACE_STYLE}>
+          <span className="platform-court__plaque-face" style={PLAQUE_FACE_STYLE}>
             <span className="platform-court__plaque-word">Convene</span>
           </span>
         </button>
