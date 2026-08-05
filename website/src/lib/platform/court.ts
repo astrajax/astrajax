@@ -173,10 +173,12 @@ export const COURT_BOOK_LAYOUT = {
    * strip rectangles (x 12.97-38.44 on the source PNG) — the previous
    * box (x15.3/w23.1) was never updated after that measurement was taken,
    * so it sat ~1.15pt right of the strip's true centre the whole time. */
-  /** Measured on native 4096×2304 court-book-blank.png (Aug 2026). */
-  slot: { x: 10.0, width: 32.0, height: 7.0 },
+  /** Measured on native 4096×2304 court-book-blank.png (Aug 2026).
+   *  Outer gilt rule x 15.09–41.09 — previous x10/w32 centred ~2pt left of
+   *  the painted boxes so labels looked left-aligned with dead space right. */
+  slot: { x: 15.1, width: 26.0, height: 7.0 },
   /** Judge strip shares the same painted rule width on the 4K master. */
-  judgeSlot: { x: 10.0, width: 32.0, height: 7.0 },
+  judgeSlot: { x: 15.1, width: 26.0, height: 7.0 },
   /** The written record flows above the brass; content ends clear of the
    * plaque's top edge so live text never sits under the metal. */
   rightPageContent: { left: 52.5, top: 8, width: 36.5, height: 58 },
@@ -186,8 +188,9 @@ export const COURT_BOOK_LAYOUT = {
    * panel measured directly on a fine grid (x 62.8-79.6, y 77.3-84.1) —
    * not the ornament's own centre, which the crest ornament above pulls
    * upward from the true engravable surface. */
-  plaque: { x: 55.0, y: 72.8, width: 34.95, height: 20.55 },
-  plaqueFace: { x: 62.8, width: 16.8, height: 6.8, y: 77.3 },
+  plaque: { x: 51.5, y: 70.5, width: 41.0, height: 23.0 },
+  /** Flat brushed band on the 4K master (x 58.9–81.2, y 75.0–84.9). */
+  plaqueFace: { x: 58.9, width: 22.3, height: 9.9, y: 75.0 },
 } as const;
 
 export const COURT_ROLES: CourtRole[] = [
