@@ -21,6 +21,7 @@ import {
   docExecutionLine,
   conveneMatter,
   COURT_BOOK_LAYOUT,
+  COURT_CAST_ACCENTS,
   COURT_MATTER_LIMITS,
   type CourtAttendantId,
   type CourtDecision,
@@ -72,16 +73,27 @@ function roleById(id: CourtRoleId): CourtRole | undefined {
   return COURT_ROLES.find((r) => r.id === id);
 }
 
+function bickerSide(index: number, roleId: BickerTurn["roleId"]): "left" | "right" {
+  if (roleId === "user") return "right";
+  return index % 2 === 0 ? "left" : "right";
+}
+
+function bickerAccent(roleId: BickerTurn["roleId"]) {
+  return COURT_CAST_ACCENTS[roleId] ?? COURT_CAST_ACCENTS.user;
+}
+
 /** Verdict strips beside each occupied seat — role labels before deliberation,
  *  engraved verdict once the agent has decided. Shared by intake and session. */
 function BenchVerdictSlots({
   bench,
   verdictMap,
   isDeliberating = false,
+  onSelectRole,
 }: {
   bench: CourtAttendantId[];
   verdictMap?: Record<string, AgentVerdict>;
   isDeliberating?: boolean;
+  onSelectRole?: (roleId: CourtRoleId) => void;
 }) {
   const slot = COURT_BOOK_LAYOUT.slot;
   return (
@@ -92,33 +104,48 @@ function BenchVerdictSlots({
         const role = roleById(roleId);
         const verdict = verdictMap?.[roleId];
         const finish = SLOT_FINISH[seat];
-        return (
+        const slotStyle = {
+          left: `${slot.x}%`,
+          top: `${pos.slotY}%`,
+          width: `${slot.width}%`,
+          height: `${slot.height}%`,
+          "--slot-tilt": finish.tilt,
+          "--slot-ink": finish.ink,
+        } as CSSProperties;
+        const slotClass = `platform-court__verdict-slot${
+          onSelectRole ? " platform-court__verdict-slot--clickable" : ""
+        }`;
+        const inner = verdict ? (
+          <span className="platform-court__verdict-text">{verdict.verdict}</span>
+        ) : (
           <div
-            key={`slot-${seat}`}
-            className="platform-court__verdict-slot"
-            style={
-              {
-                left: `${slot.x}%`,
-                top: `${pos.slotY}%`,
-                width: `${slot.width}%`,
-                height: `${slot.height}%`,
-                "--slot-tilt": finish.tilt,
-                "--slot-ink": finish.ink,
-              } as CSSProperties
-            }
+            className={`platform-court__verdict-pending${
+              isDeliberating ? " platform-court__verdict-pending--deliberating" : ""
+            }`}
           >
-            {verdict ? (
-              <span className="platform-court__verdict-text">{verdict.verdict}</span>
-            ) : (
-              <div
-                className={`platform-court__verdict-pending${
-                  isDeliberating ? " platform-court__verdict-pending--deliberating" : ""
-                }`}
-              >
-                <span className="platform-court__verdict-pending-name">{role?.name}</span>
-                <span className="platform-court__verdict-pending-title">{role?.title}</span>
-              </div>
-            )}
+            <span className="platform-court__verdict-pending-name">{role?.name}</span>
+            <span className="platform-court__verdict-pending-title">{role?.title}</span>
+          </div>
+        );
+
+        if (onSelectRole) {
+          return (
+            <button
+              key={`slot-${seat}`}
+              type="button"
+              className={slotClass}
+              style={slotStyle}
+              aria-label={`${role?.name || roleId} — view their take`}
+              onClick={() => onSelectRole(roleId)}
+            >
+              {inner}
+            </button>
+          );
+        }
+
+        return (
+          <div key={`slot-${seat}`} className={slotClass} style={slotStyle} aria-hidden>
+            {inner}
           </div>
         );
       })}
@@ -320,6 +347,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
             transcript: currentTranscript,
             userMessage: options?.userMessage,
             callIndex,
+            openingFlurry: currentTranscript.length === 0,
           }),
         });
         const data = await res.json();
@@ -492,7 +520,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
               key={`hotspot-${seat}`}
               aria-label={roleById(roleId)?.name || roleId}
               onClick={() => setOpenVerdictRoleId(roleId)}
-              className="platform-court__portrait-hotspot"
+              className="platform-court__portrait-hotspot platform-court__portrait-hotspot--bench"
               style={{
                 left: `${pos.x}%`,
                 top: `${pos.y}%`,
@@ -521,6 +549,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
           bench={attendees}
           verdictMap={verdictMap}
           isDeliberating={isDeliberating}
+          onSelectRole={setOpenVerdictRoleId}
         />
 
         {/* The judge's strip — his standing line, written into the record */}
@@ -571,16 +600,30 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
                 <h2 className="platform-court__matter-title">{decision.title}</h2>
               </div>
               <div className="platform-court__bicker-feed" ref={bickerfeedRef}>
-                {bicker.map((turn, idx) => (
-                  <div key={idx} className="platform-court__bicker-turn">
-                    <span className="platform-court__bicker-speaker">
-                      {turn.roleId === "user"
-                        ? "You"
-                        : roleById(turn.roleId as CourtRoleId)?.name || turn.roleId}
-                    </span>
-                    : {turn.line}
-                  </div>
-                ))}
+                {bicker.map((turn, idx) => {
+                  const side = bickerSide(idx, turn.roleId);
+                  const accent = bickerAccent(turn.roleId);
+                  const speakerName =
+                    turn.roleId === "user"
+                      ? "You"
+                      : roleById(turn.roleId as CourtRoleId)?.name || turn.roleId;
+                  return (
+                    <div
+                      key={`${idx}-${turn.roleId}-${turn.line.slice(0, 12)}`}
+                      className={`platform-court__bicker-turn platform-court__bicker-turn--${side}`}
+                      style={
+                        {
+                          "--bicker-speaker": accent.speaker,
+                          "--bicker-bubble": accent.bubble,
+                          "--bicker-border": accent.border,
+                        } as CSSProperties
+                      }
+                    >
+                      <span className="platform-court__bicker-speaker">{speakerName}</span>
+                      <p className="platform-court__bicker-line">{turn.line}</p>
+                    </div>
+                  );
+                })}
               </div>
               <div className="platform-court__bicker-input">
                 <input

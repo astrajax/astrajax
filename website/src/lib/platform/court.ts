@@ -100,6 +100,63 @@ export interface BickerTurn {
   line: string;
 }
 
+/** Per-cast ink for deliberation bubbles — brand tints, page-scoped. */
+export const COURT_CAST_ACCENTS: Record<
+  CourtRoleId | "user",
+  { speaker: string; bubble: string; border: string }
+> = {
+  clive: {
+    speaker: "var(--color-apricot)",
+    bubble: "color-mix(in srgb, var(--color-apricot) 16%, transparent)",
+    border: "color-mix(in srgb, var(--color-apricot) 42%, transparent)",
+  },
+  pam: {
+    speaker: "color-mix(in srgb, var(--color-sage) 88%, var(--book-ink))",
+    bubble: "color-mix(in srgb, var(--color-sage) 18%, transparent)",
+    border: "color-mix(in srgb, var(--color-sage) 45%, transparent)",
+  },
+  doc: {
+    speaker: "color-mix(in srgb, var(--color-parchment) 55%, var(--book-ink))",
+    bubble: "color-mix(in srgb, var(--color-parchment) 22%, transparent)",
+    border: "color-mix(in srgb, var(--color-parchment) 48%, transparent)",
+  },
+  lazlo: {
+    speaker: "var(--color-health-unhappy)",
+    bubble: "color-mix(in srgb, var(--color-health-unhappy) 14%, transparent)",
+    border: "color-mix(in srgb, var(--color-health-unhappy) 38%, transparent)",
+  },
+  "clive-man": {
+    speaker: "color-mix(in srgb, var(--color-moss) 75%, var(--book-ink))",
+    bubble: "color-mix(in srgb, var(--color-moss) 12%, transparent)",
+    border: "color-mix(in srgb, var(--color-moss) 32%, transparent)",
+  },
+  kate: {
+    speaker: "color-mix(in srgb, var(--color-health-thriving) 80%, var(--book-ink))",
+    bubble: "color-mix(in srgb, var(--color-health-thriving) 14%, transparent)",
+    border: "color-mix(in srgb, var(--color-health-thriving) 36%, transparent)",
+  },
+  halvard: {
+    speaker: "color-mix(in srgb, var(--color-sage) 70%, var(--color-ink))",
+    bubble: "color-mix(in srgb, var(--color-sage) 12%, transparent)",
+    border: "color-mix(in srgb, var(--color-sage) 32%, transparent)",
+  },
+  milo: {
+    speaker: "color-mix(in srgb, var(--color-apricot) 75%, var(--color-health-okay))",
+    bubble: "color-mix(in srgb, var(--color-buttermilk) 20%, transparent)",
+    border: "color-mix(in srgb, var(--color-apricot) 32%, transparent)",
+  },
+  judge: {
+    speaker: "color-mix(in srgb, var(--book-ink) 62%, transparent)",
+    bubble: "color-mix(in srgb, var(--book-ink) 8%, transparent)",
+    border: "color-mix(in srgb, var(--book-ink) 22%, transparent)",
+  },
+  user: {
+    speaker: "var(--book-ink)",
+    bubble: "color-mix(in srgb, var(--book-ink) 6%, transparent)",
+    border: "color-mix(in srgb, var(--book-ink) 24%, transparent)",
+  },
+};
+
 export type HumanJudgement = "approve" | "not-yet" | "escalate" | null;
 
 export interface CourtDecision {
@@ -176,12 +233,13 @@ export const COURT_BOOK_LAYOUT = {
   /** Measured on native 4096×2304 court-book-blank.png (Aug 2026).
    *  Outer gilt rule x 15.09–41.09 — previous x10/w32 centred ~2pt left of
    *  the painted boxes so labels looked left-aligned with dead space right. */
-  slot: { x: 15.1, width: 26.0, height: 7.0 },
-  /** Judge strip shares the same painted rule width on the 4K master. */
-  judgeSlot: { x: 15.1, width: 26.0, height: 7.0 },
+  /** Parchment text band only — portrait oval sits outside this box
+   *  (measured ~18.6–41.1 on the 4K master). */
+  slot: { x: 18.6, width: 22.5, height: 4.25 },
+  judgeSlot: { x: 18.6, width: 24.5, height: 4.25 },
   /** The written record flows above the brass; content ends clear of the
    * plaque's top edge so live text never sits under the metal. */
-  rightPageContent: { left: 52.5, top: 8, width: 36.5, height: 58 },
+  rightPageContent: { left: 54.5, top: 11.5, width: 35.5, height: 55 },
   /** The wide brass plaque. Box = the full ornament (for the hotspot and
    * glow — the hit area and light should cover the whole gilt casting).
    * The engraved word centres on plaqueFace, the recessed wood-grain
@@ -189,8 +247,8 @@ export const COURT_BOOK_LAYOUT = {
    * not the ornament's own centre, which the crest ornament above pulls
    * upward from the true engravable surface. */
   plaque: { x: 51.5, y: 70.5, width: 41.0, height: 23.0 },
-  /** Flat brushed band on the 4K master (x 58.9–81.2, y 75.0–84.9). */
-  plaqueFace: { x: 58.9, width: 22.3, height: 9.9, y: 75.0 },
+  /** Flat brushed band on the 4K master (centre ≈ x 72%, y 80.6%). */
+  plaqueFace: { x: 60.5, width: 21.0, height: 4.8, y: 78.8 },
 } as const;
 
 export const COURT_ROLES: CourtRole[] = [
