@@ -15,6 +15,8 @@ import {
   type CliveVideoStageHandle,
 } from "@/components/chapter1/CliveVideoStage";
 import { StudyStageRightPanelProvider } from "@/components/chapter1/StudyStageRightPanel";
+import { FolioStageProvider, useFolioStage } from "@/components/chapter1/FolioStageContext";
+import { FolioMessagePulse } from "@/components/chapter1/FolioMessagePulse";
 
 const STUDY_BOOK_SRC = "/agent-cast/clive-wigglesworth/study-book-spread.png";
 
@@ -35,7 +37,7 @@ type CliveStudyStageProps = {
   paperTrail?: (open: boolean, onClose: () => void) => ReactNode;
 };
 
-export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStageProps>(
+const CliveStudyStageInner = forwardRef<CliveVideoStageHandle, CliveStudyStageProps>(
   function CliveStudyStage(
     { children, onReset, label, subtitle, backHref, backLabel, headerActions, paperTrail },
     ref,
@@ -44,6 +46,8 @@ export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStage
     const ledgerRef = useRef<HTMLButtonElement>(null);
     const [rightPanelEl, setRightPanelEl] = useState<HTMLElement | null>(null);
     const [trailOpen, setTrailOpen] = useState(false);
+    const folio = useFolioStage();
+    const folioState = folio?.stageState ?? "teaching";
 
     useEffect(() => {
       mainRef.current?.focus();
@@ -56,7 +60,7 @@ export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStage
 
     return (
       <StudyStageRightPanelProvider container={rightPanelEl}>
-      <div className="study-stage study-stage--book">
+      <div className="study-stage study-stage--book" data-folio-state={folioState}>
         <div className="study-stage__book" aria-hidden>
           <Image
             src={STUDY_BOOK_SRC}
@@ -100,6 +104,8 @@ export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStage
           </div>
         </div>
 
+        <FolioMessagePulse />
+
         <aside
           ref={setRightPanelEl}
           className="study-stage__right-panel"
@@ -127,3 +133,16 @@ export const CliveStudyStage = forwardRef<CliveVideoStageHandle, CliveStudyStage
     );
   },
 );
+
+/** Outer wrapper: owns the folio stage state for the whole stage tree. */
+const CliveStudyStageWithFolio = forwardRef<CliveVideoStageHandle, CliveStudyStageProps>(
+  function CliveStudyStageWithFolio(props, ref) {
+    return (
+      <FolioStageProvider>
+        <CliveStudyStageInner {...props} ref={ref} />
+      </FolioStageProvider>
+    );
+  },
+);
+
+export { CliveStudyStageWithFolio as CliveStudyStage };
