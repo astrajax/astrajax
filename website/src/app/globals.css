@@ -6824,9 +6824,9 @@ textarea.clive-chat__input {
   /* Teaching state: Clive's portrait anchor on the LEFT page.
      Interaction state re-points these vars below; positions are
      transition-free — the state change rides the page-turn beat. */
-  --folio-clive-top: clamp(6.5rem, 14vh, 9.5rem);
-  --folio-clive-left: clamp(4.5%, 6vw, 8%);
-  --folio-clive-width: min(36vw, 30rem);
+  --folio-clive-top: clamp(5rem, 12vh, 8rem);
+  --folio-clive-left: clamp(5%, 6.5vw, 8.5%);
+  --folio-clive-width: min(38vw, 34rem);
   --folio-gold: rgba(203, 160, 86, 0.92);
   --folio-gold-deep: rgba(154, 118, 52, 0.85);
   --folio-gold-light: rgba(232, 192, 122, 0.55);
@@ -6840,8 +6840,14 @@ textarea.clive-chat__input {
 
 /* ── Clive's portrait: teaching = left page, teaching-large ───────────── */
 .study-stage--book .study-stage__clive-spot {
-  /* Native 16:9 in both states — one portal box, no crop jump on the flip. */
+  /* Default (interaction / pre-state) — the flatter 16:9 top-third. */
   aspect-ratio: 16 / 9;
+}
+
+.study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
+  /* Teaching presence: a taller frame so he FILLS the left page as the
+     teacher, per the commission rough — not a flat vignette. */
+  aspect-ratio: 4 / 3;
 }
 
 .study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
@@ -6884,9 +6890,9 @@ textarea.clive-chat__input {
 
 @media (max-width: 767px) {
   .study-stage--book {
-    --folio-clive-top: clamp(6.5rem, 13vh, 8.5rem);
+    --folio-clive-top: clamp(6rem, 12vh, 8rem);
     --folio-clive-left: clamp(4%, 5vw, 6%);
-    --folio-clive-width: min(40vw, 13rem);
+    --folio-clive-width: min(42vw, 14rem);
   }
 
   .study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
