@@ -45,9 +45,16 @@ function studyBookSrc(): string {
   // The 4K master is uploaded ONLY to the canonical store; use it directly.
   // An env var may point at a store that does not host the master (the
   // platform-activity lease store), so env is NOT consulted for the master.
-  const storeId = LIVING_FOLIO_CANONICAL_STORE_ID;
-  const host = `${storeId.trim().toLowerCase()}.public.blob.vercel-storage.com`;
+  // Vercel's public Blob host drops the "store_" prefix and is lowercase:
+  // https://<id-sans-prefix>.public.blob.vercel-storage.com/<pathname>.
+  const host = `${publicBlobHost(LIVING_FOLIO_CANONICAL_STORE_ID)}`;
   return `https://${host}/${LIVING_FOLIO_MASTER.blobPathname}`;
+}
+
+/** Vercel public-store host: bare lowercase id, no "store_" prefix. */
+function publicBlobHost(storeId: string): string {
+  const bare = storeId.trim().toLowerCase().replace(/^store_/, "");
+  return `${bare}.public.blob.vercel-storage.com`;
 }
 
 const STUDY_BOOK_SRC = studyBookSrc();

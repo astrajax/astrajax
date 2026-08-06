@@ -19,9 +19,10 @@ export type ResolvedFolioAsset = {
   serve: FolioAsset["serve"];
 };
 
-/** Normalise a store id to its lowercase public-store host form. */
+/** Vercel public-store host: bare lowercase id, no "store_" prefix. */
 function publicStoreHost(storeId: string): string {
-  return `${storeId.trim().toLowerCase()}.public.blob.vercel-storage.com`;
+  const bare = storeId.trim().toLowerCase().replace(/^store_/, "");
+  return `${bare}.public.blob.vercel-storage.com`;
 }
 
 /** The public store that hosts the uploaded Living Folio 4K master. */
