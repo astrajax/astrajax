@@ -1,57 +1,87 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
-  <!-- Living Folio — Clive teaching mask (4:3). v5.
-       Pure-vector absorbed-pigment alpha. Self-contained (no raster).
-       SOLID CORE on Clive (face/torso/paws/book) + broken, disconnected
-       pigment islands outside it. No continuous closed contour anywhere,
-       so no ring can be traced. Alpha loss only; reaches zero before bounds. -->
+  <!-- Living Folio — Clive teaching mask (4:3). v6.
+       Pure-vector absorbed pigment. v5 passed the cold gate but read too
+       eaten (islands shrank to specks, fireplace vanished). v6 enlarges and
+       merges the wash into fewer, broader, irregular absorption fields that
+       still never close into a continuous contour. Solid core on Clive. -->
   <defs>
-    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7"/></filter>
-    <filter id="soft2" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="broad" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="5"/></filter>
     <filter id="rough" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.03 0.04" numOctaves="2" seed="14" result="t"/>
-      <feDisplacementMap in="SourceGraphic" in2="t" scale="34" xChannelSelector="R" yChannelSelector="G"/>
-      <feGaussianBlur stdDeviation="5"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.028 0.038" numOctaves="2" seed="14" result="t"/>
+      <feDisplacementMap in="SourceGraphic" in2="t" scale="40" xChannelSelector="R" yChannelSelector="G"/>
+      <feGaussianBlur stdDeviation="4"/>
     </filter>
   </defs>
 
-  <!-- SOLID CORE: Clive's head, torso, paws and the book. Organically
-       displaced so even this edge is not a clean ellipse. -->
+  <!-- SOLID CORE: Clive's head, torso, paws, book. -->
   <path fill="white" filter="url(#rough)" d="
-    M 470 215
-    C 555 180, 660 185, 725 235
-    C 782 280, 808 350, 802 455
-    C 796 560, 755 645, 685 692
-    C 612 738, 522 735, 455 690
-    C 395 648, 372 565, 382 468
-    C 392 375, 408 252, 470 215
+    M 468 214
+    C 556 178, 662 184, 728 236
+    C 786 282, 812 352, 806 458
+    C 800 566, 758 652, 688 700
+    C 614 748, 522 744, 454 698
+    C 392 654, 370 568, 380 470
+    C 390 376, 406 250, 468 214
     Z"/>
 
-  <!-- Pigment islands — disconnected, low-alpha, irregular. Never a loop. -->
-  <g filter="url(#soft)">
-    <!-- lamp + left shelf fragments -->
-    <path fill="white" opacity="0.5" d="M 178 300 C 205 235, 285 210, 340 250 C 385 285, 380 370, 330 405 C 285 435, 210 420, 185 365 C 168 330, 162 330, 178 300 Z"/>
-    <path fill="white" opacity="0.42" d="M 232 470 C 268 445, 320 455, 335 500 C 348 540, 315 585, 265 585 C 220 585, 198 525, 232 470 Z"/>
-    <path fill="white" opacity="0.35" d="M 150 560 C 185 540, 230 560, 232 610 C 234 655, 190 685, 150 665 C 118 648, 122 585, 150 560 Z"/>
-    <!-- shoulders / book bleed -->
-    <path fill="white" opacity="0.5" d="M 360 640 C 430 615, 540 620, 585 665 C 622 702, 560 760, 465 760 C 385 760, 320 695, 360 640 Z"/>
-    <path fill="white" opacity="0.4" d="M 660 660 C 730 640, 800 660, 812 710 C 822 752, 755 790, 682 778 C 628 768, 615 690, 660 660 Z"/>
-    <!-- fireplace broken fragment (right) -->
-    <path fill="white" opacity="0.38" d="M 830 300 C 885 278, 945 300, 958 360 C 968 415, 930 470, 872 465 C 822 460, 795 395, 812 345 C 818 325, 812 312, 830 300 Z"/>
-    <path fill="white" opacity="0.3" d="M 880 500 C 925 490, 968 518, 962 565 C 956 608, 905 630, 868 608 C 838 590, 845 522, 880 500 Z"/>
-    <!-- top shelf loss fragments -->
-    <path fill="white" opacity="0.33" d="M 420 130 C 480 108, 560 105, 605 128 C 640 146, 590 178, 510 178 C 445 178, 385 152, 420 130 Z"/>
-    <path fill="white" opacity="0.27" d="M 700 118 C 758 108, 820 122, 838 152 C 852 176, 800 198, 738 190 C 692 184, 668 138, 700 118 Z"/>
-    <!-- lower quiet fade fragments -->
-    <path fill="white" opacity="0.3" d="M 300 800 C 350 790, 405 812, 400 845 C 395 875, 330 878, 288 858 C 258 843, 262 810, 300 800 Z"/>
-    <path fill="white" opacity="0.26" d="M 640 820 C 700 812, 758 822, 768 846 C 775 865, 712 876, 652 868 C 612 862, 602 832, 640 820 Z"/>
-  </g>
-  <!-- sparse far trace specks -->
-  <g filter="url(#soft2)">
-    <circle cx="142" cy="392" r="34" fill="white" opacity="0.14"/>
-    <circle cx="1050" cy="352" r="30" fill="white" opacity="0.13"/>
-    <circle cx="1042" cy="598" r="26" fill="white" opacity="0.12"/>
-    <circle cx="200" cy="742" r="30" fill="white" opacity="0.12"/>
-    <circle cx="920" cy="820" r="28" fill="white" opacity="0.11"/>
-    <circle cx="565" cy="86" r="26" fill="white" opacity="0.12"/>
+  <!-- Broad absorption fields (broken, no continuous contour). -->
+  <!-- LEFT: lamp + shelf wash, generous bleed, irregular -->
+  <path fill="white" opacity="0.52" filter="url(#broad)" d="
+    M 168 268
+    C 150 200, 225 158, 330 152
+    C 415 147, 480 178, 500 245
+    C 518 305, 500 380, 448 425
+    C 400 466, 320 480, 252 462
+    C 190 445, 152 390, 152 322
+    C 152 290, 158 282, 168 268
+    Z"/>
+  <path fill="white" opacity="0.42" filter="url(#broad)" d="
+    M 150 470
+    C 185 425, 265 418, 320 452
+    C 368 482, 372 555, 322 598
+    C 278 636, 195 632, 158 585
+    C 128 546, 122 508, 150 470
+    Z"/>
+  <!-- RIGHT: fireplace wash, irregular, broken -->
+  <path fill="white" opacity="0.5" filter="url(#broad)" d="
+    M 800 280
+    C 850 240, 940 235, 1000 278
+    C 1052 316, 1065 395, 1030 455
+    C 998 510, 920 535, 858 512
+    C 802 491, 772 432, 780 368
+    C 785 322, 776 300, 800 280
+    Z"/>
+  <path fill="white" opacity="0.4" filter="url(#broad)" d="
+    M 820 520
+    C 870 495, 950 505, 985 552
+    C 1015 592, 995 655, 938 678
+    C 885 698, 812 678, 792 625
+    C 778 585, 782 542, 820 520
+    Z"/>
+  <!-- TOP shelf loss -->
+  <path fill="white" opacity="0.44" filter="url(#broad)" d="
+    M 380 138
+    C 460 100, 600 92, 700 112
+    C 780 128, 830 165, 822 200
+    C 815 232, 720 250, 600 248
+    C 480 246, 380 215, 368 178
+    C 360 158, 362 146, 380 138
+    Z"/>
+  <!-- BOTTOM: quiet fade wash under shoulders/book -->
+  <path fill="white" opacity="0.46" filter="url(#broad)" d="
+    M 330 680
+    C 420 648, 560 650, 660 678
+    C 745 702, 800 745, 792 782
+    C 785 818, 680 845, 560 842
+    C 445 839, 340 800, 322 745
+    C 312 715, 312 692, 330 680
+    Z"/>
+  <!-- sparse far trace -->
+  <g filter="url(#broad)">
+    <circle cx="118" cy="640" r="42" fill="white" opacity="0.16"/>
+    <circle cx="1060" cy="580" r="38" fill="white" opacity="0.15"/>
+    <circle cx="250" cy="820" r="40" fill="white" opacity="0.14"/>
+    <circle cx="900" cy="820" r="36" fill="white" opacity="0.13"/>
   </g>
 </svg>
