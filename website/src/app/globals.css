@@ -2142,16 +2142,15 @@ body {
   background: transparent;
   padding: 0;
   box-shadow: none;
-  /* Safe zone: the chat surface (and so the composer) fills the left page's
-     usable width — gutter at the binding, content-left at the outer edge — and
-     can never exceed it. A definite width (not a shrink-wrapped flex item) so
-     the composer's minmax(0,1fr) track resolves to real width, never collapses. */
+  /* Safe zone: fill the left page's usable width and never exceed it. A
+     definite width (not a shrink-wrapped flex item) so the composer row
+     resolves to real width. The parent content container already ends at the
+     left-page binding with a gutter, so width:100% fills exactly the usable
+     page; the vw cap is only a guard for very wide viewports. */
   flex: 0 0 auto;
   align-self: stretch;
   width: 100%;
-  max-width: calc(
-    var(--book-left-page-end) - var(--book-content-left) - var(--folio-safe-gutter)
-  );
+  max-width: min(100%, calc(46vw - var(--folio-safe-gutter)));
 }
 
 /* The composer is ONE bounded row inside the page: the writing well takes the
