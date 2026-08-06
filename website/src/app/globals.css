@@ -8833,11 +8833,9 @@ textarea.clive-chat__input {
   white-space: nowrap;
   max-width: 100%;
   overflow: hidden;
-  /* engraved Ink with a soft varnish glow — legible on walnut or parchment */
-  color: var(--book-ink);
-  text-shadow:
-    0 1px 2px rgba(243, 237, 219, 0.5),
-    0 0 8px rgba(243, 237, 219, 0.28);
+  /* engraved parchment with a soft dark setdown — legible on the dark rail */
+  color: color-mix(in srgb, var(--color-parchment) 88%, transparent);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
 /* Living Folio header — quiet live text inside the art canvas's own top
@@ -8853,7 +8851,7 @@ textarea.clive-chat__input {
   left: 0;
   right: 0;
   height: 7%;
-  padding: 0 2.4cqw;
+  padding: 0 2.4cqw 0 17cqw; /* left pad clears the baked "AstraJax" wordmark */
   border-bottom: none;
   background: none;
   box-shadow: none;
@@ -8880,7 +8878,8 @@ textarea.clive-chat__input {
   position: static;
   transform: none;
   width: auto;
-  max-width: 44%;
+  max-width: 34%;
+  margin-right: 6cqw; /* keep controls clear of the far-right baked star */
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -8896,8 +8895,8 @@ textarea.clive-chat__input {
   white-space: nowrap;
   max-width: 100%;
   overflow: hidden;
-  color: color-mix(in srgb, var(--book-ink) 68%, transparent);
-  text-shadow: 0 1px 2px rgba(243, 237, 219, 0.4);
+  color: color-mix(in srgb, var(--color-parchment) 62%, transparent);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 /* ── Route-choice dockets: restrained page-native plates, not gold boxes ── */
