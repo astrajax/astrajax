@@ -8837,10 +8837,12 @@ textarea.clive-chat__input {
 }
 
 .study-stage--book .onboarding__route-best {
-  /* Lower-inner zone, clear of the verb's band, ends before the 84% lip. */
-  top: 60%;
+  /* Lower-inner zone, clear of the verb's band. Nudged up + tighter leading
+     so a two-line copy still ends clear of the 84% lower lip (measured on
+     docket-frame-left.png: inner face y=48..240, lip from ~y=248). */
+  top: 57%;
   font-size: clamp(0.7rem, 1.2vw, 0.8rem);
-  line-height: 1.3;
+  line-height: 1.22;
   font-style: italic;
   color: var(--book-ink-muted);
 }
