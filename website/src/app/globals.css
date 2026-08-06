@@ -9149,15 +9149,22 @@ textarea.clive-chat__input {
    per dispatch, the content hierarchy already makes scrolling evident. */
 .study-stage--book .study-stage__content,
 .study-stage--book .study-stage__right-panel,
-.study-stage--book .clive-chat--study .clive-chat__messages {
+.study-stage--book .clive-chat--study .clive-chat__messages,
+.study-stage--book .clive-chat__input {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* legacy Edge */
 }
 
 .study-stage--book .study-stage__content::-webkit-scrollbar,
 .study-stage--book .study-stage__right-panel::-webkit-scrollbar,
-.study-stage--book .clive-chat--study .clive-chat__messages::-webkit-scrollbar {
+.study-stage--book .clive-chat--study .clive-chat__messages::-webkit-scrollbar,
+.study-stage--book .clive-chat__input::-webkit-scrollbar {
   display: none; /* Chromium / Safari */
   width: 0;
   height: 0;
 }
+
+/* The writing well (.clive-chat__input) is itself a folio scroll surface: it
+   auto-grows to a 132px cap (resizeInput in CliveChatSurface) then scrolls,
+   which surfaces a native scrollbar with arrow caps on the painted page.
+   Hide its chrome too; it stays scrollable and keyboard-navigable. */
