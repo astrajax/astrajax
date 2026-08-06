@@ -4921,7 +4921,7 @@ body {
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 1.75rem;
   margin-bottom: 1rem;
   padding-right: 0.35rem;
   min-height: 150px;

@@ -247,8 +247,10 @@ export const COURT_BOOK_LAYOUT = {
    * not the ornament's own centre, which the crest ornament above pulls
    * upward from the true engravable surface. */
   plaque: { x: 51.5, y: 70.5, width: 41.0, height: 23.0 },
-  /** Flat brushed band on the 4K master (centre ≈ x 72%, y 80.6%). */
-  plaqueFace: { x: 60.5, width: 21.0, height: 4.8, y: 78.8 },
+  /** Flat brushed band on the 4K master (x 65.0–79.2, y 78.6–82.0) —
+   *  remeasured Aug 2026 against rendered 1920×1080 + native PNG; previous
+   *  box sat ~16px left of the painted band so DECIDE looked left-aligned. */
+  plaqueFace: { x: 65.0, width: 14.2, height: 3.4, y: 78.6 },
 } as const;
 
 export const COURT_ROLES: CourtRole[] = [
