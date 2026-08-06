@@ -100,8 +100,13 @@ function entryStepForBook(
  * from :has() selectors.
  */
 function isInteractionStep(step: LoopStep, showWelcomeSequence: boolean): boolean {
-  if (showWelcomeSequence) return false; // cinematic welcome = teaching presence
-  return step !== "welcome" && step !== "context_importance";
+  // Teaching = the opening/teaching material (the welcome cinematic and the
+  // pre-engagement welcome step). The moment the experience carries a live
+  // working chat — any beat after that, on either route, including the
+  // context_importance entry — the interface is conversational and Clive
+  // resolves top-right. The visual state follows the interaction state.
+  if (showWelcomeSequence) return false;
+  return step !== "welcome";
 }
 
 /** Bridges the shell's step machine into the folio stage (inside CliveStudyShell's provider). */
