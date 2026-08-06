@@ -7440,61 +7440,108 @@ textarea.clive-chat__input {
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   Folio ink system — printed-into-parchment live text (5 Aug addendum)
+   Printed-ink text — SHARED LAYER (the canonical material; 6 Aug centralised)
 
-   One scoped material system for dynamic folio typography: live, selectable,
-   searchable, responsive and accessible. NO pre-rendered/distressed text
-   assets — the texture is done with live rendering only.
+   The house treatment for live text printed into parchment/paper art: the
+   letters read as ink absorbed into the page, not laid on top of it. Live,
+   selectable, searchable, responsive and accessible — the texture is done
+   with live rendering only. NO pre-rendered/distressed text assets.
 
-   SCOPING: everything below is gated on .study-stage--book and targets the
-   chapter-1 content classes, so normal site UI (command centre, court,
-   homepage, Ask Clive) is unaffected. Base ink is Ink #23271B — the surface
-   palette, not sepia.
+   This block is the single source of the grammar. Surfaces opt in by adding
+   ONE thin scope (see the Folio and Court scopes directly below) that:
+     1. sizes the fibre pseudo-elements to that surface's measured page
+        bounds, and
+     2. maps the surface's own content classes onto the three strength
+        presets below.
+   Future parchment surfaces (House hub, Doc's Workshop, new folios) inherit
+   the treatment by writing the same thin scope — never by re-deriving the
+   shadows, the fibre, or this geometry. Convention: website/docs/printed-ink-text-convention.md.
 
-   IMPLEMENTATION CHOICE (recorded per the addendum): we do NOT use
-   mix-blend-mode:multiply, an SVG displacement filter, or text blur. Blend
+   IMPLEMENTATION CHOICE (locked, from the 5 Aug addendum): NO
+   mix-blend-mode:multiply, NO SVG displacement filter, NO text blur. Blend
    modes gave muddy, browser-variable colour against the real parchment and
-   risked illegibility on small labels. Instead the material work is done
-   by (a) ONE faint seamless paper-fibre overlay per page surface, pointer-
-   events:none, sitting visually above the ink so the eye reads the ink as
-   belonging to the page, and (b) a restrained sub-pixel text-shadow whose
-   strength varies by preset. Crisp, performant, identical in Chromium and
-   Safari, and legibility is never traded.
+   risked small-label legibility. The material work is done by:
+     (a) ONE faint seamless paper-fibre overlay per page surface
+         (pointer-events:none) sitting visually above the ink so the eye
+         reads the ink as belonging to the page, and
+     (b) a restrained sub-pixel text-shadow whose strength varies by preset.
+   Crisp, performant, identical in Chromium and Safari; legibility is never
+   traded. Base ink is Ink #23271B — the surface palette, not sepia.
    ════════════════════════════════════════════════════════════════════════ */
 
-/* The paper-fibre texture: a seamless monochrome grain tile (inline SVG
-   feTurbulence, static — never animated). Rendered as a data-URI so it
-   tiles seamlessly and stays crisp at 1x and 2x DPR. Kept as a CSS var so
-   both pages share the identical tile. */
-.study-stage--book {
-  --folio-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.55'/%3E%3C/svg%3E");
+/* The shared fibre + shadow grammar. Defined once on :root so every ink
+   surface uses the identical tile and the identical presets. --ink-warm is
+   the per-surface warmth knob (0 = neutral folio, 1 = warm court). */
+:root {
+  /* Seamless monochrome paper-grain tile (inline SVG feTurbulence, static —
+     never animated). Data-URI so it tiles seamlessly and stays crisp at 1x
+     and 2x DPR. */
+  --ink-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.55'/%3E%3C/svg%3E");
 
-  /* Ink strength presets — restrained sub-pixel impression only. */
-  --folio-ink-body-shadow:
+  --ink-warm: 0;
+
+  /* Ink strength presets — restrained sub-pixel impression only. Neutral
+     (folio) values; the warm set adds a third, deeper ghost and is mixed in
+     by per-surface overrides where the parchment art reads warmer/darker. */
+  --ink-body-shadow:
     0 0 0.4px rgba(35, 39, 27, 0.28),
     0.3px 0.3px 0 rgba(35, 39, 27, 0.1);
-  --folio-ink-display-shadow:
+  --ink-display-shadow:
     0 0 0.6px rgba(35, 39, 27, 0.4),
     0.4px 0.4px 0 rgba(35, 39, 27, 0.16);
-  --folio-ink-label-shadow: 0 0 0.3px rgba(35, 39, 27, 0.2);
+  --ink-label-shadow: 0 0 0.3px rgba(35, 39, 27, 0.2);
+
+  --ink-body-shadow-warm:
+    0 0 0.55px rgba(35, 39, 27, 0.38),
+    0.35px 0.35px 0 rgba(35, 39, 27, 0.14),
+    0 0.6px 0.8px rgba(35, 39, 27, 0.06);
+  --ink-display-shadow-warm:
+    0 0 0.75px rgba(35, 39, 27, 0.48),
+    0.45px 0.45px 0 rgba(35, 39, 27, 0.2),
+    0 0.8px 1px rgba(35, 39, 27, 0.08);
+  --ink-label-shadow-warm:
+    0 0 0.4px rgba(35, 39, 27, 0.28),
+    0.25px 0.25px 0 rgba(35, 39, 27, 0.1);
+
+  /* Fibre veil strength per surface (Court art is warmer/denser). */
+  --ink-fibre-opacity: 0.035;
+
+  /* Page geometry — the fibre pseudo-elements are sized from each surface's
+     measured page bounds. Defaults are the Living Folio book spread. */
+  --ink-page-l-left: 6.05%;
+  --ink-page-l-right: calc(100% - 48.83%);
+  --ink-page-l-top: 9.46%;
+  --ink-page-l-bottom: calc(100% - 88.44%);
+  --ink-page-r-left: 50.78%;
+  --ink-page-r-right: calc(100% - 93.85%);
+  --ink-page-r-top: 9.46%;
+  --ink-page-r-bottom: calc(100% - 88.44%);
 }
 
-/* ── Paper surface: one faint fibre layer per page, above the ink ────────
-   Page-local pseudo-elements sized from the spread art's measured page
-   bounds (left 6.05–48.83%, right 50.78–93.85%; rows 9.46–88.44%). Both
-   are pointer-events:none and never touch selection, focus or hit targets.
-   Opacity is deliberately extremely low — felt before noticed. */
+/* ── Shared fibre pseudo-element grammar ──────────────────────────────────
+   Applied per surface by .ink-surface::before/::after (the page veils).
+   pointer-events:none — never touches selection, focus or hit targets.
+   Opacity deliberately extremely low — felt before noticed. */
+.ink-surface,
+.study-stage--book,
+.platform-court__book-container {
+  position: relative;
+}
+.ink-surface::before,
+.ink-surface::after,
 .study-stage--book::before,
-.study-stage--book::after {
+.study-stage--book::after,
+.platform-court__book-container::before,
+.platform-court__book-container::after {
   content: "";
   position: absolute;
-  z-index: 4; /* above content ink (z-3), below the header margin (z-4=header is fine) */
+  z-index: 4; /* above content ink (z-3), below the header margin */
   pointer-events: none;
-  background-image: var(--folio-fibre);
+  background-image: var(--ink-fibre);
   background-size: 240px 240px;
   background-repeat: repeat;
   /* Normal composite — no blend mode, so no muddy colour or browser drift. */
-  opacity: 0.035;
+  opacity: var(--ink-fibre-opacity);
   /* Fade the grain toward the binding and outer lip so it never reads as a
      hard-edged rectangle floating on the art. */
   -webkit-mask-image: radial-gradient(
@@ -7508,24 +7555,47 @@ textarea.clive-chat__input {
     transparent 98%
   );
 }
-
-.study-stage--book::before {
-  /* Left page */
-  left: 6.05%;
-  right: calc(100% - 48.83%);
-  top: 9.46%;
-  bottom: calc(100% - 88.44%);
+.ink-surface::before,
+.study-stage--book::before,
+.platform-court__book-container::before {
+  left: var(--ink-page-l-left);
+  right: var(--ink-page-l-right);
+  top: var(--ink-page-l-top);
+  bottom: var(--ink-page-l-bottom);
+}
+.ink-surface::after,
+.study-stage--book::after,
+.platform-court__book-container::after {
+  left: var(--ink-page-r-left);
+  right: var(--ink-page-r-right);
+  top: var(--ink-page-r-top);
+  bottom: var(--ink-page-r-bottom);
 }
 
-.study-stage--book::after {
-  /* Right page */
-  left: 50.78%;
-  right: calc(100% - 93.85%);
-  top: 9.46%;
-  bottom: calc(100% - 88.44%);
+/* ── THE EXCEPTION ROUTE — .no-ink ────────────────────────────────────────
+   The smallest possible opt-out: put .no-ink on any element (or wrapper)
+   whose text must stay crisp — controls, code-like UI, dense data, small
+   labels where texture harms legibility. It strips the ink shadow from the
+   element and its descendants and suppresses the fibre veil over it.
+   Engraved brass lettering and status seals already live outside the ink
+   presets by convention; use .no-ink for everything else that must not
+   carry the texture. */
+.no-ink,
+.no-ink * {
+  text-shadow: none !important;
 }
 
-/* ── Ink strength presets ──────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════════════════
+   FOLIO SCOPE — Living Folio (chapter-1 book spread)
+
+   The folio's own page bounds + content-class → preset mapping. Neutral
+   ink (--ink-warm stays 0). Scoped to .study-stage--book so normal site UI
+   (command centre, court, homepage, Ask Clive) is unaffected.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.study-stage--book {
+  /* page geometry inherits the :root defaults (this spread's measured bounds) */
+}
 
 /* BODY — normal readable ink absorption. Body/lesson copy, user messages,
    action-record entries, monologue, prompt text. */
@@ -7541,13 +7611,13 @@ textarea.clive-chat__input {
 .study-stage--book .clive-chat__thinking,
 .study-stage--book blockquote.study-doc-card {
   color: var(--book-ink, #23271b);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
 }
 
 /* DISPLAY — slightly denser impression for headings/display copy. */
 .study-stage--book .clive-welcome-caption,
 .study-stage--book .study-stage__label {
-  text-shadow: var(--folio-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow);
 }
 
 /* LABEL / CONTROL — least texture, highest edge clarity. Small labels,
@@ -7559,7 +7629,7 @@ textarea.clive-chat__input {
 .study-stage--book .clive-welcome-monologue__label,
 .study-stage--book .study-doc-card__note,
 .study-stage--book .clive-chat__starter {
-  text-shadow: var(--folio-ink-label-shadow);
+  text-shadow: var(--ink-label-shadow);
 }
 
 /* Engraved brass control labels (.btn-primary/.btn-secondary/ghost-btn) are
@@ -7572,7 +7642,7 @@ textarea.clive-chat__input {
 .study-stage--book .study-stage__content a,
 .study-stage--book .study-stage__right-panel a {
   color: var(--book-ink, #23271b);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
 }
 
 /* Bold/strong within folio copy takes the display impression, italic keeps
@@ -7580,7 +7650,7 @@ textarea.clive-chat__input {
    harder, not a new material. */
 .study-stage--book .study-stage__content strong,
 .study-stage--book .study-stage__right-panel strong {
-  text-shadow: var(--folio-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow);
 }
 
 /* ── Accessibility fallbacks ───────────────────────────────────────────── */
@@ -7630,72 +7700,33 @@ textarea.clive-chat__input {
    static — nothing to disable, but guard the overlay against any future
    animated grain. */
 @media (prefers-reduced-motion: reduce) {
+  .ink-surface::before,
+  .ink-surface::after,
   .study-stage--book::before,
-  .study-stage--book::after {
+  .study-stage--book::after,
+  .platform-court__book-container::before,
+  .platform-court__book-container::after {
     animation: none;
     transition: none;
   }
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   Court ink system — printed-into-parchment live text (ported from #84)
+   COURT SCOPE — Court book spread
 
-   Same material grammar as the Living Folio ink addendum: restrained sub-
-   pixel text-shadow + one faint paper-fibre layer per page. Scoped to
-   .court-stage only. Engraved verdict strips and brass plaque labels keep
-   their own letterpress material and do NOT inherit body texture.
+   Same shared printed-ink grammar, warm-tuned: the Court parchment art reads
+   warmer/darker than the folio, so this scope sets --ink-warm values and a
+   slightly denser fibre veil. Engraved verdict strips and brass plaque
+   labels keep their own letterpress material and do NOT inherit body texture.
    ════════════════════════════════════════════════════════════════════════ */
 
 .court-stage {
-  --court-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.55'/%3E%3C/svg%3E");
-  /* Slightly denser than folio — Court parchment reads warmer/darker in art. */
-  --court-ink-body-shadow:
-    0 0 0.55px rgba(35, 39, 27, 0.38),
-    0.35px 0.35px 0 rgba(35, 39, 27, 0.14),
-    0 0.6px 0.8px rgba(35, 39, 27, 0.06);
-  --court-ink-display-shadow:
-    0 0 0.75px rgba(35, 39, 27, 0.48),
-    0.45px 0.45px 0 rgba(35, 39, 27, 0.2),
-    0 0.8px 1px rgba(35, 39, 27, 0.08);
-  --court-ink-label-shadow:
-    0 0 0.4px rgba(35, 39, 27, 0.28),
-    0.25px 0.25px 0 rgba(35, 39, 27, 0.1);
+  --ink-warm: 1;
+  --ink-fibre-opacity: 0.048;
 }
 
-.platform-court__book-container::before,
-.platform-court__book-container::after {
-  content: "";
-  position: absolute;
-  z-index: 4;
-  pointer-events: none;
-  background-image: var(--court-fibre);
-  background-size: 240px 240px;
-  background-repeat: repeat;
-  opacity: 0.048;
-  -webkit-mask-image: radial-gradient(
-    ellipse 92% 88% at 50% 50%,
-    #000 62%,
-    transparent 98%
-  );
-  mask-image: radial-gradient(
-    ellipse 92% 88% at 50% 50%,
-    #000 62%,
-    transparent 98%
-  );
-}
-
-.platform-court__book-container::before {
-  left: 6.05%;
-  right: calc(100% - 48.83%);
-  top: 9.46%;
-  bottom: calc(100% - 88.44%);
-}
-
-.platform-court__book-container::after {
-  left: 50.78%;
-  right: calc(100% - 93.85%);
-  top: 9.46%;
-  bottom: calc(100% - 88.44%);
+.platform-court__book-container {
+  /* page geometry inherits the :root defaults (same book-spread art) */
 }
 
 /* BODY — intake, judgement copy, inputs */
@@ -7709,13 +7740,13 @@ textarea.clive-chat__input {
 .court-stage .platform-court__seat-picker-note,
 .court-stage .platform-court__bicker-line {
   color: var(--bicker-body, var(--book-ink));
-  text-shadow: var(--court-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow-warm);
 }
 
 .court-stage .platform-court__underline-input::placeholder,
 .court-stage .platform-court__input::placeholder {
   color: color-mix(in srgb, var(--book-ink) 42%, transparent);
-  text-shadow: var(--court-ink-label-shadow);
+  text-shadow: var(--ink-label-shadow-warm);
   opacity: 1;
 }
 
@@ -7726,7 +7757,7 @@ textarea.clive-chat__input {
 .court-stage .platform-court__judgement-verdict,
 .court-stage .platform-court__seat-candidate-name {
   color: var(--book-ink);
-  text-shadow: var(--court-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow-warm);
 }
 
 /* LABEL — small caps, field labels */
@@ -7737,15 +7768,15 @@ textarea.clive-chat__input {
 .court-stage .platform-court__muted,
 .court-stage .platform-court__inline-link {
   color: var(--book-ink);
-  text-shadow: var(--court-ink-label-shadow);
+  text-shadow: var(--ink-label-shadow-warm);
 }
 
 .court-stage .platform-court__bicker-speaker {
-  text-shadow: var(--court-ink-label-shadow);
+  text-shadow: var(--ink-label-shadow-warm);
 }
 
 .court-stage .platform-court__right-page-content strong {
-  text-shadow: var(--court-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow-warm);
 }
 
 @media (max-width: 767px) {
@@ -7769,6 +7800,7 @@ textarea.clive-chat__input {
     text-shadow: none;
   }
 }
+
 /* ════════════════════════════════════════════════════════════════════════
    Live-QA repair (5 Aug): three live defects on /chapter-1
 
@@ -8000,7 +8032,7 @@ textarea.clive-chat__input {
    legally contain the p/ul/ol/hr that StudyMarkdown emits. Same body ink. */
 .study-stage--book .clive-chat__md {
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
 }
 
 /* The markdown body paragraphs sit inside the prompt-text wrapper; remove
@@ -8010,7 +8042,7 @@ textarea.clive-chat__input {
 .study-stage--book .clive-chat__md .clive-chat__md-para {
   margin: 0 0 0.55em;
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
 }
 
 .study-stage--book .clive-chat__prompt-text--md .clive-chat__md-para:last-child,
@@ -8024,7 +8056,7 @@ textarea.clive-chat__input {
   margin: 0 0 0.55em;
   padding-left: 1.35em;
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
   list-style: none;
 }
 
@@ -8079,7 +8111,7 @@ textarea.clive-chat__input {
 .study-stage--book .clive-chat__prompt-text--md strong,
 .study-stage--book .clive-chat__md strong {
   font-weight: 600;
-  text-shadow: var(--folio-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow);
 }
 
 .study-stage--book .clive-chat__prompt-text--md a,
@@ -8088,7 +8120,7 @@ textarea.clive-chat__input {
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-color: color-mix(in srgb, var(--book-ink) 45%, transparent);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
 }
 
 .study-stage--book .clive-chat__prompt-text--md a:hover,
