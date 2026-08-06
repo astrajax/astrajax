@@ -24,15 +24,18 @@ function publicStoreHost(storeId: string): string {
   return `${storeId.trim().toLowerCase()}.public.blob.vercel-storage.com`;
 }
 
+/** The public store that hosts the uploaded Living Folio 4K master. */
+const LIVING_FOLIO_CANONICAL_STORE_ID = "store_cvu4L5KwtlOCutGD";
+
 export function getFolioBlobPublicBase(): string | null {
   // FOLIO_BLOB_PUBLIC_BASE_URL wins when set (full override); otherwise the
-  // base is derived from BLOB_STORE_ID (the connected public store id).
+  // canonical store that hosts the uploaded 4K master. An env store id
+  // pointing at a store that does NOT host the master (e.g. the
+  // platform-activity lease store) is intentionally not consulted here.
   const override = process.env.FOLIO_BLOB_PUBLIC_BASE_URL;
   if (override)
     return `https://${override.replace(/^https?:\/\//, "").replace(/\/+$/, "")}`;
-  const storeId = process.env.BLOB_STORE_ID;
-  if (!storeId) return null;
-  return `https://${publicStoreHost(storeId)}`;
+  return `https://${publicStoreHost(LIVING_FOLIO_CANONICAL_STORE_ID)}`;
 }
 
 export function resolveFolioAsset(key: string): ResolvedFolioAsset | null {

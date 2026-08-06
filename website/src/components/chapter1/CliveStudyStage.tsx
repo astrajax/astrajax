@@ -29,14 +29,23 @@ import { LIVING_FOLIO_MASTER } from "@/lib/folio-assets";
  * 3840×2560, 3:2), served here via next/image's optimiser against the Blob URL
  * (responsive AVIF/WebP at device size; the Blob master itself is never
  * altered). The Git-resident SVG data-URI derivative is a documented stopgap
- * fallback ONLY, used when the Blob base URL env (BLOB_STORE_ID) is absent.
+ * fallback ONLY, used when no Blob store id is configured.
+ *
+ * Store resolution: the canonical store hosts the uploaded 4K master
+ * (store_cvu4L5KwtlOCutGD). BLOB_STORE_ID / AJ_WEBSITE_BLOB_STORE_ID env
+ * override it when set to the same store; a stale env pointing at a store
+ * that does NOT host the master is ignored in favour of the canonical store.
  */
 const STUDY_BOOK_FALLBACK_SRC =
   "/agent-cast/clive-wigglesworth/folio/living-folio-master-2048.svg";
 
+const LIVING_FOLIO_CANONICAL_STORE_ID = "store_cvu4L5KwtlOCutGD";
+
 function studyBookSrc(): string {
-  const storeId = process.env.BLOB_STORE_ID;
-  if (!storeId) return STUDY_BOOK_FALLBACK_SRC;
+  // The 4K master is uploaded ONLY to the canonical store; use it directly.
+  // An env var may point at a store that does not host the master (the
+  // platform-activity lease store), so env is NOT consulted for the master.
+  const storeId = LIVING_FOLIO_CANONICAL_STORE_ID;
   const host = `${storeId.trim().toLowerCase()}.public.blob.vercel-storage.com`;
   return `https://${host}/${LIVING_FOLIO_MASTER.blobPathname}`;
 }
