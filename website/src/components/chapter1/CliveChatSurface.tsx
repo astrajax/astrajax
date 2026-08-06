@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StudyAssistantText } from "@/components/chapter1/StudyAssistantText";
+import { StudyMarkdown } from "@/components/chapter1/StudyMarkdown";
 import { useFolioStage } from "@/components/chapter1/FolioStageContext";
 import { usePlatformSession } from "@/components/platform-session/PlatformSessionProvider";
 import { useCliveVoice } from "@/lib/clive/use-clive-voice";
@@ -512,9 +513,19 @@ export function CliveChatSurface({
             P
           </div>
         )}
-        <p className={options?.muted ? "text-ink-muted" : undefined}>
-          <span className="clive-chat__speaker">{label}:</span> {content}
-        </p>
+        {isAssistant ? (
+          // Assistant copy may carry block Markdown (p/ul/ol/hr), so it needs
+          // a BLOCK wrapper — never a <p>, which cannot legally contain block
+          // elements. User turns stay simple inline text.
+          <div className={`clive-chat__md ${options?.muted ? "text-ink-muted" : ""}`}>
+            <span className="clive-chat__speaker">{label}:</span>{" "}
+            <StudyMarkdown content={content} />
+          </div>
+        ) : (
+          <p className={options?.muted ? "text-ink-muted" : undefined}>
+            <span className="clive-chat__speaker">{label}:</span> {content}
+          </p>
+        )}
       </div>
     );
   }

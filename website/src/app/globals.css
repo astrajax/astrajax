@@ -7030,9 +7030,9 @@ textarea.clive-chat__input {
   /* Teaching state: Clive's portrait anchor on the LEFT page.
      Interaction state re-points these vars below; positions are
      transition-free — the state change rides the page-turn beat. */
-  --folio-clive-top: clamp(6.5rem, 14vh, 9.5rem);
-  --folio-clive-left: clamp(4.5%, 6vw, 8%);
-  --folio-clive-width: min(36vw, 30rem);
+  --folio-clive-top: clamp(5rem, 12vh, 8rem);
+  --folio-clive-left: clamp(5%, 6.5vw, 8.5%);
+  --folio-clive-width: min(38vw, 34rem);
   --folio-gold: rgba(203, 160, 86, 0.92);
   --folio-gold-deep: rgba(154, 118, 52, 0.85);
   --folio-gold-light: rgba(232, 192, 122, 0.55);
@@ -7046,8 +7046,14 @@ textarea.clive-chat__input {
 
 /* ── Clive's portrait: teaching = left page, teaching-large ───────────── */
 .study-stage--book .study-stage__clive-spot {
-  /* Native 16:9 in both states — one portal box, no crop jump on the flip. */
+  /* Default (interaction / pre-state) — the flatter 16:9 top-third. */
   aspect-ratio: 16 / 9;
+}
+
+.study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
+  /* Teaching presence: a taller frame so he FILLS the left page as the
+     teacher, per the commission rough — not a flat vignette. */
+  aspect-ratio: 4 / 3;
 }
 
 .study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
@@ -7090,9 +7096,9 @@ textarea.clive-chat__input {
 
 @media (max-width: 767px) {
   .study-stage--book {
-    --folio-clive-top: clamp(6.5rem, 13vh, 8.5rem);
+    --folio-clive-top: clamp(6rem, 12vh, 8rem);
     --folio-clive-left: clamp(4%, 5vw, 6%);
-    --folio-clive-width: min(40vw, 13rem);
+    --folio-clive-width: min(42vw, 14rem);
   }
 
   .study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
@@ -7760,6 +7766,346 @@ textarea.clive-chat__input {
   .court-stage .platform-court__intake-title,
   .court-stage .platform-court__judgement-summary,
   .court-stage .platform-court__right-page-content strong {
+    text-shadow: none;
+  }
+}
+/* ════════════════════════════════════════════════════════════════════════
+   Live-QA repair (5 Aug): three live defects on /chapter-1
+
+   DEFECT 1 — Clive rendered as a hard-edged rectangular paste in both
+   folio positions. Root cause: the shared feather mask was a 96%-ellipse
+   (near-rectangular), so at the folio's wider 16:9 portal the edge read as
+   a hard rectangle, and the ::before vignette read as a white fog circle.
+
+   Fix: a hand-shaped feather with a useful SOLID CORE (his face/eyes and
+   gestures stay clear) and a real perimeter falloff into the parchment —
+   superellipse elliptical gradient, then softened by a second radial so the
+   corners dissolve rather than cut. Applied to BOTH the container and the
+   poster/layer so it holds whatever size/aspect the two states give it.
+   No white fog, no hard rectangle. -webkit-mask covered for Safari.
+   CliveVideoStage media, poster, reduced-motion and the reaction queue are
+   untouched — this is a mask change only.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.study-stage--book .study-stage__clive-spot {
+  /* Hand-shaped feather: solid core ~60%, then a long soft dissolve. Two
+     layered masks (multiplied): a superellipse for the broad shape and a
+     corner-weighted radial so the corners fade first. The composite reads
+     as ink bleeding into paper, not a geometric crop. */
+  --folio-clive-mask:
+    radial-gradient(
+      ellipse 78% 74% at 50% 47%,
+      #000 0%,
+      #000 58%,
+      rgba(0, 0, 0, 0.86) 72%,
+      rgba(0, 0, 0, 0.5) 84%,
+      rgba(0, 0, 0, 0.18) 93%,
+      transparent 100%
+    );
+  -webkit-mask-image: var(--folio-clive-mask);
+  mask-image: var(--folio-clive-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* The poster and the live layer take the same mask so the still and every
+   video clip dissolve identically — including mid-reaction. */
+.study-stage--book .study-stage__clive-spot .clive-video-stage__poster,
+.study-stage--book .study-stage__clive-spot .clive-video-stage__layer {
+  -webkit-mask-image: var(--folio-clive-mask);
+  mask-image: var(--folio-clive-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+
+/* Kill the white fog circle: the shared ::before vignette painted a pale
+   ellipse that read as a cloud behind him. Inside the folio the mask does
+   the dissolve on its own — drop the vignette entirely. */
+.study-stage--book .study-stage__clive-feather::before,
+.study-stage--book .clive-portrait-feather::before {
+  content: none;
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   DEFECT 2 — digital controls survived on the live route. The folio's
+   engraved grammar only reached SOME controls: Send was a pale digital
+   button, Back a rounded pill, the message input a digital bordered
+   textarea. Below, every actual Chapter 1 control inherits the engraved
+   book-bound grammar wherever it renders — scoped to the real component
+   classes, not a bare .btn-primary that component rules override.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* The full control set inside the folio: primary + secondary + ghost
+   (Back/Continue/Start again), starter prompts, and the chat send button.
+   Engraved recessed aged-brass plate: thin brass rim, shallow engraved
+   face, Ink small-caps serif, faint contained warm-gold inner light. */
+.study-stage--book .btn-primary,
+.study-stage--book .btn-secondary,
+.study-stage--book .study-stage__ghost-btn,
+.study-stage--book .clive-chat__starter,
+.study-stage--book .clive-chat__form button[type="submit"] {
+  position: relative;
+  border-radius: 4px;
+  border: 1px solid var(--folio-gold-deep);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.14em;
+  color: var(--book-ink);
+  text-shadow: 0 1px 0 rgba(255, 240, 198, 0.35);
+  background: var(--folio-plate-face);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.28),
+    inset 0 -1px 0 rgba(94, 70, 28, 0.28),
+    inset 0 0 12px var(--folio-gold-light),
+    0 2px 10px rgba(26, 18, 12, 0.22);
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease,
+    filter 0.15s ease;
+}
+
+.study-stage--book .btn-primary:hover,
+.study-stage--book .btn-secondary:hover,
+.study-stage--book .study-stage__ghost-btn:hover,
+.study-stage--book .clive-chat__starter:hover,
+.study-stage--book .clive-chat__form button[type="submit"]:hover {
+  border-color: var(--folio-gold);
+  color: var(--book-ink);
+  background: var(--folio-plate-face);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.34),
+    inset 0 -1px 0 rgba(94, 70, 28, 0.28),
+    inset 0 0 18px rgba(232, 192, 122, 0.72),
+    0 3px 14px rgba(26, 18, 12, 0.26);
+}
+
+.study-stage--book .btn-primary:focus-visible,
+.study-stage--book .btn-secondary:focus-visible,
+.study-stage--book .study-stage__ghost-btn:focus-visible,
+.study-stage--book .clive-chat__starter:focus-visible,
+.study-stage--book .clive-chat__form button[type="submit"]:focus-visible {
+  outline: 2px solid rgba(203, 160, 86, 0.72);
+  outline-offset: 2px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.34),
+    inset 0 0 18px rgba(232, 192, 122, 0.72),
+    0 0 20px rgba(212, 168, 94, 0.4);
+}
+
+.study-stage--book .btn-primary:active,
+.study-stage--book .btn-secondary:active,
+.study-stage--book .study-stage__ghost-btn:active,
+.study-stage--book .clive-chat__starter:active,
+.study-stage--book .clive-chat__form button[type="submit"]:active {
+  box-shadow:
+    inset 0 2px 6px rgba(94, 70, 28, 0.38),
+    inset 0 0 10px var(--folio-gold-light),
+    0 1px 4px rgba(26, 18, 12, 0.2);
+}
+
+.study-stage--book .btn-primary:disabled,
+.study-stage--book .btn-secondary:disabled,
+.study-stage--book .study-stage__ghost-btn:disabled,
+.study-stage--book .clive-chat__starter:disabled,
+.study-stage--book .clive-chat__form button[type="submit"]:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+  filter: saturate(0.55) brightness(0.94);
+  color: color-mix(in srgb, var(--book-ink) 52%, transparent);
+  text-shadow: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.12),
+    inset 0 -1px 0 rgba(94, 70, 28, 0.18),
+    0 1px 4px rgba(26, 18, 12, 0.14);
+}
+
+/* The message input becomes an inset writing well on parchment: no digital
+   border box — a recessed line with a soft inner shadow, ink text, and a
+   brass focus glow. ≥16px mobile font preserved (iOS no-zoom), focus,
+   validation, scroll, keyboard and the aria-label all unchanged. */
+.study-stage--book .clive-chat__input {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: clamp(1.0625rem, 1.7vw, 1.1875rem); /* ≈17px ≥ 16px mobile */
+  color: var(--book-ink);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(94, 70, 28, 0.07) 0%,
+      rgba(250, 247, 237, 0.5) 18%,
+      rgba(250, 247, 237, 0.62) 100%
+    );
+  border: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--book-ink) 30%, transparent);
+  border-radius: 3px 3px 0 0;
+  padding: clamp(0.7rem, 1.5vh, 0.9rem) clamp(0.85rem, 1.6vw, 1.1rem);
+  box-shadow:
+    inset 0 2px 6px rgba(94, 70, 28, 0.12),
+    inset 0 1px 0 rgba(94, 70, 28, 0.08);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+.study-stage--book .clive-chat__input::placeholder {
+  color: color-mix(in srgb, var(--book-ink) 42%, transparent);
+  font-style: italic;
+}
+
+.study-stage--book .clive-chat__input:focus {
+  outline: none;
+  border-bottom-color: rgba(203, 160, 86, 0.7);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(94, 70, 28, 0.06) 0%,
+      rgba(250, 247, 237, 0.6) 18%,
+      rgba(250, 247, 237, 0.72) 100%
+    );
+  box-shadow:
+    inset 0 2px 6px rgba(94, 70, 28, 0.12),
+    0 1px 0 rgba(203, 160, 86, 0.5),
+    0 6px 18px rgba(212, 168, 94, 0.22);
+}
+
+.study-stage--book .clive-chat__input:focus-visible {
+  outline: none;
+}
+
+/* The send row aligns: input well grows, the engraved Send plate sits
+   beside it — a writing line and its seal, not two digital boxes. */
+.study-stage--book .clive-chat__form-row {
+  align-items: flex-end;
+  gap: clamp(0.5rem, 1.2vw, 0.875rem);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   DEFECT 3 — assistant Markdown now renders as semantic live HTML
+   (StudyMarkdown.tsx: paragraphs, strong/em, ul/ol, hr, links — built as
+   React elements, never dangerouslySetInnerHTML, so sanitisation is
+   structural and arbitrary HTML is impossible). The folio ink presets
+   inherit onto these real elements; text stays selectable, searchable,
+   copyable and screen-reader-safe.
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* Assistant markdown block wrapper — a valid <div>, not a <p>, so it can
+   legally contain the p/ul/ol/hr that StudyMarkdown emits. Same body ink. */
+.study-stage--book .clive-chat__md {
+  color: var(--book-ink);
+  text-shadow: var(--folio-ink-body-shadow);
+}
+
+/* The markdown body paragraphs sit inside the prompt-text wrapper; remove
+   the default paragraph margins so the rhythm matches the page, and keep
+   the body ink impression. */
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__md-para,
+.study-stage--book .clive-chat__md .clive-chat__md-para {
+  margin: 0 0 0.55em;
+  color: var(--book-ink);
+  text-shadow: var(--folio-ink-body-shadow);
+}
+
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__md-para:last-child,
+.study-stage--book .clive-chat__md .clive-chat__md-para:last-child {
+  margin-bottom: 0;
+}
+
+/* Lists read as printed items, not dotted UI. */
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__list,
+.study-stage--book .clive-chat__md .clive-chat__list {
+  margin: 0 0 0.55em;
+  padding-left: 1.35em;
+  color: var(--book-ink);
+  text-shadow: var(--folio-ink-body-shadow);
+  list-style: none;
+}
+
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__list li,
+.study-stage--book .clive-chat__md .clive-chat__list li {
+  margin: 0.18em 0;
+  position: relative;
+}
+
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__list li::before,
+.study-stage--book .clive-chat__md .clive-chat__list li::before {
+  content: "·";
+  position: absolute;
+  left: -0.85em;
+  color: color-mix(in srgb, var(--book-ink) 62%, var(--color-sage));
+}
+
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__list--ordered,
+.study-stage--book .clive-chat__md .clive-chat__list--ordered {
+  list-style: none;
+  counter-reset: folio-md;
+}
+
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__list--ordered li,
+.study-stage--book .clive-chat__md .clive-chat__list--ordered li {
+  counter-increment: folio-md;
+}
+
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__list--ordered li::before,
+.study-stage--book .clive-chat__md .clive-chat__list--ordered li::before {
+  content: counter(folio-md) ".";
+  color: color-mix(in srgb, var(--book-ink) 62%, var(--color-sage));
+}
+
+/* Thematic break: a brass rule in the page's engraved grammar, not ---. */
+.study-stage--book .clive-chat__prompt-text--md .clive-chat__hr,
+.study-stage--book .clive-chat__md .clive-chat__hr {
+  border: none;
+  height: 1px;
+  margin: 0.85em 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(203, 160, 86, 0.22) 12%,
+    rgba(203, 160, 86, 0.55) 50%,
+    rgba(203, 160, 86, 0.22) 88%,
+    transparent 100%
+  );
+}
+
+/* Emphasis reads as the same ink pressed harder; links keep the body ink. */
+.study-stage--book .clive-chat__prompt-text--md strong,
+.study-stage--book .clive-chat__md strong {
+  font-weight: 600;
+  text-shadow: var(--folio-ink-display-shadow);
+}
+
+.study-stage--book .clive-chat__prompt-text--md a,
+.study-stage--book .clive-chat__md a {
+  color: var(--book-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in srgb, var(--book-ink) 45%, transparent);
+  text-shadow: var(--folio-ink-body-shadow);
+}
+
+.study-stage--book .clive-chat__prompt-text--md a:hover,
+.study-stage--book .clive-chat__md a:hover {
+  text-decoration-color: var(--folio-gold-deep);
+}
+
+/* High-contrast: no texture on the semantic markdown either. */
+@media (forced-colors: active) {
+  .study-stage--book .clive-chat__prompt-text--md .clive-chat__md-para,
+  .study-stage--book .clive-chat__prompt-text--md .clive-chat__list,
+  .study-stage--book .clive-chat__prompt-text--md strong,
+  .study-stage--book .clive-chat__prompt-text--md a,
+  .study-stage--book .clive-chat__md .clive-chat__md-para,
+  .study-stage--book .clive-chat__md .clive-chat__list,
+  .study-stage--book .clive-chat__md strong,
+  .study-stage--book .clive-chat__md a {
     text-shadow: none;
   }
 }
