@@ -8693,10 +8693,13 @@ textarea.clive-chat__input {
 .study-stage--book .study-stage__label {
   font-family: Georgia, "Times New Roman", Times, serif;
   font-variant: small-caps;
-  letter-spacing: 0.16em;
-  font-size: clamp(0.6rem, 1.1vw, 0.72rem);
+  letter-spacing: 0.14em;
+  /* responsive to the container width so it never escapes the carved inner edge */
+  font-size: clamp(0.52rem, 0.9vw, 0.68rem);
   font-weight: 500;
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
   color: color-mix(in srgb, var(--color-parchment) 88%, transparent);
   text-shadow:
     0 1px 0 rgba(26, 16, 8, 0.55),
@@ -8713,8 +8716,11 @@ textarea.clive-chat__input {
   top: 0;
   left: 0;
   right: 0;
-  /* SC1 delta: labels locked INSIDE the master's two engraved rail cartouches
-     (left 5.5–19.6%, right 21.8–35.2%), optically centred vertically. */
+  /* Three-anchor absolute rail grid on the ACTUAL K8 web derivative:
+     left cartouche bounds ~20%–46% (centre 33%), crest centred 50%,
+     right cartouche bounds ~55%–79% (centre 67%). Labels never positioned
+     from viewport corners; each lives in a fixed-width container matching
+     its panel, optically centred. AJ crest stays at 50%, unmoved. */
   height: clamp(1.9rem, 4.9vh, 3rem);
   padding: 0;
   border-bottom: none;
@@ -8722,33 +8728,45 @@ textarea.clive-chat__input {
   box-shadow: none;
 }
 
+/* Left live label container: centred around 33% width, constrained to the
+   left cartouche bounds (roughly 20%–46%). */
 .study-stage--book .study-stage__header-copy {
-  /* centred inside the left cartouche (centre ~12.5%) */
   position: absolute;
-  left: 12.5%;
+  left: 33%;
   top: 50%;
   transform: translate(-50%, -50%);
+  width: 26%; /* the cartouche's ~26%-wide panel */
+  max-width: 26%;
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
 }
 
+/* Right live label container: centred around 67% width, constrained to the
+   right cartouche bounds (roughly 55%–79%). */
 .study-stage--book .study-stage__header-actions {
-  /* centred inside the right cartouche (centre ~28.5%) */
   position: absolute;
-  left: 28.5%;
+  left: 67%;
   top: 50%;
   transform: translate(-50%, -50%);
+  width: 24%; /* the cartouche's ~24%-wide panel */
+  max-width: 24%;
   display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: 0.5rem;
 }
 
 .study-stage--book .study-stage__subtitle {
   font-family: Georgia, "Times New Roman", Times, serif;
   font-variant: small-caps;
-  letter-spacing: 0.16em;
-  font-size: 0.66rem;
+  letter-spacing: 0.13em;
+  font-size: clamp(0.5rem, 0.85vw, 0.62rem);
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
   color: color-mix(in srgb, var(--color-parchment) 58%, transparent);
   text-shadow: 0 1px 0 rgba(26, 16, 8, 0.45);
 }
@@ -8964,20 +8982,27 @@ textarea.clive-chat__input {
   margin: 0.6rem 0 0;
 }
 
-/* SC1 delta mobile: at narrow widths the rail labels must not escape their
-   cartouches — shrink to fit and keep them inside their panels. */
+/* SC1 rail mobile: labels reduce letter-spacing/font size to fit inside
+   their cartouches — they never move outside the panels. */
 @media (max-width: 767px) {
   .study-stage--book .study-stage__label {
-    font-size: clamp(0.5rem, 2.4vw, 0.62rem);
-    letter-spacing: 0.1em;
+    font-size: clamp(0.42rem, 2.2vw, 0.54rem);
+    letter-spacing: 0.08em;
+  }
+
+  .study-stage--book .study-stage__subtitle {
+    font-size: clamp(0.4rem, 2vw, 0.5rem);
+    letter-spacing: 0.06em;
   }
 
   .study-stage--book .study-stage__header-actions {
-    gap: 0.3rem;
+    gap: 0.25rem;
   }
 
   .study-stage--book .study-stage__header-actions button {
-    font-size: 0.6rem;
-    padding: 0.24rem 0.45rem;
+    font-size: clamp(0.44rem, 2vw, 0.56rem);
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.35rem;
+    white-space: nowrap;
   }
 }
