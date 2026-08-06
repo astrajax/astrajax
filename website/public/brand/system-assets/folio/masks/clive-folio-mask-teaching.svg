@@ -1,90 +1,118 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
   <!--
     Living Folio — Clive teaching mask (4:3, left page).
-    Hand-shaped absorbed-ink alpha. One mask on the OUTERMOST wrapper only.
+    Absorbed-pigment alpha. One mask on the OUTERMOST wrapper only.
 
-    Character: a broad, vertically generous silhouette with an irregular
-    dry-brush perimeter — flat-ish top and bottom, fuller and more broken
-    along the left/right edges, asymmetric. The centre (face, torso, paws
-    and book) stays fully solid; the perimeter dissolves into the Pale Cream
-    page as ink absorbed into paper.
+    ALPHA ARCHITECTURE (Kathryn dispatch, 6 Aug 2026): three INDEPENDENTLY
+    irregular absorption fields, not one displaced contour. The earlier
+    single silhouette + uniform falloff kept too much alpha too close to a
+    single closed contour, so the darkest room pixels (bookshelves, the
+    fireplace) collected into a legible brown/grey oval ring — a torn
+    aperture. The fields below are displaced and gated by DIFFERENT noise
+    seeds so their edges never align; the eye finds no one contour to trace.
 
-    Rim correction (Kathryn dispatch, 6 Aug 2026): the prior version left a
-    dense dark stippled necklace — a continuous charcoal band where the
-    steep ramp met a uniform sharpened tooth. Fixed three ways, all in the
-    filter (the hand-authored path is unchanged):
-      1. Alpha decays FASTER through the darkest room pixels so no
-         continuous ring survives — the ramp now collapses to zero sooner
-         and the blur is shorter, so the falloff is pigment THINNING, not
-         pigment gathering at the edge.
-      2. The tooth bite is no longer uniform: a low-frequency directional
-         field modulates the tooth so it bites in irregular ISLANDS, not a
-         fence around the whole perimeter. Paper intrudes inward in broken
-         patches.
-      3. Fewer fully-opaque outer teeth — the outermost fringe is held at
-         low alpha so it reads as broken dry-brush, never a solid band.
-    A guaranteed solid core keeps the safe area 100% opaque.
+      1. SOLID CORE — 100% alpha around face, torso, paws and book;
+         displaced by its own swell field so even its perimeter is organic.
+      2. MID WASH — a broader artwork-shaped field (books and lamp bleed
+         far left, fireplace right, broader shoulders, irregular top-shelf
+         loss) held to roughly 30-50% alpha by a mid ramp, displaced
+         differently and broken by an island gate.
+      3. OUTER TRACE — only sparse broken ISLANDS (disconnected small
+         shapes) at roughly 8-18% alpha, coarse paper-tooth breakup; it
+         deliberately cannot form a continuous closed loop.
+
+    Every field reaches zero well before the SVG bounds. Alpha loss only —
+    no texture over Clive. Luminance mask: white = opaque, grey = partial.
   -->
   <defs>
-    <filter id="ink" x="-14%" y="-14%" width="128%" height="128%" color-interpolation-filters="sRGB">
-      <!-- Coarse fibre field (the paper tooth) + fine fray, one displacement. -->
-      <feTurbulence type="fractalNoise" baseFrequency="0.011 0.016" numOctaves="2" seed="19" result="swell"/>
-      <feTurbulence type="fractalNoise" baseFrequency="0.052 0.068" numOctaves="3" seed="41" result="fray"/>
-      <feDisplacementMap in="SourceGraphic" in2="swell" scale="42" xChannelSelector="R" yChannelSelector="G" result="rough1"/>
-      <feDisplacementMap in="rough1" in2="fray" scale="16" xChannelSelector="R" yChannelSelector="G" result="rough"/>
-
-      <!-- Faster absorbed-ink decay: shorter soft blur, then a ramp that
-           reaches zero sooner so the outer fringe is thin low-alpha wash,
-           not a gathered dark edge. -->
-      <feGaussianBlur in="rough" stdDeviation="6" result="soft"/>
-      <feComponentTransfer in="soft" result="ramped">
-        <feFuncA type="table" tableValues="0 0 0 0.02 0.1 0.3 0.58 0.85 0.97 1 1"/>
+    <!-- CORE: displaced by its own low-frequency swell; crisp enough to hold
+         the safe area but never a hard cut. -->
+    <filter id="coreF" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.017 0.021" numOctaves="2" seed="5" result="sw"/>
+      <feDisplacementMap in="SourceGraphic" in2="sw" scale="34" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="4" result="b"/>
+      <feComponentTransfer in="b">
+        <feFuncA type="table" tableValues="0 0.35 0.8 0.97 1 1"/>
       </feComponentTransfer>
+    </filter>
 
-      <!-- Irregular island bite: a LOW-frequency field breaks the bite into
-           patches so paper intrudes inward in islands, not a fenced ring. -->
-      <feTurbulence type="fractalNoise" baseFrequency="0.03 0.038" numOctaves="2" seed="7" result="patch"/>
-      <feComponentTransfer in="patch" result="patchGate">
-        <feFuncA type="table" tableValues="0 0 0.1 0.5 0.85 1 1"/>
+    <!-- MID WASH: different displacement seed, mid ramp (caps ~0.5), and an
+         island gate so the wash arrives in patches, not a ring. -->
+    <filter id="midF" x="-16%" y="-16%" width="132%" height="132%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.009 0.013" numOctaves="2" seed="29" result="sw"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.048 0.06" numOctaves="3" seed="61" result="fray"/>
+      <feDisplacementMap in="SourceGraphic" in2="sw" scale="58" xChannelSelector="R" yChannelSelector="G" result="d1"/>
+      <feDisplacementMap in="d1" in2="fray" scale="18" xChannelSelector="R" yChannelSelector="G" result="d2"/>
+      <feGaussianBlur in="d2" stdDeviation="9" result="b"/>
+      <!-- mid ramp: the field never reaches full alpha anywhere -->
+      <feComponentTransfer in="b" result="ramp">
+        <feFuncA type="table" tableValues="0 0 0.04 0.12 0.24 0.36 0.46 0.5 0.5"/>
       </feComponentTransfer>
-
-      <!-- Fine paper tooth, gated by the patch field and weakened (k3 -0.3)
-           so it removes pigment in broken specks rather than a uniform band. -->
-      <feTurbulence type="fractalNoise" baseFrequency="0.14 0.17" numOctaves="2" seed="77" result="tooth"/>
-      <feComponentTransfer in="tooth" result="toothSharp">
-        <feFuncA type="table" tableValues="0 0 0 0.25 0.7 1 1"/>
+      <!-- island gate: low-frequency patch field thins the wash irregularly -->
+      <feTurbulence type="fractalNoise" baseFrequency="0.026 0.034" numOctaves="2" seed="13" result="patch"/>
+      <feComponentTransfer in="patch" result="gate">
+        <feFuncA type="table" tableValues="0 0 0.15 0.55 0.9 1 1"/>
       </feComponentTransfer>
-      <feComposite in="toothSharp" in2="patchGate" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="islandTooth"/>
+      <feComposite in="ramp" in2="gate" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
+    </filter>
 
-      <!-- Subtract the island bite from the ramp: granular loss in patches. -->
-      <feComposite in="ramped" in2="islandTooth" operator="arithmetic" k1="0" k2="1" k3="-0.3" k4="0"/>
+    <!-- TRACE: sparse islands only, capped at ~0.18, coarse tooth breakup. -->
+    <filter id="traceF" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02 0.027" numOctaves="2" seed="43" result="sw"/>
+      <feDisplacementMap in="SourceGraphic" in2="sw" scale="70" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="7" result="b"/>
+      <!-- trace ramp: hard ceiling at 0.18 so nothing here ever gathers -->
+      <feComponentTransfer in="b" result="ramp">
+        <feFuncA type="table" tableValues="0 0 0.02 0.06 0.11 0.16 0.18 0.18"/>
+      </feComponentTransfer>
+      <!-- coarse paper tooth: breaks each island into skips and specks -->
+      <feTurbulence type="fractalNoise" baseFrequency="0.11 0.14" numOctaves="2" seed="83" result="tooth"/>
+      <feComponentTransfer in="tooth" result="toothGate">
+        <feFuncA type="table" tableValues="0 0 0.1 0.45 0.8 1 1"/>
+      </feComponentTransfer>
+      <feComposite in="ramp" in2="toothGate" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
     </filter>
   </defs>
 
-  <!-- Hand-shaped silhouette: broad, vertically generous, asymmetric.
-       Deliberately not an ellipse: flatter crown and base, fuller flanks,
-       a few uneven brush swells along the sides. -->
-  <path fill="white" filter="url(#ink)" d="
-    M 300 128
-    C 430 84, 620 78, 742 116
-    C 858 152, 986 226, 1020 342
-    C 1046 434, 1030 566, 1004 668
-    C 966 776, 852 838, 724 854
-    C 596 868, 430 856, 316 812
-    C 206 770, 122 686, 108 566
-    C 96 452, 118 322, 168 226
-    C 206 156, 248 144, 300 128
+  <!-- 1. SOLID CORE: face, torso, paws, book and the gesture-safe area. -->
+  <path fill="white" filter="url(#coreF)" d="
+    M 350 195
+    C 480 158, 640 158, 745 196
+    C 850 234, 915 330, 912 455
+    C 909 585, 835 690, 720 738
+    C 600 782, 465 775, 355 720
+    C 262 672, 222 575, 232 460
+    C 242 345, 268 235, 350 195
     Z"/>
 
-  <!-- Guaranteed solid safe area: face, torso, paws and book fully opaque.
-       Sits inside the silhouette, untouched by the edge noise. -->
-  <path fill="white" opacity="1" d="
-    M 330 190
-    C 470 150, 640 150, 760 190
-    C 880 230, 960 330, 960 460
-    C 960 600, 880 720, 740 770
-    C 600 812, 440 800, 330 740
-    C 232 686, 188 580, 196 460
-    C 204 342, 240 232, 330 190
+  <!-- 2. MID WASH: the room belonging to the page. Books and the banker's
+         lamp bleed far LEFT; the fireplace breathes RIGHT; broader around
+         shoulders and book; the top shelf line is lost irregularly; the
+         lower fade is quieter. -->
+  <path fill="white" filter="url(#midF)" d="
+    M 175 260
+    C 150 200, 210 160, 300 140
+    C 420 96, 620 88, 760 118
+    C 890 146, 1000 210, 1045 320
+    C 1080 415, 1065 480, 1075 545
+    C 1083 610, 1030 700, 940 770
+    C 850 838, 720 862, 560 858
+    C 420 854, 300 830, 235 760
+    C 175 695, 150 610, 158 520
+    C 166 430, 195 330, 175 260
     Z"/>
+
+  <!-- 3. OUTER TRACE: sparse broken islands only. Never a closed loop. -->
+  <g filter="url(#traceF)">
+    <path fill="white" d="M 128 300 C 160 268, 205 262, 225 300 C 244 336, 220 385, 178 392 C 138 399, 105 350, 128 300 Z"/>
+    <path fill="white" d="M 262 148 C 305 118, 365 112, 392 142 C 415 168, 380 205, 322 208 C 272 210, 232 180, 262 148 Z"/>
+    <path fill="white" d="M 560 84 C 620 66, 690 70, 716 96 C 736 118, 690 142, 616 140 C 556 138, 516 108, 560 84 Z"/>
+    <path fill="white" d="M 880 128 C 940 118, 1005 140, 1022 182 C 1035 216, 985 244, 922 232 C 870 222, 842 158, 880 128 Z"/>
+    <path fill="white" d="M 1085 300 C 1125 285, 1160 310, 1158 355 C 1156 400, 1118 430, 1080 415 C 1045 401, 1048 318, 1085 300 Z"/>
+    <path fill="white" d="M 1095 520 C 1130 510, 1158 545, 1145 595 C 1133 640, 1092 660, 1062 638 C 1035 618, 1058 535, 1095 520 Z"/>
+    <path fill="white" d="M 905 790 C 955 775, 1010 795, 1018 832 C 1024 862, 965 880, 905 868 C 858 858, 865 806, 905 790 Z"/>
+    <path fill="white" d="M 585 852 C 650 842, 715 852, 728 878 C 738 898, 665 908, 595 900 C 545 894, 535 864, 585 852 Z"/>
+    <path fill="white" d="M 300 800 C 350 795, 395 822, 388 855 C 381 885, 315 885, 272 862 C 238 843, 255 808, 300 800 Z"/>
+    <path fill="white" d="M 118 560 C 158 545, 195 572, 190 620 C 185 665, 140 690, 105 668 C 75 648, 85 578, 118 560 Z"/>
+  </g>
 </svg>

@@ -1,72 +1,103 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
   <!--
     Living Folio — Clive interaction mask (16:9, top-third right page).
-    Hand-shaped absorbed-ink alpha. One mask on the OUTERMOST wrapper only.
+    Absorbed-pigment alpha. One mask on the OUTERMOST wrapper only.
 
-    Character: lower and wider than the teaching mask, preserving the
-    top-right composition and clear room for the action ledger below.
-    Irregular dry-brush perimeter; the centre (face, torso, paws and book)
-    stays fully solid; the perimeter dissolves into the page as absorbed
-    ink — never a fog oval, never a rectangle.
+    ALPHA ARCHITECTURE (Kathryn dispatch, 6 Aug 2026) mirrors the teaching
+    mask: three INDEPENDENTLY irregular absorption fields so no single
+    closed contour survives — the prior uniform falloff let the dark
+    bookshelf/fireplace pixels collect into a legible oval ring.
 
-    Rim correction (Kathryn dispatch, 6 Aug 2026) mirrors the teaching mask:
-    faster alpha decay through the darkest room pixels (shorter blur, ramp
-    reaches zero sooner), a low-frequency patch field gating the tooth so
-    paper intrudes in irregular islands rather than a continuous dark
-    necklace, and a weakened bite so the outer fringe is low-alpha broken
-    dry-brush, not a solid band. Guaranteed solid core retained.
+      1. SOLID CORE — 100% alpha; compact around Clive so the action
+         ledger below retains its space; own displacement seed.
+      2. MID WASH — a wider LOW strip: room detail extends laterally along
+         the band, capped ~30-50% alpha, displaced differently, island-gated.
+         Avoids a circular cameo.
+      3. OUTER TRACE — sparse broken islands only, ~8-18% alpha, coarse
+         paper-tooth breakup; cannot form a continuous closed loop.
+
+    Every field reaches zero well before the SVG bounds. Alpha loss only.
+    Luminance mask: white = opaque, grey = partial.
   -->
   <defs>
-    <filter id="ink" x="-14%" y="-18%" width="128%" height="136%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="23" result="swell"/>
-      <feTurbulence type="fractalNoise" baseFrequency="0.056 0.072" numOctaves="3" seed="53" result="fray"/>
-      <feDisplacementMap in="SourceGraphic" in2="swell" scale="40" xChannelSelector="R" yChannelSelector="G" result="rough1"/>
-      <feDisplacementMap in="rough1" in2="fray" scale="15" xChannelSelector="R" yChannelSelector="G" result="rough"/>
-
-      <!-- Faster decay: shorter blur, ramp to zero sooner. -->
-      <feGaussianBlur in="rough" stdDeviation="5" result="soft"/>
-      <feComponentTransfer in="soft" result="ramped">
-        <feFuncA type="table" tableValues="0 0 0 0.02 0.1 0.3 0.58 0.85 0.97 1 1"/>
+    <filter id="coreF" x="-10%" y="-12%" width="120%" height="124%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.019 0.024" numOctaves="2" seed="9" result="sw"/>
+      <feDisplacementMap in="SourceGraphic" in2="sw" scale="30" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="3.5" result="b"/>
+      <feComponentTransfer in="b">
+        <feFuncA type="table" tableValues="0 0.35 0.8 0.97 1 1"/>
       </feComponentTransfer>
+    </filter>
 
-      <!-- Patch field: breaks the bite into irregular islands. -->
-      <feTurbulence type="fractalNoise" baseFrequency="0.032 0.042" numOctaves="2" seed="11" result="patch"/>
-      <feComponentTransfer in="patch" result="patchGate">
-        <feFuncA type="table" tableValues="0 0 0.1 0.5 0.85 1 1"/>
+    <filter id="midF" x="-16%" y="-20%" width="132%" height="140%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.008 0.015" numOctaves="2" seed="33" result="sw"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.05 0.066" numOctaves="3" seed="71" result="fray"/>
+      <feDisplacementMap in="SourceGraphic" in2="sw" scale="52" xChannelSelector="R" yChannelSelector="G" result="d1"/>
+      <feDisplacementMap in="d1" in2="fray" scale="16" xChannelSelector="R" yChannelSelector="G" result="d2"/>
+      <feGaussianBlur in="d2" stdDeviation="8" result="b"/>
+      <feComponentTransfer in="b" result="ramp">
+        <feFuncA type="table" tableValues="0 0 0.04 0.12 0.24 0.36 0.46 0.5 0.5"/>
       </feComponentTransfer>
-
-      <feTurbulence type="fractalNoise" baseFrequency="0.15 0.18" numOctaves="2" seed="91" result="tooth"/>
-      <feComponentTransfer in="tooth" result="toothSharp">
-        <feFuncA type="table" tableValues="0 0 0 0.25 0.7 1 1"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.028 0.04" numOctaves="2" seed="17" result="patch"/>
+      <feComponentTransfer in="patch" result="gate">
+        <feFuncA type="table" tableValues="0 0 0.15 0.55 0.9 1 1"/>
       </feComponentTransfer>
-      <feComposite in="toothSharp" in2="patchGate" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="islandTooth"/>
+      <feComposite in="ramp" in2="gate" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
+    </filter>
 
-      <feComposite in="ramped" in2="islandTooth" operator="arithmetic" k1="0" k2="1" k3="-0.3" k4="0"/>
+    <filter id="traceF" x="-30%" y="-40%" width="160%" height="180%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022 0.031" numOctaves="2" seed="47" result="sw"/>
+      <feDisplacementMap in="SourceGraphic" in2="sw" scale="64" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feGaussianBlur in="d" stdDeviation="6" result="b"/>
+      <feComponentTransfer in="b" result="ramp">
+        <feFuncA type="table" tableValues="0 0 0.02 0.06 0.11 0.16 0.18 0.18"/>
+      </feComponentTransfer>
+      <feTurbulence type="fractalNoise" baseFrequency="0.12 0.15" numOctaves="2" seed="89" result="tooth"/>
+      <feComponentTransfer in="tooth" result="toothGate">
+        <feFuncA type="table" tableValues="0 0 0.1 0.45 0.8 1 1"/>
+      </feComponentTransfer>
+      <feComposite in="ramp" in2="toothGate" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
     </filter>
   </defs>
 
-  <!-- Hand-shaped silhouette: lower and wider. Flatter crown/base so the
-       composition reads as a top-band presence above the ledger, with
-       broken, uneven flanks. -->
-  <path fill="white" filter="url(#ink)" d="
-    M 268 96
-    C 430 66, 700 60, 900 84
-    C 1062 102, 1180 168, 1206 268
-    C 1224 356, 1206 470, 1168 552
-    C 1108 632, 950 664, 760 668
-    C 560 672, 350 656, 224 602
-    C 118 556, 64 470, 70 360
-    C 76 250, 148 128, 268 96
+  <!-- 1. SOLID CORE: compact around Clive — face, torso, paws, book — so
+         the ledger keeps its room below. -->
+  <path fill="white" filter="url(#coreF)" d="
+    M 330 130
+    C 500 105, 740 102, 905 128
+    C 1030 150, 1105 235, 1102 350
+    C 1099 460, 1010 525, 870 552
+    C 700 585, 490 572, 355 520
+    C 240 475, 195 405, 205 325
+    C 215 235, 245 148, 330 130
     Z"/>
 
-  <!-- Guaranteed solid safe area. -->
-  <path fill="white" opacity="1" d="
-    M 300 150
-    C 470 122, 720 118, 900 142
-    C 1050 160, 1140 250, 1140 360
-    C 1140 470, 1040 560, 860 590
-    C 660 616, 430 600, 300 540
-    C 190 488, 140 420, 150 340
-    C 160 250, 210 172, 300 150
+  <!-- 2. MID WASH: a wide LOW strip — the room extends laterally along the
+         band; books/lamp far left, fireplace far right; stays compact
+         vertically so the composition never rounds into a cameo. -->
+  <path fill="white" filter="url(#midF)" d="
+    M 130 190
+    C 170 130, 300 92, 480 78
+    C 680 62, 900 68, 1050 96
+    C 1160 118, 1230 175, 1246 260
+    C 1260 345, 1240 450, 1190 520
+    C 1120 595, 950 628, 740 636
+    C 540 643, 340 628, 220 578
+    C 115 535, 60 455, 68 355
+    C 75 265, 100 235, 130 190
     Z"/>
+
+  <!-- 3. OUTER TRACE: sparse broken islands only. Never a closed loop. -->
+  <g filter="url(#traceF)">
+    <path fill="white" d="M 92 250 C 128 220, 175 220, 192 258 C 208 294, 178 335, 132 335 C 92 335, 62 288, 92 250 Z"/>
+    <path fill="white" d="M 250 108 C 300 82, 365 78, 390 104 C 412 128, 372 158, 310 156 C 258 154, 215 132, 250 108 Z"/>
+    <path fill="white" d="M 590 52 C 655 38, 730 44, 752 68 C 770 88, 718 108, 640 104 C 578 101, 542 72, 590 52 Z"/>
+    <path fill="white" d="M 950 72 C 1015 62, 1085 82, 1102 118 C 1115 148, 1060 172, 992 162 C 938 154, 908 102, 950 72 Z"/>
+    <path fill="white" d="M 1180 175 C 1222 162, 1258 192, 1252 240 C 1247 285, 1202 308, 1168 288 C 1138 269, 1142 192, 1180 175 Z"/>
+    <path fill="white" d="M 1195 430 C 1232 420, 1262 455, 1248 505 C 1235 550, 1192 568, 1162 545 C 1135 524, 1158 448, 1195 430 Z"/>
+    <path fill="white" d="M 960 640 C 1015 628, 1072 646, 1078 678 C 1083 702, 1020 716, 958 706 C 912 698, 918 652, 960 640 Z"/>
+    <path fill="white" d="M 600 662 C 665 655, 730 662, 742 684 C 750 700, 680 710, 610 704 C 560 699, 550 670, 600 662 Z"/>
+    <path fill="white" d="M 280 600 C 330 592, 378 616, 372 648 C 366 678, 300 682, 255 662 C 220 646, 235 610, 280 600 Z"/>
+    <path fill="white" d="M 72 470 C 112 452, 152 478, 148 525 C 144 570, 98 595, 62 575 C 32 557, 38 492, 72 470 Z"/>
+  </g>
 </svg>
