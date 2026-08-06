@@ -34,7 +34,7 @@ type WallData = {
  *
  *   idle     — wide wall at dolly 1 + ledger on the upper plate
  *   exiting  — ledger fading (nave only; desktop scroll carries text)
- *   zooming  — dolly push to close framing, then interior scroll; plates crossfade
+ *   zooming  — dolly push to close framing; plates crossfade (no scroll pan)
  *   zoomedIn — bay on the lower plate; arch pinned on .roomStatic, interior only moves
  *   returning— bay fades out; camera holds close until RETURN_MS
  *   settling — dolly pull-back + scroll return; ledger held out until SETTLE_MS
