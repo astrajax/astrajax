@@ -9126,3 +9126,38 @@ textarea.clive-chat__input {
     white-space: nowrap;
   }
 }
+/* ── PR #99 native scrollbar removal (Kathryn dispatch, 6 Aug 2026) ─────────
+   Matthew: "I vehemently despise this scroll thing." A native Chromium
+   scrollbar (white track, grey thumb, arrow caps) was rendering on the
+   folio's scroll containers — browser chrome sitting on the painted
+   parchment, alien to the page-native material grammar.
+
+   Fix: strip the native scrollbar CHROME from every Living Folio scroll
+   region while keeping the scrolling behaviour itself fully intact. The
+   containers keep overflow-y: auto and stay scrollable by wheel, trackpad,
+   touch, keyboard (the focusable content still scrolls into view), and
+   assistive tech. We remove only the drawn control:
+     - scrollbar-width: none            (Firefox)
+     - ::-webkit-scrollbar display:none (Chromium / Safari)
+   Scoped strictly to .study-stage--book — no global scrollbar is touched.
+
+   The four folio scroll owners, each covered:
+     1. .study-stage__content            left page (conversation / intake)
+     2. .study-stage__right-panel        right page (decision cards / ledger)
+     3. .clive-chat--study __messages    chat transcript (nested scroller)
+   No replacement digital rail, floating thumb, or arrow buttons are added —
+   per dispatch, the content hierarchy already makes scrolling evident. */
+.study-stage--book .study-stage__content,
+.study-stage--book .study-stage__right-panel,
+.study-stage--book .clive-chat--study .clive-chat__messages {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
+}
+
+.study-stage--book .study-stage__content::-webkit-scrollbar,
+.study-stage--book .study-stage__right-panel::-webkit-scrollbar,
+.study-stage--book .clive-chat--study .clive-chat__messages::-webkit-scrollbar {
+  display: none; /* Chromium / Safari */
+  width: 0;
+  height: 0;
+}
