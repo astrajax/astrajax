@@ -1,7 +1,7 @@
 /**
- * Ruth Hadley's frozen Context-First Onboarding fixture contract — V1.0.0.
+ * Ruth Hadley's Context-First Onboarding fixture contract — V1.1.0.
  *
- * schemaVersion: 1.0.0. This is the UI-side mirror of Ruth's frozen schema
+ * schemaVersion: 1.1.0 (supersedes V1.0.0). This is the UI-side mirror of Ruth's frozen schema
  * (context-onboarding-fixture-v1.0.0.schema.json). The UI consumes the
  * contract; it does NOT bake Airtable table/field IDs into presentation
  * components — the adapter seam lives in the data layer, and these types
@@ -13,7 +13,7 @@
  * silent divergence. Backward-compatible additions are optional fields only.
  */
 
-export const ONBOARDING_CONTRACT_VERSION = "1.0.0" as const;
+export const ONBOARDING_CONTRACT_VERSION = "1.1.0" as const;
 
 /* ── Case ── */
 export type CaseStatus = "draft" | "evidence_gathering" | "confirmation" | "workshop_draft_ready" | "held";
@@ -58,7 +58,10 @@ export type MediaType =
   | "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
 export type FileFamily = "narrative_document" | "tabular_export" | "presentation";
-export type ProcessingStatus = "received" | "profiled" | "queued" | "extracted" | "validated" | "held" | "failed";
+/** Source Object lifecycle status (V1.1.0 — distinct from version processing). */
+export type ObjectStatus = "received" | "validating" | "ready" | "held" | "superseded";
+/** Source Version processing status (V1.1.0 — "queued" reserved for Extraction Runs). */
+export type VersionProcessingStatus = "profiled" | "ready_for_ai" | "extracting" | "extracted" | "validated" | "held" | "failed";
 
 export type SourceObject = {
   sourceId: string;
@@ -69,7 +72,10 @@ export type SourceObject = {
   fileFamily: FileFamily;
   sizeBytes: number;
   ownershipBoundary: "matthew_owned" | "already_shared_with_matthew";
-  processingStatus: ProcessingStatus;
+  /** Object lifecycle (ready/validating/held/superseded/received). */
+  objectStatus: ObjectStatus;
+  /** This version's processing status (profiled → ready_for_ai → extracting → extracted → validated). */
+  versionProcessingStatus: VersionProcessingStatus;
   profile: { profileVersion: string; deterministic: true; census: Record<string, unknown> };
 };
 
@@ -132,13 +138,26 @@ export type SelfReportedEvidence = {
 export type Evidence = ImportedEvidence | SelfReportedEvidence;
 
 /* ── Assertions ── */
+/**
+ * The support role of one evidence edge (V1.1.0) — Direct / Corroborating /
+ * Contradicting, carried THROUGH confirmation. Capitalised per Ruth's schema.
+ * Production NEVER silently defaults a role; synthetic fixtures may default
+ * Direct only with a MIG-ROLE-DEFAULTED warning.
+ */
+export type SupportRole = "Direct" | "Corroborating" | "Contradicting";
+
+export type EvidenceSupport = {
+  evidenceId: string;
+  supportRole: SupportRole;
+};
+
 export type Assertion = {
   assertionId: string;
   atomicText: string;
   subject?: string | null;
   predicate?: string | null;
   object?: string | number | boolean | null;
-  evidenceIds: string[]; // min 1, unique
+  evidence: EvidenceSupport[]; // min 1, unique — V1.1.0 edge shape
   validationStatus: ValidationStatus;
 };
 
@@ -153,45 +172,24 @@ export type Inference = {
   supersedesInferenceId?: string | null;
   attributeType: AttributeType;
   value: { display: string; code?: string | null; metadata?: Record<string, unknown> };
-  evidenceIds: string[];
+  /** V1.1.0 evidence edges — { evidenceId, supportRole }, role carried through confirmation. */
+  evidence: EvidenceSupport[];
   evidenceClasses: ("imported_document" | "self_reported")[];
   confidence: number; // 0..1
   uncertainty: string;
   status: InferenceStatus;
-  /**
-   * FORWARD-COMPATIBLE SEAM for Ruth's v1.1.0 evidence-edge shape.
-   *
-   * Ruth's Build Challenger has signalled a BREAKING v1.1.0 carrying
-   * { evidenceId, supportRole } on the inference→evidence edge, so that
-   * Direct / Corroborating / Contradicting stays visible in confirmation.
-   * v1.0.0 still carries bare evidenceIds; this OPTIONAL field lets the UI
-   * honour the richer edge the moment v1.1.0 lands, without hard-wiring the
-   * integration now (per Ruth's contract alert). When present it takes
-   * precedence over evidenceIds for display; when absent the UI treats every
-   * edge as "direct" and shows no role label.
-   */
-  evidenceEdges?: EvidenceEdge[];
-};
-
-/** The support role of one inference→evidence edge (Ruth v1.1.0). */
-export type SupportRole = "direct" | "corroborating" | "contradicting";
-
-export type EvidenceEdge = {
-  evidenceId: string;
-  supportRole: SupportRole;
 };
 
 /**
- * ADAPTER: resolve an inference's evidence edges. Honours Ruth's v1.1.0
- * { evidenceId, supportRole } edge when present; otherwise derives a "direct"
- * edge from the v1.0.0 bare evidenceIds. Presentation components call this —
- * they never read evidenceEdges/evidenceIds directly — so the support-role
- * visibility upgrade lands by data, not by component change, and the
- * integration stays adapter-isolated per Ruth's contract alert.
+ * ADAPTER: read an inference's evidence edges. V1.1.0 made the edge shape
+ * required, so this simply returns inference.evidence — the helper remains
+ * the single read point so presentation never reaches into the fixture
+ * directly (adapter seam held). Roles are Direct/Corroborating/Contradicting;
+ * production never silently defaults them (MIG-ROLE-DEFAULTED warning only
+ * for synthetic fixtures).
  */
-export function evidenceEdgesFor(inference: Inference): EvidenceEdge[] {
-  if (inference.evidenceEdges?.length) return inference.evidenceEdges;
-  return inference.evidenceIds.map((evidenceId) => ({ evidenceId, supportRole: "direct" as const }));
+export function evidenceEdgesFor(inference: Inference): EvidenceSupport[] {
+  return inference.evidence;
 }
 
 /* ── Confirmation Events (exact-version targets) ── */
@@ -215,6 +213,8 @@ export type WorkshopItem = {
   workshopItemId: string;
   attributeType: AttributeType;
   value: string;
+  /** Declared Inference Family lookup (V1.1.0 correction) — the family the accepted value belongs to. */
+  inferenceFamilyId: string;
   sourceInferenceId: string;
   confirmationEventId: string;
   evidenceIds: string[];

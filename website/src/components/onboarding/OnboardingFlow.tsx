@@ -156,7 +156,7 @@ export function OnboardingFlow() {
               <li key={s.sourceId} className="onboarding__file onboarding__file--staged">
                 <span className="onboarding__file-name">{s.filename}</span>
                 <span className="onboarding__file-meta">
-                  {s.fileFamily.replace(/_/g, " ")} · {Math.round(s.sizeBytes / 1024)} KB · {s.processingStatus}
+                  {s.fileFamily.replace(/_/g, " ")} · {Math.round(s.sizeBytes / 1024)} KB · {s.versionProcessingStatus}
                 </span>
               </li>
             ))}
@@ -294,7 +294,7 @@ export function OnboardingFlow() {
                 key: attr === "brain_theme" ? ("themes" as const) : attr === "observed_collaborator" ? ("collaborators" as const) : attr === "provisional_role" ? ("role" as const) : ("sector" as const),
                 label: attr === "provisional_role" ? "Your role" : attr === "sector" ? "Sector" : attr === "brain_theme" ? "Brain themes" : "Observed collaborators",
                 provisional: inf?.value.display ?? "—",
-                evidenceCount: inf?.evidenceIds.length ?? 0,
+                evidenceCount: inf?.evidence.length ?? 0,
                 openQuestions: attr === "brain_theme" ? 1 : 0,
                 accepted: state.confirmations[inf?.inferenceId ?? ""] === "confirm",
               };
@@ -470,10 +470,10 @@ function Conversation({
 }
 
 function EvidenceLinks({ inference, fixture }: { inference: Inference; fixture: ReturnType<typeof getOnboardingFixtureV1> }) {
-  // ADAPTER: resolve support-role edges via evidenceEdgesFor — honours Ruth's
-  // v1.1.0 { evidenceId, supportRole } edge when present, else derives
-  // "direct" from v1.0.0 bare ids. Direct edges show no role label; richer
-  // roles render the mark (corroborating/contradicting) when v1.1.0 lands.
+  // ADAPTER: read support-role edges via evidenceEdgesFor — V1.1.0 made the
+  // edge required, so this returns inference.evidence directly. The helper is
+  // the single read point (adapter seam); roles are Direct/Corroborating/
+  // Contradicting, and the tag shows only for non-Direct edges.
   const edges = evidenceEdgesFor(inference);
   const items = fixture.evidence.filter((e) => edges.some((edge) => edge.evidenceId === e.evidenceId));
   if (!items.length) return null;
@@ -483,10 +483,10 @@ function EvidenceLinks({ inference, fixture }: { inference: Inference; fixture: 
         const e = items.find((x) => x.evidenceId === edge.evidenceId);
         if (!e) return null;
         return (
-          <span key={edge.evidenceId} className="onboarding__ev-link" data-support-role={edge.supportRole !== "direct" ? edge.supportRole : undefined}>
+          <span key={edge.evidenceId} className="onboarding__ev-link" data-support-role={edge.supportRole !== "Direct" ? edge.supportRole : undefined}>
             {isImported(e) ? e.locator.label : `asked: “${e.questionText.slice(0, 30)}…”`}
-            {edge.supportRole !== "direct" ? (
-              <span className={`onboarding__ev-role onboarding__ev-role--${edge.supportRole}`}> · {edge.supportRole}</span>
+            {edge.supportRole !== "Direct" ? (
+              <span className={`onboarding__ev-role onboarding__ev-role--${edge.supportRole.toLowerCase()}`}> · {edge.supportRole}</span>
             ) : null}
           </span>
         );

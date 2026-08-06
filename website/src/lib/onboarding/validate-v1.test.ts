@@ -27,15 +27,17 @@ describe("V1.0.0 fixture — Ruth's worked example", () => {
   });
 
   it("has schemaVersion + outputContractVersion 1.0.0", () => {
-    expect(ONBOARDING_FIXTURE_V1.schemaVersion).toBe("1.0.0");
-    expect(ONBOARDING_FIXTURE_V1.case.outputContractVersion).toBe("1.0.0");
+    expect(ONBOARDING_FIXTURE_V1.schemaVersion).toBe("1.1.0");
+    expect(ONBOARDING_FIXTURE_V1.case.outputContractVersion).toBe("1.1.0");
   });
 });
 
 describe("V1.0.0 semantic validator — rules fire", () => {
-  it("rejects a wrong schemaVersion", () => {
+  it("rejects a wrong schemaVersion (0.9 AND the superseded 1.0.0)", () => {
     const f = mutate((x) => { x.schemaVersion = "0.9" as never; });
     expect(validateOnboardingFixture(f).findings.some((k) => k.code === "VERSION" && k.severity === "kill")).toBe(true);
+    const old = mutate((x) => { x.schemaVersion = "1.0.0" as never; });
+    expect(validateOnboardingFixture(old).findings.some((k) => k.code === "VERSION" && k.severity === "kill")).toBe(true);
   });
 
   it("catches duplicate IDs", () => {
@@ -55,7 +57,7 @@ describe("V1.0.0 semantic validator — rules fire", () => {
 
   it("enforces the competency self-reported-only fence", () => {
     const f = mutate((x) => {
-      x.inferences[1].evidenceIds = ["ev_role_doc"]; // competency now draws on imported evidence
+      x.inferences[1].evidence = [{ evidenceId: "ev_role_doc", supportRole: "Direct" }]; // imported
       x.inferences[1].evidenceClasses = ["imported_document"];
     });
     expect(validateOnboardingFixture(f).findings.some((k) => k.code === "COMPETENCY_FENCE")).toBe(true);
@@ -91,6 +93,7 @@ describe("V1.0.0 semantic validator — rules fire", () => {
         workshopItemId: "wd_bad",
         attributeType: "provisional_role",
         value: "Operations Lead",
+        inferenceFamilyId: "inffam_role",
         sourceInferenceId: "inf_role_v1",
         confirmationEventId: "conf_lo",
         evidenceIds: ["ev_role_doc"],
@@ -114,29 +117,53 @@ describe("V1.0.0 semantic validator — rules fire", () => {
     expect(validateOnboardingFixture(f).findings.some((k) => k.code === "CAP_FILES")).toBe(true);
   });
 
-  it("v1.1.0 evidence-edge seam: validates edges when present, tolerates absence", () => {
-    // Absent edges are fine (v1.0.0).
-    expect(validateOnboardingFixture(base).valid).toBe(true);
-    // A valid v1.1.0 edge set passes.
+  it("V1.1.0 requires the evidence edge on every inference", () => {
+    const f = mutate((x) => { x.inferences[0].evidence = []; });
+    expect(validateOnboardingFixture(f).findings.some((k) => k.code === "EDGE_REQUIRED")).toBe(true);
+  });
+
+  it("V1.1.0 edge roles are capitalised Direct/Corroborating/Contradicting", () => {
     const good = mutate((x) => {
-      x.inferences[0].evidenceEdges = [{ evidenceId: "ev_role_doc", supportRole: "direct" }];
+      x.inferences[0].evidence = [{ evidenceId: "ev_role_doc", supportRole: "Corroborating" }];
     });
     expect(validateOnboardingFixture(good).valid).toBe(true);
-    // An invalid supportRole fires.
-    const badRole = mutate((x) => {
-      x.inferences[0].evidenceEdges = [{ evidenceId: "ev_role_doc", supportRole: "sideways" as never }];
+    const bad = mutate((x) => {
+      x.inferences[0].evidence = [{ evidenceId: "ev_role_doc", supportRole: "direct" as never }]; // lowercase rejected
     });
-    expect(validateOnboardingFixture(badRole).findings.some((k) => k.code === "EDGE_ROLE")).toBe(true);
-    // An edge referencing missing evidence fires.
-    const badRef = mutate((x) => {
-      x.inferences[0].evidenceEdges = [{ evidenceId: "ev_missing", supportRole: "direct" }];
+    expect(validateOnboardingFixture(bad).findings.some((k) => k.code === "EDGE_ROLE")).toBe(true);
+    const sideways = mutate((x) => {
+      x.inferences[0].evidence = [{ evidenceId: "ev_role_doc", supportRole: "sideways" as never }];
     });
-    expect(validateOnboardingFixture(badRef).findings.some((k) => k.code === "REF_EDGE")).toBe(true);
-    // Misaligned edges (evidenceId not covered by an edge) fires.
-    const misaligned = mutate((x) => {
-      x.inferences[0].evidenceEdges = [{ evidenceId: "ev_role_doc", supportRole: "direct" }];
-      x.inferences[0].evidenceIds = ["ev_role_doc", "ev_competency_answer"];
+    expect(validateOnboardingFixture(sideways).findings.some((k) => k.code === "EDGE_ROLE")).toBe(true);
+  });
+
+  it("V1.1.0 edge references must resolve", () => {
+    const f = mutate((x) => {
+      x.inferences[0].evidence = [{ evidenceId: "ev_missing", supportRole: "Direct" }];
     });
-    expect(validateOnboardingFixture(misaligned).findings.some((k) => k.code === "EDGE_ALIGN")).toBe(true);
+    expect(validateOnboardingFixture(f).findings.some((k) => k.code === "REF_EDGE")).toBe(true);
+  });
+
+  it("V1.1.0 workshop items require a declared inferenceFamilyId that resolves", () => {
+    const missing = mutate((x) => {
+      x.workshopDraft.items.push({
+        workshopItemId: "wd_1", attributeType: "provisional_role", value: "Operations Lead",
+        sourceInferenceId: "inf_role_v1", confirmationEventId: "conf_x", evidenceIds: ["ev_role_doc"], status: "accepted_for_workshop",
+      } as never);
+      x.confirmationEvents.push({
+        confirmationEventId: "conf_x", targetInferenceId: "inf_role_v1", targetInferenceVersion: 1,
+        decision: "confirm", presentedValue: "Operations Lead", decidedAt: "2026-08-06T06:10:00+01:00", actor: "Matthew",
+      });
+    });
+    expect(validateOnboardingFixture(missing).findings.some((k) => k.code === "FAMILY_REQUIRED")).toBe(true);
+  });
+
+  it("V1.1.0 source statuses: objectStatus and versionProcessingStatus are distinct and queued is barred", () => {
+    const badObj = mutate((x) => { (x.sourcePack.sources[0] as never).objectStatus = "extracted"; });
+    expect(validateOnboardingFixture(badObj).findings.some((k) => k.code === "OBJECT_STATUS")).toBe(true);
+    const queued = mutate((x) => { (x.sourcePack.sources[0] as never).versionProcessingStatus = "queued"; });
+    expect(validateOnboardingFixture(queued).findings.some((k) => k.code === "VERSION_QUEUED")).toBe(true);
+    const good = mutate((x) => { (x.sourcePack.sources[0] as never).versionProcessingStatus = "ready_for_ai"; });
+    expect(validateOnboardingFixture(good).valid).toBe(true);
   });
 });

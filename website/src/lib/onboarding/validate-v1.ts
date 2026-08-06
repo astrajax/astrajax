@@ -41,8 +41,8 @@ export function validateOnboardingFixture(fixture: OnboardingFixture): { valid: 
   const findings: Finding[] = [];
 
   /* ── contract version ── */
-  if (fixture.schemaVersion !== "1.0.0") findings.push(kill("VERSION", fixture.fixtureId, `schemaVersion must be 1.0.0, got ${fixture.schemaVersion}`));
-  if (fixture.case.outputContractVersion !== "1.0.0") findings.push(kill("VERSION", fixture.case.caseId, "case.outputContractVersion must be 1.0.0"));
+  if (fixture.schemaVersion !== "1.1.0") findings.push(kill("VERSION", fixture.fixtureId, `schemaVersion must be 1.1.0, got ${fixture.schemaVersion}`));
+  if (fixture.case.outputContractVersion !== "1.1.0") findings.push(kill("VERSION", fixture.case.caseId, "case.outputContractVersion must be 1.1.0"));
 
   /* ── unique IDs across every array ── */
   const allIds = [
@@ -71,32 +71,26 @@ export function validateOnboardingFixture(fixture: OnboardingFixture): { valid: 
       findings.push(kill("REF_SOURCE", e.evidenceId, `imported evidence references missing source ${e.sourceId}`));
     }
   }
+  const ROLES = new Set(["Direct", "Corroborating", "Contradicting"]);
   for (const a of fixture.assertions) {
-    for (const eid of a.evidenceIds) {
-      if (!evidenceIds.has(eid)) findings.push(kill("REF_EVIDENCE", a.assertionId, `assertion references missing evidence ${eid}`));
+    for (const edge of a.evidence) {
+      if (!evidenceIds.has(edge.evidenceId)) findings.push(kill("REF_EVIDENCE", a.assertionId, `assertion references missing evidence ${edge.evidenceId}`));
+      if (!ROLES.has(edge.supportRole)) findings.push(kill("EDGE_ROLE", a.assertionId, `assertion edge has invalid supportRole ${edge.supportRole}`));
     }
   }
   for (const inf of fixture.inferences) {
-    for (const eid of inf.evidenceIds) {
-      if (!evidenceIds.has(eid)) findings.push(kill("REF_EVIDENCE", inf.inferenceId, `inference references missing evidence ${eid}`));
+    /* V1.1.0: the evidence edge is REQUIRED and carries supportRole through
+       confirmation. Every edge must reference existing evidence and a valid
+       capitalised role; production never silently defaults a role. */
+    if (!inf.evidence?.length) {
+      findings.push(kill("EDGE_REQUIRED", inf.inferenceId, "inference must carry at least one evidence edge (V1.1.0)"));
+    }
+    for (const edge of inf.evidence ?? []) {
+      if (!evidenceIds.has(edge.evidenceId)) findings.push(kill("REF_EDGE", inf.inferenceId, `edge references missing evidence ${edge.evidenceId}`));
+      if (!ROLES.has(edge.supportRole)) findings.push(kill("EDGE_ROLE", inf.inferenceId, `invalid supportRole ${edge.supportRole}`));
     }
     if (inf.supersedesInferenceId && !inferenceIds.has(inf.supersedesInferenceId)) {
       findings.push(kill("REF_SUPERSEDES", inf.inferenceId, `supersedes missing inference ${inf.supersedesInferenceId}`));
-    }
-    /* v1.1.0 evidence-edge seam: when evidenceEdges is present, each edge
-       must reference existing evidence and a valid supportRole, and its ids
-       must align with the bare evidenceIds set (the two stay consistent). */
-    if (inf.evidenceEdges) {
-      const ROLES = new Set(["direct", "corroborating", "contradicting"]);
-      const edgeIds = new Set<string>();
-      for (const edge of inf.evidenceEdges) {
-        if (!evidenceIds.has(edge.evidenceId)) findings.push(kill("REF_EDGE", inf.inferenceId, `edge references missing evidence ${edge.evidenceId}`));
-        if (!ROLES.has(edge.supportRole)) findings.push(kill("EDGE_ROLE", inf.inferenceId, `invalid supportRole ${edge.supportRole}`));
-        edgeIds.add(edge.evidenceId);
-      }
-      for (const eid of inf.evidenceIds) {
-        if (!edgeIds.has(eid)) findings.push(error("EDGE_ALIGN", inf.inferenceId, `evidenceId ${eid} missing from evidenceEdges`));
-      }
     }
   }
   for (const c of fixture.confirmationEvents) {
@@ -104,9 +98,21 @@ export function validateOnboardingFixture(fixture: OnboardingFixture): { valid: 
     if (c.correctionEvidenceId && !evidenceIds.has(c.correctionEvidenceId)) findings.push(kill("REF_CORRECTION_EV", c.confirmationEventId, `correction evidence ${c.correctionEvidenceId} missing`));
     if (c.resultingInferenceId && !inferenceIds.has(c.resultingInferenceId)) findings.push(kill("REF_RESULT_INF", c.confirmationEventId, `resulting inference ${c.resultingInferenceId} missing`));
   }
+  const familyIds = new Set(fixture.inferences.map((i) => i.inferenceFamilyId));
   for (const w of fixture.workshopDraft.items) {
     if (!inferenceIds.has(w.sourceInferenceId)) findings.push(kill("REF_SOURCE_INF", w.workshopItemId, `workshop item references missing inference ${w.sourceInferenceId}`));
     if (!confirmationIds.has(w.confirmationEventId)) findings.push(kill("REF_CONF", w.workshopItemId, `workshop item references missing confirmation ${w.confirmationEventId}`));
+    /* V1.1.0 declared Inference Family lookup: must be present and resolve. */
+    if (!w.inferenceFamilyId) {
+      findings.push(kill("FAMILY_REQUIRED", w.workshopItemId, "workshop item must carry inferenceFamilyId (V1.1.0)"));
+    } else if (!familyIds.has(w.inferenceFamilyId)) {
+      findings.push(kill("REF_FAMILY", w.workshopItemId, `workshop item references missing family ${w.inferenceFamilyId}`));
+    } else {
+      const srcInf = fixture.inferences.find((i) => i.inferenceId === w.sourceInferenceId);
+      if (srcInf && srcInf.inferenceFamilyId !== w.inferenceFamilyId) {
+        findings.push(error("FAMILY_MATCH", w.workshopItemId, `workshop family ${w.inferenceFamilyId} != source inference family ${srcInf.inferenceFamilyId}`));
+      }
+    }
     for (const eid of w.evidenceIds) {
       if (!evidenceIds.has(eid)) findings.push(kill("REF_EVIDENCE", w.workshopItemId, `workshop item references missing evidence ${eid}`));
     }
@@ -124,8 +130,14 @@ export function validateOnboardingFixture(fixture: OnboardingFixture): { valid: 
   if (fixture.sourcePack.sources.length > L.maxFiles) findings.push(kill("CAP_FILES", fixture.sourcePack.packId, `${fixture.sourcePack.sources.length} sources exceeds maxFiles ${L.maxFiles}`));
   const totalBytes = fixture.sourcePack.sources.reduce((n, s) => n + s.sizeBytes, 0);
   if (totalBytes > L.maxBytesTotal) findings.push(kill("CAP_BYTES", fixture.sourcePack.packId, `total bytes ${totalBytes} exceeds maxBytesTotal ${L.maxBytesTotal}`));
+  const OBJECT_STATUSES = new Set(["received", "validating", "ready", "held", "superseded"]);
+  const VERSION_STATUSES = new Set(["profiled", "ready_for_ai", "extracting", "extracted", "validated", "held", "failed"]);
   for (const s of fixture.sourcePack.sources) {
     if (s.sizeBytes > L.maxBytesPerFile) findings.push(kill("CAP_FILE_BYTES", s.sourceId, `file ${s.filename} exceeds maxBytesPerFile`));
+    if (!OBJECT_STATUSES.has(s.objectStatus)) findings.push(kill("OBJECT_STATUS", s.sourceId, `invalid objectStatus ${s.objectStatus}`));
+    if (!VERSION_STATUSES.has(s.versionProcessingStatus)) findings.push(kill("VERSION_STATUS", s.sourceId, `invalid versionProcessingStatus ${s.versionProcessingStatus}`));
+    /* "queued" is reserved for Extraction Runs, never a version status (V1.1.0 mapping). */
+    if ((s.versionProcessingStatus as string) === "queued") findings.push(kill("VERSION_QUEUED", s.sourceId, "versionProcessingStatus must not be 'queued' (reserved for Extraction Runs)"));
   }
 
   /* ── fragment/source class exclusivity: imported evidence must reference a
@@ -141,7 +153,7 @@ export function validateOnboardingFixture(fixture: OnboardingFixture): { valid: 
   /* ── competency self-reported only ── */
   for (const inf of fixture.inferences) {
     if (inf.attributeType !== "competency") continue;
-    const classes = new Set(inf.evidenceIds.map((eid) => fixture.evidence.find((e) => e.evidenceId === eid)?.evidenceClass));
+    const classes = new Set((inf.evidence ?? []).map((edge) => fixture.evidence.find((e) => e.evidenceId === edge.evidenceId)?.evidenceClass));
     if (classes.has("imported_document") || !classes.has("self_reported")) {
       findings.push(kill("COMPETENCY_FENCE", inf.inferenceId, "competency inference must be self_reported only"));
     }

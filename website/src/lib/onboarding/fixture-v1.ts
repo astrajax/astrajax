@@ -16,7 +16,7 @@ import type { OnboardingFixture } from "./contract-v1";
 import { validateOnboardingFixture } from "./validate-v1";
 
 export const ONBOARDING_FIXTURE_V1: OnboardingFixture = {
-  schemaVersion: "1.0.0",
+  schemaVersion: "1.1.0",
   fixtureId: "fx_fictional_business_route_a",
   generatedAt: "2026-08-06T06:05:00+01:00",
   case: {
@@ -25,7 +25,7 @@ export const ONBOARDING_FIXTURE_V1: OnboardingFixture = {
     businessDisplayName: "Northstar Field Services",
     initialRoute: "bring_material",
     currentRoute: "bring_material",
-    outputContractVersion: "1.0.0",
+    outputContractVersion: "1.1.0",
     questionProgress: { answered: 3, softTarget: 12, hardCap: 16, canStopEarly: false, stopReason: null },
   },
   sourcePack: {
@@ -50,7 +50,8 @@ export const ONBOARDING_FIXTURE_V1: OnboardingFixture = {
         fileFamily: "narrative_document",
         sizeBytes: 84213,
         ownershipBoundary: "matthew_owned",
-        processingStatus: "validated",
+        objectStatus: "ready",
+        versionProcessingStatus: "validated",
         profile: { profileVersion: "1.0.0", deterministic: true, census: { paragraphCount: 42, headingCount: 6, tableCount: 1 } },
       },
     ],
@@ -81,7 +82,7 @@ export const ONBOARDING_FIXTURE_V1: OnboardingFixture = {
     },
   ],
   assertions: [
-    { assertionId: "as_role_owner", atomicText: "The Operations Lead owns weekly staffing decisions.", subject: "Operations Lead", predicate: "owns", object: "weekly staffing decisions", evidenceIds: ["ev_role_doc"], validationStatus: "valid" },
+    { assertionId: "as_role_owner", atomicText: "The Operations Lead owns weekly staffing decisions.", subject: "Operations Lead", predicate: "owns", object: "weekly staffing decisions", evidence: [{ evidenceId: "ev_role_doc", supportRole: "Direct" }], validationStatus: "valid" },
   ],
   inferences: [
     {
@@ -91,7 +92,7 @@ export const ONBOARDING_FIXTURE_V1: OnboardingFixture = {
       supersedesInferenceId: null,
       attributeType: "provisional_role",
       value: { display: "Operations Lead", code: null, metadata: {} },
-      evidenceIds: ["ev_role_doc"],
+      evidence: [{ evidenceId: "ev_role_doc", supportRole: "Direct" }],
       evidenceClasses: ["imported_document"],
       confidence: 0.87,
       uncertainty: "The document names accountability but does not confirm the respondent currently holds the role.",
@@ -104,7 +105,7 @@ export const ONBOARDING_FIXTURE_V1: OnboardingFixture = {
       supersedesInferenceId: null,
       attributeType: "competency",
       value: { display: "Confident in team planning; developing workflow automation", code: null, metadata: {} },
-      evidenceIds: ["ev_competency_answer"],
+      evidence: [{ evidenceId: "ev_competency_answer", supportRole: "Direct" }],
       evidenceClasses: ["self_reported"],
       confidence: 1.0,
       uncertainty: "Self-reported competency is not independently assessed.",

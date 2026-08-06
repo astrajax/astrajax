@@ -43,9 +43,9 @@ export const CONNECTOR = {
  * edges read as plain fine-Ink with no role label.
  */
 export const SUPPORT_ROLE_MARK: Record<string, { stroke: string; label: string }> = {
-  direct: { stroke: STATE.ink, label: "direct" },
-  corroborating: { stroke: STATE.sage, label: "corroborating" },
-  contradicting: { stroke: STATE.terracotta, label: "contradicting" },
+  Direct: { stroke: STATE.ink, label: "Direct" },
+  Corroborating: { stroke: STATE.sage, label: "Corroborating" },
+  Contradicting: { stroke: STATE.terracotta, label: "Contradicting" },
 } as const;
 
 /** Thin gold attention stroke — the ONE restrained pass, then full settle. */

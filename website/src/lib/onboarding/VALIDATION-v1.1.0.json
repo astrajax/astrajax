@@ -1,0 +1,37 @@
+{
+  "contract": "context-onboarding-fixture-v1.1.0.schema.json",
+  "schemaVersion": "1.1.0",
+  "supersedes": "1.0.0",
+  "validatedAt": "2026-08-06T08:04:00+01:00",
+  "validator": "Kate (Hyperagent) — Ruth's Kate/CI acceptance step",
+  "attachmentIntegrity": {
+    "schemaSha256MatchesSums": true,
+    "exampleSha256MatchesSums": true,
+    "verifiedAgainst": "context-first-onboarding-v1.1.0-SHA256SUMS.txt"
+  },
+  "jsonSchema": {
+    "draft": "2020-12",
+    "validator": "python-jsonschema 4.25.1 (Draft202012Validator)",
+    "schemaIsValidDraft202012": true,
+    "workedFixtureValidates": true
+  },
+  "correctionsAdopted": {
+    "questionCountFormula": "questionProgress answered 0..16, softTarget 12, hardCap 16 (unchanged shape; formula validated)",
+    "workshopInferenceFamilyLookup": "WorkshopItem.inferenceFamilyId required; must resolve to an existing family and match the source inference's family (FAMILY_REQUIRED / REF_FAMILY / FAMILY_MATCH)",
+    "sourceStatusMapping": "objectStatus (received/validating/ready/held/superseded) and versionProcessingStatus (profiled/ready_for_ai/extracting/extracted/validated/held/failed) are distinct; 'queued' barred from version status (reserved for Extraction Runs)",
+    "evidenceEdgeSupportRole": "evidence edges carry { evidenceId, supportRole } with capitalised Direct/Corroborating/Contradicting through confirmation; required on inferences AND assertions; production never silently defaults (synthetic fixtures default Direct only, noted)"
+  },
+  "semanticReferential": {
+    "module": "website/src/lib/onboarding/validate-v1.ts",
+    "tests": "website/src/lib/onboarding/validate-v1.test.ts",
+    "workedFixturePasses": true,
+    "newRules": [
+      "EDGE_REQUIRED (every inference carries >=1 edge)",
+      "EDGE_ROLE (capitalised Direct/Corroborating/Contradicting only; lowercase rejected)",
+      "REF_EDGE (edge references resolve)",
+      "FAMILY_REQUIRED / REF_FAMILY / FAMILY_MATCH (workshop family lookup)",
+      "OBJECT_STATUS / VERSION_STATUS / VERSION_QUEUED (distinct source status mapping)"
+    ],
+    "note": "Hand-traced against Ruth's 1.1.0 worked fixture and each rule's firing case; vitest execution on repository CI (sandbox npm blocked)."
+  }
+}
