@@ -2168,6 +2168,15 @@ body {
   min-width: 0;
 }
 
+/* Safe zone: the base .clive-chat__form is display:flex, which made the
+   form-row a shrink-wrapped flex CHILD sized to its content (the textarea's
+   min-content ≈ one letter). The composer form must be a full-width block so
+   the form-row becomes a real container whose free space the well fills. */
+.study-stage--book .clive-chat--study .clive-chat__form {
+  display: block;
+  width: 100%;
+}
+
 .study-stage--book .clive-chat--study .clive-chat__input {
   flex: 1 1 0;
   min-width: 0; /* shrink within the row; sized by free space, not content */
