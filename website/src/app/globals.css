@@ -7787,48 +7787,61 @@ textarea.clive-chat__input {
    untouched — this is a mask change only.
    ════════════════════════════════════════════════════════════════════════ */
 
+/* ════════════════════════════════════════════════════════════════════════
+   Clive alpha mask (6 Aug live repair): the mathematical radial mask left
+   hard straight edges on the TOP and SIDES in both states. Replaced with
+   real painted alpha-mask ASSETS — one per state — applied to the
+   OUTERMOST media wrapper (.study-stage__clive-spot) so no nested
+   poster/video/background layer can expose a rectangle.
+
+   Each PNG: white/opaque solid core over face/eyes/torso/gesture; a long
+   soft feather on ALL FOUR edges; a slightly irregular ink-wash perimeter
+   (not oval, not rectangle); top and side alpha reach ZERO before the
+   asset boundary so no straight edge survives. The alpha alone performs
+   the dissolve — no white fog artwork.
+
+   ONE authoritative state-specific mask at the outer wrapper; the nested
+   poster/layer radial masks are removed below (they double-masked and
+   produced the bottom-only fade). CliveVideoStage, the reaction queue,
+   video selection, poster and reduced motion are unchanged.
+   ════════════════════════════════════════════════════════════════════════ */
+
 .study-stage--book .study-stage__clive-spot {
-  /* Hand-shaped feather: solid core ~60%, then a long soft dissolve. Two
-     layered masks (multiplied): a superellipse for the broad shape and a
-     corner-weighted radial so the corners fade first. The composite reads
-     as ink bleeding into paper, not a geometric crop. */
-  --folio-clive-mask:
-    radial-gradient(
-      ellipse 78% 74% at 50% 47%,
-      #000 0%,
-      #000 58%,
-      rgba(0, 0, 0, 0.86) 72%,
-      rgba(0, 0, 0, 0.5) 84%,
-      rgba(0, 0, 0, 0.18) 93%,
-      transparent 100%
-    );
-  -webkit-mask-image: var(--folio-clive-mask);
-  mask-image: var(--folio-clive-mask);
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-position: center;
-  mask-position: center;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
 }
 
-/* The poster and the live layer take the same mask so the still and every
-   video clip dissolve identically — including mid-reaction. */
+/* Teaching — 4:3 painted alpha mask. */
+.study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
+  -webkit-mask-image: url("/agent-cast/clive-wigglesworth/masks/teaching-4x3.png");
+  mask-image: url("/agent-cast/clive-wigglesworth/masks/teaching-4x3.png");
+}
+
+/* Interaction — 16:9 painted alpha mask. */
+.study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
+  -webkit-mask-image: url("/agent-cast/clive-wigglesworth/masks/interaction-16x9.png");
+  mask-image: url("/agent-cast/clive-wigglesworth/masks/interaction-16x9.png");
+}
+
+/* No nested mask on the feather container, the poster, or the live video
+   layer — the single state-specific alpha mask at the OUTER wrapper
+   (.study-stage__clive-spot) does the whole dissolve. The base
+   .clive-portrait-feather radial mask and the folio's earlier nested
+   poster/layer masks would double-mask and re-introduce the bottom-only
+   fade. Scoped to the book so other portrait-feather surfaces keep theirs. */
+.study-stage--book .study-stage__clive-feather,
+.study-stage--book .clive-portrait-feather,
 .study-stage--book .study-stage__clive-spot .clive-video-stage__poster,
 .study-stage--book .study-stage__clive-spot .clive-video-stage__layer {
-  -webkit-mask-image: var(--folio-clive-mask);
-  mask-image: var(--folio-clive-mask);
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
-/* Kill the white fog circle: the shared ::before vignette painted a pale
-   ellipse that read as a cloud behind him. Inside the folio the mask does
-   the dissolve on its own — drop the vignette entirely. */
+/* The white fog circle stays removed — the alpha mask alone dissolves. */
 .study-stage--book .study-stage__clive-feather::before,
 .study-stage--book .clive-portrait-feather::before {
   content: none;
