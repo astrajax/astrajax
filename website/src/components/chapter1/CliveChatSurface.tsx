@@ -286,7 +286,14 @@ export function CliveChatSurface({
     const node = inputRef.current;
     if (!node) return;
     node.style.height = "auto";
-    node.style.height = `${Math.min(node.scrollHeight, 132)}px`;
+    // Growth is capped by the page's usable height, set in CSS
+    // (.study-stage--book .clive-chat__input max-height) so a long draft never
+    // swells through the folio's bottom safe zone; past the cap the text
+    // scrolls internally with native chrome hidden. Fall back to 132px where
+    // no CSS cap applies (non-folio surfaces).
+    const cssCap = parseFloat(getComputedStyle(node).maxHeight);
+    const cap = Number.isFinite(cssCap) ? cssCap : 132;
+    node.style.height = `${Math.min(node.scrollHeight, cap)}px`;
   }, []);
 
   useEffect(() => {

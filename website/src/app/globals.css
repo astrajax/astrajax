@@ -1437,6 +1437,21 @@ body {
   --book-content-width: min(40%, 28rem);
   --book-ink: #23271b;
   --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
+  /* ── Living Folio PAGE SAFE ZONE (Matthew, 6 Aug 2026) ────────────────
+     One coherent boundary so content reads composed WITHIN the bound page,
+     not a web panel laid over paper. Derived from the K8 master plate
+     (living-folio-master-2048.svg, 2048×1152): parchment runs top ~12.3% to
+     bottom ~91%, left outer page edge ~3.2%, right outer page edge ~94.1%,
+     binding centre ~50%. The walnut surround and outer page lip are
+     no-content; the binding-side (gutter) is shallower than the outer edge.
+     LEFT page: outer = content-left, gutter = left-page-end (binding).
+     RIGHT page: outer = clive-right, gutter = right-page-start (binding).
+     Composer/media/ledger/heading all inherit these. */
+  --folio-safe-top: var(--book-content-top);
+  --folio-safe-bottom: var(--book-content-bottom);
+  --folio-safe-outer-left: var(--book-content-left);
+  --folio-safe-outer-right: var(--book-clive-right);
+  --folio-safe-gutter: var(--book-page-gutter);
   position: relative;
   height: 100vh;
   height: 100dvh;
@@ -1464,10 +1479,10 @@ body {
   position: absolute;
   z-index: 2;
   top: var(--book-clive-top);
-  right: var(--book-clive-right);
+  right: var(--folio-safe-outer-right);
   width: var(--book-clive-width);
   max-width: calc(
-    100% - var(--book-right-page-start) - var(--book-clive-right) - var(--book-page-gutter)
+    100% - var(--book-right-page-start) - var(--folio-safe-outer-right) - var(--folio-safe-gutter)
   );
   /* Closer to the 16:9 source than 5:4 — less forced side-crop before the
      feather mask even kicks in, so gestures stay in frame. */
@@ -1536,14 +1551,17 @@ body {
   position: absolute;
   z-index: 3;
   top: calc(var(--book-clive-top) + min(36vw, 28rem) * 0.62 + clamp(0.75rem, 2vh, 1.25rem));
-  right: var(--book-clive-right);
-  left: var(--book-right-page-start);
+  /* Safe zone: the right page mirrors the left — outer edge at clive-right,
+     gutter at the binding (right-page-start), bottom at the safe boundary. */
+  right: var(--folio-safe-outer-right);
+  left: calc(var(--book-right-page-start) + var(--folio-safe-gutter));
+  bottom: var(--folio-safe-bottom);
   display: flex;
   flex-direction: column;
   min-width: 0;
-  max-width: calc(100% - var(--book-right-page-start) - var(--book-clive-right));
-  max-height: calc(100% - var(--book-content-bottom) - var(--book-clive-top) - min(36vw, 28rem) * 0.62);
-  padding-right: var(--book-page-gutter);
+  max-width: calc(100% - var(--book-right-page-start) - var(--folio-safe-outer-right) - var(--folio-safe-gutter));
+  max-height: none;
+  padding-right: 0;
   padding-left: clamp(0.35rem, 1vw, 0.75rem);
   overflow-x: hidden;
   overflow-y: auto;
@@ -1580,11 +1598,11 @@ body {
 .study-stage--book:has(.chapter1-right-decision) .study-stage__right-panel {
   /* Anchor below Clive (16:9 portal → height ≈ width / 1.78) so they never overlap */
   top: calc(var(--book-clive-top) + var(--book-clive-width) / 1.78 + clamp(0.75rem, 2vh, 1.25rem));
-  bottom: var(--book-content-bottom);
-  left: calc(var(--book-right-page-start) + var(--book-page-gutter));
-  right: calc(var(--book-clive-right) + var(--book-page-gutter));
+  bottom: var(--folio-safe-bottom);
+  left: calc(var(--book-right-page-start) + var(--folio-safe-gutter));
+  right: calc(var(--folio-safe-outer-right) + var(--folio-safe-gutter));
   max-width: calc(
-    100% - var(--book-right-page-start) - var(--book-clive-right) - (var(--book-page-gutter) * 2)
+    100% - var(--book-right-page-start) - var(--folio-safe-outer-right) - (var(--folio-safe-gutter) * 2)
   );
   max-height: none;
   display: flex;
@@ -2124,6 +2142,33 @@ body {
   background: transparent;
   padding: 0;
   box-shadow: none;
+  /* Safe zone: the chat surface (and so the composer) never exceeds the left
+     page's usable width — gutter at the binding, content-left at the outer
+     edge. The textarea must shrink inside this, never push Send out. */
+  max-width: calc(
+    var(--book-left-page-end) - var(--book-content-left) - var(--folio-safe-gutter)
+  );
+}
+
+/* The composer is ONE bounded row inside the page: the writing well takes the
+   flexible track and shrinks (minmax 0,1fr), the Send plate takes a fixed
+   track. Neither can cross the page's outer/gutter edge. */
+.study-stage--book .clive-chat--study .clive-chat__form-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: clamp(0.5rem, 1.2vw, 0.875rem);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__input {
+  min-width: 0; /* allow the textarea to shrink within its grid track */
+  /* Growth is capped WITHIN the page's usable height (see max-height below);
+     past the cap the text scrolls internally with native chrome hidden (PR
+     #99 scrollbar rule) instead of expanding through the bottom safe zone. */
+  overflow-y: auto;
 }
 
 .study-stage--book .clive-chat--study .clive-chat__messages {
@@ -7084,7 +7129,7 @@ textarea.clive-chat__input {
   right: auto;
   left: calc(
     var(--book-right-page-start) +
-    (100% - var(--book-right-page-start) - var(--book-clive-right)) / 2
+    (100% - var(--book-right-page-start) - var(--folio-safe-outer-right)) / 2
   );
   transform: translateX(-50%);
   /* PR #99 visual delta (Matthew, 6 Aug 2026): the interaction portrait sat
@@ -7095,7 +7140,7 @@ textarea.clive-chat__input {
   --book-clive-width: min(32vw, 25rem);
   width: min(32vw, 25rem); /* SC1 delta: +~20% interaction presence, material anchor not thumbnail; right-panel anchors below it */
   max-width: calc(
-    100% - var(--book-right-page-start) - var(--book-clive-right) - (var(--book-page-gutter) * 2)
+    100% - var(--book-right-page-start) - var(--folio-safe-outer-right) - (var(--folio-safe-gutter) * 2)
   );
 }
 
@@ -7997,6 +8042,16 @@ textarea.clive-chat__input {
 
 .study-stage--book .clive-chat__input:focus-visible {
   outline: none;
+}
+
+/* Page safe zone: the writing well's growth is capped by the usable page
+   height between the top and bottom safe boundaries, so a long draft can
+   never swell down through (or past) the bottom parchment margin. The JS
+   resize (CliveChatSurface) computes against this cap; beyond it the text
+   scrolls internally. ~42vh keeps the well well clear of the bottom lip on
+   any reasonable folio viewport. */
+.study-stage--book .clive-chat__input {
+  max-height: min(42vh, calc(100dvh - var(--folio-safe-top) - var(--folio-safe-bottom)));
 }
 
 /* The send row aligns: input well grows, the engraved Send plate sits
