@@ -4767,8 +4767,9 @@ body {
 
 .platform-court__verdict-slot {
   position: absolute;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0;
   overflow: hidden;
   text-align: center;
@@ -4799,16 +4800,34 @@ body {
    approve" engraves itself. Letterpress relief via paired text-shadows —
    light below, dark above — presses the ink into the paint. --slot-ink
    varies the ink weight per entry. */
-.platform-court__verdict-text {
+.platform-court__verdict-decided {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0 6%;
+  box-sizing: border-box;
+}
+
+.platform-court__verdict-text {
+  display: block;
+  width: 100%;
+  max-width: 100%;
   text-align: center;
+  text-wrap: balance;
   color: var(--book-ink);
   opacity: var(--slot-ink, 0.85);
   font-family: var(--font-wall);
   font-weight: 600;
   font-size: clamp(0.74rem, 1.2vw, 1.1rem);
+  line-height: 1.1;
   letter-spacing: 0.06em;
   text-shadow: var(--court-engraved-shadow);
+  /* Cancel trailing letter-spacing gap; nudge Cinzel caps to optical centre. */
+  margin-right: -0.06em;
+  transform: translateY(-0.08em);
   animation: verdictInkIn 0.9s ease-out both;
 }
 
@@ -4946,11 +4965,6 @@ body {
   max-width: 88%;
   font-size: 0.875rem;
   line-height: 1.4;
-  color: var(--book-ink);
-  padding: 0.45rem 0.65rem;
-  border-radius: 0.35rem;
-  border: 1px solid var(--bicker-border, color-mix(in srgb, var(--book-ink) 18%, transparent));
-  background: var(--bicker-bubble, color-mix(in srgb, var(--book-ink) 5%, transparent));
   animation: bickerTurnIn 0.45s ease-out both;
 }
 
@@ -4980,7 +4994,7 @@ body {
   margin: 0;
   font-size: 0.84rem;
   line-height: 1.45;
-  color: color-mix(in srgb, var(--book-ink) 92%, transparent);
+  color: var(--bicker-body, var(--book-ink));
 }
 
 @keyframes bickerTurnInLeft {
@@ -7688,7 +7702,7 @@ textarea.clive-chat__input {
 .court-stage .platform-court__verdict-panel-inner p,
 .court-stage .platform-court__seat-picker-note,
 .court-stage .platform-court__bicker-line {
-  color: var(--book-ink);
+  color: var(--bicker-body, var(--book-ink));
   text-shadow: var(--court-ink-body-shadow);
 }
 
