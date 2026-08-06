@@ -8870,7 +8870,10 @@ textarea.clive-chat__input {
 @container onboarding (max-width: 30rem) {
   .study-stage--book .onboarding__routes {
     grid-template-columns: 1fr;
-    max-width: 26rem;
+    /* fill the right-page column, no wider — a fixed rem max-width overflowed
+       the column at narrow width and clipped the dockets at the page edge */
+    max-width: 100%;
+    margin: 0;
   }
 
   .study-stage--book .onboarding__route-card {
