@@ -1,14 +1,67 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
+  <!--
+    Living Folio — Clive teaching mask (4:3, left page).
+    Hand-shaped absorbed-ink alpha. One mask on the OUTERMOST wrapper only.
+
+    Character: a broad, vertically generous silhouette with an irregular
+    dry-brush perimeter — flat-ish top and bottom, fuller and more broken
+    along the left/right edges, asymmetric. The centre (face, torso, paws
+    and book) stays fully solid; the perimeter dissolves into the Pale Cream
+    page as ink absorbed into paper, never a fog oval and never a rectangle.
+
+    Construction: a hand-authored closed path (not an ellipse) is roughened
+    by dual-frequency turbulence displacement; the falloff is a steep table
+    ramp (solid -> gone fast) with coarse fibre loss concentrated at the
+    outer edge. A second, smaller solid core guarantees the safe area is
+    100% opaque regardless of edge noise.
+  -->
   <defs>
-    <filter id="painted" x="-18%" y="-18%" width="136%" height="136%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.010 0.014" numOctaves="3" seed="19" result="grain"/>
-      <feDisplacementMap in="SourceGraphic" in2="grain" scale="30" xChannelSelector="R" yChannelSelector="G" result="rough"/>
-      <feGaussianBlur in="rough" stdDeviation="15" result="soft"/>
-      <feComponentTransfer in="soft">
-        <feFuncA type="table" tableValues="0 0 0.08 0.28 0.68 0.94 1 1"/>
+    <filter id="ink" x="-14%" y="-14%" width="128%" height="128%" color-interpolation-filters="sRGB">
+      <!-- Coarse fibre field (the paper tooth) + fine fray, one displacement. -->
+      <feTurbulence type="fractalNoise" baseFrequency="0.011 0.016" numOctaves="2" seed="19" result="swell"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.052 0.068" numOctaves="3" seed="41" result="fray"/>
+      <feDisplacementMap in="SourceGraphic" in2="swell" scale="42" xChannelSelector="R" yChannelSelector="G" result="rough1"/>
+      <feDisplacementMap in="rough1" in2="fray" scale="16" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+      <!-- Steep absorbed-ink ramp: solid core dies fast into the page. -->
+      <feGaussianBlur in="rough" stdDeviation="9" result="soft"/>
+      <feComponentTransfer in="soft" result="ramped">
+        <feFuncA type="table" tableValues="0 0 0.04 0.16 0.5 0.84 0.97 1 1"/>
       </feComponentTransfer>
+      <!-- Coarse fibre bite, concentrated at the outer edge: subtract a
+           sharpened paper-tooth noise so the perimeter is granular loss,
+           not a smooth wash. -->
+      <feTurbulence type="fractalNoise" baseFrequency="0.14 0.17" numOctaves="2" seed="77" result="tooth"/>
+      <feComponentTransfer in="tooth" result="toothSharp">
+        <feFuncA type="table" tableValues="0 0 0 0.2 0.75 1 1"/>
+      </feComponentTransfer>
+      <feComposite in="ramped" in2="toothSharp" operator="arithmetic" k1="0" k2="1" k3="-0.42" k4="0"/>
     </filter>
   </defs>
-  <rect x="72" y="58" width="1056" height="780" rx="88" ry="72" fill="white" filter="url(#painted)"/>
-  <rect x="112" y="94" width="976" height="706" rx="64" ry="54" fill="white" opacity="0.96"/>
+
+  <!-- Hand-shaped silhouette: broad, vertically generous, asymmetric.
+       Deliberately not an ellipse: flatter crown and base, fuller flanks,
+       a few uneven brush swells along the sides. -->
+  <path fill="white" filter="url(#ink)" d="
+    M 300 128
+    C 430 84, 620 78, 742 116
+    C 858 152, 986 226, 1020 342
+    C 1046 434, 1030 566, 1004 668
+    C 966 776, 852 838, 724 854
+    C 596 868, 430 856, 316 812
+    C 206 770, 122 686, 108 566
+    C 96 452, 118 322, 168 226
+    C 206 156, 248 144, 300 128
+    Z"/>
+
+  <!-- Guaranteed solid safe area: face, torso, paws and book fully opaque.
+       Sits inside the silhouette, untouched by the edge noise. -->
+  <path fill="white" opacity="1" d="
+    M 330 190
+    C 470 150, 640 150, 760 190
+    C 880 230, 960 330, 960 460
+    C 960 600, 880 720, 740 770
+    C 600 812, 440 800, 330 740
+    C 232 686, 188 580, 196 460
+    C 204 342, 240 232, 330 190
+    Z"/>
 </svg>

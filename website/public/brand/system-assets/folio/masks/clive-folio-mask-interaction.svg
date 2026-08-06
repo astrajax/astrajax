@@ -1,14 +1,58 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!--
+    Living Folio — Clive interaction mask (16:9, top-third right page).
+    Hand-shaped absorbed-ink alpha. One mask on the OUTERMOST wrapper only.
+
+    Character: lower and wider than the teaching mask, preserving the
+    top-right composition and clear room for the action ledger below.
+    Irregular dry-brush perimeter; the centre (face, torso, paws and book)
+    stays fully solid; the perimeter dissolves into the page as absorbed
+    ink — never a fog oval, never a rectangle.
+
+    Construction mirrors the teaching mask: hand-authored closed path,
+    dual-frequency turbulence displacement, steep table ramp, coarse fibre
+    bite concentrated at the outer edge, and a guaranteed solid core.
+  -->
   <defs>
-    <filter id="painted" x="-18%" y="-22%" width="136%" height="144%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.010 0.016" numOctaves="3" seed="23" result="grain"/>
-      <feDisplacementMap in="SourceGraphic" in2="grain" scale="28" xChannelSelector="R" yChannelSelector="G" result="rough"/>
-      <feGaussianBlur in="rough" stdDeviation="13" result="soft"/>
-      <feComponentTransfer in="soft">
-        <feFuncA type="table" tableValues="0 0 0.08 0.3 0.7 0.95 1 1"/>
+    <filter id="ink" x="-14%" y="-18%" width="128%" height="136%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.010 0.018" numOctaves="2" seed="23" result="swell"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.056 0.072" numOctaves="3" seed="53" result="fray"/>
+      <feDisplacementMap in="SourceGraphic" in2="swell" scale="40" xChannelSelector="R" yChannelSelector="G" result="rough1"/>
+      <feDisplacementMap in="rough1" in2="fray" scale="15" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+      <feGaussianBlur in="rough" stdDeviation="8" result="soft"/>
+      <feComponentTransfer in="soft" result="ramped">
+        <feFuncA type="table" tableValues="0 0 0.04 0.16 0.5 0.84 0.97 1 1"/>
       </feComponentTransfer>
+      <feTurbulence type="fractalNoise" baseFrequency="0.15 0.18" numOctaves="2" seed="91" result="tooth"/>
+      <feComponentTransfer in="tooth" result="toothSharp">
+        <feFuncA type="table" tableValues="0 0 0 0.2 0.75 1 1"/>
+      </feComponentTransfer>
+      <feComposite in="ramped" in2="toothSharp" operator="arithmetic" k1="0" k2="1" k3="-0.42" k4="0"/>
     </filter>
   </defs>
-  <rect x="72" y="50" width="1136" height="620" rx="90" ry="66" fill="white" filter="url(#painted)"/>
-  <rect x="112" y="84" width="1056" height="552" rx="64" ry="46" fill="white" opacity="0.96"/>
+
+  <!-- Hand-shaped silhouette: lower and wider. Flatter crown/base so the
+       composition reads as a top-band presence above the ledger, with
+       broken, uneven flanks. -->
+  <path fill="white" filter="url(#ink)" d="
+    M 268 96
+    C 430 66, 700 60, 900 84
+    C 1062 102, 1180 168, 1206 268
+    C 1224 356, 1206 470, 1168 552
+    C 1108 632, 950 664, 760 668
+    C 560 672, 350 656, 224 602
+    C 118 556, 64 470, 70 360
+    C 76 250, 148 128, 268 96
+    Z"/>
+
+  <!-- Guaranteed solid safe area. -->
+  <path fill="white" opacity="1" d="
+    M 300 150
+    C 470 122, 720 118, 900 142
+    C 1050 160, 1140 250, 1140 360
+    C 1140 470, 1040 560, 860 590
+    C 660 616, 430 600, 300 540
+    C 190 488, 140 420, 150 340
+    C 160 250, 210 172, 300 150
+    Z"/>
 </svg>

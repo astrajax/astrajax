@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Chapter1Conversation } from "@/components/chapter1/Chapter1Conversation";
 import type { HubBookId } from "@/components/chapter1/CliveStudyHub";
 import { CliveStudyShell } from "@/components/chapter1/CliveStudyShell";
+import { useFolioStage } from "@/components/chapter1/FolioStageContext";
 import { CliveWelcomeSequence } from "@/components/chapter1/CliveWelcomeSequence";
 import { PaperTrailDrawer } from "@/components/chapter1/PaperTrailDrawer";
 import { PlatformSessionControls } from "@/components/platform-session/PlatformSessionControls";
@@ -87,6 +88,29 @@ function entryStepForBook(
     currentStep: step,
     skipWelcomeSequence: base.skipWelcomeSequence || step !== "welcome",
   };
+}
+
+/**
+ * The folio state must follow the INTERACTION state, not the presence of a
+ * component. Opening/teaching beats keep Clive on the left page; once the
+ * experience becomes conversational/compositional (the intake interview or
+ * any later working beat, on either route), Clive resolves top-right and the
+ * left page carries the writing. This is the single source of truth for
+ * data-folio-state, driven by the explicit step machine — never inferred
+ * from :has() selectors.
+ */
+function isInteractionStep(step: LoopStep, showWelcomeSequence: boolean): boolean {
+  if (showWelcomeSequence) return false; // cinematic welcome = teaching presence
+  return step !== "welcome" && step !== "context_importance";
+}
+
+/** Bridges the shell's step machine into the folio stage (inside CliveStudyShell's provider). */
+function FolioEngagementBridge({ engaged }: { engaged: boolean }) {
+  const setEngaged = useFolioStage()?.setEngaged;
+  useEffect(() => {
+    setEngaged?.(engaged);
+  }, [setEngaged, engaged]);
+  return null;
 }
 
 export function AieDemoShell() {
@@ -207,6 +231,10 @@ export function AieDemoShell() {
 
   const showWelcomeSequence = hubSelection === "welcome" && !welcomeComplete;
 
+  // Folio engagement is derived from the explicit step machine, not from any
+  // component's presence — see isInteractionStep.
+  const folioEngaged = isInteractionStep(state.currentStep, showWelcomeSequence);
+
   // Start the ambient idle reel once, on entry (or when switching books).
   // `returnToIdle()` (called internally after any reaction clip) already
   // resumes the reel from where it left off — this effect must NOT depend
@@ -240,6 +268,7 @@ export function AieDemoShell() {
               )
         }
       >
+        <FolioEngagementBridge engaged={folioEngaged} />
         {showWelcomeSequence ? (
           <CliveWelcomeSequence
             sessionId={state.sessionId}
