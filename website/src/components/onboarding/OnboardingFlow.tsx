@@ -42,11 +42,16 @@ import {
   type RouteId,
 } from "@/lib/onboarding/machine";
 import { StudyMarkdown } from "@/components/chapter1/StudyMarkdown";
+import { SourcePackPlate } from "@/components/onboarding/plates/SourcePackPlate";
+import { CorpusCensusPlate } from "@/components/onboarding/plates/CorpusCensusPlate";
+import { ProvisionalConstellationPlate } from "@/components/onboarding/plates/ProvisionalConstellationPlate";
+import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 
 export function OnboardingFlow() {
   const evidence = useMemo(() => getOnboardingEvidence(), []);
   const [state, setState] = useState<OnboardingState>(() => initialOnboardingState(evidence));
   const [draft, setDraft] = useState("");
+  const reducedMotion = usePrefersReducedMotion();
 
   const choose = useCallback(
     (route: RouteId) => setState((s) => chooseRoute(s, route)),
@@ -147,6 +152,15 @@ export function OnboardingFlow() {
               </li>
             ))}
           </ul>
+          <SourcePackPlate
+            items={evidence.evidence.map((e) => ({
+              id: e.id,
+              evidenceClass: e.evidence_class,
+              label: e.locators[0]?.label ?? e.title,
+              provenance: e.provenance?.question ? `turn ${e.provenance.turn}` : (e.locators[0]?.detail ?? ""),
+            }))}
+            reducedMotion={reducedMotion}
+          />
           <div className="onboarding__drop">
             <p className="onboarding__body">
               Drop files here, or{" "}
@@ -194,6 +208,19 @@ export function OnboardingFlow() {
               </li>
             ))}
           </ul>
+          <CorpusCensusPlate
+            rows={evidence.evidence.map((e) => ({
+              id: e.id,
+              evidenceClass: e.evidence_class,
+              label: e.title,
+              trace: e.provenance?.question ? `asked: “${e.provenance.question}”` : (e.locators[0]?.detail ?? e.summary),
+              recency: "6 Aug 2026",
+              tally: e.evidence_class === "imported_document" ? 1 : undefined,
+            }))}
+            gapReserve={{ label: "Open questions held in reserve", count: evidence.gapQuestions.length }}
+            totals={{ documents: evidence.corpusCensus.documents, words: evidence.corpusCensus.totalWords }}
+            reducedMotion={reducedMotion}
+          />
           <NavRow onPrimary={next} primaryLabel="Answer two gap questions" />
         </FlowShell>
       )}
@@ -298,6 +325,17 @@ export function OnboardingFlow() {
           <p className="onboarding__lede">
             Provisional only — nothing is trusted until you confirm it, item by item.
           </p>
+          <ProvisionalConstellationPlate
+            territories={evidence.provisional.fields.map((f) => ({
+              key: f.key,
+              label: f.label,
+              provisional: f.values.join(" · "),
+              evidenceCount: f.evidenceIds.length,
+              openQuestions: f.key === "themes" ? 1 : 0,
+              accepted: state.confirmations[f.key] === "confirm",
+            }))}
+            reducedMotion={reducedMotion}
+          />
           <div className="onboarding__inference">
             {evidence.provisional.fields.map((field) => (
               <div key={field.key} className="onboarding__infer-card">
