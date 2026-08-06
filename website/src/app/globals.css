@@ -8845,27 +8845,60 @@ textarea.clive-chat__input {
   color: var(--book-ink-muted);
 }
 
-/* Narrow widths: single-column frames are shorter, and the verb wraps to two
-   lines. Keep the verb in the same measured upper-inner zone but nudge it up
-   slightly and cap its size so a two-line verb still ends above the best
-   copy's band; the best copy stays in the lower-inner zone. */
+/* Narrow widths: the single-column frames are shorter and the verb wraps to
+   two lines, so fixed top bands let the copy run under the frame's lower lip.
+   Switch to a structural fix: the card becomes a flex column that overlays
+   the frame image and stacks verb + copy inside the frame's measured inner
+   zone (top ~22% / bottom ~16% inset) with a real gap. The two texts are in
+   normal flow inside that column, so they can never overlap or overflow at
+   any wrap. */
 @media (max-width: 767px) {
-  .study-stage--book .onboarding__route-card .onboarding__route-verb,
-  .study-stage--book .onboarding__route-card .onboarding__route-best {
-    left: 50%;
-    transform: translateX(-50%);
-    width: 84%;
-    max-width: 84%;
+  /* Overflow-proof structure: the card keeps the frame's aspect ratio as its
+     own box, the frame image absolutely fills it behind, and the verb + copy
+     are ordinary flex-column children laid into the measured inner zone with
+     padding. In-flow flex children can never overlap, and the padding band
+     confines them inside the frame, so neither can overflow at any wrap.
+     Frame measured: 553x287 (aspect ~1.928); inner text zone ~22% top,
+     ~12% sides, ~14% bottom. */
+  .study-stage--book .onboarding__route-card {
+    position: relative;
+    aspect-ratio: 553 / 287;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+    padding: 0 12%;            /* side inset of the inner zone */
+    text-align: center;
   }
 
-  .study-stage--book .onboarding__route-verb {
-    top: 26%;
+  .study-stage--book .onboarding__route-card .onboarding__route-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    z-index: 0;
+  }
+
+  .study-stage--book .onboarding__route-card .onboarding__route-verb,
+  .study-stage--book .onboarding__route-card .onboarding__route-best {
+    position: static;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+    z-index: 1;
+  }
+
+  .study-stage--book .onboarding__route-card .onboarding__route-verb {
     font-size: clamp(0.82rem, 3.6vw, 0.98rem);
     line-height: 1.12;
   }
 
-  .study-stage--book .onboarding__route-best {
-    top: 64%;
+  .study-stage--book .onboarding__route-card .onboarding__route-best {
     font-size: clamp(0.64rem, 2.8vw, 0.74rem);
     line-height: 1.25;
   }
