@@ -2158,36 +2158,64 @@ body {
    fixed share. Neither can cross the page's outer/gutter edge. Flex with an
    explicit zero flex-basis (not a grid fr track) so the well is sized by the
    row's free space and can never collapse to the textarea's min-content width. */
-.study-stage--book .clive-chat--study .clive-chat__form-row {
-  display: flex;
-  align-items: flex-end;
-  gap: clamp(0.5rem, 1.2vw, 0.875rem);
-  width: 100%;
-  max-width: 100%;
-  min-width: 0;
-}
-
-/* Safe zone: the base .clive-chat__form is display:flex, which made the
-   form-row a shrink-wrapped flex CHILD sized to its content (the textarea's
-   min-content ≈ one letter). The composer form must be a full-width block so
-   the form-row becomes a real container whose free space the well fills. */
+/* ── Composer behaviour (Matthew, 6 Aug 2026) ─────────────────────────────
+   Copy Hyperagent's BEHAVIOUR, not its white card: the writing well is broad
+   and calm with a low resting height, the text gets nearly the full safe page
+   measure, and the Send plate lives in a stable bottom control row rather than
+   a permanent side column. The form is a full-width block so the well is a
+   real container; the well grows smoothly upward and only its text scrolls at
+   the cap while the control row stays pinned. */
 .study-stage--book .clive-chat--study .clive-chat__form {
   display: block;
   width: 100%;
 }
 
-.study-stage--book .clive-chat--study .clive-chat__input {
-  flex: 1 1 0;
-  min-width: 0; /* shrink within the row; sized by free space, not content */
+/* The form-row is now simply the well's full-width container — no side column. */
+.study-stage--book .clive-chat--study .clive-chat__form-row {
+  display: block;
   width: 100%;
-  /* Growth is capped WITHIN the page's usable height (see max-height below);
-     past the cap the text scrolls internally with native chrome hidden (PR
-     #99 scrollbar rule) instead of expanding through the bottom safe zone. */
-  overflow-y: auto;
+  max-width: 100%;
+  min-width: 0;
 }
 
-.study-stage--book .clive-chat--study .clive-chat__form-row button[type="submit"] {
-  flex: none; /* the Send plate keeps its size and stays inside the row */
+/* The writing well takes the full safe page measure. Compact at rest (~1–2
+   lines), a calm folio body size (matching the surrounding copy, not the old
+   oversized serif), and a bounded max so it never grows through the page's
+   bottom safe zone. */
+.study-stage--book .clive-chat--study .clive-chat__input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  line-height: 1.5;
+  font-size: clamp(1rem, 1.45vw, 1.0625rem); /* calm folio body measure */
+  min-height: calc(1.5em + clamp(0.6rem, 1.4vh, 0.85rem) * 2); /* ~1–2 lines */
+  max-height: min(32vh, 13rem); /* bounded growth; stays inside the safe zone */
+  overflow-y: auto; /* only the text region scrolls past the cap */
+  /* Bottom clearance so the last line never disappears beneath the control
+     row; the well's own padding keeps the text off its lower edge. */
+  padding-bottom: clamp(0.6rem, 1.4vh, 0.9rem);
+}
+
+/* Stable bottom control row: the Architect label sits quietly at the left and
+   the Send plate anchors bottom-right. It stays pinned while long text
+   scrolls; the well carries bottom clearance so text never disappears under
+   it. */
+.study-stage--book .clive-chat--study .clive-chat__control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: clamp(0.5rem, 1.2vw, 0.875rem);
+  margin-top: clamp(0.4rem, 1vh, 0.6rem);
+}
+
+.study-stage--book .clive-chat--study .clive-chat__control-row .clive-chat__architect-label {
+  margin: 0;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__control-row button[type="submit"] {
+  flex: none; /* the Send plate keeps its size, anchored at the row's end */
+  margin-left: auto;
 }
 
 .study-stage--book .clive-chat--study .clive-chat__messages {
@@ -8063,14 +8091,13 @@ textarea.clive-chat__input {
   outline: none;
 }
 
-/* Page safe zone: the writing well's growth is capped by the usable page
-   height between the top and bottom safe boundaries, so a long draft can
+/* Page safe zone: the writing well's growth is capped so a long draft can
    never swell down through (or past) the bottom parchment margin. The JS
-   resize (CliveChatSurface) computes against this cap; beyond it the text
-   scrolls internally. ~42vh keeps the well well clear of the bottom lip on
-   any reasonable folio viewport. */
+   resize (CliveChatSurface) reads this cap via getComputedStyle; beyond it the
+   text scrolls internally with native chrome hidden. Sized to the composer
+   brief (~min(32vh, 13rem)) so the well stays compact and inside the page. */
 .study-stage--book .clive-chat__input {
-  max-height: min(42vh, calc(100dvh - var(--folio-safe-top) - var(--folio-safe-bottom)));
+  max-height: min(32vh, 13rem);
 }
 
 /* The send row aligns: input well grows, the engraved Send plate sits
