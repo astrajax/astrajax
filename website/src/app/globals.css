@@ -7087,7 +7087,11 @@ textarea.clive-chat__input {
     (100% - var(--book-right-page-start) - var(--book-clive-right)) / 2
   );
   transform: translateX(-50%);
-  top: clamp(4.75rem, 11vh, 6.25rem);
+  /* PR #99 visual delta (Matthew, 6 Aug 2026): the interaction portrait sat
+     too close to the top walnut rail. Ease it down ~2.5% of page height for a
+     clear parchment margin above, while preserving ledger room below.
+     Teaching placement is unchanged. */
+  top: clamp(4.75rem, 13.5vh, 6.25rem);
   --book-clive-width: min(32vw, 25rem);
   width: min(32vw, 25rem); /* SC1 delta: +~20% interaction presence, material anchor not thumbnail; right-panel anchors below it */
   max-width: calc(
@@ -7103,7 +7107,7 @@ textarea.clive-chat__input {
   }
 
   .study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
-    top: clamp(4.5rem, 11vh, 5.75rem);
+    top: clamp(4.5rem, 13.5vh, 5.75rem);
     width: min(38vw, 13rem);
   }
 }
