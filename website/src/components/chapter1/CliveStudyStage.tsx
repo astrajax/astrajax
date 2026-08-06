@@ -21,9 +21,9 @@ import {
   type FolioStageState,
 } from "@/components/chapter1/FolioStageContext";
 import { FolioMessagePulse } from "@/components/chapter1/FolioMessagePulse";
-import { FolioCrest } from "@/components/chapter1/FolioCrest";
 
-const STUDY_BOOK_SRC = "/agent-cast/clive-wigglesworth/folio/living-folio-master-2048.svg";
+const STUDY_BOOK_SRC =
+  "/agent-cast/clive-wigglesworth/folio/living-folio-master-2048.svg";
 
 type CliveStudyStageProps = {
   children: ReactNode;
@@ -121,7 +121,11 @@ const CliveStudyStageInner = forwardRef<CliveVideoStageHandle, CliveStudyStagePr
           </div>
         </div>
 
-        <FolioCrest />
+        {/* FolioCrest intentionally not rendered: Matthew's finished Living
+            Folio master bakes its own AstraJax rail ornament, so the separate
+            AJ crest overlay (added only because the K8 master shipped with no
+            centre crest) is suppressed in globals.css pending Kathryn's
+            visual clearance. */}
 
         <FolioMessagePulse />
 

@@ -1424,26 +1424,31 @@ body {
   /* Portal crops via object-fit: cover already; keep this near 1 so gestures
      (paws, arm lifts) don't get cut off by an extra zoom on top of that crop. */
   --clive-study-video-scale: 0.96;
-  /* Left/right page zones — invisible boundary, no drawn spine */
-  --book-left-page-end: 46.5%;
-  --book-right-page-start: 53.5%;
+  /* Left/right page zones — invisible boundary, no drawn spine.
+     Matthew's finished Living Folio master (living-folio-empty-4k.png, 3:2,
+     2048×1365 derivative) has a CENTRED binding, so the page split is
+     symmetric — replaces the K8 16:9 crop's off-centre 46.5/53.5. */
+  --book-left-page-end: 48.6%;
+  --book-right-page-start: 51%;
   --book-page-gutter: clamp(0.75rem, 2vw, 1.25rem);
-  --book-clive-top: 12%;
-  --book-clive-right: 6.5%;
+  --book-clive-top: 9%;
+  --book-clive-right: 5.5%;
   --book-clive-width: min(27vw, 19rem);
-  --book-content-top: clamp(4.75rem, 13vh, 6.75rem);
-  --book-content-bottom: clamp(11vh, 13vh, 15vh);
-  --book-content-left: clamp(7.5%, 9vw, 10.5%);
+  --book-content-top: clamp(4.25rem, 9.5vh, 5.75rem);
+  --book-content-bottom: clamp(9vh, 11vh, 13vh);
+  --book-content-left: clamp(6%, 7.5vw, 9%);
   --book-content-width: min(40%, 28rem);
   --book-ink: #23271b;
   --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
   /* ── Living Folio PAGE SAFE ZONE (Matthew, 6 Aug 2026) ────────────────
      One coherent boundary so content reads composed WITHIN the bound page,
-     not a web panel laid over paper. Derived from the K8 master plate
-     (living-folio-master-2048.svg, 2048×1152): parchment runs top ~12.3% to
-     bottom ~91%, left outer page edge ~3.2%, right outer page edge ~94.1%,
-     binding centre ~50%. The walnut surround and outer page lip are
-     no-content; the binding-side (gutter) is shallower than the outer edge.
+     not a web panel laid over paper. Re-derived from Matthew's finished
+     Living Folio master (living-folio-empty-4k.png, 3:2, 2048×1365
+     derivative): parchment runs top ~6.9% to bottom ~93%, left outer page
+     edge ~4.7%, right outer page edge ~95.4%, binding centre ~50% (symmetric
+     — supersedes the K8 16:9 crop's off-centre geometry). The walnut
+     surround and outer page lip are no-content; the binding-side (gutter) is
+     shallower than the outer edge.
      LEFT page: outer = content-left, gutter = left-page-end (binding).
      RIGHT page: outer = clive-right, gutter = right-page-start (binding).
      Composer/media/ledger/heading all inherit these. */
@@ -1917,29 +1922,29 @@ body {
 
 @media (min-width: 1024px) {
   .study-stage {
-    --book-left-page-end: 46%;
-    --book-right-page-start: 54%;
-    --book-clive-top: 13%;
-    --book-clive-right: 7.5%;
+    --book-left-page-end: 48.4%;
+    --book-right-page-start: 51.6%;
+    --book-clive-top: 9.5%;
+    --book-clive-right: 6%;
     --book-clive-width: min(24vw, 20rem);
-    --book-content-top: clamp(5.25rem, 14vh, 7.25rem);
-    --book-content-bottom: clamp(11vh, 13vh, 15vh);
-    --book-content-left: clamp(8%, 10vw, 11%);
+    --book-content-top: clamp(4.5rem, 10vh, 6rem);
+    --book-content-bottom: clamp(9vh, 11vh, 13vh);
+    --book-content-left: clamp(6.5%, 8vw, 9.5%);
     --book-content-width: min(42%, 32rem);
   }
 }
 
 @media (max-width: 767px) {
   .study-stage {
-    --book-left-page-end: 48%;
-    --book-right-page-start: 52%;
+    --book-left-page-end: 48.8%;
+    --book-right-page-start: 51.2%;
     --book-page-gutter: clamp(0.4rem, 1vw, 0.65rem);
-    --book-clive-top: 11%;
-    --book-clive-right: 4%;
+    --book-clive-top: 8.5%;
+    --book-clive-right: 3.5%;
     --book-clive-width: min(38vw, 11rem);
-    --book-content-top: clamp(4rem, 11vh, 5rem);
-    --book-content-bottom: clamp(9vh, 11vh, 13vh);
-    --book-content-left: clamp(6%, 7vw, 8%);
+    --book-content-top: clamp(3.5rem, 9vh, 4.5rem);
+    --book-content-bottom: clamp(8vh, 10vh, 12vh);
+    --book-content-left: clamp(5%, 6vw, 7%);
     --book-content-width: min(46%, 16.5rem);
   }
 }
@@ -8780,6 +8785,12 @@ textarea.clive-chat__input {
 
 /* ── AJ crest: centred above the binding, in the top rail ──────────────── */
 .folio-crest {
+  /* SUPPRESSED — Matthew's finished Living Folio master bakes its own
+     AstraJax rail with star ornaments, so the separately-positioned AJ crest
+     (added only because the K8 master shipped with no centre crest) would now
+     duplicate baked ornamentation. Hidden, not deleted, pending Kathryn's
+     visual clearance. */
+  display: none;
   position: absolute;
   /* centred horizontally on the binding (50%), high in the rail */
   left: 50%;
@@ -8798,83 +8809,69 @@ textarea.clive-chat__input {
   filter: drop-shadow(0 1px 3px rgba(26, 18, 12, 0.5));
 }
 
-/* ── Top-rail identity: engraved small-caps in the master's blank zones ──
-   The header already renders label + subtitle; restyle it to sit inside the
-   integrated rail (transparent, no browser chrome), the identity reading as
-   engraved folio text in the left zone and the state in the right. */
-.study-stage--book .study-stage__header {
-  border-bottom: none;
-  background: none;
-  box-shadow: none;
-  padding: clamp(0.5rem, 1.4vh, 0.9rem) clamp(1rem, 2.5vw, 1.5rem) 0;
-}
-
 .study-stage--book .study-stage__label {
   font-family: Georgia, "Times New Roman", Times, serif;
   font-variant: small-caps;
   letter-spacing: 0.14em;
-  /* responsive to the container width so it never escapes the carved inner edge */
-  font-size: clamp(0.52rem, 0.9vw, 0.68rem);
+  font-size: clamp(0.6rem, 1vw, 0.78rem);
   font-weight: 500;
   white-space: nowrap;
   max-width: 100%;
   overflow: hidden;
-  color: color-mix(in srgb, var(--color-parchment) 88%, transparent);
+  color: color-mix(in srgb, var(--color-parchment) 84%, transparent);
   text-shadow:
-    0 1px 0 rgba(26, 16, 8, 0.55),
-    0 -1px 0 rgba(255, 244, 220, 0.18);
+    0 1px 0 rgba(26, 16, 8, 0.6),
+    0 1px 6px rgba(0, 0, 0, 0.4);
 }
 
-/* SC1 delta: the rail identity + state labels sit INSIDE the master's two
-   engraved rail panels, optically centred vertically — never floating at the
-   frame corners. Left label in the left panel (slightly left-aligned within
-   it); state in the right panel (centred/right). AJ crest stays centred. */
+/* Living Folio header — quiet live text inside Matthew's finished rail.
+   The finished art bakes "AstraJax" (top-left, ~3–12%) and star ornaments
+   (~43/48.6/50.8/55.6/94%), leaving two wide empty walnut gaps. The dynamic
+   chapter/state stays LIVE (Route A: text is never baked) by sitting in
+   those gaps, vertically centred in the rail band (0–7% of plate height) —
+   identity at ~20% (left gap, after the wordmark), controls at ~72% (right
+   gap, before the far-right star). Engraved small-caps on walnut, no chrome. */
 .study-stage--book .study-stage__header {
   position: absolute;
   z-index: 6;
   top: 0;
   left: 0;
   right: 0;
-  /* Three-anchor absolute rail grid on the ACTUAL K8 web derivative:
-     left cartouche bounds ~20%–46% (centre 33%), crest centred 50%,
-     right cartouche bounds ~55%–79% (centre 67%). Labels never positioned
-     from viewport corners; each lives in a fixed-width container matching
-     its panel, optically centred. AJ crest stays at 50%, unmoved. */
-  height: clamp(1.9rem, 4.9vh, 3rem);
+  height: 7%;
   padding: 0;
   border-bottom: none;
   background: none;
   box-shadow: none;
+  display: block;
 }
 
-/* Left live label container: centred around 33% width, constrained to the
-   left cartouche bounds (roughly 20%–46%). */
+/* Identity (label + subtitle) — centred in the left rail gap (~20%). */
 .study-stage--book .study-stage__header-copy {
   position: absolute;
-  left: 33%;
+  left: 20%;
   top: 50%;
-  transform: translate(-50%, -50%);
-  width: 26%; /* the cartouche's ~26%-wide panel */
-  max-width: 26%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-}
-
-/* Right live label container: centred around 67% width, constrained to the
-   right cartouche bounds (roughly 55%–79%). */
-.study-stage--book .study-stage__header-actions {
-  position: absolute;
-  left: 67%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 24%; /* the cartouche's ~24%-wide panel */
+  transform: translateY(-50%);
+  width: auto;
   max-width: 24%;
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* Controls (Start again + any header actions) — centred in the right rail
+   gap (~72%). */
+.study-stage--book .study-stage__header-actions {
+  position: absolute;
+  left: 72%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: auto;
+  max-width: 20%;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
+  justify-content: flex-end;
+  text-align: right;
   gap: 0.5rem;
 }
 
@@ -9207,8 +9204,8 @@ textarea.clive-chat__input {
   margin: 0.6rem 0 0;
 }
 
-/* SC1 rail mobile: labels reduce letter-spacing/font size to fit inside
-   their cartouches — they never move outside the panels. */
+/* Rail mobile: labels reduce letter-spacing/font size so they stay inside
+   the finished rail's empty gaps and never collide the baked ornaments. */
 @media (max-width: 767px) {
   .study-stage--book .study-stage__label {
     font-size: clamp(0.42rem, 2.2vw, 0.54rem);
