@@ -100,60 +100,50 @@ export interface BickerTurn {
   line: string;
 }
 
-/** Per-cast ink for deliberation bubbles — brand tints, page-scoped. */
+/** Per-cast ink for deliberation flurry — brand tokens only, no bubble chrome. */
 export const COURT_CAST_ACCENTS: Record<
   CourtRoleId | "user",
-  { speaker: string; bubble: string; border: string }
+  { speaker: string; body: string }
 > = {
   clive: {
     speaker: "var(--color-apricot)",
-    bubble: "color-mix(in srgb, var(--color-apricot) 16%, transparent)",
-    border: "color-mix(in srgb, var(--color-apricot) 42%, transparent)",
+    body: "color-mix(in srgb, var(--color-apricot) 78%, var(--book-ink))",
   },
   pam: {
-    speaker: "color-mix(in srgb, var(--color-sage) 88%, var(--book-ink))",
-    bubble: "color-mix(in srgb, var(--color-sage) 18%, transparent)",
-    border: "color-mix(in srgb, var(--color-sage) 45%, transparent)",
+    speaker: "color-mix(in srgb, var(--color-sage) 92%, var(--book-ink))",
+    body: "color-mix(in srgb, var(--color-sage) 72%, var(--book-ink))",
   },
   doc: {
-    speaker: "color-mix(in srgb, var(--color-parchment) 55%, var(--book-ink))",
-    bubble: "color-mix(in srgb, var(--color-parchment) 22%, transparent)",
-    border: "color-mix(in srgb, var(--color-parchment) 48%, transparent)",
+    speaker: "color-mix(in srgb, var(--color-parchment) 65%, var(--book-ink))",
+    body: "color-mix(in srgb, var(--color-parchment) 48%, var(--book-ink))",
   },
   lazlo: {
     speaker: "var(--color-health-unhappy)",
-    bubble: "color-mix(in srgb, var(--color-health-unhappy) 14%, transparent)",
-    border: "color-mix(in srgb, var(--color-health-unhappy) 38%, transparent)",
+    body: "color-mix(in srgb, var(--color-health-unhappy) 75%, var(--book-ink))",
   },
   "clive-man": {
-    speaker: "color-mix(in srgb, var(--color-moss) 75%, var(--book-ink))",
-    bubble: "color-mix(in srgb, var(--color-moss) 12%, transparent)",
-    border: "color-mix(in srgb, var(--color-moss) 32%, transparent)",
+    speaker: "color-mix(in srgb, var(--color-moss) 82%, var(--book-ink))",
+    body: "color-mix(in srgb, var(--color-moss) 62%, var(--book-ink))",
   },
   kate: {
-    speaker: "color-mix(in srgb, var(--color-health-thriving) 80%, var(--book-ink))",
-    bubble: "color-mix(in srgb, var(--color-health-thriving) 14%, transparent)",
-    border: "color-mix(in srgb, var(--color-health-thriving) 36%, transparent)",
+    speaker: "var(--color-health-thriving)",
+    body: "color-mix(in srgb, var(--color-health-thriving) 72%, var(--book-ink))",
   },
   halvard: {
-    speaker: "color-mix(in srgb, var(--color-sage) 70%, var(--color-ink))",
-    bubble: "color-mix(in srgb, var(--color-sage) 12%, transparent)",
-    border: "color-mix(in srgb, var(--color-sage) 32%, transparent)",
+    speaker: "color-mix(in srgb, var(--color-sage) 85%, var(--book-ink))",
+    body: "color-mix(in srgb, var(--color-sage) 68%, var(--book-ink))",
   },
   milo: {
-    speaker: "color-mix(in srgb, var(--color-apricot) 75%, var(--color-health-okay))",
-    bubble: "color-mix(in srgb, var(--color-buttermilk) 20%, transparent)",
-    border: "color-mix(in srgb, var(--color-apricot) 32%, transparent)",
+    speaker: "color-mix(in srgb, var(--color-apricot) 80%, var(--color-health-okay))",
+    body: "color-mix(in srgb, var(--color-apricot) 58%, var(--book-ink))",
   },
   judge: {
-    speaker: "color-mix(in srgb, var(--book-ink) 62%, transparent)",
-    bubble: "color-mix(in srgb, var(--book-ink) 8%, transparent)",
-    border: "color-mix(in srgb, var(--book-ink) 22%, transparent)",
+    speaker: "color-mix(in srgb, var(--book-ink) 72%, transparent)",
+    body: "color-mix(in srgb, var(--book-ink) 88%, transparent)",
   },
   user: {
     speaker: "var(--book-ink)",
-    bubble: "color-mix(in srgb, var(--book-ink) 6%, transparent)",
-    border: "color-mix(in srgb, var(--book-ink) 24%, transparent)",
+    body: "color-mix(in srgb, var(--book-ink) 78%, transparent)",
   },
 };
 
@@ -211,7 +201,7 @@ export const COURT_BOOK_LAYOUT = {
    * on the punched oval openings in book-blank-with-holes.png; portraits
    * fill the holes exactly — the gilt frames live in the plate art. */
   seats: [
-    { x: 13.22, y: 15.72, width: 3.65, height: 8.3, slotY: 15.86 },
+    { x: 13.22, y: 15.72, width: 3.65, height: 8.3, slotY: 15.74 },
     { x: 13.22, y: 28.63, width: 3.65, height: 8.3, slotY: 28.75 },
     { x: 13.21, y: 41.53, width: 3.65, height: 8.3, slotY: 41.64 },
     { x: 13.22, y: 54.62, width: 3.65, height: 8.5, slotY: 54.75 },

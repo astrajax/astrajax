@@ -116,7 +116,9 @@ function BenchVerdictSlots({
           onSelectRole ? " platform-court__verdict-slot--clickable" : ""
         }`;
         const inner = verdict ? (
-          <span className="platform-court__verdict-text">{verdict.verdict}</span>
+          <div className="platform-court__verdict-decided">
+            <span className="platform-court__verdict-text">{verdict.verdict}</span>
+          </div>
         ) : (
           <div
             className={`platform-court__verdict-pending${
@@ -614,8 +616,7 @@ function CourtBook({ decision }: { decision: CourtDecision }) {
                       style={
                         {
                           "--bicker-speaker": accent.speaker,
-                          "--bicker-bubble": accent.bubble,
-                          "--bicker-border": accent.border,
+                          "--bicker-body": accent.body,
                         } as CSSProperties
                       }
                     >
