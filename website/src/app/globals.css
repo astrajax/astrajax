@@ -8615,3 +8615,20 @@ textarea.clive-chat__input {
   /* Reduced motion: the final static composition is shown immediately —
      the components force revealed=true and no gold pass is drawn. */
 }
+
+/* Support-role evidence marks (Ruth v1.1.0 evidence-edge seam): a small
+   Sage tag for corroborating, Terracotta for contradicting, rendered only
+   when an edge carries a non-direct role. Direct edges stay plain. */
+.study-stage--book .onboarding__ev-role {
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  font-size: 0.66rem;
+}
+
+.study-stage--book .onboarding__ev-role--corroborating {
+  color: color-mix(in srgb, var(--book-ink) 55%, var(--color-sage));
+}
+
+.study-stage--book .onboarding__ev-role--contradicting {
+  color: var(--color-apricot);
+}

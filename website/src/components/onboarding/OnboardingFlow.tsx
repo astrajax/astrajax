@@ -16,10 +16,12 @@
  */
 import { useCallback, useMemo, useState } from "react";
 import { getOnboardingFixtureV1 } from "@/lib/onboarding/fixture-v1";
-import type {
-  ConfirmationDecision,
-  Evidence,
-  ImportedEvidence,
+import {
+  evidenceEdgesFor,
+  type ConfirmationDecision,
+  type Evidence,
+  type ImportedEvidence,
+  type Inference,
 } from "@/lib/onboarding/contract-v1";
 import {
   acceptAsDraft,
@@ -306,7 +308,7 @@ export function OnboardingFlow() {
                   {inf.attributeType.replace(/_/g, " ")} · v{inf.version}
                 </p>
                 <p className="onboarding__infer-value">{inf.value.display}</p>
-                <EvidenceLinks evidenceIds={inf.evidenceIds} fixture={fixture} />
+                <EvidenceLinks inference={inf} fixture={fixture} />
                 <p className="onboarding__hint">{inf.uncertainty}</p>
                 <div className="onboarding__infer-actions" role="group" aria-label={`Confirm ${inf.attributeType}`}>
                   {(["confirm", "correct", "leave_open"] as ConfirmationDecision[]).map((choice) => (
@@ -467,16 +469,28 @@ function Conversation({
   );
 }
 
-function EvidenceLinks({ evidenceIds, fixture }: { evidenceIds: string[]; fixture: ReturnType<typeof getOnboardingFixtureV1> }) {
-  const items = fixture.evidence.filter((e) => evidenceIds.includes(e.evidenceId));
+function EvidenceLinks({ inference, fixture }: { inference: Inference; fixture: ReturnType<typeof getOnboardingFixtureV1> }) {
+  // ADAPTER: resolve support-role edges via evidenceEdgesFor — honours Ruth's
+  // v1.1.0 { evidenceId, supportRole } edge when present, else derives
+  // "direct" from v1.0.0 bare ids. Direct edges show no role label; richer
+  // roles render the mark (corroborating/contradicting) when v1.1.0 lands.
+  const edges = evidenceEdgesFor(inference);
+  const items = fixture.evidence.filter((e) => edges.some((edge) => edge.evidenceId === e.evidenceId));
   if (!items.length) return null;
   return (
     <div className="onboarding__ev-links">
-      {items.map((e) => (
-        <span key={e.evidenceId} className="onboarding__ev-link">
-          {isImported(e) ? e.locator.label : `asked: “${e.questionText.slice(0, 30)}…”`}
-        </span>
-      ))}
+      {edges.map((edge) => {
+        const e = items.find((x) => x.evidenceId === edge.evidenceId);
+        if (!e) return null;
+        return (
+          <span key={edge.evidenceId} className="onboarding__ev-link" data-support-role={edge.supportRole !== "direct" ? edge.supportRole : undefined}>
+            {isImported(e) ? e.locator.label : `asked: “${e.questionText.slice(0, 30)}…”`}
+            {edge.supportRole !== "direct" ? (
+              <span className={`onboarding__ev-role onboarding__ev-role--${edge.supportRole}`}> · {edge.supportRole}</span>
+            ) : null}
+          </span>
+        );
+      })}
     </div>
   );
 }

@@ -113,4 +113,30 @@ describe("V1.0.0 semantic validator — rules fire", () => {
     });
     expect(validateOnboardingFixture(f).findings.some((k) => k.code === "CAP_FILES")).toBe(true);
   });
+
+  it("v1.1.0 evidence-edge seam: validates edges when present, tolerates absence", () => {
+    // Absent edges are fine (v1.0.0).
+    expect(validateOnboardingFixture(base).valid).toBe(true);
+    // A valid v1.1.0 edge set passes.
+    const good = mutate((x) => {
+      x.inferences[0].evidenceEdges = [{ evidenceId: "ev_role_doc", supportRole: "direct" }];
+    });
+    expect(validateOnboardingFixture(good).valid).toBe(true);
+    // An invalid supportRole fires.
+    const badRole = mutate((x) => {
+      x.inferences[0].evidenceEdges = [{ evidenceId: "ev_role_doc", supportRole: "sideways" as never }];
+    });
+    expect(validateOnboardingFixture(badRole).findings.some((k) => k.code === "EDGE_ROLE")).toBe(true);
+    // An edge referencing missing evidence fires.
+    const badRef = mutate((x) => {
+      x.inferences[0].evidenceEdges = [{ evidenceId: "ev_missing", supportRole: "direct" }];
+    });
+    expect(validateOnboardingFixture(badRef).findings.some((k) => k.code === "REF_EDGE")).toBe(true);
+    // Misaligned edges (evidenceId not covered by an edge) fires.
+    const misaligned = mutate((x) => {
+      x.inferences[0].evidenceEdges = [{ evidenceId: "ev_role_doc", supportRole: "direct" }];
+      x.inferences[0].evidenceIds = ["ev_role_doc", "ev_competency_answer"];
+    });
+    expect(validateOnboardingFixture(misaligned).findings.some((k) => k.code === "EDGE_ALIGN")).toBe(true);
+  });
 });

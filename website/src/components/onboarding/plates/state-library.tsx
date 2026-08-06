@@ -35,6 +35,19 @@ export const CONNECTOR = {
   opacity: 0.5,
 } as const;
 
+/**
+ * Support-role connector grammar (Ruth v1.1.0): how an edge reads by role.
+ * Direct = fine Ink; Corroborating = a Sage tick beside the node;
+ * Contradicting = the Terracotta bracket (already defined below). The UI
+ * shows the role only when the edge carries one (v1.1.0) — bare v1.0.0
+ * edges read as plain fine-Ink with no role label.
+ */
+export const SUPPORT_ROLE_MARK: Record<string, { stroke: string; label: string }> = {
+  direct: { stroke: STATE.ink, label: "direct" },
+  corroborating: { stroke: STATE.sage, label: "corroborating" },
+  contradicting: { stroke: STATE.terracotta, label: "contradicting" },
+} as const;
+
 /** Thin gold attention stroke — the ONE restrained pass, then full settle. */
 export const ATTENTION = {
   stroke: STATE.gold,
@@ -76,6 +89,24 @@ export function ContradictionBracket({ x, y, w, h }: { x: number; y: number; w: 
       stroke={STATE.terracotta}
       strokeWidth="1.25"
       strokeLinecap="round"
+    />
+  );
+}
+
+/**
+ * Corroborating support-role tick — a small Sage tick beside an evidence
+ * node when the edge is corroborating (Ruth v1.1.0). Only rendered when the
+ * edge actually carries a corroborating role.
+ */
+export function CorroboratingTick({ x, y }: { x: number; y: number }) {
+  return (
+    <path
+      d={`M ${x - 4} ${y} L ${x - 1} ${y + 3.5} L ${x + 5} ${y - 3.5}`}
+      fill="none"
+      stroke={STATE.sage}
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     />
   );
 }

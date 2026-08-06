@@ -83,6 +83,21 @@ export function validateOnboardingFixture(fixture: OnboardingFixture): { valid: 
     if (inf.supersedesInferenceId && !inferenceIds.has(inf.supersedesInferenceId)) {
       findings.push(kill("REF_SUPERSEDES", inf.inferenceId, `supersedes missing inference ${inf.supersedesInferenceId}`));
     }
+    /* v1.1.0 evidence-edge seam: when evidenceEdges is present, each edge
+       must reference existing evidence and a valid supportRole, and its ids
+       must align with the bare evidenceIds set (the two stay consistent). */
+    if (inf.evidenceEdges) {
+      const ROLES = new Set(["direct", "corroborating", "contradicting"]);
+      const edgeIds = new Set<string>();
+      for (const edge of inf.evidenceEdges) {
+        if (!evidenceIds.has(edge.evidenceId)) findings.push(kill("REF_EDGE", inf.inferenceId, `edge references missing evidence ${edge.evidenceId}`));
+        if (!ROLES.has(edge.supportRole)) findings.push(kill("EDGE_ROLE", inf.inferenceId, `invalid supportRole ${edge.supportRole}`));
+        edgeIds.add(edge.evidenceId);
+      }
+      for (const eid of inf.evidenceIds) {
+        if (!edgeIds.has(eid)) findings.push(error("EDGE_ALIGN", inf.inferenceId, `evidenceId ${eid} missing from evidenceEdges`));
+      }
+    }
   }
   for (const c of fixture.confirmationEvents) {
     if (!inferenceIds.has(c.targetInferenceId)) findings.push(kill("REF_INFERENCE", c.confirmationEventId, `confirmation targets missing inference ${c.targetInferenceId}`));

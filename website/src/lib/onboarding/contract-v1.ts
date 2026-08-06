@@ -158,7 +158,41 @@ export type Inference = {
   confidence: number; // 0..1
   uncertainty: string;
   status: InferenceStatus;
+  /**
+   * FORWARD-COMPATIBLE SEAM for Ruth's v1.1.0 evidence-edge shape.
+   *
+   * Ruth's Build Challenger has signalled a BREAKING v1.1.0 carrying
+   * { evidenceId, supportRole } on the inference→evidence edge, so that
+   * Direct / Corroborating / Contradicting stays visible in confirmation.
+   * v1.0.0 still carries bare evidenceIds; this OPTIONAL field lets the UI
+   * honour the richer edge the moment v1.1.0 lands, without hard-wiring the
+   * integration now (per Ruth's contract alert). When present it takes
+   * precedence over evidenceIds for display; when absent the UI treats every
+   * edge as "direct" and shows no role label.
+   */
+  evidenceEdges?: EvidenceEdge[];
 };
+
+/** The support role of one inference→evidence edge (Ruth v1.1.0). */
+export type SupportRole = "direct" | "corroborating" | "contradicting";
+
+export type EvidenceEdge = {
+  evidenceId: string;
+  supportRole: SupportRole;
+};
+
+/**
+ * ADAPTER: resolve an inference's evidence edges. Honours Ruth's v1.1.0
+ * { evidenceId, supportRole } edge when present; otherwise derives a "direct"
+ * edge from the v1.0.0 bare evidenceIds. Presentation components call this —
+ * they never read evidenceEdges/evidenceIds directly — so the support-role
+ * visibility upgrade lands by data, not by component change, and the
+ * integration stays adapter-isolated per Ruth's contract alert.
+ */
+export function evidenceEdgesFor(inference: Inference): EvidenceEdge[] {
+  if (inference.evidenceEdges?.length) return inference.evidenceEdges;
+  return inference.evidenceIds.map((evidenceId) => ({ evidenceId, supportRole: "direct" as const }));
+}
 
 /* ── Confirmation Events (exact-version targets) ── */
 export type ConfirmationDecision = "confirm" | "correct" | "leave_open";
