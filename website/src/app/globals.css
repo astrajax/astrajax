@@ -8910,13 +8910,20 @@ textarea.clive-chat__input {
   }
 
   .study-stage--book .onboarding__route-card .onboarding__route-verb {
-    font-size: clamp(0.82rem, 3.6cqw, 0.98rem);
+    /* small-caps + letter-spacing is wide; size it down and tighten the
+       tracking so the verb stays inside the inner face at narrow width. */
+    font-size: clamp(0.78rem, 2.9cqw, 0.9rem);
+    letter-spacing: 0.05em;
     line-height: 1.12;
+    max-width: 100%;
+    overflow-wrap: break-word;
   }
 
   .study-stage--book .onboarding__route-card .onboarding__route-best {
-    font-size: clamp(0.64rem, 2.8cqw, 0.74rem);
+    font-size: clamp(0.62rem, 2.4cqw, 0.72rem);
     line-height: 1.25;
+    max-width: 100%;
+    overflow-wrap: break-word;
   }
 }
 
