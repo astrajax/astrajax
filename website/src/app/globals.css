@@ -7032,7 +7032,7 @@ textarea.clive-chat__input {
      transition-free — the state change rides the page-turn beat. */
   --folio-clive-top: clamp(5rem, 12vh, 8rem);
   --folio-clive-left: clamp(5%, 6.5vw, 8.5%);
-  --folio-clive-width: min(38vw, 34rem);
+  --folio-clive-width: min(43vw, 39rem); /* SC1 delta: +~14% teaching presence, teacher not cameo */
   --folio-gold: rgba(203, 160, 86, 0.92);
   --folio-gold-deep: rgba(154, 118, 52, 0.85);
   --folio-gold-light: rgba(232, 192, 122, 0.55);
@@ -7088,7 +7088,8 @@ textarea.clive-chat__input {
   );
   transform: translateX(-50%);
   top: clamp(4.75rem, 11vh, 6.25rem);
-  width: min(27vw, 21rem);
+  --book-clive-width: min(32vw, 25rem);
+  width: min(32vw, 25rem); /* SC1 delta: +~20% interaction presence, material anchor not thumbnail; right-panel anchors below it */
   max-width: calc(
     100% - var(--book-right-page-start) - var(--book-clive-right) - (var(--book-page-gutter) * 2)
   );
@@ -7098,12 +7099,12 @@ textarea.clive-chat__input {
   .study-stage--book {
     --folio-clive-top: clamp(6rem, 12vh, 8rem);
     --folio-clive-left: clamp(4%, 5vw, 6%);
-    --folio-clive-width: min(42vw, 14rem);
+    --folio-clive-width: min(46vw, 16rem);
   }
 
   .study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
     top: clamp(4.5rem, 11vh, 5.75rem);
-    width: min(32vw, 11rem);
+    width: min(38vw, 13rem);
   }
 }
 
@@ -8181,7 +8182,12 @@ textarea.clive-chat__input {
 .study-stage--book .onboarding__routes {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(0.75rem, 1.8vw, 1.1rem);
+  /* SC1 delta: a visible parchment gap between the two dockets, kept inside
+     the right-page safe zone with equal outer margins — never touching,
+     never overshooting the page edge. */
+  gap: clamp(1rem, 2.4vw, 1.6rem);
+  max-width: 92%;
+  margin: 0 auto;
 }
 
 .study-stage--book .onboarding__route-card {
@@ -8694,6 +8700,44 @@ textarea.clive-chat__input {
   text-shadow:
     0 1px 0 rgba(26, 16, 8, 0.55),
     0 -1px 0 rgba(255, 244, 220, 0.18);
+}
+
+/* SC1 delta: the rail identity + state labels sit INSIDE the master's two
+   engraved rail panels, optically centred vertically — never floating at the
+   frame corners. Left label in the left panel (slightly left-aligned within
+   it); state in the right panel (centred/right). AJ crest stays centred. */
+.study-stage--book .study-stage__header {
+  position: absolute;
+  z-index: 6;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  height: clamp(1.9rem, 4.9vh, 3rem);
+  padding: 0;
+  border-bottom: none;
+  background: none;
+  box-shadow: none;
+}
+
+.study-stage--book .study-stage__header-copy {
+  /* left engraved panel: optically centred within the left rail cartouche
+     (identity can sit slightly left within it) */
+  grid-column: 1;
+  justify-self: start;
+  padding-left: 22%;
+}
+
+.study-stage--book .study-stage__header-actions {
+  /* right engraved rail zone (~70-80%): the state label, optically centred */
+  grid-column: 2;
+  justify-self: end;
+  padding-right: 22%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .study-stage--book .study-stage__subtitle {
