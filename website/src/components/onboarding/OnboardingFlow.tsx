@@ -42,6 +42,7 @@ import {
   type RouteId,
 } from "@/lib/onboarding/machine";
 import { StudyMarkdown } from "@/components/chapter1/StudyMarkdown";
+import { FolioActionLedger } from "@/components/chapter1/FolioActionLedger";
 import { SourcePackPlate } from "@/components/onboarding/plates/SourcePackPlate";
 import { CorpusCensusPlate } from "@/components/onboarding/plates/CorpusCensusPlate";
 import { ProvisionalConstellationPlate } from "@/components/onboarding/plates/ProvisionalConstellationPlate";
@@ -112,8 +113,14 @@ export function OnboardingFlow() {
             material lives — switch any time before you confirm, and nothing you've said is lost.
           </p>
           <div className="onboarding__routes">
-            {(Object.keys(ROUTE_LABELS) as RouteId[]).map((route) => (
+            {(Object.keys(ROUTE_LABELS) as RouteId[]).map((route, i) => (
               <button key={route} type="button" className="onboarding__route-card" onClick={() => choose(route)}>
+                <img
+                  className="onboarding__route-frame"
+                  src={i === 0 ? "/brand/system-assets/folio/furniture/docket-frame-left.png" : "/brand/system-assets/folio/furniture/docket-frame-right.png"}
+                  alt=""
+                  aria-hidden
+                />
                 <span className="onboarding__route-verb">{ROUTE_LABELS[route].verb}</span>
                 <span className="onboarding__route-best">{ROUTE_LABELS[route].bestWhen}</span>
               </button>
@@ -301,9 +308,33 @@ export function OnboardingFlow() {
             })}
             reducedMotion={reducedMotion}
           />
+          <FolioActionLedger
+            title="Clive's Actions"
+            actions={[
+              {
+                id: "a1",
+                label: "Mapped your material and your words into evidence.",
+                status: "completed",
+                statusText: "Completed · just now",
+              },
+              {
+                id: "a2",
+                label: "Drafted provisional inferences for your confirmation.",
+                status: "completed",
+                statusText: "Completed · just now",
+              },
+              {
+                id: "a3",
+                label: "Awaiting your decision on each item.",
+                status: "in_progress",
+                statusText: "In progress · waiting on you",
+              },
+            ]}
+            footnote="I'll update you as each item settles."
+          />
           <div className="onboarding__inference">
             {proposedInferences.map((inf) => (
-              <div key={inf.inferenceId} className="onboarding__infer-card">
+              <div key={inf.inferenceId} className="onboarding__infer-card" data-correcting={state.confirmations[inf.inferenceId] === "correct" ? "true" : undefined}>
                 <p className="onboarding__field-label">
                   {inf.attributeType.replace(/_/g, " ")} · v{inf.version}
                 </p>

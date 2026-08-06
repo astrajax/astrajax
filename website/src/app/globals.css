@@ -8632,3 +8632,286 @@ textarea.clive-chat__input {
 .study-stage--book .onboarding__ev-role--contradicting {
   color: var(--color-apricot);
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   SC1 parity pass (6 Aug) — Kathryn's K8 master + furniture, integrated.
+
+   The blank Living Folio master (dark-walnut surround, carved corners,
+   integrated top rail with two blank live-text zones, cool Pale Cream
+   pages, antique edge, dark binding) is the underlay for the WHOLE folio.
+   The AJ crest is a separately positioned overlay (the master bakes none),
+   centred exactly above the binding at every breakpoint. The furniture
+   sheet supplies medallions, dockets, source marks, rules and brackets as
+   cropped transparent assets — labels/status LIVE in code, never baked.
+   Contract/machine/validators untouched (V1.1.0 preserved).
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* The master fills the stage; the book image already uses it via
+   STUDY_BOOK_SRC. Keep the cover fit so the 16:9 master never stretches. */
+.study-stage--book .study-stage__book-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ── AJ crest: centred above the binding, in the top rail ──────────────── */
+.folio-crest {
+  position: absolute;
+  /* centred horizontally on the binding (50%), high in the rail */
+  left: 50%;
+  top: clamp(0.4rem, 1.1vh, 0.85rem);
+  transform: translateX(-50%);
+  z-index: 6;
+  width: clamp(2.1rem, 3.4vw, 3rem);
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+.folio-crest__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 1px 3px rgba(26, 18, 12, 0.5));
+}
+
+/* ── Top-rail identity: engraved small-caps in the master's blank zones ──
+   The header already renders label + subtitle; restyle it to sit inside the
+   integrated rail (transparent, no browser chrome), the identity reading as
+   engraved folio text in the left zone and the state in the right. */
+.study-stage--book .study-stage__header {
+  border-bottom: none;
+  background: none;
+  box-shadow: none;
+  padding: clamp(0.5rem, 1.4vh, 0.9rem) clamp(1rem, 2.5vw, 1.5rem) 0;
+}
+
+.study-stage--book .study-stage__label {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.2em;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--color-parchment) 88%, transparent);
+  text-shadow:
+    0 1px 0 rgba(26, 16, 8, 0.55),
+    0 -1px 0 rgba(255, 244, 220, 0.18);
+}
+
+.study-stage--book .study-stage__subtitle {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.16em;
+  font-size: 0.66rem;
+  color: color-mix(in srgb, var(--color-parchment) 58%, transparent);
+  text-shadow: 0 1px 0 rgba(26, 16, 8, 0.45);
+}
+
+/* ── Route-choice dockets: restrained page-native plates, not gold boxes ── */
+.study-stage--book .onboarding__route-card {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  position: relative;
+  overflow: visible;
+}
+
+/* The docket frame image is the plate; the label sits live inside it. */
+.study-stage--book .onboarding__route-card .onboarding__route-frame {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+.study-stage--book .onboarding__route-card .onboarding__route-verb,
+.study-stage--book .onboarding__route-card .onboarding__route-best {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  width: 82%;
+}
+
+.study-stage--book .onboarding__route-verb {
+  top: 30%;
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  font-size: clamp(0.95rem, 1.7vw, 1.15rem);
+  font-weight: 600;
+  color: var(--book-ink);
+  text-shadow: 0 1px 0 rgba(255, 240, 198, 0.4);
+}
+
+.study-stage--book .onboarding__route-best {
+  top: 58%;
+  font-size: clamp(0.7rem, 1.2vw, 0.8rem);
+  font-style: italic;
+  color: var(--book-ink-muted);
+}
+
+/* ── Convergence: page-native ruled sections, not white SaaS cards ────────
+   The confirmation surface becomes account-book folio: ruled sections with
+   a marginal source trace, ornamental separators, and a Terracotta bracket
+   for the field being corrected. Controls stay live and accessible. */
+.study-stage--book .onboarding__infer-card {
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0.65rem 0 0.65rem 1.1rem;
+  margin-bottom: 0.35rem;
+  border-left: 1px solid color-mix(in srgb, var(--book-ink) 22%, transparent);
+  box-shadow: inset 1px 0 0 rgba(255, 248, 235, 0.4);
+  position: relative;
+}
+
+/* ornamental separator above each section after the first */
+.study-stage--book .onboarding__infer-card + .onboarding__infer-card {
+  border-top: none;
+}
+
+.study-stage--book .onboarding__infer-card + .onboarding__infer-card::before {
+  content: "";
+  position: absolute;
+  top: -0.45rem;
+  left: -1.1rem;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--book-ink) 18%, transparent) 12%,
+    color-mix(in srgb, var(--book-ink) 12%, transparent) 88%,
+    transparent 100%
+  );
+}
+
+/* the field under correction takes the Terracotta bracket (K7 grammar) */
+.study-stage--book .onboarding__infer-card[data-correcting="true"] {
+  border-left-color: color-mix(in srgb, var(--color-apricot) 65%, transparent);
+}
+
+/* inference value reads as the ledger line, not a card title */
+.study-stage--book .onboarding__infer-value {
+  font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: clamp(1rem, 1.7vw, 1.15rem);
+  font-weight: 600;
+  color: var(--book-ink);
+  text-shadow: var(--folio-ink-display-shadow);
+  margin: 0.1rem 0 0.35rem;
+}
+
+/* decision chips become page-native engraved marks (not rounded SaaS pills) */
+.study-stage--book .onboarding__choice-btn {
+  border-radius: 3px;
+  font-variant: small-caps;
+  letter-spacing: 0.1em;
+}
+
+/* ── Folio action ledger (SC1 grammar): medallions + ornamental rules + live
+   status, in the lower two-thirds of the right page. Account-book, not a
+   status dashboard. */
+.study-stage--book .folio-ledger {
+  margin-top: 0.75rem;
+}
+
+.study-stage--book .folio-ledger__title {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.16em;
+  font-size: 0.78rem;
+  color: var(--book-ink-muted);
+  text-shadow: var(--folio-ink-label-shadow);
+  text-align: center;
+  margin: 0 0 0.5rem;
+}
+
+.study-stage--book .folio-ledger__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.study-stage--book .folio-ledger__row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.55rem 0.25rem 0.65rem;
+}
+
+.study-stage--book .folio-ledger__medallion {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.study-stage--book .folio-ledger__medallion img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.study-stage--book .folio-ledger__body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.study-stage--book .folio-ledger__label {
+  font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: clamp(0.9375rem, 1.55vw, 1.0625rem);
+  line-height: 1.35;
+  color: var(--book-ink);
+  text-shadow: var(--folio-ink-body-shadow);
+}
+
+.study-stage--book .folio-ledger__status {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  margin-top: 0.1rem;
+}
+
+.study-stage--book .folio-ledger__status--completed {
+  color: color-mix(in srgb, var(--book-ink) 55%, var(--color-sage));
+}
+
+.study-stage--book .folio-ledger__status--in_progress {
+  color: color-mix(in srgb, var(--book-ink) 62%, transparent);
+}
+
+.study-stage--book .folio-ledger__status--queued {
+  color: color-mix(in srgb, var(--book-ink) 48%, transparent);
+}
+
+/* ornamental rule between rows */
+.study-stage--book .folio-ledger__rule {
+  position: absolute;
+  left: 0.25rem;
+  right: 0.25rem;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--folio-gold, rgba(203,160,86,0.92)) 30%, transparent) 20%,
+    color-mix(in srgb, var(--folio-gold, rgba(203,160,86,0.92)) 55%, transparent) 50%,
+    color-mix(in srgb, var(--folio-gold, rgba(203,160,86,0.92)) 30%, transparent) 80%,
+    transparent 100%
+  );
+}
+
+.study-stage--book .folio-ledger__footnote {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--book-ink-muted);
+  text-align: center;
+  margin: 0.6rem 0 0;
+}

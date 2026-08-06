@@ -18,8 +18,6 @@
 import { useEffect, useState } from "react";
 import {
   STATE,
-  ImportedSourceMark,
-  ConversationSourceMark,
   BlankWindow,
   CONNECTOR,
   ATTENTION,
@@ -191,16 +189,23 @@ export function SourcePackPlate({
         </text>
       </g>
 
-      {/* Item marks + live labels. */}
+      {/* Item marks (Kathryn's furniture: imported folio-leaf, self-reported
+          quotation-nib) + live labels. Equal weight, per the locked grammar. */}
       {all.map((item, i) => {
         const p = positions[i];
+        const markSrc = item.evidenceClass === "imported_document"
+          ? "/brand/system-assets/folio/furniture/mark-imported-leaf.png"
+          : "/brand/system-assets/folio/furniture/mark-selfreported-nib.png";
         return (
           <g key={`item-${item.id}`}>
-            {item.evidenceClass === "imported_document" ? (
-              <ImportedSourceMark x={p.x} y={p.y} size={20} />
-            ) : (
-              <ConversationSourceMark x={p.x} y={p.y} size={20} />
-            )}
+            <image
+              href={markSrc}
+              x={p.x - 14}
+              y={p.y - 14}
+              width={28}
+              height={28}
+              preserveAspectRatio="xMidYMid meet"
+            />
             <text
               x={p.x}
               y={p.y + 22}
