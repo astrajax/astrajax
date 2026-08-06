@@ -2155,12 +2155,13 @@ body {
 }
 
 /* The composer is ONE bounded row inside the page: the writing well takes the
-   flexible track and shrinks (minmax 0,1fr), the Send plate takes a fixed
-   track. Neither can cross the page's outer/gutter edge. */
+   flexible share and shrinks (flex:1 1 0 + min-width:0), the Send plate takes a
+   fixed share. Neither can cross the page's outer/gutter edge. Flex with an
+   explicit zero flex-basis (not a grid fr track) so the well is sized by the
+   row's free space and can never collapse to the textarea's min-content width. */
 .study-stage--book .clive-chat--study .clive-chat__form-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: end;
+  display: flex;
+  align-items: flex-end;
   gap: clamp(0.5rem, 1.2vw, 0.875rem);
   width: 100%;
   max-width: 100%;
@@ -2168,11 +2169,17 @@ body {
 }
 
 .study-stage--book .clive-chat--study .clive-chat__input {
-  min-width: 0; /* allow the textarea to shrink within its grid track */
+  flex: 1 1 0;
+  min-width: 0; /* shrink within the row; sized by free space, not content */
+  width: 100%;
   /* Growth is capped WITHIN the page's usable height (see max-height below);
      past the cap the text scrolls internally with native chrome hidden (PR
      #99 scrollbar rule) instead of expanding through the bottom safe zone. */
   overflow-y: auto;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__form-row button[type="submit"] {
+  flex: none; /* the Send plate keeps its size and stays inside the row */
 }
 
 .study-stage--book .clive-chat--study .clive-chat__messages {
