@@ -8813,61 +8813,62 @@ textarea.clive-chat__input {
   font-family: Georgia, "Times New Roman", Times, serif;
   font-variant: small-caps;
   letter-spacing: 0.14em;
-  font-size: clamp(0.6rem, 1vw, 0.78rem);
+  font-size: clamp(0.58rem, 0.95vw, 0.72rem);
   font-weight: 500;
   white-space: nowrap;
   max-width: 100%;
   overflow: hidden;
-  color: color-mix(in srgb, var(--color-parchment) 84%, transparent);
+  /* engraved Ink with a soft varnish glow — legible on walnut or parchment */
+  color: var(--book-ink);
   text-shadow:
-    0 1px 0 rgba(26, 16, 8, 0.6),
-    0 1px 6px rgba(0, 0, 0, 0.4);
+    0 1px 2px rgba(243, 237, 219, 0.5),
+    0 0 8px rgba(243, 237, 219, 0.28);
 }
 
-/* Living Folio header — quiet live text inside Matthew's finished rail.
-   The finished art bakes "AstraJax" (top-left, ~3–12%) and star ornaments
-   (~43/48.6/50.8/55.6/94%), leaving two wide empty walnut gaps. The dynamic
-   chapter/state stays LIVE (Route A: text is never baked) by sitting in
-   those gaps, vertically centred in the rail band (0–7% of plate height) —
-   identity at ~20% (left gap, after the wordmark), controls at ~72% (right
-   gap, before the far-right star). Engraved small-caps on walnut, no chrome. */
+/* Living Folio header — quiet live text in the walnut margin around the
+   finished book. The finished art bakes "AstraJax" (top-left of its rail)
+   and star ornaments, so the dynamic chapter/state stays LIVE (Route A) by
+   sitting in the plain walnut margin the book insets from the viewport
+   edges. Under object-fit:cover the book's left/right edges sit ~5vw in from
+   the viewport, so a thin plain-walnut strip runs along the top edge between
+   the corner ornaments. Identity is pinned top-left, controls top-right,
+   both in Ink with a soft varnish glow (the only text treatment that stays
+   legible whether it lands on dark walnut or parchment at the extreme). */
 .study-stage--book .study-stage__header {
   position: absolute;
   z-index: 6;
   top: 0;
   left: 0;
   right: 0;
-  height: 7%;
-  padding: 0;
+  height: auto;
+  padding: clamp(0.3rem, 1vh, 0.6rem) clamp(0.9rem, 2.2vw, 1.5rem) 0;
   border-bottom: none;
   background: none;
   box-shadow: none;
-  display: block;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
 }
 
-/* Identity (label + subtitle) — centred in the left rail gap (~20%). */
+/* Identity (label + subtitle) — top-left, engraved Ink small-caps. */
 .study-stage--book .study-stage__header-copy {
-  position: absolute;
-  left: 20%;
-  top: 50%;
-  transform: translateY(-50%);
+  position: static;
+  transform: none;
   width: auto;
-  max-width: 24%;
+  max-width: 44%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
 }
 
-/* Controls (Start again + any header actions) — centred in the right rail
-   gap (~72%). */
+/* Controls (Start again + any header actions) — top-right. */
 .study-stage--book .study-stage__header-actions {
-  position: absolute;
-  left: 72%;
-  top: 50%;
-  transform: translateY(-50%);
+  position: static;
+  transform: none;
   width: auto;
-  max-width: 20%;
+  max-width: 44%;
   display: flex;
   align-items: center;
   justify-content: flex-end;
@@ -8883,8 +8884,8 @@ textarea.clive-chat__input {
   white-space: nowrap;
   max-width: 100%;
   overflow: hidden;
-  color: color-mix(in srgb, var(--color-parchment) 58%, transparent);
-  text-shadow: 0 1px 0 rgba(26, 16, 8, 0.45);
+  color: color-mix(in srgb, var(--book-ink) 68%, transparent);
+  text-shadow: 0 1px 2px rgba(243, 237, 219, 0.4);
 }
 
 /* ── Route-choice dockets: restrained page-native plates, not gold boxes ── */
