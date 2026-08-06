@@ -8881,7 +8881,10 @@ textarea.clive-chat__input {
     align-items: center;
     justify-content: center;
     gap: 0.4em;
-    padding: 18% 12% 16%;
+    /* Inner text zone of the 553x287 frame, measured: carved crown top ~18%,
+       carved side lips ~16%, lower lip ~16%. Pad into that band so the
+       centred verb + copy sit inside the inner face, never under a lip. */
+    padding: 18% 16% 16%;
     text-align: center;
   }
 
