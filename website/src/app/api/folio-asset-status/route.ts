@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { head } from "@vercel/blob";
+import { get, head } from "@vercel/blob";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -25,16 +25,19 @@ export async function GET() {
     note: "",
   };
 
+  // Private read probe (matches the platform-activity lease seam pattern:
+  // head(pathname) with no options object).
   try {
-    await head(probePath, { access: "private" });
+    await head(probePath);
     result.blobSdkReachable = true;
     result.privateRead = true;
   } catch {
     result.privateRead = false;
   }
 
+  // Public read probe — a private-scoped credential rejects public access.
   try {
-    await head(probePath, { access: "public" });
+    await get(probePath, { access: "public", useCache: false });
     result.blobSdkReachable = true;
     result.publicRead = true;
   } catch {
