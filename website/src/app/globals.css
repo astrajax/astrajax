@@ -8852,14 +8852,27 @@ textarea.clive-chat__input {
    zone (top ~22% / bottom ~16% inset) with a real gap. The two texts are in
    normal flow inside that column, so they can never overlap or overflow at
    any wrap. */
-@media (max-width: 767px) {
-  /* Overflow-proof structure: the card keeps the frame's aspect ratio as its
-     own box, the frame image absolutely fills it behind, and the verb + copy
-     are ordinary flex-column children laid into the measured inner zone with
-     padding. In-flow flex children can never overlap, and the padding band
-     confines them inside the frame, so neither can overflow at any wrap.
-     Frame measured: 553x287 (aspect ~1.928); inner text zone ~22% top,
-     ~12% sides, ~14% bottom. */
+/* The folio stage is a fixed-width painted canvas scaled to fit, so a
+   viewport-width media query never fires at narrow device widths — the
+   breakpoints must key on the actual rendered width of the content area.
+   Make the onboarding surface a query container. */
+.study-stage--book .onboarding {
+  container-type: inline-size;
+  container-name: onboarding;
+}
+
+/* Narrow rendered width: stack the two route dockets so each keeps the full
+   frame intact instead of two fixed-aspect boxes overflowing side by side,
+   and switch the card to an overflow-proof flex overlay. Frame measured:
+   553x287 (aspect ~1.928); inner text zone ~18% top, ~12% sides, ~16% bottom.
+   In-flow flex children cannot overlap; the padding band confines them inside
+   the frame. */
+@container onboarding (max-width: 30rem) {
+  .study-stage--book .onboarding__routes {
+    grid-template-columns: 1fr;
+    max-width: 26rem;
+  }
+
   .study-stage--book .onboarding__route-card {
     position: relative;
     aspect-ratio: 553 / 287;
@@ -8868,10 +8881,6 @@ textarea.clive-chat__input {
     align-items: center;
     justify-content: center;
     gap: 0.4em;
-    /* Inner text zone of the 553x287 frame, measured: the carved crown
-       occupies the top ~18% and the lower lip the bottom ~16%. Pad the column
-       into that band so the centred text block sits between them, biased off
-       the lower lip. */
     padding: 18% 12% 16%;
     text-align: center;
   }
@@ -8898,12 +8907,12 @@ textarea.clive-chat__input {
   }
 
   .study-stage--book .onboarding__route-card .onboarding__route-verb {
-    font-size: clamp(0.82rem, 3.6vw, 0.98rem);
+    font-size: clamp(0.82rem, 3.6cqw, 0.98rem);
     line-height: 1.12;
   }
 
   .study-stage--book .onboarding__route-card .onboarding__route-best {
-    font-size: clamp(0.64rem, 2.8vw, 0.74rem);
+    font-size: clamp(0.64rem, 2.8cqw, 0.74rem);
     line-height: 1.25;
   }
 }
