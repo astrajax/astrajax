@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <filter id="painted" x="-18%" y="-22%" width="136%" height="144%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.010 0.016" numOctaves="3" seed="23" result="grain"/>
+      <feDisplacementMap in="SourceGraphic" in2="grain" scale="28" xChannelSelector="R" yChannelSelector="G" result="rough"/>
+      <feGaussianBlur in="rough" stdDeviation="13" result="soft"/>
+      <feComponentTransfer in="soft">
+        <feFuncA type="table" tableValues="0 0 0.08 0.3 0.7 0.95 1 1"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+  <rect x="72" y="50" width="1136" height="620" rx="90" ry="66" fill="white" filter="url(#painted)"/>
+  <rect x="112" y="84" width="1056" height="552" rx="64" ry="46" fill="white" opacity="0.96"/>
+</svg>
