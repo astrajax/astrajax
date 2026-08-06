@@ -2142,9 +2142,13 @@ body {
   background: transparent;
   padding: 0;
   box-shadow: none;
-  /* Safe zone: the chat surface (and so the composer) never exceeds the left
-     page's usable width — gutter at the binding, content-left at the outer
-     edge. The textarea must shrink inside this, never push Send out. */
+  /* Safe zone: the chat surface (and so the composer) fills the left page's
+     usable width — gutter at the binding, content-left at the outer edge — and
+     can never exceed it. A definite width (not a shrink-wrapped flex item) so
+     the composer's minmax(0,1fr) track resolves to real width, never collapses. */
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 100%;
   max-width: calc(
     var(--book-left-page-end) - var(--book-content-left) - var(--folio-safe-gutter)
   );
