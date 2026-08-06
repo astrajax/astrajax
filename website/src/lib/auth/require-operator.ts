@@ -1,6 +1,7 @@
-import { auth } from "./index";
+import { auth } from "@/lib/auth";
 import { GrantValidationError } from "@/lib/brains/guards";
 import { assertDocPromoteAuthorized } from "@/lib/brains/http";
+
 
 /**
  * Gate for browser-callable mutations that must not run anonymously once

@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
-import { auth } from "./index";
+import { auth } from "@/lib/auth";
+
 
 /**
  * Back-of-house gate (IA brief §1, Pam's repair §9): /dispatch, /deploy,
