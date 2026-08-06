@@ -21,9 +21,27 @@ import {
   type FolioStageState,
 } from "@/components/chapter1/FolioStageContext";
 import { FolioMessagePulse } from "@/components/chapter1/FolioMessagePulse";
+import { LIVING_FOLIO_MASTER } from "@/lib/folio-assets";
 
-const STUDY_BOOK_SRC =
+/**
+ * The Living Folio background master. Canonical source is the full-resolution
+ * master in the connected public Vercel Blob store (living-folio-empty-4k.png,
+ * 3840×2560, 3:2), served here via next/image's optimiser against the Blob URL
+ * (responsive AVIF/WebP at device size; the Blob master itself is never
+ * altered). The Git-resident SVG data-URI derivative is a documented stopgap
+ * fallback ONLY, used when the Blob base URL env (BLOB_STORE_ID) is absent.
+ */
+const STUDY_BOOK_FALLBACK_SRC =
   "/agent-cast/clive-wigglesworth/folio/living-folio-master-2048.svg";
+
+function studyBookSrc(): string {
+  const storeId = process.env.BLOB_STORE_ID;
+  if (!storeId) return STUDY_BOOK_FALLBACK_SRC;
+  const host = `${storeId.trim().toLowerCase()}.public.blob.vercel-storage.com`;
+  return `https://${host}/${LIVING_FOLIO_MASTER.blobPathname}`;
+}
+
+const STUDY_BOOK_SRC = studyBookSrc();
 
 type CliveStudyStageProps = {
   children: ReactNode;
