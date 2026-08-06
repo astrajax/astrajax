@@ -7,12 +7,19 @@
  * route any time before confirmation without losing progress.
  */
 
-import type {
-  ConfirmationChoice,
-  GapQuestion,
-  OnboardingEvidence,
-  SourcePackFile,
-} from "./evidence-contract";
+import type { ConfirmationDecision } from "./contract-v1";
+
+/** Shared confirmation decision (Ruth's Human Confirmation choices). */
+export type ConfirmationChoice = ConfirmationDecision;
+
+/** A file the user is staging into their Source Pack (UI-side staging state). */
+export type SourcePackFile = {
+  id: string;
+  name: string;
+  extension: string;
+  sizeMb: number;
+  state: "queued" | "staging" | "staged" | "failed";
+};
 
 export type RouteId = "bring-material" | "talk-through";
 
@@ -79,11 +86,11 @@ export type OnboardingState = {
   accepted: boolean;
 };
 
-export function initialOnboardingState(evidence: OnboardingEvidence): OnboardingState {
+export function initialOnboardingState(files: SourcePackFile[] = []): OnboardingState {
   return {
     step: "choice",
     route: null,
-    files: evidence.initialFiles,
+    files,
     gapAnswers: {},
     probeAnswers: {},
     probeIndex: 0,
@@ -186,27 +193,23 @@ export function setCorrection(state: OnboardingState, fieldKey: string, text: st
 }
 
 /**
- * Every provisional field must have a decision (Confirm / Correct / Leave
- * open) before the single "Accept as draft" action is enabled — Ruth's
- * Human Confirmation is explicit per item, never blanket.
+ * Every provisional inference must have a decision (Confirm / Correct /
+ * Leave open) before the single "Accept as draft" action is enabled — Ruth's
+ * Human Confirmation is explicit per item and exact-version, never blanket.
+ * The caller passes the proposed inference ids from the V1.0.0 fixture.
  */
-export function canAcceptDraft(state: OnboardingState, evidence: OnboardingEvidence): boolean {
+export function canAcceptDraft(state: OnboardingState, inferenceIds: string[]): boolean {
   if (state.accepted) return false;
-  return evidence.provisional.fields.every((f) => {
-    const c = state.confirmations[f.key];
+  if (inferenceIds.length === 0) return false;
+  return inferenceIds.every((id) => {
+    const c = state.confirmations[id];
     if (!c) return false;
     // "correct" requires correction text so the correction is captured.
-    if (c === "correct") return Boolean(state.corrections[f.key]?.trim());
+    if (c === "correct") return Boolean(state.corrections[id]?.trim());
     return true;
   });
 }
 
-export function acceptAsDraft(state: OnboardingState, evidence: OnboardingEvidence): OnboardingState {
-  if (!canAcceptDraft(state, evidence)) return state;
+export function acceptAsDraft(state: OnboardingState): OnboardingState {
   return { ...state, accepted: true, step: "receipt" };
-}
-
-/** The questions for the current route's conversation (Route A gap / Route B probe). */
-export function activeQuestions(state: OnboardingState, evidence: OnboardingEvidence): GapQuestion[] {
-  return state.route === "bring-material" ? evidence.gapQuestions : evidence.probeQuestions;
 }
