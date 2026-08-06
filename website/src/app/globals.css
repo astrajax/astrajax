@@ -8869,14 +8869,17 @@ textarea.clive-chat__input {
    the frame. */
 @container onboarding (max-width: 30rem) {
   .study-stage--book .onboarding__routes {
-    grid-template-columns: 1fr;
-    /* fill the right-page column, no wider — a fixed rem max-width overflowed
-       the column at narrow width and clipped the dockets at the page edge */
+    /* minmax(0,1fr): let the track shrink below the frame image's intrinsic
+       553px min-content width — a plain 1fr resolves to minmax(auto,1fr) and
+       overflows the column to the right at narrow width. */
+    grid-template-columns: minmax(0, 1fr);
     max-width: 100%;
     margin: 0;
   }
 
   .study-stage--book .onboarding__route-card {
+    /* allow the card to shrink to the track width */
+    min-width: 0;
     position: relative;
     aspect-ratio: 553 / 287;
     display: flex;
