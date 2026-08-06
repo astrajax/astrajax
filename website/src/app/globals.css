@@ -8868,7 +8868,11 @@ textarea.clive-chat__input {
     align-items: center;
     justify-content: center;
     gap: 0.4em;
-    padding: 0 12%;            /* side inset of the inner zone */
+    /* Inner text zone of the 553x287 frame, measured: the carved crown
+       occupies the top ~18% and the lower lip the bottom ~16%. Pad the column
+       into that band so the centred text block sits between them, biased off
+       the lower lip. */
+    padding: 18% 12% 16%;
     text-align: center;
   }
 
