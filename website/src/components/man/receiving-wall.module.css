@@ -58,9 +58,15 @@
 
 .wall.zoomed {
   --dolly: var(--dolly-in);
-  --dolly-y: var(--dolly-in-y);
+  --dolly-y: 0px;
   --scroll-y: -50%;
-  --scroll-delay: 380ms;
+  --scroll-delay: 0ms;
+}
+
+/* Entry/exit: snap plate position; only the dolly scale animates. */
+.wall.zoomed .interiorTrack,
+.wall.settling .interiorTrack {
+  transition: none;
 }
 
 /* After entry completes, lock the track — reading scroll is bayTravel only. */
@@ -76,11 +82,6 @@
 }
 
 .wall.settling .plate {
-  transition-duration: 900ms;
-  transition-timing-function: var(--scroll-ease-out);
-}
-
-.wall.settling .interiorTrack {
   transition-duration: 900ms;
   transition-timing-function: var(--scroll-ease-out);
 }
