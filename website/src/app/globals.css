@@ -8693,9 +8693,10 @@ textarea.clive-chat__input {
 .study-stage--book .study-stage__label {
   font-family: Georgia, "Times New Roman", Times, serif;
   font-variant: small-caps;
-  letter-spacing: 0.2em;
-  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  font-size: clamp(0.6rem, 1.1vw, 0.72rem);
   font-weight: 500;
+  white-space: nowrap;
   color: color-mix(in srgb, var(--color-parchment) 88%, transparent);
   text-shadow:
     0 1px 0 rgba(26, 16, 8, 0.55),
@@ -8712,9 +8713,8 @@ textarea.clive-chat__input {
   top: 0;
   left: 0;
   right: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
+  /* SC1 delta: labels locked INSIDE the master's two engraved rail cartouches
+     (left 5.5–19.6%, right 21.8–35.2%), optically centred vertically. */
   height: clamp(1.9rem, 4.9vh, 3rem);
   padding: 0;
   border-bottom: none;
@@ -8723,18 +8723,22 @@ textarea.clive-chat__input {
 }
 
 .study-stage--book .study-stage__header-copy {
-  /* left engraved panel: optically centred within the left rail cartouche
-     (identity can sit slightly left within it) */
-  grid-column: 1;
-  justify-self: start;
-  padding-left: 22%;
+  /* centred inside the left cartouche (centre ~12.5%) */
+  position: absolute;
+  left: 12.5%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .study-stage--book .study-stage__header-actions {
-  /* right engraved rail zone (~70-80%): the state label, optically centred */
-  grid-column: 2;
-  justify-self: end;
-  padding-right: 22%;
+  /* centred inside the right cartouche (centre ~28.5%) */
+  position: absolute;
+  left: 28.5%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -8958,4 +8962,22 @@ textarea.clive-chat__input {
   color: var(--book-ink-muted);
   text-align: center;
   margin: 0.6rem 0 0;
+}
+
+/* SC1 delta mobile: at narrow widths the rail labels must not escape their
+   cartouches — shrink to fit and keep them inside their panels. */
+@media (max-width: 767px) {
+  .study-stage--book .study-stage__label {
+    font-size: clamp(0.5rem, 2.4vw, 0.62rem);
+    letter-spacing: 0.1em;
+  }
+
+  .study-stage--book .study-stage__header-actions {
+    gap: 0.3rem;
+  }
+
+  .study-stage--book .study-stage__header-actions button {
+    font-size: 0.6rem;
+    padding: 0.24rem 0.45rem;
+  }
 }
