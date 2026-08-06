@@ -9,9 +9,12 @@
     stays fully solid; the perimeter dissolves into the page as absorbed
     ink — never a fog oval, never a rectangle.
 
-    Construction mirrors the teaching mask: hand-authored closed path,
-    dual-frequency turbulence displacement, steep table ramp, coarse fibre
-    bite concentrated at the outer edge, and a guaranteed solid core.
+    Rim correction (Kathryn dispatch, 6 Aug 2026) mirrors the teaching mask:
+    faster alpha decay through the darkest room pixels (shorter blur, ramp
+    reaches zero sooner), a low-frequency patch field gating the tooth so
+    paper intrudes in irregular islands rather than a continuous dark
+    necklace, and a weakened bite so the outer fringe is low-alpha broken
+    dry-brush, not a solid band. Guaranteed solid core retained.
   -->
   <defs>
     <filter id="ink" x="-14%" y="-18%" width="128%" height="136%" color-interpolation-filters="sRGB">
@@ -19,15 +22,26 @@
       <feTurbulence type="fractalNoise" baseFrequency="0.056 0.072" numOctaves="3" seed="53" result="fray"/>
       <feDisplacementMap in="SourceGraphic" in2="swell" scale="40" xChannelSelector="R" yChannelSelector="G" result="rough1"/>
       <feDisplacementMap in="rough1" in2="fray" scale="15" xChannelSelector="R" yChannelSelector="G" result="rough"/>
-      <feGaussianBlur in="rough" stdDeviation="8" result="soft"/>
+
+      <!-- Faster decay: shorter blur, ramp to zero sooner. -->
+      <feGaussianBlur in="rough" stdDeviation="5" result="soft"/>
       <feComponentTransfer in="soft" result="ramped">
-        <feFuncA type="table" tableValues="0 0 0.04 0.16 0.5 0.84 0.97 1 1"/>
+        <feFuncA type="table" tableValues="0 0 0 0.02 0.1 0.3 0.58 0.85 0.97 1 1"/>
       </feComponentTransfer>
+
+      <!-- Patch field: breaks the bite into irregular islands. -->
+      <feTurbulence type="fractalNoise" baseFrequency="0.032 0.042" numOctaves="2" seed="11" result="patch"/>
+      <feComponentTransfer in="patch" result="patchGate">
+        <feFuncA type="table" tableValues="0 0 0.1 0.5 0.85 1 1"/>
+      </feComponentTransfer>
+
       <feTurbulence type="fractalNoise" baseFrequency="0.15 0.18" numOctaves="2" seed="91" result="tooth"/>
       <feComponentTransfer in="tooth" result="toothSharp">
-        <feFuncA type="table" tableValues="0 0 0 0.2 0.75 1 1"/>
+        <feFuncA type="table" tableValues="0 0 0 0.25 0.7 1 1"/>
       </feComponentTransfer>
-      <feComposite in="ramped" in2="toothSharp" operator="arithmetic" k1="0" k2="1" k3="-0.42" k4="0"/>
+      <feComposite in="toothSharp" in2="patchGate" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="islandTooth"/>
+
+      <feComposite in="ramped" in2="islandTooth" operator="arithmetic" k1="0" k2="1" k3="-0.3" k4="0"/>
     </filter>
   </defs>
 

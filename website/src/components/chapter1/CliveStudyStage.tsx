@@ -15,7 +15,11 @@ import {
   type CliveVideoStageHandle,
 } from "@/components/chapter1/CliveVideoStage";
 import { StudyStageRightPanelProvider } from "@/components/chapter1/StudyStageRightPanel";
-import { FolioStageProvider, useFolioStage } from "@/components/chapter1/FolioStageContext";
+import {
+  FolioStageProvider,
+  useFolioStage,
+  type FolioStageState,
+} from "@/components/chapter1/FolioStageContext";
 import { FolioMessagePulse } from "@/components/chapter1/FolioMessagePulse";
 import { FolioCrest } from "@/components/chapter1/FolioCrest";
 
@@ -36,11 +40,21 @@ type CliveStudyStageProps = {
    * loop state; the consumer supplies the drawer with its own data.
    */
   paperTrail?: (open: boolean, onClose: () => void) => ReactNode;
+  /**
+   * Controlled folio composition. When the caller supplies this, the visible
+   * data-folio-state resolves directly from the prop — the composition is
+   * driven by the caller's step machine, not by any descendant effect. When
+   * omitted, the stage falls back to the FolioStageContext value so existing
+   * chapter-1 callers keep their context-driven behaviour. The provider is
+   * always mounted (it also owns the message pulse); this prop only
+   * overrides the READ of the visible composition, never the provider.
+   */
+  stageState?: FolioStageState;
 };
 
 const CliveStudyStageInner = forwardRef<CliveVideoStageHandle, CliveStudyStageProps>(
   function CliveStudyStage(
-    { children, onReset, label, subtitle, backHref, backLabel, headerActions, paperTrail },
+    { children, onReset, label, subtitle, backHref, backLabel, headerActions, paperTrail, stageState },
     ref,
   ) {
     const mainRef = useRef<HTMLElement>(null);
@@ -48,7 +62,9 @@ const CliveStudyStageInner = forwardRef<CliveVideoStageHandle, CliveStudyStagePr
     const [rightPanelEl, setRightPanelEl] = useState<HTMLElement | null>(null);
     const [trailOpen, setTrailOpen] = useState(false);
     const folio = useFolioStage();
-    const folioState = folio?.stageState ?? "teaching";
+    // The controlled prop wins when supplied; otherwise the context value
+    // (which defaults to teaching) drives the visible composition.
+    const folioState = stageState ?? folio?.stageState ?? "teaching";
 
     useEffect(() => {
       mainRef.current?.focus();

@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Chapter1Conversation } from "@/components/chapter1/Chapter1Conversation";
 import type { HubBookId } from "@/components/chapter1/CliveStudyHub";
 import { CliveStudyShell } from "@/components/chapter1/CliveStudyShell";
-import { useFolioStage } from "@/components/chapter1/FolioStageContext";
 import { CliveWelcomeSequence } from "@/components/chapter1/CliveWelcomeSequence";
 import { PaperTrailDrawer } from "@/components/chapter1/PaperTrailDrawer";
 import { PlatformSessionControls } from "@/components/platform-session/PlatformSessionControls";
@@ -107,15 +106,6 @@ function isInteractionStep(step: LoopStep, showWelcomeSequence: boolean): boolea
   // resolves top-right. The visual state follows the interaction state.
   if (showWelcomeSequence) return false;
   return step !== "welcome";
-}
-
-/** Bridges the shell's step machine into the folio stage (inside CliveStudyShell's provider). */
-function FolioEngagementBridge({ engaged }: { engaged: boolean }) {
-  const setEngaged = useFolioStage()?.setEngaged;
-  useEffect(() => {
-    setEngaged?.(engaged);
-  }, [setEngaged, engaged]);
-  return null;
 }
 
 export function AieDemoShell() {
@@ -260,6 +250,7 @@ export function AieDemoShell() {
         ref={cliveVideoRef}
         onReset={() => void reset()}
         headerActions={<PlatformSessionControls compact />}
+        stageState={folioEngaged ? "interaction" : "teaching"}
         paperTrail={
           showWelcomeSequence
             ? undefined
@@ -273,7 +264,6 @@ export function AieDemoShell() {
               )
         }
       >
-        <FolioEngagementBridge engaged={folioEngaged} />
         {showWelcomeSequence ? (
           <CliveWelcomeSequence
             sessionId={state.sessionId}

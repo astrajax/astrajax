@@ -7,13 +7,23 @@
     dry-brush perimeter — flat-ish top and bottom, fuller and more broken
     along the left/right edges, asymmetric. The centre (face, torso, paws
     and book) stays fully solid; the perimeter dissolves into the Pale Cream
-    page as ink absorbed into paper, never a fog oval and never a rectangle.
+    page as ink absorbed into paper.
 
-    Construction: a hand-authored closed path (not an ellipse) is roughened
-    by dual-frequency turbulence displacement; the falloff is a steep table
-    ramp (solid -> gone fast) with coarse fibre loss concentrated at the
-    outer edge. A second, smaller solid core guarantees the safe area is
-    100% opaque regardless of edge noise.
+    Rim correction (Kathryn dispatch, 6 Aug 2026): the prior version left a
+    dense dark stippled necklace — a continuous charcoal band where the
+    steep ramp met a uniform sharpened tooth. Fixed three ways, all in the
+    filter (the hand-authored path is unchanged):
+      1. Alpha decays FASTER through the darkest room pixels so no
+         continuous ring survives — the ramp now collapses to zero sooner
+         and the blur is shorter, so the falloff is pigment THINNING, not
+         pigment gathering at the edge.
+      2. The tooth bite is no longer uniform: a low-frequency directional
+         field modulates the tooth so it bites in irregular ISLANDS, not a
+         fence around the whole perimeter. Paper intrudes inward in broken
+         patches.
+      3. Fewer fully-opaque outer teeth — the outermost fringe is held at
+         low alpha so it reads as broken dry-brush, never a solid band.
+    A guaranteed solid core keeps the safe area 100% opaque.
   -->
   <defs>
     <filter id="ink" x="-14%" y="-14%" width="128%" height="128%" color-interpolation-filters="sRGB">
@@ -22,19 +32,32 @@
       <feTurbulence type="fractalNoise" baseFrequency="0.052 0.068" numOctaves="3" seed="41" result="fray"/>
       <feDisplacementMap in="SourceGraphic" in2="swell" scale="42" xChannelSelector="R" yChannelSelector="G" result="rough1"/>
       <feDisplacementMap in="rough1" in2="fray" scale="16" xChannelSelector="R" yChannelSelector="G" result="rough"/>
-      <!-- Steep absorbed-ink ramp: solid core dies fast into the page. -->
-      <feGaussianBlur in="rough" stdDeviation="9" result="soft"/>
+
+      <!-- Faster absorbed-ink decay: shorter soft blur, then a ramp that
+           reaches zero sooner so the outer fringe is thin low-alpha wash,
+           not a gathered dark edge. -->
+      <feGaussianBlur in="rough" stdDeviation="6" result="soft"/>
       <feComponentTransfer in="soft" result="ramped">
-        <feFuncA type="table" tableValues="0 0 0.04 0.16 0.5 0.84 0.97 1 1"/>
+        <feFuncA type="table" tableValues="0 0 0 0.02 0.1 0.3 0.58 0.85 0.97 1 1"/>
       </feComponentTransfer>
-      <!-- Coarse fibre bite, concentrated at the outer edge: subtract a
-           sharpened paper-tooth noise so the perimeter is granular loss,
-           not a smooth wash. -->
+
+      <!-- Irregular island bite: a LOW-frequency field breaks the bite into
+           patches so paper intrudes inward in islands, not a fenced ring. -->
+      <feTurbulence type="fractalNoise" baseFrequency="0.03 0.038" numOctaves="2" seed="7" result="patch"/>
+      <feComponentTransfer in="patch" result="patchGate">
+        <feFuncA type="table" tableValues="0 0 0.1 0.5 0.85 1 1"/>
+      </feComponentTransfer>
+
+      <!-- Fine paper tooth, gated by the patch field and weakened (k3 -0.3)
+           so it removes pigment in broken specks rather than a uniform band. -->
       <feTurbulence type="fractalNoise" baseFrequency="0.14 0.17" numOctaves="2" seed="77" result="tooth"/>
       <feComponentTransfer in="tooth" result="toothSharp">
-        <feFuncA type="table" tableValues="0 0 0 0.2 0.75 1 1"/>
+        <feFuncA type="table" tableValues="0 0 0 0.25 0.7 1 1"/>
       </feComponentTransfer>
-      <feComposite in="ramped" in2="toothSharp" operator="arithmetic" k1="0" k2="1" k3="-0.42" k4="0"/>
+      <feComposite in="toothSharp" in2="patchGate" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="islandTooth"/>
+
+      <!-- Subtract the island bite from the ramp: granular loss in patches. -->
+      <feComposite in="ramped" in2="islandTooth" operator="arithmetic" k1="0" k2="1" k3="-0.3" k4="0"/>
     </filter>
   </defs>
 
