@@ -117,7 +117,7 @@ export function OnboardingFlow() {
               <button key={route} type="button" className="onboarding__route-card" onClick={() => choose(route)}>
                 <img
                   className="onboarding__route-frame"
-                  src={i === 0 ? "/brand/system-assets/folio/furniture/docket-frame-left.png" : "/brand/system-assets/folio/furniture/docket-frame-right.png"}
+                  src={i === 0 ? "/brand/system-assets/folio/furniture/docket-frame-left.svg" : "/brand/system-assets/folio/furniture/docket-frame-right.svg"}
                   alt=""
                   aria-hidden
                 />

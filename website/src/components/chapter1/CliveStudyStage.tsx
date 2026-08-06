@@ -19,7 +19,7 @@ import { FolioStageProvider, useFolioStage } from "@/components/chapter1/FolioSt
 import { FolioMessagePulse } from "@/components/chapter1/FolioMessagePulse";
 import { FolioCrest } from "@/components/chapter1/FolioCrest";
 
-const STUDY_BOOK_SRC = "/agent-cast/clive-wigglesworth/folio/living-folio-master-2048.png";
+const STUDY_BOOK_SRC = "/agent-cast/clive-wigglesworth/folio/living-folio-master-2048.svg";
 
 type CliveStudyStageProps = {
   children: ReactNode;

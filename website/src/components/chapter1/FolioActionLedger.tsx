@@ -18,9 +18,9 @@ export type LedgerAction = {
 };
 
 const MEDALLION: Record<LedgerAction["status"], { src: string; alt: string }> = {
-  completed: { src: "/brand/system-assets/folio/furniture/medallion-completed-sage.png", alt: "Completed" },
-  in_progress: { src: "/brand/system-assets/folio/furniture/medallion-inprogress-brass.png", alt: "In progress" },
-  queued: { src: "/brand/system-assets/folio/furniture/medallion-queued-graphite.png", alt: "Queued" },
+  completed: { src: "/brand/system-assets/folio/furniture/medallion-completed-sage.svg", alt: "Completed" },
+  in_progress: { src: "/brand/system-assets/folio/furniture/medallion-inprogress-brass.svg", alt: "In progress" },
+  queued: { src: "/brand/system-assets/folio/furniture/medallion-queued-graphite.svg", alt: "Queued" },
 };
 
 export function FolioActionLedger({

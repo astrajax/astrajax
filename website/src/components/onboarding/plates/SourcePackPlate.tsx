@@ -194,8 +194,8 @@ export function SourcePackPlate({
       {all.map((item, i) => {
         const p = positions[i];
         const markSrc = item.evidenceClass === "imported_document"
-          ? "/brand/system-assets/folio/furniture/mark-imported-leaf.png"
-          : "/brand/system-assets/folio/furniture/mark-selfreported-nib.png";
+          ? "/brand/system-assets/folio/furniture/mark-imported-leaf.svg"
+          : "/brand/system-assets/folio/furniture/mark-selfreported-nib.svg";
         return (
           <g key={`item-${item.id}`}>
             <image
