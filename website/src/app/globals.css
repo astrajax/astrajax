@@ -2220,13 +2220,19 @@ body {
 /* Stable bottom control row: the Architect label sits quietly at the left and
    the Send plate anchors bottom-right. It stays pinned while long text
    scrolls; the well carries bottom clearance so text never disappears under
-   it. */
+   it.
+   Spacing is scaled to the painted page (cqh), not a web-form floor — on the
+   1080px-tall plate a rem floor collapsed to ~10px and read as the plate
+   crowding the well. The cqh clamp keeps a consistent parchment margin. */
 .study-stage--book .clive-chat--study .clive-chat__control-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1cqw;
-  margin-top: clamp(0.4rem, 1vh, 0.6rem);
+  /* Clear parchment margin below the writing well (was ~10px floor). */
+  margin-top: clamp(0.75rem, 1.7cqh, 1.4rem);
+  /* Lift the Send plate off the extreme corner of the content block. */
+  padding-right: clamp(0.15rem, 0.5cqw, 0.4rem);
 }
 
 .study-stage--book .clive-chat--study .clive-chat__control-row .clive-chat__architect-label {
@@ -2424,9 +2430,18 @@ body {
   color: var(--book-ink-muted);
 }
 
+/* Separation between the Send/Architect control row and the Back/Continue
+   nav, scaled to the painted page (cqh) — the prior 0.8vh floor (~9px) read
+   as the nav crowding the control row on the 1080px-tall plate. */
 .study-stage--book .chapter1-conversation__actions {
-  margin-top: clamp(0.25rem, 0.8vh, 0.5rem);
+  margin-top: clamp(0.9rem, 2.5cqh, 2rem);
   padding-top: 0.125rem;
+}
+
+/* Breathing room between Back and Continue so the two plates don't read as
+   one cluster; scaled with the page. */
+.study-stage--book .chapter1-conversation__nav {
+  gap: clamp(0.625rem, 1.1cqw, 1rem);
 }
 
 /* Caption row — in flow (not absolute) so monologue never overlaps */
@@ -8879,26 +8894,6 @@ textarea.clive-chat__input {
   background-color: transparent;
   padding-left: 1.4rem;
   padding-right: 1.4rem;
-}
-
-/* composer Send as a plate button */
-.onboarding__send--plate {
-  background-image: url("/brand/system-assets/folio/furniture/docket-frame-slim.svg");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
-  border: none;
-  background-color: transparent;
-  box-shadow: none;
-}
-
-/* receipt accepted-draft seal medallion, beside the handback heading */
-.onboarding__receipt-seal {
-  display: inline-block;
-  width: clamp(2rem, 3.4cqw, 2.9rem);
-  height: auto;
-  margin-right: 0.5em;
-  vertical-align: -0.35em;
 }
 
 /* Living Folio header — quiet live text inside the art canvas's own top
