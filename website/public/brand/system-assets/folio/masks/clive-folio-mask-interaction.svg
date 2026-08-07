@@ -1,82 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
-  <!-- Living Folio — Clive interaction mask (16:9). v7.
-       Kathryn/Matthew 6 Aug 2026: v6's broad absorption fields still read as a
-       chain of soft satellite BLOBS (near-elliptical medallions at left, right,
-       top and bottom, plus four literal circle islands) — a decorative border,
-       not an absorbed wash. v7 removes the bubble constellation: the circle
-       islands are deleted and the ellipse fields are replaced by a small number
-       of broad, low-alpha, noise-roughened washes that reach INTO the core's
-       silhouette, so the pigment reads as one continuous absorption off the
-       central image rather than separate medallions. Perimeter still dissolves
-       to zero before the bounds; untraceable, no aperture ring. -->
-  <defs>
-    <filter id="broad" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter>
-    <filter id="rough" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.03 0.042" numOctaves="2" seed="22" result="t"/>
-      <feDisplacementMap in="SourceGraphic" in2="t" scale="34" xChannelSelector="R" yChannelSelector="G"/>
-      <feGaussianBlur stdDeviation="3.5"/>
-    </filter>
-    <!-- A coarse, high-energy displacement so the washes break into organic,
-         fragmentary edges and never present a clean ellipse or medallion. -->
-    <filter id="wash" x="-40%" y="-40%" width="180%" height="180%" color-interpolation-filters="sRGB">
-      <feTurbulence type="fractalNoise" baseFrequency="0.02 0.03" numOctaves="3" seed="7" result="w"/>
-      <feDisplacementMap in="SourceGraphic" in2="w" scale="170" xChannelSelector="R" yChannelSelector="G"/>
-      <feGaussianBlur stdDeviation="12"/>
-    </filter>
-  </defs>
-
-  <!-- SOLID CORE: compact around Clive (face, torso, paws, book). Unchanged. -->
-  <path fill="white" filter="url(#rough)" d="
-    M 448 150
-    C 562 122, 722 122, 834 152
-    C 925 177, 975 252, 971 352
-    C 967 448, 905 513, 805 538
-    C 688 566, 548 556, 455 510
-    C 372 470, 344 402, 356 327
-    C 368 249, 392 165, 448 150
-    Z"/>
-
-  <!-- ABSORBED WASH — three broad low-alpha fields that reach into the core's
-       silhouette so they read as pigment bleeding off the central image, not
-       separate medallions. Displaced by the coarse 'wash' filter; each edge is
-       organic and none close into a clean contour. -->
-
-  <!-- LEFT: lamp + shelf absorption, sweeping in toward the core's left edge. -->
-  <path fill="white" opacity="0.34" filter="url(#wash)" d="
+  <!-- Living Folio — Clive interaction mask (16:9). v8.
+       Matthew 7 Aug 2026: keep the mask's overall silhouette, but remove the
+       FADING inside it. v7's solid-core-plus-low-alpha-wash structure read as
+       a bright medallion dissolving into fog. v8 is ONE solid shape at full
+       opacity — no blur, no turbulence, no graduated washes — so the portrait
+       reads as a single clean organic silhouette on the page, hard-edged, no
+       internal fade. Perimeter is the silhouette's own edge; nothing bleeds. -->
+  <path fill="white" d="
     M 150 150
     C 260 105, 420 105, 520 160
-    C 600 205, 610 320, 540 420
-    C 480 505, 330 545, 210 495
-    C 110 452, 78 340, 96 250
-    C 108 200, 118 168, 150 150
-    Z"/>
-
-  <!-- RIGHT: fireplace absorption, merging into the core's right edge. -->
-  <path fill="white" opacity="0.32" filter="url(#wash)" d="
-    M 800 175
+    C 560 122, 722 122, 834 152
     C 905 120, 1060 118, 1135 195
     C 1200 260, 1195 380, 1115 470
     C 1045 550, 900 570, 800 505
-    C 715 448, 700 320, 745 240
-    C 762 208, 772 190, 800 175
-    Z"/>
-
-  <!-- BOTTOM: a low broad fade reaching up into the torso/book, quiet. -->
-  <path fill="white" opacity="0.3" filter="url(#wash)" d="
-    M 330 470
-    C 460 430, 660 435, 800 480
     C 910 515, 950 600, 870 660
-    C 790 718, 560 722, 420 668
+    C 790 716, 560 720, 420 668
     C 300 622, 260 545, 300 495
-    C 312 482, 316 476, 330 470
-    Z"/>
-
-  <!-- TOP: a faint shelf-loss haze blending into the core's crown. -->
-  <path fill="white" opacity="0.28" filter="url(#wash)" d="
-    M 380 70
-    C 500 40, 700 40, 820 70
-    C 900 90, 920 130, 850 160
-    C 760 195, 540 195, 440 160
-    C 370 135, 330 95, 380 70
+    C 210 495, 110 452, 96 340
+    C 78 250, 108 200, 150 150
     Z"/>
 </svg>

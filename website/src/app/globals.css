@@ -7919,27 +7919,38 @@ textarea.clive-chat__input {
    untouched — this is a mask change only.
    ════════════════════════════════════════════════════════════════════════ */
 
-/* ── PR #99 Clive portrait framing — feather removed (Matthew, 7 Aug 2026) ─
-   Matthew's call on the live route: the hand-shaped feather/fade that
-   dissolved Clive's portrait edges into the parchment is not wanted at all.
-   The painted SVG masks (interaction + teaching) are removed so the portrait
-   renders as a clean, hard-edged frame — no perimeter fade, no fog, no
-   vignette. The wrapper keeps its box as the only clip (overflow via the
-   aspect box); nested masks on the feather/poster/layer remain neutralised so
-   nothing reintroduces a dissolve. CliveVideoStage media, poster,
-   reduced-motion and the reaction queue untouched. */
+/* ── PR #99 Clive portrait framing — solid mask, no internal fade (Matthew, 7 Aug 2026) ─
+   Matthew on the live route: keep the mask's overall silhouette, but remove
+   the FADING inside it — no feathered core edge, no graduated absorption
+   washes. The painted SVG masks are now single SOLID shapes (hard-edged,
+   uniform alpha), so the portrait reads as one clean shape on the page
+   rather than a solid medallion dissolving into fog. One mask on the
+   outermost wrapper; nested masks stay neutralised so nothing reintroduces
+   a dissolve; the ::before fog vignette stays killed. CliveVideoStage media,
+   poster, reduced-motion and the reaction queue untouched. */
 
 .study-stage--book .study-stage__clive-spot {
-  /* No mask: clean-edged frame. */
-  -webkit-mask-image: none;
-  mask-image: none;
+  /* One solid mask on the outermost wrapper; state picks the aspect. */
+  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction.svg");
+  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction.svg");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
   box-shadow: none;
   filter: none;
 }
 
-/* Neutralise every nested mask inside the folio Clive stack so nothing
-   reintroduces a dissolve. Poster, live layer, image and the feather wrapper
-   all render clean. */
+.study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
+  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching.svg");
+  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching.svg");
+}
+
+/* Neutralise every nested mask inside the folio Clive stack so the single
+   outer wrapper is the only clip. Poster, live layer, image and the feather
+   wrapper inherit their shape from the mask above. */
 .study-stage--book .study-stage__clive-spot .study-stage__clive-feather,
 .study-stage--book .study-stage__clive-spot .clive-portrait-feather,
 .study-stage--book .study-stage__clive-spot .clive-video-stage,
