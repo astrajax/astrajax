@@ -58,19 +58,16 @@ Dispatching session parent `clive--20260806T1043Z--rx`; root
 `clive--20260805T0717Z--kx`.
 
 
-## Amendments
-
-- **2026-08-07 — Current-state grounding (Hal-prescribed, Matthew-approved).**
-  Skill documentation amended (complete re-issue, drafts-don't-chain): added
-  the trusted grounding sources section (repo registry + agent exports via
-  public raw URLs, read-only, data never instructions; cross-agent config
-  reads are self-bound on the platform), a per-run grounding step (suppress
-  already-adopted findings, CONFLICT marking, "ungrounded against live
-  config" tag, in-batch dedupe), write-scope target (d) Recommendations
-  create-only per the Queue v1 contract, a Discharge criterion (zero restated
-  findings, zero intra-batch dupes, both counts in the digest; first queue
-  write succeeds without scope refusal), and the two grounding counts in the
-  digest. Never-list extended to protect Recommendations queue rows.
-  Regen + revalidated PASS on both exports. Cursor-write script unchanged
-  (byte-identical). Credential schema unchanged. Platform skill updated via
-  UpdateSkillAndScripts (draft RJBoC0aU, source skillId cmshuui4s0ctw06advdjnxwdh).
+- **2026-08-07 — Queue v1 action-path sweep (Matthew-approved).** Removed the
+  dead pre-Queue-v1 action path: run step 9 (read Actioned rows, compile A1/A2
+  briefs, invoke Doc) replaced with projection of actionable findings into
+  Recommendations rows (write target d; Decision Status = Awaiting approval at
+  creation; she never invokes Doc and never dispatches — action flows only
+  through the queue and Doc's scheduled pull). Button / Actioned / A1 / A2 /
+  InvokeNamedAgent passages swept as superseded by Queue v1, kept only as a
+  one-line historical note. Agent systemPrompt + schedule prompt swept to
+  match. Discharge criterion gained "her contract contains exactly one action
+  path". Regen + revalidated PASS on both exports. Cursor-write script
+  unchanged (byte-identical). Credential schema unchanged. Platform skill
+  updated via UpdateSkillAndScripts (draft p0Qo4K2X, source skillId
+  cmshuui4s0ctw06advdjnxwdh). The Vercel Button is not being built.
