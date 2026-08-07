@@ -2,22 +2,22 @@
  * Living Folio — painted-scene asset manifest (Git-side, the small manifest,
  * never the multi-MB master).
  *
- * The Living Folio background master (living-folio-empty-4k.png, 3840×2560,
- * 3:2) is stored in the connected Vercel Blob store at full resolution — Git
- * holds only this logical-key → Blob-pointer manifest. The master is the
- * visual source of truth; no Git-resident derivative is canonical. The
- * temporary SVG data-URI derivative committed during the integration
- * (living-folio-master-2048.svg) is a stopgap fallback ONLY and is retired
- * once the Blob-backed route is live.
+ * Canonical production master: Kathryn's TRUE 16:9 edge-to-edge Living Folio
+ * ("Living Folio wide 16_9 edge-to-edge.png", 5504×3072) — walnut frame
+ * edge-to-edge on all sides (top rail, bottom leather, extended left/right),
+ * supplied after the 3:2 contain/art-canvas treatment with flat sidebars was
+ * rejected. Served full-bleed object-fit:cover from the connected public
+ * Vercel Blob store via next/image — no crop decision, stretch, letterbox,
+ * flat bars or shrinking: the master IS the viewport aspect.
  *
- * Blob access (public vs private) and the exact Blob URL are resolved at
- * request time, server-side, after the store connection probe — never baked
- * here. When the connected store is private-scoped, `serve: "proxy"` and the
- * master streams through /api/folio-asset (authenticated OIDC read); when
- * public, `serve: "url"` and next/image reads the Blob URL directly.
+ * Git holds only this logical-key → Blob-pointer manifest; the master itself
+ * lives in Blob at full resolution. The earlier 3:2 master
+ * (living-folio-empty-4k.png) remains in Blob but is NOT selected live; the
+ * Git SVG data-URI derivative (living-folio-master-2048.svg) is a stopgap
+ * fallback only, not canonical.
  */
 
-export type FolioAssetServe = "proxy" | "url";
+export type FolioAssetServe = "url";
 
 export type FolioAsset = {
   /** Stable logical key referenced by components. */
@@ -29,35 +29,32 @@ export type FolioAsset = {
   /** Pixel dimensions of the canonical source. */
   width: number;
   height: number;
-  /** Aspect as a reduced ratio string, e.g. "3:2". */
+  /** Aspect as a reduced ratio string, e.g. "16:9". */
   aspect: string;
   mime: string;
   /** Monotonic content version; bump when the master is re-cut. */
   version: number;
   /** CSS object-position used when the frame crops the full composition. */
   objectPosition: string;
-  /** How the browser receives the bytes (see header note). */
+  /** How the browser receives the bytes (public Blob URL). */
   serve: FolioAssetServe;
-  /**
-   * Blob pathname (logical key within the store). The full Blob URL is
-   * derived server-side from the connected store at request time.
-   */
+  /** Blob pathname (logical key within the store). */
   blobPathname: string;
 };
 
 export const LIVING_FOLIO_MASTER: FolioAsset = {
   key: "living-folio.master",
-  sourceName: "living-folio-empty-4k.png",
+  sourceName: "Living Folio wide 16_9 edge-to-edge.png",
   sourceSha256:
-    "39cfec191f69f73ca5933eab16f26b9e634cd9f152cdf29d8a208668ffc07212",
-  width: 3840,
-  height: 2560,
-  aspect: "3:2",
+    "58adaf8ac68a30fc181e1116dbff696fb8f26bbe53068486504eae9f262a5acf",
+  width: 5504,
+  height: 3072,
+  aspect: "16:9",
   mime: "image/png",
-  version: 1,
+  version: 2,
   objectPosition: "center",
   serve: "url",
-  blobPathname: "folio/living-folio-empty-4k.png",
+  blobPathname: "folio/Living Folio wide 16_9 edge-to-edge.png",
 };
 
 export function getFolioAsset(key: string): FolioAsset | null {

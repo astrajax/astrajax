@@ -22,8 +22,37 @@ import {
 } from "@/components/chapter1/FolioStageContext";
 import { FolioMessagePulse } from "@/components/chapter1/FolioMessagePulse";
 
-const STUDY_BOOK_SRC =
+/**
+ * The Living Folio background master. Canonical source is the TRUE 16:9
+ * production master Kathryn supplied — "Living Folio wide 16_9
+ * edge-to-edge.png" (5504×3072, walnut edge-to-edge on all sides) — served
+ * from the connected public Vercel Blob store through next/image. Rendered
+ * full-bleed object-fit:cover: the master IS the viewport aspect, so cover
+ * fills the frame edge-to-edge with NO letterbox, flat bars or sidebars.
+ * The Git SVG derivative is a stopgap fallback only when env is absent.
+ */
+const STUDY_BOOK_FALLBACK_SRC =
   "/agent-cast/clive-wigglesworth/folio/living-folio-master-2048.svg";
+
+const LIVING_FOLIO_CANONICAL_STORE_ID = "store_cvu4L5KwtlOCutGD";
+const LIVING_FOLIO_MASTER_PATHNAME =
+  "folio/Living Folio wide 16_9 edge-to-edge.png";
+
+/** Vercel public-store host: bare lowercase id, no "store_" prefix. */
+function publicBlobHost(storeId: string): string {
+  const bare = storeId.trim().toLowerCase().replace(/^store_/, "");
+  return `${bare}.public.blob.vercel-storage.com`;
+}
+
+function studyBookSrc(): string {
+  if (process.env.LIVING_FOLIO_USE_FALLBACK === "true") {
+    return STUDY_BOOK_FALLBACK_SRC;
+  }
+  const host = publicBlobHost(LIVING_FOLIO_CANONICAL_STORE_ID);
+  return `https://${host}/${encodeURIComponent(LIVING_FOLIO_MASTER_PATHNAME)}`;
+}
+
+const STUDY_BOOK_SRC = studyBookSrc();
 
 type CliveStudyStageProps = {
   children: ReactNode;
