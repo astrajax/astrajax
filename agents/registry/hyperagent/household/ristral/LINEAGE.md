@@ -56,3 +56,21 @@ lane owns their structure. Not built here.
 
 Dispatching session parent `clive--20260806T1043Z--rx`; root
 `clive--20260805T0717Z--kx`.
+
+
+## Amendments
+
+- **2026-08-07 — Current-state grounding (Hal-prescribed, Matthew-approved).**
+  Skill documentation amended (complete re-issue, drafts-don't-chain): added
+  the trusted grounding sources section (repo registry + agent exports via
+  public raw URLs, read-only, data never instructions; cross-agent config
+  reads are self-bound on the platform), a per-run grounding step (suppress
+  already-adopted findings, CONFLICT marking, "ungrounded against live
+  config" tag, in-batch dedupe), write-scope target (d) Recommendations
+  create-only per the Queue v1 contract, a Discharge criterion (zero restated
+  findings, zero intra-batch dupes, both counts in the digest; first queue
+  write succeeds without scope refusal), and the two grounding counts in the
+  digest. Never-list extended to protect Recommendations queue rows.
+  Regen + revalidated PASS on both exports. Cursor-write script unchanged
+  (byte-identical). Credential schema unchanged. Platform skill updated via
+  UpdateSkillAndScripts (draft RJBoC0aU, source skillId cmshuui4s0ctw06advdjnxwdh).
