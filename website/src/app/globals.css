@@ -2220,19 +2220,13 @@ body {
 /* Stable bottom control row: the Architect label sits quietly at the left and
    the Send plate anchors bottom-right. It stays pinned while long text
    scrolls; the well carries bottom clearance so text never disappears under
-   it.
-   Spacing is scaled to the painted page (cqh), not a web-form floor — on the
-   1080px-tall plate a rem floor collapsed to ~10px and read as the plate
-   crowding the well. The cqh clamp keeps a consistent parchment margin. */
+   it. */
 .study-stage--book .clive-chat--study .clive-chat__control-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1cqw;
-  /* Clear parchment margin below the writing well (was ~10px floor). */
-  margin-top: clamp(0.75rem, 1.7cqh, 1.4rem);
-  /* Lift the Send plate off the extreme corner of the content block. */
-  padding-right: clamp(0.15rem, 0.5cqw, 0.4rem);
+  margin-top: clamp(0.4rem, 1vh, 0.6rem);
 }
 
 .study-stage--book .clive-chat--study .clive-chat__control-row .clive-chat__architect-label {
@@ -2430,18 +2424,9 @@ body {
   color: var(--book-ink-muted);
 }
 
-/* Separation between the Send/Architect control row and the Back/Continue
-   nav, scaled to the painted page (cqh) — the prior 0.8vh floor (~9px) read
-   as the nav crowding the control row on the 1080px-tall plate. */
 .study-stage--book .chapter1-conversation__actions {
-  margin-top: clamp(0.9rem, 2.5cqh, 2rem);
+  margin-top: clamp(0.25rem, 0.8vh, 0.5rem);
   padding-top: 0.125rem;
-}
-
-/* Breathing room between Back and Continue so the two plates don't read as
-   one cluster; scaled with the page. */
-.study-stage--book .chapter1-conversation__nav {
-  gap: clamp(0.625rem, 1.1cqw, 1rem);
 }
 
 /* Caption row — in flow (not absolute) so monologue never overlaps */
@@ -7919,68 +7904,65 @@ textarea.clive-chat__input {
    untouched — this is a mask change only.
    ════════════════════════════════════════════════════════════════════════ */
 
-/* ── PR #99 Clive portrait framing — solid mask, no internal fade (Matthew, 7 Aug 2026) ─
-   Matthew on the live route: keep the mask's overall silhouette, but remove
-   the FADING inside it — no feathered core edge, no graduated absorption
-   washes. The painted SVG masks are now single SOLID shapes (hard-edged,
-   uniform alpha), so the portrait reads as one clean shape on the page
-   rather than a solid medallion dissolving into fog. One mask on the
-   outermost wrapper; nested masks stay neutralised so nothing reintroduces
-   a dissolve; the ::before fog vignette stays killed. CliveVideoStage media,
-   poster, reduced-motion and the reaction queue untouched. */
+/* ── PR #99 painted mask correction (Kathryn dispatch, 6 Aug 2026) ─────────
+   SC1: the live Clive MP4 still read as a hard rectangle — straight top
+   edge, square sides, a pale rectangular field. Root cause was STACKED
+   masks: the wrapper, the feather, and the poster/layer each applied their
+   own radial gradient, and layered gradients + overflow clips re-formed a
+   geometric crop no matter how the stops were tuned. Percentage tuning was
+   never the fix; the layers had to collapse to ONE painted alpha on the
+   OUTERMOST wrapper only.
+
+   Below: exactly one hand-painted SVG mask per state, applied to
+   .study-stage__clive-spot (the outermost Clive media wrapper). The mask is
+   a turbulence-displaced, edge-feathered painted alpha — it dissolves into
+   the Pale Cream page rather than cutting. Every nested mask on the feather
+   wrapper, the poster, the live video layer, and the image is neutralised
+   so poster and MP4 inherit clipping from the single outer wrapper alone.
+   The pale ::before vignette/fog is removed. Non-folio uses of
+   .clive-portrait-feather (portrait-entry) are untouched. */
 
 .study-stage--book .study-stage__clive-spot {
-  /* One solid mask on the outermost wrapper; state picks the aspect. */
-  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction-solid.svg");
-  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction-solid.svg");
+  /* One painted mask on the outermost wrapper; state picks the aspect. */
+  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction.svg");
+  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction.svg");
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   -webkit-mask-position: center;
   mask-position: center;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
+  /* The wrapper is now the only clip: no box shadow / filter re-cropping. */
   box-shadow: none;
   filter: none;
 }
 
 .study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
-  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching-solid.svg");
-  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching-solid.svg");
+  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching.svg");
+  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching.svg");
 }
 
 /* Neutralise every nested mask inside the folio Clive stack so the single
    outer wrapper is the only clip. Poster, live layer, image and the feather
-   wrapper inherit their shape from the mask above. The solid SVG is the ONLY
-   clip; every inner radial feather and vignette is stripped at folio scope so
-   no layer reintroduces a dissolve. */
+   wrapper inherit their shape from the painted mask above. */
 .study-stage--book .study-stage__clive-spot .study-stage__clive-feather,
 .study-stage--book .study-stage__clive-spot .clive-portrait-feather,
 .study-stage--book .study-stage__clive-spot .clive-video-stage,
 .study-stage--book .study-stage__clive-spot .clive-video-stage__poster,
 .study-stage--book .study-stage__clive-spot .clive-video-stage__layer,
-.study-stage--book .study-stage__clive-spot .portrait-entry__image,
-/* Match the base feather rules' own selectors at folio scope (equal-or-higher
-   specificity) so the inner radial mask cannot survive anywhere in the book. */
-.study-stage--book .study-stage__clive-feather,
-.study-stage--book .clive-portrait-feather,
-.study-stage--book .study-stage__clive-feather .clive-video-stage__poster,
-.study-stage--book .study-stage__clive-feather .clive-video-stage__layer,
-.study-stage--book .clive-portrait-feather .clive-video-stage__poster,
-.study-stage--book .clive-portrait-feather .clive-video-stage__layer {
+.study-stage--book .study-stage__clive-spot .portrait-entry__image {
   -webkit-mask-image: none;
   mask-image: none;
 }
 
 /* Kill the white fog: the shared ::before vignette painted a pale ellipse
-   behind him. Removed so nothing fades. Equal-or-higher specificity than the
-   base rule that paints it, scoped to the book. */
+   that read as a rectangular field behind him. The painted mask does the
+   dissolve on its own. */
 .study-stage--book .study-stage__clive-spot .study-stage__clive-feather::before,
 .study-stage--book .study-stage__clive-spot .clive-portrait-feather::before,
 .study-stage--book .study-stage__clive-feather::before,
 .study-stage--book .clive-portrait-feather::before {
   content: none;
-  background: none;
-  opacity: 0;
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -8861,6 +8843,9 @@ textarea.clive-chat__input {
 .onboarding__plate-card {
   position: relative;
   padding: clamp(0.9rem, 1.6cqw, 1.25rem) clamp(1rem, 1.8cqw, 1.5rem);
+  border: none;
+  border-radius: 0;
+  background-color: transparent;
   background-image: var(--folio-plate-img);
   background-repeat: no-repeat;
   background-position: center;
@@ -8870,17 +8855,13 @@ textarea.clive-chat__input {
 
 /* envelope three-cards each on a squat plate */
 .onboarding__card--plate {
-  --folio-plate-img: url("/brand/system-assets/folio/furniture/docket-plate-short.svg");
+  --folio-plate-img: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-plate-short.png");
 }
 
 /* accept-as-draft as a plate button */
 .onboarding__accept--plate {
-  background-image: url("/brand/system-assets/folio/furniture/docket-frame-button.svg");
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
+  background: transparent url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-frame-button.png") no-repeat center / 100% 100%;
   border: none;
-  background-color: transparent;
   box-shadow: none;
   padding: clamp(0.85rem, 1.5cqw, 1.2rem) clamp(2rem, 3.4cqw, 2.75rem);
 }
@@ -8897,6 +8878,22 @@ textarea.clive-chat__input {
   background-color: transparent;
   padding-left: 1.4rem;
   padding-right: 1.4rem;
+}
+
+/* composer Send as a plate button */
+.onboarding__send--plate {
+  background: transparent url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-frame-slim.png") no-repeat center / 100% 100%;
+  border: none;
+  box-shadow: none;
+}
+
+/* receipt accepted-draft seal medallion, beside the handback heading */
+.onboarding__receipt-seal {
+  display: inline-block;
+  width: clamp(2rem, 3.4cqw, 2.9rem);
+  height: auto;
+  margin-right: 0.5em;
+  vertical-align: -0.35em;
 }
 
 /* Living Folio header — quiet live text inside the art canvas's own top
