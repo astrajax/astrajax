@@ -6,6 +6,9 @@
  * medallions (cropped transparent furniture) + ornamental rules + live
  * status text. Each row: a medallion, the action as a ledger line, and its
  * live status beneath. Account-book, not a status dashboard.
+ *
+ * Medallions are the refined v2 furniture set (accepted-sage, write-brass,
+ * pending-graphite) — cleaner cut-outs from the transparent-v2 sheet.
  */
 import Image from "next/image";
 
@@ -18,9 +21,9 @@ export type LedgerAction = {
 };
 
 const MEDALLION: Record<LedgerAction["status"], { src: string; alt: string }> = {
-  completed: { src: "/brand/system-assets/folio/furniture/medallion-completed-sage.svg", alt: "Completed" },
-  in_progress: { src: "/brand/system-assets/folio/furniture/medallion-inprogress-brass.svg", alt: "In progress" },
-  queued: { src: "/brand/system-assets/folio/furniture/medallion-queued-graphite.svg", alt: "Queued" },
+  completed: { src: "/brand/system-assets/folio/furniture/medallion-accepted-sage.svg", alt: "Completed" },
+  in_progress: { src: "/brand/system-assets/folio/furniture/medallion-write-brass.svg", alt: "In progress" },
+  queued: { src: "/brand/system-assets/folio/furniture/medallion-pending-graphite.svg", alt: "Queued" },
 };
 
 export function FolioActionLedger({

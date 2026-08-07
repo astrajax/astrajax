@@ -134,7 +134,7 @@ export function OnboardingFlow() {
         <FlowShell step="Bring your material · first, the envelope" onBack={back}>
           <h2 className="onboarding__h2">Three small things before your files.</h2>
           {(["Identity", "Authority", "Privacy"] as const).map((t) => (
-            <div key={t} className="onboarding__card">
+            <div key={t} className="onboarding__card onboarding__card--plate onboarding__plate-card">
               <p className="onboarding__field-label">{t}</p>
               <p className="onboarding__body">
                 {t === "Identity"
@@ -356,7 +356,7 @@ export function OnboardingFlow() {
                 </div>
                 {state.confirmations[inf.inferenceId] === "correct" && (
                   <input
-                    className="onboarding__correction"
+                    className="onboarding__correction onboarding__correction--bracketed"
                     type="text"
                     placeholder="The corrected value"
                     value={state.corrections[inf.inferenceId] ?? ""}
@@ -368,7 +368,7 @@ export function OnboardingFlow() {
           </div>
           <button
             type="button"
-            className="btn-primary onboarding__accept"
+            className="btn-primary onboarding__accept onboarding__accept--plate"
             disabled={!canAcceptDraft(state, proposedInferences.map((i) => i.inferenceId))}
             onClick={() => setState((s) => acceptAsDraft(s))}
           >
@@ -384,7 +384,15 @@ export function OnboardingFlow() {
       {state.step === "receipt" && (
         <section className="onboarding__receipt">
           <p className="onboarding__eyebrow">Clive's handback</p>
-          <h1 className="onboarding__h1">A draft, on your word.</h1>
+          <h1 className="onboarding__h1">
+            <img
+              className="onboarding__receipt-seal"
+              src="/brand/system-assets/folio/furniture/medallion-accepted-sage.svg"
+              alt=""
+              aria-hidden
+            />
+            A draft, on your word.
+          </h1>
           <StudyMarkdown
             content={
               "Here's what I'm holding, provisionally:\n\n" +
@@ -460,7 +468,7 @@ function Composer({ value, onChange, onSubmit, label }: { value: string; onChang
           placeholder="Write it in your own words…"
           aria-label={label}
         />
-        <button type="submit" className="btn-primary" disabled={!value.trim()}>Send</button>
+        <button type="submit" className="btn-primary onboarding__send--plate" disabled={!value.trim()}>Send</button>
       </div>
     </form>
   );

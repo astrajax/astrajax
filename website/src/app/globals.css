@@ -8881,6 +8881,26 @@ textarea.clive-chat__input {
   padding-right: 1.4rem;
 }
 
+/* composer Send as a plate button */
+.onboarding__send--plate {
+  background-image: url("/brand/system-assets/folio/furniture/docket-frame-slim.svg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  border: none;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+/* receipt accepted-draft seal medallion, beside the handback heading */
+.onboarding__receipt-seal {
+  display: inline-block;
+  width: clamp(2rem, 3.4cqw, 2.9rem);
+  height: auto;
+  margin-right: 0.5em;
+  vertical-align: -0.35em;
+}
+
 /* Living Folio header — quiet live text inside the art canvas's own top
    walnut rail. The finished art bakes "AstraJax" (top-left of its rail) and
    star ornaments; the dynamic chapter/state stays LIVE (Route A) in the rail's
