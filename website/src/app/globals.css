@@ -7950,24 +7950,37 @@ textarea.clive-chat__input {
 
 /* Neutralise every nested mask inside the folio Clive stack so the single
    outer wrapper is the only clip. Poster, live layer, image and the feather
-   wrapper inherit their shape from the mask above. */
+   wrapper inherit their shape from the mask above. The solid SVG is the ONLY
+   clip; every inner radial feather and vignette is stripped at folio scope so
+   no layer reintroduces a dissolve. */
 .study-stage--book .study-stage__clive-spot .study-stage__clive-feather,
 .study-stage--book .study-stage__clive-spot .clive-portrait-feather,
 .study-stage--book .study-stage__clive-spot .clive-video-stage,
 .study-stage--book .study-stage__clive-spot .clive-video-stage__poster,
 .study-stage--book .study-stage__clive-spot .clive-video-stage__layer,
-.study-stage--book .study-stage__clive-spot .portrait-entry__image {
+.study-stage--book .study-stage__clive-spot .portrait-entry__image,
+/* Match the base feather rules' own selectors at folio scope (equal-or-higher
+   specificity) so the inner radial mask cannot survive anywhere in the book. */
+.study-stage--book .study-stage__clive-feather,
+.study-stage--book .clive-portrait-feather,
+.study-stage--book .study-stage__clive-feather .clive-video-stage__poster,
+.study-stage--book .study-stage__clive-feather .clive-video-stage__layer,
+.study-stage--book .clive-portrait-feather .clive-video-stage__poster,
+.study-stage--book .clive-portrait-feather .clive-video-stage__layer {
   -webkit-mask-image: none;
   mask-image: none;
 }
 
 /* Kill the white fog: the shared ::before vignette painted a pale ellipse
-   behind him. Removed so nothing fades. */
+   behind him. Removed so nothing fades. Equal-or-higher specificity than the
+   base rule that paints it, scoped to the book. */
 .study-stage--book .study-stage__clive-spot .study-stage__clive-feather::before,
 .study-stage--book .study-stage__clive-spot .clive-portrait-feather::before,
 .study-stage--book .study-stage__clive-feather::before,
 .study-stage--book .clive-portrait-feather::before {
   content: none;
+  background: none;
+  opacity: 0;
 }
 
 /* ════════════════════════════════════════════════════════════════════════
