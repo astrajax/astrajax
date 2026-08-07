@@ -7913,19 +7913,20 @@ textarea.clive-chat__input {
    never the fix; the layers had to collapse to ONE painted alpha on the
    OUTERMOST wrapper only.
 
-   Below: exactly one hand-painted SVG mask per state, applied to
-   .study-stage__clive-spot (the outermost Clive media wrapper). The mask is
-   a turbulence-displaced, edge-feathered painted alpha — it dissolves into
-   the Pale Cream page rather than cutting. Every nested mask on the feather
-   wrapper, the poster, the live video layer, and the image is neutralised
-   so poster and MP4 inherit clipping from the single outer wrapper alone.
-   The pale ::before vignette/fog is removed. Non-folio uses of
-   .clive-portrait-feather (portrait-entry) are untouched. */
+   The mask is now a single SOLID silhouette (Matthew, 7 Aug 2026): keep the
+   shape, remove the fading INSIDE it. One solid shape at full opacity — no
+   blur, no turbulence, no graduated washes — so the portrait reads as one
+   clean organic shape on the page, hard-edged, with no internal fade.
+   Applied to .study-stage__clive-spot (the outermost Clive media wrapper).
+   Every nested mask on the feather wrapper, the poster, the live video
+   layer, and the image is neutralised at folio scope so nothing reintroduces
+   a dissolve; the pale ::before vignette/fog is killed outright. Non-folio
+   uses of .clive-portrait-feather (portrait-entry) are untouched. */
 
 .study-stage--book .study-stage__clive-spot {
-  /* One painted mask on the outermost wrapper; state picks the aspect. */
-  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction.svg");
-  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction.svg");
+  /* One solid mask on the outermost wrapper; state picks the aspect. */
+  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction-solid.svg");
+  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction-solid.svg");
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   -webkit-mask-position: center;
@@ -7938,31 +7939,41 @@ textarea.clive-chat__input {
 }
 
 .study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
-  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching.svg");
-  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching.svg");
+  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching-solid.svg");
+  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching-solid.svg");
 }
 
-/* Neutralise every nested mask inside the folio Clive stack so the single
-   outer wrapper is the only clip. Poster, live layer, image and the feather
-   wrapper inherit their shape from the painted mask above. */
+/* Neutralise every nested mask inside the folio Clive stack so the solid SVG
+   is the ONLY clip. The base feather rules re-apply a radial --clive-feather-
+   mask to the POSTER and live LAYER independently of the outer wrapper, so
+   neutralise those selectors at folio scope (equal-or-higher specificity) —
+   no layer in the book can reintroduce a dissolve. */
 .study-stage--book .study-stage__clive-spot .study-stage__clive-feather,
 .study-stage--book .study-stage__clive-spot .clive-portrait-feather,
 .study-stage--book .study-stage__clive-spot .clive-video-stage,
 .study-stage--book .study-stage__clive-spot .clive-video-stage__poster,
 .study-stage--book .study-stage__clive-spot .clive-video-stage__layer,
-.study-stage--book .study-stage__clive-spot .portrait-entry__image {
+.study-stage--book .study-stage__clive-spot .portrait-entry__image,
+.study-stage--book .study-stage__clive-feather,
+.study-stage--book .clive-portrait-feather,
+.study-stage--book .study-stage__clive-feather .clive-video-stage__poster,
+.study-stage--book .study-stage__clive-feather .clive-video-stage__layer,
+.study-stage--book .clive-portrait-feather .clive-video-stage__poster,
+.study-stage--book .clive-portrait-feather .clive-video-stage__layer {
   -webkit-mask-image: none;
   mask-image: none;
 }
 
 /* Kill the white fog: the shared ::before vignette painted a pale ellipse
-   that read as a rectangular field behind him. The painted mask does the
-   dissolve on its own. */
+   that read as a rectangular field behind him. Removed outright (content +
+   background + opacity) at equal-or-higher specificity than the base rule. */
 .study-stage--book .study-stage__clive-spot .study-stage__clive-feather::before,
 .study-stage--book .study-stage__clive-spot .clive-portrait-feather::before,
 .study-stage--book .study-stage__clive-feather::before,
 .study-stage--book .clive-portrait-feather::before {
   content: none;
+  background: none;
+  opacity: 0;
 }
 
 /* ════════════════════════════════════════════════════════════════════════
