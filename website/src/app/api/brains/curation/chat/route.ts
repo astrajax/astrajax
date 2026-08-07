@@ -1,3 +1,4 @@
+import { requireOperatorSession, isAuthFailure } from "@/lib/auth/require-operator";
 import { runCurationChat, sanitiseCurationHistory } from "@/lib/curation/orchestrator";
 import { jsonError, jsonOk } from "@/lib/brains/http";
 import { readOptionalSessionHandle, readTurnId } from "@/lib/platform-activity/server";
@@ -5,8 +6,13 @@ import { readOptionalSessionHandle, readTurnId } from "@/lib/platform-activity/s
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/**
+ * Operator-only. Curation chat loads the full docket (including Trusted Brain
+ * text) into the model context — same class of leak as the docket GET.
+ */
 export async function POST(request: Request) {
   try {
+    await requireOperatorSession();
     const body = (await request.json()) as {
       brainSlug?: string;
       sessionId?: string;
@@ -27,6 +33,6 @@ export async function POST(request: Request) {
 
     return jsonOk(result);
   } catch (error) {
-    return jsonError(error);
+    return jsonError(error, isAuthFailure(error) ? 401 : 400);
   }
 }

@@ -24,12 +24,17 @@ export async function handleTruthRetrieve(body: TruthRetrieveBody) {
     scope: body.scope.trim(),
   });
 
+  // Consume before returning Trusted text so a concurrent retrieve cannot
+  // race past an exhausted one-use grant and still receive snippets.
+  const updated = await consumeGrantUse(grant.grantId);
+  if (!updated) {
+    throw new GrantValidationError("Access grant has no remaining uses.", "GRANT_EXHAUSTED");
+  }
+
   const snippets = await retrieveTrustedSnippets({
     brainSlug: body.brainSlug.trim(),
     scope: body.scope.trim(),
   });
-
-  const updated = await consumeGrantUse(grant.grantId);
   const retrievedAt = new Date().toISOString();
 
   const manifest: RetrievalManifest = {
@@ -42,6 +47,6 @@ export async function handleTruthRetrieve(body: TruthRetrieveBody) {
   return {
     snippets,
     manifest,
-    remainingUses: updated ? Math.max(0, updated.maxUses - updated.useCount) : 0,
+    remainingUses: Math.max(0, updated.maxUses - updated.useCount),
   };
 }
