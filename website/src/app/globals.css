@@ -7931,8 +7931,8 @@ textarea.clive-chat__input {
 
 .study-stage--book .study-stage__clive-spot {
   /* One solid mask on the outermost wrapper; state picks the aspect. */
-  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction.svg");
-  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction.svg");
+  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction-solid.svg");
+  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction-solid.svg");
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   -webkit-mask-position: center;
@@ -7944,8 +7944,8 @@ textarea.clive-chat__input {
 }
 
 .study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
-  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching.svg");
-  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching.svg");
+  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching-solid.svg");
+  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching-solid.svg");
 }
 
 /* Neutralise every nested mask inside the folio Clive stack so the single
