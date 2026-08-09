@@ -89,6 +89,25 @@ function entryStepForBook(
   };
 }
 
+/**
+ * The folio state must follow the INTERACTION state, not the presence of a
+ * component. Opening/teaching beats keep Clive on the left page; once the
+ * experience becomes conversational/compositional (the intake interview or
+ * any later working beat, on either route), Clive resolves top-right and the
+ * left page carries the writing. This is the single source of truth for
+ * data-folio-state, driven by the explicit step machine — never inferred
+ * from :has() selectors.
+ */
+function isInteractionStep(step: LoopStep, showWelcomeSequence: boolean): boolean {
+  // Teaching = the opening/teaching material (the welcome cinematic and the
+  // pre-engagement welcome step). The moment the experience carries a live
+  // working chat — any beat after that, on either route, including the
+  // context_importance entry — the interface is conversational and Clive
+  // resolves top-right. The visual state follows the interaction state.
+  if (showWelcomeSequence) return false;
+  return step !== "welcome";
+}
+
 export function AieDemoShell() {
   const router = useRouter();
   const { endSession, status: platformSessionStatus } = usePlatformSession();
@@ -207,6 +226,10 @@ export function AieDemoShell() {
 
   const showWelcomeSequence = hubSelection === "welcome" && !welcomeComplete;
 
+  // Folio engagement is derived from the explicit step machine, not from any
+  // component's presence — see isInteractionStep.
+  const folioEngaged = isInteractionStep(state.currentStep, showWelcomeSequence);
+
   // Start the ambient idle reel once, on entry (or when switching books).
   // `returnToIdle()` (called internally after any reaction clip) already
   // resumes the reel from where it left off — this effect must NOT depend
@@ -227,6 +250,7 @@ export function AieDemoShell() {
         ref={cliveVideoRef}
         onReset={() => void reset()}
         headerActions={<PlatformSessionControls compact />}
+        stageState={folioEngaged ? "interaction" : "teaching"}
         paperTrail={
           showWelcomeSequence
             ? undefined

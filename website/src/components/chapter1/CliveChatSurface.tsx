@@ -286,7 +286,17 @@ export function CliveChatSurface({
     const node = inputRef.current;
     if (!node) return;
     node.style.height = "auto";
-    node.style.height = `${Math.min(node.scrollHeight, 132)}px`;
+    // Grow smoothly with content up to a bounded max tied to the page, then
+    // scroll internally with native chrome hidden. The folio composer sets its
+    // own max-height in CSS (~min(32vh, 13rem)); read that so the geometry is
+    // governed by the stylesheet, not a hardcoded pixel. Fallback 132px where
+    // no CSS cap applies (non-folio surfaces).
+    const cssCap = parseFloat(getComputedStyle(node).maxHeight);
+    const cap = Number.isFinite(cssCap) ? cssCap : 132;
+    const next = Math.min(node.scrollHeight, cap);
+    node.style.height = `${next}px`;
+    // Past the cap the text region scrolls; below it, no scrollbar can appear.
+    node.style.overflowY = node.scrollHeight > cap ? "auto" : "hidden";
   }, []);
 
   useEffect(() => {
@@ -600,7 +610,9 @@ export function CliveChatSurface({
             )}
 
             <form onSubmit={handleSubmit} className="clive-chat__form">
-              <p className="clive-chat__architect-label">{userLabel}</p>
+              {/* The writing well takes the full safe page measure; the label
+                  and Send plate move to a stable control row beneath it so no
+                  permanent side column steals width from the text. */}
               <div className="clive-chat__form-row">
                 <textarea
                   ref={inputRef}
@@ -614,6 +626,9 @@ export function CliveChatSurface({
                   className="clive-chat__input"
                   aria-label={`Message for ${speakerName}`}
                 />
+              </div>
+              <div className="clive-chat__control-row">
+                <p className="clive-chat__architect-label">{userLabel}</p>
                 <button
                   type="submit"
                   disabled={isThinking || disabled || !input.trim()}

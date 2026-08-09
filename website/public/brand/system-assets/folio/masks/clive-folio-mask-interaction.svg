@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <!-- Living Folio — Clive interaction mask (16:9). v8.
+       Matthew 7 Aug 2026: keep the mask's overall silhouette, but remove the
+       FADING inside it. v7's solid-core-plus-low-alpha-wash structure read as
+       a bright medallion dissolving into fog. v8 is ONE solid shape at full
+       opacity — no blur, no turbulence, no graduated washes — so the portrait
+       reads as a single clean organic silhouette on the page, hard-edged, no
+       internal fade. Perimeter is the silhouette's own edge; nothing bleeds. -->
+  <path fill="white" d="
+    M 150 150
+    C 260 105, 420 105, 520 160
+    C 560 122, 722 122, 834 152
+    C 905 120, 1060 118, 1135 195
+    C 1200 260, 1195 380, 1115 470
+    C 1045 550, 900 570, 800 505
+    C 910 515, 950 600, 870 660
+    C 790 716, 560 720, 420 668
+    C 300 622, 260 545, 300 495
+    C 210 495, 110 452, 96 340
+    C 78 250, 108 200, 150 150
+    Z"/>
+</svg>
