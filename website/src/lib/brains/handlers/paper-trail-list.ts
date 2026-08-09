@@ -51,7 +51,7 @@ export async function handlePaperTrailList(input: {
       actor: String(record.fields["Changed By"] ?? "System"),
       reason: String(record.fields.Reason ?? record.fields["Change Type"] ?? ""),
       timestamp: record.createdTime ?? new Date().toISOString(),
-      destination: "registry-change-log",
+      destination: "registry-change-log" as const,
       recordId: record.id,
     }))
     .sort((a, b) => b.timestamp.localeCompare(a.timestamp))

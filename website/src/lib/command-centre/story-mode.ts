@@ -11,7 +11,9 @@ export const STORY_MODE_LABELS: Record<StoryMode, string> = {
 export const DEFAULT_STORY_MODE: StoryMode = "full";
 
 export function isPortraitNavigationEnabled(mode: StoryMode): boolean {
-  return mode !== "no-story";
+  // architecture.md: Full Story = portrait doors; Light Story and No Story =
+  // flat FeatureHub directory.
+  return mode === "full";
 }
 
 export function parseStoryMode(value: string | null | undefined): StoryMode {
