@@ -1,7 +1,7 @@
 import { airtableSelect } from "../airtable-rest";
 import { BRAIN_REGISTRY_TABLES } from "../airtable-ids";
 import { getRegistryBaseId, getRegistryReadToken, useMemoryStore } from "../config";
-import { getMemoryChangeLogForTests } from "../change-log";
+import { CHANGE_LOG_CREATED_FIELD, getMemoryChangeLogForTests } from "../change-log";
 import type { PaperTrailEntry } from "@/lib/curation/types";
 
 /**
@@ -37,25 +37,24 @@ export async function handlePaperTrailList(input: {
     return { mode: "memory", entries: [] };
   }
 
-  // The Change Log table has no date column, so Airtable cannot sort for us —
-  // asking it to sort on "Created" made every live call fail with a 422. Over-
-  // fetch instead and order by the record's own createdTime here.
   const records = await airtableSelect(baseId, BRAIN_REGISTRY_TABLES.changeLog, token, {
-    maxRecords: Math.min(limit * 4, 100),
+    maxRecords: limit,
+    sortField: CHANGE_LOG_CREATED_FIELD,
+    sortDirection: "desc",
   });
 
-  const entries: PaperTrailEntry[] = records
-    .map((record) => ({
-      id: record.id,
-      action: String(record.fields["Change Summary"] ?? "Change logged"),
-      actor: String(record.fields["Changed By"] ?? "System"),
-      reason: String(record.fields.Reason ?? record.fields["Change Type"] ?? ""),
-      timestamp: record.createdTime ?? new Date().toISOString(),
-      destination: "registry-change-log" as const,
-      recordId: record.id,
-    }))
-    .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
-    .slice(0, limit);
+  const entries: PaperTrailEntry[] = records.map((record) => ({
+    id: record.id,
+    action: String(record.fields["Change Summary"] ?? "Change logged"),
+    actor: String(record.fields["Changed By"] ?? "System"),
+    reason: String(record.fields.Reason ?? record.fields["Change Type"] ?? ""),
+    timestamp:
+      String(record.fields[CHANGE_LOG_CREATED_FIELD] ?? "") ||
+      record.createdTime ||
+      new Date().toISOString(),
+    destination: "registry-change-log" as const,
+    recordId: record.id,
+  }));
 
   return { mode: "airtable", entries };
 }
