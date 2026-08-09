@@ -51,18 +51,17 @@ export async function appendChangeLog(entry: ChangeLogEntryInput): Promise<void>
     throw new Error("Brain Registry is not configured.");
   }
 
+  // Newest-first head only. An unsorted page of 100 can miss the true tip once
+  // the table grows past one page — that forks the hash chain (paper-trail
+  // tamper alarm). Mirror paper-trail-list: Created desc, single record.
   const latest = await airtableSelect(baseId, BRAIN_REGISTRY_TABLES.changeLog, token, {
-    maxRecords: 100,
+    maxRecords: 1,
     fields: ["Entry Hash"],
+    sortField: "Created",
+    sortDirection: "desc",
   });
 
-  const sorted = [...latest].sort((a, b) => {
-    const aTime = a.createdTime ? Date.parse(a.createdTime) : 0;
-    const bTime = b.createdTime ? Date.parse(b.createdTime) : 0;
-    return bTime - aTime;
-  });
-
-  const previousHash = String(sorted[0]?.fields["Entry Hash"] ?? "");
+  const previousHash = String(latest[0]?.fields["Entry Hash"] ?? "");
   const entryHash = hashContent(previousHash + canonicalEntryJson(entry));
 
   await airtableCreate(baseId, BRAIN_REGISTRY_TABLES.changeLog, token, {
