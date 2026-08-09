@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AstraJax Hotspot Editor (dev)</title>
+<style>
+  :root { --moss:#202A1B; --ink:#171A18; --parch:#E7D1AD; --apricot:#D77545; --sage:#9AA77A; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--ink); color:var(--parch); font:14px/1.5 system-ui, sans-serif; }
+  header { display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:10px 14px; background:var(--moss); position:sticky; top:0; }
+  header input[type=text]{ background:#0d0f0d; color:var(--parch); border:1px solid #3a463490; border-radius:6px; padding:6px 8px; }
+  button { background:var(--apricot); color:#1a1207; border:0; border-radius:6px; padding:6px 12px; font-weight:600; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--parch); border:1px solid #3a4634; }
+  main { display:grid; grid-template-columns: 1fr 340px; gap:0; }
+  #stagewrap { padding:16px; overflow:auto; }
+  #stage { position:relative; display:inline-block; user-select:none; box-shadow:0 6px 30px #0008; }
+  #stage img { display:block; max-width:100%; height:auto; }
+  #overlay { position:absolute; inset:0; cursor:crosshair; }
+  .region { position:absolute; border:2px solid var(--sage); background:#9aa77a22; }
+  .region.crit { border-color:var(--apricot); background:#d7754522; }
+  .region .tag { position:absolute; top:-20px; left:0; font-size:11px; background:#000a; padding:1px 5px; border-radius:4px; white-space:nowrap; }
+  aside { border-left:1px solid #2a332440; padding:14px; height:100vh; overflow:auto; background:#12140f; }
+  pre { white-space:pre-wrap; word-break:break-word; background:#0d0f0d; padding:10px; border-radius:6px; font-size:12px; }
+  li { display:flex; justify-content:space-between; gap:8px; padding:4px 0; border-bottom:1px solid #2a332430; }
+  .muted { color:#9aa77a; }
+</style>
+</head>
+<body>
+<header>
+  <strong>Hotspot Editor</strong>
+  <input type="text" id="room" placeholder="room name (e.g. doc-workshop)" value="untitled-room">
+  <label class="ghost" style="padding:6px 12px;border-radius:6px;cursor:pointer">
+    Load image <input type="file" id="file" accept="image/*" hidden>
+  </label>
+  <label class="muted"><input type="checkbox" id="critdefault"> new = critical</label>
+  <button id="export">Export manifest</button>
+  <button class="ghost" id="clear">Clear</button>
+  <span class="muted" id="hint">Drag on the image to add a region. Click a region to delete.</span>
+</header>
+<main>
+  <div id="stagewrap"><div id="stage"><img id="img" alt="scene"><div id="overlay"></div></div></div>
+  <aside>
+    <h3 class="muted">Regions</h3>
+    <ul id="list"></ul>
+    <h3 class="muted">Manifest</h3>
+    <pre id="output">{}</pre>
+  </aside>
+</main>
+
+<!-- Pure coordinate + manifest logic. No DOM access here, so it is unit-testable
+     under Node: the Node harness evals this block and calls globalThis.EditorCore. -->
+<script id="editor-core">
+const EditorCore = {
+  // Normalise a possibly-inverted display rect, then scale display px -> master px.
+  displayToMaster(rect, disp, nat) {
+    let { x, y, w, h } = rect;
+    if (w < 0) { x += w; w = -w; }
+    if (h < 0) { y += h; h = -h; }
+    const sx = nat.w / disp.w, sy = nat.h / disp.h;
+    const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+    const mx = clamp(Math.round(x * sx), 0, nat.w);
+    const my = clamp(Math.round(y * sy), 0, nat.h);
+    return {
+      x: mx, y: my,
+      w: clamp(Math.round(w * sx), 0, nat.w - mx),
+      h: clamp(Math.round(h * sy), 0, nat.h - my),
+    };
+  },
+  // Build a manifest that feeds scene-layer-cut (regions) AND
+  // responsive-scene-recomposition (hotspot centre anchors).
+  regionsToManifest(room, nat, regions) {
+    return {
+      room: room || "untitled-room",
+      size: [nat.w, nat.h],
+      regions: regions.map(r => ({
+        name: r.name, x: r.x, y: r.y, w: r.w, h: r.h,
+        z: r.z || 10, critical: !!r.critical,
+      })),
+      hotspots: regions.map(r => ({
+        name: r.name,
+        x: r.x + Math.round(r.w / 2),
+        y: r.y + Math.round(r.h / 2),
+        critical: !!r.critical,
+      })),
+    };
+  },
+};
+if (typeof globalThis !== "undefined") globalThis.EditorCore = EditorCore;
+</script>
+
+<!-- DOM wiring. Thin shell over the tested EditorCore. -->
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const stage = $("stage"), img = $("img"), overlay = $("overlay");
+  let regions = [], nat = { w: 0, h: 0 }, drag = null, tempEl = null;
+
+  function placeholder() {
+    // A neutral grid so the tool is usable (and testable) without an asset.
+    const c = document.createElement("canvas");
+    c.width = 1600; c.height = 900;
+    const g = c.getContext("2d");
+    g.fillStyle = "#202A1B"; g.fillRect(0, 0, c.width, c.height);
+    g.strokeStyle = "#3a4634";
+    for (let x = 0; x < c.width; x += 100) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, c.height); g.stroke(); }
+    for (let y = 0; y < c.height; y += 100) { g.beginPath(); g.moveTo(0, y); g.lineTo(c.width, y); g.stroke(); }
+    return c.toDataURL();
+  }
+
+  function loadSrc(src) { img.onload = () => { nat = { w: img.naturalWidth, h: img.naturalHeight }; render(); }; img.src = src; }
+
+  const params = new URLSearchParams(location.search);
+  loadSrc(params.get("src") || placeholder());
+  $("file").addEventListener("change", e => { const f = e.target.files[0]; if (f) loadSrc(URL.createObjectURL(f)); });
+
+  function disp() { const r = img.getBoundingClientRect(); return { w: r.width, h: r.height, left: r.left, top: r.top }; }
+
+  overlay.addEventListener("mousedown", e => {
+    const d = disp();
+    drag = { x: e.clientX - d.left, y: e.clientY - d.top, w: 0, h: 0 };
+    tempEl = document.createElement("div"); tempEl.className = "region"; overlay.appendChild(tempEl);
+  });
+  window.addEventListener("mousemove", e => {
+    if (!drag) return;
+    const d = disp();
+    drag.w = (e.clientX - d.left) - drag.x; drag.h = (e.clientY - d.top) - drag.y;
+    Object.assign(tempEl.style, {
+      left: Math.min(drag.x, drag.x + drag.w) + "px", top: Math.min(drag.y, drag.y + drag.h) + "px",
+      width: Math.abs(drag.w) + "px", height: Math.abs(drag.h) + "px",
+    });
+  });
+  window.addEventListener("mouseup", () => {
+    if (!drag) return;
+    if (Math.abs(drag.w) > 6 && Math.abs(drag.h) > 6) {
+      const name = prompt("Region name", "region-" + (regions.length + 1));
+      if (name) {
+        const m = EditorCore.displayToMaster(drag, disp(), nat);
+        regions.push({ name, ...m, z: 10, critical: $("critdefault").checked });
+      }
+    }
+    if (tempEl) tempEl.remove();
+    drag = null; tempEl = null; render();
+  });
+
+  function render() {
+    [...overlay.querySelectorAll(".region")].forEach(n => n.remove());
+    const d = disp(); const sx = d.w / (nat.w || 1), sy = d.h / (nat.h || 1);
+    regions.forEach((r, i) => {
+      const el = document.createElement("div");
+      el.className = "region" + (r.critical ? " crit" : "");
+      Object.assign(el.style, { left: r.x * sx + "px", top: r.y * sy + "px", width: r.w * sx + "px", height: r.h * sy + "px" });
+      el.innerHTML = `<span class="tag">${r.name}</span>`;
+      el.title = "click to delete";
+      el.addEventListener("click", () => { if (confirm("Delete " + r.name + "?")) { regions.splice(i, 1); render(); } });
+      overlay.appendChild(el);
+    });
+    const list = $("list"); list.innerHTML = "";
+    regions.forEach(r => { const li = document.createElement("li"); li.innerHTML = `<span>${r.name}</span><span class="muted">${r.w}x${r.h}${r.critical ? " crit" : ""}</span>`; list.appendChild(li); });
+    $("output").textContent = JSON.stringify(EditorCore.regionsToManifest($("room").value, nat, regions), null, 2);
+  }
+
+  $("export").addEventListener("click", () => {
+    const data = JSON.stringify(EditorCore.regionsToManifest($("room").value, nat, regions), null, 2);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([data], { type: "application/json" }));
+    a.download = ($("room").value || "scene") + ".regions.json"; a.click();
+  });
+  $("clear").addEventListener("click", () => { if (confirm("Clear all regions?")) { regions = []; render(); } });
+  $("room").addEventListener("input", render);
+
+  // Test/automation surface (used by the Node smoke path and any headless driver).
+  window.__editor = {
+    setNatural: (w, h) => { nat = { w, h }; },
+    addRegionMaster: r => { regions.push({ z: 10, critical: false, ...r }); render(); },
+    toManifest: () => EditorCore.regionsToManifest($("room").value, nat, regions),
+    getRegions: () => regions.slice(),
+  };
+})();
+</script>
+</body>
+</html>

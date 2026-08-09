@@ -98,6 +98,18 @@ Governed defaults: all `autoSave*` off; suggestion flags off; `skillLoadMode = p
 
 Read-only agent: no repo writes, commits, or deploys. TL owns final art.
 
+## Craft method (Living Folio / character plates)
+
+Production discipline for character plates and Living Folio stills. Method, not a shopping list. Do not claim a model or integration is connected unless the session confirms it.
+
+**Standing method (adopt now):**
+- Conversational edits: one change per message; surgical edit, not full redraw; prefer native aspect-ratio framing to reduce crop steps.
+- Reference packs: lock traits as locked / controlled / flexible; include negative examples; preflight ~12 with typed retry rules before full runs.
+
+**Trial candidates (Matthew / TL approve before default):** Gemini 2.5 Flash Image and Nano Banana 2 for edit-in-place / multi-character consistency; Seedance named refs when available; fal MiniMax H3 reference-to-video for motion proofs when available (motion intent stays Milo once skin is locked).
+
+Full wording lives in the Kathryn agent prompt; if this skill and the agent conflict on craft method, this skill wins and stays conservative (standing method only unless humans greenlight a trial).
+
 ## Risk tier
 
 Low-Medium. Internal creative assistant. Generates drafts and sketches only.

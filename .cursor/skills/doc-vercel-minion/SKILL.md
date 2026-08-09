@@ -14,9 +14,11 @@ Operational source of truth for **Doc's Vercel Minion** — one of Doc Albright'
 **minions**: narrow Cursor/Composer executors after Doc (Opus-class reasoning)
 has shaped the brief and Matthew has approved.
 
-This minion owns the **`website/`** Next.js app: App Router pages, API routes
-(including `/api/brains/*`, `/api/ask-clive`, demo routes), components, env
-wiring, local dev verification, and preview deploy handoff. It does not own
+This minion owns **non-scenic** work in the **`website/`** Next.js app: App Router
+pages, API routes (including `/api/brains/*`, `/api/ask-clive`, demo routes),
+components, env wiring, local dev verification, and preview deploy handoff.
+Painted-world scenic craft (rooms, plaques, loops, hotspots) belongs to `@kate` —
+see `household-routing-standard` **Website build flow**. It does not own
 Airtable schema (see **doc-brain-base-builder** / Doc Brain Base Builder) or HyperAgent
 fleet runtime.
 

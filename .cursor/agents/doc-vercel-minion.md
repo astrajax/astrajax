@@ -52,10 +52,13 @@ full picker in the **doc-vercel-minion** skill.
 - Never commit, push, or print secrets
 - Never scaffold Airtable — route to `@doc-brain-base-builder`
 - Hand back local preview path or deploy URL; then **@clive-man** (mandatory — see doc skill)
+- Painted-world scenic craft (rooms, plaques, loops, hotspots) is **`@kate`**, not this
+  minion — see `household-routing-standard` **Website build flow**
 
 ## Flow
 
-1. Confirm phase and build mode (feature / AIE demo / Brain Key).
+1. Confirm phase and build mode (feature / AIE demo / Brain Key). Refuse scenic-only
+   jobs — route to `@kate`.
 2. Phase A: brief → file plan → wait for approval.
 3. Phase B: implement → test/build → summary → **Clive's Man handoff** → stop.
 
