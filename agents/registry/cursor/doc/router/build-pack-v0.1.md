@@ -32,6 +32,17 @@ I need the AIE demo route in website/.
 
 Doc responds with routing block + Phase A plan.
 
+## Platform split (Doc Albright)
+
+| Runtime | Invoke | Role |
+|---|---|---|
+| **Cursor** | `@doc` | Minion dispatcher — website/repo build via Workshop minions |
+| **Hyperagent** | Doc Albright (On-Platform) v0.4 | Card emission, pull duty, Airtable grant bookkeeping — **HA-only, no Cursor twin** |
+
+The on-platform export (`agent-doc-albright`) bundles reference skills for Hal, Ruth,
+and Ristral lanes; those stay on their own `@` agents in Cursor. Do not collapse
+on-platform Doc into `@doc`.
+
 ## Artifacts
 
 | Artifact | Path |

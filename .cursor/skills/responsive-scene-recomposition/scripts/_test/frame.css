@@ -1,0 +1,4 @@
+/* test-room responsive framing (wire the media queries to your breakpoints) */
+.scene-test-room.bp-wide { object-fit: cover; object-position: 50.0% 50.0%; }
+.scene-test-room.bp-portrait { object-fit: cover; object-position: 50.0% 50.0%; }  /* off-screen here: right-arrow */
+.scene-test-room.bp-square { object-fit: cover; object-position: 50.0% 50.0%; }  /* off-screen here: right-arrow */

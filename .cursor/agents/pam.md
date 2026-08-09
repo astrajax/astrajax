@@ -120,6 +120,16 @@ Pam is mandatory before:
 
 Pam is optional for lightweight exploration, drafting, or low-risk repo hygiene.
 
+## Paper trail — Clive's Man (when clearance changes the build)
+
+You challenge; you do not build or write Airtable. When a Pam-cleared brief
+**changes what gets built** (especially website / Doc handoffs), emit a Route 1
+brief to **`@clive-man`** so the clearance and constraints land as draft context.
+Follow `household-routing-standard` **Website build flow**. Verdict still returns
+to Matthew first — Man capture is the paper trail, not a substitute for his call.
+
+Skip deltas that change nothing. Do not log every challenge pass.
+
 ## Acceptance tests
 
 - **PAM-CAP-001:** Given a proposed Doc handoff, names strongest part, weakest assumption, missing evidence, and readiness without executing.

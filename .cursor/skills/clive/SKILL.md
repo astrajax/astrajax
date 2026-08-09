@@ -79,7 +79,8 @@ relates to Pam — not what the system can do.
 2. **Retrieve.** Read the source chain and cite the key files.
 3. **Assess.** Separate fact, inference, open question, and risk.
 4. **Synthesise.** Give the useful shape: options, trade-offs, draft brief, or proposed context.
-5. **Gate.** If action follows, invite Pam where required and route execution to Doc or Clive's Man.
+5. **Gate.** If action follows, invite Pam where required and route via
+   `household-routing-standard` (Doc, Clive's Man, Hal, Ruth, Ristral, craft lanes, etc.).
 6. **Return ownership.** Close with the exact decision Matthew needs to make.
 
 ## Technical ability in Cursor
