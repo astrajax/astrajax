@@ -19,6 +19,25 @@ export const BRAIN_REGISTRY_TABLES = {
   operatorState: "tblnomux0JXU29HhP",
 } as const;
 
+/** Registry Change Log — paper trail. */
+export const BRAIN_REGISTRY_CHANGE_LOG_FIELDS = {
+  entryId: "fldbewIQNebtucArP",
+  changeSummary: "flddZRd7rhMRSdnY8",
+  changeType: "flduWUwUUT8Wsxz76",
+  changedBy: "fldawPlugGn9Ax2JE",
+  approvedBy: "fld2BzEfC21r2Ian0",
+  executingAgent: "fldu2U484EXheO9MR",
+  source: "fldEt487QudivIZLj",
+  reason: "fldpKHZLSMJm6QpbX",
+  affectedRecords: "fldMJkDF9mzch7MUU",
+  status: "fldWHFC3FYigfqy5J",
+  previousHash: "fldbabZzSgYgQHdWE",
+  entryHash: "fldpkmTmM6QqM31jR",
+  notes: "fldnbadnPs6OtTufn",
+  /** Airtable createdTime — tip lookup / newest-first sort (Matthew, 9 Aug 2026). */
+  created: "fldBlc1nSqMIYVxg1",
+} as const;
+
 /** Registry Implementation Jobs — Opus/Doc brief → worker → Draft ready. */
 export const IMPLEMENTATION_JOBS_FIELDS = {
   jobId: "fldUfmV9MpDosM6Ou",

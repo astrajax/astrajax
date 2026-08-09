@@ -3,6 +3,12 @@ import { airtableCreate, airtableSelect } from "./airtable-rest";
 import { BRAIN_REGISTRY_TABLES } from "./airtable-ids";
 import { getRegistryBaseId, getRegistryWriteToken, useMemoryStore } from "./config";
 
+/**
+ * Change Log sort field. Airtable `createdTime` column on tbliAMUuKKW4DDRXF
+ * (fldBlc1nSqMIYVxg1). Auto-populated — do not write it on create.
+ */
+export const CHANGE_LOG_CREATED_FIELD = "Created";
+
 function hashContent(text: string): string {
   return `sha256:${createHash("sha256").update(text, "utf8").digest("hex")}`;
 }
@@ -51,18 +57,16 @@ export async function appendChangeLog(entry: ChangeLogEntryInput): Promise<void>
     throw new Error("Brain Registry is not configured.");
   }
 
-  const latest = await airtableSelect(baseId, BRAIN_REGISTRY_TABLES.changeLog, token, {
-    maxRecords: 100,
+  // Tip = single newest row by Created. Avoids forking the hash chain when
+  // the table grows past one unsorted page of 100.
+  const tip = await airtableSelect(baseId, BRAIN_REGISTRY_TABLES.changeLog, token, {
+    maxRecords: 1,
     fields: ["Entry Hash"],
+    sortField: CHANGE_LOG_CREATED_FIELD,
+    sortDirection: "desc",
   });
 
-  const sorted = [...latest].sort((a, b) => {
-    const aTime = a.createdTime ? Date.parse(a.createdTime) : 0;
-    const bTime = b.createdTime ? Date.parse(b.createdTime) : 0;
-    return bTime - aTime;
-  });
-
-  const previousHash = String(sorted[0]?.fields["Entry Hash"] ?? "");
+  const previousHash = String(tip[0]?.fields["Entry Hash"] ?? "");
   const entryHash = hashContent(previousHash + canonicalEntryJson(entry));
 
   await airtableCreate(baseId, BRAIN_REGISTRY_TABLES.changeLog, token, {
