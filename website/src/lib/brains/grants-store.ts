@@ -42,21 +42,30 @@ export async function approveKeyRequest(input: {
   const req = await store.getRequest(input.requestId);
   if (!req || req.status !== "pending") return null;
 
+  // Claim the pending request first so concurrent approves cannot mint two
+  // grants. If grant creation fails afterwards, roll back to pending so the
+  // human can retry — otherwise the request is stuck "approved" with no key.
   await store.setRequestStatus(req.requestId, "approved");
 
   const minutes = input.grantExpiryMinutes ?? getDefaultGrantMinutes();
   const maxUses = input.grantMaxUses ?? getDefaultMaxUses();
 
-  const grant = await store.createGrant({
-    requestId: req.requestId,
-    brainSlug: req.brainSlug,
-    persona: req.persona,
-    scope: req.scope,
-    sessionId: req.sessionId,
-    approvedBy: input.approver,
-    grantMaxUses: maxUses,
-    grantExpiryMinutes: minutes,
-  });
+  let grant: AccessGrant;
+  try {
+    grant = await store.createGrant({
+      requestId: req.requestId,
+      brainSlug: req.brainSlug,
+      persona: req.persona,
+      scope: req.scope,
+      sessionId: req.sessionId,
+      approvedBy: input.approver,
+      grantMaxUses: maxUses,
+      grantExpiryMinutes: minutes,
+    });
+  } catch (error) {
+    await store.setRequestStatus(req.requestId, "pending");
+    throw error;
+  }
 
   await appendChangeLog({
     changeSummary: `Grant issued for ${req.brainSlug}`,

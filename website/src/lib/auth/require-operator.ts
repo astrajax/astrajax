@@ -27,9 +27,10 @@ export async function requireOperatorOrDocPromote(
 }
 
 /**
- * Strict operator session gate for browser-callable Trusted Brain *reads*
- * that must not bypass Brain Key. Unlike requireOperatorOrDocPromote, there
- * is no shared-secret fallback — these surfaces are operator UI only.
+ * Strict operator session gate for browser-callable Workshop / Registry /
+ * Trusted Brain *reads* that must not bypass Brain Key or expose review
+ * queues anonymously. Unlike requireOperatorOrDocPromote, there is no
+ * shared-secret fallback — these surfaces are operator UI only.
  */
 export async function requireOperatorSession(): Promise<OperatorIdentity> {
   const session = await auth();
