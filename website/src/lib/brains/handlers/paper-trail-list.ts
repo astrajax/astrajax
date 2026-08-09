@@ -4,6 +4,13 @@ import { getRegistryBaseId, getRegistryReadToken, useMemoryStore } from "../conf
 import { getMemoryChangeLogForTests } from "../change-log";
 import type { PaperTrailEntry } from "@/lib/curation/types";
 
+/**
+ * KNOWN GAP: brainSlug is accepted but cannot be honoured — the Registry
+ * Change Log table has no brain column, so every caller sees the whole
+ * Registry trail regardless of the brain they asked for. Filtering needs a
+ * "Brain Slug" field added to tbliAMUuKKW4DDRXF first; that is a schema
+ * decision, not something to fake here.
+ */
 export async function handlePaperTrailList(input: {
   brainSlug: string;
   limit?: number;
@@ -30,21 +37,25 @@ export async function handlePaperTrailList(input: {
     return { mode: "memory", entries: [] };
   }
 
+  // The Change Log table has no date column, so Airtable cannot sort for us —
+  // asking it to sort on "Created" made every live call fail with a 422. Over-
+  // fetch instead and order by the record's own createdTime here.
   const records = await airtableSelect(baseId, BRAIN_REGISTRY_TABLES.changeLog, token, {
-    maxRecords: limit,
-    sortField: "Created",
-    sortDirection: "desc",
+    maxRecords: Math.min(limit * 4, 100),
   });
 
-  const entries: PaperTrailEntry[] = records.map((record) => ({
-    id: record.id,
-    action: String(record.fields["Change Summary"] ?? "Change logged"),
-    actor: String(record.fields["Changed By"] ?? "System"),
-    reason: String(record.fields.Reason ?? record.fields["Change Type"] ?? ""),
-    timestamp: record.createdTime ?? new Date().toISOString(),
-    destination: "registry-change-log",
-    recordId: record.id,
-  }));
+  const entries: PaperTrailEntry[] = records
+    .map((record) => ({
+      id: record.id,
+      action: String(record.fields["Change Summary"] ?? "Change logged"),
+      actor: String(record.fields["Changed By"] ?? "System"),
+      reason: String(record.fields.Reason ?? record.fields["Change Type"] ?? ""),
+      timestamp: record.createdTime ?? new Date().toISOString(),
+      destination: "registry-change-log" as const,
+      recordId: record.id,
+    }))
+    .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+    .slice(0, limit);
 
   return { mode: "airtable", entries };
 }

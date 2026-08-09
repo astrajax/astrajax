@@ -4,6 +4,15 @@ const nextConfig: NextConfig = {
   // Native Next.js on Vercel — no static export; enables API routes for Ask Clive later.
   images: {
     formats: ["image/avif", "image/webp"],
+    // Living Folio painted-scene masters served from the connected public
+    // Vercel Blob store; the optimiser produces responsive AVIF/WebP at device
+    // size while the full-resolution Blob master stays untouched.
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.public.blob.vercel-storage.com",
+      },
+    ],
   },
   async redirects() {
     return [

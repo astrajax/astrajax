@@ -1,13 +1,15 @@
 import { defineConfig } from "vitest/config";
-import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 export default defineConfig({
-  test: {
-    environment: "node",
-  },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
+  },
+  test: {
+    // e2e/ holds Playwright specs, which vitest cannot load. Run them with
+    // `npm run test:e2e` instead.
+    exclude: ["node_modules/**", ".next/**", "e2e/**"],
   },
 });
