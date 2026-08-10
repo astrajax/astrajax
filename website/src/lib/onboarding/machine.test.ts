@@ -11,6 +11,9 @@ import {
   answerProbe,
   backStep,
   canAcceptDraft,
+  canAddFile,
+  canContinueSourcePack,
+  canContinueSupportingFile,
   canSwitchRoute,
   chooseRoute,
   initialOnboardingState,
@@ -18,9 +21,12 @@ import {
   probeProgress,
   setConfirmation,
   setCorrection,
-  canAddFile,
+  sourcePackContinueLabel,
+  sourcePackLimitsSummary,
+  SOURCE_PACK_LIMITS,
   stageFile,
   stopProbingEarly,
+  supportingFileContinueLabel,
 } from "./machine";
 
 const INF_IDS = ["inf_role_v1", "inf_competency_v1"];
@@ -113,6 +119,106 @@ describe("onboarding state machine", () => {
     }
     expect(s.files.length).toBe(5);
     expect(canAddFile(s, 1024).ok).toBe(true);
+  });
+
+  it("batch add cannot exceed the 50 MiB total when validated against a working snapshot", () => {
+    let s = chooseRoute(initialOnboardingState(), "bring-material");
+    const chunk = 20 * 1024 * 1024;
+    let working = s.files;
+    const accepted: number[] = [];
+    for (const size of [chunk, chunk, chunk]) {
+      const check = canAddFile({ ...s, files: working }, size);
+      if (!check.ok) break;
+      const staged = {
+        id: `f-${accepted.length}`,
+        name: `big-${accepted.length}.pdf`,
+        extension: ".pdf",
+        sizeBytes: size,
+        state: "uploading" as const,
+      };
+      working = [...working, staged];
+      accepted.push(size);
+    }
+    expect(accepted.length).toBe(2);
+    expect(working.reduce((sum, f) => sum + f.sizeBytes, 0)).toBeLessThanOrEqual(
+      SOURCE_PACK_LIMITS.maxBytesTotal,
+    );
+  });
+
+  it("Route A continue is blocked while uploading or failed", () => {
+    let s = chooseRoute(initialOnboardingState(), "bring-material");
+    expect(canContinueSourcePack(s)).toBe(false);
+    expect(sourcePackContinueLabel(s)).toBe("Add files to continue");
+
+    s = stageFile(s, {
+      id: "f1",
+      name: "a.pdf",
+      extension: ".pdf",
+      sizeBytes: 100,
+      state: "uploading",
+    });
+    expect(canContinueSourcePack(s)).toBe(false);
+    expect(sourcePackContinueLabel(s)).toBe("Uploading…");
+
+    s = stageFile(s, {
+      id: "f1",
+      name: "a.pdf",
+      extension: ".pdf",
+      sizeBytes: 100,
+      state: "failed",
+      error: "server",
+    });
+    expect(canContinueSourcePack(s)).toBe(false);
+    expect(sourcePackContinueLabel(s)).toBe("Fix failed uploads to continue");
+
+    s = stageFile(s, {
+      id: "f1",
+      name: "a.pdf",
+      extension: ".pdf",
+      sizeBytes: 100,
+      state: "uploaded",
+      blobUrl: "https://example.private.blob.vercel-storage.com/x",
+    });
+    expect(canContinueSourcePack(s)).toBe(true);
+    expect(sourcePackContinueLabel(s)).toBe("See what Clive found");
+  });
+
+  it("Route B continue is blocked when the supporting file failed", () => {
+    let s = chooseRoute(initialOnboardingState(), "talk-through");
+    expect(canContinueSupportingFile(s)).toBe(true);
+    expect(supportingFileContinueLabel(s)).toBe("See what Clive has drafted");
+
+    s = {
+      ...s,
+      supportingFile: {
+        id: "sf1",
+        name: "note.pdf",
+        extension: ".pdf",
+        sizeBytes: 100,
+        state: "failed",
+        error: "upload failed",
+      },
+    };
+    expect(canContinueSupportingFile(s)).toBe(false);
+    expect(supportingFileContinueLabel(s)).toBe("Fix failed uploads to continue");
+
+    s = {
+      ...s,
+      supportingFile: {
+        id: "sf1",
+        name: "note.pdf",
+        extension: ".pdf",
+        sizeBytes: 100,
+        state: "uploaded",
+        blobUrl: "https://example.private.blob.vercel-storage.com/y",
+      },
+    };
+    expect(canContinueSupportingFile(s)).toBe(true);
+  });
+
+  it("Source Pack limits summary reads from the single SOURCE_PACK_LIMITS source", () => {
+    expect(sourcePackLimitsSummary()).toBe("Up to 5 files · 50 MB total · 20 MB each.");
+    expect(SOURCE_PACK_LIMITS.uploadPrefix).toBe("onboarding-uploads/");
   });
 
   it("Accept as draft is disabled until EVERY inference has a decision", () => {
