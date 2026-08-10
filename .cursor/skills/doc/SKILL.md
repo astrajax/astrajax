@@ -148,10 +148,12 @@ directly, skip triage announcement but still follow that minion's skill.
 - After explicit approval when tier requires it (`approved`, `build it`, `green go`, …)
 - Doc continues in same thread **as the chosen minion** (load that skill fully)
 - If Ask mode when approved → refuse; ask Matthew to switch to Agent mode
-- **Execution model:** Phase B and minion dispatch **must** run on **Cursor Composer
-  (`composer-2.5-fast`)** — mechanical repo/MCP/file work. Do **not** use an
-  Opus-class or other expensive reasoning model for BUILD/EXECUTE. See
-  `.cursor/rules/model-routing.mdc`.
+- **Execution model:** Phase B and minion dispatch run on the **first-party pool**.
+  Non-scenic website and MCP-schema builds on **Grok (`cursor-grok-4.5-high-fast`)**;
+  automations, Trinity executors, and repetitive mechanical work on **Composer
+  (`composer-2.5-fast`)**. Kimi K3 is escalation only, after Grok has failed the same
+  task twice. Never a frontier model (Opus, Sol) for BUILD/EXECUTE. Painted-world
+  scenic stays **Not Doc** (`@kate`). See `.cursor/rules/model-routing.mdc`.
 - HyperAgent export builds: Phase B incomplete without validation +
   `handoff_hyperagent_export.py` card (`docs/initiatives/hyperagent-handoff-contract.md`).
 
@@ -180,7 +182,8 @@ When routing agent design/build work, name **Doc's Workshop** and the Trinity:
 **Runtime builder(s):** Cursor | Hyperagent | both
 ```
 
-Workshop Proposer and Challenger run on a **strong model**; builders on
+Workshop Proposer runs on **`gpt-5.6-sol-xhigh`**, Challenger on
+**`claude-opus-5-thinking-high`** (deliberate family split), builders on
 **Composer (`composer-2.5-fast`)** (pinned). Doc does not skip Challenger or let the
 Proposer write files instead of dispatching builders.
 
@@ -258,10 +261,12 @@ I'll draft the plan (Phase A). You approve; then we build in Agent mode.
 
 ## Model note
 
-Doc's triage and brief-shaping (Phase A) work best on a **strong reasoning model**
-(Opus-class per `docs/business/architecture.md` §9). Minion execution (Phase B) is
-**Cursor Composer (`composer-2.5-fast`)** only — repo and MCP hands; never an
-Opus-class model for mechanical build work. See `.cursor/rules/model-routing.mdc`.
+Doc's triage and brief-shaping (Phase A) run on **`claude-opus-5-thinking-high`**
+(Opus-class per `docs/business/architecture.md` §9). Minion execution (Phase B) runs
+on the first-party pool: **Grok (`cursor-grok-4.5-high-fast`)** for non-scenic website
+and MCP-schema work; **Composer (`composer-2.5-fast`)** for automations and repetitive
+mechanical passes. Painted-world scenic stays **Not Doc** (`@kate`). Never a frontier
+model for mechanical build work. See `.cursor/rules/model-routing.mdc`.
 
 ## Tone
 
