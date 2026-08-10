@@ -103,4 +103,36 @@ describe("POST /api/onboarding/upload", () => {
     const body = await response.json();
     expect(body.error).toMatch(/onboarding-uploads/);
   });
+
+  it("refuses tokens for disallowed filename extensions", async () => {
+    const { handleUpload } = await import("@vercel/blob/client");
+    const handleUploadMock = vi.mocked(handleUpload);
+    handleUploadMock.mockImplementation(async (opts) => {
+      await opts.onBeforeGenerateToken(
+        "onboarding-uploads/abc-payload.exe",
+        JSON.stringify({ sizeBytes: 100 }),
+        false,
+      );
+      return { type: "blob.generate-client-token", clientToken: "tok_test" };
+    });
+
+    const { POST } = await import("./route");
+    const request = new NextRequest("http://localhost/api/onboarding/upload", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        type: "blob.generate-client-token",
+        payload: {
+          pathname: "onboarding-uploads/abc-payload.exe",
+          multipart: false,
+          clientPayload: JSON.stringify({ sizeBytes: 100 }),
+        },
+      }),
+    });
+    const response = await POST(request);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toMatch(/not allowed/i);
+    expect(body.error).toMatch(/\.exe/);
+  });
 });

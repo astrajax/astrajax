@@ -7,6 +7,7 @@
  *
  * Token constraints (enforced by Blob, not the browser):
  * - pathname under onboarding-uploads/
+ * - allowed filename extensions (SOURCE_PACK_LIMITS.allowedExtensions)
  * - allowed content types
  * - per-file max size (20 MiB)
  * - random suffix (collision-safe keys)
@@ -42,7 +43,10 @@ function parseClientPayload(raw: string | null): ClientPayload {
     if (!parsed || typeof parsed !== "object") return {};
     const sizeBytes = (parsed as ClientPayload).sizeBytes;
     return {
-      sizeBytes: typeof sizeBytes === "number" && Number.isFinite(sizeBytes) ? sizeBytes : undefined,
+      sizeBytes:
+        typeof sizeBytes === "number" && Number.isFinite(sizeBytes)
+          ? sizeBytes
+          : undefined,
     };
   } catch {
     return {};
@@ -51,7 +55,11 @@ function parseClientPayload(raw: string | null): ClientPayload {
 
 function assertUploadPathname(pathname: string): void {
   const prefix = SOURCE_PACK_LIMITS.uploadPrefix;
-  if (!pathname.startsWith(prefix) || pathname.includes("..") || pathname.includes("//")) {
+  if (
+    !pathname.startsWith(prefix) ||
+    pathname.includes("..") ||
+    pathname.includes("//")
+  ) {
     throw new Error(`Uploads must use the ${prefix} prefix`);
   }
   const rest = pathname.slice(prefix.length);
@@ -60,11 +68,25 @@ function assertUploadPathname(pathname: string): void {
   }
 }
 
+function getExtension(pathname: string): string {
+  const idx = pathname.lastIndexOf(".");
+  return idx >= 0 ? pathname.slice(idx).toLowerCase() : "";
+}
+
+function assertAllowedExtension(pathname: string): void {
+  const ext = getExtension(pathname);
+  if (
+    !(SOURCE_PACK_LIMITS.allowedExtensions as readonly string[]).includes(ext)
+  ) {
+    throw new Error(`File type not allowed: ${ext || "(none)"}`);
+  }
+}
+
 function blobConfigured(): boolean {
   return Boolean(
     process.env.BLOB_READ_WRITE_TOKEN ||
-      process.env.BLOB_STORE_ID ||
-      process.env.VERCEL_OIDC_TOKEN,
+    process.env.BLOB_STORE_ID ||
+    process.env.VERCEL_OIDC_TOKEN,
   );
 }
 
@@ -85,7 +107,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     if (!blobConfigured()) {
       return NextResponse.json(
-        { error: "Blob storage is not configured (missing BLOB_READ_WRITE_TOKEN)." },
+        {
+          error:
+            "Blob storage is not configured (missing BLOB_READ_WRITE_TOKEN).",
+        },
         { status: 503 },
       );
     }
@@ -100,6 +125,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       ...(token ? { token } : {}),
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         assertUploadPathname(pathname);
+        assertAllowedExtension(pathname);
 
         const payload = parseClientPayload(clientPayload);
         const sizeBytes = payload.sizeBytes;
@@ -114,9 +140,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         const limit = checkOnboardingUploadRateLimit({ ip, sizeBytes });
         if (!limit.allowed) {
-          const err = new Error(limit.reason || "Too many uploads. Try again later.");
-          (err as Error & { status?: number; retryAfterSeconds?: number }).status = 429;
-          (err as Error & { retryAfterSeconds?: number }).retryAfterSeconds = limit.retryAfterSeconds;
+          const err = new Error(
+            limit.reason || "Too many uploads. Try again later.",
+          );
+          (
+            err as Error & { status?: number; retryAfterSeconds?: number }
+          ).status = 429;
+          (err as Error & { retryAfterSeconds?: number }).retryAfterSeconds =
+            limit.retryAfterSeconds;
           throw err;
         }
         charged = { ip, sizeBytes };
@@ -143,7 +174,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       refundOnboardingUploadRateLimit(charged);
       charged = null;
     }
-    const message = error instanceof Error ? error.message : "Upload token failed";
+    const message =
+      error instanceof Error ? error.message : "Upload token failed";
     const status =
       typeof error === "object" &&
       error &&
@@ -155,7 +187,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       typeof error === "object" &&
       error &&
       "retryAfterSeconds" in error &&
-      typeof (error as { retryAfterSeconds?: unknown }).retryAfterSeconds === "number"
+      typeof (error as { retryAfterSeconds?: unknown }).retryAfterSeconds ===
+        "number"
         ? (error as { retryAfterSeconds: number }).retryAfterSeconds
         : undefined;
 
@@ -164,7 +197,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { error: message },
       {
         status,
-        headers: retryAfterSeconds ? { "Retry-After": String(retryAfterSeconds) } : undefined,
+        headers: retryAfterSeconds
+          ? { "Retry-After": String(retryAfterSeconds) }
+          : undefined,
       },
     );
   }
@@ -178,7 +213,10 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
     if (!blobConfigured()) {
       return NextResponse.json(
-        { error: "Blob storage is not configured (missing BLOB_READ_WRITE_TOKEN)." },
+        {
+          error:
+            "Blob storage is not configured (missing BLOB_READ_WRITE_TOKEN).",
+        },
         { status: 503 },
       );
     }
@@ -186,7 +224,10 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     const body = (await request.json()) as { url?: string; pathname?: string };
     const target = body.url || body.pathname;
     if (!target || typeof target !== "string") {
-      return NextResponse.json({ error: "url or pathname required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "url or pathname required" },
+        { status: 400 },
+      );
     }
 
     const pathname = target.includes("://")
