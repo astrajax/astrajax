@@ -1,0 +1,234 @@
+"use client";
+
+/**
+ * Real file picker and uploader for the onboarding Source Pack.
+ *
+ * - Browser file picker (click) + drag-and-drop
+ * - Uploads to /api/onboarding/upload (Vercel Blob)
+ * - Enforces Ruth's Source Pack limits
+ * - Shows honest upload state: selecting → uploading → uploaded / failed
+ */
+import { useCallback, useRef, useState, type DragEvent, type ChangeEvent } from "react";
+import {
+  SOURCE_PACK_LIMITS,
+  canAddFile,
+  type OnboardingState,
+  type SourcePackFile,
+} from "@/lib/onboarding/machine";
+
+type Props = {
+  state: OnboardingState;
+  onFileSelect: (file: SourcePackFile) => void;
+  onFileUpdate: (fileId: string, update: Partial<SourcePackFile>) => void;
+  onFileRemove: (fileId: string) => void;
+  /** For Route B: limit to 1 file. */
+  maxFiles?: number;
+};
+
+function getExtension(filename: string): string {
+  const idx = filename.lastIndexOf(".");
+  return idx >= 0 ? filename.slice(idx).toLowerCase() : "";
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRemove, maxFiles }: Props) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const effectiveMaxFiles = maxFiles ?? SOURCE_PACK_LIMITS.maxFiles;
+
+  const uploadFile = useCallback(
+    async (file: File) => {
+      const ext = getExtension(file.name);
+      const fileId = `file-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+      // Check extension
+      if (!SOURCE_PACK_LIMITS.allowedExtensions.includes(ext as typeof SOURCE_PACK_LIMITS.allowedExtensions[number])) {
+        onFileSelect({
+          id: fileId,
+          name: file.name,
+          extension: ext,
+          sizeBytes: file.size,
+          state: "failed",
+          error: `File type not allowed: ${ext}`,
+        });
+        return;
+      }
+
+      // Check limits
+      const check = canAddFile(state, file.size);
+      if (!check.ok) {
+        onFileSelect({
+          id: fileId,
+          name: file.name,
+          extension: ext,
+          sizeBytes: file.size,
+          state: "failed",
+          error: check.reason,
+        });
+        return;
+      }
+
+      // Start upload
+      onFileSelect({
+        id: fileId,
+        name: file.name,
+        extension: ext,
+        sizeBytes: file.size,
+        state: "uploading",
+        progress: 0,
+      });
+
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/onboarding/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          onFileUpdate(fileId, {
+            state: "failed",
+            error: result.error || "Upload failed",
+          });
+          return;
+        }
+
+        onFileUpdate(fileId, {
+          state: "uploaded",
+          blobUrl: result.blobUrl,
+          progress: 100,
+        });
+      } catch (error) {
+        onFileUpdate(fileId, {
+          state: "failed",
+          error: error instanceof Error ? error.message : "Upload failed",
+        });
+      }
+    },
+    [state, onFileSelect, onFileUpdate],
+  );
+
+  const handleFiles = useCallback(
+    (files: FileList | null) => {
+      if (!files) return;
+      const currentCount = state.files.length;
+      const remaining = effectiveMaxFiles - currentCount;
+      const toProcess = Array.from(files).slice(0, remaining);
+      toProcess.forEach(uploadFile);
+    },
+    [state.files.length, effectiveMaxFiles, uploadFile],
+  );
+
+  const handleDrop = useCallback(
+    (e: DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      setDragOver(false);
+      handleFiles(e.dataTransfer.files);
+    },
+    [handleFiles],
+  );
+
+  const handleDragOver = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragOver(false);
+  }, []);
+
+  const handleInputChange = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      handleFiles(e.target.files);
+      if (inputRef.current) inputRef.current.value = "";
+    },
+    [handleFiles],
+  );
+
+  const openPicker = useCallback(() => {
+    inputRef.current?.click();
+  }, []);
+
+  const totalBytes = state.files.reduce((sum, f) => sum + f.sizeBytes, 0);
+  const atLimit = state.files.length >= effectiveMaxFiles;
+
+  return (
+    <div className="source-pack-uploader">
+      {/* Hidden file input */}
+      <input
+        ref={inputRef}
+        type="file"
+        multiple={effectiveMaxFiles > 1}
+        accept={SOURCE_PACK_LIMITS.allowedExtensions.join(",")}
+        onChange={handleInputChange}
+        style={{ display: "none" }}
+        aria-hidden="true"
+      />
+
+      {/* File list */}
+      {state.files.length > 0 && (
+        <ul className="source-pack-uploader__list">
+          {state.files.map((f) => (
+            <li
+              key={f.id}
+              className={`source-pack-uploader__file source-pack-uploader__file--${f.state}`}
+            >
+              <span className="source-pack-uploader__name">{f.name}</span>
+              <span className="source-pack-uploader__meta">
+                {formatBytes(f.sizeBytes)}
+                {f.state === "uploading" && " · uploading…"}
+                {f.state === "uploaded" && " · uploaded"}
+                {f.state === "failed" && ` · ${f.error || "failed"}`}
+              </span>
+              <button
+                type="button"
+                className="source-pack-uploader__remove"
+                onClick={() => onFileRemove(f.id)}
+                aria-label={`Remove ${f.name}`}
+              >
+                ×
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {/* Drop zone */}
+      {!atLimit && (
+        <div
+          className={`source-pack-uploader__drop${dragOver ? " source-pack-uploader__drop--active" : ""}`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          role="button"
+          tabIndex={0}
+          onClick={openPicker}
+          onKeyDown={(e) => e.key === "Enter" && openPicker()}
+        >
+          <p className="source-pack-uploader__prompt">
+            Drop files here, or <span className="source-pack-uploader__link">browse</span>
+          </p>
+          <p className="source-pack-uploader__hint">
+            {SOURCE_PACK_LIMITS.allowedExtensions.join(", ")} · max {formatBytes(SOURCE_PACK_LIMITS.maxBytesPerFile)} each
+          </p>
+        </div>
+      )}
+
+      {/* Status */}
+      <p className="source-pack-uploader__status">
+        {state.files.length} of {effectiveMaxFiles} files · {formatBytes(totalBytes)} of{" "}
+        {formatBytes(SOURCE_PACK_LIMITS.maxBytesTotal)}
+      </p>
+    </div>
+  );
+}

@@ -25,22 +25,28 @@ import {
 } from "@/lib/onboarding/contract-v1";
 import {
   acceptAsDraft,
+  allFilesUploaded,
   answerGap,
   answerProbe,
   backStep,
   canAcceptDraft,
   canSwitchRoute,
   chooseRoute,
+  hasUploadingFiles,
   initialOnboardingState,
   nextStep,
   probeProgress,
+  removeFile,
   setConfirmation,
   setCorrection,
   stageFile,
   stopProbingEarly,
+  updateFileState,
   type OnboardingState,
   type RouteId,
+  type SourcePackFile,
 } from "@/lib/onboarding/machine";
+import { SourcePackUploader } from "@/components/onboarding/SourcePackUploader";
 import { StudyMarkdown } from "@/components/chapter1/StudyMarkdown";
 import { FolioActionLedger } from "@/components/chapter1/FolioActionLedger";
 import { SourcePackPlate } from "@/components/onboarding/plates/SourcePackPlate";
@@ -154,52 +160,24 @@ export function OnboardingFlow() {
         <FlowShell step="Bring your material · the Source Pack" onBack={back}>
           <h2 className="onboarding__h2">Your Source Pack.</h2>
           <p className="onboarding__lede">
-            Up to {fixture.sourcePack.limits.maxFiles} files ·{" "}
-            {Math.round(fixture.sourcePack.limits.maxBytesTotal / 1048576)} MB total ·{" "}
-            {Math.round(fixture.sourcePack.limits.maxBytesPerFile / 1048576)} MB each.
+            Up to 5 files · 50 MB total · 20 MB each.
           </p>
-          <ul className="onboarding__file-list">
-            {fixture.sourcePack.sources.map((s) => (
-              <li key={s.sourceId} className="onboarding__file onboarding__file--staged">
-                <span className="onboarding__file-name">{s.filename}</span>
-                <span className="onboarding__file-meta">
-                  {s.fileFamily.replace(/_/g, " ")} · {Math.round(s.sizeBytes / 1024)} KB · {s.versionProcessingStatus}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <SourcePackPlate
-            items={fixture.evidence.map((e) => ({
-              id: e.evidenceId,
-              evidenceClass: e.evidenceClass,
-              label: isImported(e) ? e.locator.label : `“${e.responseText.slice(0, 24)}…”`,
-              provenance: isImported(e) ? e.locator.kind.replace(/_/g, " ") : `turn ${e.turnId.replace(/\D/g, "") || e.turnId}`,
-            }))}
-            reducedMotion={reducedMotion}
+          <SourcePackUploader
+            state={state}
+            onFileSelect={(file: SourcePackFile) => setState((s) => stageFile(s, file))}
+            onFileUpdate={(fileId, update) => setState((s) => updateFileState(s, fileId, update))}
+            onFileRemove={(fileId) => setState((s) => removeFile(s, fileId))}
           />
-          <div className="onboarding__drop">
-            <p className="onboarding__body">
-              Drop files here, or{" "}
-              <button
-                type="button"
-                className="onboarding__link-btn"
-                onClick={() =>
-                  setState((s) =>
-                    stageFile(s, {
-                      id: `f-${Date.now()}`,
-                      name: "another-document.pdf",
-                      extension: ".pdf",
-                      sizeMb: 1.4,
-                      state: "staging",
-                    }),
-                  )
-                }
-              >
-                browse
-              </button>
-            </p>
-          </div>
-          <NavRow onPrimary={next} primaryLabel="See what Clive found" />
+          <NavRow
+            onPrimary={allFilesUploaded(state) && !hasUploadingFiles(state) ? next : undefined}
+            primaryLabel={
+              hasUploadingFiles(state)
+                ? "Uploading…"
+                : state.files.length === 0
+                  ? "Add files to continue"
+                  : "See what Clive found"
+            }
+          />
         </FlowShell>
       )}
 
@@ -267,25 +245,35 @@ export function OnboardingFlow() {
       {state.step === "b-supporting-file" && (
         <FlowShell step="Talk it through · one file, if it helps" onBack={back}>
           <h2 className="onboarding__h2">One supporting file — entirely optional.</h2>
-          {state.supportingFile ? (
+          {state.supportingFile && state.supportingFile.state === "uploaded" ? (
             <p className="onboarding__body">✓ {state.supportingFile.name} attached.</p>
           ) : (
-            <div className="onboarding__drop">
-              <button
-                type="button"
-                className="onboarding__link-btn"
-                onClick={() =>
-                  setState((s) => ({
-                    ...s,
-                    supportingFile: { id: `f-support-${Date.now()}`, name: "supporting-note.md", extension: ".md", sizeMb: 0.1, state: "staged" },
-                  }))
-                }
-              >
-                Attach one file
-              </button>
-            </div>
+            <SourcePackUploader
+              state={{ ...state, files: state.supportingFile ? [state.supportingFile] : [] }}
+              maxFiles={1}
+              onFileSelect={(file: SourcePackFile) => setState((s) => ({ ...s, supportingFile: file }))}
+              onFileUpdate={(_, update) =>
+                setState((s) =>
+                  s.supportingFile ? { ...s, supportingFile: { ...s.supportingFile, ...update } } : s,
+                )
+              }
+              onFileRemove={() => setState((s) => ({ ...s, supportingFile: null }))}
+            />
           )}
-          <NavRow onPrimary={next} primaryLabel="See what Clive has drafted" />
+          <NavRow
+            onPrimary={
+              !state.supportingFile || state.supportingFile.state === "uploaded"
+                ? next
+                : state.supportingFile.state === "uploading"
+                  ? undefined
+                  : next
+            }
+            primaryLabel={
+              state.supportingFile?.state === "uploading"
+                ? "Uploading…"
+                : "See what Clive has drafted"
+            }
+          />
         </FlowShell>
       )}
 
@@ -446,10 +434,10 @@ function FlowShell({ step, children, onBack, chat = false }: { step: string; chi
   );
 }
 
-function NavRow({ onPrimary, primaryLabel }: { onPrimary: () => void; primaryLabel: string }) {
+function NavRow({ onPrimary, primaryLabel }: { onPrimary?: () => void; primaryLabel: string }) {
   return (
     <div className="onboarding__nav">
-      <button type="button" className="btn-primary" onClick={onPrimary}>{primaryLabel}</button>
+      <button type="button" className="btn-primary" onClick={onPrimary} disabled={!onPrimary}>{primaryLabel}</button>
     </div>
   );
 }

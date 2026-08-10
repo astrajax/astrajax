@@ -92,9 +92,9 @@ describe("onboarding state machine", () => {
 
   it("Route A stages files deterministically (upsert by id, no duplicates)", () => {
     let s = chooseRoute(initialOnboardingState(), "bring-material");
-    s = stageFile(s, { id: "f-new", name: "extra.pdf", extension: ".pdf", sizeMb: 1, state: "staged" });
+    s = stageFile(s, { id: "f-new", name: "extra.pdf", extension: ".pdf", sizeBytes: 1024 * 1024, state: "uploaded" });
     expect(s.files.length).toBe(1);
-    s = stageFile(s, { id: "f-new", name: "extra.pdf", extension: ".pdf", sizeMb: 1, state: "staged" });
+    s = stageFile(s, { id: "f-new", name: "extra.pdf", extension: ".pdf", sizeBytes: 1024 * 1024, state: "uploaded" });
     expect(s.files.length).toBe(1);
   });
 
