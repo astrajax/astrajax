@@ -1,0 +1,144 @@
+{
+  "room": "test-room",
+  "size": [
+    1600,
+    900
+  ],
+  "breakpoints": [
+    {
+      "name": "wide",
+      "aspect": 1.7778,
+      "crop": {
+        "x": 0,
+        "y": 0,
+        "w": 1600,
+        "h": 900,
+        "object_position": [
+          50.0,
+          50.0
+        ],
+        "focal_fits": true
+      },
+      "hotspots": [
+        {
+          "x_pct": 50.0,
+          "y_pct": 50.0,
+          "inside": true,
+          "name": "vat",
+          "critical": true
+        },
+        {
+          "x_pct": 38.8,
+          "y_pct": 50.0,
+          "inside": true,
+          "name": "left-vial",
+          "critical": true
+        },
+        {
+          "x_pct": 50.0,
+          "y_pct": 91.1,
+          "inside": true,
+          "name": "nameplate",
+          "critical": true
+        },
+        {
+          "x_pct": 95.0,
+          "y_pct": 50.0,
+          "inside": true,
+          "name": "right-arrow",
+          "critical": false
+        }
+      ]
+    },
+    {
+      "name": "portrait",
+      "aspect": 0.5625,
+      "crop": {
+        "x": 547,
+        "y": 0,
+        "w": 506,
+        "h": 900,
+        "object_position": [
+          50.0,
+          50.0
+        ],
+        "focal_fits": true
+      },
+      "hotspots": [
+        {
+          "x_pct": 50.0,
+          "y_pct": 50.0,
+          "inside": true,
+          "name": "vat",
+          "critical": true
+        },
+        {
+          "x_pct": 14.4,
+          "y_pct": 50.0,
+          "inside": true,
+          "name": "left-vial",
+          "critical": true
+        },
+        {
+          "x_pct": 50.0,
+          "y_pct": 91.1,
+          "inside": true,
+          "name": "nameplate",
+          "critical": true
+        },
+        {
+          "x_pct": 192.3,
+          "y_pct": 50.0,
+          "inside": false,
+          "name": "right-arrow",
+          "critical": false
+        }
+      ]
+    },
+    {
+      "name": "square",
+      "aspect": 1.0,
+      "crop": {
+        "x": 350,
+        "y": 0,
+        "w": 900,
+        "h": 900,
+        "object_position": [
+          50.0,
+          50.0
+        ],
+        "focal_fits": true
+      },
+      "hotspots": [
+        {
+          "x_pct": 50.0,
+          "y_pct": 50.0,
+          "inside": true,
+          "name": "vat",
+          "critical": true
+        },
+        {
+          "x_pct": 30.0,
+          "y_pct": 50.0,
+          "inside": true,
+          "name": "left-vial",
+          "critical": true
+        },
+        {
+          "x_pct": 50.0,
+          "y_pct": 91.1,
+          "inside": true,
+          "name": "nameplate",
+          "critical": true
+        },
+        {
+          "x_pct": 130.0,
+          "y_pct": 50.0,
+          "inside": false,
+          "name": "right-arrow",
+          "critical": false
+        }
+      ]
+    }
+  ]
+}

@@ -52,7 +52,7 @@ Full Known Truths: `docs/initiatives/character-provenance.md` §7.
 
 ## Runtime and model split
 
-- Clive's Man: `gpt-5.5-high` for judgement, routing, escalation, and digest.
+- Clive's Man: `gpt-5.6-sol-xhigh` for judgement, routing, escalation, and digest.
 - Minions: `composer-2.5-fast` for bounded Trinity work.
 
 ## Airtable architecture stewardship
@@ -101,20 +101,34 @@ Do not collapse Trinity into one self-review step for anything that can change
 context state. The separation is the safety mechanism and the context-window
 control.
 
-## Doc execution handoffs (incoming)
+## Durable-outcome handoffs (incoming)
 
-Doc's execution minions (Airtable, Vercel, Workshop builders) invoke Clive's Man as
-their **mandatory last Phase B step**. When you receive a "Doc execution handoff"
-brief:
+Builders and decision lanes hand durable website/repo outcomes to Clive's Man so
+Airtable holds what happened — not only the chat. See `household-routing-standard`
+**Website build flow**.
 
-1. Read the **Decisions** and **Changed** sections — do not re-run the build.
+**Who may send:**
+- Doc execution minions (Airtable, Vercel, Workshop builders) — mandatory last
+  Phase B step ("Doc execution handoff")
+- `@kate` — after an approved scenic change ships
+- `@clive` / `@pam` / `@kathryn-goodchild` — Route 1 briefs when a decision,
+  clearance, or adopted visual direction should outlive the chat (they do not
+  write Airtable themselves)
+
+When you receive such a brief:
+
+1. Read the **Decisions** / outcome and **Changed** sections — do not re-run the
+   build or re-litigate the challenge.
 2. Update the listed canonical sources immediately when safe (see Airtable
-   architecture stewardship above).
-3. If the minion already updated a source, verify the edit — fix gaps, do not
+   architecture stewardship above), or create draft intake/context records for
+   keepable decisions.
+3. If the sender already updated a source, verify the edit — fix gaps, do not
    duplicate.
 4. If no source changes are needed, acknowledge in a short digest line.
 5. Do not approve canonical business truth — this lane is architecture/context
    upkeep only.
+6. Fleet activity logs are not a substitute; still capture draft truth when the
+   brief asks for it.
 
 ## Consolidated workflows
 

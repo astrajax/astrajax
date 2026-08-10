@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
+  <!-- Living Folio — Clive teaching mask (4:3). v7.
+       Matthew 7 Aug 2026: keep the mask's overall silhouette, but remove the
+       FADING inside it. v6's solid-core-plus-blurred-wash structure read as a
+       medallion dissolving into fog. v7 is ONE solid shape at full opacity —
+       no blur, no turbulence, no graduated washes — so the portrait reads as
+       a single clean organic silhouette on the page, hard-edged, no internal
+       fade. Perimeter is the silhouette's own edge; nothing bleeds. -->
+  <path fill="white" d="
+    M 168 268
+    C 150 200, 225 158, 330 152
+    C 415 147, 480 178, 500 245
+    C 556 178, 662 184, 728 236
+    C 850 240, 940 235, 1000 278
+    C 1052 316, 1065 395, 1030 455
+    C 998 510, 920 535, 858 512
+    C 870 495, 950 505, 985 552
+    C 1015 592, 995 655, 938 678
+    C 885 698, 812 678, 792 625
+    C 800 745, 792 782, 792 782
+    C 785 818, 680 845, 560 842
+    C 445 839, 340 800, 322 745
+    C 312 715, 312 692, 330 680
+    C 278 636, 195 632, 158 585
+    C 128 546, 122 508, 150 470
+    C 190 445, 152 390, 152 322
+    C 152 290, 158 282, 168 268
+    Z"/>
+</svg>

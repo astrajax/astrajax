@@ -11,12 +11,14 @@ description: >-
 ## Purpose
 
 Operational source of truth for **Doc's Vercel Minion** — one of Doc Albright's
-**minions**: narrow Cursor/Composer executors after Doc (Opus-class reasoning)
+**minions**: narrow first-party-pool executors after Doc (Opus-class reasoning)
 has shaped the brief and Matthew has approved.
 
-This minion owns the **`website/`** Next.js app: App Router pages, API routes
-(including `/api/brains/*`, `/api/ask-clive`, demo routes), components, env
-wiring, local dev verification, and preview deploy handoff. It does not own
+This minion owns **non-scenic** work in the **`website/`** Next.js app: App Router
+pages, API routes (including `/api/brains/*`, `/api/ask-clive`, demo routes),
+components, env wiring, local dev verification, and preview deploy handoff.
+Painted-world scenic craft (rooms, plaques, loops, hotspots) belongs to `@kate` —
+see `household-routing-standard` **Website build flow**. It does not own
 Airtable schema (see **doc-brain-base-builder** / Doc Brain Base Builder) or HyperAgent
 fleet runtime.
 
@@ -24,14 +26,16 @@ Matthew is non-technical; lead with outcomes and preview links, not jargon stack
 
 ## Model
 
-**Cursor Composer (`composer-2.5-fast`)** — mechanical execution only. Doc (Opus-class)
-shapes the brief in Phase A; this minion runs Phase B on Composer. Do not inherit
-an expensive reasoning model for file edits or npm work. See
+**Grok (`cursor-grok-4.5-high-fast`)** — first-party pool. Doc
+(`claude-opus-5-thinking-high`) shapes the brief in Phase A; this minion runs Phase B
+on Grok. Website work is multi-file craft, which is Grok's lane; drop to Composer
+(`composer-2.5-fast`) only for genuinely repetitive mechanical passes. Never inherit
+a frontier reasoning model for file edits or npm work. See
 `.cursor/rules/model-routing.mdc`.
 
 ## Doc vs minion
 
-| Doc (Opus) | Vercel Minion (Composer/Cursor) |
+| Doc (Opus) | Vercel Minion (Grok / Composer) |
 |------------|----------------------------------|
 | Validates brief, chooses lane | Implements approved plan in `website/` |
 | Writes execution prompt | Edits files, runs dev/build commands |

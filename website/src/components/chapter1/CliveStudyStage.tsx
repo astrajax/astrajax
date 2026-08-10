@@ -15,10 +15,39 @@ import {
   type CliveVideoStageHandle,
 } from "@/components/chapter1/CliveVideoStage";
 import { StudyStageRightPanelProvider } from "@/components/chapter1/StudyStageRightPanel";
-import { FolioStageProvider, useFolioStage } from "@/components/chapter1/FolioStageContext";
+import {
+  FolioStageProvider,
+  useFolioStage,
+  type FolioStageState,
+} from "@/components/chapter1/FolioStageContext";
 import { FolioMessagePulse } from "@/components/chapter1/FolioMessagePulse";
+import { resolveFolioAsset } from "@/lib/folio-asset-url";
 
-const STUDY_BOOK_SRC = "/agent-cast/clive-wigglesworth/study-book-spread.png";
+/**
+ * The Living Folio background master. Canonical source is the TRUE 16:9
+ * production master Kathryn supplied — "Living Folio wide 16_9
+ * edge-to-edge.png" (5504×3072, walnut edge-to-edge on all sides) — served
+ * from the connected public Vercel Blob store. Rendered full-bleed
+ * object-fit:cover: the master IS the viewport aspect, so cover fills the
+ * frame edge-to-edge with NO letterbox, flat bars or sidebars.
+ * The Git SVG derivative is a stopgap fallback only when env forces it.
+ *
+ * Loaded unoptimized: the master is ~8.5MB; next/image's optimizer fetch
+ * times out locally / on cold path. Public Blob already serves the file
+ * with long cache headers — the browser can take it direct.
+ */
+const STUDY_BOOK_FALLBACK_SRC =
+  "/agent-cast/clive-wigglesworth/folio/living-folio-master-2048.svg";
+
+function studyBookSrc(): string {
+  if (process.env.LIVING_FOLIO_USE_FALLBACK === "true") {
+    return STUDY_BOOK_FALLBACK_SRC;
+  }
+  return resolveFolioAsset("living-folio.master")?.src ?? STUDY_BOOK_FALLBACK_SRC;
+}
+
+const STUDY_BOOK_SRC = studyBookSrc();
+const STUDY_BOOK_IS_REMOTE = STUDY_BOOK_SRC.startsWith("http");
 
 type CliveStudyStageProps = {
   children: ReactNode;
@@ -35,11 +64,21 @@ type CliveStudyStageProps = {
    * loop state; the consumer supplies the drawer with its own data.
    */
   paperTrail?: (open: boolean, onClose: () => void) => ReactNode;
+  /**
+   * Controlled folio composition. When the caller supplies this, the visible
+   * data-folio-state resolves directly from the prop — the composition is
+   * driven by the caller's step machine, not by any descendant effect. When
+   * omitted, the stage falls back to the FolioStageContext value so existing
+   * chapter-1 callers keep their context-driven behaviour. The provider is
+   * always mounted (it also owns the message pulse); this prop only
+   * overrides the READ of the visible composition, never the provider.
+   */
+  stageState?: FolioStageState;
 };
 
 const CliveStudyStageInner = forwardRef<CliveVideoStageHandle, CliveStudyStageProps>(
   function CliveStudyStage(
-    { children, onReset, label, subtitle, backHref, backLabel, headerActions, paperTrail },
+    { children, onReset, label, subtitle, backHref, backLabel, headerActions, paperTrail, stageState },
     ref,
   ) {
     const mainRef = useRef<HTMLElement>(null);
@@ -47,7 +86,9 @@ const CliveStudyStageInner = forwardRef<CliveVideoStageHandle, CliveStudyStagePr
     const [rightPanelEl, setRightPanelEl] = useState<HTMLElement | null>(null);
     const [trailOpen, setTrailOpen] = useState(false);
     const folio = useFolioStage();
-    const folioState = folio?.stageState ?? "teaching";
+    // The controlled prop wins when supplied; otherwise the context value
+    // (which defaults to teaching) drives the visible composition.
+    const folioState = stageState ?? folio?.stageState ?? "teaching";
 
     useEffect(() => {
       mainRef.current?.focus();
@@ -68,6 +109,7 @@ const CliveStudyStageInner = forwardRef<CliveVideoStageHandle, CliveStudyStagePr
             fill
             priority
             sizes="100vw"
+            unoptimized={STUDY_BOOK_IS_REMOTE}
             className="study-stage__book-image"
           />
         </div>
@@ -99,10 +141,25 @@ const CliveStudyStageInner = forwardRef<CliveVideoStageHandle, CliveStudyStagePr
         </main>
 
         <div className="study-stage__clive-spot" aria-hidden>
-          <div className="study-stage__clive-feather clive-portrait-feather">
-            <CliveVideoStage ref={ref} className="study-stage__clive-media" />
+          {/*
+            MP4s stay primary. REF supplies the border only:
+            - .study-stage__clive-plate clips video/poster with the jagged matte
+            - .study-stage__clive-ink paints charcoal OUTSIDE that clip so the
+              fringe can sit on parchment (masking the spot itself ate the rim)
+          */}
+          <div className="study-stage__clive-plate">
+            <div className="study-stage__clive-feather clive-portrait-feather">
+              <CliveVideoStage ref={ref} className="study-stage__clive-media" />
+            </div>
           </div>
+          <div className="study-stage__clive-ink" />
         </div>
+
+        {/* FolioCrest intentionally not rendered: Matthew's finished Living
+            Folio master bakes its own AstraJax rail ornament, so the separate
+            AJ crest overlay (added only because the K8 master shipped with no
+            centre crest) is suppressed in globals.css pending Kathryn's
+            visual clearance. */}
 
         <FolioMessagePulse />
 

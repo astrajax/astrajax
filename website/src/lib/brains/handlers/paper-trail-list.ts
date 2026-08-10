@@ -1,9 +1,16 @@
 import { airtableSelect } from "../airtable-rest";
 import { BRAIN_REGISTRY_TABLES } from "../airtable-ids";
 import { getRegistryBaseId, getRegistryReadToken, useMemoryStore } from "../config";
-import { getMemoryChangeLogForTests } from "../change-log";
+import { CHANGE_LOG_CREATED_FIELD, getMemoryChangeLogForTests } from "../change-log";
 import type { PaperTrailEntry } from "@/lib/curation/types";
 
+/**
+ * KNOWN GAP: brainSlug is accepted but cannot be honoured — the Registry
+ * Change Log table has no brain column, so every caller sees the whole
+ * Registry trail regardless of the brain they asked for. Filtering needs a
+ * "Brain Slug" field added to tbliAMUuKKW4DDRXF first; that is a schema
+ * decision, not something to fake here.
+ */
 export async function handlePaperTrailList(input: {
   brainSlug: string;
   limit?: number;
@@ -32,7 +39,7 @@ export async function handlePaperTrailList(input: {
 
   const records = await airtableSelect(baseId, BRAIN_REGISTRY_TABLES.changeLog, token, {
     maxRecords: limit,
-    sortField: "Created",
+    sortField: CHANGE_LOG_CREATED_FIELD,
     sortDirection: "desc",
   });
 
@@ -41,8 +48,11 @@ export async function handlePaperTrailList(input: {
     action: String(record.fields["Change Summary"] ?? "Change logged"),
     actor: String(record.fields["Changed By"] ?? "System"),
     reason: String(record.fields.Reason ?? record.fields["Change Type"] ?? ""),
-    timestamp: record.createdTime ?? new Date().toISOString(),
-    destination: "registry-change-log",
+    timestamp:
+      String(record.fields[CHANGE_LOG_CREATED_FIELD] ?? "") ||
+      record.createdTime ||
+      new Date().toISOString(),
+    destination: "registry-change-log" as const,
     recordId: record.id,
   }));
 

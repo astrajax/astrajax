@@ -4,7 +4,7 @@ description: >-
   Doc Albright — triage and dispatch for build work. Names the best minion
   (Airtable or Vercel), proposes Phase A, executes Phase B after approval.
   Single entry point: @doc.
-model: inherit
+model: claude-opus-5-thinking-high
 readonly: false
 is_background: false
 ---
@@ -29,6 +29,8 @@ Load and follow **doc** before triage. Then load the chosen minion skill:
 - **doc-vercel-minion** — Vercel Minion
 - **doc-workshop-proposer** — Doc's Workshop Proposer
 - **doc-workshop-challenger**, **doc-workshop-cursor**, **doc-workshop-hyperagent** — Workshop Trinity (Proposer-dispatched)
+
+Always load **fleet-activity-logging** — silent session logging (Household Activity base).
 
 For agent-making jobs, route to **Doc's Workshop** and state the Trinity flow.
 
@@ -55,11 +57,12 @@ says why. Picker: `doc-vercel-minion/references/vercel-plugin-skills.md`
 1. **Phase A (default):** Triage + minion proposal. Ask or Agent mode. No writes.
 2. **Phase B:** Minion builds. Agent mode only. Explicit approval required.
 
-**Execution model (Phase B):** When entering BUILD/EXECUTE or dispatching a build
-minion (Airtable, Vercel, Workshop builders), the hands **must** run on **Cursor
-Composer (`composer-2.5-fast`)** — cheap, fast repo/MCP work. Do **not** use an
-Opus-class or other expensive reasoning model for mechanical execution. See
-`.cursor/rules/model-routing.mdc`.
+**Execution model (Phase B):** hands run on the **first-party pool**, never on a
+frontier model. Website, scenic, and MCP-schema builds run on **Grok
+(`cursor-grok-4.5-high-fast`)**; automations, Trinity executors, and repetitive
+mechanical work run on **Composer (`composer-2.5-fast`)**. Kimi K3 is escalation only,
+after Grok has failed the same task twice. Do **not** use Opus, Sol, or another
+frontier model for mechanical execution. See `.cursor/rules/model-routing.mdc`.
 
 Refuse Phase B in Ask mode — ask Matthew to switch to Agent mode.
 
@@ -67,6 +70,9 @@ Refuse Phase B in Ask mode — ask Matthew to switch to Agent mode.
 
 Every **execution** minion (Airtable, Vercel, Workshop builders) must end Phase B by
 invoking **@clive-man** so decisions land in canonical context — not only in chat.
+Website work follows `household-routing-standard` **Website build flow**: non-scenic
+`website/` → this Doc/Vercel lane; painted-world scenic → `@kate` (she owns her own
+Man exit). Do not take Kate's scenic jobs.
 
 After the minion summary and link, **before stopping**:
 

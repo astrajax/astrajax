@@ -1421,29 +1421,63 @@ body {
 }
 
 .study-stage {
-  /* Portal crops via object-fit: cover already; keep this near 1 so gestures
-     (paws, arm lifts) don't get cut off by an extra zoom on top of that crop. */
+  /* Portal crops via the canvas's own object-fit: contain already; keep this
+     near 1 so gestures (paws, arm lifts) don't get cut off by an extra zoom. */
   --clive-study-video-scale: 0.96;
-  /* Left/right page zones — invisible boundary, no drawn spine */
-  --book-left-page-end: 46.5%;
-  --book-right-page-start: 53.5%;
-  --book-page-gutter: clamp(0.75rem, 2vw, 1.25rem);
-  --book-clive-top: 12%;
-  --book-clive-right: 6.5%;
-  --book-clive-width: min(27vw, 19rem);
-  --book-content-top: clamp(4.75rem, 13vh, 6.75rem);
-  --book-content-bottom: clamp(11vh, 13vh, 15vh);
-  --book-content-left: clamp(7.5%, 9vw, 10.5%);
-  --book-content-width: min(40%, 28rem);
+  /* ── ART CANVAS geometry (Matthew's finished 3:2 Living Folio master) ─────
+     All overlays live inside .study-stage__art-canvas — the single 3:2
+     coordinate system bound to the artwork, NOT the viewport. Geometry is
+     therefore canvas-relative. Page zones measured on the full uncropped
+     source: parchment top ~6.9%, bottom ~93%, left outer ~4.7%, right outer
+     ~95.4%, binding centre ~50% (symmetric). Sizes that must scale WITH the
+     canvas use cqw/cqh container units (the canvas is the container). */
+  --book-left-page-end: 48.6%;
+  --book-right-page-start: 51%;
+  --book-page-gutter: 1.6cqw;
+  --book-clive-top: 9%;
+  --book-clive-right: 5.5%;
+  --book-clive-width: 27cqw;
+  --book-content-top: 9.5cqh;
+  --book-content-bottom: 11cqh;
+  --book-content-left: 7.5cqw;
+  --book-content-width: 40cqw;
   --book-ink: #23271b;
   --book-ink-muted: color-mix(in srgb, var(--book-ink) 62%, #6e7b52);
+  /* ── Living Folio PAGE SAFE ZONE (Matthew, 6 Aug 2026) ────────────────
+     One coherent boundary so content reads composed WITHIN the bound page,
+     not a web panel laid over paper. LEFT page: outer = content-left, gutter
+     = left-page-end (binding). RIGHT page: outer = clive-right, gutter =
+     right-page-start (binding). Composer/media/ledger/heading inherit. */
+  --folio-safe-top: var(--book-content-top);
+  --folio-safe-bottom: var(--book-content-bottom);
+  --folio-safe-outer-left: var(--book-content-left);
+  --folio-safe-outer-right: var(--book-clive-right);
+  --folio-safe-gutter: var(--book-page-gutter);
   position: relative;
   height: 100vh;
   height: 100dvh;
   max-height: 100dvh;
   overflow: hidden;
   color: var(--book-ink);
-  background: #1a120c;
+  /* Sampled dark-walnut stage colour — side space reads as intentional desk
+     extension, not letterbox. Sampled from the master's own frame. */
+  background: #2a1a10;
+}
+
+/* ── ART CANVAS — the largest 3:2 rectangle that fits entirely within the
+   viewport, centred. The Blob master and every live overlay share this one
+   coordinate system. Container units (cqw/cqh) resolve against it. */
+.study-stage__art-canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  aspect-ratio: 3 / 2;
+  width: min(100vw, 150dvh);
+  max-width: 100vw;
+  max-height: 100dvh;
+  container-type: size;
+  overflow: hidden;
 }
 
 .study-stage__book {
@@ -1454,7 +1488,7 @@ body {
 }
 
 .study-stage__book-image {
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
 }
 
@@ -1464,10 +1498,10 @@ body {
   position: absolute;
   z-index: 2;
   top: var(--book-clive-top);
-  right: var(--book-clive-right);
+  right: var(--folio-safe-outer-right);
   width: var(--book-clive-width);
   max-width: calc(
-    100% - var(--book-right-page-start) - var(--book-clive-right) - var(--book-page-gutter)
+    100% - var(--book-right-page-start) - var(--folio-safe-outer-right) - var(--folio-safe-gutter)
   );
   /* Closer to the 16:9 source than 5:4 — less forced side-crop before the
      feather mask even kicks in, so gestures stay in frame. */
@@ -1481,21 +1515,19 @@ body {
   height: 100%;
   overflow: hidden;
   isolation: isolate;
-  --clive-feather-vignette: color-mix(in srgb, var(--color-cream-paper) 55%, transparent);
-  --clive-feather-mid: color-mix(in srgb, var(--color-parchment) 32%, transparent);
-  --clive-feather-edge: color-mix(in srgb, var(--color-cream) 22%, transparent);
-  --clive-feather-soft: color-mix(in srgb, var(--color-cream) 14%, transparent);
-  /* Tight edge softener only — most of the plate stays fully solid. */
-  --clive-feather-mask: radial-gradient(
-    ellipse 96% 94% at 50% 48%,
-    #000 0%,
-    #000 72%,
-    color-mix(in srgb, #000 78%, transparent) 86%,
-    color-mix(in srgb, #000 35%, transparent) 94%,
-    transparent 100%
-  );
+  /*
+   * CRITICAL — agent plates on books (Living Folio):
+   * Full-perimeter papery deckle matte. Dissolves into parchment on ALL four
+   * sides (including the bottom). Never a hard crop / ruler line through the
+   * figure; never soft radial-gradient blur alone. Same mask wraps still + MP4.
+   * Asset (public Blob — never git): folio/masks/clive-folio-deckle-v8.png
+   * (white=show, black=hide; luminance). Native aspect 1024/755.
+   */
+  --clive-feather-mask: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v8.png");
   -webkit-mask-image: var(--clive-feather-mask);
   mask-image: var(--clive-feather-mask);
+  -webkit-mask-source-type: luminance;
+  mask-mode: luminance;
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   -webkit-mask-position: center;
@@ -1504,21 +1536,10 @@ body {
   mask-repeat: no-repeat;
 }
 
+/* Deckle matte owns the edge — no second soft-oval vignette on top. */
 .study-stage__clive-feather::before,
 .clive-portrait-feather::before {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  inset: -6%;
-  z-index: 2;
-  background: radial-gradient(
-    ellipse 98% 96% at 50% 48%,
-    transparent 74%,
-    var(--clive-feather-soft) 90%,
-    var(--clive-feather-vignette) 100%
-  );
-  mix-blend-mode: normal;
-  opacity: 0.55;
+  content: none;
 }
 
 .study-stage__clive-feather::after,
@@ -1535,16 +1556,20 @@ body {
   pointer-events: none;
   position: absolute;
   z-index: 3;
-  top: calc(var(--book-clive-top) + min(36vw, 28rem) * 0.62 + clamp(0.75rem, 2vh, 1.25rem));
-  right: var(--book-clive-right);
-  left: var(--book-right-page-start);
+  /* Clive spot height = width/1.5 (3:2 canvas) * 0.62 portal; gap 1cqw below it. */
+  top: calc(var(--book-clive-top) + (36cqw / 1.5) * 0.62 + 1cqw);
+  /* Safe zone: the right page mirrors the left — outer edge at clive-right,
+     gutter at the binding (right-page-start), bottom at the safe boundary. */
+  right: var(--folio-safe-outer-right);
+  left: calc(var(--book-right-page-start) + var(--folio-safe-gutter));
+  bottom: var(--folio-safe-bottom);
   display: flex;
   flex-direction: column;
   min-width: 0;
-  max-width: calc(100% - var(--book-right-page-start) - var(--book-clive-right));
-  max-height: calc(100% - var(--book-content-bottom) - var(--book-clive-top) - min(36vw, 28rem) * 0.62);
-  padding-right: var(--book-page-gutter);
-  padding-left: clamp(0.35rem, 1vw, 0.75rem);
+  max-width: calc(100% - var(--book-right-page-start) - var(--folio-safe-outer-right) - var(--folio-safe-gutter));
+  max-height: none;
+  padding-right: 0;
+  padding-left: 1cqw;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -1560,8 +1585,8 @@ body {
 
 /* Shared right-page layout — centred Clive, decision card lower half */
 .study-stage--book:has(.chapter1-right-decision) {
-  --book-clive-width: min(27vw, 21rem);
-  --book-clive-top: clamp(4.75rem, 11vh, 6.25rem);
+  --book-clive-width: 27cqw;
+  --book-clive-top: 11cqh;
 }
 
 .study-stage--book:has(.chapter1-right-decision) .study-stage__clive-spot {
@@ -1578,13 +1603,13 @@ body {
 }
 
 .study-stage--book:has(.chapter1-right-decision) .study-stage__right-panel {
-  /* Anchor below Clive (16:9 portal → height ≈ width / 1.78) so they never overlap */
-  top: calc(var(--book-clive-top) + var(--book-clive-width) / 1.78 + clamp(0.75rem, 2vh, 1.25rem));
-  bottom: var(--book-content-bottom);
-  left: calc(var(--book-right-page-start) + var(--book-page-gutter));
-  right: calc(var(--book-clive-right) + var(--book-page-gutter));
+  /* Anchor below Clive (deckle matte 1024×755 → height = width × 755/1024) so they never overlap */
+  top: calc(var(--book-clive-top) + (var(--book-clive-width) * 755 / 1024) + 1cqw);
+  bottom: var(--folio-safe-bottom);
+  left: calc(var(--book-right-page-start) + var(--folio-safe-gutter));
+  right: calc(var(--folio-safe-outer-right) + var(--folio-safe-gutter));
   max-width: calc(
-    100% - var(--book-right-page-start) - var(--book-clive-right) - (var(--book-page-gutter) * 2)
+    100% - var(--book-right-page-start) - var(--folio-safe-outer-right) - (var(--folio-safe-gutter) * 2)
   );
   max-height: none;
   display: flex;
@@ -1592,7 +1617,7 @@ body {
   align-items: center;
   justify-content: center;
   padding-top: 0;
-  padding-bottom: clamp(0.5rem, 1.5vh, 1rem);
+  padding-bottom: 1.5cqh;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -1604,7 +1629,7 @@ body {
 
 .study-stage--book:has(.chapter1-right-decision) .chapter1-right-decision-card > .study-doc-card,
 .study-stage--book:has(.chapter1-right-decision) .chapter1-right-decision-card.study-doc-card {
-  padding: clamp(0.85rem, 1.6vw, 1.125rem) clamp(1rem, 1.8vw, 1.25rem);
+  padding: 1.1cqw 1.4cqw;
   font-size: clamp(0.9375rem, 1.5vw, 1.0625rem);
   line-height: 1.55;
   overflow-wrap: anywhere;
@@ -1632,7 +1657,7 @@ body {
 
 .study-stage--book:has(.chapter1-right-decision) .chapter1-right-decision-card .study-doc-card--quote {
   margin: 0;
-  padding: clamp(0.65rem, 1.2vw, 0.875rem) clamp(0.75rem, 1.4vw, 1rem);
+  padding: 0.9cqw 1.1cqw;
   font-size: clamp(0.8125rem, 1.2vw, 0.9375rem);
   line-height: 1.45;
   color: var(--book-ink);
@@ -1648,8 +1673,8 @@ body {
 
 @media (min-width: 1024px) {
   .study-stage--book:has(.chapter1-right-decision) {
-    --book-clive-width: min(25vw, 24rem);
-    --book-clive-top: clamp(5rem, 12vh, 6.75rem);
+    --book-clive-width: 25cqw;
+    --book-clive-top: 12cqh;
   }
 
   .study-stage--book:has(.chapter1-right-decision) .chapter1-right-decision-card {
@@ -1659,8 +1684,8 @@ body {
 
 @media (max-width: 767px) {
   .study-stage--book:has(.chapter1-right-decision) {
-    --book-clive-width: min(32vw, 11rem);
-    --book-clive-top: clamp(4.5rem, 11vh, 5.75rem);
+    --book-clive-width: 32cqw;
+    --book-clive-top: 11cqh;
   }
 
   .study-stage--book:has(.chapter1-right-decision) .chapter1-right-decision-card {
@@ -1669,24 +1694,24 @@ body {
 }
 
 .study-stage--book:has(.study-stage__right-summary):not(:has(.chapter1-right-decision)) {
-  --book-clive-width: min(32vw, 24rem);
+  --book-clive-width: 32cqw;
 }
 
 @media (min-width: 1024px) {
   .study-stage__right-panel {
-    top: calc(var(--book-clive-top) + min(34vw, 26rem) * 0.62 + clamp(0.85rem, 2.2vh, 1.35rem));
-    max-height: calc(100% - var(--book-content-bottom) - var(--book-clive-top) - min(34vw, 26rem) * 0.62);
+    top: calc(var(--book-clive-top) + (34cqw / 1.5) * 0.62 + 1.2cqw);
+    max-height: calc(100% - var(--book-content-bottom) - var(--book-clive-top) - (34cqw / 1.5) * 0.62);
   }
 
   .study-stage--book:has(.study-stage__right-summary):not(:has(.chapter1-right-decision)) {
-    --book-clive-width: min(30vw, 22rem);
+    --book-clive-width: 30cqw;
   }
 }
 
 @media (max-width: 767px) {
   .study-stage__right-panel {
-    top: calc(var(--book-clive-top) + min(42vw, 13.5rem) * 0.62 + 0.65rem);
-    max-height: calc(100% - var(--book-content-bottom) - var(--book-clive-top) - min(42vw, 13.5rem) * 0.62);
+    top: calc(var(--book-clive-top) + (42cqw / 1.5) * 0.62 + 0.9cqw);
+    max-height: calc(100% - var(--book-content-bottom) - var(--book-clive-top) - (42cqw / 1.5) * 0.62);
   }
 }
 
@@ -1751,7 +1776,7 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem 1rem;
-  padding: 0.75rem clamp(1rem, 2.5vw, 1.5rem);
+  padding: 0.75rem 1.6cqw;
   border-bottom: 1px solid rgba(120, 88, 48, 0.28);
   background:
     linear-gradient(180deg, rgba(26, 18, 12, 0.72), rgba(26, 18, 12, 0.38)),
@@ -1858,7 +1883,7 @@ body {
 }
 
 .study-stage--book:has(.clive-welcome) {
-  --book-content-bottom: clamp(12vh, 14vh, 16vh);
+  --book-content-bottom: 14cqh;
 }
 
 .study-stage__content:has(.clive-welcome),
@@ -1899,29 +1924,29 @@ body {
 
 @media (min-width: 1024px) {
   .study-stage {
-    --book-left-page-end: 46%;
-    --book-right-page-start: 54%;
-    --book-clive-top: 13%;
-    --book-clive-right: 7.5%;
-    --book-clive-width: min(24vw, 20rem);
-    --book-content-top: clamp(5.25rem, 14vh, 7.25rem);
-    --book-content-bottom: clamp(11vh, 13vh, 15vh);
-    --book-content-left: clamp(8%, 10vw, 11%);
+    --book-left-page-end: 48.4%;
+    --book-right-page-start: 51.6%;
+    --book-clive-top: 9.5%;
+    --book-clive-right: 6%;
+    --book-clive-width: 24cqw;
+    --book-content-top: 10cqh;
+    --book-content-bottom: 11cqh;
+    --book-content-left: 8cqw;
     --book-content-width: min(42%, 32rem);
   }
 }
 
 @media (max-width: 767px) {
   .study-stage {
-    --book-left-page-end: 48%;
-    --book-right-page-start: 52%;
-    --book-page-gutter: clamp(0.4rem, 1vw, 0.65rem);
-    --book-clive-top: 11%;
-    --book-clive-right: 4%;
-    --book-clive-width: min(38vw, 11rem);
-    --book-content-top: clamp(4rem, 11vh, 5rem);
-    --book-content-bottom: clamp(9vh, 11vh, 13vh);
-    --book-content-left: clamp(6%, 7vw, 8%);
+    --book-left-page-end: 48.8%;
+    --book-right-page-start: 51.2%;
+    --book-page-gutter: 1cqw;
+    --book-clive-top: 8.5%;
+    --book-clive-right: 3.5%;
+    --book-clive-width: 38cqw;
+    --book-content-top: 9cqh;
+    --book-content-bottom: 10cqh;
+    --book-content-left: 6cqw;
     --book-content-width: min(46%, 16.5rem);
   }
 }
@@ -1929,31 +1954,32 @@ body {
 /* Chapter 1 hero Clive inset — welcome + conversation beats (not right-decision steps) */
 .study-stage--book:has(.clive-welcome),
 .study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-right-decision)) {
-  --book-clive-top: clamp(10.5rem, 20vh, 13rem);
+  --book-clive-top: 20cqh;
   --book-clive-right: 5%;
-  --book-clive-width: min(36vw, 28rem);
+  --book-clive-width: 36cqw;
 }
 
 @media (min-width: 1024px) {
   .study-stage--book:has(.clive-welcome),
   .study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-right-decision)) {
-    --book-clive-top: clamp(11rem, 21vh, 14rem);
+    --book-clive-top: 21cqh;
     --book-clive-right: 6%;
-    --book-clive-width: min(34vw, 26rem);
+    --book-clive-width: 34cqw;
   }
 }
 
 @media (max-width: 767px) {
   .study-stage--book:has(.clive-welcome),
   .study-stage--book:has(.chapter1-conversation):not(:has(.chapter1-right-decision)) {
-    --book-clive-top: clamp(9.5rem, 18vh, 11.5rem);
+    --book-clive-top: 18cqh;
     --book-clive-right: 4%;
-    --book-clive-width: min(42vw, 13.5rem);
+    --book-clive-width: 42cqw;
   }
 }
 
 .study-stage--book .study-stage__clive-spot {
-  overflow: hidden;
+  /* Ink fringe sits outside the plate clip — do not hard-crop the spot. */
+  overflow: visible;
   box-shadow: none;
   filter: none;
 }
@@ -2124,6 +2150,80 @@ body {
   background: transparent;
   padding: 0;
   box-shadow: none;
+  /* Safe zone: fill the left page's usable width and never exceed it. A
+     definite width (not a shrink-wrapped flex item) so the composer row
+     resolves to real width. The parent content container already ends at the
+     left-page binding with a gutter, so width:100% fills exactly the usable
+     page; the vw cap is only a guard for very wide viewports. */
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 100%;
+  max-width: min(100%, calc(46cqw - var(--folio-safe-gutter)));
+}
+
+/* The composer is ONE bounded row inside the page: the writing well takes the
+   flexible share and shrinks (flex:1 1 0 + min-width:0), the Send plate takes a
+   fixed share. Neither can cross the page's outer/gutter edge. Flex with an
+   explicit zero flex-basis (not a grid fr track) so the well is sized by the
+   row's free space and can never collapse to the textarea's min-content width. */
+/* ── Composer behaviour (Matthew, 6 Aug 2026) ─────────────────────────────
+   Copy Hyperagent's BEHAVIOUR, not its white card: the writing well is broad
+   and calm with a low resting height, the text gets nearly the full safe page
+   measure, and the Send plate lives in a stable bottom control row rather than
+   a permanent side column. The form is a full-width block so the well is a
+   real container; the well grows smoothly upward and only its text scrolls at
+   the cap while the control row stays pinned. */
+.study-stage--book .clive-chat--study .clive-chat__form {
+  display: block;
+  width: 100%;
+}
+
+/* The form-row is now simply the well's full-width container — no side column. */
+.study-stage--book .clive-chat--study .clive-chat__form-row {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* The writing well takes the full safe page measure. Compact at rest (~1–2
+   lines), a calm folio body size (matching the surrounding copy, not the old
+   oversized serif), and a bounded max so it never grows through the page's
+   bottom safe zone. */
+.study-stage--book .clive-chat--study .clive-chat__input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  line-height: 1.5;
+  font-size: clamp(1rem, 1.45vw, 1.0625rem); /* calm folio body measure */
+  min-height: calc(1.5em + clamp(0.6rem, 1.4vh, 0.85rem) * 2); /* ~1–2 lines */
+  max-height: 32cqh; /* bounded growth; stays inside the safe zone */
+  overflow-y: auto; /* only the text region scrolls past the cap */
+  /* Bottom clearance so the last line never disappears beneath the control
+     row; the well's own padding keeps the text off its lower edge. */
+  padding-bottom: clamp(0.6rem, 1.4vh, 0.9rem);
+}
+
+/* Stable bottom control row: the Architect label sits quietly at the left and
+   the Send plate anchors bottom-right. It stays pinned while long text
+   scrolls; the well carries bottom clearance so text never disappears under
+   it. */
+.study-stage--book .clive-chat--study .clive-chat__control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1cqw;
+  margin-top: clamp(0.4rem, 1vh, 0.6rem);
+}
+
+.study-stage--book .clive-chat--study .clive-chat__control-row .clive-chat__architect-label {
+  margin: 0;
+}
+
+.study-stage--book .clive-chat--study .clive-chat__control-row button[type="submit"] {
+  flex: none; /* the Send plate keeps its size, anchored at the row's end */
+  margin-left: auto;
 }
 
 .study-stage--book .clive-chat--study .clive-chat__messages {
@@ -7030,9 +7130,9 @@ textarea.clive-chat__input {
   /* Teaching state: Clive's portrait anchor on the LEFT page.
      Interaction state re-points these vars below; positions are
      transition-free — the state change rides the page-turn beat. */
-  --folio-clive-top: clamp(5rem, 12vh, 8rem);
-  --folio-clive-left: clamp(5%, 6.5vw, 8.5%);
-  --folio-clive-width: min(38vw, 34rem);
+  --folio-clive-top: 12cqh;
+  --folio-clive-left: 6.5cqw;
+  --folio-clive-width: 43cqw; /* SC1 delta: +~14% teaching presence, teacher not cameo */
   --folio-gold: rgba(203, 160, 86, 0.92);
   --folio-gold-deep: rgba(154, 118, 52, 0.85);
   --folio-gold-light: rgba(232, 192, 122, 0.55);
@@ -7051,12 +7151,8 @@ textarea.clive-chat__input {
 }
 
 .study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
-  /* Teaching presence: a taller frame so he FILLS the left page as the
-     teacher, per the commission rough — not a flat vignette. */
-  aspect-ratio: 4 / 3;
-}
-
-.study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
+  /* Native aspect of the REF deckle matte (1024×755). */
+  aspect-ratio: 1024 / 755;
   right: auto;
   left: var(--folio-clive-left);
   top: var(--folio-clive-top);
@@ -7069,9 +7165,9 @@ textarea.clive-chat__input {
 /* Teaching state: the lesson fills the RIGHT page. */
 .study-stage--book[data-folio-state="teaching"] .study-stage__content {
   left: calc(var(--book-right-page-start) + var(--book-page-gutter));
-  right: clamp(5%, 6.5vw, 8%);
+  right: 6.5cqw;
   max-width: calc(
-    100% - var(--book-right-page-start) - var(--book-page-gutter) - clamp(5%, 6.5vw, 8%)
+    100% - var(--book-right-page-start) - var(--book-page-gutter) - 6.5cqw
   );
 }
 
@@ -7080,30 +7176,47 @@ textarea.clive-chat__input {
    chapter1-right-decision rules already centre him above the action
    record; here we formalise the anchor so the state is explicit even
    before the first action card mounts. */
+.study-stage--book[data-folio-state="interaction"] {
+  /* Stage-level anchors so right-panel top matches the live plate box. */
+  --book-clive-top: 13.5cqh;
+  --book-clive-width: 32cqw; /* SC1 delta: +~20% interaction presence */
+}
+
 .study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
+  /* Same matte aspect as teaching so the REF deckle is not stretched. */
+  aspect-ratio: 1024 / 755;
   right: auto;
   left: calc(
     var(--book-right-page-start) +
-    (100% - var(--book-right-page-start) - var(--book-clive-right)) / 2
+    (100% - var(--book-right-page-start) - var(--folio-safe-outer-right)) / 2
   );
   transform: translateX(-50%);
-  top: clamp(4.75rem, 11vh, 6.25rem);
-  width: min(27vw, 21rem);
+  /* PR #99 visual delta (Matthew, 6 Aug 2026): the interaction portrait sat
+     too close to the top walnut rail. Ease it down ~2.5% of page height for a
+     clear parchment margin above, while preserving ledger room below.
+     Teaching placement is unchanged. */
+  top: var(--book-clive-top);
+  width: var(--book-clive-width);
   max-width: calc(
-    100% - var(--book-right-page-start) - var(--book-clive-right) - (var(--book-page-gutter) * 2)
+    100% - var(--book-right-page-start) - var(--folio-safe-outer-right) - (var(--folio-safe-gutter) * 2)
   );
+}
+
+/* Right-panel must clear the full deckle plate (1024×755), not the old
+   3:2 × 0.62 portal estimate — otherwise decision UI overlaps Clive. */
+.study-stage--book[data-folio-state="interaction"] .study-stage__right-panel {
+  top: calc(var(--book-clive-top) + (var(--book-clive-width) * 755 / 1024) + 1cqw);
 }
 
 @media (max-width: 767px) {
   .study-stage--book {
-    --folio-clive-top: clamp(6rem, 12vh, 8rem);
-    --folio-clive-left: clamp(4%, 5vw, 6%);
-    --folio-clive-width: min(42vw, 14rem);
+    --folio-clive-top: 12cqh;
+    --folio-clive-left: 5cqw;
+    --folio-clive-width: 46cqw;
   }
 
-  .study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
-    top: clamp(4.5rem, 11vh, 5.75rem);
-    width: min(32vw, 11rem);
+  .study-stage--book[data-folio-state="interaction"] {
+    --book-clive-width: 38cqw;
   }
 }
 
@@ -7440,61 +7553,108 @@ textarea.clive-chat__input {
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   Folio ink system — printed-into-parchment live text (5 Aug addendum)
+   Printed-ink text — SHARED LAYER (the canonical material; 6 Aug centralised)
 
-   One scoped material system for dynamic folio typography: live, selectable,
-   searchable, responsive and accessible. NO pre-rendered/distressed text
-   assets — the texture is done with live rendering only.
+   The house treatment for live text printed into parchment/paper art: the
+   letters read as ink absorbed into the page, not laid on top of it. Live,
+   selectable, searchable, responsive and accessible — the texture is done
+   with live rendering only. NO pre-rendered/distressed text assets.
 
-   SCOPING: everything below is gated on .study-stage--book and targets the
-   chapter-1 content classes, so normal site UI (command centre, court,
-   homepage, Ask Clive) is unaffected. Base ink is Ink #23271B — the surface
-   palette, not sepia.
+   This block is the single source of the grammar. Surfaces opt in by adding
+   ONE thin scope (see the Folio and Court scopes directly below) that:
+     1. sizes the fibre pseudo-elements to that surface's measured page
+        bounds, and
+     2. maps the surface's own content classes onto the three strength
+        presets below.
+   Future parchment surfaces (House hub, Doc's Workshop, new folios) inherit
+   the treatment by writing the same thin scope — never by re-deriving the
+   shadows, the fibre, or this geometry. Convention: website/docs/printed-ink-text-convention.md.
 
-   IMPLEMENTATION CHOICE (recorded per the addendum): we do NOT use
-   mix-blend-mode:multiply, an SVG displacement filter, or text blur. Blend
+   IMPLEMENTATION CHOICE (locked, from the 5 Aug addendum): NO
+   mix-blend-mode:multiply, NO SVG displacement filter, NO text blur. Blend
    modes gave muddy, browser-variable colour against the real parchment and
-   risked illegibility on small labels. Instead the material work is done
-   by (a) ONE faint seamless paper-fibre overlay per page surface, pointer-
-   events:none, sitting visually above the ink so the eye reads the ink as
-   belonging to the page, and (b) a restrained sub-pixel text-shadow whose
-   strength varies by preset. Crisp, performant, identical in Chromium and
-   Safari, and legibility is never traded.
+   risked small-label legibility. The material work is done by:
+     (a) ONE faint seamless paper-fibre overlay per page surface
+         (pointer-events:none) sitting visually above the ink so the eye
+         reads the ink as belonging to the page, and
+     (b) a restrained sub-pixel text-shadow whose strength varies by preset.
+   Crisp, performant, identical in Chromium and Safari; legibility is never
+   traded. Base ink is Ink #23271B — the surface palette, not sepia.
    ════════════════════════════════════════════════════════════════════════ */
 
-/* The paper-fibre texture: a seamless monochrome grain tile (inline SVG
-   feTurbulence, static — never animated). Rendered as a data-URI so it
-   tiles seamlessly and stays crisp at 1x and 2x DPR. Kept as a CSS var so
-   both pages share the identical tile. */
-.study-stage--book {
-  --folio-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.55'/%3E%3C/svg%3E");
+/* The shared fibre + shadow grammar. Defined once on :root so every ink
+   surface uses the identical tile and the identical presets. --ink-warm is
+   the per-surface warmth knob (0 = neutral folio, 1 = warm court). */
+:root {
+  /* Seamless monochrome paper-grain tile (inline SVG feTurbulence, static —
+     never animated). Data-URI so it tiles seamlessly and stays crisp at 1x
+     and 2x DPR. */
+  --ink-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.55'/%3E%3C/svg%3E");
 
-  /* Ink strength presets — restrained sub-pixel impression only. */
-  --folio-ink-body-shadow:
+  --ink-warm: 0;
+
+  /* Ink strength presets — restrained sub-pixel impression only. Neutral
+     (folio) values; the warm set adds a third, deeper ghost and is mixed in
+     by per-surface overrides where the parchment art reads warmer/darker. */
+  --ink-body-shadow:
     0 0 0.4px rgba(35, 39, 27, 0.28),
     0.3px 0.3px 0 rgba(35, 39, 27, 0.1);
-  --folio-ink-display-shadow:
+  --ink-display-shadow:
     0 0 0.6px rgba(35, 39, 27, 0.4),
     0.4px 0.4px 0 rgba(35, 39, 27, 0.16);
-  --folio-ink-label-shadow: 0 0 0.3px rgba(35, 39, 27, 0.2);
+  --ink-label-shadow: 0 0 0.3px rgba(35, 39, 27, 0.2);
+
+  --ink-body-shadow-warm:
+    0 0 0.55px rgba(35, 39, 27, 0.38),
+    0.35px 0.35px 0 rgba(35, 39, 27, 0.14),
+    0 0.6px 0.8px rgba(35, 39, 27, 0.06);
+  --ink-display-shadow-warm:
+    0 0 0.75px rgba(35, 39, 27, 0.48),
+    0.45px 0.45px 0 rgba(35, 39, 27, 0.2),
+    0 0.8px 1px rgba(35, 39, 27, 0.08);
+  --ink-label-shadow-warm:
+    0 0 0.4px rgba(35, 39, 27, 0.28),
+    0.25px 0.25px 0 rgba(35, 39, 27, 0.1);
+
+  /* Fibre veil strength per surface (Court art is warmer/denser). */
+  --ink-fibre-opacity: 0.035;
+
+  /* Page geometry — the fibre pseudo-elements are sized from each surface's
+     measured page bounds. Defaults are the Living Folio book spread. */
+  --ink-page-l-left: 6.05%;
+  --ink-page-l-right: calc(100% - 48.83%);
+  --ink-page-l-top: 9.46%;
+  --ink-page-l-bottom: calc(100% - 88.44%);
+  --ink-page-r-left: 50.78%;
+  --ink-page-r-right: calc(100% - 93.85%);
+  --ink-page-r-top: 9.46%;
+  --ink-page-r-bottom: calc(100% - 88.44%);
 }
 
-/* ── Paper surface: one faint fibre layer per page, above the ink ────────
-   Page-local pseudo-elements sized from the spread art's measured page
-   bounds (left 6.05–48.83%, right 50.78–93.85%; rows 9.46–88.44%). Both
-   are pointer-events:none and never touch selection, focus or hit targets.
-   Opacity is deliberately extremely low — felt before noticed. */
+/* ── Shared fibre pseudo-element grammar ──────────────────────────────────
+   Applied per surface by .ink-surface::before/::after (the page veils).
+   pointer-events:none — never touches selection, focus or hit targets.
+   Opacity deliberately extremely low — felt before noticed. */
+.ink-surface,
+.study-stage--book,
+.platform-court__book-container {
+  position: relative;
+}
+.ink-surface::before,
+.ink-surface::after,
 .study-stage--book::before,
-.study-stage--book::after {
+.study-stage--book::after,
+.platform-court__book-container::before,
+.platform-court__book-container::after {
   content: "";
   position: absolute;
-  z-index: 4; /* above content ink (z-3), below the header margin (z-4=header is fine) */
+  z-index: 4; /* above content ink (z-3), below the header margin */
   pointer-events: none;
-  background-image: var(--folio-fibre);
+  background-image: var(--ink-fibre);
   background-size: 240px 240px;
   background-repeat: repeat;
   /* Normal composite — no blend mode, so no muddy colour or browser drift. */
-  opacity: 0.035;
+  opacity: var(--ink-fibre-opacity);
   /* Fade the grain toward the binding and outer lip so it never reads as a
      hard-edged rectangle floating on the art. */
   -webkit-mask-image: radial-gradient(
@@ -7508,24 +7668,47 @@ textarea.clive-chat__input {
     transparent 98%
   );
 }
-
-.study-stage--book::before {
-  /* Left page */
-  left: 6.05%;
-  right: calc(100% - 48.83%);
-  top: 9.46%;
-  bottom: calc(100% - 88.44%);
+.ink-surface::before,
+.study-stage--book::before,
+.platform-court__book-container::before {
+  left: var(--ink-page-l-left);
+  right: var(--ink-page-l-right);
+  top: var(--ink-page-l-top);
+  bottom: var(--ink-page-l-bottom);
+}
+.ink-surface::after,
+.study-stage--book::after,
+.platform-court__book-container::after {
+  left: var(--ink-page-r-left);
+  right: var(--ink-page-r-right);
+  top: var(--ink-page-r-top);
+  bottom: var(--ink-page-r-bottom);
 }
 
-.study-stage--book::after {
-  /* Right page */
-  left: 50.78%;
-  right: calc(100% - 93.85%);
-  top: 9.46%;
-  bottom: calc(100% - 88.44%);
+/* ── THE EXCEPTION ROUTE — .no-ink ────────────────────────────────────────
+   The smallest possible opt-out: put .no-ink on any element (or wrapper)
+   whose text must stay crisp — controls, code-like UI, dense data, small
+   labels where texture harms legibility. It strips the ink shadow from the
+   element and its descendants and suppresses the fibre veil over it.
+   Engraved brass lettering and status seals already live outside the ink
+   presets by convention; use .no-ink for everything else that must not
+   carry the texture. */
+.no-ink,
+.no-ink * {
+  text-shadow: none !important;
 }
 
-/* ── Ink strength presets ──────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════════════════════════
+   FOLIO SCOPE — Living Folio (chapter-1 book spread)
+
+   The folio's own page bounds + content-class → preset mapping. Neutral
+   ink (--ink-warm stays 0). Scoped to .study-stage--book so normal site UI
+   (command centre, court, homepage, Ask Clive) is unaffected.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.study-stage--book {
+  /* page geometry inherits the :root defaults (this spread's measured bounds) */
+}
 
 /* BODY — normal readable ink absorption. Body/lesson copy, user messages,
    action-record entries, monologue, prompt text. */
@@ -7541,13 +7724,13 @@ textarea.clive-chat__input {
 .study-stage--book .clive-chat__thinking,
 .study-stage--book blockquote.study-doc-card {
   color: var(--book-ink, #23271b);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
 }
 
 /* DISPLAY — slightly denser impression for headings/display copy. */
 .study-stage--book .clive-welcome-caption,
 .study-stage--book .study-stage__label {
-  text-shadow: var(--folio-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow);
 }
 
 /* LABEL / CONTROL — least texture, highest edge clarity. Small labels,
@@ -7559,7 +7742,7 @@ textarea.clive-chat__input {
 .study-stage--book .clive-welcome-monologue__label,
 .study-stage--book .study-doc-card__note,
 .study-stage--book .clive-chat__starter {
-  text-shadow: var(--folio-ink-label-shadow);
+  text-shadow: var(--ink-label-shadow);
 }
 
 /* Engraved brass control labels (.btn-primary/.btn-secondary/ghost-btn) are
@@ -7572,7 +7755,7 @@ textarea.clive-chat__input {
 .study-stage--book .study-stage__content a,
 .study-stage--book .study-stage__right-panel a {
   color: var(--book-ink, #23271b);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
 }
 
 /* Bold/strong within folio copy takes the display impression, italic keeps
@@ -7580,7 +7763,7 @@ textarea.clive-chat__input {
    harder, not a new material. */
 .study-stage--book .study-stage__content strong,
 .study-stage--book .study-stage__right-panel strong {
-  text-shadow: var(--folio-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow);
 }
 
 /* ── Accessibility fallbacks ───────────────────────────────────────────── */
@@ -7630,72 +7813,33 @@ textarea.clive-chat__input {
    static — nothing to disable, but guard the overlay against any future
    animated grain. */
 @media (prefers-reduced-motion: reduce) {
+  .ink-surface::before,
+  .ink-surface::after,
   .study-stage--book::before,
-  .study-stage--book::after {
+  .study-stage--book::after,
+  .platform-court__book-container::before,
+  .platform-court__book-container::after {
     animation: none;
     transition: none;
   }
 }
 
 /* ════════════════════════════════════════════════════════════════════════
-   Court ink system — printed-into-parchment live text (ported from #84)
+   COURT SCOPE — Court book spread
 
-   Same material grammar as the Living Folio ink addendum: restrained sub-
-   pixel text-shadow + one faint paper-fibre layer per page. Scoped to
-   .court-stage only. Engraved verdict strips and brass plaque labels keep
-   their own letterpress material and do NOT inherit body texture.
+   Same shared printed-ink grammar, warm-tuned: the Court parchment art reads
+   warmer/darker than the folio, so this scope sets --ink-warm values and a
+   slightly denser fibre veil. Engraved verdict strips and brass plaque
+   labels keep their own letterpress material and do NOT inherit body texture.
    ════════════════════════════════════════════════════════════════════════ */
 
 .court-stage {
-  --court-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch' seed='7'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23f)' opacity='0.55'/%3E%3C/svg%3E");
-  /* Slightly denser than folio — Court parchment reads warmer/darker in art. */
-  --court-ink-body-shadow:
-    0 0 0.55px rgba(35, 39, 27, 0.38),
-    0.35px 0.35px 0 rgba(35, 39, 27, 0.14),
-    0 0.6px 0.8px rgba(35, 39, 27, 0.06);
-  --court-ink-display-shadow:
-    0 0 0.75px rgba(35, 39, 27, 0.48),
-    0.45px 0.45px 0 rgba(35, 39, 27, 0.2),
-    0 0.8px 1px rgba(35, 39, 27, 0.08);
-  --court-ink-label-shadow:
-    0 0 0.4px rgba(35, 39, 27, 0.28),
-    0.25px 0.25px 0 rgba(35, 39, 27, 0.1);
+  --ink-warm: 1;
+  --ink-fibre-opacity: 0.048;
 }
 
-.platform-court__book-container::before,
-.platform-court__book-container::after {
-  content: "";
-  position: absolute;
-  z-index: 4;
-  pointer-events: none;
-  background-image: var(--court-fibre);
-  background-size: 240px 240px;
-  background-repeat: repeat;
-  opacity: 0.048;
-  -webkit-mask-image: radial-gradient(
-    ellipse 92% 88% at 50% 50%,
-    #000 62%,
-    transparent 98%
-  );
-  mask-image: radial-gradient(
-    ellipse 92% 88% at 50% 50%,
-    #000 62%,
-    transparent 98%
-  );
-}
-
-.platform-court__book-container::before {
-  left: 6.05%;
-  right: calc(100% - 48.83%);
-  top: 9.46%;
-  bottom: calc(100% - 88.44%);
-}
-
-.platform-court__book-container::after {
-  left: 50.78%;
-  right: calc(100% - 93.85%);
-  top: 9.46%;
-  bottom: calc(100% - 88.44%);
+.platform-court__book-container {
+  /* page geometry inherits the :root defaults (same book-spread art) */
 }
 
 /* BODY — intake, judgement copy, inputs */
@@ -7709,13 +7853,13 @@ textarea.clive-chat__input {
 .court-stage .platform-court__seat-picker-note,
 .court-stage .platform-court__bicker-line {
   color: var(--bicker-body, var(--book-ink));
-  text-shadow: var(--court-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow-warm);
 }
 
 .court-stage .platform-court__underline-input::placeholder,
 .court-stage .platform-court__input::placeholder {
   color: color-mix(in srgb, var(--book-ink) 42%, transparent);
-  text-shadow: var(--court-ink-label-shadow);
+  text-shadow: var(--ink-label-shadow-warm);
   opacity: 1;
 }
 
@@ -7726,7 +7870,7 @@ textarea.clive-chat__input {
 .court-stage .platform-court__judgement-verdict,
 .court-stage .platform-court__seat-candidate-name {
   color: var(--book-ink);
-  text-shadow: var(--court-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow-warm);
 }
 
 /* LABEL — small caps, field labels */
@@ -7737,15 +7881,15 @@ textarea.clive-chat__input {
 .court-stage .platform-court__muted,
 .court-stage .platform-court__inline-link {
   color: var(--book-ink);
-  text-shadow: var(--court-ink-label-shadow);
+  text-shadow: var(--ink-label-shadow-warm);
 }
 
 .court-stage .platform-court__bicker-speaker {
-  text-shadow: var(--court-ink-label-shadow);
+  text-shadow: var(--ink-label-shadow-warm);
 }
 
 .court-stage .platform-court__right-page-content strong {
-  text-shadow: var(--court-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow-warm);
 }
 
 @media (max-width: 767px) {
@@ -7769,6 +7913,7 @@ textarea.clive-chat__input {
     text-shadow: none;
   }
 }
+
 /* ════════════════════════════════════════════════════════════════════════
    Live-QA repair (5 Aug): three live defects on /chapter-1
 
@@ -7787,48 +7932,93 @@ textarea.clive-chat__input {
    untouched — this is a mask change only.
    ════════════════════════════════════════════════════════════════════════ */
 
-.study-stage--book .study-stage__clive-spot {
-  /* Hand-shaped feather: solid core ~60%, then a long soft dissolve. Two
-     layered masks (multiplied): a superellipse for the broad shape and a
-     corner-weighted radial so the corners fade first. The composite reads
-     as ink bleeding into paper, not a geometric crop. */
-  --folio-clive-mask:
-    radial-gradient(
-      ellipse 78% 74% at 50% 47%,
-      #000 0%,
-      #000 58%,
-      rgba(0, 0, 0, 0.86) 72%,
-      rgba(0, 0, 0, 0.5) 84%,
-      rgba(0, 0, 0, 0.18) 93%,
-      transparent 100%
-    );
-  -webkit-mask-image: var(--folio-clive-mask);
-  mask-image: var(--folio-clive-mask);
+/* ── PR #99 painted mask correction (Kathryn dispatch, 6 Aug 2026) ─────────
+   SC1: the live Clive MP4 still read as a hard rectangle — straight top
+   edge, square sides, a pale rectangular field. Root cause was STACKED
+   masks: the wrapper, the feather, and the poster/layer each applied their
+   own radial gradient, and layered gradients + overflow clips re-formed a
+   geometric crop no matter how the stops were tuned. Percentage tuning was
+   never the fix; the layers had to collapse to ONE painted alpha on the
+   OUTERMOST wrapper only.
+
+   Below: plate + ink siblings on the Clive spot (see CliveStudyStage).
+   House assets on the public website Blob store (never git — Vercel builds
+   from git, so local /masks/ PNGs 404 in every deploy):
+     folio/masks/clive-folio-deckle-v8.png      — luminance matte (white=show)
+     folio/masks/clive-folio-deckle-ink-v8.png  — charcoal rim OUTSIDE the clip
+   Same matte for teaching (left page) and interaction (right top-third)
+   so still + MP4 share one edge. Nested masks on feather / poster / live
+   layer are neutralised so they inherit the plate clip alone. Pale
+   ::before vignette/fog stays off. Non-folio .clive-portrait-feather
+   (portrait-entry) uses the same Blob matte. */
+
+/*
+ * Teaching + interaction: curated MP4s / poster stay the media.
+ * REF supplies the BORDER only:
+ *   .study-stage__clive-plate  — jagged luminance clip (matte)
+ *   .study-stage__clive-ink    — thin charcoal rim OUTSIDE the clip
+ * Never swap in a REF still and hide the video bank.
+ * Matte aspect is 1024/755 (see teaching aspect-ratio).
+ */
+.study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot,
+.study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
+  -webkit-mask-image: none;
+  mask-image: none;
+  box-shadow: none;
+  filter: none;
+  overflow: visible;
+}
+
+.study-stage--book .study-stage__clive-plate {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /*
+   * Luminance matte (white=show, black=hide). WebKit -webkit-mask reads
+   * luminance by default; mask-mode:alpha on a white+alpha PNG was a no-op
+   * in Safari and looked like a hard rectangle / "not working".
+   * Cross-origin Blob URL — public store; mask-mode:luminance still applies.
+   */
+  -webkit-mask-image: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v8.png");
+  mask-image: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v8.png");
+  -webkit-mask-source-type: luminance;
+  mask-mode: luminance;
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   -webkit-mask-position: center;
   mask-position: center;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
+  overflow: hidden;
 }
 
-/* The poster and the live layer take the same mask so the still and every
-   video clip dissolve identically — including mid-reaction. */
+.study-stage--book .study-stage__clive-ink {
+  /* Sibling of .study-stage__clive-plate — OUTSIDE the mask, or the rim clips. */
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-ink-v8.png") center / 100% 100% no-repeat;
+}
+
+/* Neutralise every nested mask inside the folio Clive stack so the plate
+   matte is the only clip. Poster, live layer, image and the feather
+   wrapper inherit their shape from that outer plate alone. */
+.study-stage--book .study-stage__clive-spot .study-stage__clive-feather,
+.study-stage--book .study-stage__clive-spot .clive-portrait-feather,
+.study-stage--book .study-stage__clive-spot .clive-video-stage,
 .study-stage--book .study-stage__clive-spot .clive-video-stage__poster,
-.study-stage--book .study-stage__clive-spot .clive-video-stage__layer {
-  -webkit-mask-image: var(--folio-clive-mask);
-  mask-image: var(--folio-clive-mask);
-  -webkit-mask-size: 100% 100%;
-  mask-size: 100% 100%;
-  -webkit-mask-position: center;
-  mask-position: center;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+.study-stage--book .study-stage__clive-spot .clive-video-stage__layer,
+.study-stage--book .study-stage__clive-spot .portrait-entry__image {
+  -webkit-mask-image: none;
+  mask-image: none;
 }
 
-/* Kill the white fog circle: the shared ::before vignette painted a pale
-   ellipse that read as a cloud behind him. Inside the folio the mask does
-   the dissolve on its own — drop the vignette entirely. */
+/* Kill the white fog: the shared ::before vignette painted a pale ellipse
+   that read as a rectangular field behind him. The painted mask does the
+   dissolve on its own. */
+.study-stage--book .study-stage__clive-spot .study-stage__clive-feather::before,
+.study-stage--book .study-stage__clive-spot .clive-portrait-feather::before,
 .study-stage--book .study-stage__clive-feather::before,
 .study-stage--book .clive-portrait-feather::before {
   content: none;
@@ -7980,11 +8170,20 @@ textarea.clive-chat__input {
   outline: none;
 }
 
+/* Page safe zone: the writing well's growth is capped so a long draft can
+   never swell down through (or past) the bottom parchment margin. The JS
+   resize (CliveChatSurface) reads this cap via getComputedStyle; beyond it the
+   text scrolls internally with native chrome hidden. Sized to the composer
+   brief (~min(32vh, 13rem)) so the well stays compact and inside the page. */
+.study-stage--book .clive-chat__input {
+  max-height: 32cqh;
+}
+
 /* The send row aligns: input well grows, the engraved Send plate sits
    beside it — a writing line and its seal, not two digital boxes. */
 .study-stage--book .clive-chat__form-row {
   align-items: flex-end;
-  gap: clamp(0.5rem, 1.2vw, 0.875rem);
+  gap: 1cqw;
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -8000,7 +8199,7 @@ textarea.clive-chat__input {
    legally contain the p/ul/ol/hr that StudyMarkdown emits. Same body ink. */
 .study-stage--book .clive-chat__md {
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
 }
 
 /* The markdown body paragraphs sit inside the prompt-text wrapper; remove
@@ -8010,7 +8209,7 @@ textarea.clive-chat__input {
 .study-stage--book .clive-chat__md .clive-chat__md-para {
   margin: 0 0 0.55em;
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
 }
 
 .study-stage--book .clive-chat__prompt-text--md .clive-chat__md-para:last-child,
@@ -8024,7 +8223,7 @@ textarea.clive-chat__input {
   margin: 0 0 0.55em;
   padding-left: 1.35em;
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
   list-style: none;
 }
 
@@ -8079,7 +8278,7 @@ textarea.clive-chat__input {
 .study-stage--book .clive-chat__prompt-text--md strong,
 .study-stage--book .clive-chat__md strong {
   font-weight: 600;
-  text-shadow: var(--folio-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow);
 }
 
 .study-stage--book .clive-chat__prompt-text--md a,
@@ -8088,7 +8287,7 @@ textarea.clive-chat__input {
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-color: color-mix(in srgb, var(--book-ink) 45%, transparent);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
 }
 
 .study-stage--book .clive-chat__prompt-text--md a:hover,
@@ -8109,3 +8308,1094 @@ textarea.clive-chat__input {
     text-shadow: none;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   Two-route onboarding (Living Folio) — fixture contract v0.1.
+
+   Scoped to .study-stage--book .onboarding so it inherits the locked folio
+   grammar (Ink paper text, engraved brass controls, the gold-leaf vein,
+   reduced-motion) and touches nothing else on the site. The flow sits on
+   the RIGHT page in the teaching composition and shifts to the interaction
+   layout as the user engages, per the folio's two-state model.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.study-stage--book .onboarding {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.9rem, 2.2vh, 1.4rem);
+  min-width: 0;
+  max-width: 100%;
+  color: var(--book-ink);
+  font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+}
+
+.study-stage--book .onboarding__eyebrow {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  color: var(--book-ink-muted);
+  text-shadow: var(--ink-label-shadow);
+  margin: 0;
+}
+
+.study-stage--book .onboarding__h1 {
+  font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: clamp(1.6rem, 3vw, 2.15rem);
+  font-weight: 600;
+  line-height: 1.14;
+  color: var(--book-ink);
+  text-shadow: var(--ink-display-shadow);
+  margin: 0;
+}
+
+.study-stage--book .onboarding__h2 {
+  font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  font-weight: 600;
+  line-height: 1.22;
+  color: var(--book-ink);
+  text-shadow: var(--ink-display-shadow);
+  margin: 0 0 0.4rem;
+}
+
+.study-stage--book .onboarding__lede {
+  font-size: clamp(0.9375rem, 1.6vw, 1.0625rem);
+  line-height: 1.6;
+  color: var(--book-ink);
+  text-shadow: var(--ink-body-shadow);
+  max-width: 34em;
+  margin: 0;
+}
+
+.study-stage--book .onboarding__body {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--book-ink);
+  text-shadow: var(--ink-body-shadow);
+  margin: 0;
+}
+
+/* ── Opening choice: two equal verb-led route cards (engraved, page-native) ── */
+.study-stage--book .onboarding__routes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* SC1 delta: a visible parchment gap between the two dockets, kept inside
+     the right-page safe zone with equal outer margins — never touching,
+     never overshooting the page edge. */
+  gap: clamp(1rem, 2.4vw, 1.6rem);
+  max-width: 92%;
+  margin: 0 auto;
+}
+
+.study-stage--book .onboarding__route-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+  text-align: left;
+  padding: clamp(1rem, 2.2vw, 1.4rem);
+  border-radius: 4px;
+  border: 1px solid var(--folio-gold-deep);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  color: var(--book-ink);
+  background: var(--folio-plate-face);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.28),
+    inset 0 -1px 0 rgba(94, 70, 28, 0.28),
+    inset 0 0 12px var(--folio-gold-light),
+    0 2px 10px rgba(26, 18, 12, 0.22);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.study-stage--book .onboarding__route-card:hover {
+  border-color: var(--folio-gold);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 198, 0.34),
+    inset 0 0 18px rgba(232, 192, 122, 0.72),
+    0 4px 16px rgba(26, 18, 12, 0.3);
+  transform: translateY(-1px);
+}
+
+.study-stage--book .onboarding__route-card:focus-visible {
+  outline: 2px solid rgba(203, 160, 86, 0.72);
+  outline-offset: 2px;
+}
+
+.study-stage--book .onboarding__route-verb {
+  font-size: clamp(1.05rem, 1.9vw, 1.25rem);
+  font-weight: 600;
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  color: var(--book-ink);
+  text-shadow: 0 1px 0 rgba(255, 240, 198, 0.35);
+}
+
+.study-stage--book .onboarding__route-best {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--book-ink-muted);
+}
+
+/* ── Cards, files, ledger, census ── */
+.study-stage--book .onboarding__card {
+  padding: clamp(0.75rem, 1.6vw, 1rem) clamp(0.85rem, 1.8vw, 1.1rem);
+  border: 1px solid color-mix(in srgb, var(--book-ink) 12%, transparent);
+  background: color-mix(in srgb, var(--color-cream-paper) 52%, transparent);
+  border-radius: 3px;
+  margin-bottom: 0.6rem;
+}
+
+.study-stage--book .onboarding__field-label {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: var(--book-ink-muted);
+  text-shadow: var(--ink-label-shadow);
+  margin: 0 0 0.25rem;
+}
+
+.study-stage--book .onboarding__file-list,
+.study-stage--book .onboarding__ledger {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.study-stage--book .onboarding__file,
+.study-stage--book .onboarding__ledger-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  padding: 0.6rem 0.85rem;
+  border-left: 2px solid color-mix(in srgb, var(--book-ink) 22%, transparent);
+  background: color-mix(in srgb, var(--color-cream-paper) 48%, transparent);
+}
+
+.study-stage--book .onboarding__file-name,
+.study-stage--book .onboarding__ledger-label {
+  font-size: 0.9375rem;
+  color: var(--book-ink);
+  text-shadow: var(--ink-body-shadow);
+}
+
+.study-stage--book .onboarding__file-meta,
+.study-stage--book .onboarding__ledger-source {
+  font-size: 0.75rem;
+  color: var(--book-ink-muted);
+}
+
+.study-stage--book .onboarding__file--staging .onboarding__file-meta { color: var(--color-apricot); }
+.study-stage--book .onboarding__file--staged .onboarding__file-meta { color: color-mix(in srgb, var(--book-ink) 60%, var(--color-sage)); }
+
+.study-stage--book .onboarding__census {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  padding: 0.65rem 0.85rem;
+  margin-bottom: 0.75rem;
+  border: 1px dashed color-mix(in srgb, var(--book-ink) 18%, transparent);
+  border-radius: 3px;
+  font-size: 0.8125rem;
+  color: var(--book-ink-muted);
+}
+
+.study-stage--book .onboarding__drop {
+  margin-top: 0.75rem;
+  padding: clamp(1rem, 2.4vw, 1.5rem);
+  border: 1px dashed color-mix(in srgb, var(--book-ink) 26%, transparent);
+  border-radius: 3px;
+  text-align: center;
+  color: var(--book-ink-muted);
+}
+
+/* ── Conversation (Route B probing + Route A gap questions) ── */
+.study-stage--book .onboarding__conversation {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.study-stage--book .onboarding__speaker {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+  color: var(--book-ink-muted);
+  text-shadow: var(--ink-label-shadow);
+  margin: 0 0 0.2rem;
+}
+
+.study-stage--book .onboarding__turn--you {
+  padding-left: 1rem;
+  border-left: 1px solid color-mix(in srgb, var(--book-ink) 22%, transparent);
+}
+
+.study-stage--book .onboarding__answer {
+  font-style: italic;
+  font-size: 0.9375rem;
+  color: var(--book-ink-muted);
+  text-shadow: var(--ink-body-shadow);
+  margin: 0;
+}
+
+/* ── Progress bar (Route B) ── */
+.study-stage--book .onboarding__progress {
+  position: relative;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--book-ink) 10%, transparent);
+  overflow: hidden;
+}
+
+.study-stage--book .onboarding__progress-bar {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(203, 160, 86, 0.6), rgba(203, 160, 86, 0.9));
+  transition: width 0.4s ease;
+}
+
+.study-stage--book .onboarding__progress-text {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--book-ink-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .study-stage--book .onboarding__progress-bar { transition: none; }
+  .study-stage--book .onboarding__route-card { transition: border-color 0.15s ease; }
+  .study-stage--book .onboarding__route-card:hover { transform: none; }
+}
+
+/* ── Composer (writing well + engraved send) ── */
+.study-stage--book .onboarding__composer-label {
+  display: block;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: var(--book-ink-muted);
+  margin-bottom: 0.3rem;
+}
+
+.study-stage--book .onboarding__composer-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1cqw;
+}
+
+.study-stage--book .onboarding__composer-row .clive-chat__input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Convergence: provisional inference cards ── */
+.study-stage--book .onboarding__inference {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.study-stage--book .onboarding__infer-card {
+  padding: clamp(0.85rem, 1.8vw, 1.1rem);
+  border: 1px solid color-mix(in srgb, var(--book-ink) 14%, transparent);
+  background: color-mix(in srgb, var(--color-cream-paper) 56%, transparent);
+  border-radius: 3px;
+}
+
+.study-stage--book .onboarding__infer-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--book-ink);
+  text-shadow: var(--ink-display-shadow);
+  margin: 0 0 0.4rem;
+}
+
+.study-stage--book .onboarding__ev-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.9rem;
+  margin-bottom: 0.6rem;
+}
+
+.study-stage--book .onboarding__ev-link {
+  font-size: 0.72rem;
+  color: var(--book-ink-muted);
+  border-bottom: 1px dotted color-mix(in srgb, var(--book-ink) 30%, transparent);
+}
+
+.study-stage--book .onboarding__infer-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.study-stage--book .onboarding__choice-btn {
+  padding: 0.3rem 0.7rem;
+  border-radius: 3px;
+  border: 1px solid color-mix(in srgb, var(--book-ink) 20%, transparent);
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+  color: var(--book-ink);
+  background: color-mix(in srgb, var(--color-cream-paper) 62%, transparent);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.study-stage--book .onboarding__choice-btn:hover {
+  border-color: var(--folio-gold-deep);
+}
+
+.study-stage--book .onboarding__choice-btn.is-active {
+  border-color: var(--folio-gold-deep);
+  background: var(--folio-plate-face);
+  box-shadow: inset 0 0 8px var(--folio-gold-light);
+}
+
+.study-stage--book .onboarding__choice-btn:focus-visible {
+  outline: 2px solid rgba(203, 160, 86, 0.72);
+  outline-offset: 2px;
+}
+
+.study-stage--book .onboarding__correction {
+  display: block;
+  width: 100%;
+  margin-top: 0.55rem;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-size: 0.9375rem;
+  color: var(--book-ink);
+  background: color-mix(in srgb, var(--color-cream-paper) 72%, transparent);
+  border: none;
+  border-bottom: 1px solid rgba(203, 160, 86, 0.55);
+  padding: 0.4rem 0.55rem;
+}
+
+.study-stage--book .onboarding__accept {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+}
+
+.study-stage--book .onboarding__hint {
+  font-size: 0.75rem;
+  color: var(--book-ink-muted);
+  margin: 0.25rem 0 0;
+}
+
+/* ── Receipt ── */
+.study-stage--book .onboarding__receipt {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.study-stage--book .onboarding__evidence-all {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-top: 0.5rem;
+}
+
+.study-stage--book .onboarding__ev-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.study-stage--book .onboarding__ev-class {
+  flex-shrink: 0;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.1em;
+  font-size: 0.66rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 2px;
+}
+
+.study-stage--book .onboarding__ev-class--imported_document {
+  background: color-mix(in srgb, var(--folio-gold) 22%, transparent);
+  color: var(--book-ink);
+}
+
+.study-stage--book .onboarding__ev-class--self_reported {
+  background: color-mix(in srgb, var(--color-sage) 26%, transparent);
+  color: var(--book-ink);
+}
+
+.study-stage--book .onboarding__ev-title {
+  font-size: 0.875rem;
+  color: var(--book-ink);
+}
+
+/* ── Switch + back + nav ── */
+.study-stage--book .onboarding__switch {
+  font-size: 0.8125rem;
+  color: var(--book-ink-muted);
+  margin: 0.5rem 0 0;
+}
+
+.study-stage--book .onboarding__link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--book-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: color-mix(in srgb, var(--book-ink) 45%, transparent);
+  cursor: pointer;
+}
+
+.study-stage--book .onboarding__link-btn:hover {
+  text-decoration-color: var(--folio-gold-deep);
+}
+
+.study-stage--book .onboarding__nav {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.study-stage--book .onboarding__back {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+}
+
+/* Mobile: route cards stack, conversation stays on the left page */
+@media (max-width: 767px) {
+  .study-stage--book .onboarding__routes {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   Onboarding plates — Kathryn's three-plate family as responsive modular
+   SVG with all labels LIVE. Generated lettering is diagnostic only and
+   never enters production; these styles frame the SVG plates and honour
+   the motion grammar (reciprocal opacity, restrained stroke reveal, no
+   node scale/pop, one thin gold pass then full settle, reduced motion
+   final static immediately).
+
+   ASSET SEAMS (explicit): when Kathryn's finished master plates land, they
+   drop into these named slots as background/underlay imagery beneath the
+   live SVG marks — the live component layer above is unchanged:
+     .onb-plate--source-pack   → Source Pack master underlay seam
+     .onb-plate--corpus-census → Corpus Census master underlay seam
+     .onb-plate--constellation → Provisional Constellation master underlay seam
+   Until then the plates render the full working composition from the state
+   library alone — no unrelated art is substituted.
+   ════════════════════════════════════════════════════════════════════════ */
+
+.study-stage--book .onb-plate {
+  /* exposed paper — the plates breathe on the page, no card chrome */
+  background: transparent;
+  border: none;
+}
+
+.study-stage--book .onb-plate text {
+  /* live plate text takes the body ink impression */
+  text-shadow: var(--ink-label-shadow);
+}
+
+/* The one thin gold attention pass: a restrained stroke reveal that lands
+   and holds (full settle), never a loop. */
+@keyframes onb-gold-pass {
+  from { stroke-dashoffset: 240; opacity: 1; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .study-stage--book .onb-plate * {
+    animation: none !important;
+    transition: none !important;
+  }
+  /* Reduced motion: the final static composition is shown immediately —
+     the components force revealed=true and no gold pass is drawn. */
+}
+
+/* Support-role evidence marks (Ruth v1.1.0 evidence-edge seam): a small
+   Sage tag for corroborating, Terracotta for contradicting, rendered only
+   when an edge carries a non-direct role. Direct edges stay plain. */
+.study-stage--book .onboarding__ev-role {
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  font-size: 0.66rem;
+}
+
+.study-stage--book .onboarding__ev-role--corroborating {
+  color: color-mix(in srgb, var(--book-ink) 55%, var(--color-sage));
+}
+
+.study-stage--book .onboarding__ev-role--contradicting {
+  color: var(--color-apricot);
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+   SC1 parity pass (6 Aug) — Kathryn's K8 master + furniture, integrated.
+
+   The blank Living Folio master (dark-walnut surround, carved corners,
+   integrated top rail with two blank live-text zones, cool Pale Cream
+   pages, antique edge, dark binding) is the underlay for the WHOLE folio.
+   The AJ crest is a separately positioned overlay (the master bakes none),
+   centred exactly above the binding at every breakpoint. The furniture
+   sheet supplies medallions, dockets, source marks, rules and brackets as
+   cropped transparent assets — labels/status LIVE in code, never baked.
+   Contract/machine/validators untouched (V1.1.0 preserved).
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* The master fills the stage; the book image already uses it via
+   STUDY_BOOK_SRC. Keep the cover fit so the 16:9 master never stretches. */
+.study-stage--book .study-stage__book-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ── AJ crest: centred above the binding, in the top rail ──────────────── */
+.folio-crest {
+  /* SUPPRESSED — Matthew's finished Living Folio master bakes its own
+     AstraJax rail with star ornaments, so the separately-positioned AJ crest
+     (added only because the K8 master shipped with no centre crest) would now
+     duplicate baked ornamentation. Hidden, not deleted, pending Kathryn's
+     visual clearance. */
+  display: none;
+  position: absolute;
+  /* centred horizontally on the binding (50%), high in the rail */
+  left: 50%;
+  top: clamp(0.4rem, 1.1vh, 0.85rem);
+  transform: translateX(-50%);
+  z-index: 6;
+  width: clamp(2.1rem, 3.4vw, 3rem);
+  aspect-ratio: 1;
+  pointer-events: none;
+}
+
+.folio-crest__svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  filter: drop-shadow(0 1px 3px rgba(26, 18, 12, 0.5));
+}
+
+.study-stage--book .study-stage__label {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.14em;
+  font-size: clamp(0.5rem, 0.95cqw, 0.72rem);
+  font-weight: 500;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  /* engraved parchment with a soft dark setdown — legible on the dark rail */
+  color: color-mix(in srgb, var(--color-parchment) 88%, transparent);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
+}
+
+/* ── FOLIO PLATE FRAMES (v2 furniture) — apply the transparent plate bank as
+   live-text frames (Route A: text laid over, never baked) ──────────────── */
+/* envelope three-cards each on a squat plate — must out-specify the base
+   .study-stage--book .onboarding__card background shorthand (0,2,0). */
+.study-stage--book .onboarding__card.onboarding__plate-card,
+.onboarding__card.onboarding__plate-card {
+  position: relative;
+  padding: clamp(0.9rem, 1.6vw, 1.25rem) clamp(1rem, 1.8vw, 1.5rem);
+  border: none;
+  border-radius: 0;
+  background: transparent var(--folio-plate-img) no-repeat center / 100% 100%;
+}
+.study-stage--book .onboarding__card.onboarding__card--plate,
+.onboarding__card.onboarding__card--plate {
+  --folio-plate-img: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-plate-short.png");
+}
+.onboarding__plate-card > * { position: relative; }
+
+/* accept-as-draft as a plate button (out-specify .study-stage--book .btn-primary) */
+.study-stage--book .onboarding__accept.onboarding__accept--plate,
+.onboarding__accept.onboarding__accept--plate {
+  background: transparent url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-frame-button.png") no-repeat center / 100% 100%;
+  border: none;
+  box-shadow: none;
+  padding: clamp(0.85rem, 1.5vw, 1.2rem) clamp(2rem, 3.4vw, 2.75rem);
+}
+
+/* correction field framed by the terracotta correction brackets */
+.onboarding__correction--bracketed {
+  background-image:
+    url("/brand/system-assets/folio/furniture/bracket-correction-left.svg"),
+    url("/brand/system-assets/folio/furniture/bracket-correction-right.svg");
+  background-repeat: no-repeat, no-repeat;
+  background-position: left center, right center;
+  background-size: auto 78%, auto 78%;
+  border: none;
+  background-color: transparent;
+  padding-left: 1.4rem;
+  padding-right: 1.4rem;
+}
+
+/* composer Send as a plate button (out-specify .study-stage--book .btn-primary) */
+.study-stage--book .onboarding__send--plate,
+.onboarding__send--plate {
+  background: transparent url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-frame-slim.png") no-repeat center / 100% 100%;
+  border: none;
+  box-shadow: none;
+}
+
+/* receipt accepted-draft seal medallion, beside the handback heading */
+.onboarding__receipt-seal {
+  display: inline-block;
+  width: clamp(2rem, 3.4cqw, 2.9rem);
+  height: auto;
+  margin-right: 0.5em;
+  vertical-align: -0.35em;
+}
+
+/* Living Folio header — quiet live text inside the art canvas's own top
+   walnut rail. The finished art bakes "AstraJax" (top-left of its rail) and
+   star ornaments; the dynamic chapter/state stays LIVE (Route A) in the rail's
+   empty walnut band, vertically centred in the rail (the canvas's top ~7%).
+   Identity left, controls right, Ink with a soft varnish glow. All positions
+   canvas-relative (cqw/cqh) so the header never drifts from the artwork. */
+.study-stage--book .study-stage__header {
+  position: absolute;
+  z-index: 6;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 7%;
+  padding: 0 2.4cqw 0 17cqw; /* left pad clears the baked "AstraJax" wordmark */
+  border-bottom: none;
+  background: none;
+  box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1cqw;
+}
+
+/* Identity (label + subtitle) — top-left, engraved Ink small-caps. */
+.study-stage--book .study-stage__header-copy {
+  position: static;
+  transform: none;
+  width: auto;
+  max-width: 44%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* Controls (Start again + any header actions) — top-right. */
+.study-stage--book .study-stage__header-actions {
+  position: static;
+  transform: none;
+  width: auto;
+  max-width: 34%;
+  margin-right: 6cqw; /* keep controls clear of the far-right baked star */
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  text-align: right;
+  gap: 0.5rem;
+}
+
+.study-stage--book .study-stage__subtitle {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.13em;
+  font-size: clamp(0.45rem, 0.85cqw, 0.62rem);
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  color: color-mix(in srgb, var(--color-parchment) 62%, transparent);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Route-choice dockets: restrained page-native plates, not gold boxes ── */
+.study-stage--book .onboarding__route-card {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  position: relative;
+  overflow: visible;
+}
+
+/* The docket frame image is the plate; the label sits live inside it. */
+.study-stage--book .onboarding__route-card .onboarding__route-frame {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+/* PR #99 docket text-collision correction (Kathryn dispatch, 6 Aug 2026):
+   the verb and its explanatory copy were two independently absolute-placed
+   boxes (top:30% / top:58%, width:82%), so at desktop they could overrun the
+   frame's engraved zone and at narrow widths they overlapped each other.
+   Both texts now live in ONE bounded inset band inside the docket frame:
+   absolutely inset to the frame's inner safe area, laid out by flex so the
+   verb and its copy can never collide, with a guaranteed internal gap and
+   no overflow past the frame edge — desktop and narrow alike. */
+.study-stage--book .onboarding__route-card .onboarding__route-verb,
+.study-stage--book .onboarding__route-card .onboarding__route-best {
+  /* shared band: inset inside the frame, centred, never escaping it */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  width: 76%;
+  max-width: 76%;
+}
+
+.study-stage--book .onboarding__route-verb {
+  /* Measured against docket-frame-left.png (553x287): the engraved inner
+     face is the bright band y=48..240 => ~17%..84% of frame height, safest
+     30%..78%. Verb centres in the upper-inner zone. */
+  top: 30%;
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  font-size: clamp(0.95rem, 1.7vw, 1.15rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--book-ink);
+  text-shadow: 0 1px 0 rgba(255, 240, 198, 0.4);
+}
+
+.study-stage--book .onboarding__route-best {
+  /* Lower-inner zone, clear of the verb's band. Nudged up + tighter leading
+     so a two-line copy still ends clear of the 84% lower lip (measured on
+     docket-frame-left.png: inner face y=48..240, lip from ~y=248). */
+  top: 57%;
+  font-size: clamp(0.7rem, 1.2vw, 0.8rem);
+  line-height: 1.22;
+  font-style: italic;
+  color: var(--book-ink-muted);
+}
+
+/* Narrow widths: the single-column frames are shorter and the verb wraps to
+   two lines, so fixed top bands let the copy run under the frame's lower lip.
+   Switch to a structural fix: the card becomes a flex column that overlays
+   the frame image and stacks verb + copy inside the frame's measured inner
+   zone (top ~22% / bottom ~16% inset) with a real gap. The two texts are in
+   normal flow inside that column, so they can never overlap or overflow at
+   any wrap. */
+/* The folio stage is a fixed-width painted canvas scaled to fit, so a
+   viewport-width media query never fires at narrow device widths — the
+   breakpoints must key on the actual rendered width of the content area.
+   Make the onboarding surface a query container. */
+.study-stage--book .onboarding {
+  container-type: inline-size;
+  container-name: onboarding;
+}
+
+/* Narrow rendered width: stack the two route dockets so each keeps the full
+   frame intact instead of two fixed-aspect boxes overflowing side by side,
+   and switch the card to an overflow-proof flex overlay. Frame measured:
+   553x287 (aspect ~1.928); inner text zone ~18% top, ~12% sides, ~16% bottom.
+   In-flow flex children cannot overlap; the padding band confines them inside
+   the frame. */
+@container onboarding (max-width: 30rem) {
+  .study-stage--book .onboarding__routes {
+    /* minmax(0,1fr): let the track shrink below the frame image's intrinsic
+       553px min-content width — a plain 1fr resolves to minmax(auto,1fr) and
+       overflows the column to the right at narrow width. */
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .study-stage--book .onboarding__route-card {
+    /* allow the card to shrink to the track width */
+    min-width: 0;
+    position: relative;
+    aspect-ratio: 553 / 287;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+    /* Inner text zone of the 553x287 frame, measured: carved crown top ~18%,
+       carved side lips ~16%, lower lip ~16%. Pad into that band so the
+       centred verb + copy sit inside the inner face, never under a lip. */
+    padding: 18% 16% 16%;
+    text-align: center;
+  }
+
+  .study-stage--book .onboarding__route-card .onboarding__route-frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    z-index: 0;
+  }
+
+  .study-stage--book .onboarding__route-card .onboarding__route-verb,
+  .study-stage--book .onboarding__route-card .onboarding__route-best {
+    position: static;
+    left: auto;
+    top: auto;
+    transform: none;
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+    z-index: 1;
+  }
+
+  .study-stage--book .onboarding__route-card .onboarding__route-verb {
+    /* small-caps + letter-spacing is wide; size it down and tighten the
+       tracking so the verb stays inside the inner face at narrow width. */
+    font-size: clamp(0.78rem, 2.9cqw, 0.9rem);
+    letter-spacing: 0.05em;
+    line-height: 1.12;
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+
+  .study-stage--book .onboarding__route-card .onboarding__route-best {
+    font-size: clamp(0.62rem, 2.4cqw, 0.72rem);
+    line-height: 1.25;
+    max-width: 100%;
+    overflow-wrap: break-word;
+  }
+}
+
+/* ── Convergence: page-native ruled sections, not white SaaS cards ────────
+   The confirmation surface becomes account-book folio: ruled sections with
+   a marginal source trace, ornamental separators, and a Terracotta bracket
+   for the field being corrected. Controls stay live and accessible. */
+.study-stage--book .onboarding__infer-card {
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0.65rem 0 0.65rem 1.1rem;
+  margin-bottom: 0.35rem;
+  border-left: 1px solid color-mix(in srgb, var(--book-ink) 22%, transparent);
+  box-shadow: inset 1px 0 0 rgba(255, 248, 235, 0.4);
+  position: relative;
+}
+
+/* ornamental separator above each section after the first */
+.study-stage--book .onboarding__infer-card + .onboarding__infer-card {
+  border-top: none;
+}
+
+.study-stage--book .onboarding__infer-card + .onboarding__infer-card::before {
+  content: "";
+  position: absolute;
+  top: -0.45rem;
+  left: -1.1rem;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--book-ink) 18%, transparent) 12%,
+    color-mix(in srgb, var(--book-ink) 12%, transparent) 88%,
+    transparent 100%
+  );
+}
+
+/* the field under correction takes the Terracotta bracket (K7 grammar) */
+.study-stage--book .onboarding__infer-card[data-correcting="true"] {
+  border-left-color: color-mix(in srgb, var(--color-apricot) 65%, transparent);
+}
+
+/* inference value reads as the ledger line, not a card title */
+.study-stage--book .onboarding__infer-value {
+  font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: clamp(1rem, 1.7vw, 1.15rem);
+  font-weight: 600;
+  color: var(--book-ink);
+  text-shadow: var(--ink-display-shadow);
+  margin: 0.1rem 0 0.35rem;
+}
+
+/* decision chips become page-native engraved marks (not rounded SaaS pills) */
+.study-stage--book .onboarding__choice-btn {
+  border-radius: 3px;
+  font-variant: small-caps;
+  letter-spacing: 0.1em;
+}
+
+/* ── Folio action ledger (SC1 grammar): medallions + ornamental rules + live
+   status, in the lower two-thirds of the right page. Account-book, not a
+   status dashboard. */
+.study-stage--book .folio-ledger {
+  margin-top: 0.75rem;
+}
+
+.study-stage--book .folio-ledger__title {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.16em;
+  font-size: 0.78rem;
+  color: var(--book-ink-muted);
+  text-shadow: var(--ink-label-shadow);
+  text-align: center;
+  margin: 0 0 0.5rem;
+}
+
+.study-stage--book .folio-ledger__rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.study-stage--book .folio-ledger__row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.55rem 0.25rem 0.65rem;
+}
+
+.study-stage--book .folio-ledger__medallion {
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 2.75rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.study-stage--book .folio-ledger__medallion img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.study-stage--book .folio-ledger__body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.study-stage--book .folio-ledger__label {
+  font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  font-size: clamp(0.9375rem, 1.55vw, 1.0625rem);
+  line-height: 1.35;
+  color: var(--book-ink);
+  text-shadow: var(--ink-body-shadow);
+}
+
+.study-stage--book .folio-ledger__status {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-style: italic;
+  font-size: 0.78rem;
+  margin-top: 0.1rem;
+}
+
+.study-stage--book .folio-ledger__status--completed {
+  color: color-mix(in srgb, var(--book-ink) 55%, var(--color-sage));
+}
+
+.study-stage--book .folio-ledger__status--in_progress {
+  color: color-mix(in srgb, var(--book-ink) 62%, transparent);
+}
+
+.study-stage--book .folio-ledger__status--queued {
+  color: color-mix(in srgb, var(--book-ink) 48%, transparent);
+}
+
+/* ornamental rule between rows */
+.study-stage--book .folio-ledger__rule {
+  position: absolute;
+  left: 0.25rem;
+  right: 0.25rem;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--folio-gold, rgba(203,160,86,0.92)) 30%, transparent) 20%,
+    color-mix(in srgb, var(--folio-gold, rgba(203,160,86,0.92)) 55%, transparent) 50%,
+    color-mix(in srgb, var(--folio-gold, rgba(203,160,86,0.92)) 30%, transparent) 80%,
+    transparent 100%
+  );
+}
+
+.study-stage--book .folio-ledger__footnote {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: var(--book-ink-muted);
+  text-align: center;
+  margin: 0.6rem 0 0;
+}
+
+/* Rail mobile: labels reduce letter-spacing/font size so they stay inside
+   the finished rail's empty gaps and never collide the baked ornaments. */
+@media (max-width: 767px) {
+  .study-stage--book .study-stage__label {
+    font-size: clamp(0.42rem, 2.2vw, 0.54rem);
+    letter-spacing: 0.08em;
+  }
+
+  .study-stage--book .study-stage__subtitle {
+    font-size: clamp(0.4rem, 2vw, 0.5rem);
+    letter-spacing: 0.06em;
+  }
+
+  .study-stage--book .study-stage__header-actions {
+    gap: 0.25rem;
+  }
+
+  .study-stage--book .study-stage__header-actions button {
+    font-size: clamp(0.44rem, 2vw, 0.56rem);
+    letter-spacing: 0.06em;
+    padding: 0.2rem 0.35rem;
+    white-space: nowrap;
+  }
+}
+/* ── PR #99 native scrollbar removal (Kathryn dispatch, 6 Aug 2026) ─────────
+   Matthew: "I vehemently despise this scroll thing." A native Chromium
+   scrollbar (white track, grey thumb, arrow caps) was rendering on the
+   folio's scroll containers — browser chrome sitting on the painted
+   parchment, alien to the page-native material grammar.
+
+   Fix: strip the native scrollbar CHROME from every Living Folio scroll
+   region while keeping the scrolling behaviour itself fully intact. The
+   containers keep overflow-y: auto and stay scrollable by wheel, trackpad,
+   touch, keyboard (the focusable content still scrolls into view), and
+   assistive tech. We remove only the drawn control:
+     - scrollbar-width: none            (Firefox)
+     - ::-webkit-scrollbar display:none (Chromium / Safari)
+   Scoped strictly to .study-stage--book — no global scrollbar is touched.
+
+   The four folio scroll owners, each covered:
+     1. .study-stage__content            left page (conversation / intake)
+     2. .study-stage__right-panel        right page (decision cards / ledger)
+     3. .clive-chat--study __messages    chat transcript (nested scroller)
+   No replacement digital rail, floating thumb, or arrow buttons are added —
+   per dispatch, the content hierarchy already makes scrolling evident. */
+.study-stage--book .study-stage__content,
+.study-stage--book .study-stage__right-panel,
+.study-stage--book .clive-chat--study .clive-chat__messages,
+.study-stage--book .clive-chat__input {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* legacy Edge */
+}
+
+.study-stage--book .study-stage__content::-webkit-scrollbar,
+.study-stage--book .study-stage__right-panel::-webkit-scrollbar,
+.study-stage--book .clive-chat--study .clive-chat__messages::-webkit-scrollbar,
+.study-stage--book .clive-chat__input::-webkit-scrollbar {
+  display: none; /* Chromium / Safari */
+  width: 0;
+  height: 0;
+}
+
+/* The writing well (.clive-chat__input) is itself a folio scroll surface: it
+   auto-grows to a 132px cap (resizeInput in CliveChatSurface) then scrolls,
+   which surfaces a native scrollbar with arrow caps on the painted page.
+   Hide its chrome too; it stays scrollable and keyboard-navigable. */

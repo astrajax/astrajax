@@ -1,0 +1,246 @@
+/**
+ * Living Folio — furniture plate manifest (Git-side, small manifest).
+ *
+ * The furniture bank is served from the connected public Vercel Blob store
+ * (folder `docket-plate-blob/`), NOT from Git-resident assets. This manifest
+ * registers each plate's logical key, source SHA-256, pixel dimensions, MIME,
+ * and Blob pathname. The full Blob URL is derived server-side from the store
+ * id (bare public host, no "store_" prefix) — never hardcoded here.
+ *
+ * These are the working-resolution transparent (RGBA) plates. The high-res
+ * masters are the canonical originals (see folio-assets.ts / Blob masters).
+ *
+ * Agent access / upload: see website/docs/website-blob-store.md
+ */
+
+export type FurniturePlate = {
+  key: string;
+  sourceName: string;
+  sourceSha256: string;
+  width: number;
+  height: number;
+  mime: string;
+  version: number;
+  blobPathname: string;
+};
+
+/** Public website Blob store (Living Folio + furniture). */
+export const AJ_WEBSITE_BLOB_STORE_ID = "store_cvu4L5KwtlOCutGD";
+
+function publicBlobHost(storeId: string): string {
+  return `${storeId.trim().toLowerCase().replace(/^store_/, "")}.public.blob.vercel-storage.com`;
+}
+
+/** Full public Blob URL for a furniture plate pathname. */
+export function furniturePlateUrl(blobPathname: string): string {
+  return `https://${publicBlobHost(AJ_WEBSITE_BLOB_STORE_ID)}/${blobPathname
+    .split("/")
+    .map(encodeURIComponent)
+    .join("/")}`;
+}
+
+/** Resolve a plate by key → public URL (or null). */
+export function furniturePlateSrc(key: string): string | null {
+  const plate = getFurniturePlate(key);
+  return plate ? furniturePlateUrl(plate.blobPathname) : null;
+}
+
+export const FURNITURE_PLATES: Record<string, FurniturePlate> = {
+  "bracket-correction-left": {
+    key: "bracket-correction-left",
+    sourceName: "bracket-correction-left.png",
+    sourceSha256: "173bde62660e27720af67114eab4e8b8867aea298b7837e43a45f296f572ae51",
+    width: 87,
+    height: 237,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/bracket-correction-left.png",
+  },
+  "bracket-correction-right": {
+    key: "bracket-correction-right",
+    sourceName: "bracket-correction-right.png",
+    sourceSha256: "b02fb260a9328b8d59904be4234f4474ffb8f7a882a7f3cfa0f337e37c9cc8d8",
+    width: 87,
+    height: 237,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/bracket-correction-right.png",
+  },
+  "bookmark-terracotta": {
+    key: "bookmark-terracotta",
+    sourceName: "bookmark-terracotta.png",
+    sourceSha256: "961496d5dfecf0956496ec9b7d1bd905b16200eb9c0a8d718bef678cd6f7026e",
+    width: 106,
+    height: 322,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/bookmark-terracotta.png",
+  },
+  "docket-frame-button": {
+    key: "docket-frame-button",
+    sourceName: "docket-frame-button.png",
+    sourceSha256: "f32b23432a645d81e44a29ab48290b9344a1ec8604c069e5055ebeb41643701d",
+    width: 560,
+    height: 350,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/docket-frame-button.png",
+  },
+  "docket-frame-left": {
+    key: "docket-frame-left",
+    sourceName: "docket-frame-left.png",
+    sourceSha256: "8bb6b77b1559d5c95334f6ea2851a363fea74008416aecd597fecbe15c351ff7",
+    width: 543,
+    height: 276,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/docket-frame-left.png",
+  },
+  "docket-frame-right": {
+    key: "docket-frame-right",
+    sourceName: "docket-frame-right.png",
+    sourceSha256: "d51729ad0540696c19903e4feaf2a82f934d914f5bf13d5c95cb69c852807da2",
+    width: 536,
+    height: 276,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/docket-frame-right.png",
+  },
+  "docket-frame-slim": {
+    key: "docket-frame-slim",
+    sourceName: "docket-frame-slim.png",
+    sourceSha256: "5cc5fc2d46c6263658ccb15d4d4d999d4596eeaa06d524d4df727c69e6d8e556",
+    width: 760,
+    height: 201,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/docket-frame-slim.png",
+  },
+  "docket-plate-long": {
+    key: "docket-plate-long",
+    sourceName: "docket-plate-long.png",
+    sourceSha256: "ed58b71e2530da4cd91391a01c2b2e882219198b7180463c89d9c2c0217f2d86",
+    width: 820,
+    height: 182,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/docket-plate-long.png",
+  },
+  "docket-plate-medium": {
+    key: "docket-plate-medium",
+    sourceName: "docket-plate-medium.png",
+    sourceSha256: "fe23b887ec7298ae1e201d81a5ae9f5cdae44863adb98099ed71a7a274d58774",
+    width: 560,
+    height: 338,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/docket-plate-medium.png",
+  },
+  "docket-plate-short": {
+    key: "docket-plate-short",
+    sourceName: "docket-plate-short.png",
+    sourceSha256: "de99bc31be8b417c945a9217346e57fcba798c9b0f9863869b37c40b26fdfcf8",
+    width: 420,
+    height: 223,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/docket-plate-short.png",
+  },
+  "medallion-accepted-sage": {
+    key: "medallion-accepted-sage",
+    sourceName: "medallion-accepted-sage.png",
+    sourceSha256: "1877c277cd6c8f68849f19adf029e5ce1bb53b5415b023ee0380df683648705a",
+    width: 246,
+    height: 250,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/medallion-accepted-sage.png",
+  },
+  "medallion-pending-graphite": {
+    key: "medallion-pending-graphite",
+    sourceName: "medallion-pending-graphite.png",
+    sourceSha256: "61a9218057d50ee76ec0cea30a2725325814b3f55a202c719b1cf5c87a8225b0",
+    width: 247,
+    height: 250,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/medallion-pending-graphite.png",
+  },
+  "medallion-pin-pair": {
+    key: "medallion-pin-pair",
+    sourceName: "medallion-pin-pair.png",
+    sourceSha256: "8edffa2ff7fba2bfa20c85ac3114afc4d8f85de70d1035a7b0811f3139ddadad",
+    width: 210,
+    height: 190,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/medallion-pin-pair.png",
+  },
+  "medallion-write-brass": {
+    key: "medallion-write-brass",
+    sourceName: "medallion-write-brass.png",
+    sourceSha256: "c10f94bf5b90c502c96b4b61bdc27af040bd5dc456035205f1f54af4333c7e50",
+    width: 245,
+    height: 248,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/medallion-write-brass.png",
+  },
+  "plate-book-blank": {
+    key: "plate-book-blank",
+    sourceName: "plate-book-blank.png",
+    sourceSha256: "3629bcdd219039b318e5d0db49c9fc54c3750e38b48ac5b595710818569618b9",
+    width: 210,
+    height: 271,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/plate-book-blank.png",
+  },
+  "rule-ornamental-1": {
+    key: "rule-ornamental-1",
+    sourceName: "rule-ornamental-1.png",
+    sourceSha256: "e58e5fe53b4717e542f3bc93dc839a06e6a8ecb9bd161e7a5c45f1fcc8734650",
+    width: 312,
+    height: 56,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/rule-ornamental-1.png",
+  },
+  "rule-ornamental-2": {
+    key: "rule-ornamental-2",
+    sourceName: "rule-ornamental-2.png",
+    sourceSha256: "472853a9c8f69a03ba6ed5aa9708a6c6d22b4dbcbbe8c80d21a5b0acca004e3b",
+    width: 425,
+    height: 63,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/rule-ornamental-2.png",
+  },
+  "rule-ornamental-3": {
+    key: "rule-ornamental-3",
+    sourceName: "rule-ornamental-3.png",
+    sourceSha256: "f3d47b45160206a7f185a4b319017733e9303f3b260c9ba94414cae4c14a9b79",
+    width: 553,
+    height: 76,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/rule-ornamental-3.png",
+  },
+  "seal-terracotta-hand": {
+    key: "seal-terracotta-hand",
+    sourceName: "seal-terracotta-hand.png",
+    sourceSha256: "396381d7f39ff71ad6278c6ac9c625c65a09ee0f7f52dd53a7cc15838fe48e30",
+    width: 197,
+    height: 203,
+    mime: "image/png",
+    version: 1,
+    blobPathname: "docket-plate-blob/seal-terracotta-hand.png",
+  },
+};
+
+/** @deprecated Prefer FURNITURE_PLATES — kept for existing docket callers. */
+export const DOCKET_PLATES = FURNITURE_PLATES;
+
+export function getFurniturePlate(key: string): FurniturePlate | null {
+  return FURNITURE_PLATES[key] ?? null;
+}

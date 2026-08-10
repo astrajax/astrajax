@@ -157,9 +157,8 @@ separate server, database, or Docker** to start. Everything under `hyperagent/`,
   Use `npx tsc --noEmit` in `website/` as the static check instead.
 - **Tests:** `npm run test:brain-key`, `npm run test:command-centre`,
   `npm run test:platform-activity` (vitest); `npm run test:e2e` (Playwright — needs
-  `npx playwright install` for browsers). As of this setup, one pre-existing vitest
-  failure exists in `src/lib/command-centre/story-mode.test.ts` and one pre-existing
-  `tsc` error in `src/lib/brains/handlers/receiving-wall-records.ts` (the latter can
-  block `next build`; `next dev` is unaffected). These are not environment issues.
+  `npx playwright install` for browsers). To check health on your branch, run
+  `npx tsc --noEmit` and the relevant vitest scripts in `website/` — treat any failure
+  as real work to fix, not a known baseline to ignore.
 - **Platform telemetry** (`PLATFORM_*`) and the `vercel.json` crons default **off**
   and are not needed for local dev/testing.

@@ -17,3 +17,31 @@ IHT435_*.pdf
 
 # Visual-iteration scratch screenshots (kept on disk, out of git)
 website/e2e/artifacts/
+website/.screenshots/
+
+# TypeScript incremental build cache
+website/tsconfig.tsbuildinfo
+
+# macOS/sync duplicate artefacts ("file 2.ts") — never source of truth
+*[ ]2.*
+
+# Image-generation intermediates (the shipped asset sits beside them)
+website/public/**/*.prev.*
+website/public/**/*.generated-raw.*
+
+# fal / Milo previz outputs (keep folder, ignore media)
+brand/.previz/*
+!brand/.previz/.gitkeep
+scripts/fal/_previz_env_bridge.py
+
+# Deckle mattes and scratch previews — live on the public Blob store, never git
+website/public/masks/
+
+# Halvard rough direction pack — mirrored to public Blob, TL holds the finish
+website/public/agent-cast/halvard-bjornson/*
+!website/public/agent-cast/halvard-bjornson/README.txt
+
+# Throwaway QA output from onboarding upload runs
+qa-screenshots/
+qa-onboarding-upload-report*.json
+website/qa-onboarding-upload.mjs
