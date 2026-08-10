@@ -98,6 +98,7 @@ Weakest assumption:
 Missing evidence:
 Scope or rabbit-hole risk:
 Decision risk:
+Safe to proceed:
 Recommendation: Ready | Revise | Stop | Escalate
 Matthew's decision:
 ```
