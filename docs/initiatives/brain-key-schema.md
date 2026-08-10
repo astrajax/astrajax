@@ -366,6 +366,23 @@ Primary field: **Action ID** (singleLineText)
 
 ## Trusted Brain base (per theme)
 
+Standard tables: **Brain Truth** + **Brain Memories**. Theme bases may add companion tables for other grains (e.g. Creative **Media Assets**) — never put those grains into Brain Truth rows.
+
+### Live: Trusted Brain — Creative (10 Aug 2026)
+
+| | |
+|---|---|
+| Base | `AstraJax Trusted Brain — Creative` (`appvs1m7kP7lxRwcL`) |
+| Registry slug | `creative` (`recf0bCHGNYlT7MU1`) |
+| Brain Type | Domain |
+| Scope areas | `creative-doctrine`, `creative-palette`, `creative-cast`, `creative-shipping` |
+| IDs | `BRAIN_TRUSTED_CREATIVE_*` in `website/src/lib/brains/airtable-ids.ts` |
+
+**Brain Truth Scope options (Creative):**  
+`read:brain-truth:creative-doctrine`, `read:brain-truth:creative-palette`, `read:brain-truth:creative-cast`, `read:brain-truth:creative-shipping`
+
+**Bytes:** Vercel Blob public website store. Airtable holds catalogue rows + Blob URLs — not duplicate attachment binaries.
+
 ### Table: Brain Truth
 
 Primary field: **Title** (singleLineText). **Approved rows only** — if it is in this table, it is canonical. No Draft status field.
@@ -442,6 +459,32 @@ Primary field: **Memory Text** (singleLineText). **Working brain recall** — sh
 **Promotion (one direction only):** Brain Memory → Workshop **Draft Brain Truth** → Trusted **Brain Truth**. Never Persona Memory → Brain Memory without human review at promote boundary.
 
 **Curation:** Clive's Man (or equivalent steward) may quarantine or retire stale Brain Memories without a per-record human approval gate. Human gate applies at **promotion** to canonical truth.
+
+### Table: Media Assets (Creative Trusted — add-on)
+
+Primary field: **Title** (singleLineText). **One row = one creative file.** Companion grain on the Creative Trusted base only (unless another theme explicitly adopts the same shape). Not Brain Truth.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Title | singleLineText | Primary |
+| Asset Key | singleLineText | Stable logical key for code/agents (e.g. `halvard.tower-loop`) |
+| Blob Pathname | singleLineText | Path inside the public website Blob store |
+| Blob URL | url | Public Vercel Blob URL — SSOT for bytes |
+| Character Pack | singleSelect | Clive, Ruth Hadley, Halvard Bjornson, Brain Vault, Folio Furniture, Shared |
+| Kind | singleSelect | Hero, Loop, Poster, Cutout, Matte, Furniture, Still, Other |
+| Status | singleSelect | Rough, Locked, Retired — only **Locked** is agent-safe for production |
+| Mime | singleLineText | e.g. `image/png`, `video/mp4` |
+| Width | number (0dp) | Optional pixel width |
+| Height | number (0dp) | Optional pixel height |
+| Source SHA-256 | singleLineText | Hash of uploaded bytes |
+| Authority | singleLineText | Approver or art director |
+| Notes | multilineText | |
+| Last Reviewed | date | ISO date |
+| Governed By Truth | link → Brain Truth | Optional doctrine that governs this asset |
+
+**Hard grain rule:** do not store file catalogues as Brain Truth rows. Doctrine → Truth; files → Media Assets.
+
+**Promotion of status:** Rough → Locked is a human gate (Tara-Lee / Matthew). Agents may propose Rough rows; they must not self-promote to Locked.
 
 ---
 
