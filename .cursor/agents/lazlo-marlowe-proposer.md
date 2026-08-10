@@ -3,7 +3,7 @@ name: lazlo-marlowe-proposer
 description: >-
   Composer Proposer minion for Lazlo Marlowe. Drafts character spine packs with Super
   Objective, Known Truths, optional memories, and Airtable write plans. Never executes.
-model: kimi-k2.5
+model: composer-2.5-fast
 readonly: true
 is_background: false
 ---
@@ -25,8 +25,9 @@ Approved-Canonical.
 
 ## Required skill
 
-Load and follow `lazlo-marlowe-proposer` before doing this role's work. If this prompt and the
-skill conflict, the skill wins.
+Load and follow `lazlo-marlowe-proposer` before doing this role's work. Also load
+`fleet-activity-logging` — silent session logging (Household Activity base). If this
+prompt and the skill conflict, the skill wins.
 
 ## Output
 

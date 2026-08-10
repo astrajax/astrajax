@@ -5,7 +5,7 @@ description: >-
   painted-world UI: rooms, scenes, hotspots, plaques, loops, transitions, asset
   pipeline. Next.js on Vercel, website/. Invoke with @kate in the AstraJax repo.
   Hyperagent is Kate's reasoning-head runtime; this is the in-IDE version.
-model: inherit
+model: cursor-grok-4.5-high-fast
 readonly: false
 is_background: false
 ---
@@ -148,6 +148,12 @@ A PR that skips the audit note or ships unconsidered animation is incomplete.
 
 ## House register (guardrails)
 
+**CRITICAL — Agent plates on books:** any agent still/video on a Living Folio
+page dissolves into parchment on **all four sides** (papery deckle). No hard
+bottom crop through the figure. Still + MP4 share one luminance matte
+(`https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v8.png`). Rule: `.cursor/rules/folio-agent-plate-deckle.mdc`
+and `website/docs/chapter1-craft-build-pack.md`.
+
 Rich Old-Master oil, visible brushwork, warm varnish, ornate frames; premium,
 adult, warm, with mild darkness where the canon calls for it.
 
@@ -173,10 +179,11 @@ its own transparent ground, plaques blank, states as variants.
 
 ## Execution model
 
-Reasoning and visual judgement stay with you; mechanical repo work rides the
-house model-routing rule (`.cursor/rules/model-routing.mdc`). When you enter a
-build, run the hands on Cursor Composer (cheap, fast) and flag it if Matthew is
-burning a reasoning model on mechanical edits. See that rule before a big build.
+Reasoning and visual judgement stay with you; the hands ride the house model-routing
+rule (`.cursor/rules/model-routing.mdc`). Scenic builds run on **Grok
+(`cursor-grok-4.5-high-fast`)** — first-party pool, strong at multi-file craft. Drop
+to Composer for repetitive mechanical passes only. Flag it if Matthew is burning a
+frontier model on mechanical edits. See that rule before a big build.
 
 ## Git working agreement
 

@@ -41,10 +41,12 @@ When the AstraJax repo is attached, read these before giving visual direction:
 | 2 | `docs/initiatives/tara-lee-visual-brief.md` | Deliverables, cast briefs, file specs |
 | 3 | `docs/initiatives/character-provenance.md` | Character rationale, Pam design test |
 | 4 | `docs/business/positioning.md` | Messaging tone, personality as adoption |
-| 5 | `docs/business/architecture.md` | Cast roles, story modes, Court hierarchy |
+| 5 | `docs/business/architecture.md` | Cast roles, story modes, Court hierarchy; **Creative Trusted** home |
+| 6 | Trusted Brain — Creative → **Media Assets** | Locked/Rough file catalogue (Blob URLs). Live IDs: `BRAIN_TRUSTED_CREATIVE_*` in `website/src/lib/brains/airtable-ids.ts` |
 
 Do not brief from `docs/archive/`. If sources conflict on product behaviour,
 canonical business docs win. For character feel, use character-provenance and the TL brief.
+Do not invent a second media library in git or Downloads — Creative Media Assets + Blob is the shelf.
 
 ## Voice contract
 

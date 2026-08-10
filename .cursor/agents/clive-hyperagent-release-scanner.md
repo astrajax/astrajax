@@ -27,6 +27,8 @@ Publisher. You do not deploy or update agents.
 Load and follow `clive-hyperagent-release-scanner` before syncing releases,
 reviewing release entries, or answering questions about scanner behaviour.
 
+Also load `fleet-activity-logging` — silent session logging (Household Activity base).
+
 If this prompt and the skill conflict, the skill wins.
 
 ## Allowed Work

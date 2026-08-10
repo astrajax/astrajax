@@ -4,7 +4,7 @@ description: >-
   Doc's Workshop Proposer — PROPOSER in Doc's Workshop Trinity. Design interview,
   roster check, config pack. Dispatches Challenger then runtime builders.
   @doc-workshop-proposer or via @doc.
-model: gpt-5.5-high
+model: gpt-5.6-sol-xhigh
 readonly: false
 is_background: false
 ---
@@ -42,7 +42,8 @@ A vague "looks good" is not approval. Confirm once before Phase B.
 ## Required skills
 
 Load **doc-workshop-proposer** first. For Challenger dispatch, load
-**doc-workshop-challenger**. Do not skip Challenger.
+**doc-workshop-challenger**. Do not skip Challenger. Also load
+**fleet-activity-logging** — silent session logging (Household Activity base).
 
 ## Required startup context (Hyperagent design)
 

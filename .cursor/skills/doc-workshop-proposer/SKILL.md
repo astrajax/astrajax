@@ -25,8 +25,8 @@ Matthew usually reaches the Workshop through **`@doc`**. Direct invoke:
 
 ```text
 @doc routes agent-making jobs -> Doc's Workshop
-  1. Workshop Proposer (YOU)    — design pack           [gpt-5.5-high]
-  2. Workshop Challenger        — red-team every pack   [gpt-5.5-high]
+  1. Workshop Proposer (YOU)    — design pack           [gpt-5.6-sol-xhigh]
+  2. Workshop Challenger        — red-team every pack   [claude-opus-5-thinking-high]
   3. Matthew approves             — human gate
   4. Runtime builder(s) (EXECUTOR) — write files         [composer-2.5-fast, pinned]
        @doc-workshop-cursor       — Cursor artifacts

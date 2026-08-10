@@ -33,3 +33,15 @@ website/public/**/*.generated-raw.*
 brand/.previz/*
 !brand/.previz/.gitkeep
 scripts/fal/_previz_env_bridge.py
+
+# Deckle mattes and scratch previews — live on the public Blob store, never git
+website/public/masks/
+
+# Halvard rough direction pack — mirrored to public Blob, TL holds the finish
+website/public/agent-cast/halvard-bjornson/*
+!website/public/agent-cast/halvard-bjornson/README.txt
+
+# Throwaway QA output from onboarding upload runs
+qa-screenshots/
+qa-onboarding-upload-report*.json
+website/qa-onboarding-upload.mjs

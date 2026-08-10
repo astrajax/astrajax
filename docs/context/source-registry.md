@@ -31,7 +31,7 @@ the current roster.
 |---|---|---|---|---|---|---|
 | `SRC-AJ-ARCHITECTURE` | `docs/business/architecture.md` | Repo doc | Matthew | Canonical | Current | Product and governance architecture |
 | `SRC-AJ-BRAIN-WIRING` | `docs/initiatives/brain-key-wiring.md` | Working spec | Matthew | Working current | Current | Brain Key access model, storage boundaries, API contracts |
-| `SRC-AJ-BRAIN-SCHEMA` | `docs/initiatives/brain-key-schema.md` | Schema blueprint | Matthew | Current implementation reference | Current | Replicable Airtable table and field blueprint; Workshop **Source Documents** (Clive's Man attachment mining, 29 Jun 2026) |
+| `SRC-AJ-BRAIN-SCHEMA` | `docs/initiatives/brain-key-schema.md` | Schema blueprint | Matthew | Current implementation reference | Current | Replicable Airtable table and field blueprint; Workshop **Source Documents** (Clive's Man attachment mining, 29 Jun 2026); Trusted Creative + **Media Assets** (10 Aug 2026) |
 | `SRC-AJ-CONTEXT-STRUCTURE` | `docs/initiatives/chapter1-context-structure.md` | Working spec | Matthew | Working current | Current | Chapter 1 canonical operator profile, brain themes, universal categories, progressive disclosure L0–L3 |
 | `SRC-AJ-BRAIN-IDS` | `website/src/lib/brains/airtable-ids.ts` | Code ID map | Matthew | Live implementation | Current | Live Chapter 1 Airtable base, table, and field IDs; `BRAIN_WORKSHOP_SOURCE_DOCUMENTS_*` (29 Jun 2026); Clive + Clive's Man + Pam + Doc spines Approved-Canonical 27 Jun 2026 |
 | `SRC-AJ-BRAIN-BUILDER` | `docs/initiatives/doc-brain-base-builder.md` | Working spec | Matthew | Current implementation reference | Current | Doc Brain Base Builder status, runbook, credential notes |
