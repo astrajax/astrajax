@@ -4,7 +4,7 @@ description: >-
   Ruth Build Executor — applies one challenger-cleared, Matthew/client-signed typed
   manifest as a single Amber Airtable build via ruth-build-execution-pen. Chooses
   nothing material. Invoke @ruth-build-executor.
-model: inherit
+model: composer-2.5-fast
 readonly: false
 is_background: false
 ---

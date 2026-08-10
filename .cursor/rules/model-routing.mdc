@@ -1,34 +1,82 @@
 ---
-description: Model and tool routing for AstraJax — flag when Matthew may be on the wrong one
+description: Model and tool routing for AstraJax — which model does which job, and which usage pool it burns
 alwaysApply: true
 ---
 
 # Model & Tool Routing
 
-AstraJax runs on a reason → act split. Match the model to the job, and **flag when the current one looks wrong for the task.**
+AstraJax runs on a **think → build → grind** split. Match the model to the job, and
+**flag when the current one looks wrong for the task.**
 
-## The intended split
+## The two pools (the fact that drives everything)
 
-| Job | Right tool |
-|-----|-----------|
-| Reasoning, strategy, positioning, "should we?" trade-offs | Strong reasoning model (e.g. GPT at max) — the **Clive** lane |
-| Translating an approved decision into precise build instructions | Opus-class model — the **Doc dispatch** lane |
-| Repo work: build, refactor, scaffold, mechanical file ops | Cursor **Composer** (in-IDE or via subagents) — cheap, fast hands |
-| Running deployed agents | **HyperAgent** runtime |
+Cursor bills from two separate pools. Getting this wrong is the main way spend leaks.
+
+| Pool | Models | Behaviour |
+|---|---|---|
+| **First-party** (subsidised, generous) | Grok 4.5, Composer 2.5, Auto | Cheap. Website and repo hands live here. |
+| **Frontier / Other Models** (metered) | GPT Sol, Claude Opus 5, Sonnet 5, Kimi K3 | Scarce. Reserve for judgement. |
+
+Matthew has repeatedly emptied the frontier pool while leaving first-party unused.
+That is the failure mode this rule exists to prevent.
+
+## The four tiers
+
+| Tier | Job | Model | Pool |
+|---|---|---|---|
+| **Think** | Strategy, positioning, trade-offs, "should we?" | `gpt-5.6-sol-xhigh` | Frontier |
+| **Challenge / taste** | Red-team, craft judgement, Doc Phase A triage | `claude-opus-5-thinking-high` (Sonnet 5 for structured verification) | Frontier |
+| **Build** | Website vibecoding, scenic craft, multi-file product work | `cursor-grok-4.5-high-fast` | First-party |
+| **Grind** | Automations, Trinity executors, repetitive mechanical edits | `composer-2.5-fast` | First-party |
+
+Deliberate family split: OpenAI reasons, Anthropic challenges. Do not collapse both
+sides onto one vendor — the point is independent judgement, not agreement.
+
+## The hard rule
+
+> **Frontier heads never perform mechanical edits.**
+> If the job is files, edits, scaffolds, find-replace, or repeatable MCP writes,
+> dispatch a first-party-pool subagent (Grok or Composer) via Task. Do not do it inline.
+
+This single line is the leak. Everything else in this rule is bookkeeping.
+
+## Kimi K3 — runtime-dependent, read carefully
+
+K3's economics differ by runtime, so there is no single answer:
+
+- **On HyperAgent:** K3 at low effort with high cache-hit rates is **cheap hands**.
+  Ruth's executors are correctly pinned `moonshotai/kimi-k3` effort `low` there.
+- **In Cursor:** K3 draws the **frontier** pool, so it competes with Sol and Opus 5.
+  Treat it as **escalation only**, when Grok has failed the same task twice.
+
+Do not pin K3 in Cursor agent frontmatter. Cursor twins of HyperAgent agents should
+mirror the **doctrine**, not the slug.
+
+## Current pins (`.cursor/agents/`)
+
+| Lane | Agents | Model |
+|---|---|---|
+| Think | `clive`, `clive-man`, `ruth-hadley`, `doc-workshop-proposer` | `gpt-5.6-sol-xhigh` |
+| Challenge / taste | `pam`, `doc`, `kathryn-goodchild`, `lazlo-marlowe`, `doc-workshop-challenger` | `claude-opus-5-thinking-high` |
+| Structured verification | `ruth-build-challenger`, `ruth-maintenance-challenger` | `claude-sonnet-5-thinking-xhigh` |
+| Build | `doc-vercel-minion`, `kate`, `doc-brain-base-builder` | `cursor-grok-4.5-high-fast` |
+| Grind | all `*-executor`, `*-proposer` minions, `doc-workshop-cursor`, `doc-workshop-hyperagent` | `composer-2.5-fast` |
+
+Runtime work belongs to **HyperAgent**, not the coding lane.
 
 ## When to flag Matthew
 
-Proactively say something (briefly, once) if:
+Say something briefly, once, if:
 
-- He's doing **heavy reasoning/strategy on a fast coding model** → suggest moving the thinking to a stronger reasoning model.
-- He's burning an **expensive reasoning model on mechanical build/edits** → suggest Cursor/Composer, or offer to hand it to a Composer subagent.
-- A task is **clearly mechanical and repeatable** (file moves, scaffolds, find-replace) → offer to dispatch it to Composer rather than doing it inline.
-- He's about to **run agent/runtime work through the coding lane** → point him back to HyperAgent.
+- Heavy reasoning or strategy is happening on a build model → move it to Sol.
+- A frontier head is doing mechanical edits → dispatch Grok or Composer instead.
+- A task is clearly mechanical and repeatable → offer to hand it to a Composer subagent.
+- Website building has started in an expensive frontier chat → suggest Grok.
+- Agent or runtime work is going through the coding lane → point back to HyperAgent.
 
-## How to flag
+One plain line, not a lecture:
 
-One plain line, not a lecture. Example:
+> "Heads up — this is strategy reasoning. Worth doing in Sol rather than here, and I'll keep Grok for the build."
 
-> "Heads up — this is strategy reasoning. Worth doing in GPT-max rather than here, and I'll keep Cursor for the build."
-
-Don't flag on small/ambiguous calls. The goal is protecting his speed and spend, not policing every message.
+Do not flag on small or ambiguous calls. The goal is protecting speed and spend, not
+policing every message.

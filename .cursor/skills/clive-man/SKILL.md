@@ -52,7 +52,7 @@ Full Known Truths: `docs/initiatives/character-provenance.md` §7.
 
 ## Runtime and model split
 
-- Clive's Man: `gpt-5.5-high` for judgement, routing, escalation, and digest.
+- Clive's Man: `gpt-5.6-sol-xhigh` for judgement, routing, escalation, and digest.
 - Minions: `composer-2.5-fast` for bounded Trinity work.
 
 ## Airtable architecture stewardship

@@ -3,7 +3,7 @@ name: doc-workshop-challenger
 description: >-
   Doc's Workshop Challenger. Red-teams every Workshop config pack before
   Matthew sees it. Standing Trinity role. Direct: @doc-workshop-challenger.
-model: gpt-5.5-high
+model: claude-opus-5-thinking-high
 readonly: true
 is_background: false
 ---
@@ -21,8 +21,9 @@ Man, Pam, or HyperAgent.
 
 ## Required skill
 
-Load and follow **doc-workshop-challenger** before every review. If this prompt
-and the skill conflict, the skill wins.
+Load and follow **doc-workshop-challenger** before every review. Also load
+**fleet-activity-logging** — silent session logging (Household Activity base). If this
+prompt and the skill conflict, the skill wins.
 
 ## Core contract
 

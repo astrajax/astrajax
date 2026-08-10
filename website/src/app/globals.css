@@ -1515,21 +1515,19 @@ body {
   height: 100%;
   overflow: hidden;
   isolation: isolate;
-  --clive-feather-vignette: color-mix(in srgb, var(--color-cream-paper) 55%, transparent);
-  --clive-feather-mid: color-mix(in srgb, var(--color-parchment) 32%, transparent);
-  --clive-feather-edge: color-mix(in srgb, var(--color-cream) 22%, transparent);
-  --clive-feather-soft: color-mix(in srgb, var(--color-cream) 14%, transparent);
-  /* Tight edge softener only — most of the plate stays fully solid. */
-  --clive-feather-mask: radial-gradient(
-    ellipse 96% 94% at 50% 48%,
-    #000 0%,
-    #000 72%,
-    color-mix(in srgb, #000 78%, transparent) 86%,
-    color-mix(in srgb, #000 35%, transparent) 94%,
-    transparent 100%
-  );
+  /*
+   * CRITICAL — agent plates on books (Living Folio):
+   * Full-perimeter papery deckle matte. Dissolves into parchment on ALL four
+   * sides (including the bottom). Never a hard crop / ruler line through the
+   * figure; never soft radial-gradient blur alone. Same mask wraps still + MP4.
+   * Asset (public Blob — never git): folio/masks/clive-folio-deckle-v8.png
+   * (white=show, black=hide; luminance). Native aspect 1024/755.
+   */
+  --clive-feather-mask: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v8.png");
   -webkit-mask-image: var(--clive-feather-mask);
   mask-image: var(--clive-feather-mask);
+  -webkit-mask-source-type: luminance;
+  mask-mode: luminance;
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   -webkit-mask-position: center;
@@ -1538,21 +1536,10 @@ body {
   mask-repeat: no-repeat;
 }
 
+/* Deckle matte owns the edge — no second soft-oval vignette on top. */
 .study-stage__clive-feather::before,
 .clive-portrait-feather::before {
-  content: "";
-  pointer-events: none;
-  position: absolute;
-  inset: -6%;
-  z-index: 2;
-  background: radial-gradient(
-    ellipse 98% 96% at 50% 48%,
-    transparent 74%,
-    var(--clive-feather-soft) 90%,
-    var(--clive-feather-vignette) 100%
-  );
-  mix-blend-mode: normal;
-  opacity: 0.55;
+  content: none;
 }
 
 .study-stage__clive-feather::after,
@@ -1616,8 +1603,8 @@ body {
 }
 
 .study-stage--book:has(.chapter1-right-decision) .study-stage__right-panel {
-  /* Anchor below Clive (16:9 portal → height ≈ width / 1.78) so they never overlap */
-  top: calc(var(--book-clive-top) + (var(--book-clive-width) / 1.5) * 0.62 + 1cqw);
+  /* Anchor below Clive (deckle matte 1024×755 → height = width × 755/1024) so they never overlap */
+  top: calc(var(--book-clive-top) + (var(--book-clive-width) * 755 / 1024) + 1cqw);
   bottom: var(--folio-safe-bottom);
   left: calc(var(--book-right-page-start) + var(--folio-safe-gutter));
   right: calc(var(--folio-safe-outer-right) + var(--folio-safe-gutter));
@@ -1991,7 +1978,8 @@ body {
 }
 
 .study-stage--book .study-stage__clive-spot {
-  overflow: hidden;
+  /* Ink fringe sits outside the plate clip — do not hard-crop the spot. */
+  overflow: visible;
   box-shadow: none;
   filter: none;
 }
@@ -7163,12 +7151,8 @@ textarea.clive-chat__input {
 }
 
 .study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
-  /* Teaching presence: a taller frame so he FILLS the left page as the
-     teacher, per the commission rough — not a flat vignette. */
-  aspect-ratio: 4 / 3;
-}
-
-.study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
+  /* Native aspect of the REF deckle matte (1024×755). */
+  aspect-ratio: 1024 / 755;
   right: auto;
   left: var(--folio-clive-left);
   top: var(--folio-clive-top);
@@ -7192,7 +7176,15 @@ textarea.clive-chat__input {
    chapter1-right-decision rules already centre him above the action
    record; here we formalise the anchor so the state is explicit even
    before the first action card mounts. */
+.study-stage--book[data-folio-state="interaction"] {
+  /* Stage-level anchors so right-panel top matches the live plate box. */
+  --book-clive-top: 13.5cqh;
+  --book-clive-width: 32cqw; /* SC1 delta: +~20% interaction presence */
+}
+
 .study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
+  /* Same matte aspect as teaching so the REF deckle is not stretched. */
+  aspect-ratio: 1024 / 755;
   right: auto;
   left: calc(
     var(--book-right-page-start) +
@@ -7203,12 +7195,17 @@ textarea.clive-chat__input {
      too close to the top walnut rail. Ease it down ~2.5% of page height for a
      clear parchment margin above, while preserving ledger room below.
      Teaching placement is unchanged. */
-  top: 13.5cqh;
-  --book-clive-width: 32cqw;
-  width: 32cqw; /* SC1 delta: +~20% interaction presence, material anchor not thumbnail; right-panel anchors below it */
+  top: var(--book-clive-top);
+  width: var(--book-clive-width);
   max-width: calc(
     100% - var(--book-right-page-start) - var(--folio-safe-outer-right) - (var(--folio-safe-gutter) * 2)
   );
+}
+
+/* Right-panel must clear the full deckle plate (1024×755), not the old
+   3:2 × 0.62 portal estimate — otherwise decision UI overlaps Clive. */
+.study-stage--book[data-folio-state="interaction"] .study-stage__right-panel {
+  top: calc(var(--book-clive-top) + (var(--book-clive-width) * 755 / 1024) + 1cqw);
 }
 
 @media (max-width: 767px) {
@@ -7218,9 +7215,8 @@ textarea.clive-chat__input {
     --folio-clive-width: 46cqw;
   }
 
-  .study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
-    top: 13.5cqh;
-    width: 38cqw;
+  .study-stage--book[data-folio-state="interaction"] {
+    --book-clive-width: 38cqw;
   }
 }
 
@@ -7945,38 +7941,69 @@ textarea.clive-chat__input {
    never the fix; the layers had to collapse to ONE painted alpha on the
    OUTERMOST wrapper only.
 
-   Below: exactly one hand-painted SVG mask per state, applied to
-   .study-stage__clive-spot (the outermost Clive media wrapper). The mask is
-   a turbulence-displaced, edge-feathered painted alpha — it dissolves into
-   the Pale Cream page rather than cutting. Every nested mask on the feather
-   wrapper, the poster, the live video layer, and the image is neutralised
-   so poster and MP4 inherit clipping from the single outer wrapper alone.
-   The pale ::before vignette/fog is removed. Non-folio uses of
-   .clive-portrait-feather (portrait-entry) are untouched. */
+   Below: plate + ink siblings on the Clive spot (see CliveStudyStage).
+   House assets on the public website Blob store (never git — Vercel builds
+   from git, so local /masks/ PNGs 404 in every deploy):
+     folio/masks/clive-folio-deckle-v8.png      — luminance matte (white=show)
+     folio/masks/clive-folio-deckle-ink-v8.png  — charcoal rim OUTSIDE the clip
+   Same matte for teaching (left page) and interaction (right top-third)
+   so still + MP4 share one edge. Nested masks on feather / poster / live
+   layer are neutralised so they inherit the plate clip alone. Pale
+   ::before vignette/fog stays off. Non-folio .clive-portrait-feather
+   (portrait-entry) uses the same Blob matte. */
 
-.study-stage--book .study-stage__clive-spot {
-  /* One painted mask on the outermost wrapper; state picks the aspect. */
-  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction.svg");
-  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-interaction.svg");
+/*
+ * Teaching + interaction: curated MP4s / poster stay the media.
+ * REF supplies the BORDER only:
+ *   .study-stage__clive-plate  — jagged luminance clip (matte)
+ *   .study-stage__clive-ink    — thin charcoal rim OUTSIDE the clip
+ * Never swap in a REF still and hide the video bank.
+ * Matte aspect is 1024/755 (see teaching aspect-ratio).
+ */
+.study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot,
+.study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
+  -webkit-mask-image: none;
+  mask-image: none;
+  box-shadow: none;
+  filter: none;
+  overflow: visible;
+}
+
+.study-stage--book .study-stage__clive-plate {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /*
+   * Luminance matte (white=show, black=hide). WebKit -webkit-mask reads
+   * luminance by default; mask-mode:alpha on a white+alpha PNG was a no-op
+   * in Safari and looked like a hard rectangle / "not working".
+   * Cross-origin Blob URL — public store; mask-mode:luminance still applies.
+   */
+  -webkit-mask-image: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v8.png");
+  mask-image: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v8.png");
+  -webkit-mask-source-type: luminance;
+  mask-mode: luminance;
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   -webkit-mask-position: center;
   mask-position: center;
   -webkit-mask-repeat: no-repeat;
   mask-repeat: no-repeat;
-  /* The wrapper is now the only clip: no box shadow / filter re-cropping. */
-  box-shadow: none;
-  filter: none;
+  overflow: hidden;
 }
 
-.study-stage--book[data-folio-state="teaching"] .study-stage__clive-spot {
-  -webkit-mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching.svg");
-  mask-image: url("/brand/system-assets/folio/masks/clive-folio-mask-teaching.svg");
+.study-stage--book .study-stage__clive-ink {
+  /* Sibling of .study-stage__clive-plate — OUTSIDE the mask, or the rim clips. */
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-ink-v8.png") center / 100% 100% no-repeat;
 }
 
-/* Neutralise every nested mask inside the folio Clive stack so the single
-   outer wrapper is the only clip. Poster, live layer, image and the feather
-   wrapper inherit their shape from the painted mask above. */
+/* Neutralise every nested mask inside the folio Clive stack so the plate
+   matte is the only clip. Poster, live layer, image and the feather
+   wrapper inherit their shape from that outer plate alone. */
 .study-stage--book .study-stage__clive-spot .study-stage__clive-feather,
 .study-stage--book .study-stage__clive-spot .clive-portrait-feather,
 .study-stage--book .study-stage__clive-spot .clive-video-stage,

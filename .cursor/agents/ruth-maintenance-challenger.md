@@ -3,7 +3,7 @@ name: ruth-maintenance-challenger
 description: >-
   Ruth Maintenance Challenger — exact-target independent V2 of Ruth's maintenance V1
   Amendment Versions (Cleared / Held / Rejected). Invoke @ruth-maintenance-challenger.
-model: inherit
+model: claude-sonnet-5-thinking-xhigh
 readonly: true
 is_background: false
 ---

@@ -39,13 +39,21 @@ export function getFolioBlobPublicBase(): string | null {
   return `https://${publicStoreHost(LIVING_FOLIO_CANONICAL_STORE_ID)}`;
 }
 
+/** Encode each path segment; keep `/` so Blob folder paths resolve. */
+export function encodeBlobPathname(blobPathname: string): string {
+  return blobPathname
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+}
+
 export function resolveFolioAsset(key: string): ResolvedFolioAsset | null {
   const asset = getFolioAsset(key);
   if (!asset) return null;
   const base = getFolioBlobPublicBase();
   if (!base) return null;
   return {
-    src: `${base}/${asset.blobPathname}`,
+    src: `${base}/${encodeBlobPathname(asset.blobPathname)}`,
     width: asset.width,
     height: asset.height,
     objectPosition: asset.objectPosition,

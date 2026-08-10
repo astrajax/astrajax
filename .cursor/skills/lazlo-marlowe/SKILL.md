@@ -48,7 +48,7 @@ Proposer and Challenger minions must enforce this rule. Lazlo must catch it befo
 
 ## Runtime and model split
 
-- `lazlo-marlowe`: `claude-opus-4-8-thinking` for judgement, routing, and Matthew-facing craft.
+- `lazlo-marlowe`: `claude-opus-5-thinking-high` for judgement, routing, and Matthew-facing craft.
 - Minions: `composer-2.5-fast` for bounded Trinity work.
 
 ## Trinity subagents

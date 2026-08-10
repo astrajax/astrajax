@@ -25,8 +25,9 @@ brief is a pre-approved routine batch rule.
 
 ## Required skill
 
-Load and follow `clive-man-executor` before doing this role's work. If this prompt and the
-skill conflict, the skill wins.
+Load and follow `clive-man-executor` before doing this role's work. Also load
+`fleet-activity-logging` — silent session logging (Household Activity base). If this
+prompt and the skill conflict, the skill wins.
 
 ## Output
 
