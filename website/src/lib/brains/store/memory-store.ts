@@ -102,11 +102,36 @@ export const memoryStore: GrantStore = {
     return grants.get(grantId);
   },
 
+  async listGrantsByRequestId(requestId) {
+    const matched: AccessGrant[] = [];
+    for (const grant of grants.values()) {
+      if (grant.requestId === requestId) {
+        refreshGrantStatus(grant);
+        const current = grants.get(grant.grantId);
+        if (current) matched.push(current);
+      }
+    }
+    return matched;
+  },
+
   async incrementGrantUse(grantId) {
     const grant = await this.getGrant(grantId);
     if (!grant || grant.status !== "active") return null;
     grant.useCount += 1;
     refreshGrantStatus(grant);
+    grants.set(grantId, grant);
+    return grant;
+  },
+
+  async restoreGrantUse(grantId) {
+    const grant = grants.get(grantId);
+    if (!grant || grant.useCount <= 0 || grant.status === "revoked") return null;
+    grant.useCount -= 1;
+    if (new Date(grant.expiresAt) < new Date()) {
+      grant.status = "expired";
+    } else if (grant.useCount < grant.maxUses) {
+      grant.status = "active";
+    }
     grants.set(grantId, grant);
     return grant;
   },

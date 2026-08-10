@@ -1,5 +1,5 @@
 import { GrantValidationError, assertRouteMayReadTrusted, validateGrant, ROUTE_IDS } from "../guards";
-import { consumeGrantUse, getGrant } from "../grants-store";
+import { consumeGrantUse, getGrant, restoreGrantUse } from "../grants-store";
 import { retrieveTrustedSnippets } from "../trusted-truth";
 import type { TruthRetrieveBody, RetrievalManifest } from "../types";
 
@@ -31,10 +31,18 @@ export async function handleTruthRetrieve(body: TruthRetrieveBody) {
     throw new GrantValidationError("Access grant has no remaining uses.", "GRANT_EXHAUSTED");
   }
 
-  const snippets = await retrieveTrustedSnippets({
-    brainSlug: body.brainSlug.trim(),
-    scope: body.scope.trim(),
-  });
+  let snippets;
+  try {
+    snippets = await retrieveTrustedSnippets({
+      brainSlug: body.brainSlug.trim(),
+      scope: body.scope.trim(),
+    });
+  } catch (error) {
+    // Do not burn a paid use when Trusted fetch fails after consume.
+    await restoreGrantUse(grant.grantId);
+    throw error;
+  }
+
   const retrievedAt = new Date().toISOString();
 
   const manifest: RetrievalManifest = {
