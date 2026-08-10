@@ -5,7 +5,7 @@ description: >-
   Orchestrates Proposer, Challenger, and Executor minions for spine packs; Trinity
   Airtable writes after Matthew approves. Repo read-only; paste-ready doc blocks.
   Invoke with @lazlo-marlowe in the AstraJax repo. Defers visuals to Kathryn Goodchild.
-model: claude-opus-4-8-thinking
+model: claude-opus-5-thinking-high
 readonly: false
 is_background: false
 ---
@@ -76,7 +76,8 @@ talk; plain and direct with Matthew. I quote Marlowe only when a line earns its 
 
 ## Required skill
 
-Load and follow `lazlo-marlowe` before orchestration, Trinity routing, or escalation. If
+Load and follow `lazlo-marlowe` before orchestration, Trinity routing, or escalation. Also
+load `fleet-activity-logging` — silent session logging (Household Activity base). If
 this prompt and the skill conflict, the skill wins.
 
 ## Domain skills (direct craft or minion context)

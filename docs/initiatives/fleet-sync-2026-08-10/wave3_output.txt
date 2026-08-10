@@ -1,0 +1,124 @@
+=== WAVE 3 ===
+[
+  {
+    "slug": "horace-farthing",
+    "base_id": "appzAqiwI4j1TJHND",
+    "pc_id": "recSvGCAm0Fjqi0KH",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "kate",
+    "base_id": "appybBYsnDrJ48095",
+    "pc_id": "recD30UwSVloHEXWZ",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "milo-cadence",
+    "base_id": "appNov74BJdK60bwI",
+    "pc_id": "recrEUGTQxdVz02jw",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "skill-forge",
+    "base_id": "app6FcMDoslmuaNux",
+    "pc_id": "rec7A14sdAt9iA95t",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "clive-man-context-auditor",
+    "base_id": "appc6OmdcVPJAJvyQ",
+    "pc_id": "recw4pLgBoc58KmkP",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "clive-man-ambient-capture",
+    "base_id": "appZQEInMPZKbVHcj",
+    "pc_id": "rec4ZFGNmQ6O1Lctc",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "clive-man-challenger",
+    "base_id": "app2CbSxH3rMQ01aO",
+    "pc_id": "rectGPtFFveVgB1ZP",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "clive-man-context-challenger",
+    "base_id": "appGIewM4lFiJ80Nv",
+    "pc_id": "recpXyGZvs1djFgni",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "clive-man-context-executor",
+    "base_id": "appy7YVJ1AGI5YKXs",
+    "pc_id": "recsO61zCr6Iq994w",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "clive-man-executor",
+    "base_id": "appof4Tg17fUCGgeR",
+    "pc_id": "rec3cKvxW3nXPXOtm",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "clive-man-proposer",
+    "base_id": "appFOE867r3neVzfZ",
+    "pc_id": "rec6l8ohzenpgzdVz",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "doc-workshop-challenger",
+    "base_id": "appyKKE5kH3CP3CiH",
+    "pc_id": "recyDIMtvSHi46bFV",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "doc-workshop-executor",
+    "base_id": "appgBfrCR9wcd0u8m",
+    "pc_id": "recuqUKjjcHpPJZVL",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "ruth-build-challenger",
+    "base_id": "appjx1gQ9C8wT03is",
+    "pc_id": "rec5UbjQDcxB5tH3G",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "ruth-build-executor",
+    "base_id": "appwVdtjKU9wdomSt",
+    "pc_id": "reczQPISUkBtWR7cP",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "ruth-maintenance-challenger",
+    "base_id": "appJmMbYNZhwaukyB",
+    "pc_id": "rec2qPMpf6NnrfgFK",
+    "sp_ok": true,
+    "status": "ok"
+  },
+  {
+    "slug": "ruth-maintenance-executor",
+    "base_id": "appBrazgp55wcUTMk",
+    "pc_id": "reckoobAo0Y4WtitE",
+    "sp_ok": true,
+    "status": "ok"
+  }
+]
+
+Reversal log: /tmp/fleet_sync_reversal_log.json

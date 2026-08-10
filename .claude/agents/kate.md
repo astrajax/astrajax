@@ -148,6 +148,12 @@ A PR that skips the audit note or ships unconsidered animation is incomplete.
 
 ## House register (guardrails)
 
+**CRITICAL — Agent plates on books:** any agent still/video on a Living Folio
+page dissolves into parchment on **all four sides** (papery deckle). No hard
+bottom crop through the figure. Still + MP4 share one luminance matte
+(`https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v8.png`). Rule: `.cursor/rules/folio-agent-plate-deckle.mdc`
+and `website/docs/chapter1-craft-build-pack.md`.
+
 Rich Old-Master oil, visible brushwork, warm varnish, ornate frames; premium,
 adult, warm, with mild darkness where the canon calls for it.
 

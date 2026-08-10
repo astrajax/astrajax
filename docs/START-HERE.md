@@ -24,7 +24,7 @@ These are the source of truth. One file per concept. If two docs disagree, these
 - `positioning.md` — what AstraJax is, who it is for, offers, proof, claim-control.
 - `internal-brief.md` — internal priorities, ownership, launch rules, and AI guardrails (not public positioning).
 - `brand-colours.md` — visual identity palette (Nocturne Orchard).
-- `architecture.md` — how the product works: agent roles, user brain, brain maturity, Doc routing.
+- `architecture.md` — how the product works: agent roles, user brain, brain maturity, Doc routing. **Also:** Creative Trusted Brain home for visual doctrine + media catalogue (§ Airtable).
 - `how-we-work.md` — how the company runs (Cursor as Doc, creative specialists, agent-first).
 - `one-pager.md` — the short marketing version (product).
 - `investor-one-pager.md` — external investor narrative (company thesis, labour model, proof).
@@ -38,11 +38,15 @@ Active initiatives that **point at** the canonical docs — they never copy them
 - `aie-build-plan.md` — the day-by-day build plan for the AIE sprint (23 June to 2 July).
 - `chapter1-context-structure.md` — Chapter 1 canonical operator profile, brain themes, categories, onboarding disclosure levels (29 Jun 2026).
 - `source-document-mining.md` — Clive's Man V1: Workshop Source Documents → summarise → propose Draft Brain Truth (Pam gates, 29 Jun 2026).
+- `brain-key-schema.md` — Airtable table/field blueprint (includes Trusted Creative + **Media Assets**).
+- `brain-key-wiring.md` — Brain Key access model; live IDs in `website/src/lib/brains/airtable-ids.ts`.
 - `tara-lee-visual-brief.md` — visual brief for the founding cast.
 - `character-provenance.md` — character rationale, life goals, and design decisions (founding cast).
 - `doc-minions.md` — Doc (`@doc`) triages build work to minions (Airtable, Vercel).
 - `build-velocity-tracks.md` — one-track factory roadmap (Doc twins, tiers, handoff, job queue, generator, digests).
 - `hyperagent-handoff-contract.md` — HyperAgent import/on-platform handoff lanes.
+
+**Creative media home (do not invent a second one):** Trusted Brain slug `creative` → Airtable **Media Assets** + Vercel Blob for bytes. Governance sentence lives in `architecture.md`; field shapes in `brain-key-schema.md`.
 
 ## Archive (`docs/archive/`)
 

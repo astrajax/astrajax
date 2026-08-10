@@ -15,6 +15,7 @@ export type CastAssetSlug =
   | "doc-albright"
   | "professor-iris-mortimer"
   | "vera-vinegar-toes"
+  | "halvard-bjornson"
   | "juan-vasquez"
   | "marcel-beaujolais"
   | "kk-kingsford"
@@ -133,6 +134,22 @@ export const CAST_CHARACTERS: CastCharacterAssets[] = [
     productSlug: "vera",
     heroStatus: "legacy",
     animations: [],
+  },
+  {
+    slug: "halvard-bjornson",
+    name: "Prof. Halvard Bjornson",
+    role: "The Physician",
+    tag: "Household Health",
+    foundingCast: false,
+    // Rough direction pack in art/ — TL finish before hero.png is canonical.
+    heroStatus: "pending",
+    animations: [
+      {
+        id: "tower-loop",
+        file: "tower-loop.mp4",
+        purpose: "Floating tower ambient loop (rough direction)",
+      },
+    ],
   },
   {
     slug: "juan-vasquez",

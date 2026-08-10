@@ -142,6 +142,8 @@ Full blueprint: `[brain-key-schema.md](./brain-key-schema.md)`.
 
 Summary: **Brain Truth** (approved only), **Brain Memories** (working shared recall).
 
+**Creative theme (`creative`, base `appvs1m7kP7lxRwcL`):** same two tables, plus add-on **Media Assets** (file catalogue → Blob URLs). Live IDs: `BRAIN_TRUSTED_CREATIVE_*` in `website/src/lib/brains/airtable-ids.ts`. Creative doctrine and Locked media do not live in Chapter 1 Trusted.
+
 ## Agent base tables (one per agent)
 
 Full blueprint: `[brain-key-schema.md](./brain-key-schema.md)`.
