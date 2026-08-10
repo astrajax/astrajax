@@ -244,11 +244,11 @@
 }
 
 .study-stage--book .source-pack-uploader__file--uploaded {
-  border-color: color-mix(in srgb, var(--book-sage) 60%, transparent);
+  border-color: color-mix(in srgb, var(--color-sage) 60%, transparent);
 }
 
 .study-stage--book .source-pack-uploader__file--failed {
-  border-color: color-mix(in srgb, var(--book-terracotta) 50%, transparent);
+  border-color: color-mix(in srgb, var(--color-apricot) 50%, transparent);
 }
 
 .study-stage--book .source-pack-uploader__name {

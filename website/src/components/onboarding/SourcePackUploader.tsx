@@ -12,6 +12,7 @@ import { useCallback, useRef, useState, type DragEvent, type ChangeEvent } from 
 import {
   SOURCE_PACK_LIMITS,
   canAddFile,
+  filesCountingTowardLimit,
   type OnboardingState,
   type SourcePackFile,
 } from "@/lib/onboarding/machine";
@@ -40,11 +41,16 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
   const inputRef = useRef<HTMLInputElement>(null);
   /** Keep the original File around so a failed upload can retry without re-picking. */
   const fileHandles = useRef(new Map<string, File>());
+  const abortControllers = useRef(new Map<string, AbortController>());
+  const removedIds = useRef(new Set<string>());
   const [dragOver, setDragOver] = useState(false);
   const effectiveMaxFiles = maxFiles ?? SOURCE_PACK_LIMITS.maxFiles;
 
   const postUpload = useCallback(
     async (fileId: string, file: File) => {
+      removedIds.current.delete(fileId);
+      const controller = new AbortController();
+      abortControllers.current.set(fileId, controller);
       onFileUpdate(fileId, { state: "uploading", progress: 0, error: undefined });
       try {
         const formData = new FormData();
@@ -53,9 +59,14 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
         const response = await fetch("/api/onboarding/upload", {
           method: "POST",
           body: formData,
+          signal: controller.signal,
         });
 
+        if (removedIds.current.has(fileId)) return;
+
         const result = await response.json();
+
+        if (removedIds.current.has(fileId)) return;
 
         if (!response.ok || !result.success) {
           onFileUpdate(fileId, {
@@ -72,10 +83,14 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
           error: undefined,
         });
       } catch (error) {
+        if (removedIds.current.has(fileId)) return;
+        if (error instanceof DOMException && error.name === "AbortError") return;
         onFileUpdate(fileId, {
           state: "failed",
           error: error instanceof Error ? error.message : "Upload failed",
         });
+      } finally {
+        abortControllers.current.delete(fileId);
       }
     },
     [onFileUpdate],
@@ -148,8 +163,9 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
   const handleFiles = useCallback(
     (files: FileList | null) => {
       if (!files) return;
-      const currentCount = state.files.length;
+      const currentCount = filesCountingTowardLimit(state.files).length;
       const remaining = effectiveMaxFiles - currentCount;
+      if (remaining <= 0) return;
       const toProcess = Array.from(files).slice(0, remaining);
 
       // Accumulate within this gesture so canAddFile sees cumulative bytes/count
@@ -194,8 +210,9 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
     inputRef.current?.click();
   }, []);
 
-  const totalBytes = state.files.reduce((sum, f) => sum + f.sizeBytes, 0);
-  const atLimit = state.files.length >= effectiveMaxFiles;
+  const activeFiles = filesCountingTowardLimit(state.files);
+  const totalBytes = activeFiles.reduce((sum, f) => sum + f.sizeBytes, 0);
+  const atLimit = activeFiles.length >= effectiveMaxFiles;
 
   return (
     <div className="source-pack-uploader">
@@ -225,7 +242,7 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
                 {f.state === "uploaded" && " · uploaded"}
                 {f.state === "failed" && ` · ${f.error || "failed"}`}
               </span>
-              {f.state === "failed" && (
+              {f.state === "failed" && fileHandles.current.has(f.id) && (
                 <button
                   type="button"
                   className="source-pack-uploader__retry"
@@ -238,6 +255,9 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
                 type="button"
                 className="source-pack-uploader__remove"
                 onClick={() => {
+                  removedIds.current.add(f.id);
+                  abortControllers.current.get(f.id)?.abort();
+                  abortControllers.current.delete(f.id);
                   fileHandles.current.delete(f.id);
                   onFileRemove(f.id);
                 }}
@@ -273,7 +293,7 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
 
       {/* Status */}
       <p className="source-pack-uploader__status">
-        {state.files.length} of {effectiveMaxFiles} files · {formatBytes(totalBytes)} of{" "}
+        {activeFiles.length} of {effectiveMaxFiles} files · {formatBytes(totalBytes)} of{" "}
         {formatBytes(SOURCE_PACK_LIMITS.maxBytesTotal)}
       </p>
     </div>

@@ -18,6 +18,7 @@ import {
   probeProgress,
   setConfirmation,
   setCorrection,
+  canAddFile,
   stageFile,
   stopProbingEarly,
 } from "./machine";
@@ -96,6 +97,22 @@ describe("onboarding state machine", () => {
     expect(s.files.length).toBe(1);
     s = stageFile(s, { id: "f-new", name: "extra.pdf", extension: ".pdf", sizeBytes: 1024 * 1024, state: "uploaded" });
     expect(s.files.length).toBe(1);
+  });
+
+  it("failed validation rows do not consume Source Pack file slots", () => {
+    let s = chooseRoute(initialOnboardingState(), "bring-material");
+    for (let i = 0; i < 5; i += 1) {
+      s = stageFile(s, {
+        id: `fail-${i}`,
+        name: `bad-${i}.exe`,
+        extension: ".exe",
+        sizeBytes: 1024,
+        state: "failed",
+        error: "File type not allowed: .exe",
+      });
+    }
+    expect(s.files.length).toBe(5);
+    expect(canAddFile(s, 1024).ok).toBe(true);
   });
 
   it("Accept as draft is disabled until EVERY inference has a decision", () => {

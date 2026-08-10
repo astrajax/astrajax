@@ -174,14 +174,20 @@ export const SOURCE_PACK_LIMITS = {
   allowedExtensions: [".pdf", ".docx", ".xlsx", ".csv", ".md", ".txt"] as const,
 };
 
+/** Files that count toward Ruth's Source Pack caps (failed picks do not). */
+export function filesCountingTowardLimit(files: SourcePackFile[]): SourcePackFile[] {
+  return files.filter((f) => f.state !== "failed");
+}
+
 export function canAddFile(state: OnboardingState, sizeBytes: number): { ok: boolean; reason?: string } {
-  if (state.files.length >= SOURCE_PACK_LIMITS.maxFiles) {
+  const active = filesCountingTowardLimit(state.files);
+  if (active.length >= SOURCE_PACK_LIMITS.maxFiles) {
     return { ok: false, reason: `Maximum ${SOURCE_PACK_LIMITS.maxFiles} files allowed` };
   }
   if (sizeBytes > SOURCE_PACK_LIMITS.maxBytesPerFile) {
     return { ok: false, reason: `File exceeds ${SOURCE_PACK_LIMITS.maxBytesPerFile / 1024 / 1024} MiB limit` };
   }
-  const totalBytes = state.files.reduce((sum, f) => sum + f.sizeBytes, 0) + sizeBytes;
+  const totalBytes = active.reduce((sum, f) => sum + f.sizeBytes, 0) + sizeBytes;
   if (totalBytes > SOURCE_PACK_LIMITS.maxBytesTotal) {
     return { ok: false, reason: `Would exceed ${SOURCE_PACK_LIMITS.maxBytesTotal / 1024 / 1024} MiB total limit` };
   }
