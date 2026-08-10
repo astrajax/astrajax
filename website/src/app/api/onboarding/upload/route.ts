@@ -1,13 +1,21 @@
 /**
- * Onboarding file upload → Vercel Blob
+ * Onboarding client-direct Blob upload — token minting only.
  *
- * Accepts multipart/form-data with a single file. Returns the blob URL and
- * metadata on success. Enforces Ruth's Source Pack limits server-side:
- * - 5 files / 50 MiB per IP per hour (rate limiter)
- * - 20 MiB per file
- * - Allowed types: PDF, DOCX, XLSX, CSV, MD, TXT
+ * The browser uploads file bytes straight to Vercel Blob via
+ * `@vercel/blob/client` `upload()`. This route never receives file bytes;
+ * it only mints a short-lived, scoped client token (and deletes orphans).
+ *
+ * Token constraints (enforced by Blob, not the browser):
+ * - pathname under onboarding-uploads/
+ * - allowed content types
+ * - per-file max size (20 MiB)
+ * - random suffix (collision-safe keys)
+ *
+ * Session budgets (5 files / 50 MiB) are enforced here via the per-IP
+ * rate limiter before a token is minted — same pattern as Brain Key.
  */
-import { del, put } from "@vercel/blob";
+import { del } from "@vercel/blob";
+import { type HandleUploadBody, handleUpload } from "@vercel/blob/client";
 import { NextResponse, type NextRequest } from "next/server";
 import { SOURCE_PACK_LIMITS } from "@/lib/onboarding/machine";
 import {
@@ -15,20 +23,9 @@ import {
   refundOnboardingUploadRateLimit,
 } from "@/lib/onboarding/upload-rate-limit";
 
-const ALLOWED_EXTENSIONS = new Set<string>(SOURCE_PACK_LIMITS.allowedExtensions);
-const ALLOWED_MIME_TYPES = new Set([
-  "application/pdf",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  "text/csv",
-  "text/markdown",
-  "text/plain",
-]);
-
-function getExtension(filename: string): string {
-  const idx = filename.lastIndexOf(".");
-  return idx >= 0 ? filename.slice(idx).toLowerCase() : "";
-}
+type ClientPayload = {
+  sizeBytes?: number;
+};
 
 function clientIp(request: NextRequest): string | undefined {
   return (
@@ -38,109 +35,173 @@ function clientIp(request: NextRequest): string | undefined {
   );
 }
 
-export async function POST(request: NextRequest) {
-  let charged: { ip?: string; sizeBytes: number } | null = null;
+function parseClientPayload(raw: string | null): ClientPayload {
+  if (!raw) return {};
   try {
-    const formData = await request.formData();
-    const file = formData.get("file");
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== "object") return {};
+    const sizeBytes = (parsed as ClientPayload).sizeBytes;
+    return {
+      sizeBytes: typeof sizeBytes === "number" && Number.isFinite(sizeBytes) ? sizeBytes : undefined,
+    };
+  } catch {
+    return {};
+  }
+}
 
-    if (!file || !(file instanceof File)) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
-    }
+function assertUploadPathname(pathname: string): void {
+  const prefix = SOURCE_PACK_LIMITS.uploadPrefix;
+  if (!pathname.startsWith(prefix) || pathname.includes("..") || pathname.includes("//")) {
+    throw new Error(`Uploads must use the ${prefix} prefix`);
+  }
+  const rest = pathname.slice(prefix.length);
+  if (!rest || rest.includes("/")) {
+    throw new Error("Invalid upload pathname");
+  }
+}
 
-    // Validate extension
-    const ext = getExtension(file.name);
-    if (!ALLOWED_EXTENSIONS.has(ext)) {
-      return NextResponse.json(
-        { error: `File type not allowed: ${ext}. Allowed: ${[...ALLOWED_EXTENSIONS].join(", ")}` },
-        { status: 400 },
-      );
-    }
+function blobConfigured(): boolean {
+  return Boolean(
+    process.env.BLOB_READ_WRITE_TOKEN ||
+      process.env.BLOB_STORE_ID ||
+      process.env.VERCEL_OIDC_TOKEN,
+  );
+}
 
-    // Validate MIME type (soft check — browsers can lie)
-    if (file.type && !ALLOWED_MIME_TYPES.has(file.type)) {
-      console.warn(`MIME type mismatch: ${file.type} for extension ${ext}`);
-    }
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  const contentType = request.headers.get("content-type") || "";
+  if (contentType.includes("multipart/form-data")) {
+    return NextResponse.json(
+      {
+        error:
+          "Direct file upload to this route is disabled. Use the client upload flow (token mint).",
+      },
+      { status: 410 },
+    );
+  }
 
-    // Validate size
-    if (file.size > SOURCE_PACK_LIMITS.maxBytesPerFile) {
-      return NextResponse.json(
-        { error: `File too large: ${Math.round(file.size / 1024 / 1024)} MiB exceeds 20 MiB limit` },
-        { status: 400 },
-      );
-    }
+  let charged: { ip?: string; sizeBytes: number } | null = null;
 
-    const ip = clientIp(request);
-    const limit = checkOnboardingUploadRateLimit({ ip, sizeBytes: file.size });
-    if (!limit.allowed) {
-      return NextResponse.json(
-        { error: limit.reason || "Too many uploads. Try again later." },
-        {
-          status: 429,
-          headers: limit.retryAfterSeconds
-            ? { "Retry-After": String(limit.retryAfterSeconds) }
-            : undefined,
-        },
-      );
-    }
-    charged = { ip, sizeBytes: file.size };
-
-    // User Source Pack files go to the private Blob store (not the public
-    // website asset store). Local: BLOB_READ_WRITE_TOKEN. Vercel: OIDC + BLOB_STORE_ID.
-    const token = process.env.BLOB_READ_WRITE_TOKEN;
-    if (!token && !process.env.BLOB_STORE_ID && !process.env.VERCEL_OIDC_TOKEN) {
-      refundOnboardingUploadRateLimit(charged);
-      charged = null;
+  try {
+    if (!blobConfigured()) {
       return NextResponse.json(
         { error: "Blob storage is not configured (missing BLOB_READ_WRITE_TOKEN)." },
         { status: 503 },
       );
     }
 
-    // Generate a unique path under onboarding-uploads/
-    const timestamp = Date.now();
-    const safeFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const pathname = `onboarding-uploads/${timestamp}-${safeFilename}`;
+    const body = (await request.json()) as HandleUploadBody;
+    const token = process.env.BLOB_READ_WRITE_TOKEN;
+    const ip = clientIp(request);
 
-    const blob = await put(pathname, file, {
-      access: "private",
-      addRandomSuffix: false,
-      contentType: file.type || "application/octet-stream",
+    const jsonResponse = await handleUpload({
+      body,
+      request,
       ...(token ? { token } : {}),
+      onBeforeGenerateToken: async (pathname, clientPayload) => {
+        assertUploadPathname(pathname);
+
+        const payload = parseClientPayload(clientPayload);
+        const sizeBytes = payload.sizeBytes;
+        if (sizeBytes === undefined || sizeBytes <= 0) {
+          throw new Error("Missing or invalid sizeBytes in client payload");
+        }
+        if (sizeBytes > SOURCE_PACK_LIMITS.maxBytesPerFile) {
+          throw new Error(
+            `File too large: ${Math.round(sizeBytes / 1024 / 1024)} MiB exceeds ${SOURCE_PACK_LIMITS.maxBytesPerFile / 1024 / 1024} MiB limit`,
+          );
+        }
+
+        const limit = checkOnboardingUploadRateLimit({ ip, sizeBytes });
+        if (!limit.allowed) {
+          const err = new Error(limit.reason || "Too many uploads. Try again later.");
+          (err as Error & { status?: number; retryAfterSeconds?: number }).status = 429;
+          (err as Error & { retryAfterSeconds?: number }).retryAfterSeconds = limit.retryAfterSeconds;
+          throw err;
+        }
+        charged = { ip, sizeBytes };
+
+        return {
+          allowedContentTypes: [...SOURCE_PACK_LIMITS.allowedMimeTypes],
+          maximumSizeInBytes: sizeBytes,
+          addRandomSuffix: true,
+          allowOverwrite: false,
+          validUntil: Date.now() + 10 * 60_000, // 10 minutes
+          tokenPayload: JSON.stringify({ sizeBytes, pathname }),
+        };
+      },
+      // No onUploadCompleted: staging lives in the browser/sessionStorage, and
+      // the webhook needs a public callback URL that local/dev often lacks.
     });
 
-    // Client aborted after the put finished — drop the orphan immediately.
-    if (request.signal.aborted) {
-      await del(blob.url, token ? { token } : undefined).catch(() => undefined);
-      refundOnboardingUploadRateLimit(charged);
-      charged = null;
-      return NextResponse.json({ error: "Upload aborted" }, { status: 499 });
-    }
-
+    // Keep the rate-limit charge after a successful mint (budget is consumed
+    // when a token is issued, not when bytes finish uploading).
     charged = null;
-    return NextResponse.json({
-      success: true,
-      blobUrl: blob.url,
-      pathname: blob.pathname,
-      filename: file.name,
-      extension: ext,
-      sizeBytes: file.size,
-      contentType: blob.contentType,
-      access: "private" as const,
-      uploadedAt: new Date().toISOString(),
-    });
+    return NextResponse.json(jsonResponse);
   } catch (error) {
     if (charged) {
       refundOnboardingUploadRateLimit(charged);
       charged = null;
     }
-    if (error instanceof Error && error.name === "AbortError") {
-      return NextResponse.json({ error: "Upload aborted" }, { status: 499 });
-    }
-    console.error("Upload error:", error);
+    const message = error instanceof Error ? error.message : "Upload token failed";
+    const status =
+      typeof error === "object" &&
+      error &&
+      "status" in error &&
+      typeof (error as { status?: unknown }).status === "number"
+        ? (error as { status: number }).status
+        : 400;
+    const retryAfterSeconds =
+      typeof error === "object" &&
+      error &&
+      "retryAfterSeconds" in error &&
+      typeof (error as { retryAfterSeconds?: unknown }).retryAfterSeconds === "number"
+        ? (error as { retryAfterSeconds: number }).retryAfterSeconds
+        : undefined;
+
+    console.error("Onboarding upload token error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Upload failed" },
-      { status: 500 },
+      { error: message },
+      {
+        status,
+        headers: retryAfterSeconds ? { "Retry-After": String(retryAfterSeconds) } : undefined,
+      },
+    );
+  }
+}
+
+/**
+ * Delete a private onboarding blob (orphan cleanup on cancel / remove).
+ * Only pathnames under onboarding-uploads/ are allowed.
+ */
+export async function DELETE(request: NextRequest): Promise<NextResponse> {
+  try {
+    if (!blobConfigured()) {
+      return NextResponse.json(
+        { error: "Blob storage is not configured (missing BLOB_READ_WRITE_TOKEN)." },
+        { status: 503 },
+      );
+    }
+
+    const body = (await request.json()) as { url?: string; pathname?: string };
+    const target = body.url || body.pathname;
+    if (!target || typeof target !== "string") {
+      return NextResponse.json({ error: "url or pathname required" }, { status: 400 });
+    }
+
+    const pathname = target.includes("://")
+      ? new URL(target).pathname.replace(/^\//, "")
+      : target;
+    assertUploadPathname(pathname);
+
+    const token = process.env.BLOB_READ_WRITE_TOKEN;
+    await del(target, token ? { token } : undefined);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Onboarding upload delete error:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "Delete failed" },
+      { status: 400 },
     );
   }
 }
