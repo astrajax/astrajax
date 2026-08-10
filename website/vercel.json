@@ -8,6 +8,14 @@
     {
       "path": "/api/platform-sessions/sweep",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/sync",
+      "schedule": "*/15 * * * *"
+    },
+    {
+      "path": "/api/cron/sync/reconcile",
+      "schedule": "0 3 * * *"
     }
   ]
 }
