@@ -38,8 +38,48 @@ function formatBytes(bytes: number): string {
 
 export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRemove, maxFiles }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
+  /** Keep the original File around so a failed upload can retry without re-picking. */
+  const fileHandles = useRef(new Map<string, File>());
   const [dragOver, setDragOver] = useState(false);
   const effectiveMaxFiles = maxFiles ?? SOURCE_PACK_LIMITS.maxFiles;
+
+  const postUpload = useCallback(
+    async (fileId: string, file: File) => {
+      onFileUpdate(fileId, { state: "uploading", progress: 0, error: undefined });
+      try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("/api/onboarding/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+          onFileUpdate(fileId, {
+            state: "failed",
+            error: result.error || "Upload failed",
+          });
+          return;
+        }
+
+        onFileUpdate(fileId, {
+          state: "uploaded",
+          blobUrl: result.blobUrl,
+          progress: 100,
+          error: undefined,
+        });
+      } catch (error) {
+        onFileUpdate(fileId, {
+          state: "failed",
+          error: error instanceof Error ? error.message : "Upload failed",
+        });
+      }
+    },
+    [onFileUpdate],
+  );
 
   const uploadFile = useCallback(
     async (file: File) => {
@@ -73,7 +113,7 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
         return;
       }
 
-      // Start upload
+      fileHandles.current.set(fileId, file);
       onFileSelect({
         id: fileId,
         name: file.name,
@@ -82,39 +122,18 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
         state: "uploading",
         progress: 0,
       });
-
-      try {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const response = await fetch("/api/onboarding/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        const result = await response.json();
-
-        if (!response.ok || !result.success) {
-          onFileUpdate(fileId, {
-            state: "failed",
-            error: result.error || "Upload failed",
-          });
-          return;
-        }
-
-        onFileUpdate(fileId, {
-          state: "uploaded",
-          blobUrl: result.blobUrl,
-          progress: 100,
-        });
-      } catch (error) {
-        onFileUpdate(fileId, {
-          state: "failed",
-          error: error instanceof Error ? error.message : "Upload failed",
-        });
-      }
+      await postUpload(fileId, file);
     },
-    [state, onFileSelect, onFileUpdate],
+    [state, onFileSelect, postUpload],
+  );
+
+  const retryFile = useCallback(
+    async (fileId: string) => {
+      const file = fileHandles.current.get(fileId);
+      if (!file) return;
+      await postUpload(fileId, file);
+    },
+    [postUpload],
   );
 
   const handleFiles = useCallback(
@@ -190,10 +209,22 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
                 {f.state === "uploaded" && " · uploaded"}
                 {f.state === "failed" && ` · ${f.error || "failed"}`}
               </span>
+              {f.state === "failed" && (
+                <button
+                  type="button"
+                  className="source-pack-uploader__retry"
+                  onClick={() => void retryFile(f.id)}
+                >
+                  Retry
+                </button>
+              )}
               <button
                 type="button"
                 className="source-pack-uploader__remove"
-                onClick={() => onFileRemove(f.id)}
+                onClick={() => {
+                  fileHandles.current.delete(f.id);
+                  onFileRemove(f.id);
+                }}
                 aria-label={`Remove ${f.name}`}
               >
                 ×

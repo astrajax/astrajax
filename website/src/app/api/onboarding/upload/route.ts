@@ -58,16 +58,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // User Source Pack files go to the private Blob store (not the public
+    // website asset store). Local: BLOB_READ_WRITE_TOKEN. Vercel: OIDC + BLOB_STORE_ID.
+    const token = process.env.BLOB_READ_WRITE_TOKEN;
+    if (!token && !process.env.BLOB_STORE_ID && !process.env.VERCEL_OIDC_TOKEN) {
+      return NextResponse.json(
+        { error: "Blob storage is not configured (missing BLOB_READ_WRITE_TOKEN)." },
+        { status: 503 },
+      );
+    }
+
     // Generate a unique path under onboarding-uploads/
     const timestamp = Date.now();
     const safeFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
     const pathname = `onboarding-uploads/${timestamp}-${safeFilename}`;
 
-    // Upload to Vercel Blob (public store for onboarding assets)
     const blob = await put(pathname, file, {
-      access: "public",
+      access: "private",
       addRandomSuffix: false,
       contentType: file.type || "application/octet-stream",
+      ...(token ? { token } : {}),
     });
 
     return NextResponse.json({
@@ -78,6 +88,7 @@ export async function POST(request: NextRequest) {
       extension: ext,
       sizeBytes: file.size,
       contentType: blob.contentType,
+      access: "private" as const,
       uploadedAt: new Date().toISOString(),
     });
   } catch (error) {
