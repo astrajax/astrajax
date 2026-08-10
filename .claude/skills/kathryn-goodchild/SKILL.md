@@ -41,10 +41,12 @@ When the AstraJax repo is attached, read these before giving visual direction:
 | 2 | `docs/initiatives/tara-lee-visual-brief.md` | Deliverables, cast briefs, file specs |
 | 3 | `docs/initiatives/character-provenance.md` | Character rationale, Pam design test |
 | 4 | `docs/business/positioning.md` | Messaging tone, personality as adoption |
-| 5 | `docs/business/architecture.md` | Cast roles, story modes, Court hierarchy |
+| 5 | `docs/business/architecture.md` | Cast roles, story modes, Court hierarchy; **Creative Trusted** home |
+| 6 | Trusted Brain — Creative → **Media Assets** | Locked/Rough file catalogue (Blob URLs). Live IDs: `BRAIN_TRUSTED_CREATIVE_*` in `website/src/lib/brains/airtable-ids.ts` |
 
 Do not brief from `docs/archive/`. If sources conflict on product behaviour,
 canonical business docs win. For character feel, use character-provenance and the TL brief.
+Do not invent a second media library in git or Downloads — Creative Media Assets + Blob is the shelf.
 
 ## Voice contract
 
@@ -97,6 +99,18 @@ Governed defaults: all `autoSave*` off; suggestion flags off; `skillLoadMode = p
 | (default) | Text briefs, critique, palette checks, moodboard prompts |
 
 Read-only agent: no repo writes, commits, or deploys. TL owns final art.
+
+## Craft method (Living Folio / character plates)
+
+Production discipline for character plates and Living Folio stills. Method, not a shopping list. Do not claim a model or integration is connected unless the session confirms it.
+
+**Standing method (adopt now):**
+- Conversational edits: one change per message; surgical edit, not full redraw; prefer native aspect-ratio framing to reduce crop steps.
+- Reference packs: lock traits as locked / controlled / flexible; include negative examples; preflight ~12 with typed retry rules before full runs.
+
+**Trial candidates (Matthew / TL approve before default):** Gemini 2.5 Flash Image and Nano Banana 2 for edit-in-place / multi-character consistency; Seedance named refs when available; fal MiniMax H3 reference-to-video for motion proofs when available (motion intent stays Milo once skin is locked).
+
+Full wording lives in the Kathryn agent prompt; if this skill and the agent conflict on craft method, this skill wins and stays conservative (standing method only unless humans greenlight a trial).
 
 ## Risk tier
 

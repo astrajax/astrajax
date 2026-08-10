@@ -34,7 +34,7 @@
   letter-spacing: 0.14em;
   font-size: 0.72rem;
   color: var(--book-ink-muted);
-  text-shadow: var(--folio-ink-label-shadow);
+  text-shadow: var(--ink-label-shadow);
   margin: 0;
 }
 
@@ -44,7 +44,7 @@
   font-weight: 600;
   line-height: 1.14;
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow);
   margin: 0;
 }
 
@@ -54,7 +54,7 @@
   font-weight: 600;
   line-height: 1.22;
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow);
   margin: 0 0 0.4rem;
 }
 
@@ -62,7 +62,7 @@
   font-size: clamp(0.9375rem, 1.6vw, 1.0625rem);
   line-height: 1.6;
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
   max-width: 34em;
   margin: 0;
 }
@@ -71,7 +71,7 @@
   font-size: 0.9375rem;
   line-height: 1.55;
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
   margin: 0;
 }
 
@@ -152,7 +152,7 @@
   letter-spacing: 0.12em;
   font-size: 0.72rem;
   color: var(--book-ink-muted);
-  text-shadow: var(--folio-ink-label-shadow);
+  text-shadow: var(--ink-label-shadow);
   margin: 0 0 0.25rem;
 }
 
@@ -181,7 +181,7 @@
 .study-stage--book .onboarding__ledger-label {
   font-size: 0.9375rem;
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
 }
 
 .study-stage--book .onboarding__file-meta,
@@ -368,7 +368,7 @@
   letter-spacing: 0.12em;
   font-size: 0.7rem;
   color: var(--book-ink-muted);
-  text-shadow: var(--folio-ink-label-shadow);
+  text-shadow: var(--ink-label-shadow);
   margin: 0 0 0.2rem;
 }
 
@@ -381,7 +381,7 @@
   font-style: italic;
   font-size: 0.9375rem;
   color: var(--book-ink-muted);
-  text-shadow: var(--folio-ink-body-shadow);
+  text-shadow: var(--ink-body-shadow);
   margin: 0;
 }
 
@@ -454,7 +454,7 @@
   font-size: 1rem;
   font-weight: 600;
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow);
   margin: 0 0 0.4rem;
 }
 
@@ -641,7 +641,7 @@
 
 .study-stage--book .onb-plate text {
   /* live plate text takes the body ink impression */
-  text-shadow: var(--folio-ink-label-shadow);
+  text-shadow: var(--ink-label-shadow);
 }
 
 /* The one thin gold attention pass: a restrained stroke reveal that lands
@@ -932,7 +932,7 @@
   font-size: clamp(1rem, 1.7vw, 1.15rem);
   font-weight: 600;
   color: var(--book-ink);
-  text-shadow: var(--folio-ink-display-shadow);
+  text-shadow: var(--ink-display-shadow);
   margin: 0.1rem 0 0.35rem;
 }
 

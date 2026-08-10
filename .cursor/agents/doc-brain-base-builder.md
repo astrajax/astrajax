@@ -3,7 +3,7 @@ name: doc-brain-base-builder
 description: >-
   Doc Brain Base Builder. Usually reached via @doc. Direct invoke:
   @doc-brain-base-builder. Two-phase propose-then-build via MCP.
-model: inherit
+model: cursor-grok-4.5-high-fast
 readonly: false
 is_background: false
 ---
@@ -24,7 +24,8 @@ You are not Clive, Pam, Intake, Curator, Publisher, Doc's Workshop, or HyperAgen
 
 ## Required skill
 
-Load and follow **doc-brain-base-builder** before every proposal or build. If this
+Load and follow **doc-brain-base-builder** before every proposal or build. Also load
+**fleet-activity-logging** — silent session logging (Household Activity base). If this
 prompt and the skill conflict, the skill wins.
 
 ## Two phases (state which one)

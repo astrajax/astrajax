@@ -115,7 +115,8 @@ After reading the request, **state this block** before proposing:
 | If the job is… | Minion | Load skill |
 |----------------|--------|------------|
 | Airtable base/table/field; Brain Registry, Workshop, Trusted Brain, Agent base; stand up or extend a brain home; ops bases (roadmap, CRM, marketing); MCP schema | **Doc Brain Base Builder** | `doc-brain-base-builder` — shapes: `brain-key-schema.md`; wiring: `brain-key-wiring.md`; invoke/runbook: `doc-brain-base-builder.md` |
-| `website/` code; Next.js pages/components; API routes (`/api/brains`, `/api/ask-clive`, `/aie-demo`); Vercel env/deploy; npm build/dev | **Vercel Minion** | `doc-vercel-minion` |
+| `website/` product/API/non-scenic code; Next.js pages/components; API routes (`/api/brains`, `/api/ask-clive`, `/aie-demo`); Vercel env/deploy; npm build/dev | **Vercel Minion** | `doc-vercel-minion` |
+| Painted-world scenic craft (rooms, plaques, loops, hotspots, scene manifests) | **Not Doc** | `@kate` — see `household-routing-standard` Website build flow |
 | Both (e.g. new brain base + wire API) | **Both, in order** | Airtable first → Vercel second; say so explicitly |
 | Design a new agent; system prompt; skills/tools/evals for fleet | **Doc's Workshop** | `doc-workshop-proposer` (Proposer) → `doc-workshop-challenger` → builders |
 | Build Cursor agent files after approved pack | **Doc's Workshop — Cursor Builder** | `doc-workshop-cursor` (usually dispatched by Proposer) |

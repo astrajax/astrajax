@@ -1066,6 +1066,8 @@ Airtable is the natural operating layer for the current system. For the buyer/fo
 
 The governed **base pattern** (Registry, Workshop, one Trusted Brain per theme, one Agent base per agent) is the physical home for context, grants, and character authoring. **Field shapes and tables:** `docs/initiatives/brain-key-schema.md`. **Access, credentials, and API routes:** `docs/initiatives/brain-key-wiring.md`. **Scaffolding and extending bases** (tables, fields, registry rows — not approved truth): **Doc Brain Base Builder** via `@doc` or `@doc-brain-base-builder`; invoke guide and live inventory snapshot in `docs/initiatives/doc-brain-base-builder.md`. Live base/table IDs: `website/src/lib/brains/airtable-ids.ts`.
 
+**Creative / visual system (10 Aug 2026).** Cast art, vault media, folio furniture, and creative doctrine live in Trusted Brain theme **`creative`** — base `AstraJax Trusted Brain — Creative`. Required tables stay **Brain Truth** + **Brain Memories**; **Media Assets** is the add-on catalogue (one row per file, Blob URL as the file home — not Airtable attachment copies, not git binaries as SSOT). Tara-Lee holds visual finish; Locked status is the production gate. Do not park creative catalogues in Chapter 1 Trusted or only in Agent bases.
+
 It can hold:
 
 - context records
@@ -1076,6 +1078,7 @@ It can hold:
 - feedback records
 - training and adoption data
 - implementation jobs (approved brief → executor routing → worker output)
+- Locked creative media catalogue (Creative Trusted → Media Assets → Blob)
 
 
 

@@ -98,6 +98,20 @@ describe("resolveEnterDestination — the five §2 hierarchy cases", () => {
     });
     expect(dest.kind).toBe("recovery");
   });
+
+  it("case 5d: household configured but no owned brain → recovery, never the House", () => {
+    const state = settled();
+    state.ownedBrainSlugs = [];
+    const dest = resolveEnterDestination({
+      identity,
+      state,
+      showroomRequested: false,
+    });
+    expect(dest.kind).toBe("recovery");
+    if (dest.kind === "recovery") {
+      expect(dest.reasons.join(" ")).toMatch(/owns no brain/);
+    }
+  });
 });
 
 describe("guardrails", () => {

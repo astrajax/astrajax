@@ -38,7 +38,7 @@ describe("reaction queue — non-interruption contract", () => {
     const state = initialReactionQueueState();
 
     const d = decideCue({
-      reaction: "happy",
+      reaction: "pleased",
       phase: "scripted",
       state,
       now: 50000,
@@ -107,7 +107,7 @@ describe("reaction queue — non-interruption contract", () => {
     const state = initialReactionQueueState();
 
     const d = decideCue({
-      reaction: "happy",
+      reaction: "pleased",
       phase: "idle",
       state,
       now: 5000,
@@ -117,7 +117,7 @@ describe("reaction queue — non-interruption contract", () => {
 
     expect(d).toEqual({ kind: "drop", reason: "reduced-motion" });
     expect(nextAfterNaturalEnd({
-      state: { ...state, queued: "happy", queuedAt: 5000, turnToken: TURN },
+      state: { ...state, queued: "pleased", queuedAt: 5000, turnToken: TURN },
       now: 6000,
       turnToken: TURN,
       prefersReducedMotion: true,

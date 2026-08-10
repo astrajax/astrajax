@@ -181,6 +181,7 @@ Canonical IDs live in code — **do not duplicate IDs in other docs** except thi
 | Registry | AstraJax Brain Registry | `appbdTVHevH6Bl5ZZ` | `brains`, `agents`, `keyRequests`, `accessGrants`, `changeLog` |
 | Workshop | AstraJax Brain Workshop | `appL2fdnGmhA02WXd` | `userBrains`, `draftBrainTruth`, `sourceDocuments`, `brainInteractions`, `pamReviews`, `approvalDecisions`, `docActions` |
 | Trusted Brain | AstraJax Trusted Brain — Chapter 1 | `app6tjzzG0L0lOeVb` | `brainTruth`, `brainMemories` |
+| Trusted Brain | AstraJax Trusted Brain — Creative | `appvs1m7kP7lxRwcL` | `brainTruth`, `brainMemories`, `mediaAssets` (Registry slug `creative`) |
 | Agent | AstraJax Agent — Clive | `appBd9tudgvOSrhSX` | `narrativeArch`, `personaConfig`, `personaMemories`, `minions` (+ tier fields — see below) |
 | Agent | AstraJax Agent — Pam | `appH7NeSSNntuKRL4` | same four tables (tier fields not yet rolled out) |
 | Agent | AstraJax Agent — Doc | `appI5tpwsKNwjfrqR` | same four tables (tier fields not yet rolled out) |

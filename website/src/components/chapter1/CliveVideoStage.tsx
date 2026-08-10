@@ -26,7 +26,7 @@ import {
   type ReactionQueueState,
 } from "@/components/chapter1/reaction-queue";
 
-const POSTER_SRC =
+const DEFAULT_POSTER_SRC =
   castHeroByProduct("clive") ?? "/agent-cast/clive-wigglesworth/hero.png";
 
 export type CliveVideoStageHandle = {
@@ -48,6 +48,8 @@ export type CliveVideoStageHandle = {
 
 type CliveVideoStageProps = {
   className?: string;
+  /** Optional poster override; default is Clive hero still. */
+  posterSrc?: string;
 };
 
 function loadAndPlay(
@@ -83,7 +85,8 @@ function loadAndPlay(
 }
 
 export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStageProps>(
-  function CliveVideoStage({ className = "" }, ref) {
+  function CliveVideoStage({ className = "", posterSrc }, ref) {
+    const poster = posterSrc ?? DEFAULT_POSTER_SRC;
     const prefersReducedMotion = usePrefersReducedMotion();
     const [videoReady, setVideoReady] = useState(false);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -467,10 +470,11 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
       return (
         <div className={rootClass}>
           <Image
-            src={POSTER_SRC}
+            src={poster}
             alt=""
             fill
             priority
+            unoptimized={poster.startsWith("/masks/")}
             sizes="(min-width: 1024px) 58vw, 100vw"
             className="clive-video-stage__poster"
           />
@@ -479,13 +483,14 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
     }
 
     return (
-      <div className={rootClass}>
+      <div className={rootClass} data-folio-poster={poster.startsWith("/masks/") ? "gold-plate" : "hero"}>
         {!videoReady ? (
           <Image
-            src={POSTER_SRC}
+            src={poster}
             alt=""
             fill
             priority
+            unoptimized={poster.startsWith("/masks/")}
             sizes="(min-width: 1024px) 58vw, 100vw"
             className="clive-video-stage__poster"
           />
@@ -501,7 +506,7 @@ export const CliveVideoStage = forwardRef<CliveVideoStageHandle, CliveVideoStage
           muted
           playsInline
           preload="metadata"
-          poster={POSTER_SRC}
+          poster={poster}
           aria-hidden
         />
       </div>

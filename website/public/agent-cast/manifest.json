@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-07-01",
+  "updated": "2026-08-10",
   "convention": {
     "root": "website/public/agent-cast",
     "hero": "{slug}/hero.png",
@@ -69,6 +69,22 @@
       "heroStatus": "legacy",
       "heroLegacyPath": "vera-vinegar-toes.png",
       "animations": []
+    },
+    {
+      "slug": "halvard-bjornson",
+      "name": "Prof. Halvard Bjornson",
+      "foundingCast": false,
+      "heroStatus": "pending",
+      "heroLegacyPath": null,
+      "artPack": "art/",
+      "blobPrefix": "halvard-bjornson/",
+      "animations": [
+        {
+          "id": "tower-loop",
+          "file": "tower-loop.mp4",
+          "purpose": "Floating tower ambient loop (rough direction)"
+        }
+      ]
     },
     {
       "slug": "juan-vasquez",

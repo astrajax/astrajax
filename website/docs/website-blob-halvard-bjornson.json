@@ -1,0 +1,65 @@
+{
+  "storeId": "store_cvu4L5KwtlOCutGD",
+  "localRoot": "website/public/agent-cast/halvard-bjornson",
+  "blobPrefix": "halvard-bjornson",
+  "note": "Rough direction art pack (Kathryn). TL holds finish. Not final.",
+  "uploadedAt": "2026-08-10T04:54:21.924Z",
+  "items": [
+    {
+      "key": "animations/tower-loop.mp4",
+      "sourceSha256": "05c6057a54f9fe7d4f9f09d522e67caf5b8a2e73cb7ce64d4996aa1cb79d1d95",
+      "bytes": 5783782,
+      "mime": "video/mp4",
+      "blobPathname": "halvard-bjornson/animations/tower-loop.mp4",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/halvard-bjornson/animations/tower-loop.mp4"
+    },
+    {
+      "key": "art/bjornson-key-art-tower-chamber.jpg",
+      "sourceSha256": "9ae15d69e66800c68a726bb92aa0a6ce385e41de47eafd852cd134cb084809d1",
+      "bytes": 2541908,
+      "mime": "image/jpeg",
+      "blobPathname": "halvard-bjornson/art/bjornson-key-art-tower-chamber.jpg",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/halvard-bjornson/art/bjornson-key-art-tower-chamber.jpg"
+    },
+    {
+      "key": "art/bjornson-tower-island-magenta-matte.png",
+      "sourceSha256": "51a7c53b857733d355a9b3496e1b9bd51064ed3a43be194188641666fea440ae",
+      "bytes": 1810081,
+      "mime": "image/png",
+      "blobPathname": "halvard-bjornson/art/bjornson-tower-island-magenta-matte.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/halvard-bjornson/art/bjornson-tower-island-magenta-matte.png"
+    },
+    {
+      "key": "art/bjornson-tower-island-night.jpg",
+      "sourceSha256": "eedbb56958ceb8ff60e6ecfb54eb79f3ea3413a1a8aa839985eb9a5cab273adf",
+      "bytes": 3034599,
+      "mime": "image/jpeg",
+      "blobPathname": "halvard-bjornson/art/bjornson-tower-island-night.jpg",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/halvard-bjornson/art/bjornson-tower-island-night.jpg"
+    },
+    {
+      "key": "art/bjornson-tower-island-transparent.png",
+      "sourceSha256": "76a56c420388876500afe9815a34ede06b7c327efb22c65b415d0738e1d431f5",
+      "bytes": 1646865,
+      "mime": "image/png",
+      "blobPathname": "halvard-bjornson/art/bjornson-tower-island-transparent.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/halvard-bjornson/art/bjornson-tower-island-transparent.png"
+    },
+    {
+      "key": "hero-poster.jpg",
+      "sourceSha256": "9ae15d69e66800c68a726bb92aa0a6ce385e41de47eafd852cd134cb084809d1",
+      "bytes": 2541908,
+      "mime": "image/jpeg",
+      "blobPathname": "halvard-bjornson/hero-poster.jpg",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/halvard-bjornson/hero-poster.jpg"
+    },
+    {
+      "key": "README.txt",
+      "sourceSha256": "4185d320ac08c27e729250ef4c6392f8fe5614f1eb4f8dd9a0e0340e2a211231",
+      "bytes": 2180,
+      "mime": "text/plain; charset=utf-8",
+      "blobPathname": "halvard-bjornson/README.txt",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/halvard-bjornson/README.txt"
+    }
+  ]
+}

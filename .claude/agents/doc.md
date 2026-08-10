@@ -46,6 +46,9 @@ When routing to **Vercel Minion**, also list **Vercel plugin skills** for the jo
 ## Final step — Clive's Man handoff (mandatory after Phase B)
 
 Every **execution** minion (Airtable, Vercel, Workshop builders) must end Phase B by invoking the `clive-man` agent so decisions land in canonical context — not only in chat.
+Website work follows `household-routing-standard` **Website build flow**: non-scenic
+`website/` → this Doc/Vercel lane; painted-world scenic → `kate` (she owns her own
+Man exit). Do not take Kate's scenic jobs.
 
 After the minion summary and link, **before stopping**:
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build Milo Cadence v0.1 — AstraJax Character Motion Director (Hyperagent only).
+"""Build Milo Cadence v0.1 — AstraJax Character Motion Director (Hyperagent export).
 
 Outputs:
 - hyperagent/exports/skills/skill-character-motion-timecraft-v0_1.json
@@ -7,7 +7,10 @@ Outputs:
 - agents/registry/hyperagent/astrajax/milo-cadence/build-pack-v0.1.md
 - agents/registry/hyperagent/astrajax/character-motion-timecraft/build-pack-v0.1.md
 
-No Cursor twin for v0.1 (Hyperagent runtime only).
+Cursor twin (manual port, 2026-08-08): `.cursor/agents/milo-cadence.md`,
+`.cursor/skills/milo-cadence/`, `character-motion-timecraft/`,
+`fal-first-last-frame-video/`, and `scripts/fal/`. See
+`agents/registry/cursor/astrajax/milo-cadence/build-pack-v0.1.md`.
 """
 
 from __future__ import annotations

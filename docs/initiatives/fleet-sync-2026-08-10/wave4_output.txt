@@ -1,0 +1,78 @@
+=== WAVE 4 ===
+[
+  {
+    "action": "promote_clive_man",
+    "rec_id": "reclxxOUDOW6FoztJ"
+  },
+  {
+    "action": "retire_stray_minion",
+    "rec_id": "recIJsF8Z3Z4qGnYL"
+  },
+  {
+    "slug": "clive-man-context-auditor",
+    "action": "updated",
+    "rec_id": "recfPjrVRbmG0l3yH"
+  },
+  {
+    "slug": "clive-man-ambient-capture",
+    "action": "updated",
+    "rec_id": "rec7PtTNAhAZX6ATT"
+  },
+  {
+    "slug": "clive-man-challenger",
+    "action": "created",
+    "rec_id": "rec7wUHWrDBwxlY5j"
+  },
+  {
+    "slug": "clive-man-context-challenger",
+    "action": "updated",
+    "rec_id": "recsDPj5MkDEkduys"
+  },
+  {
+    "slug": "clive-man-context-executor",
+    "action": "updated",
+    "rec_id": "reccRTyohm8BOwxJX"
+  },
+  {
+    "slug": "clive-man-executor",
+    "action": "created",
+    "rec_id": "rec26uMdaXzMhghVR"
+  },
+  {
+    "slug": "clive-man-proposer",
+    "action": "created",
+    "rec_id": "recj6Hi6DSOafmyhB"
+  },
+  {
+    "slug": "doc-workshop-challenger",
+    "action": "updated",
+    "rec_id": "recfAcyNFiViZWCVP"
+  },
+  {
+    "slug": "doc-workshop-executor",
+    "action": "updated",
+    "rec_id": "recekEdiLJEwn5aUA"
+  },
+  {
+    "slug": "ruth-build-challenger",
+    "action": "updated",
+    "rec_id": "recJrMES14yU8yEJF"
+  },
+  {
+    "slug": "ruth-build-executor",
+    "action": "updated",
+    "rec_id": "recMn2vjw29YKW9HG"
+  },
+  {
+    "slug": "ruth-maintenance-challenger",
+    "action": "updated",
+    "rec_id": "recczqnFmtqgmVeOV"
+  },
+  {
+    "slug": "ruth-maintenance-executor",
+    "action": "updated",
+    "rec_id": "rect9hE900vAbUB32"
+  }
+]
+
+Reversal log: /tmp/fleet_sync_reversal_log.json

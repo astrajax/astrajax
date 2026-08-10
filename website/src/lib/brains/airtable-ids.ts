@@ -19,6 +19,25 @@ export const BRAIN_REGISTRY_TABLES = {
   operatorState: "tblnomux0JXU29HhP",
 } as const;
 
+/** Registry Change Log — paper trail. */
+export const BRAIN_REGISTRY_CHANGE_LOG_FIELDS = {
+  entryId: "fldbewIQNebtucArP",
+  changeSummary: "flddZRd7rhMRSdnY8",
+  changeType: "flduWUwUUT8Wsxz76",
+  changedBy: "fldawPlugGn9Ax2JE",
+  approvedBy: "fld2BzEfC21r2Ian0",
+  executingAgent: "fldu2U484EXheO9MR",
+  source: "fldEt487QudivIZLj",
+  reason: "fldpKHZLSMJm6QpbX",
+  affectedRecords: "fldMJkDF9mzch7MUU",
+  status: "fldWHFC3FYigfqy5J",
+  previousHash: "fldbabZzSgYgQHdWE",
+  entryHash: "fldpkmTmM6QqM31jR",
+  notes: "fldnbadnPs6OtTufn",
+  /** Airtable createdTime — tip lookup / newest-first sort (Matthew, 9 Aug 2026). */
+  created: "fldBlc1nSqMIYVxg1",
+} as const;
+
 /** Registry Implementation Jobs — Opus/Doc brief → worker → Draft ready. */
 export const IMPLEMENTATION_JOBS_FIELDS = {
   jobId: "fldUfmV9MpDosM6Ou",
@@ -216,6 +235,68 @@ export const BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS = {
 /** Chapter 1 Registry Brains row (Phase B — Brain Type = Core). */
 export const BRAIN_REGISTRY_CHAPTER1_BRAIN = {
   recordId: "recT9PuelzCg7LuPC",
+} as const;
+
+/**
+ * Trusted Brain — Creative / Visual System (10 Aug 2026).
+ * Domain brain for creative doctrine + Locked media catalogue.
+ * Bytes live on Vercel Blob; Media Assets rows hold Blob URLs.
+ * Registry Brains row: recf0bCHGNYlT7MU1 (slug `creative`).
+ */
+export const BRAIN_TRUSTED_CREATIVE_BASE_ID = "appvs1m7kP7lxRwcL";
+
+export const BRAIN_TRUSTED_CREATIVE_TABLES = {
+  brainTruth: "tblb422fEFJ76DcPt",
+  brainMemories: "tblyQeNU99nD1BtqY",
+  /** Add-on grain: one row = one file. Not Brain Truth. */
+  mediaAssets: "tblGLXbe0gV3EKuDV",
+} as const;
+
+export const BRAIN_TRUSTED_CREATIVE_TRUTH_FIELDS = {
+  title: "fldEO8Fx51R8seeQa",
+  canonicalText: "fldzBgcUEa0NOPzUu",
+  category: "fldVE6JafERlO7IVQ",
+  scope: "flde80ZCUQum1d0V6",
+  brainTheme: "fldzIvnJbtQUQ68sq",
+  authority: "fldDWjgzcHuI6wu6N",
+  freshness: "fldul8RjvDNNKhjm6",
+  lastReviewed: "fldCchswpd1gsSJNH",
+  /** Inverse of Media Assets → Governed By Truth. */
+  mediaAssets: "fldXV7DorXIeonoUu",
+} as const;
+
+export const BRAIN_TRUSTED_CREATIVE_MEMORY_FIELDS = {
+  memoryText: "fld5d6p6fw5Mfjyft",
+  whenToUse: "fldcCJQyCWKSZxVqE",
+  scopeArea: "fldXLj0M4slX50cqu",
+  status: "fldVAhUZ6eFBOLPrY",
+  freshness: "fldvs0VbzYlt2b0CE",
+  lastReviewed: "fldJN2YYHSKuVZC4k",
+  proposedByAgent: "fldlP6Sh5AMJgLHSp",
+  sourceNotes: "fldGSYu3SsXvgUrtF",
+} as const;
+
+export const BRAIN_TRUSTED_CREATIVE_MEDIA_FIELDS = {
+  title: "flddudZPVW4LTD3LW",
+  assetKey: "fldXuIOe6pL5VYzyP",
+  blobPathname: "fldd52vrjsPZfDRSL",
+  blobUrl: "fldCBrwLvOE1sMwzZ",
+  characterPack: "fldNEJNUjEbgwkceQ",
+  kind: "fldW9fC1YTWXOjW9q",
+  status: "fldthLg7KRjuBdOds",
+  mime: "fldc9Yu3l13fuUUED",
+  width: "fldonGgNiRgSGljVT",
+  height: "fldn4aXHFV0pjG41Y",
+  sourceSha256: "fldkBld29W160sI0T",
+  authority: "fldjzUT4TCO20mgGC",
+  notes: "fldiJhMQKn8jQ7bxC",
+  lastReviewed: "fld9XpzcpWaG3EubU",
+  governedByTruth: "fldMcKtSUO1JTITFs",
+} as const;
+
+export const BRAIN_REGISTRY_CREATIVE_BRAIN = {
+  recordId: "recf0bCHGNYlT7MU1",
+  slug: "creative",
 } as const;
 
 /** Shared table shape across all Chapter 1 Agent bases (IDs differ per base). */

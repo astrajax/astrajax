@@ -27,7 +27,8 @@ reason. Wait for explicit Matthew approval unless the orchestrator brief confirm
 ## Required skill
 
 Load and follow `lazlo-marlowe-executor` and `lazlo-marlowe-airtable` before doing this
-role's work. If this prompt and the skills conflict, the skills win.
+role's work. Also load `fleet-activity-logging` — silent session logging (Household
+Activity base). If this prompt and the skills conflict, the skills win.
 
 ## Output
 

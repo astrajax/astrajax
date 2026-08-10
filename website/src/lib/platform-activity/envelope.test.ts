@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { createEnvelope } from "./envelope";
+import { createEnvelope, createEventId, normaliseModelUsage } from "./envelope";
 import { codeManifest } from "./manifest";
 
 const session = {
@@ -52,3 +52,42 @@ describe("platform activity envelope", () => {
     expect(envelope.costUsd).toBe(18);
   });
 });
+
+describe("normaliseModelUsage", () => {
+  it("accepts camelCase, snake_case, and nested total fields", () => {
+    expect(
+      normaliseModelUsage({
+        promptTokens: 11,
+        completionTokens: { total: 22 },
+      }),
+    ).toEqual({ inputTokens: 11, outputTokens: 22 });
+
+    expect(
+      normaliseModelUsage({
+        input_tokens: 3,
+        output_tokens: 4,
+      }),
+    ).toEqual({ inputTokens: 3, outputTokens: 4 });
+  });
+
+  it("returns an empty object for junk usage payloads", () => {
+    expect(normaliseModelUsage(null)).toEqual({});
+    expect(normaliseModelUsage("tokens")).toEqual({});
+    expect(normaliseModelUsage({ inputTokens: "nope" })).toEqual({
+      inputTokens: undefined,
+      outputTokens: undefined,
+    });
+  });
+});
+
+describe("createEventId", () => {
+  it("sanitises kind and prefers a stable key for at-least-once identity", () => {
+    expect(createEventId("platform-test", "Session End", "timed_out")).toBe(
+      "evt-platform-platform-test-session-end-timed_out",
+    );
+    expect(createEventId("platform-test", "!!!", "  ")).toMatch(
+      /^evt-platform-platform-test-[a-f0-9-]+$/,
+    );
+  });
+});
+
