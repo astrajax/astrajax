@@ -4,10 +4,11 @@
  * Real file picker and uploader for the onboarding Source Pack.
  *
  * - Browser file picker (click) + drag-and-drop
- * - Uploads to /api/onboarding/upload (Vercel Blob)
- * - Enforces Ruth's Source Pack limits
- * - Shows honest upload state: selecting → uploading → uploaded / failed
+ * - Client-direct upload to Vercel Blob (token minted by /api/onboarding/upload)
+ * - Enforces Ruth's Source Pack limits (browser UX + server token)
+ * - Shows honest upload state: uploading → uploaded / failed
  */
+import { upload } from "@vercel/blob/client";
 import { useCallback, useRef, useState, type DragEvent, type ChangeEvent } from "react";
 import {
   SOURCE_PACK_LIMITS,
@@ -37,6 +38,27 @@ function formatBytes(bytes: number): string {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
+function buildUploadPathname(filename: string): string {
+  const safeFilename = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
+  const unique =
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  return `${SOURCE_PACK_LIMITS.uploadPrefix}${unique}-${safeFilename}`;
+}
+
+async function deleteOrphanBlob(blobUrl: string): Promise<void> {
+  try {
+    await fetch("/api/onboarding/upload", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: blobUrl }),
+    });
+  } catch {
+    // Best-effort cleanup — private store + rate limit bound residual orphans.
+  }
+}
+
 export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRemove, maxFiles }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   /** Keep the original File around so a failed upload can retry without re-picking. */
@@ -44,6 +66,8 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
   const abortControllers = useRef(new Map<string, AbortController>());
   const removedIds = useRef(new Set<string>());
   const [dragOver, setDragOver] = useState(false);
+  /** Browser-side rejections are not staged into the file list (they must not burn slots). */
+  const [rejectionNotice, setRejectionNotice] = useState<string | null>(null);
   const effectiveMaxFiles = maxFiles ?? SOURCE_PACK_LIMITS.maxFiles;
 
   const postUpload = useCallback(
@@ -53,32 +77,24 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
       abortControllers.current.set(fileId, controller);
       onFileUpdate(fileId, { state: "uploading", progress: 0, error: undefined });
       try {
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const response = await fetch("/api/onboarding/upload", {
-          method: "POST",
-          body: formData,
-          signal: controller.signal,
+        const pathname = buildUploadPathname(file.name);
+        const result = await upload(pathname, file, {
+          access: "private",
+          handleUploadUrl: "/api/onboarding/upload",
+          multipart: file.size > 4 * 1024 * 1024,
+          abortSignal: controller.signal,
+          clientPayload: JSON.stringify({ sizeBytes: file.size, fileId }),
+          contentType: file.type || undefined,
         });
 
-        if (removedIds.current.has(fileId)) return;
-
-        const result = await response.json();
-
-        if (removedIds.current.has(fileId)) return;
-
-        if (!response.ok || !result.success) {
-          onFileUpdate(fileId, {
-            state: "failed",
-            error: result.error || "Upload failed",
-          });
+        if (removedIds.current.has(fileId)) {
+          await deleteOrphanBlob(result.url);
           return;
         }
 
         onFileUpdate(fileId, {
           state: "uploaded",
-          blobUrl: result.blobUrl,
+          blobUrl: result.url,
           progress: 100,
           error: undefined,
         });
@@ -98,43 +114,26 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
 
   /**
    * Stage one file against `limitState` (may be a batch-local snapshot), then
-   * kick off upload. Returns the staged row so callers can accumulate totals
-   * before React re-renders.
+   * kick off upload. Returns the staged row when accepted, or null when the
+   * browser rejects the pick (type/size) without consuming a Source Pack slot.
    */
   const stageAndUpload = useCallback(
-    (file: File, limitState: OnboardingState): SourcePackFile => {
+    (file: File, limitState: OnboardingState): SourcePackFile | null => {
       const ext = getExtension(file.name);
       const fileId = `file-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-      // Check extension
-      if (!SOURCE_PACK_LIMITS.allowedExtensions.includes(ext as typeof SOURCE_PACK_LIMITS.allowedExtensions[number])) {
-        const failed: SourcePackFile = {
-          id: fileId,
-          name: file.name,
-          extension: ext,
-          sizeBytes: file.size,
-          state: "failed",
-          error: `File type not allowed: ${ext}`,
-        };
-        onFileSelect(failed);
-        return failed;
+      if (!SOURCE_PACK_LIMITS.allowedExtensions.includes(ext as (typeof SOURCE_PACK_LIMITS.allowedExtensions)[number])) {
+        setRejectionNotice(`File type not allowed: ${ext}`);
+        return null;
       }
 
-      // Check limits against the provided snapshot (batch-aware)
       const check = canAddFile(limitState, file.size);
       if (!check.ok) {
-        const failed: SourcePackFile = {
-          id: fileId,
-          name: file.name,
-          extension: ext,
-          sizeBytes: file.size,
-          state: "failed",
-          error: check.reason,
-        };
-        onFileSelect(failed);
-        return failed;
+        setRejectionNotice(check.reason || "File rejected");
+        return null;
       }
 
+      setRejectionNotice(null);
       fileHandles.current.set(fileId, file);
       const staged: SourcePackFile = {
         id: fileId,
@@ -173,7 +172,9 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
       let workingFiles = state.files;
       for (const file of toProcess) {
         const staged = stageAndUpload(file, { ...state, files: workingFiles });
-        workingFiles = [...workingFiles, staged];
+        if (staged) {
+          workingFiles = [...workingFiles, staged];
+        }
       }
     },
     [state, effectiveMaxFiles, stageAndUpload],
@@ -210,13 +211,26 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
     inputRef.current?.click();
   }, []);
 
+  const removeFileRow = useCallback(
+    (file: SourcePackFile) => {
+      removedIds.current.add(file.id);
+      abortControllers.current.get(file.id)?.abort();
+      abortControllers.current.delete(file.id);
+      fileHandles.current.delete(file.id);
+      if (file.blobUrl) {
+        void deleteOrphanBlob(file.blobUrl);
+      }
+      onFileRemove(file.id);
+    },
+    [onFileRemove],
+  );
+
   const activeFiles = filesCountingTowardLimit(state.files);
   const totalBytes = activeFiles.reduce((sum, f) => sum + f.sizeBytes, 0);
   const atLimit = activeFiles.length >= effectiveMaxFiles;
 
   return (
     <div className="source-pack-uploader">
-      {/* Hidden file input */}
       <input
         ref={inputRef}
         type="file"
@@ -227,7 +241,6 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
         aria-hidden="true"
       />
 
-      {/* File list */}
       {state.files.length > 0 && (
         <ul className="source-pack-uploader__list">
           {state.files.map((f) => (
@@ -254,13 +267,7 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
               <button
                 type="button"
                 className="source-pack-uploader__remove"
-                onClick={() => {
-                  removedIds.current.add(f.id);
-                  abortControllers.current.get(f.id)?.abort();
-                  abortControllers.current.delete(f.id);
-                  fileHandles.current.delete(f.id);
-                  onFileRemove(f.id);
-                }}
+                onClick={() => removeFileRow(f)}
                 aria-label={`Remove ${f.name}`}
               >
                 ×
@@ -270,7 +277,6 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
         </ul>
       )}
 
-      {/* Drop zone */}
       {!atLimit && (
         <div
           className={`source-pack-uploader__drop${dragOver ? " source-pack-uploader__drop--active" : ""}`}
@@ -286,12 +292,18 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
             Drop files here, or <span className="source-pack-uploader__link">browse</span>
           </p>
           <p className="source-pack-uploader__hint">
-            {SOURCE_PACK_LIMITS.allowedExtensions.join(", ")} · max {formatBytes(SOURCE_PACK_LIMITS.maxBytesPerFile)} each
+            {SOURCE_PACK_LIMITS.allowedExtensions.join(", ")} · max{" "}
+            {formatBytes(SOURCE_PACK_LIMITS.maxBytesPerFile)} each
           </p>
         </div>
       )}
 
-      {/* Status */}
+      {rejectionNotice && (
+        <p className="source-pack-uploader__rejection" role="status">
+          {rejectionNotice}
+        </p>
+      )}
+
       <p className="source-pack-uploader__status">
         {activeFiles.length} of {effectiveMaxFiles} files · {formatBytes(totalBytes)} of{" "}
         {formatBytes(SOURCE_PACK_LIMITS.maxBytesTotal)}

@@ -355,6 +355,14 @@
   text-align: right;
 }
 
+.study-stage--book .source-pack-uploader__rejection {
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  color: var(--book-ink);
+  border-left: 2px solid var(--book-rule, currentColor);
+  padding-left: 0.55rem;
+}
+
 /* ── Conversation (Route B probing + Route A gap questions) ── */
 .study-stage--book .onboarding__conversation {
   display: flex;

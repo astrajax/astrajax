@@ -14,7 +14,7 @@
  * confirmation events target exact inference ID + version and snapshot the
  * presented value; only accepted-for-Workshop items reach the draft.
  */
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { getOnboardingFixtureV1 } from "@/lib/onboarding/fixture-v1";
 import {
@@ -26,27 +26,34 @@ import {
 } from "@/lib/onboarding/contract-v1";
 import {
   acceptAsDraft,
-  allFilesUploaded,
   answerGap,
   answerProbe,
   backStep,
   canAcceptDraft,
+  canContinueSourcePack,
+  canContinueSupportingFile,
   canSwitchRoute,
   chooseRoute,
-  hasUploadingFiles,
   initialOnboardingState,
   nextStep,
   probeProgress,
   removeFile,
   setConfirmation,
   setCorrection,
+  sourcePackContinueLabel,
+  sourcePackLimitsSummary,
   stageFile,
   stopProbingEarly,
+  supportingFileContinueLabel,
   updateFileState,
   type OnboardingState,
   type RouteId,
   type SourcePackFile,
 } from "@/lib/onboarding/machine";
+import {
+  readOnboardingStaging,
+  writeOnboardingStaging,
+} from "@/lib/onboarding/staging-persistence";
 import { SourcePackUploader } from "@/components/onboarding/SourcePackUploader";
 import { StudyMarkdown } from "@/components/chapter1/StudyMarkdown";
 import { FolioActionLedger } from "@/components/chapter1/FolioActionLedger";
@@ -69,7 +76,29 @@ export function OnboardingFlow() {
   const fixture = useMemo(() => getOnboardingFixtureV1(), []);
   const [state, setState] = useState<OnboardingState>(() => initialOnboardingState());
   const [draft, setDraft] = useState("");
+  const [stagingHydrated, setStagingHydrated] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
+
+  // Restore after mount to avoid SSR/client HTML mismatch.
+  useEffect(() => {
+    const restored = readOnboardingStaging();
+    if (restored && (restored.files.length > 0 || restored.supportingFile)) {
+      setState((s) => ({
+        ...s,
+        files: restored.files,
+        supportingFile: restored.supportingFile,
+      }));
+    }
+    setStagingHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!stagingHydrated) return;
+    writeOnboardingStaging({
+      files: state.files,
+      supportingFile: state.supportingFile,
+    });
+  }, [state.files, state.supportingFile, stagingHydrated]);
 
   const choose = useCallback((route: RouteId) => setState((s) => chooseRoute(s, route)), []);
   const next = useCallback(() => setState((s) => nextStep(s)), []);
@@ -170,9 +199,7 @@ export function OnboardingFlow() {
       {state.step === "a-source-pack" && (
         <FlowShell step="Bring your material · the Source Pack" onBack={back}>
           <h2 className="onboarding__h2">Your Source Pack.</h2>
-          <p className="onboarding__lede">
-            Up to 5 files · 50 MB total · 20 MB each.
-          </p>
+          <p className="onboarding__lede">{sourcePackLimitsSummary()}</p>
           {/* Blank-plate grammar: live file labels on the Source Pack plate;
               the uploader is the interaction surface beneath. */}
           {state.files.length > 0 ? (
@@ -193,16 +220,8 @@ export function OnboardingFlow() {
             onFileRemove={(fileId) => setState((s) => removeFile(s, fileId))}
           />
           <NavRow
-            onPrimary={allFilesUploaded(state) && !hasUploadingFiles(state) ? next : undefined}
-            primaryLabel={
-              hasUploadingFiles(state)
-                ? "Uploading…"
-                : state.files.length === 0
-                  ? "Add files to continue"
-                  : state.files.some((f) => f.state === "failed")
-                    ? "Fix failed uploads to continue"
-                    : "See what Clive found"
-            }
+            onPrimary={canContinueSourcePack(state) ? next : undefined}
+            primaryLabel={sourcePackContinueLabel(state)}
           />
         </FlowShell>
       )}
@@ -276,36 +295,22 @@ export function OnboardingFlow() {
       {state.step === "b-supporting-file" && (
         <FlowShell step="Talk it through · one file, if it helps" onBack={back}>
           <h2 className="onboarding__h2">One supporting file — entirely optional.</h2>
-          {state.supportingFile && state.supportingFile.state === "uploaded" ? (
-            <p className="onboarding__body">✓ {state.supportingFile.name} attached.</p>
-          ) : (
-            <SourcePackUploader
-              state={{ ...state, files: state.supportingFile ? [state.supportingFile] : [] }}
-              maxFiles={1}
-              onFileSelect={(file: SourcePackFile) => setState((s) => ({ ...s, supportingFile: file }))}
-              onFileUpdate={(fileId, update) =>
-                setState((s) =>
-                  s.supportingFile && s.supportingFile.id === fileId
-                    ? { ...s, supportingFile: { ...s.supportingFile, ...update } }
-                    : s,
-                )
-              }
-              onFileRemove={() => setState((s) => ({ ...s, supportingFile: null }))}
-            />
-          )}
+          <SourcePackUploader
+            state={{ ...state, files: state.supportingFile ? [state.supportingFile] : [] }}
+            maxFiles={1}
+            onFileSelect={(file: SourcePackFile) => setState((s) => ({ ...s, supportingFile: file }))}
+            onFileUpdate={(fileId, update) =>
+              setState((s) =>
+                s.supportingFile && s.supportingFile.id === fileId
+                  ? { ...s, supportingFile: { ...s.supportingFile, ...update } }
+                  : s,
+              )
+            }
+            onFileRemove={() => setState((s) => ({ ...s, supportingFile: null }))}
+          />
           <NavRow
-            onPrimary={
-              !state.supportingFile || state.supportingFile.state === "uploaded"
-                ? next
-                : state.supportingFile.state === "uploading"
-                  ? undefined
-                  : next
-            }
-            primaryLabel={
-              state.supportingFile?.state === "uploading"
-                ? "Uploading…"
-                : "See what Clive has drafted"
-            }
+            onPrimary={canContinueSupportingFile(state) ? next : undefined}
+            primaryLabel={supportingFileContinueLabel(state)}
           />
         </FlowShell>
       )}
