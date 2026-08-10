@@ -15,6 +15,7 @@
  * presented value; only accepted-for-Workshop items reach the draft.
  */
 import { useCallback, useMemo, useState } from "react";
+import Image from "next/image";
 import { getOnboardingFixtureV1 } from "@/lib/onboarding/fixture-v1";
 import {
   evidenceEdgesFor,
@@ -53,6 +54,7 @@ import { SourcePackPlate } from "@/components/onboarding/plates/SourcePackPlate"
 import { CorpusCensusPlate } from "@/components/onboarding/plates/CorpusCensusPlate";
 import { ProvisionalConstellationPlate } from "@/components/onboarding/plates/ProvisionalConstellationPlate";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
+import "./onboarding.css";
 
 const ROUTE_LABELS: Record<RouteId, { verb: string; bestWhen: string }> = {
   "bring-material": { verb: "Bring your material", bestWhen: "Best when your documents already exist." },
@@ -120,12 +122,21 @@ export function OnboardingFlow() {
           </p>
           <div className="onboarding__routes">
             {(Object.keys(ROUTE_LABELS) as RouteId[]).map((route, i) => (
-              <button key={route} type="button" className="onboarding__route-card" onClick={() => choose(route)}>
-                <img
+              <button
+                key={route}
+                type="button"
+                className="onboarding__route-card"
+                onClick={() => choose(route)}
+                aria-label={`${ROUTE_LABELS[route].verb}. ${ROUTE_LABELS[route].bestWhen}`}
+              >
+                <Image
                   className="onboarding__route-frame"
                   src={i === 0 ? "/brand/system-assets/folio/furniture/docket-frame-left.svg" : "/brand/system-assets/folio/furniture/docket-frame-right.svg"}
                   alt=""
+                  width={553}
+                  height={287}
                   aria-hidden
+                  unoptimized
                 />
                 <span className="onboarding__route-verb">{ROUTE_LABELS[route].verb}</span>
                 <span className="onboarding__route-best">{ROUTE_LABELS[route].bestWhen}</span>
@@ -162,6 +173,19 @@ export function OnboardingFlow() {
           <p className="onboarding__lede">
             Up to 5 files · 50 MB total · 20 MB each.
           </p>
+          {/* Blank-plate grammar: live file labels on the Source Pack plate;
+              the uploader is the interaction surface beneath. */}
+          {state.files.length > 0 ? (
+            <SourcePackPlate
+              items={state.files.map((f) => ({
+                id: f.id,
+                evidenceClass: "imported_document" as const,
+                label: f.name,
+                provenance: f.state === "uploaded" ? "uploaded" : f.state === "uploading" ? "uploading…" : f.state === "failed" ? "failed" : f.extension || "file",
+              }))}
+              reducedMotion={reducedMotion}
+            />
+          ) : null}
           <SourcePackUploader
             state={state}
             onFileSelect={(file: SourcePackFile) => setState((s) => stageFile(s, file))}
@@ -175,7 +199,9 @@ export function OnboardingFlow() {
                 ? "Uploading…"
                 : state.files.length === 0
                   ? "Add files to continue"
-                  : "See what Clive found"
+                  : state.files.some((f) => f.state === "failed")
+                    ? "Fix failed uploads to continue"
+                    : "See what Clive found"
             }
           />
         </FlowShell>
@@ -231,7 +257,12 @@ export function OnboardingFlow() {
           {currentQuestion ? (
             <>
               <Composer value={draft} onChange={setDraft} onSubmit={submitAnswer} label="Your answer" />
-              <button type="button" className="onboarding__link-btn" onClick={() => setState((s) => stopProbingEarly(s))}>
+              <button
+                type="button"
+                className="onboarding__link-btn"
+                onClick={() => setState((s) => stopProbingEarly(s))}
+                aria-label="Stop probing early and go to what you've captured"
+              >
                 That's enough — go to what you've captured
               </button>
             </>
@@ -347,6 +378,7 @@ export function OnboardingFlow() {
                     className="onboarding__correction onboarding__correction--bracketed"
                     type="text"
                     placeholder="The corrected value"
+                    aria-label={`Corrected value for ${inf.attributeType.replace(/_/g, " ")}`}
                     value={state.corrections[inf.inferenceId] ?? ""}
                     onChange={(e) => setState((s) => setCorrection(s, inf.inferenceId, e.target.value))}
                   />
@@ -359,6 +391,7 @@ export function OnboardingFlow() {
             className="btn-primary onboarding__accept onboarding__accept--plate"
             disabled={!canAcceptDraft(state, proposedInferences.map((i) => i.inferenceId))}
             onClick={() => setState((s) => acceptAsDraft(s))}
+            aria-label="Accept confirmed items as a draft Trusted Brain"
           >
             Accept as draft
           </button>
@@ -373,11 +406,14 @@ export function OnboardingFlow() {
         <section className="onboarding__receipt">
           <p className="onboarding__eyebrow">Clive's handback</p>
           <h1 className="onboarding__h1">
-            <img
+            <Image
               className="onboarding__receipt-seal"
               src="/brand/system-assets/folio/furniture/medallion-accepted-sage.svg"
               alt=""
+              width={48}
+              height={48}
               aria-hidden
+              unoptimized
             />
             A draft, on your word.
           </h1>
@@ -412,9 +448,9 @@ export function OnboardingFlow() {
       {canSwitchRoute(state) && state.step !== "choice" && state.step !== "receipt" && (
         <p className="onboarding__switch">
           {state.route === "bring-material" ? (
-            <>Rather talk it through? <button type="button" className="onboarding__link-btn" onClick={() => choose("talk-through")}>Switch — nothing is lost</button></>
+            <>Rather talk it through? <button type="button" className="onboarding__link-btn" onClick={() => choose("talk-through")} aria-label="Switch to Talk it through — nothing is lost">Switch — nothing is lost</button></>
           ) : (
-            <>Have documents after all? <button type="button" className="onboarding__link-btn" onClick={() => choose("bring-material")}>Switch — nothing is lost</button></>
+            <>Have documents after all? <button type="button" className="onboarding__link-btn" onClick={() => choose("bring-material")} aria-label="Switch to Bring your material — nothing is lost">Switch — nothing is lost</button></>
           )}
         </p>
       )}
@@ -426,10 +462,17 @@ export function OnboardingFlow() {
 
 function FlowShell({ step, children, onBack, chat = false }: { step: string; children: React.ReactNode; onBack: () => void; chat?: boolean }) {
   return (
-    <section className={`onboarding__flow${chat ? " onboarding__flow--chat" : ""}`}>
+    <section className={`onboarding__flow${chat ? " onboarding__flow--chat" : ""}`} aria-label={step}>
       <p className="onboarding__eyebrow">{step}</p>
       {children}
-      <button type="button" className="study-stage__ghost-btn onboarding__back" onClick={onBack}>Back</button>
+      <button
+        type="button"
+        className="study-stage__ghost-btn onboarding__back"
+        onClick={onBack}
+        aria-label="Go back one step"
+      >
+        Back
+      </button>
     </section>
   );
 }
@@ -437,7 +480,15 @@ function FlowShell({ step, children, onBack, chat = false }: { step: string; chi
 function NavRow({ onPrimary, primaryLabel }: { onPrimary?: () => void; primaryLabel: string }) {
   return (
     <div className="onboarding__nav">
-      <button type="button" className="btn-primary" onClick={onPrimary} disabled={!onPrimary}>{primaryLabel}</button>
+      <button
+        type="button"
+        className="btn-primary"
+        onClick={onPrimary}
+        disabled={!onPrimary}
+        aria-label={primaryLabel}
+      >
+        {primaryLabel}
+      </button>
     </div>
   );
 }
