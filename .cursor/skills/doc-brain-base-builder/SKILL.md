@@ -25,10 +25,11 @@ link via **show-airtable-link**.
 
 ## Model
 
-**Cursor Composer (`composer-2.5-fast`)** — mechanical execution only. Doc (Opus-class)
-shapes the brief in Phase A; this minion runs Phase B on Composer. Do not inherit
-an expensive reasoning model for MCP schema work or file ops. See
-`.cursor/rules/model-routing.mdc`.
+**Grok (`cursor-grok-4.5-high-fast`)** — first-party pool. Doc
+(`claude-opus-5-thinking-high`) shapes the brief in Phase A; this minion runs Phase B
+on Grok, which handles MCP schema work better than Composer without touching the
+frontier pool. Never inherit a frontier reasoning model for schema work or file ops.
+See `.cursor/rules/model-routing.mdc`.
 
 ## Where this fits
 
