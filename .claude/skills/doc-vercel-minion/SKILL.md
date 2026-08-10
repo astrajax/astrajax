@@ -26,14 +26,15 @@ Matthew is non-technical; lead with outcomes and preview links, not jargon stack
 
 ## Model
 
-**Cursor Composer (`composer-2.5-fast`)** — mechanical execution only. Doc (Opus-class)
-shapes the brief in Phase A; this minion runs Phase B on Composer. Do not inherit
-an expensive reasoning model for file edits or npm work. See
+**Grok (`cursor-grok-4.5-high-fast`)** — first-party pool. Doc (Opus-class) shapes
+the brief in Phase A; this minion runs Phase B on Grok for website multi-file craft.
+Drop to Composer only for genuinely repetitive mechanical passes. Never inherit a
+frontier reasoning model for file edits or npm work. See
 `.cursor/rules/model-routing.mdc`.
 
 ## Doc vs minion
 
-| Doc (Opus) | Vercel Minion (Composer/Cursor) |
+| Doc (Opus) | Vercel Minion (Grok) |
 |------------|----------------------------------|
 | Validates brief, chooses lane | Implements approved plan in `website/` |
 | Writes execution prompt | Edits files, runs dev/build commands |
