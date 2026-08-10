@@ -283,9 +283,11 @@ export function OnboardingFlow() {
               state={{ ...state, files: state.supportingFile ? [state.supportingFile] : [] }}
               maxFiles={1}
               onFileSelect={(file: SourcePackFile) => setState((s) => ({ ...s, supportingFile: file }))}
-              onFileUpdate={(_, update) =>
+              onFileUpdate={(fileId, update) =>
                 setState((s) =>
-                  s.supportingFile ? { ...s, supportingFile: { ...s.supportingFile, ...update } } : s,
+                  s.supportingFile && s.supportingFile.id === fileId
+                    ? { ...s, supportingFile: { ...s.supportingFile, ...update } }
+                    : s,
                 )
               }
               onFileRemove={() => setState((s) => ({ ...s, supportingFile: null }))}

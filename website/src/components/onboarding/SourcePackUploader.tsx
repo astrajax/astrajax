@@ -81,50 +81,59 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
     [onFileUpdate],
   );
 
-  const uploadFile = useCallback(
-    async (file: File) => {
+  /**
+   * Stage one file against `limitState` (may be a batch-local snapshot), then
+   * kick off upload. Returns the staged row so callers can accumulate totals
+   * before React re-renders.
+   */
+  const stageAndUpload = useCallback(
+    (file: File, limitState: OnboardingState): SourcePackFile => {
       const ext = getExtension(file.name);
       const fileId = `file-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
       // Check extension
       if (!SOURCE_PACK_LIMITS.allowedExtensions.includes(ext as typeof SOURCE_PACK_LIMITS.allowedExtensions[number])) {
-        onFileSelect({
+        const failed: SourcePackFile = {
           id: fileId,
           name: file.name,
           extension: ext,
           sizeBytes: file.size,
           state: "failed",
           error: `File type not allowed: ${ext}`,
-        });
-        return;
+        };
+        onFileSelect(failed);
+        return failed;
       }
 
-      // Check limits
-      const check = canAddFile(state, file.size);
+      // Check limits against the provided snapshot (batch-aware)
+      const check = canAddFile(limitState, file.size);
       if (!check.ok) {
-        onFileSelect({
+        const failed: SourcePackFile = {
           id: fileId,
           name: file.name,
           extension: ext,
           sizeBytes: file.size,
           state: "failed",
           error: check.reason,
-        });
-        return;
+        };
+        onFileSelect(failed);
+        return failed;
       }
 
       fileHandles.current.set(fileId, file);
-      onFileSelect({
+      const staged: SourcePackFile = {
         id: fileId,
         name: file.name,
         extension: ext,
         sizeBytes: file.size,
         state: "uploading",
         progress: 0,
-      });
-      await postUpload(fileId, file);
+      };
+      onFileSelect(staged);
+      void postUpload(fileId, file);
+      return staged;
     },
-    [state, onFileSelect, postUpload],
+    [onFileSelect, postUpload],
   );
 
   const retryFile = useCallback(
@@ -142,9 +151,16 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
       const currentCount = state.files.length;
       const remaining = effectiveMaxFiles - currentCount;
       const toProcess = Array.from(files).slice(0, remaining);
-      toProcess.forEach(uploadFile);
+
+      // Accumulate within this gesture so canAddFile sees cumulative bytes/count
+      // (React state from onFileSelect is not applied until the handler finishes).
+      let workingFiles = state.files;
+      for (const file of toProcess) {
+        const staged = stageAndUpload(file, { ...state, files: workingFiles });
+        workingFiles = [...workingFiles, staged];
+      }
     },
-    [state.files.length, effectiveMaxFiles, uploadFile],
+    [state, effectiveMaxFiles, stageAndUpload],
   );
 
   const handleDrop = useCallback(
