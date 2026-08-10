@@ -233,6 +233,16 @@ export const airtableStore: GrantStore = {
     return refreshGrantStatus(mapGrantRecord(record));
   },
 
+  async listGrantsByRequestId(requestId) {
+    const { baseId, token } = getRegistryConfig();
+    const escaped = escapeAirtableString(requestId);
+    const records = await airtableSelect(baseId, BRAIN_REGISTRY_TABLES.accessGrants, token, {
+      filterByFormula: `{Request ID}='${escaped}'`,
+      maxRecords: 20,
+    });
+    return records.map((record) => refreshGrantStatus(mapGrantRecord(record)));
+  },
+
   async incrementGrantUse(grantId) {
     const { baseId, token } = getRegistryConfig();
     const escaped = escapeAirtableString(grantId);
@@ -252,6 +262,40 @@ export const airtableStore: GrantStore = {
       nextUseCount >= grant.maxUses || new Date(grant.expiresAt) < new Date()
         ? "Expired"
         : "Active";
+
+    await airtableUpdate(baseId, BRAIN_REGISTRY_TABLES.accessGrants, token, record.id, {
+      "Use Count": nextUseCount,
+      Status: nextStatus,
+    });
+
+    return refreshGrantStatus({
+      ...grant,
+      useCount: nextUseCount,
+      status: nextStatus === "Expired" ? "expired" : "active",
+    });
+  },
+
+  async restoreGrantUse(grantId) {
+    const { baseId, token } = getRegistryConfig();
+    const escaped = escapeAirtableString(grantId);
+    const record = await airtableFindOne(
+      baseId,
+      BRAIN_REGISTRY_TABLES.accessGrants,
+      token,
+      `{Grant ID}='${escaped}'`,
+    );
+    if (!record) return null;
+
+    const grant = mapGrantRecord(record);
+    if (grant.useCount <= 0 || grant.status === "revoked") return null;
+
+    const nextUseCount = grant.useCount - 1;
+    const timeExpired = new Date(grant.expiresAt) < new Date();
+    const nextStatus = timeExpired
+      ? "Expired"
+      : nextUseCount < grant.maxUses
+        ? "Active"
+        : "Expired";
 
     await airtableUpdate(baseId, BRAIN_REGISTRY_TABLES.accessGrants, token, record.id, {
       "Use Count": nextUseCount,
