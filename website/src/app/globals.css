@@ -1603,8 +1603,8 @@ body {
 }
 
 .study-stage--book:has(.chapter1-right-decision) .study-stage__right-panel {
-  /* Anchor below Clive (16:9 portal → height ≈ width / 1.78) so they never overlap */
-  top: calc(var(--book-clive-top) + (var(--book-clive-width) / 1.5) * 0.62 + 1cqw);
+  /* Anchor below Clive (deckle matte 1024×755 → height = width × 755/1024) so they never overlap */
+  top: calc(var(--book-clive-top) + (var(--book-clive-width) * 755 / 1024) + 1cqw);
   bottom: var(--folio-safe-bottom);
   left: calc(var(--book-right-page-start) + var(--folio-safe-gutter));
   right: calc(var(--folio-safe-outer-right) + var(--folio-safe-gutter));
@@ -7176,6 +7176,12 @@ textarea.clive-chat__input {
    chapter1-right-decision rules already centre him above the action
    record; here we formalise the anchor so the state is explicit even
    before the first action card mounts. */
+.study-stage--book[data-folio-state="interaction"] {
+  /* Stage-level anchors so right-panel top matches the live plate box. */
+  --book-clive-top: 13.5cqh;
+  --book-clive-width: 32cqw; /* SC1 delta: +~20% interaction presence */
+}
+
 .study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
   /* Same matte aspect as teaching so the REF deckle is not stretched. */
   aspect-ratio: 1024 / 755;
@@ -7189,12 +7195,17 @@ textarea.clive-chat__input {
      too close to the top walnut rail. Ease it down ~2.5% of page height for a
      clear parchment margin above, while preserving ledger room below.
      Teaching placement is unchanged. */
-  top: 13.5cqh;
-  --book-clive-width: 32cqw;
-  width: 32cqw; /* SC1 delta: +~20% interaction presence, material anchor not thumbnail; right-panel anchors below it */
+  top: var(--book-clive-top);
+  width: var(--book-clive-width);
   max-width: calc(
     100% - var(--book-right-page-start) - var(--folio-safe-outer-right) - (var(--folio-safe-gutter) * 2)
   );
+}
+
+/* Right-panel must clear the full deckle plate (1024×755), not the old
+   3:2 × 0.62 portal estimate — otherwise decision UI overlaps Clive. */
+.study-stage--book[data-folio-state="interaction"] .study-stage__right-panel {
+  top: calc(var(--book-clive-top) + (var(--book-clive-width) * 755 / 1024) + 1cqw);
 }
 
 @media (max-width: 767px) {
@@ -7204,9 +7215,8 @@ textarea.clive-chat__input {
     --folio-clive-width: 46cqw;
   }
 
-  .study-stage--book[data-folio-state="interaction"] .study-stage__clive-spot {
-    top: 13.5cqh;
-    width: 38cqw;
+  .study-stage--book[data-folio-state="interaction"] {
+    --book-clive-width: 38cqw;
   }
 }
 
