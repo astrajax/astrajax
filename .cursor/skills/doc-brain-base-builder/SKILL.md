@@ -34,7 +34,7 @@ See `.cursor/rules/model-routing.mdc`.
 ## Where this fits
 
 ```text
-Clive reasons -> Pam challenges -> Human approves -> Doc acts -> Composer/Cursor builds
+Clive reasons -> Pam challenges -> Human approves -> Doc acts -> Grok/Cursor builds
                                                               -> HyperAgent runs deployed agents
                                                       ^
                                            doc-brain-base-builder (structure only)

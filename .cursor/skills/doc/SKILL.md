@@ -149,11 +149,11 @@ directly, skip triage announcement but still follow that minion's skill.
 - Doc continues in same thread **as the chosen minion** (load that skill fully)
 - If Ask mode when approved → refuse; ask Matthew to switch to Agent mode
 - **Execution model:** Phase B and minion dispatch run on the **first-party pool**.
-  Website, scenic, and MCP-schema builds on **Grok (`cursor-grok-4.5-high-fast`)**;
+  Non-scenic website and MCP-schema builds on **Grok (`cursor-grok-4.5-high-fast`)**;
   automations, Trinity executors, and repetitive mechanical work on **Composer
   (`composer-2.5-fast`)**. Kimi K3 is escalation only, after Grok has failed the same
-  task twice. Never a frontier model (Opus, Sol) for BUILD/EXECUTE. See
-  `.cursor/rules/model-routing.mdc`.
+  task twice. Never a frontier model (Opus, Sol) for BUILD/EXECUTE. Painted-world
+  scenic stays **Not Doc** (`@kate`). See `.cursor/rules/model-routing.mdc`.
 - HyperAgent export builds: Phase B incomplete without validation +
   `handoff_hyperagent_export.py` card (`docs/initiatives/hyperagent-handoff-contract.md`).
 
@@ -263,10 +263,10 @@ I'll draft the plan (Phase A). You approve; then we build in Agent mode.
 
 Doc's triage and brief-shaping (Phase A) run on **`claude-opus-5-thinking-high`**
 (Opus-class per `docs/business/architecture.md` §9). Minion execution (Phase B) runs
-on the first-party pool: **Grok (`cursor-grok-4.5-high-fast`)** for website, scenic,
+on the first-party pool: **Grok (`cursor-grok-4.5-high-fast`)** for non-scenic website
 and MCP-schema work; **Composer (`composer-2.5-fast`)** for automations and repetitive
-mechanical passes. Never a frontier model for mechanical build work. See
-`.cursor/rules/model-routing.mdc`.
+mechanical passes. Painted-world scenic stays **Not Doc** (`@kate`). Never a frontier
+model for mechanical build work. See `.cursor/rules/model-routing.mdc`.
 
 ## Tone
 
