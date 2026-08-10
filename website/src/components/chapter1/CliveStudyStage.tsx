@@ -21,38 +21,33 @@ import {
   type FolioStageState,
 } from "@/components/chapter1/FolioStageContext";
 import { FolioMessagePulse } from "@/components/chapter1/FolioMessagePulse";
+import { resolveFolioAsset } from "@/lib/folio-asset-url";
 
 /**
  * The Living Folio background master. Canonical source is the TRUE 16:9
  * production master Kathryn supplied — "Living Folio wide 16_9
  * edge-to-edge.png" (5504×3072, walnut edge-to-edge on all sides) — served
- * from the connected public Vercel Blob store through next/image. Rendered
- * full-bleed object-fit:cover: the master IS the viewport aspect, so cover
- * fills the frame edge-to-edge with NO letterbox, flat bars or sidebars.
- * The Git SVG derivative is a stopgap fallback only when env is absent.
+ * from the connected public Vercel Blob store. Rendered full-bleed
+ * object-fit:cover: the master IS the viewport aspect, so cover fills the
+ * frame edge-to-edge with NO letterbox, flat bars or sidebars.
+ * The Git SVG derivative is a stopgap fallback only when env forces it.
+ *
+ * Loaded unoptimized: the master is ~8.5MB; next/image's optimizer fetch
+ * times out locally / on cold path. Public Blob already serves the file
+ * with long cache headers — the browser can take it direct.
  */
 const STUDY_BOOK_FALLBACK_SRC =
   "/agent-cast/clive-wigglesworth/folio/living-folio-master-2048.svg";
-
-const LIVING_FOLIO_CANONICAL_STORE_ID = "store_cvu4L5KwtlOCutGD";
-const LIVING_FOLIO_MASTER_PATHNAME =
-  "folio/Living Folio wide 16_9 edge-to-edge.png";
-
-/** Vercel public-store host: bare lowercase id, no "store_" prefix. */
-function publicBlobHost(storeId: string): string {
-  const bare = storeId.trim().toLowerCase().replace(/^store_/, "");
-  return `${bare}.public.blob.vercel-storage.com`;
-}
 
 function studyBookSrc(): string {
   if (process.env.LIVING_FOLIO_USE_FALLBACK === "true") {
     return STUDY_BOOK_FALLBACK_SRC;
   }
-  const host = publicBlobHost(LIVING_FOLIO_CANONICAL_STORE_ID);
-  return `https://${host}/${encodeURIComponent(LIVING_FOLIO_MASTER_PATHNAME)}`;
+  return resolveFolioAsset("living-folio.master")?.src ?? STUDY_BOOK_FALLBACK_SRC;
 }
 
 const STUDY_BOOK_SRC = studyBookSrc();
+const STUDY_BOOK_IS_REMOTE = STUDY_BOOK_SRC.startsWith("http");
 
 type CliveStudyStageProps = {
   children: ReactNode;
@@ -114,6 +109,7 @@ const CliveStudyStageInner = forwardRef<CliveVideoStageHandle, CliveStudyStagePr
             fill
             priority
             sizes="100vw"
+            unoptimized={STUDY_BOOK_IS_REMOTE}
             className="study-stage__book-image"
           />
         </div>
@@ -145,9 +141,18 @@ const CliveStudyStageInner = forwardRef<CliveVideoStageHandle, CliveStudyStagePr
         </main>
 
         <div className="study-stage__clive-spot" aria-hidden>
-          <div className="study-stage__clive-feather clive-portrait-feather">
-            <CliveVideoStage ref={ref} className="study-stage__clive-media" />
+          {/*
+            MP4s stay primary. REF supplies the border only:
+            - .study-stage__clive-plate clips video/poster with the jagged matte
+            - .study-stage__clive-ink paints charcoal OUTSIDE that clip so the
+              fringe can sit on parchment (masking the spot itself ate the rim)
+          */}
+          <div className="study-stage__clive-plate">
+            <div className="study-stage__clive-feather clive-portrait-feather">
+              <CliveVideoStage ref={ref} className="study-stage__clive-media" />
+            </div>
           </div>
+          <div className="study-stage__clive-ink" />
         </div>
 
         {/* FolioCrest intentionally not rendered: Matthew's finished Living
