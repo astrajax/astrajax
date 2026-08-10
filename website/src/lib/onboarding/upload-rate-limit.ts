@@ -79,12 +79,9 @@ export function refundOnboardingUploadRateLimit(input: {
 
   existing.count = Math.max(0, existing.count - 1);
   existing.bytes = Math.max(0, existing.bytes - input.sizeBytes);
-
-  if (existing.count === 0) {
-    buckets.delete(key);
-  } else {
-    buckets.set(key, existing);
-  }
+  // Keep the bucket even at count 0 so windowStart is preserved.
+  // Deleting would let the next check open a fresh hour window.
+  buckets.set(key, existing);
 }
 
 /** Reset limiter state — tests only */
