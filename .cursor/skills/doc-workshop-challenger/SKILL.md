@@ -39,7 +39,9 @@ Reference: `docs/context/trinity-agent-flow.md`
 
 ## Model
 
-Run on a **strong reasoning model** (`gpt-5.5-high`). You are judgement, not hands.
+Run on a **strong reasoning model** (`claude-opus-5-thinking-high`) — deliberately a
+different family from the Proposer's Sol, so the red-team is independent. You are
+judgement, not hands.
 
 ## When you run
 

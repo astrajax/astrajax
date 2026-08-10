@@ -12,7 +12,7 @@ Payload (SEMANTIC KEYS — the script owns the field-ID mapping):
   }
 
 Sessions keys: session_id, parent_session_id, root_session_id, agent_slug,
-  agent_name, runtime, trigger, user, started, thread_url, model
+  agent_name, runtime, trigger, user, thread_url, model
 Activity keys: summary, event_id, sequence, session_id, event_type,
   user_message, reply_digest, context_referenced, detail, outcome, target_url,
   model, cost_usd (Session End only), review_status (defaulted "Unreviewed")
@@ -25,7 +25,7 @@ Contract (Matthew Airtable redesign, 2026-08-08):
 - CREATE ONLY; base hard-locked; at-least-once (retries reuse Event IDs).
 - VALIDATES: refuses incomplete rows with a precise missing-keys error.
   Required (sessions): session_id, agent_slug, agent_name, runtime, trigger,
-  user, started, thread_url, model.
+  user, thread_url, model.
   Required (activity, always): event_id, sequence, session_id, model.
   event_type maps to Agent Turn Type only (never User Turn Type).
   Optional for ordinary exchanges — AI owns User Turn Type and Agent Turn
@@ -44,8 +44,9 @@ Contract (Matthew Airtable redesign, 2026-08-08):
 - Do not write AI-owned fields (Session Summary, AI Turn Summary, Headline).
 - Defaults: review_status="Unreviewed". Session link is injected from
   session_record_id. Reviewer-owned score fields are rejected.
-- TIMESTAMP IS NEVER WRITTEN: timestamp keys are silently stripped. Airtable's
-  createdTime field is authoritative for event time (Matthew, 2026-07-26).
+- TIMESTAMP IS NEVER WRITTEN: timestamp / started keys are silently stripped.
+  Airtable's createdTime ("Created") is authoritative for session and event
+  time (Matthew, 2026-07-26 timestamp retirement). Do not map or require started.
 - Reports (added 2026-07-26): complete reports are documents in the Reports
   table. Required: title, report_type, agent_slug, headline, body, plus
   session_record_id for the Session link. The authoring session's Completion
@@ -71,7 +72,9 @@ TABLES = {"sessions": "tblUi4nmBKX2u8nFx", "activity": "tblNxNLyC31KDQbRl",
           "reports": "tblFzWUIPSiIGZPln"}
 
 # Timestamp is Airtable-owned (createdTime); these keys are stripped, never written.
-STRIP_KEYS = {"timestamp", "fldTl7rXvf7YHgImz"}
+# started / fldTOGhUjtylNV4ll retired with the Sessions "Started" field (2026-07-26);
+# kept in STRIP so legacy payloads that still send them do not fail validation.
+STRIP_KEYS = {"timestamp", "started", "fldTl7rXvf7YHgImz", "fldTOGhUjtylNV4ll"}
 
 # AI-owned fields — agents must not write these (rejected if present).
 AI_OWNED_KEYS = {
@@ -92,7 +95,6 @@ SESSIONS_MAP = {
     "runtime": "fldoE8uXllbSMAPPS",
     "trigger": "fldG3t3bCjY8tklgv",
     "user": "fldMg0dpNURUNEkWW",
-    "started": "fldTOGhUjtylNV4ll",
     "thread_url": "fldqEN6EC48KcsZrS",
     "model": "fld5Rjoxc2q5hxR4R",
 }
@@ -132,7 +134,7 @@ REVIEWER_ONLY_IDS = {"fldlKDwCGDAj6fah5": "human_quality", "fldLExhD3nr41nir6": 
 MAPS = {"sessions": SESSIONS_MAP, "activity": ACTIVITY_MAP, "reports": REPORTS_MAP}
 
 SESSIONS_REQUIRED = ["session_id", "agent_slug", "agent_name", "runtime",
-                     "trigger", "user", "started", "thread_url", "model"]
+                     "trigger", "user", "thread_url", "model"]
 ACTIVITY_REQUIRED = ["event_id", "sequence", "session_id", "model"]
 REPORTS_REQUIRED = ["title", "report_type", "agent_slug", "headline", "body"]
 # Mechanical classes agents may still set when they know the event class.
@@ -161,7 +163,7 @@ def normalise(table: str, rec: dict, problems: list, idx: int) -> dict:
     out = {}
     for key, value in rec.items():
         if key in STRIP_KEYS:
-            continue  # timestamp is Airtable-owned (createdTime); never written
+            continue  # timestamps / retired started are Airtable-owned; never written
         if key in AI_OWNED_KEYS or (key.startswith("fld") and key in AI_OWNED_KEYS):
             problems.append({"record_index": idx,
                              "error": f"{key} is AI-owned — remove it"})

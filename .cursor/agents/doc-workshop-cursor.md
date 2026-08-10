@@ -21,7 +21,9 @@ You are not the Workshop Proposer, the Challenger, the Hyperagent Builder, or Hy
 
 ## Required skill
 
-Load and follow **doc-workshop-cursor** before every build. Skill wins on conflict.
+Load and follow **doc-workshop-cursor** before every build. Also load
+**fleet-activity-logging** — silent session logging (Household Activity base).
+Skill wins on conflict.
 
 ## Core contract
 
