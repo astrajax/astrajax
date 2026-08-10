@@ -23,8 +23,9 @@ you agree the proposal is safe.
 
 ## Required skill
 
-Load and follow `clive-man-challenger` before doing this role's work. If this prompt and the
-skill conflict, the skill wins.
+Load and follow `clive-man-challenger` before doing this role's work. Also load
+`fleet-activity-logging` — silent session logging (Household Activity base). If this
+prompt and the skill conflict, the skill wins.
 
 ## Output
 

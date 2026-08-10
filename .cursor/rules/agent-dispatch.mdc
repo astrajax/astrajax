@@ -1,0 +1,99 @@
+---
+description: Before answering any substantive request, name the owning household lane and dispatch it
+alwaysApply: true
+---
+
+# Agent Dispatch
+
+## Do this first, before any tool call
+
+On every substantive request where Matthew has **not** written an explicit `@agent`,
+your **first output** is one line naming the lane:
+
+```text
+Lane: @clive — strategy call, dispatching.
+```
+
+or, when you are keeping it:
+
+```text
+Lane: none — handling inline (trivial / no household owner).
+```
+
+Emit that line before reading files, searching, or answering. If you have already
+started work and realise a lane owns it, stop and dispatch anyway. Deciding late is
+the failure this rule exists to prevent.
+
+If Matthew wrote an explicit `@agent`, that wins. No lane line, no re-routing.
+
+**No lane line at all when the message is not yet a request.** Greetings, "you ready?",
+"I'm about to paste some transcripts", acknowledgements, or anything setting up work
+that has not arrived. Just answer in a sentence and wait. Call the lane on the **first
+actionable message**, not on the preamble. Announcing "Lane: none" for a warm-up
+message reads as though the roster has a gap.
+
+## Default is dispatch
+
+When a household lane matches, **dispatch it** with the Task tool and the matching
+`subagent_type`. Do not answer on the lane's behalf because answering is quicker.
+The bar for keeping work is narrow and explicit:
+
+- **Trivial** — a single factual lookup, one-line edit, or direct question you can
+  answer in a sentence or two.
+- **Outside the household** — genuinely no lane below covers it. Say which it is
+  closest to, so it does not read as a roster gap.
+- **Meta** — Matthew asking about this chat, a transcript, the rules, or the routing.
+
+"Large and complicated" is a reason to dispatch, not a reason to keep it.
+
+**Reading yourself in is not context capture.** Being briefed with transcripts or notes
+so you can continue work is intake for *your own* understanding: digest it, then route
+on the work it describes. `@clive-man` owns **durable** capture — filing decisions,
+brain records, paper trail — not briefing you. Do not dispatch him just because the
+word "context" appears.
+
+If no `subagent_type` exists for the lane, name the agent, hand Matthew the brief, and
+ask him to `@` it.
+
+## The roster
+
+| If Matthew is asking for… | Lane |
+|---|---|
+| Strategy, positioning, trade-offs, "should we?", "how would you proceed", decision briefs | `clive` |
+| Challenge, red-team, pre-mortem, "poke holes", high-stakes gate | `pam` |
+| Build something in the repo or product, "can you make / add / fix" | `doc` |
+| Capture context, paper trail, "log this", brain upkeep | `clive-man` |
+| Character voice, spine, cast drift, "does this sound like X" | `lazlo-marlowe` |
+| Visual identity, palette, art direction, skin, taste call | `kathryn-goodchild` |
+| Painted-world scenic craft — rooms, plaques, loops, hotspots | `kate` |
+| Motion, fal previz, animation timing | `milo-cadence` |
+| Airtable data-layer architecture, schema, grain, SSOT | `ruth-hadley` |
+| Research, best-practice scouting, "what's the current thinking on" | `ristral` |
+| Agent quality, household health, fleet drift, sync audits | `halvard-bjornson` |
+
+## Multi-lane requests
+
+Most big requests touch several lanes. **Do not ask which one.** Dispatch the lane that
+owns the **next** step, and let that agent route onward — every household agent carries
+`household-routing-standard`.
+
+Ordering when it is unclear:
+
+1. Decision not yet made → `clive`
+2. Decision made, needs challenge and is Red plus novel → `pam`
+3. Decision made, needs building → `doc` (or `kate` for scenic, `ruth-hadley` for schema)
+4. Something durable happened → `clive-man`
+
+Ask a clarifying question only when the lane is genuinely ambiguous **and** guessing
+wrong would waste real work. One question, naming both candidates.
+
+## Model discipline
+
+Dispatch does not override `.cursor/rules/model-routing.mdc`. Each agent carries its own
+pin. When you keep work inline, the same rule applies: mechanical edits belong on a
+first-party-pool model, never a frontier one.
+
+## Known limitation
+
+This rule cannot reorder or filter Cursor's `@` picker UI. It removes the need to use
+the picker; it does not fix it.

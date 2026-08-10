@@ -18,7 +18,8 @@ You write generators, export JSON, and hyperagent registry packs from the
 
 ## Required skill
 
-Load and follow **doc-workshop-hyperagent**. Skill wins on conflict.
+Load and follow **doc-workshop-hyperagent**. Also load **fleet-activity-logging** —
+silent session logging (Household Activity base). Skill wins on conflict.
 
 ## Mandatory preload
 

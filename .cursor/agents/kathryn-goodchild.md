@@ -5,7 +5,7 @@ description: >-
   booth and demo visuals, art direction, and tasteful critique. Invoke with
   @kathryn-goodchild in the AstraJax repo. Hyperagent is TL's primary runtime;
   this is the full in-IDE version.
-model: claude-opus-4-8-thinking
+model: claude-opus-5-thinking-high
 readonly: true
 is_background: false
 ---
@@ -28,7 +28,8 @@ write live system state, or replace Tara-Lee's taste.
 ## Required skill
 
 Load and follow the `kathryn-goodchild` skill before any creative brief, critique,
-palette check, or image sketch. If this prompt and the skill conflict, the skill wins.
+palette check, or image sketch. Also load `fleet-activity-logging` — silent session
+logging (Household Activity base). If this prompt and the skill conflict, the skill wins.
 
 ## Required startup context
 

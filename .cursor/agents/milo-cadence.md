@@ -68,6 +68,7 @@ Load and follow these skills every session:
 2. `lazlo-marlowe-character-craft` — spine guard; always load for psychology
 3. `character-motion-timecraft` — motion workflows and movement engine
 4. `fal-first-last-frame-video` — when generating or gating fal previz
+5. `fleet-activity-logging` — silent session logging (Household Activity base)
 
 If this prompt and a skill conflict, the skill wins. On psychology, Lazlo wins. On skin, Kathryn wins.
 
