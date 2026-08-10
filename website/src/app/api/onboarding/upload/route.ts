@@ -10,7 +10,10 @@
 import { del, put } from "@vercel/blob";
 import { NextResponse, type NextRequest } from "next/server";
 import { SOURCE_PACK_LIMITS } from "@/lib/onboarding/machine";
-import { checkOnboardingUploadRateLimit } from "@/lib/onboarding/upload-rate-limit";
+import {
+  checkOnboardingUploadRateLimit,
+  refundOnboardingUploadRateLimit,
+} from "@/lib/onboarding/upload-rate-limit";
 
 const ALLOWED_EXTENSIONS = new Set<string>(SOURCE_PACK_LIMITS.allowedExtensions);
 const ALLOWED_MIME_TYPES = new Set([
@@ -36,6 +39,7 @@ function clientIp(request: NextRequest): string | undefined {
 }
 
 export async function POST(request: NextRequest) {
+  let charged: { ip?: string; sizeBytes: number } | null = null;
   try {
     const formData = await request.formData();
     const file = formData.get("file");
@@ -66,7 +70,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const limit = checkOnboardingUploadRateLimit({ ip: clientIp(request), sizeBytes: file.size });
+    const ip = clientIp(request);
+    const limit = checkOnboardingUploadRateLimit({ ip, sizeBytes: file.size });
     if (!limit.allowed) {
       return NextResponse.json(
         { error: limit.reason || "Too many uploads. Try again later." },
@@ -78,11 +83,14 @@ export async function POST(request: NextRequest) {
         },
       );
     }
+    charged = { ip, sizeBytes: file.size };
 
     // User Source Pack files go to the private Blob store (not the public
     // website asset store). Local: BLOB_READ_WRITE_TOKEN. Vercel: OIDC + BLOB_STORE_ID.
     const token = process.env.BLOB_READ_WRITE_TOKEN;
     if (!token && !process.env.BLOB_STORE_ID && !process.env.VERCEL_OIDC_TOKEN) {
+      refundOnboardingUploadRateLimit(charged);
+      charged = null;
       return NextResponse.json(
         { error: "Blob storage is not configured (missing BLOB_READ_WRITE_TOKEN)." },
         { status: 503 },
@@ -104,9 +112,12 @@ export async function POST(request: NextRequest) {
     // Client aborted after the put finished — drop the orphan immediately.
     if (request.signal.aborted) {
       await del(blob.url, token ? { token } : undefined).catch(() => undefined);
+      refundOnboardingUploadRateLimit(charged);
+      charged = null;
       return NextResponse.json({ error: "Upload aborted" }, { status: 499 });
     }
 
+    charged = null;
     return NextResponse.json({
       success: true,
       blobUrl: blob.url,
@@ -119,6 +130,10 @@ export async function POST(request: NextRequest) {
       uploadedAt: new Date().toISOString(),
     });
   } catch (error) {
+    if (charged) {
+      refundOnboardingUploadRateLimit(charged);
+      charged = null;
+    }
     if (error instanceof Error && error.name === "AbortError") {
       return NextResponse.json({ error: "Upload aborted" }, { status: 499 });
     }

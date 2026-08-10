@@ -65,6 +65,28 @@ export function checkOnboardingUploadRateLimit(input: {
   return { allowed: true };
 }
 
+/**
+ * Undo a prior allowed check when the upload does not complete
+ * (blob misconfig, put failure, client abort). Retries must not burn quota.
+ */
+export function refundOnboardingUploadRateLimit(input: {
+  ip?: string;
+  sizeBytes: number;
+}): void {
+  const key = clientKey(input.ip);
+  const existing = buckets.get(key);
+  if (!existing) return;
+
+  existing.count = Math.max(0, existing.count - 1);
+  existing.bytes = Math.max(0, existing.bytes - input.sizeBytes);
+
+  if (existing.count === 0) {
+    buckets.delete(key);
+  } else {
+    buckets.set(key, existing);
+  }
+}
+
 /** Reset limiter state — tests only */
 export function resetOnboardingUploadRateLimitForTests(): void {
   buckets.clear();

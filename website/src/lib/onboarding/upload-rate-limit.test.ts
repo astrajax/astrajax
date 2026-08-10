@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { SOURCE_PACK_LIMITS } from "./machine";
 import {
   checkOnboardingUploadRateLimit,
+  refundOnboardingUploadRateLimit,
   resetOnboardingUploadRateLimitForTests,
 } from "./upload-rate-limit";
 
@@ -34,5 +35,18 @@ describe("onboarding upload rate limit", () => {
 
     const blocked = checkOnboardingUploadRateLimit({ ip, sizeBytes: 2048 });
     expect(blocked.allowed).toBe(false);
+  });
+
+  it("refund restores quota so a failed upload can retry", () => {
+    const ip = "203.0.113.12";
+    const sizeBytes = 1024;
+
+    for (let i = 0; i < SOURCE_PACK_LIMITS.maxFiles; i += 1) {
+      expect(checkOnboardingUploadRateLimit({ ip, sizeBytes }).allowed).toBe(true);
+    }
+    expect(checkOnboardingUploadRateLimit({ ip, sizeBytes }).allowed).toBe(false);
+
+    refundOnboardingUploadRateLimit({ ip, sizeBytes });
+    expect(checkOnboardingUploadRateLimit({ ip, sizeBytes }).allowed).toBe(true);
   });
 });
