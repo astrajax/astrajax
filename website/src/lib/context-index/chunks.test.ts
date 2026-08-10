@@ -49,4 +49,41 @@ describe("toChunks", () => {
     expect(chunks).toHaveLength(1);
     expect(chunks[0].fieldPath).toBe("Title");
   });
+
+  it("joins array fields and leaves label content unprefixed", () => {
+    const chunks = toChunks(source, {
+      id: "rec3",
+      createdTime: "2026-08-03T08:00:00.000Z",
+      fields: {
+        Title: "Multi-tag rule",
+        Category: ["governance", "pricing"],
+      },
+    });
+
+    expect(chunks).toEqual([
+      expect.objectContaining({
+        fieldPath: "Title",
+        content: "Multi-tag rule",
+        approvedAt: null,
+        modifiedAt: "2026-08-03T08:00:00.000Z",
+      }),
+      expect.objectContaining({
+        fieldPath: "Category",
+        content: "Multi-tag rule — Category: governance, pricing",
+      }),
+    ]);
+  });
+
+  it("omits approval timestamp when the source has no approvedField", () => {
+    const noApproval: ContextIndexSource = {
+      ...source,
+      approvedField: undefined,
+    };
+    const [chunk] = toChunks(noApproval, {
+      id: "rec4",
+      createdTime: "2026-08-04T10:00:00.000Z",
+      fields: { Title: "Untitled approval" },
+    });
+    expect(chunk.approvedAt).toBeNull();
+  });
 });
