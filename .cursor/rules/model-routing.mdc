@@ -64,6 +64,36 @@ mirror the **doctrine**, not the slug.
 
 Runtime work belongs to **HyperAgent**, not the coding lane.
 
+## Dispatch gate — check the roster first
+
+**This is a precondition, not advice.** Before launching any generic worker (explore, generalPurpose, shell, or a plain Composer subagent), check whether a named AstraJax agent owns that lane. If one does, invoke that agent instead. Generic exploration is the fallback, never the opening move.
+
+| Work | Named agent |
+|-----|-----|
+| Repo truth, context, architecture, "how does this fit together?" | **@clive** |
+| Sceptical pass: assumptions, evidence, pre-mortem, decision gate | **@pam** |
+| Context engine — intake, curation, publish prep | **@clive-man** |
+| Reading Hyperagent release emails into the repo | **@clive-hyperagent-release-scanner** |
+| Build work when you're unsure which builder | **@doc** (triage + dispatch) |
+| Front-end UI and interface work — "make this interface work / look right", including the painted-world rooms, scenes and hotspots. Works closely with **@kathryn-goodchild** on visual direction | **@kate** |
+| Wiring to data, API routes, env, build and deploy — "get this working and shipped" | **@doc-vercel-minion** |
+| Airtable base scaffolding for brains | **@doc-brain-base-builder** |
+| Creating or changing agents themselves | **@doc-workshop-proposer** |
+| Airtable data layer — schema, doctrine, control plane | **@ruth-hadley** |
+| Character spine, voice, dramaturgy | **@lazlo-marlowe** |
+| Visual identity, palette, art direction — sets the look, does not implement | **@kathryn-goodchild** |
+| Character motion, timing, previz | **@milo-cadence** |
+| Agent quality — rubrics, vitals, ward rounds | **@halvard-bjornson** |
+| Weekly best-practice scan of the fleet | **@ristral** |
+
+Several of these run a proposer → challenger → executor family (Clive's Man, Ruth, Lazlo, Doc's Workshop). Invoke the head; it calls its own team. Don't summon a minion directly unless Matthew names it.
+
+### Don't turn this into ceremony
+
+Answer directly — no agent, no subagent — when the job is a single lookup, a one-line factual question, reading a file Matthew already named, or a trivial edit. Route when the work is **substantive and matches a lane**: it needs judgement, touches several files, or changes something worth a paper trail.
+
+If no named agent owns the lane, a generic worker is the right answer. Say so in one line and get on with it.
+
 ## When to flag Matthew
 
 Say something briefly, once, if:
