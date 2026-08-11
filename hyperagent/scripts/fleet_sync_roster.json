@@ -1,0 +1,141 @@
+{
+  "version": 1,
+  "description": "Explicit Head vs Minion classification for HyperAgent fleet sync. Never guess from filename alone.",
+  "blocked_base_ids": ["appubDI76O0t8xisg"],
+  "household_register_base_id": "appPrpfvsAr71RPP3",
+  "export_aliases": {
+    "pam-portiscue": "pam",
+    "doc-albright-onplatform": "doc",
+    "doc-albright": "doc",
+    "prof-halvard-bjornson": "halvard",
+    "ruth-hadley": "ruth-hadley",
+    "skill-forge-astrajax": "skill-forge"
+  },
+  "agents": {
+    "clive": {
+      "kind": "head",
+      "display_name": "Clive Wigglesworth",
+      "base_id": "appBd9tudgvOSrhSX"
+    },
+    "pam": {
+      "kind": "head",
+      "display_name": "Pam Portiscue",
+      "base_id": "appH7NeSSNntuKRL4"
+    },
+    "doc": {
+      "kind": "head",
+      "display_name": "Doc Albright",
+      "base_id": "appI5tpwsKNwjfrqR"
+    },
+    "clive-man": {
+      "kind": "head",
+      "display_name": "Clive's Man",
+      "base_id": "appZ71CSKBlhnb4hR"
+    },
+    "lazlo-marlowe": {
+      "kind": "head",
+      "display_name": "Lazlo Marlowe",
+      "base_id": "appMHIxnwPMljiAQB"
+    },
+    "luwani": {
+      "kind": "head",
+      "display_name": "Luwani",
+      "base_id": "apprLx39a1V7keazJ"
+    },
+    "halvard": {
+      "kind": "head",
+      "display_name": "Prof. Halvard Bjornson",
+      "base_id": "appr3I2G6Ix1BLAwM"
+    },
+    "ruth-hadley": {
+      "kind": "head",
+      "display_name": "Ruth Hadley",
+      "base_id": "appmbvCqh9CJv5Q4M"
+    },
+    "horace-farthing": {
+      "kind": "head",
+      "display_name": "Horace Farthing",
+      "base_id": "appzAqiwI4j1TJHND"
+    },
+    "kate": {
+      "kind": "head",
+      "display_name": "Kate",
+      "base_id": "appybBYsnDrJ48095"
+    },
+    "milo-cadence": {
+      "kind": "head",
+      "display_name": "Milo Cadence",
+      "base_id": "appNov74BJdK60bwI"
+    },
+    "skill-forge": {
+      "kind": "head",
+      "display_name": "Skill Forge",
+      "base_id": "app6FcMDoslmuaNux"
+    },
+    "clive-man-context-auditor": {
+      "kind": "minion",
+      "display_name": "Clive's Man Context Auditor",
+      "parent_slug": "clive-man"
+    },
+    "clive-man-ambient-capture": {
+      "kind": "minion",
+      "display_name": "Clive's Man Ambient Capture",
+      "parent_slug": "clive-man"
+    },
+    "clive-man-challenger": {
+      "kind": "minion",
+      "display_name": "Clive's Man Challenger",
+      "parent_slug": "clive-man"
+    },
+    "clive-man-context-challenger": {
+      "kind": "minion",
+      "display_name": "Clive's Man Context Challenger",
+      "parent_slug": "clive-man"
+    },
+    "clive-man-context-executor": {
+      "kind": "minion",
+      "display_name": "Clive's Man Context Executor",
+      "parent_slug": "clive-man"
+    },
+    "clive-man-executor": {
+      "kind": "minion",
+      "display_name": "Clive's Man Executor",
+      "parent_slug": "clive-man"
+    },
+    "clive-man-proposer": {
+      "kind": "minion",
+      "display_name": "Clive's Man Proposer",
+      "parent_slug": "clive-man"
+    },
+    "doc-workshop-challenger": {
+      "kind": "minion",
+      "display_name": "Doc Workshop Challenger",
+      "parent_slug": "doc"
+    },
+    "doc-workshop-executor": {
+      "kind": "minion",
+      "display_name": "Doc Workshop Executor",
+      "parent_slug": "doc"
+    },
+    "ruth-build-challenger": {
+      "kind": "minion",
+      "display_name": "Ruth Build Challenger",
+      "parent_slug": "ruth-hadley"
+    },
+    "ruth-build-executor": {
+      "kind": "minion",
+      "display_name": "Ruth Build Executor",
+      "parent_slug": "ruth-hadley"
+    },
+    "ruth-maintenance-challenger": {
+      "kind": "minion",
+      "display_name": "Ruth Maintenance Challenger",
+      "parent_slug": "ruth-hadley"
+    },
+    "ruth-maintenance-executor": {
+      "kind": "minion",
+      "display_name": "Ruth Maintenance Executor",
+      "parent_slug": "ruth-hadley"
+    }
+  }
+}
