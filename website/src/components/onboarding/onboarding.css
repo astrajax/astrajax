@@ -26,6 +26,32 @@
   max-width: 100%;
   color: var(--book-ink);
   font-family: Georgia, "Palatino Linotype", "Book Antiqua", Palatino, serif;
+  /* Printed-ink surface tune (choice-step read as flat vs brass dockets).
+     Neutral --ink-*-shadow presets ARE applied on h1/lede — computed and
+     correct — but at ~2rem display size on Pale Cream they stay sub-pixel
+     and vanish next to engraved frames. The Court -warm presets (same Ink
+     #23271B, three-layer grammar) are still shy here, so this surface
+     strengthens within that grammar only: halo + offset press + soft ghost.
+     No blend modes, filters, or distressed text images.
+     Taste finish: Kathryn / Tara-Lee. */
+  --ink-body-shadow:
+    0 0 0.7px rgba(35, 39, 27, 0.42),
+    0.45px 0.45px 0 rgba(35, 39, 27, 0.18),
+    0 0.75px 1.1px rgba(35, 39, 27, 0.1);
+  --ink-display-shadow:
+    0 0 1px rgba(35, 39, 27, 0.55),
+    0.6px 0.6px 0 rgba(35, 39, 27, 0.28),
+    0 1.1px 1.6px rgba(35, 39, 27, 0.14);
+  --ink-label-shadow:
+    0 0 0.45px rgba(35, 39, 27, 0.32),
+    0.3px 0.3px 0 rgba(35, 39, 27, 0.14);
+}
+
+/* Fibre veil is painted on .study-stage--book::before/::after, so the
+   opacity knob must live on the stage — not the flow. While onboarding is
+   mounted, raise the grain half of printed-ink over the lesson copy. */
+.study-stage--book:has(.onboarding) {
+  --ink-fibre-opacity: 0.06;
 }
 
 .study-stage--book .onboarding__eyebrow {
