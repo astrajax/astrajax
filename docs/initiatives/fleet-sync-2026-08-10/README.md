@@ -89,3 +89,19 @@ Created **Skills** table on Halvard base `appr3I2G6Ix1BLAwM`, field template cop
 | physician-rubric-craft | `recTvYVkbDOUgI2ZZ` |
 | Household Activity Logging | `recDCMhJXgIQ7CVho` |
 | physician-activity-reviewer | `rec7KbgS8KzpMAZ1K` |
+
+## Exception — Kathryn Goodchild 2026-08-11
+
+Matthew explicitly authorised a **Kathryn-only** setup outside the freeze:
+
+| Item | Value |
+|------|-------|
+| Agent base | `appzvesAIpPxjfAMF` — **AstraJax Agent — Kathryn Goodchild** |
+| Persona Config | `recZkhAbib7fQBL8Z` — `Operational v1.0 (HyperAgent sync)` |
+| Household Members | `recd78kNWGdtLVY2f` — Agent Base ID + System Prompt filled |
+| Skills written | 18 rows in agent base Skills table |
+| Reversal log | `kathryn-goodchild-reversal-2026-08-11.json` |
+
+Canonical export: `~/Downloads/agent-kathryn-goodchild.json` (`exportedAt` 2026-08-08). Prompt mirrored byte-for-byte (9060 chars) to Persona Config and Household Register.
+
+**Keep Kathryn out of `fleet_sync_roster.json`.** The in-repo bundle (`hyperagent/exports/agents/agent-kathryn-goodchild-v0_1.json`, `exportedAt` 2026-08-02, shorter prompt, 1 skill) is older than the live Airtable wiring. Registering her slug/base for fleet sync would let an approved `--apply` from the default input directory overwrite Persona Config and Household Register with that stale export. Base IDs stay in `website/src/lib/brains/airtable-ids.ts` and this exception log — not in the sync roster — until the repo export matches the canonical Downloads file.
