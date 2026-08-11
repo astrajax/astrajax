@@ -19,6 +19,12 @@ const links: NavLink[] = [
     label: "Brain review",
     hint: "Score agent answers and flag stale context",
   },
+  {
+    href: "/enter/sign-in",
+    label: "Enter",
+    featured: true,
+    hint: "Operator sign-in",
+  },
 ];
 
 const featuredLinks = links.filter((link) => link.featured);

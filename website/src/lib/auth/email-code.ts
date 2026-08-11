@@ -22,9 +22,14 @@ function secret(): string {
   return value;
 }
 
+/** Digits only — strips spaces/dashes from pasted or autofilled codes. */
+export function normaliseSignInCode(code: string): string {
+  return code.replace(/\D/g, "");
+}
+
 function sign(email: string, code: string, expiresAt: number): string {
   return createHmac("sha256", secret())
-    .update(`${email.trim().toLowerCase()}:${code}:${expiresAt}`)
+    .update(`${email.trim().toLowerCase()}:${normaliseSignInCode(code)}:${expiresAt}`)
     .digest("hex");
 }
 
@@ -43,11 +48,17 @@ export function verifyEmailCode(input: {
   proof: string;
   now?: number;
 }): boolean {
-  const [expiryRaw, mac] = input.proof.split(".");
-  const expiresAt = Number.parseInt(expiryRaw ?? "", 10);
+  const code = normaliseSignInCode(input.code);
+  if (code.length !== 6) return false;
+  // Proof is `${expiresAt}.${mac}` — split on the first dot only.
+  const separator = input.proof.indexOf(".");
+  if (separator <= 0) return false;
+  const expiryRaw = input.proof.slice(0, separator);
+  const mac = input.proof.slice(separator + 1);
+  const expiresAt = Number.parseInt(expiryRaw, 10);
   if (!mac || !Number.isFinite(expiresAt)) return false;
   if ((input.now ?? Date.now()) > expiresAt) return false;
-  const expected = sign(input.email, input.code.trim(), expiresAt);
+  const expected = sign(input.email, code, expiresAt);
   const a = Buffer.from(mac, "utf8");
   const b = Buffer.from(expected, "utf8");
   return a.length === b.length && timingSafeEqual(a, b);

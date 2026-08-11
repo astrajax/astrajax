@@ -16,6 +16,12 @@ describe("email one-time codes", () => {
     expect(verifyEmailCode({ email, code, proof })).toBe(true);
   });
 
+  it("verifies a code pasted with spaces", () => {
+    const { code, proof } = issueEmailCode(email);
+    const spaced = `${code.slice(0, 3)} ${code.slice(3)}`;
+    expect(verifyEmailCode({ email, code: spaced, proof })).toBe(true);
+  });
+
   it("rejects a wrong code", () => {
     const { code, proof } = issueEmailCode(email);
     const wrong = code === "000000" ? "000001" : "000000";

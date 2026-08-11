@@ -31,7 +31,8 @@ describe("airtableOperatorStore field mapping", () => {
                 [OPERATOR_STATE_FIELDS.JOURNEY_CHAPTER]: 1,
                 [OPERATOR_STATE_FIELDS.JOURNEY_STEP]: "welcome-book",
                 [OPERATOR_STATE_FIELDS.COMPLETED_CHAPTERS]: "[1]",
-                [OPERATOR_STATE_FIELDS.OWNED_BRAIN_SLUGS]: '["astrajax-chapter-1"]',
+                [OPERATOR_STATE_FIELDS.OWNED_BRAIN_SLUGS]:
+                  '["astrajax-chapter-1"]',
                 [OPERATOR_STATE_FIELDS.CONFIGURED_FUNCTIONS]: '["sales"]',
                 [OPERATOR_STATE_FIELDS.INTRODUCED_MEMBERS]: '["clive"]',
                 [OPERATOR_STATE_FIELDS.LAST_SAFE_DESTINATION]: "/command",
@@ -140,9 +141,11 @@ describe("airtableOperatorStore field mapping", () => {
     const body = JSON.parse(String(createCall?.[1]?.body)) as {
       fields: Record<string, unknown>;
     };
-    expect(body.fields[OPERATOR_STATE_FIELDS.EMAIL]).toBe("matthew@example.com");
-    expect(String(mockFetch.mock.calls[0]?.[0])).toContain(
-      "matthew%40example.com",
+    expect(body.fields[OPERATOR_STATE_FIELDS.EMAIL]).toBe(
+      "matthew@example.com",
     );
+    const lookupUrl = String(mockFetch.mock.calls[0]?.[0]);
+    expect(lookupUrl).toContain("matthew%40example.com");
+    expect(decodeURIComponent(lookupUrl)).toContain("LOWER({Email})");
   });
 });
