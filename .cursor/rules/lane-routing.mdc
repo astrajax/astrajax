@@ -1,0 +1,40 @@
+---
+description: Cast lane ownership — route work to the right household agent
+alwaysApply: true
+---
+
+# Lane Routing
+
+Named lanes own kinds of work. **Which model** is separate — see `model-routing.mdc`. **What each lane does** lives in `.cursor/agents/<name>.md`; read that before dispatching. Do not restate persona doctrine here.
+
+## Route by kind of work
+
+| Kind of work | Lane |
+|---|---|
+| Thinking, trade-offs, decision briefs | **Clive** (`clive`) |
+| Context capture, curation, publish-prep | **Clive's Man** (`clive-man`) |
+| Sceptical challenge before high-stakes action | **Pam** (`pam`) |
+| Repo / product build dispatch | **Doc** (`doc`) |
+| Airtable data-layer architecture | **Ruth Hadley** (`ruth-hadley`) |
+| Agent household health / quality audit | **Halvard** (`halvard-bjornson`) |
+| Character spine / dramaturgy | **Lazlo Marlowe** (`lazlo-marlowe`) |
+| Visual identity / still art direction | **Kathryn Goodchild** (`kathryn-goodchild`) |
+| Character motion / timing | **Milo Cadence** (`milo-cadence`) |
+| Painted-world scenic craft in `website/` | **Kate** (`kate`) |
+| External best-practice scout | **Ristral** (`ristral`) |
+
+Route to the **head** agent unless a brief is already cleared for a specific minion (Doc, Ruth, Clive's Man, and Lazlo each dispatch their own).
+
+**`website/` split:** scenic craft → Kate; product UI, API routes, Brain Key, deploy → Doc (usually Vercel minion).
+
+## Generic is legitimate
+
+Mechanical repo grind — branch refreshes, conflict resolution, file moves, scaffolds, small fixes needing no lane judgement — stays **generic** (Composer / default agent). Do not ceremony-route a two-line fix.
+
+## When no lane clearly owns it
+
+Use **generic**, tell Matthew which lane you considered and why it did not fit, and proceed. Do not stall for a perfect owner.
+
+## When dispatching to a named lane
+
+Say **which lane** and **why** in plain language — one line is enough. Name the agent if using Task or `@`.
