@@ -1520,10 +1520,10 @@ body {
    * Full-perimeter papery deckle matte. Dissolves into parchment on ALL four
    * sides (including the bottom). Never a hard crop / ruler line through the
    * figure; never soft radial-gradient blur alone. Same mask wraps still + MP4.
-   * Asset (public Blob — never git): folio/masks/clive-folio-deckle-v8.png
+   * Asset (public Blob — never git): folio/masks/clive-folio-deckle-v9-4k.png
    * (white=show, black=hide; luminance). Native aspect 1024/755.
    */
-  --clive-feather-mask: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v8.png");
+  --clive-feather-mask: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v9-4k.png");
   -webkit-mask-image: var(--clive-feather-mask);
   mask-image: var(--clive-feather-mask);
   -webkit-mask-source-type: luminance;
@@ -7130,9 +7130,11 @@ textarea.clive-chat__input {
   /* Teaching state: Clive's portrait anchor on the LEFT page.
      Interaction state re-points these vars below; positions are
      transition-free — the state change rides the page-turn beat. */
-  --folio-clive-top: 12cqh;
-  --folio-clive-left: 6.5cqw;
-  --folio-clive-width: 43cqw; /* SC1 delta: +~14% teaching presence, teacher not cameo */
+  /* Teaching scale: midpoint between small cameo (~40.5–43cqw) and oversized
+     fill (54cqw). Aspect 1024/755; deckle stack unchanged. */
+  --folio-clive-top: 6.75cqh;
+  --folio-clive-left: 3cqw;
+  --folio-clive-width: 48cqw;
   --folio-gold: rgba(203, 160, 86, 0.92);
   --folio-gold-deep: rgba(154, 118, 52, 0.85);
   --folio-gold-light: rgba(232, 192, 122, 0.55);
@@ -7158,7 +7160,7 @@ textarea.clive-chat__input {
   top: var(--folio-clive-top);
   width: var(--folio-clive-width);
   max-width: calc(
-    var(--book-left-page-end) - var(--folio-clive-left) - var(--book-page-gutter)
+    var(--book-left-page-end) - var(--folio-clive-left) + 2cqw
   );
 }
 
@@ -7210,9 +7212,9 @@ textarea.clive-chat__input {
 
 @media (max-width: 767px) {
   .study-stage--book {
-    --folio-clive-top: 12cqh;
-    --folio-clive-left: 5cqw;
-    --folio-clive-width: 46cqw;
+    --folio-clive-top: 6.5cqh;
+    --folio-clive-left: 2.5cqw;
+    --folio-clive-width: 51cqw;
   }
 
   .study-stage--book[data-folio-state="interaction"] {
@@ -7944,8 +7946,8 @@ textarea.clive-chat__input {
    Below: plate + ink siblings on the Clive spot (see CliveStudyStage).
    House assets on the public website Blob store (never git — Vercel builds
    from git, so local /masks/ PNGs 404 in every deploy):
-     folio/masks/clive-folio-deckle-v8.png      — luminance matte (white=show)
-     folio/masks/clive-folio-deckle-ink-v8.png  — charcoal rim OUTSIDE the clip
+     folio/masks/clive-folio-deckle-v9-4k.png      — luminance matte (white=show)
+     folio/masks/clive-folio-deckle-ink-v9-4k.png  — charcoal rim OUTSIDE the clip
    Same matte for teaching (left page) and interaction (right top-third)
    so still + MP4 share one edge. Nested masks on feather / poster / live
    layer are neutralised so they inherit the plate clip alone. Pale
@@ -7979,8 +7981,8 @@ textarea.clive-chat__input {
    * in Safari and looked like a hard rectangle / "not working".
    * Cross-origin Blob URL — public store; mask-mode:luminance still applies.
    */
-  -webkit-mask-image: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v8.png");
-  mask-image: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v8.png");
+  -webkit-mask-image: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v9-4k.png");
+  mask-image: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-v9-4k.png");
   -webkit-mask-source-type: luminance;
   mask-mode: luminance;
   -webkit-mask-size: 100% 100%;
@@ -7998,7 +8000,7 @@ textarea.clive-chat__input {
   position: absolute;
   inset: 0;
   z-index: 4;
-  background: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-ink-v8.png") center / 100% 100% no-repeat;
+  background: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/folio/masks/clive-folio-deckle-ink-v9-4k.png") center / 100% 100% no-repeat;
 }
 
 /* Neutralise every nested mask inside the folio Clive stack so the plate

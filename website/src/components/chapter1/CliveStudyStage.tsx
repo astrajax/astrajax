@@ -142,10 +142,13 @@ const CliveStudyStageInner = forwardRef<CliveVideoStageHandle, CliveStudyStagePr
 
         <div className="study-stage__clive-spot" aria-hidden>
           {/*
-            MP4s stay primary. REF supplies the border only:
-            - .study-stage__clive-plate clips video/poster with the jagged matte
-            - .study-stage__clive-ink paints charcoal OUTSIDE that clip so the
-              fringe can sit on parchment (masking the spot itself ate the rim)
+            MP4s stay primary. REF supplies the border only (CSS Blob URLs):
+            - .study-stage__clive-plate → clive-folio-deckle-v9-4k.png
+              (luminance matte, aspect 1024/755)
+            - .study-stage__clive-ink → clive-folio-deckle-ink-v9-4k.png
+              OUTSIDE that clip so the fringe sits on parchment
+            Teaching left-page approved on v9-4k. Interaction currently
+            shares this stack — swap when its matte is ready.
           */}
           <div className="study-stage__clive-plate">
             <div className="study-stage__clive-feather clive-portrait-feather">

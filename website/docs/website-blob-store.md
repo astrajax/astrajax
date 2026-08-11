@@ -11,7 +11,7 @@ Public Vercel Blob store for Living Folio masters and furniture plates (dockets,
 | Public host | `https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com` |
 | Furniture folder | `docket-plate-blob/` |
 | Folio masters | `folio/` |
-| Clive plate mattes | `folio/masks/` (`clive-folio-deckle-v8.png`, `clive-folio-deckle-ink-v8.png`) |
+| Clive plate mattes | `folio/masks/` (`clive-folio-deckle-v9-4k.png`, `clive-folio-deckle-ink-v9-4k.png` — teaching approved; interaction TBD) |
 | Hal (Bjornson) art | `halvard-bjornson/` (mirrors `public/agent-cast/halvard-bjornson/`) |
 
 **Do not confuse with** `BLOB_STORE_ID` / the private platform-activity lease store (`store_CBBOCfsnLULjDOmx`). That one is leases/outbox only.

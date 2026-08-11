@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.public.blob.vercel-storage.com",
       },
-      // Explicit Living Folio public store (canonical master host).
+      // Explicit Living Folio public store (canonical master + matte host).
       {
         protocol: "https",
         hostname: "cvu4l5kwtlocutgd.public.blob.vercel-storage.com",
