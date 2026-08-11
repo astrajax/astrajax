@@ -321,12 +321,20 @@ def pick_persona_config_row(
         if normalize_text((row.get("fields") or {}).get("Config Name")) == config_name
         and normalize_text((row.get("fields") or {}).get("Status")) in ACTIVE_STATUSES
     ]
-    approved = [row for row in matches if (row.get("fields") or {}).get("Status") == "Approved"]
+    approved = [
+        row
+        for row in matches
+        if normalize_text((row.get("fields") or {}).get("Status")) == "Approved"
+    ]
     if len(approved) > 1:
         return None, f"multiple Approved Persona Config rows for {config_name!r} — Matthew must clean manually"
     if approved:
         return approved[0], None
-    pending = [row for row in matches if (row.get("fields") or {}).get("Status") == "Pending"]
+    pending = [
+        row
+        for row in matches
+        if normalize_text((row.get("fields") or {}).get("Status")) == "Pending"
+    ]
     if len(pending) > 1:
         return None, f"multiple Pending Persona Config rows for {config_name!r} — Matthew must clean manually"
     if pending:
@@ -372,6 +380,11 @@ def plan_household_member(
         "Purpose": bundle.description,
         "Agent Base ID": entry.base_id or "",
     }
+    if len(rows) > 1:
+        plan.errors.append(
+            f"{entry.slug}: multiple Household Members rows for Agent Slug {entry.slug!r} — Matthew must clean manually"
+        )
+        return
     if rows:
         row = rows[0]
         fields = row.get("fields") or {}
@@ -422,6 +435,11 @@ def plan_household_minion(
     )
     purpose = bundle.system_prompt or bundle.description
     desired = {"Agent Name": bundle.name, "Purpose": purpose}
+    if len(rows) > 1:
+        plan.errors.append(
+            f"{entry.slug}: multiple Household Minions rows for Agent Slug {entry.slug!r} — Matthew must clean manually"
+        )
+        return
     if rows:
         row = rows[0]
         fields = row.get("fields") or {}
@@ -473,13 +491,11 @@ def plan_persona_config(
     records = client.list_records(
         entry.base_id,
         table_id,
-        fields=["Config Name", "Operational System Prompt", "Rules Section", "Output Format", "Status"],
+        fields=["Config Name", "Operational System Prompt", "Status"],
     )
     desired = {
         "Config Name": config_name,
         "Operational System Prompt": bundle.system_prompt,
-        "Rules Section": "",
-        "Output Format": "",
         "Status": "Pending",
     }
     existing, error = pick_persona_config_row(records, config_name)
@@ -488,7 +504,7 @@ def plan_persona_config(
         return
     if existing:
         fields = existing.get("fields") or {}
-        compare_keys = ["Operational System Prompt", "Rules Section", "Output Format"]
+        compare_keys = ["Operational System Prompt"]
         if all(normalize_text(fields.get(key)) == normalize_text(desired.get(key)) for key in compare_keys):
             plan.add(
                 PlannedAction(
@@ -661,7 +677,7 @@ def apply_plan(
     roster_raw: dict[str, Any],
     agents: dict[str, AgentEntry],
     plan: SyncPlan,
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], Path]:
     register_base = roster_raw["household_register_base_id"]
     reversal: dict[str, Any] = {
         "run_at": datetime.now(timezone.utc).isoformat(),
@@ -670,6 +686,7 @@ def apply_plan(
         "skipped": [],
         "refused": [],
         "errors": list(plan.errors),
+        "aborted": False,
     }
 
     table_ids: dict[tuple[str, str], str] = {}
@@ -683,59 +700,73 @@ def apply_plan(
             table_ids[key] = resolved
         return table_ids[key]
 
-    for item in plan.actions:
-        if item.action == "skip":
-            reversal["skipped"].append(
-                {"target": item.target, "slug": item.slug, "record_id": item.record_id, "reason": item.reason}
-            )
-            continue
-        if item.action == "refuse":
-            reversal["refused"].append({"target": item.target, "slug": item.slug, "reason": item.reason})
-            continue
-
-        if item.target == "household_member":
-            table = tid(register_base, "Household Members")
-            base = register_base
-        elif item.target == "household_minion":
-            table = tid(register_base, "Household Minions")
-            base = register_base
-        elif item.target == "register_skill":
-            table = tid(register_base, "Skills")
-            base = register_base
-        elif item.target == "persona_config":
-            entry = agents[item.slug]
-            base = entry.base_id or fail(f"{item.slug}: missing base_id")
-            table = tid(base, "Persona Config")
-        elif item.target == "agent_skill":
-            entry = agents[item.slug]
-            base = entry.base_id or fail(f"{item.slug}: missing base_id")
-            table = tid(base, "Skills")
-        else:
-            fail(f"Unknown target {item.target}")
-
-        if item.action == "create":
-            created = client.create_records(base, table, [item.fields])
-            for row in created:
-                reversal["created"].append(
-                    {"target": item.target, "slug": item.slug, "base_id": base, "record_id": row["id"], "fields": item.fields}
+    completed = False
+    try:
+        for item in plan.actions:
+            if item.action == "skip":
+                reversal["skipped"].append(
+                    {"target": item.target, "slug": item.slug, "record_id": item.record_id, "reason": item.reason}
                 )
-        elif item.action == "update":
-            if not item.record_id:
-                fail(f"Update missing record_id for {item.slug}/{item.target}")
-            client.update_records(base, table, [(item.record_id, item.fields)])
-            reversal["updated"].append(
-                {
-                    "target": item.target,
-                    "slug": item.slug,
-                    "base_id": base,
-                    "record_id": item.record_id,
-                    "fields": item.fields,
-                }
-            )
-        else:
-            fail(f"Unknown action {item.action}")
+                continue
+            if item.action == "refuse":
+                reversal["refused"].append({"target": item.target, "slug": item.slug, "reason": item.reason})
+                continue
 
-    return reversal
+            if item.target == "household_member":
+                table = tid(register_base, "Household Members")
+                base = register_base
+            elif item.target == "household_minion":
+                table = tid(register_base, "Household Minions")
+                base = register_base
+            elif item.target == "register_skill":
+                table = tid(register_base, "Skills")
+                base = register_base
+            elif item.target == "persona_config":
+                entry = agents[item.slug]
+                base = entry.base_id or fail(f"{item.slug}: missing base_id")
+                table = tid(base, "Persona Config")
+            elif item.target == "agent_skill":
+                entry = agents[item.slug]
+                base = entry.base_id or fail(f"{item.slug}: missing base_id")
+                table = tid(base, "Skills")
+            else:
+                fail(f"Unknown target {item.target}")
+
+            if item.action == "create":
+                created = client.create_records(base, table, [item.fields])
+                for row in created:
+                    reversal["created"].append(
+                        {
+                            "target": item.target,
+                            "slug": item.slug,
+                            "base_id": base,
+                            "record_id": row["id"],
+                            "fields": item.fields,
+                        }
+                    )
+            elif item.action == "update":
+                if not item.record_id:
+                    fail(f"Update missing record_id for {item.slug}/{item.target}")
+                client.update_records(base, table, [(item.record_id, item.fields)])
+                reversal["updated"].append(
+                    {
+                        "target": item.target,
+                        "slug": item.slug,
+                        "base_id": base,
+                        "record_id": item.record_id,
+                        "fields": item.fields,
+                    }
+                )
+            else:
+                fail(f"Unknown action {item.action}")
+        completed = True
+    finally:
+        # fail() raises SystemExit; finally still runs so partial applies leave a recovery log.
+        if not completed:
+            reversal["aborted"] = True
+        log_path = write_reversal_log(reversal)
+
+    return reversal, log_path
 
 
 def write_reversal_log(payload: dict[str, Any]) -> Path:
@@ -831,8 +862,7 @@ def main() -> None:
         print(json.dumps({"success": True, "mode": "dry-run", "exports_matched": len(exports)}, indent=2))
         return
 
-    reversal = apply_plan(client, roster_raw, agents, plan)
-    log_path = write_reversal_log(reversal)
+    reversal, log_path = apply_plan(client, roster_raw, agents, plan)
     print(json.dumps({"success": True, "mode": "apply", "reversal_log": str(log_path.relative_to(REPO_ROOT))}, indent=2))
 
 
