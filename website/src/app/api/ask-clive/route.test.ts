@@ -38,9 +38,11 @@ vi.mock("@/lib/platform-activity/server", () => ({
 }));
 
 import { streamText } from "ai";
+import { handleInteractionLog } from "@/lib/brains/handlers/interaction-log";
 import { POST } from "./route";
 
 const streamTextMock = vi.mocked(streamText);
+const handleInteractionLogMock = vi.mocked(handleInteractionLog);
 
 /** A seeded line from chapter1-fallback — must never appear on a failed call. */
 const SEEDED_MARKER = "context stays human";
@@ -85,8 +87,24 @@ function workingResult(chunks: string[]) {
   } as unknown as ReturnType<typeof streamText>;
 }
 
+/** Yields one real chunk, then fails — simulates a mid-stream model error. */
+function midStreamFailingResult(firstChunk: string, message: string) {
+  return {
+    textStream: {
+      async *[Symbol.asyncIterator]() {
+        yield firstChunk;
+        throw new Error(message);
+      },
+    },
+    get text() {
+      return Promise.reject(new Error(message));
+    },
+  } as unknown as ReturnType<typeof streamText>;
+}
+
 beforeEach(() => {
   streamTextMock.mockReset();
+  handleInteractionLogMock.mockClear();
   process.env.ANTHROPIC_API_KEY = "sk-test-key";
 });
 
@@ -148,6 +166,35 @@ describe("Ask Clive honesty on model failure (key configured)", () => {
     const response = await POST(askRequest({ message: "Hello", stream: true }));
 
     expect(response.status).toBe(503);
+  });
+
+  it("treats a whitespace-only model stream as a failure", async () => {
+    streamTextMock.mockReturnValue(workingResult(["   ", "\n\t", "  "]));
+
+    const response = await POST(askRequest({ message: "Hello", stream: true }));
+
+    expect(response.status).toBe(503);
+    expect(response.headers.get("X-Clive-Model-Error")).toBe("1");
+    const payload = (await response.json()) as { error?: string };
+    expect(payload.error).toMatch(/can't reach my reasoning/i);
+  });
+
+  it("logs mid-stream failures as model-error rather than closing cleanly", async () => {
+    streamTextMock.mockReturnValue(
+      midStreamFailingResult("Splendid so far.", "socket hang up"),
+    );
+
+    const response = await POST(askRequest({ message: "Hello", stream: true }));
+
+    // First chunk already committed the response; the body must still abort.
+    expect(response.status).toBe(200);
+    await expect(response.text()).rejects.toThrow(/socket hang up/i);
+
+    expect(handleInteractionLogMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assistantReply: expect.stringMatching(/can't reach my reasoning/i),
+      }),
+    );
   });
 
   it("still streams a genuine reply when the model succeeds", async () => {

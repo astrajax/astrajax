@@ -277,22 +277,29 @@ export async function POST(request: Request) {
     });
 
     if (stream) {
-      // Pull the first chunk here, inside the try, before committing to a 200.
-      // streamText() does not reject on connect-time failures (bad key, bad
-      // model id, rate limit) — those surface when the stream is consumed. If
-      // we handed the raw stream straight to the client, a failed call would
-      // arrive as an empty 200 the visitor cannot tell from a real reply.
+      // Pull the first non-empty chunk here, inside the try, before committing
+      // to a 200. streamText() does not reject on connect-time failures (bad
+      // key, bad model id, rate limit) — those surface when the stream is
+      // consumed. Whitespace-only output is treated like an empty stream so it
+      // matches the non-streaming trim() guard below. If we handed the raw
+      // stream straight to the client, a failed call would arrive as an empty
+      // 200 the visitor cannot tell from a real reply.
       const iterator = result.textStream[Symbol.asyncIterator]();
-      const first = await iterator.next();
-      if (first.done) {
-        throw new Error("Clive returned an empty response.");
+      let firstValue = "";
+      for (;;) {
+        const first = await iterator.next();
+        if (first.done) {
+          throw new Error("Clive returned an empty response.");
+        }
+        firstValue = typeof first.value === "string" ? first.value : "";
+        if (firstValue.trim()) break;
       }
 
       const encoder = new TextEncoder();
       const body = new ReadableStream<Uint8Array>({
         async start(controller) {
           try {
-            controller.enqueue(encoder.encode(first.value));
+            controller.enqueue(encoder.encode(firstValue));
             for (;;) {
               const next = await iterator.next();
               if (next.done) break;
@@ -300,9 +307,20 @@ export async function POST(request: Request) {
             }
             controller.close();
           } catch (streamError) {
-            // Break the response body rather than closing it cleanly, so a
-            // mid-stream failure reaches the client as an error instead of a
-            // truncated answer that reads as complete.
+            // Headers are already 200, so this cannot re-enter the route catch.
+            // Still record the failure with the same model-error source, then
+            // break the body so the client does not treat a truncation as a
+            // complete answer.
+            const notice = getModelFailureNotice(persona);
+            await logFallbackExchange({
+              sessionId,
+              platformHandle,
+              turnId,
+              persona,
+              message,
+              reply: notice,
+              source: "model-error",
+            });
             controller.error(streamError);
           }
         },

@@ -6,6 +6,7 @@ import { StudyAssistantText } from "@/components/chapter1/StudyAssistantText";
 import { StudyMarkdown } from "@/components/chapter1/StudyMarkdown";
 import { useFolioStage } from "@/components/chapter1/FolioStageContext";
 import { usePlatformSession } from "@/components/platform-session/PlatformSessionProvider";
+import { getModelFailureNotice } from "@/lib/clive/model-failure";
 import { useCliveVoice } from "@/lib/clive/use-clive-voice";
 import type { ChatMessage, ClivePersona } from "@/lib/clive/types";
 import type { PlatformTurnContext } from "@/lib/platform-activity/types";
@@ -349,7 +350,19 @@ export function CliveChatSurface({
             throw new Error(data.error ?? "Clive could not answer right now.");
           }
 
-          reply = await readTextStream(response, setStreamingText);
+          // A 200 can still fail after headers: mid-stream abort, or a body
+          // that trims to nothing. Both must use the same honest notice as a
+          // 503 — never a blank assistant turn or the generic ink line alone.
+          try {
+            reply = await readTextStream(response, setStreamingText);
+            if (!reply) {
+              throw new Error("Clive returned an empty response.");
+            }
+          } catch {
+            const notice = getModelFailureNotice(persona);
+            setErrorNotice(notice);
+            throw new Error(notice);
+          }
           skipNextAnimationRef.current = true;
         }
 
