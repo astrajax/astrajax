@@ -87,6 +87,31 @@ Doc (usually Vercel minion).
 | Painted-world scenic craft in `website/` — rooms, plaques, loops, hotspots | **Kate** (`kate`) |
 | External best-practice scout, "what's the current thinking on" | **Ristral** (`ristral`) |
 
+## Branches and parallel work
+
+Lane owns the PR; the **job** names the branch. Do not keep one standing branch per
+agent and reuse it.
+
+**Name:** `<lane>/<short-job>` — e.g. `doc/ask-clive-honesty`,
+`kate/folio-source-pack-upload`, `ruth/aie-demo-retire`,
+`clive-man/persona-config-resolve`.
+
+**Rules:**
+
+1. **One job → one branch → one PR → merge → stop.** Next job starts from fresh `main`.
+2. The **owning lane** (who would be blamed if it’s wrong) opens and owns that PR.
+3. Helpers may commit on the owner’s branch for the same job; they do **not** open a
+   second long-lived branch for it. Split into two PRs only when the work truly separates.
+4. Two jobs at once → two `<lane>/<job>` branches, ideally two worktrees. Never stack
+   unrelated work onto a waiting or finished feature branch.
+5. Before merge, refresh against `main` if other PRs landed. After merge, abandon the
+   branch — do not continue living on it.
+6. Mechanical grind (`Lane: none`) may use a short generic name (`fix/...`, `chore/...`)
+   when a branch is needed; still one job per PR.
+
+**New-chat brief (when starting work):** Goal · Lane · Branch from latest `main` ·
+What not to touch · Done when.
+
 ## Generic is legitimate
 
 Mechanical repo grind stays **generic** (Composer / default agent). Emit `Lane: none`
