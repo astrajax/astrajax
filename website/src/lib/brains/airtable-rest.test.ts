@@ -3,6 +3,7 @@ import {
   airtableCreate,
   airtableFindOne,
   airtableSelect,
+  escapeAirtableString,
 } from "./airtable-rest";
 
 describe("airtable-rest", () => {
@@ -57,5 +58,11 @@ describe("airtable-rest", () => {
     await expect(
       airtableFindOne("appTest", "tblTest", "patToken", "{ID}='x'"),
     ).rejects.toThrow("Airtable API error 403");
+  });
+
+  it("escapes single quotes for Airtable formula literals", () => {
+    expect(escapeAirtableString("plain")).toBe("plain");
+    expect(escapeAirtableString("o'brien")).toBe("o''brien");
+    expect(escapeAirtableString("a'b'c")).toBe("a''b''c");
   });
 });
