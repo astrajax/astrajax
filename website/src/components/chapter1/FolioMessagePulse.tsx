@@ -12,8 +12,7 @@ import { usePrefersReducedMotion } from "@/components/command-centre/usePortrait
  * register: white-hot core, Buttermilk sheath, soft Terracotta-warmed bloom,
  * two short tendrils, two-strike timing.
  *
- * Geometry (viewBox 1000×625 = 16:9 stage space; preserveAspectRatio
- * xMidYMid slice so stroke proportions stay sane — never rubber-stretch):
+ * Geometry (viewBox 1000×625 stage space = CSS % of the study-stage):
  *   Origin  (450, 548) ≈ 45% × / 87.7% y — right edge of the brass SEND plate
  *           on the left page (page ends ~48.6%; plate anchors bottom-right of
  *           the left-page composer).
@@ -23,6 +22,11 @@ import { usePrefersReducedMotion } from "@/components/command-centre/usePortrait
  *           not the bottom deckle dissolve).
  *   Spine cross passes mid-high (~y 340–380) so the bolt reads across the
  *           leather binding, not skimming the bottom margin.
+ *
+ * Aspect: preserveAspectRatio="none" so path % stays locked to the measured
+ * CSS layout (send plate + Clive spot). Stroke weight stays sane via CSS
+ * `vector-effect: non-scaling-stroke` — thin hairlines do not thicken when
+ * the viewport aspect drifts (Kathryn's rubber-geometry concern).
  *
  * Timing contract (FOLIO_PULSE_TRAVEL_MS):
  *   0–140ms   first strike (fast dash draw)
@@ -82,7 +86,7 @@ export function FolioMessagePulse() {
       <svg
         className="folio-pulse__svg"
         viewBox="0 0 1000 625"
-        preserveAspectRatio="xMidYMid slice"
+        preserveAspectRatio="none"
         focusable="false"
       >
         {/* Soft arrival warmth — under/inside plate reading; softer than deckle */}
