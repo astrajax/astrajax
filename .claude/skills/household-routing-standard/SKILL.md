@@ -182,7 +182,7 @@ One job per invocation. Two jobs → two briefs.
 If no route clearly owns the work, use **generic** (Composer / default agent), tell Matthew
 which lane you considered and why it did not fit, and **proceed.** Ambiguity must not stall
 work. Never force the nearest fit, never invent a lane, never quietly do another lane's job
-yourself. Lane table: `.cursor/rules/lane-routing.mdc`.
+yourself. Lane table: `.cursor/rules/agent-dispatch.mdc`.
 
 ## What routing never launders
 
