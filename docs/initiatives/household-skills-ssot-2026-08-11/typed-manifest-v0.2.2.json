@@ -81,7 +81,7 @@
     "tableName": "Skills"
   },
   "gates": {
-    "proposalHash": "sha256-canonical-excluding-gates.proposalHash:f940fa18920a54fec570ce39008be2b577a37829b1f4e8992b930b2497cbb838",
+    "proposalHash": "sha256-canonical-excluding-gates.proposalHash:9a9a1fb51675fb2ac0e0edc510d1d0e5895d04faa5bd159469dc9b673b73848b",
     "proposalHashRecipe": "sha256-canonical-excluding-gates.proposalHash",
     "expandedPenRequired": true,
     "labels": [
