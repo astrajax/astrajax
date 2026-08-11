@@ -305,6 +305,7 @@ export interface AgentBaseTables {
   personaConfig: string;
   personaMemories: string;
   minions: string;
+  skills?: string;
 }
 
 export const CLIVE_AGENT_BASE_ID = "appBd9tudgvOSrhSX";
@@ -543,12 +544,30 @@ export const LAZLO_PERSONA_CONFIG = {
   operationalV02: "recHipJdrgeh0PAof",
 } as const;
 
+export const KATHRYN_GOODCHILD_AGENT_BASE_ID = "appzvesAIpPxjfAMF";
+export const KATHRYN_GOODCHILD_AGENT_TABLES = {
+  narrativeArch: "tbloHH10U7tEbqB2B",
+  personaConfig: "tblHBGlvuPRa3pVd3",
+  personaMemories: "tblgWBCKcVOakBrdy",
+  minions: "tblTGsjYnUMqZgEdH",
+  skills: "tblzFMR5N9qB7hqPG",
+} as const satisfies AgentBaseTables;
+
+/** Kathryn Goodchild Persona Config — Approved Operational v1.0 (HyperAgent sync, 11 Aug 2026). */
+export const KATHRYN_GOODCHILD_PERSONA_CONFIG = {
+  operationalV10HyperAgentSync: "recZkhAbib7fQBL8Z",
+} as const;
+
 export const CHAPTER1_AGENT_BASES = {
   clive: { baseId: CLIVE_AGENT_BASE_ID, tables: CLIVE_AGENT_TABLES },
   pam: { baseId: PAM_AGENT_BASE_ID, tables: PAM_AGENT_TABLES },
   doc: { baseId: DOC_AGENT_BASE_ID, tables: DOC_AGENT_TABLES },
   "clive-man": { baseId: CLIVE_MAN_AGENT_BASE_ID, tables: CLIVE_MAN_AGENT_TABLES },
   "lazlo-marlowe": { baseId: LAZLO_AGENT_BASE_ID, tables: LAZLO_AGENT_TABLES },
+  "kathryn-goodchild": {
+    baseId: KATHRYN_GOODCHILD_AGENT_BASE_ID,
+    tables: KATHRYN_GOODCHILD_AGENT_TABLES,
+  },
 } as const;
 
 export type Chapter1AgentSlug = keyof typeof CHAPTER1_AGENT_BASES;

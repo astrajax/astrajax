@@ -2,7 +2,7 @@
 
 **Status:** V0.1 source-of-truth draft  
 **Owner:** Matthew  
-**Last updated:** 29 June 2026 (command centre product UI)
+**Last updated:** 11 August 2026 (Kathryn Goodchild agent base)
 **Purpose:** Define the architecture for the AstraJax system: what each agent does, where context lives, where humans approve, and how agent runtimes fit in.
 
 ---
@@ -119,6 +119,7 @@ Product messaging for this pattern lives in `docs/business/positioning.md` §4. 
 | Doc           | `appI5tpwsKNwjfrqR` | `Operational v0.2` — `rec0KNMfpdSlPWQuf` | Act               |
 | Clive's Man   | `appZ71CSKBlhnb4hR` | `Operational v0.2` — `rec6b8PB3HY3yv0Wq` | Steward           |
 | Lazlo Marlowe | `appMHIxnwPMljiAQB` | `Operational v0.2` — `recHipJdrgeh0PAof` | Agent Storywriter |
+| Kathryn Goodchild | `appzvesAIpPxjfAMF` | `Operational v1.0 (HyperAgent sync)` — `recZkhAbib7fQBL8Z` | Coach |
 
 
 Live IDs: `website/src/lib/brains/airtable-ids.ts`. Character decisions and cast biography: `docs/initiatives/character-provenance.md` §7. Product governance (Trinity, Pam gates, human approval) stays in this doc — Persona Config is the per-agent operational contract, not a second architecture file.
@@ -1113,7 +1114,7 @@ Cursor loads agents and skills from files on disk when they are invoked; it cann
 
 **Governance is unchanged and reaffirmed.** Authoring changes still flow through the existing human-approval gates: a human approves Narrative Arch changes and Persona Config changes, and skills authored in Airtable pass the **same human approval** before anything is generated or published.
 
-**Chapter 1 Persona Config records (Operational v0.2, 27 Jun 2026):** see §4 "Where role specs live" and `website/src/lib/brains/airtable-ids.ts` (`CLIVE_PERSONA_CONFIG`, `PAM_PERSONA_CONFIG`, `DOC_PERSONA_CONFIG`, `CLIVE_MAN_PERSONA_CONFIG`, `LAZLO_PERSONA_CONFIG`). When product role or engineering rules change, update Persona Config in Airtable first; then run the generator to refresh repo sync artifacts.
+**Chapter 1 Persona Config records (Operational v0.2, 27 Jun 2026):** see §4 "Where role specs live" and `website/src/lib/brains/airtable-ids.ts` (`CLIVE_PERSONA_CONFIG`, `PAM_PERSONA_CONFIG`, `DOC_PERSONA_CONFIG`, `CLIVE_MAN_PERSONA_CONFIG`, `LAZLO_PERSONA_CONFIG`, `KATHRYN_GOODCHILD_PERSONA_CONFIG`). When product role or engineering rules change, update Persona Config in Airtable first; then run the generator to refresh repo sync artifacts.
 
 **Trade-off accepted.** Authoring long skill text in Airtable cells is harder to review than a file change in git, where edits are easy to see line by line. Matthew accepted this because HyperAgent is the primary runtime and the Cursor surface is rare.
 

@@ -1,7 +1,9 @@
 {
   "version": 1,
   "description": "Explicit Head vs Minion classification for HyperAgent fleet sync. Never guess from filename alone.",
-  "blocked_base_ids": ["appubDI76O0t8xisg"],
+  "blocked_base_ids": [
+    "appubDI76O0t8xisg"
+  ],
   "household_register_base_id": "appPrpfvsAr71RPP3",
   "export_aliases": {
     "pam-portiscue": "pam",
@@ -9,7 +11,8 @@
     "doc-albright": "doc",
     "prof-halvard-bjornson": "halvard",
     "ruth-hadley": "ruth-hadley",
-    "skill-forge-astrajax": "skill-forge"
+    "skill-forge-astrajax": "skill-forge",
+    "kathryn-goodchild": "kathryn-goodchild"
   },
   "agents": {
     "clive": {
@@ -71,6 +74,11 @@
       "kind": "head",
       "display_name": "Skill Forge",
       "base_id": "app6FcMDoslmuaNux"
+    },
+    "kathryn-goodchild": {
+      "kind": "head",
+      "display_name": "Kathryn Goodchild",
+      "base_id": "appzvesAIpPxjfAMF"
     },
     "clive-man-context-auditor": {
       "kind": "minion",
