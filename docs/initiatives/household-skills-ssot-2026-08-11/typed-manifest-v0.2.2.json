@@ -1,0 +1,577 @@
+{
+  "manifestVersion": "ruth-skills-ssot-expanded-v0.2.2",
+  "proposalDecisionId": "RUTH-SKILLS-SSOT-2026-08-11-v0.2.2",
+  "supersedes": "RUTH-SKILLS-SSOT-2026-08-11-v0.2.1",
+  "challengerSource": "bc64b7dd-74bb-4b90-90b4-1b8ab39a7fad",
+  "route": "B-expanded-build-pen",
+  "acceptedTopLevelKeys": [
+    "manifestVersion",
+    "proposalDecisionId",
+    "supersedes",
+    "challengerSource",
+    "route",
+    "acceptedTopLevelKeys",
+    "acceptedGateKeys",
+    "acceptedScopeKeys",
+    "requiresExpandedPen",
+    "artifactHashes",
+    "target",
+    "gates",
+    "scope",
+    "caps",
+    "beforeState",
+    "existingFieldOps",
+    "recordDeletes",
+    "seedRecords",
+    "dataPolicy",
+    "outOfScope",
+    "buildSequence",
+    "killCriteria",
+    "contracts",
+    "retryPolicy",
+    "fixturesRequired",
+    "normalisedSlugRecipe"
+  ],
+  "acceptedGateKeys": [
+    "proposalHash",
+    "proposalHashRecipe",
+    "expandedPenRequired",
+    "labels"
+  ],
+  "acceptedScopeKeys": [
+    "createTables",
+    "reconcileExistingTables",
+    "extendTables",
+    "createAutomations",
+    "createInterfaces",
+    "seedRecords",
+    "recordDeletes",
+    "mutateExistingRecords",
+    "externalWrites",
+    "outboundSync"
+  ],
+  "requiresExpandedPen": {
+    "minimumVersion": "2.2.0-skills-ssot",
+    "deltaDoc": "docs/initiatives/household-skills-ssot-2026-08-11/EXPANDED-BUILD-PEN-DELTA-v0.2.2.md",
+    "validateAgainstPenSelfReportedVersion": true
+  },
+  "artifactHashes": {
+    "seedPayloadPath": "docs/initiatives/household-skills-ssot-2026-08-11/seed-payload-v0.2.json",
+    "seedPayloadRawSha256": "0cdee9e338fc4458887592e016ee49e611eca4cc3a31cc6a116caece607a114e",
+    "seedPayloadCanonicalSha256": "0120a510b5900394edd5980532b93953759cb3630aa47209fa6928c6ada4d1d6",
+    "penDeltaPath": "docs/initiatives/household-skills-ssot-2026-08-11/EXPANDED-BUILD-PEN-DELTA-v0.2.2.md",
+    "penDeltaRawSha256": "0bc27d1735e4cc152b09d75feee2cb85e04d07fd7774e48d4db2f6e15e96e407"
+  },
+  "normalisedSlugRecipe": {
+    "version": 1,
+    "steps": [
+      "Unicode NFKC",
+      "casefold()",
+      "replace each run of characters outside [a-z0-9] with a single hyphen",
+      "strip leading and trailing hyphens"
+    ],
+    "pseudocode": "re.sub(r'[^a-z0-9]+', '-', unicodedata.normalize('NFKC', name).casefold()).strip('-')",
+    "collisionDomain": "payloadRows UNION liveSkillsRows",
+    "payloadIdempotencyKeyMustEqualComputedSlug": true
+  },
+  "target": {
+    "workspaceNote": "AstraJax Household Register",
+    "baseId": "appPrpfvsAr71RPP3",
+    "tableId": "tblAIXtDBBMrLuEYc",
+    "tableName": "Skills"
+  },
+  "gates": {
+    "proposalHash": "sha256-canonical-excluding-gates.proposalHash:9a9a1fb51675fb2ac0e0edc510d1d0e5895d04faa5bd159469dc9b673b73848b",
+    "proposalHashRecipe": "sha256-canonical-excluding-gates.proposalHash",
+    "expandedPenRequired": true,
+    "labels": [
+      "PENDING_FRESH_MATTHEW_OR_CLIENT_SIGNATURE",
+      "PENDING_DELTA_PASS",
+      "NOT_AUTHORISED"
+    ]
+  },
+  "scope": {
+    "createTables": [],
+    "reconcileExistingTables": [
+      "tblAIXtDBBMrLuEYc"
+    ],
+    "extendTables": [
+      "tblAIXtDBBMrLuEYc"
+    ],
+    "createAutomations": [],
+    "createInterfaces": [],
+    "seedRecords": [
+      "tblAIXtDBBMrLuEYc"
+    ],
+    "recordDeletes": [
+      "tblAIXtDBBMrLuEYc"
+    ],
+    "mutateExistingRecords": false,
+    "externalWrites": false,
+    "outboundSync": false
+  },
+  "caps": {
+    "maxRecordDeletes": 1,
+    "maxRecordCreates": 63,
+    "maxRecordUpdates": 0,
+    "maxBases": 1,
+    "maxTablesMutated": 1
+  },
+  "beforeState": {
+    "abortOnMismatch": true,
+    "requiredTables": [
+      {
+        "tableId": "tblAIXtDBBMrLuEYc",
+        "name": "Skills",
+        "recordCountMustEqual": 1,
+        "fields": [
+          {
+            "fieldId": "fldz3v4xnWrwJtHTg",
+            "name": "Skill Name",
+            "type": "singleLineText"
+          },
+          {
+            "fieldId": "fldAnI0zlJlu5nCBg",
+            "name": "Skill Summary (AI)",
+            "type": "aiText"
+          },
+          {
+            "fieldId": "fldn1mJwSeW931428",
+            "name": "When to Use",
+            "type": "multilineText"
+          },
+          {
+            "fieldId": "fldjhLDOP6gVh9GQW",
+            "name": "Documentation",
+            "type": "multilineText"
+          },
+          {
+            "fieldId": "fldTDoPCrvcws6IZu",
+            "name": "Script",
+            "type": "multilineText"
+          },
+          {
+            "fieldId": "fldKYnGJP0ESq7RKh",
+            "name": "Category",
+            "type": "singleSelect",
+            "choicesMustEqual": [
+              {
+                "id": "selTXk0RP3mYCoWzZ",
+                "name": "Data & Research"
+              },
+              {
+                "id": "sel0RzBMOJ5i3Xd77",
+                "name": "Content & Comms"
+              },
+              {
+                "id": "selofpMkxvdU0z48S",
+                "name": "Integration / API"
+              },
+              {
+                "id": "selnXk3Fut0Hm6eol",
+                "name": "Workflow / Ops"
+              },
+              {
+                "id": "selfkvzgjkV83uJnP",
+                "name": "Utility"
+              }
+            ]
+          },
+          {
+            "fieldId": "fld36o5wcQZI09I4b",
+            "name": "Status",
+            "type": "singleSelect",
+            "requiredChoices": [
+              {
+                "id": "sel2Hlp0rdafcfAmd",
+                "name": "Proposed"
+              },
+              {
+                "id": "sel7xcemdePKg4lf4",
+                "name": "Building"
+              },
+              {
+                "id": "selkTmMWfSHbwQdnf",
+                "name": "Active"
+              },
+              {
+                "id": "selzxlzQAUxm6Jgg3",
+                "name": "Deprecated"
+              },
+              {
+                "id": "selV8Tha1ZrzAweaU",
+                "name": "Failing"
+              }
+            ]
+          },
+          {
+            "fieldId": "fldYfvALEtB4t4nWy",
+            "name": "Provenance Status",
+            "type": "singleSelect",
+            "requiredChoices": [
+              {
+                "id": "seleMdbXKQSP9aZso",
+                "name": "Pending"
+              },
+              {
+                "id": "selkY9BSrk4RDN3km",
+                "name": "Approved-Canonical"
+              },
+              {
+                "id": "selZmQrPYavTJsk3n",
+                "name": "Rejected"
+              }
+            ]
+          },
+          {
+            "fieldId": "fldbPgOwCBOOLDTQw",
+            "name": "Category (AI)",
+            "type": "singleSelect"
+          },
+          {
+            "fieldId": "fldFs09KnfcIALY7G",
+            "name": "Created By",
+            "type": "singleSelect",
+            "choicesMustEqual": [
+              {
+                "id": "selz1Q5BS74IVKPi7",
+                "name": "Agent"
+              },
+              {
+                "id": "selTlJa0tudd91PhW",
+                "name": "Human"
+              }
+            ]
+          },
+          {
+            "fieldId": "fldFDdSX9HcD3BMgI",
+            "name": "Scripts / Repo Path",
+            "type": "singleLineText"
+          },
+          {
+            "fieldId": "fldqkGFvmMbWBK8bg",
+            "name": "Last Reviewed",
+            "type": "date"
+          },
+          {
+            "fieldId": "fldWhYX4LeZIrmQwM",
+            "name": "Household Members",
+            "type": "multipleRecordLinks",
+            "linkedTableId": "tblJ70qtHUc1dUHhi"
+          },
+          {
+            "fieldId": "fldPLbZH8UHXNB8LA",
+            "name": "Minions",
+            "type": "multipleRecordLinks",
+            "linkedTableId": "tbl6aVm9rgWoOBVfd"
+          },
+          {
+            "fieldId": "fldKZuoID1fmaUx3A",
+            "name": "Suggested When to Use (AI)",
+            "type": "aiText"
+          }
+        ],
+        "requiredAbsentFields": [
+          {
+            "name": "Description"
+          }
+        ]
+      }
+    ],
+    "requiredRecords": [
+      {
+        "tableId": "tblAIXtDBBMrLuEYc",
+        "recordId": "recgFOHJ58ckFEUIr",
+        "fieldsMustEqual": {
+          "fldz3v4xnWrwJtHTg": "Active"
+        },
+        "fieldsMustBeEmpty": [
+          "fldKYnGJP0ESq7RKh",
+          "fldFs09KnfcIALY7G"
+        ]
+      }
+    ],
+    "initialRunRequires": {
+      "statusChoiceActive": {
+        "id": "selkTmMWfSHbwQdnf",
+        "name": "Active"
+      },
+      "oldCategoryChoicesUsageMustBeZero": true,
+      "humanCreatedByUsageMustBeZero": true,
+      "requiredMemberRecordIds": [
+        "rec4HefXSfE5Crtjd",
+        "rec4KZKxbIGeJxiNe",
+        "recKeX30nlTTI259K",
+        "recNa6Q5FnsqhVyKk",
+        "recOb1thHGgF6fS7j",
+        "recOkb1bboSjeEQfu",
+        "recWMToQ4ala97tyi",
+        "recapJchs8Wm5V6I3",
+        "recd78kNWGdtLVY2f",
+        "recjg5CwbEl5DUEZg",
+        "reclnaa2QmKF9cMIO",
+        "reclxxOUDOW6FoztJ",
+        "rect31B9mjgphUKfe",
+        "recwZ6NRDqdVurTMJ"
+      ],
+      "everyPayloadIdempotencyKeyMatchesNormalisedSlugRecipe": true
+    }
+  },
+  "existingFieldOps": [
+    {
+      "op": "createField",
+      "tableId": "tblAIXtDBBMrLuEYc",
+      "name": "Description",
+      "type": "multilineText",
+      "description": "Human short blurb for the skill catalogue. SSOT for summary text; AI summaries are assist-only.",
+      "idempotentIfExactExists": true
+    },
+    {
+      "op": "renameField",
+      "tableId": "tblAIXtDBBMrLuEYc",
+      "fieldId": "fldbPgOwCBOOLDTQw",
+      "fromName": "Category (AI)",
+      "toName": "Suggested Category (AI)",
+      "idempotentIfAlreadyRenamed": true
+    },
+    {
+      "op": "replaceSingleSelectChoices",
+      "tableId": "tblAIXtDBBMrLuEYc",
+      "fieldId": "fldKYnGJP0ESq7RKh",
+      "fieldName": "Category",
+      "mode": "fullReplaceUnused",
+      "beforeChoicesMustEqual": [
+        {
+          "id": "selTXk0RP3mYCoWzZ",
+          "name": "Data & Research"
+        },
+        {
+          "id": "sel0RzBMOJ5i3Xd77",
+          "name": "Content & Comms"
+        },
+        {
+          "id": "selofpMkxvdU0z48S",
+          "name": "Integration / API"
+        },
+        {
+          "id": "selnXk3Fut0Hm6eol",
+          "name": "Workflow / Ops"
+        },
+        {
+          "id": "selfkvzgjkV83uJnP",
+          "name": "Utility"
+        }
+      ],
+      "afterChoicesExact": [
+        {
+          "name": "Operational",
+          "color": "grayLight2"
+        },
+        {
+          "name": "Reference",
+          "color": "grayLight2"
+        },
+        {
+          "name": "Tooling",
+          "color": "grayLight2"
+        },
+        {
+          "name": "Other",
+          "color": "grayLight2"
+        }
+      ],
+      "idempotentIfAfterAlreadyExact": true
+    },
+    {
+      "op": "replaceSingleSelectChoices",
+      "tableId": "tblAIXtDBBMrLuEYc",
+      "fieldId": "fldFs09KnfcIALY7G",
+      "fieldName": "Created By",
+      "mode": "preserveNamedChoicesById",
+      "beforeChoicesMustEqual": [
+        {
+          "id": "selz1Q5BS74IVKPi7",
+          "name": "Agent"
+        },
+        {
+          "id": "selTlJa0tudd91PhW",
+          "name": "Human"
+        }
+      ],
+      "preserve": [
+        {
+          "id": "selz1Q5BS74IVKPi7",
+          "name": "Agent",
+          "color": "grayLight2"
+        }
+      ],
+      "removeChoiceIds": [
+        "selTlJa0tudd91PhW"
+      ],
+      "addChoices": [
+        {
+          "name": "Matthew",
+          "color": "grayLight2"
+        },
+        {
+          "name": "System",
+          "color": "grayLight2"
+        }
+      ],
+      "afterChoicesExactNamesInOrder": [
+        "Agent",
+        "Matthew",
+        "System"
+      ],
+      "idempotentIfAfterAlreadyExact": true
+    }
+  ],
+  "recordDeletes": [
+    {
+      "tableId": "tblAIXtDBBMrLuEYc",
+      "recordIds": [
+        "recgFOHJ58ckFEUIr"
+      ],
+      "preconditionPerId": {
+        "recgFOHJ58ckFEUIr": {
+          "fldz3v4xnWrwJtHTg": "Active"
+        }
+      },
+      "idempotentIfAlreadyAbsent": true
+    }
+  ],
+  "seedRecords": {
+    "op": "createRecordsIdempotent",
+    "tableId": "tblAIXtDBBMrLuEYc",
+    "payloadArtifact": "docs/initiatives/household-skills-ssot-2026-08-11/seed-payload-v0.2.json",
+    "seedPayloadRawSha256": "0cdee9e338fc4458887592e016ee49e611eca4cc3a31cc6a116caece607a114e",
+    "seedPayloadCanonicalSha256": "0120a510b5900394edd5980532b93953759cb3630aa47209fa6928c6ada4d1d6",
+    "countMustEqual": 63,
+    "idempotency": {
+      "matchFieldId": "fldz3v4xnWrwJtHTg",
+      "matchFieldName": "Skill Name",
+      "alsoEnforceNormalisedSlugUniqueness": true,
+      "compare": {
+        "textExact": [
+          "Description",
+          "When to Use",
+          "Documentation",
+          "Scripts / Repo Path",
+          "Script"
+        ],
+        "selectByName": [
+          "Category",
+          "Status",
+          "Provenance Status",
+          "Created By"
+        ],
+        "linkedRecordIdsUnordered": [
+          "Household Members"
+        ]
+      },
+      "onSameNameSameContent": "skip",
+      "onSameNameDifferentContent": "abort",
+      "onNormalisedSlugCollision": "abort",
+      "normalisedSlugRecipeRef": "normalisedSlugRecipe",
+      "collisionDomain": "payloadRows UNION liveSkillsRows"
+    },
+    "fieldMap": {
+      "Skill Name": "fldz3v4xnWrwJtHTg",
+      "Description": "CREATE_THEN_RESOLVE",
+      "When to Use": "fldn1mJwSeW931428",
+      "Documentation": "fldjhLDOP6gVh9GQW",
+      "Category": "fldKYnGJP0ESq7RKh",
+      "Status": "fld36o5wcQZI09I4b",
+      "Provenance Status": "fldYfvALEtB4t4nWy",
+      "Created By": "fldFs09KnfcIALY7G",
+      "Scripts / Repo Path": "fldFDdSX9HcD3BMgI",
+      "Script": "fldTDoPCrvcws6IZu",
+      "Household Members": "fldWhYX4LeZIrmQwM"
+    },
+    "forbiddenValues": {
+      "Provenance Status": [
+        "Approved-Canonical"
+      ]
+    },
+    "defaultsEnforced": {
+      "Provenance Status": "Pending",
+      "Created By": "System",
+      "Status": "Active"
+    }
+  },
+  "retryPolicy": {
+    "acceptStates": [
+      "exactOriginalBeforeState",
+      "exactFinalState",
+      "provablePartialProgressSkips"
+    ],
+    "partialProgressSkips": [
+      "descriptionFieldAlreadyExact",
+      "categoryAiAlreadyRenamed",
+      "categoryChoicesAlreadyFinal",
+      "createdByChoicesAlreadyFinal",
+      "junkRowAlreadyAbsent",
+      "exactSeedSubsetAlreadyPresent"
+    ],
+    "abortOnAnyOtherMixedState": true
+  },
+  "dataPolicy": {
+    "scriptVsPath": "Scripts / Repo Path wins; Script empty on this seed",
+    "aiFields": "Skill Summary (AI) and Suggested When to Use (AI) / Suggested Category (AI) are assist-only"
+  },
+  "outOfScope": [
+    "outboundSyncToAgentBases",
+    "approvedCanonicalPromotion",
+    "skillForgeCutoverAutomation",
+    "seedMissingSkillsNotInDump",
+    "architectureMdEdit",
+    "fleetSyncFreezeLift"
+  ],
+  "buildSequence": [
+    "assertFullSchemaAndInitialOrRetryBeforeState",
+    "assertPayloadSlugsMatchRecipe",
+    "createDescriptionField",
+    "renameCategoryAi",
+    "replaceCategoryChoices",
+    "replaceCreatedByChoicesPreserveAgentId",
+    "deleteJunkActiveRow",
+    "createRecordsIdempotent63",
+    "readbackValidate63Unique"
+  ],
+  "killCriteria": [
+    "wrongBase",
+    "beforeStateMismatch",
+    "junkRowNameNotActive",
+    "seedNameCollisionDifferentContent",
+    "normalisedSlugCollision",
+    "approvedCanonicalInPayload",
+    "outboundSyncAttempted",
+    "penBelowExpandedMinimum",
+    "payloadHashMismatch",
+    "penDeltaHashMismatch",
+    "createCapExceeded",
+    "anyExistingRecordUpdate",
+    "oldSelectChoiceStillInUse",
+    "schemaDriftAbortBeforeMutation",
+    "idempotencyKeySlugMismatch"
+  ],
+  "fixturesRequired": [
+    "partialFailureRetrySkips",
+    "normalisedSlugCollisionAbort",
+    "missingLinkTargetAbort",
+    "occupiedOldChoiceAbort",
+    "capBreachAbort",
+    "final63Readback",
+    "disposableBaseChoiceRemovalIntegration",
+    "schemaDriftAbortBeforeMutation",
+    "slugCaseCollisionAbort",
+    "slugPunctuationCollisionAbort",
+    "slugUnicodeNfkcCollisionAbort"
+  ],
+  "contracts": {
+    "approvalExternalJsonRequired": true,
+    "challengerProceedRequired": true,
+    "v021SignatureDoesNotAuthoriseV022": true,
+    "schemaPatchOpsAreNotRecordUpdates": true
+  }
+}
