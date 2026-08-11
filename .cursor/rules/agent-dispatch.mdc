@@ -5,6 +5,10 @@ alwaysApply: true
 
 # Agent Dispatch
 
+Named lanes own kinds of work. **Which model** is separate — see `model-routing.mdc`.
+**What each lane does** lives in `.cursor/agents/<name>.md`; read that before
+dispatching. Do not restate persona doctrine here.
+
 ## Do this first, before any tool call
 
 On every substantive request where Matthew has **not** written an explicit `@agent`,
@@ -19,6 +23,9 @@ or, when you are keeping it:
 ```text
 Lane: none — handling inline (trivial / no household owner).
 ```
+
+Say **which lane** and **why** in plain language — one line is enough. Name the agent
+if using Task or `@`.
 
 Emit that line before reading files, searching, or answering. If you have already
 started work and realise a lane owns it, stop and dispatch anyway. Deciding late is
@@ -42,7 +49,7 @@ The bar for keeping work is narrow and explicit:
   answer in a sentence or two.
 - **Mechanical grind** — branch refreshes, conflict resolution, file moves,
   scaffolds, small fixes needing no lane judgement. Stay generic
-  (`Lane: none`); do not Task-dispatch Doc. See `lane-routing.mdc`.
+  (`Lane: none`); do not Task-dispatch Doc.
 - **Outside the household** — genuinely no lane below covers it. Say which it is
   closest to, so it does not read as a roster gap.
 - **Meta** — Matthew asking about this chat, a transcript, the rules, or the routing.
@@ -58,21 +65,37 @@ word "context" appears.
 If no `subagent_type` exists for the lane, name the agent, hand Matthew the brief, and
 ask him to `@` it.
 
-## The roster
+## Lane ownership
 
-| If Matthew is asking for… | Lane |
+Route to the **head** agent unless a brief is already cleared for a specific minion
+(Doc, Ruth, Clive's Man, and Lazlo each dispatch their own).
+
+**`website/` split:** scenic craft → Kate; product UI, API routes, Brain Key, deploy →
+Doc (usually Vercel minion).
+
+| Kind of work | Lane |
 |---|---|
-| Strategy, positioning, trade-offs, "should we?", "how would you proceed", decision briefs | `clive` |
-| Challenge, red-team, pre-mortem, "poke holes", high-stakes gate | `pam` |
-| Build something in the repo or product that needs build judgement, "can you make / add / fix" (not mechanical grind — see above) | `doc` |
-| Capture context, paper trail, "log this", brain upkeep | `clive-man` |
-| Character voice, spine, cast drift, "does this sound like X" | `lazlo-marlowe` |
-| Visual identity, palette, art direction, skin, taste call | `kathryn-goodchild` |
-| Painted-world scenic craft — rooms, plaques, loops, hotspots | `kate` |
-| Motion, fal previz, animation timing | `milo-cadence` |
-| Airtable data-layer architecture, schema, grain, SSOT | `ruth-hadley` |
-| Research, best-practice scouting, "what's the current thinking on" | `ristral` |
-| Agent quality, household health, fleet drift, sync audits | `halvard-bjornson` |
+| Thinking, trade-offs, decision briefs, strategy, positioning, "should we?", "how would you proceed" | **Clive** (`clive`) |
+| Context capture, curation, publish-prep, paper trail, "log this", brain upkeep | **Clive's Man** (`clive-man`) |
+| Sceptical challenge, red-team, pre-mortem, "poke holes", high-stakes gate | **Pam** (`pam`) |
+| Repo / product build that needs build judgement, "can you make / add / fix" (not mechanical grind — see above) | **Doc** (`doc`) |
+| Airtable data-layer architecture, schema, grain, SSOT | **Ruth Hadley** (`ruth-hadley`) |
+| Agent household health / quality audit, fleet drift, sync audits | **Halvard** (`halvard-bjornson`) |
+| Character spine / dramaturgy, voice, cast drift, "does this sound like X" | **Lazlo Marlowe** (`lazlo-marlowe`) |
+| Visual identity, still art direction, palette, skin, taste call | **Kathryn Goodchild** (`kathryn-goodchild`) |
+| Character motion, fal previz, animation timing | **Milo Cadence** (`milo-cadence`) |
+| Painted-world scenic craft in `website/` — rooms, plaques, loops, hotspots | **Kate** (`kate`) |
+| External best-practice scout, "what's the current thinking on" | **Ristral** (`ristral`) |
+
+## Generic is legitimate
+
+Mechanical repo grind stays **generic** (Composer / default agent). Emit `Lane: none`
+and keep it inline — not Doc. Do not ceremony-route a two-line fix.
+
+## When no lane clearly owns it
+
+Use **generic**, tell Matthew which lane you considered and why it did not fit, and
+proceed. Do not stall for a perfect owner.
 
 ## Multi-lane requests
 
