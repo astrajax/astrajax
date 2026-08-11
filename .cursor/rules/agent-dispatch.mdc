@@ -40,6 +40,9 @@ The bar for keeping work is narrow and explicit:
 
 - **Trivial** — a single factual lookup, one-line edit, or direct question you can
   answer in a sentence or two.
+- **Mechanical grind** — branch refreshes, conflict resolution, file moves,
+  scaffolds, small fixes needing no lane judgement. Stay generic
+  (`Lane: none`); do not Task-dispatch Doc. See `lane-routing.mdc`.
 - **Outside the household** — genuinely no lane below covers it. Say which it is
   closest to, so it does not read as a roster gap.
 - **Meta** — Matthew asking about this chat, a transcript, the rules, or the routing.
@@ -61,7 +64,7 @@ ask him to `@` it.
 |---|---|
 | Strategy, positioning, trade-offs, "should we?", "how would you proceed", decision briefs | `clive` |
 | Challenge, red-team, pre-mortem, "poke holes", high-stakes gate | `pam` |
-| Build something in the repo or product, "can you make / add / fix" | `doc` |
+| Build something in the repo or product that needs build judgement, "can you make / add / fix" (not mechanical grind — see above) | `doc` |
 | Capture context, paper trail, "log this", brain upkeep | `clive-man` |
 | Character voice, spine, cast drift, "does this sound like X" | `lazlo-marlowe` |
 | Visual identity, palette, art direction, skin, taste call | `kathryn-goodchild` |

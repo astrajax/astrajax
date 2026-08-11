@@ -29,7 +29,7 @@ Route to the **head** agent unless a brief is already cleared for a specific min
 
 ## Generic is legitimate
 
-Mechanical repo grind — branch refreshes, conflict resolution, file moves, scaffolds, small fixes needing no lane judgement — stays **generic** (Composer / default agent). Do not ceremony-route a two-line fix.
+Mechanical repo grind — branch refreshes, conflict resolution, file moves, scaffolds, small fixes needing no lane judgement — stays **generic** (Composer / default agent). Emit `Lane: none` and keep it; this is an `agent-dispatch.mdc` keep-inline case, not Doc. Do not ceremony-route a two-line fix.
 
 ## When no lane clearly owns it
 
