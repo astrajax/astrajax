@@ -3,7 +3,7 @@ import {
   BRAIN_WORKSHOP_TABLES,
   CHAPTER1_BRAIN_SLUG,
 } from "../airtable-ids";
-import { airtableSelect } from "../airtable-rest";
+import { airtableSelect, escapeAirtableString } from "../airtable-rest";
 
 export type WorkshopDraftTruth = {
   recordId: string;
@@ -72,7 +72,7 @@ export async function handleDraftTruthList(brainSlug: string): Promise<{
 
   try {
     const records = await airtableSelect(workshopBaseId, tableId, workshopToken, {
-      filterByFormula: `AND({Brain Slug}='${slug}', {Status}='Draft')`,
+      filterByFormula: `AND({Brain Slug}='${escapeAirtableString(slug)}', {Status}='Draft')`,
       maxRecords: 20,
       sortField: "Title",
       sortDirection: "asc",
