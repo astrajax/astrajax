@@ -48,27 +48,47 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         proof: {},
       },
       async authorize(credentials) {
-        const email = String(credentials?.email ?? "").trim().toLowerCase();
+        const email = String(credentials?.email ?? "")
+          .trim()
+          .toLowerCase();
         const code = normaliseSignInCode(String(credentials?.code ?? ""));
         const proof = String(credentials?.proof ?? "");
         if (!email || !code || !proof) throw new InvalidSignInCode();
         if (!isAllowedOperatorEmail(email)) throw new InvalidSignInCode();
-        if (!verifyEmailCode({ email, code, proof })) throw new InvalidSignInCode();
+        if (!verifyEmailCode({ email, code, proof }))
+          throw new InvalidSignInCode();
 
         try {
           const store = getOperatorStore();
           let state = await store.getByEmail(email);
           if (!state) {
-            state = await store.create(
-              initialOperatorState({
-                operatorId: `op_${randomUUID().slice(0, 12)}`,
-                email,
-              }),
-            );
+            try {
+              state = await store.create(
+                initialOperatorState({
+                  operatorId: `op_${randomUUID().slice(0, 12)}`,
+                  email,
+                }),
+              );
+            } catch (createError) {
+              // Concurrent sign-in can create the row between get and create —
+              // that is a conflict, not a store outage. Reload the winner.
+              if (
+                !(createError instanceof Error) ||
+                !/already exists/i.test(createError.message)
+              ) {
+                throw createError;
+              }
+              state = await store.getByEmail(email);
+            }
           }
+          if (!state) throw new OperatorStoreUnavailable();
           return { id: state.operatorId, email: state.email };
         } catch (error) {
-          console.error("[auth] operator store failed after valid sign-in code", error);
+          if (error instanceof OperatorStoreUnavailable) throw error;
+          console.error(
+            "[auth] operator store failed after valid sign-in code",
+            error,
+          );
           throw new OperatorStoreUnavailable();
         }
       },
@@ -94,7 +114,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           stateEmail = state?.email ?? "";
           stateRole = state?.role ?? "owner";
         } catch (error) {
-          console.error("[auth] operator store lookup failed in session callback", error);
+          console.error(
+            "[auth] operator store lookup failed in session callback",
+            error,
+          );
         }
         session.operator = {
           operatorId: token.operatorId,

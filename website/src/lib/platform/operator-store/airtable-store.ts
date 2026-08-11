@@ -18,7 +18,10 @@ import {
   escapeAirtableString,
   type AirtableRecord,
 } from "../../brains/airtable-rest";
-import { BRAIN_REGISTRY_BASE_ID, BRAIN_REGISTRY_TABLES } from "../../brains/airtable-ids";
+import {
+  BRAIN_REGISTRY_BASE_ID,
+  BRAIN_REGISTRY_TABLES,
+} from "../../brains/airtable-ids";
 import type { OperatorState } from "../operator-state";
 import type { OperatorStore } from "./index";
 
@@ -37,13 +40,17 @@ export const OPERATOR_STATE_FIELDS = {
 } as const;
 
 export function operatorStateTableId(): string | undefined {
-  return process.env.OPERATOR_STATE_TABLE_ID ?? BRAIN_REGISTRY_TABLES.operatorState;
+  return (
+    process.env.OPERATOR_STATE_TABLE_ID ?? BRAIN_REGISTRY_TABLES.operatorState
+  );
 }
 
 function writeToken(): string {
   const token =
-    process.env.BRAIN_REGISTRY_WRITE_TOKEN ?? process.env.BRAIN_REGISTRY_READ_TOKEN;
-  if (!token) throw new Error("Operator state: no Brain Registry token configured.");
+    process.env.BRAIN_REGISTRY_WRITE_TOKEN ??
+    process.env.BRAIN_REGISTRY_READ_TOKEN;
+  if (!token)
+    throw new Error("Operator state: no Brain Registry token configured.");
   return token;
 }
 
@@ -101,7 +108,9 @@ function toFields(state: OperatorState): Record<string, unknown> {
     [OPERATOR_STATE_FIELDS.COMPLETED_CHAPTERS]: JSON.stringify(
       state.journey?.completedChapters ?? [],
     ),
-    [OPERATOR_STATE_FIELDS.OWNED_BRAIN_SLUGS]: JSON.stringify(state.ownedBrainSlugs),
+    [OPERATOR_STATE_FIELDS.OWNED_BRAIN_SLUGS]: JSON.stringify(
+      state.ownedBrainSlugs,
+    ),
     [OPERATOR_STATE_FIELDS.CONFIGURED_FUNCTIONS]: JSON.stringify(
       state.configuredFunctions,
     ),
@@ -129,10 +138,10 @@ async function findRecord(
 
 export const airtableOperatorStore: OperatorStore = {
   async getByEmail(email) {
-    // Email is always stored lowercased on write — exact match avoids
-    // formula quirks on Airtable's email field type.
+    // LOWER() so legacy / manually entered mixed-case Email rows still match
+    // (writes always lowercase, but older records may not).
     return findRecord(
-      `{${OPERATOR_STATE_FIELDS.EMAIL}} = '${escapeAirtableString(email.toLowerCase())}'`,
+      `LOWER({${OPERATOR_STATE_FIELDS.EMAIL}}) = '${escapeAirtableString(email.toLowerCase())}'`,
     );
   },
 
@@ -158,8 +167,7 @@ export const airtableOperatorStore: OperatorStore = {
 
   async put(state) {
     const existing = (await this.getById(state.operatorId)) as
-      | (OperatorState & { recordId: string })
-      | undefined;
+      (OperatorState & { recordId: string }) | undefined;
     if (!existing) throw new Error(`Unknown operator ${state.operatorId}`);
     const tableId = operatorStateTableId();
     if (!tableId) throw new Error("OPERATOR_STATE_TABLE_ID is not configured.");
@@ -180,6 +188,9 @@ export function useMemoryOperatorStore(): boolean {
   if (process.env.OPERATOR_STATE_USE_MEMORY === "false") return false;
   return (
     !operatorStateTableId() ||
-    !(process.env.BRAIN_REGISTRY_WRITE_TOKEN ?? process.env.BRAIN_REGISTRY_READ_TOKEN)
+    !(
+      process.env.BRAIN_REGISTRY_WRITE_TOKEN ??
+      process.env.BRAIN_REGISTRY_READ_TOKEN
+    )
   );
 }

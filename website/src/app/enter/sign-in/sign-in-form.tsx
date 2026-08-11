@@ -23,14 +23,19 @@ export function SignInForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      const data = (await response.json()) as { proof?: string | null; error?: string };
+      const data = (await response.json()) as {
+        proof?: string | null;
+        error?: string;
+      };
       if (!response.ok) {
         setMessage(data.error ?? "Something went wrong. Try again.");
         return;
       }
       setProof(data.proof ?? null);
       setStage("code");
-      setMessage("If that address is recognised, a sign-in code is on its way.");
+      setMessage(
+        "If that address is recognised, a sign-in code is on its way.",
+      );
     } catch {
       setMessage("Something went wrong. Try again.");
     } finally {
@@ -61,7 +66,12 @@ export function SignInForm() {
     });
     setBusy(false);
     // Auth.js v5 may return a URL string or an object — only treat explicit errors as failure.
-    if (result && typeof result === "object" && "error" in result && result.error) {
+    if (
+      result &&
+      typeof result === "object" &&
+      "error" in result &&
+      result.error
+    ) {
       const codeHint =
         "code" in result && typeof result.code === "string" ? result.code : "";
       if (codeHint === "store_unavailable") {
@@ -79,8 +89,13 @@ export function SignInForm() {
   }
 
   return (
-    <section className="operator-sign-in__plate" aria-labelledby="operator-sign-in-title">
-      <p className="section-label operator-sign-in__eyebrow">Operator entrance</p>
+    <section
+      className="operator-sign-in__plate"
+      aria-labelledby="operator-sign-in-title"
+    >
+      <p className="section-label operator-sign-in__eyebrow">
+        Operator entrance
+      </p>
       <h1 id="operator-sign-in-title" className="operator-sign-in__title">
         Enter AstraJax
       </h1>
@@ -102,7 +117,11 @@ export function SignInForm() {
             onChange={(event) => setEmail(event.target.value)}
             className="platform-gate-input operator-sign-in__input"
           />
-          <button type="submit" disabled={busy} className="btn-primary operator-sign-in__submit">
+          <button
+            type="submit"
+            disabled={busy}
+            className="btn-primary operator-sign-in__submit"
+          >
             {busy ? "Sending…" : "Send code"}
           </button>
         </form>
@@ -116,7 +135,6 @@ export function SignInForm() {
           <input
             id="operator-code"
             inputMode="numeric"
-            pattern="[0-9]{6}"
             required
             autoComplete="one-time-code"
             value={code}
@@ -124,7 +142,11 @@ export function SignInForm() {
             className="platform-gate-input operator-sign-in__input operator-sign-in__input--code"
           />
           <div className="operator-sign-in__actions">
-            <button type="submit" disabled={busy} className="btn-primary operator-sign-in__submit">
+            <button
+              type="submit"
+              disabled={busy}
+              className="btn-primary operator-sign-in__submit"
+            >
               {busy ? "Checking…" : "Sign in"}
             </button>
             <button
