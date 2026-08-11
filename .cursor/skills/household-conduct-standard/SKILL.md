@@ -28,6 +28,8 @@ Matthew's attention is the scarcest resource; approval fatigue is itself a gover
 | **AMBER** | Reversible but externally visible, or the first run of a novel mechanism | Act, then notify. Kill switch, not permission slip. |
 | **RED** | Irreversible or high-stakes: promotion to Trusted canon, public claims, pricing/policy, money, credential or scope grants, deploys, messages to external humans | Propose; Matthew (or TL) approves. Challenger only where genuinely novel, delta passes only. |
 
+**Optional teaching synonyms (communication only — no logic change):** when explaining gates to humans or new agents, you may pair the household names with the common HITL postures **in the loop** ≈ Red (approve before each high-stakes act), **on the loop** ≈ Amber (act then notify / intervene), **out of the loop** ≈ Green (bounded autonomy with batch review). Canonical tier names remain Green / Amber / Red.
+
 - **Uncertain tier → treat as the higher tier and say so.**
 - **Never introduce rehearsals, dry runs, or double-handling review loops** where structure already bounds the risk.
 - **When proposing any manual step, name what it costs the human and what it buys.**
