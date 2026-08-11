@@ -190,6 +190,25 @@ describe("Ask Clive honesty on model failure (key configured)", () => {
     expect(response.status).toBe(200);
     await expect(response.text()).rejects.toThrow(/socket hang up/i);
 
+    // The SDK can still fire onFinish with the partial text after an abort.
+    // That must not add a second activity record alongside the model-error log.
+    const onFinish = streamTextMock.mock.calls[0]?.[0]?.onFinish as
+      | ((event: {
+          text: string;
+          usage: undefined;
+          finishReason: string;
+          response: { id: string; modelId: string };
+        }) => Promise<void>)
+      | undefined;
+    expect(onFinish).toBeTypeOf("function");
+    await onFinish!({
+      text: "Splendid so far.",
+      usage: undefined,
+      finishReason: "error",
+      response: { id: "resp_partial", modelId: "claude-sonnet-4-6" },
+    });
+
+    expect(handleInteractionLogMock).toHaveBeenCalledTimes(1);
     expect(handleInteractionLogMock).toHaveBeenCalledWith(
       expect.objectContaining({
         assistantReply: expect.stringMatching(/can't reach my reasoning/i),

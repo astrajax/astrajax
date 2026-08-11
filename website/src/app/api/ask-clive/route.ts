@@ -249,12 +249,19 @@ export async function POST(request: Request) {
     const modelId = process.env.CLIVE_MODEL ?? "claude-sonnet-4-6";
 
     const startedAt = Date.now();
+    // Mid-stream aborts log via logFallbackExchange; this flag (plus the
+    // finishReason check below) keeps onFinish from also writing a partial
+    // success reply for the same turn.
+    let streamFailureLogged = false;
     const result = streamText({
       model: anthropic(modelId),
       system,
       messages,
       maxOutputTokens: spoken ? 220 : 400,
       onFinish: async ({ text, usage, finishReason, response }) => {
+        if (streamFailureLogged || finishReason === "error") {
+          return;
+        }
         if (text.trim()) {
           await logReply({
             sessionId,
@@ -311,6 +318,7 @@ export async function POST(request: Request) {
             // Still record the failure with the same model-error source, then
             // break the body so the client does not treat a truncation as a
             // complete answer.
+            streamFailureLogged = true;
             const notice = getModelFailureNotice(persona);
             await logFallbackExchange({
               sessionId,
