@@ -11,8 +11,7 @@
     "doc-albright": "doc",
     "prof-halvard-bjornson": "halvard",
     "ruth-hadley": "ruth-hadley",
-    "skill-forge-astrajax": "skill-forge",
-    "kathryn-goodchild": "kathryn-goodchild"
+    "skill-forge-astrajax": "skill-forge"
   },
   "agents": {
     "clive": {
@@ -74,11 +73,6 @@
       "kind": "head",
       "display_name": "Skill Forge",
       "base_id": "app6FcMDoslmuaNux"
-    },
-    "kathryn-goodchild": {
-      "kind": "head",
-      "display_name": "Kathryn Goodchild",
-      "base_id": "appzvesAIpPxjfAMF"
     },
     "clive-man-context-auditor": {
       "kind": "minion",
