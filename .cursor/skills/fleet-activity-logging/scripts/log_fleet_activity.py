@@ -53,7 +53,12 @@ Contract (Matthew Airtable redesign, 2026-08-08):
   row carries the headline and target_url to the report row; never duplicate
   the body into Activity. Reports are immutable; revisions are new rows
   linking the old via supersedes.
-- Never prints the token. Credential: FLEET_ACTIVITY_WRITE (RunWithCredentials).
+- Never prints the token. Credential: FLEET_ACTIVITY_WRITE.
+  Hyperagent injects it via RunWithCredentials. Cursor/Claude have no injector,
+  so the script also reads the repo's gitignored .env, trying FLEET_ACTIVITY_WRITE
+  first, then HOUSEHOLD_ACTIVITY_WRITE_TOKEN, then AIRTABLE_WRITE_TOKEN. Only the
+  SOURCE NAME is ever reported; the value is never printed.
+  `--check` resolves the credential and probes write access without creating rows.
 """
 import argparse
 import datetime
@@ -142,6 +147,66 @@ TYPED_REQUIRE_SUMMARY = {
     "Decision", "Action", "Blocker", "Question", "Escalation", "Error", "Completion",
 }
 CONTEXT_REQUIRED_TYPES = {"Completion", "Decision"}
+
+
+# Credential resolution order. FLEET_ACTIVITY_WRITE is the intended base-scoped,
+# write-only PAT and always wins. The rest are documented local fallbacks so the
+# Cursor/Claude lane works without a credential injector; they are broader tokens,
+# so setting FLEET_ACTIVITY_WRITE narrows the blast radius with no code change.
+CREDENTIAL_KEYS = ("FLEET_ACTIVITY_WRITE", "HOUSEHOLD_ACTIVITY_WRITE_TOKEN",
+                   "AIRTABLE_WRITE_TOKEN")
+# Gitignored local credential files, relative to the repo root, in priority order.
+ENV_FILES = (".env", "website/.env.local")
+
+
+def _repo_root() -> str:
+    """Walk up from this script until a directory holding .git is found."""
+    path = os.path.dirname(os.path.abspath(__file__))
+    while True:
+        if os.path.isdir(os.path.join(path, ".git")):
+            return path
+        parent = os.path.dirname(path)
+        if parent == path:
+            return os.getcwd()
+        path = parent
+
+
+def _read_env_file(path: str) -> dict:
+    values = {}
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if line.startswith("export "):
+                    line = line[7:].lstrip()
+                key, sep, value = line.partition("=")
+                if not sep:
+                    continue
+                value = value.strip()
+                if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+                    value = value[1:-1]
+                if value:
+                    values[key.strip()] = value
+    except OSError:
+        pass
+    return values
+
+
+def resolve_credential():
+    """Return (token, source_label). Never returns or logs the value elsewhere."""
+    for key in CREDENTIAL_KEYS:
+        token = os.environ.get(key)
+        if token:
+            return token, f"env:{key}"
+    root = _repo_root()
+    for rel in ENV_FILES:
+        values = _read_env_file(os.path.join(root, rel))
+        for key in CREDENTIAL_KEYS:
+            if values.get(key):
+                return values[key], f"{rel}:{key}"
+    return None, None
 
 
 def fail(payload) -> None:
@@ -281,14 +346,50 @@ def post_batch(token: str, table_id: str, records: list) -> dict:
         fail(f"HTTP {e.code}: {e.read().decode()[:300]}")
 
 
+def check_credential(token: str) -> str:
+    """Probe write access with a field name that cannot exist, so nothing is created.
+
+    422 UNKNOWN_FIELD_NAME means the token authenticates and holds create scope on
+    this base; 401/403 means it does not.
+    """
+    body = json.dumps({"records": [{"fields": {"__credential_probe__": "x"}}]}).encode("utf-8")
+    req = urllib.request.Request(
+        f"{API}/{BASE_ID}/{TABLES['sessions']}", data=body, method="POST",
+        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30):
+            return "unexpected-200"
+    except urllib.error.HTTPError as e:
+        if e.code == 422:
+            return "ok"
+        return f"denied-{e.code}"
+    except urllib.error.URLError as e:
+        return f"unreachable ({e.reason})"
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--payload", required=True)
+    ap.add_argument("--payload")
+    ap.add_argument("--check", action="store_true",
+                    help="Report credential presence and write access; creates nothing.")
     args = ap.parse_args()
 
-    token = os.environ.get("FLEET_ACTIVITY_WRITE")
+    token, source = resolve_credential()
+
+    if args.check:
+        print(json.dumps({
+            "credential_found": bool(token),
+            "credential_source": source,  # source NAME only; never the value
+            "write_access": check_credential(token) if token else "no-credential",
+        }))
+        return
+
+    if not args.payload:
+        fail("--payload is required (or use --check)")
     if not token:
-        fail("FLEET_ACTIVITY_WRITE not set (run via RunWithCredentials)")
+        fail("No logging credential found: set FLEET_ACTIVITY_WRITE in the "
+             "environment or in the repo's gitignored .env")
 
     with open(args.payload, "r", encoding="utf-8") as f:
         payload = json.load(f)
@@ -310,7 +411,8 @@ def main() -> None:
         created += [r["id"] for r in out.get("records", [])]
         if i + BATCH < len(records):
             time.sleep(0.25)
-    print(json.dumps({"success": True, "table": table, "created": created}))
+    print(json.dumps({"success": True, "table": table, "created": created,
+                      "credential_source": source}))
 
 
 if __name__ == "__main__":
