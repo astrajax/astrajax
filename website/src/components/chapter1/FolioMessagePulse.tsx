@@ -5,25 +5,54 @@ import { useFolioStage } from "@/components/chapter1/FolioStageContext";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 
 /**
- * The message pulse — the folio's thought-vein.
+ * Living Folio send effect — Kathryn Direction A: "Ink discharge".
  *
- * After a send, one thin warm-gold vein travels from the send plate across
- * the centre binding to Clive's portrait edge, in the same family as the
- * House brain-tree veins: contained gold leaf under parchment — no
- * lightning, no particles, one journey (~0.9s), no scale or overshoot.
+ * A thin, angular gold lightning bolt (not a smooth vein) discharges from the
+ * SEND plate across the book spine into Clive's chest. Magical-scholar
+ * register: white-hot core, Buttermilk sheath, soft Terracotta-warmed bloom,
+ * two short tendrils, two-strike timing.
  *
- * Rendered as an SVG overlay sized to the stage. The path is expressed in a
- * 1000×625 viewBox (16:9 stage space) and drawn with stroke-dashoffset so
- * the line *grows* from send plate to portrait. On arrival it calls
- * markPulseArrived() so the action rows on the right page reveal — the
- * record never shows before the message has reached him.
+ * Geometry (viewBox 1000×625 = 16:9 stage space; preserveAspectRatio
+ * xMidYMid slice so stroke proportions stay sane — never rubber-stretch):
+ *   Origin  (450, 548) ≈ 45% × / 87.7% y — right edge of the brass SEND plate
+ *           on the left page (page ends ~48.6%; plate anchors bottom-right of
+ *           the left-page composer).
+ *   Terminus (728, 232) ≈ 72.8% × / 37.1% y — Clive's chest inside the
+ *           interaction plate (plate centre ~72.75% ×; top 13.5cqh; width
+ *           32cqw at 1024/755 → chest mid-plate reads ~35–40% stage height,
+ *           not the bottom deckle dissolve).
+ *   Spine cross passes mid-high (~y 340–380) so the bolt reads across the
+ *           leather binding, not skimming the bottom margin.
  *
- * Reduced motion: no travelling path. The destination halo and the action
- * reveal resolve with one gentle opacity change.
+ * Timing contract (FOLIO_PULSE_TRAVEL_MS):
+ *   0–140ms   first strike (fast dash draw)
+ *   140–210ms dark gap
+ *   210–360ms weaker second strike
+ *   360–820ms decay + arrival warmth under the plate
+ *   820ms     markPulseArrived() → right-page action rows may reveal
+ *
+ * Reduced motion: no travelling bolt — destination halo + origin orb only;
+ * markPulseArrived still fires on a short delay (350ms).
+ *
+ * Taste: drafted for Tara-Lee / Kathryn eye — not declared final.
  */
 
-/** ms from vein start until it reaches the portrait edge (halo + reveal go). */
-export const FOLIO_PULSE_TRAVEL_MS = 900;
+/** ms from strike start until arrival reveal (gates action rows). */
+export const FOLIO_PULSE_TRAVEL_MS = 820;
+
+/** Main bolt — 6 hard zags (7 segments), polyline only, no curves. */
+const BOLT_PATH =
+  "M 450 548 L 468 455 L 498 490 L 522 355 L 585 385 L 655 275 L 700 305 L 728 232";
+
+/**
+ * Tendrils branch at the sharpest angles and die within ~1/5 of a full
+ * branch length — wisps, not second bolts.
+ */
+const TENDRIL_A = "M 498 490 L 512 468 L 518 458";
+const TENDRIL_B = "M 585 385 L 568 368 L 560 360";
+
+const ORIGIN = { cx: 450, cy: 548, r: 5.5 } as const;
+const TERMINUS = { cx: 728, cy: 232, r: 22 } as const;
 
 export function FolioMessagePulse() {
   const folio = useFolioStage();
@@ -53,16 +82,61 @@ export function FolioMessagePulse() {
       <svg
         className="folio-pulse__svg"
         viewBox="0 0 1000 625"
-        preserveAspectRatio="none"
+        preserveAspectRatio="xMidYMid slice"
         focusable="false"
       >
-        <path
-          className="folio-pulse__vein"
-          d="M 300 556 C 380 545, 430 520, 500 508 C 575 494, 640 420, 726 336"
-          pathLength={1}
-          fill="none"
+        {/* Soft arrival warmth — under/inside plate reading; softer than deckle */}
+        <circle
+          className="folio-pulse__halo"
+          cx={TERMINUS.cx}
+          cy={TERMINUS.cy}
+          r={TERMINUS.r}
         />
-        <circle className="folio-pulse__halo" cx="726" cy="336" r="30" />
+
+        {/* Three-layer bolt: bloom → Buttermilk sheath → near-white core */}
+        <g className="folio-pulse__bolt">
+          <path
+            className="folio-pulse__stroke folio-pulse__stroke--bloom"
+            d={BOLT_PATH}
+            pathLength={1}
+            fill="none"
+          />
+          <path
+            className="folio-pulse__stroke folio-pulse__stroke--sheath"
+            d={BOLT_PATH}
+            pathLength={1}
+            fill="none"
+          />
+          <path
+            className="folio-pulse__stroke folio-pulse__stroke--core"
+            d={BOLT_PATH}
+            pathLength={1}
+            fill="none"
+          />
+        </g>
+
+        <g className="folio-pulse__tendrils">
+          <path
+            className="folio-pulse__tendril folio-pulse__tendril--a"
+            d={TENDRIL_A}
+            pathLength={1}
+            fill="none"
+          />
+          <path
+            className="folio-pulse__tendril folio-pulse__tendril--b"
+            d={TENDRIL_B}
+            pathLength={1}
+            fill="none"
+          />
+        </g>
+
+        {/* Concentrated origin orb on the SEND plate's right edge */}
+        <circle
+          className="folio-pulse__origin"
+          cx={ORIGIN.cx}
+          cy={ORIGIN.cy}
+          r={ORIGIN.r}
+        />
       </svg>
     </div>
   );
