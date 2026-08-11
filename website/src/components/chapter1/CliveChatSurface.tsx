@@ -149,6 +149,10 @@ export function CliveChatSurface({
   const [streamingText, setStreamingText] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Visitor-facing line supplied by the server when a reply fails (for example
+  // the model being unreachable). Shown in place of the generic persona line so
+  // a failure reads as a failure, never as an answer.
+  const [errorNotice, setErrorNotice] = useState<string | null>(null);
   const [freshInk, setFreshInk] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
@@ -306,6 +310,7 @@ export function CliveChatSurface({
   const requestReply = useCallback(
     async (message: string, history: ChatMessage[], nextMessages: ChatMessage[]) => {
       setError(null);
+      setErrorNotice(null);
       setVoiceNote(null);
       setIsThinking(true);
       setStreamingText("");
@@ -338,6 +343,9 @@ export function CliveChatSurface({
 
           if (!response.ok) {
             const data = (await response.json().catch(() => ({}))) as { error?: string };
+            // The route's error copy is written for the visitor, so show it
+            // rather than the generic line.
+            if (data.error) setErrorNotice(data.error);
             throw new Error(data.error ?? "Clive could not answer right now.");
           }
 
@@ -356,6 +364,9 @@ export function CliveChatSurface({
         const detail = err instanceof Error ? err.message : "Something went wrong.";
         setError(detail);
         setStreamingText("");
+        // Clear the "thinking" announcement so assistive tech is not left
+        // reporting a reply in progress; the alert region carries the failure.
+        setStatusMessage("");
         onError?.(detail);
       } finally {
         setIsThinking(false);
@@ -458,7 +469,7 @@ export function CliveChatSurface({
     if (!error) return null;
     return (
       <p className={className} role="alert" title={error}>
-        {errorLine}
+        {errorNotice ?? errorLine}
         {canRetry && (
           <button
             type="button"

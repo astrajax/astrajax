@@ -10,6 +10,7 @@ import {
   buildFallbackStream,
   getSeededReply,
 } from "@/lib/clive/chapter1-fallback";
+import { getModelFailureNotice } from "@/lib/clive/model-failure";
 import type { AskCliveRequest, AskCliveResponse, ChatMessage } from "@/lib/clive/types";
 import { CHAPTER1_BRAIN_SLUG } from "@/lib/brains/airtable-ids";
 import { LOOP_STEPS, type LoopStep } from "@/lib/aie-demo/types";
@@ -276,8 +277,40 @@ export async function POST(request: Request) {
     });
 
     if (stream) {
-      return result.toTextStreamResponse({
+      // Pull the first chunk here, inside the try, before committing to a 200.
+      // streamText() does not reject on connect-time failures (bad key, bad
+      // model id, rate limit) — those surface when the stream is consumed. If
+      // we handed the raw stream straight to the client, a failed call would
+      // arrive as an empty 200 the visitor cannot tell from a real reply.
+      const iterator = result.textStream[Symbol.asyncIterator]();
+      const first = await iterator.next();
+      if (first.done) {
+        throw new Error("Clive returned an empty response.");
+      }
+
+      const encoder = new TextEncoder();
+      const body = new ReadableStream<Uint8Array>({
+        async start(controller) {
+          try {
+            controller.enqueue(encoder.encode(first.value));
+            for (;;) {
+              const next = await iterator.next();
+              if (next.done) break;
+              if (next.value) controller.enqueue(encoder.encode(next.value));
+            }
+            controller.close();
+          } catch (streamError) {
+            // Break the response body rather than closing it cleanly, so a
+            // mid-stream failure reaches the client as an error instead of a
+            // truncated answer that reads as complete.
+            controller.error(streamError);
+          }
+        },
+      });
+
+      return new Response(body, {
         headers: {
+          "Content-Type": "text/plain; charset=utf-8",
           "X-Clive-Context-Source": source,
         },
       });
@@ -295,29 +328,31 @@ export async function POST(request: Request) {
     };
     return NextResponse.json(payload);
   } catch (error) {
-    const reply = getSeededReply(persona, message, beat ?? undefined);
+    // A key is configured and the call was genuinely attempted, so this is a
+    // real failure — not the documented offline path above. Serving a seeded
+    // reply here would answer the visitor's question with stored copy that
+    // streams exactly like a live answer. Clive admits the failure instead.
+    const detail = error instanceof Error ? error.message : "Unknown error";
+    console.warn("Ask Clive model call failed:", detail);
+
+    const notice = getModelFailureNotice(persona);
     await logFallbackExchange({
       sessionId,
       platformHandle,
       turnId,
       persona,
       message,
-      reply,
-      source: "chapter1-fallback",
+      reply: notice,
+      source: "model-error",
     });
-    if (stream) {
-      return new Response(buildFallbackStream(reply), {
-        headers: { "Content-Type": "text/plain; charset=utf-8", "X-Clive-Fallback": "1" },
-      });
-    }
-    const detail = error instanceof Error ? error.message : "Unknown error";
-    console.warn("Ask Clive failed, using fallback:", detail);
-    const payload: AskCliveResponse = {
-      reply,
-      contextSource: "fallback",
-      interactionLogged: false,
-      fallback: true,
-    };
-    return NextResponse.json(payload);
+
+    // Non-2xx for both streaming and JSON callers: the client surfaces this as
+    // a visible failure with a retry, and no assistant turn enters the
+    // transcript. A 200 with a header was readable by the browser and
+    // invisible to the person watching.
+    return NextResponse.json(
+      { error: notice, contextSource: "error", interactionLogged: false },
+      { status: 503, headers: { "X-Clive-Model-Error": "1" } },
+    );
   }
 }
