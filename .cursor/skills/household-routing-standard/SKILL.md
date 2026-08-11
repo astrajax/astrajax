@@ -179,8 +179,10 @@ One job per invocation. Two jobs → two briefs.
 
 ## Default — no matching lane
 
-If work fits no route, **say so plainly to Matthew and stop.** Never force the nearest
-fit, never invent a lane, never quietly do another lane's job yourself.
+If no route clearly owns the work, use **generic** (Composer / default agent), tell Matthew
+which lane you considered and why it did not fit, and **proceed.** Ambiguity must not stall
+work. Never force the nearest fit, never invent a lane, never quietly do another lane's job
+yourself. Lane table: `.cursor/rules/lane-routing.mdc`.
 
 ## What routing never launders
 
@@ -195,7 +197,7 @@ Targets' own NEVER lists stand unchanged.
 - Right lane? (Truth → Clive's Man. Repo/product build → Doc. Painted-world scenic →
   Kate. Red+novel → Pam. Spine → Lazlo. Thinking → Clive. Agent health → Hal.
   Research → Ristral. Data-layer → Ruth. Skin → Kathryn. Motion → Milo.
-  Nothing fits → say so.)
+  Nothing fits → generic; name the lane you considered and why.)
 - Website work? Use the **Website build flow** stage table — then Man exit if durable.
 - Have I added ANY step the structure doesn't demand? Remove it.
 - Is anything here actually Red? Then it's a proposal to Matthew, not a silent routing.
