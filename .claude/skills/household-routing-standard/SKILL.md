@@ -39,12 +39,13 @@ or source material that should live in the brains as draft truth.
 **Notes:** draft/proposed records only. Matthew's gate is PROMOTION, not capture volume.
 
 ### Route 2 — Something to build (AstraJax repo / product agents)
-**Trigger:** system change in the AstraJax repo, non-scenic website/product work,
-agent config artifacts, registry packs, generator work, Vercel app work.
+**Trigger:** system change in the AstraJax repo, website data/API/env/deploy wiring,
+agent config artifacts, registry packs, generator work, Vercel app wiring.
 **Target:** `@doc` (he names and dispatches Workshop / Vercel / Brain-base minions)
 **Notes:** respect Doc's Phase A → approval → Phase B. Do not stack extra gates.
-Painted-world scenic craft (`website/` rooms, plaques, loops, hotspots) is Route 9
-(`@kate`), not Doc. See **Website build flow** below.
+Front-end UI and interface work (`website/` pages/components, including painted-world
+rooms, plaques, loops, hotspots) is Route 9 (`@kate`), not Doc. See **Website build
+flow** below.
 
 ### Route 3 — Challenge (Red-tier + novel only)
 **Trigger:** a decision that is BOTH Red tier (irreversible/high-stakes) AND genuinely
@@ -81,12 +82,14 @@ challenge). Not Doc (build). Not business analytics.
 **Target:** `@milo-cadence`
 **Notes:** fal via `scripts/fal/previz.py` when generating. Rough previz, not final art.
 
-### Route 9 — Painted-world site craft
-**Trigger:** wiring rooms, hotspots, plaques, loops, scene manifests in `website/`.
+### Route 9 — Front-end UI / site craft
+**Trigger:** front-end UI and interface work in `website/` — make this interface work /
+look right; includes painted-world rooms, hotspots, plaques, loops, scene manifests.
 **Target:** `@kate`
-**Notes:** scenic workshop only. New art originates with Kathryn/TL. After an
-approved scenic change ships, Kate must hand durable outcomes to `@clive-man`
-(Route 1) — same exit ramp as Doc's builders. See **Website build flow** below.
+**Notes:** painted-world is Kate's signature specialism, not her only boundary. New art
+originates with Kathryn/TL. After an approved UI change ships, Kate must hand durable
+outcomes to `@clive-man` (Route 1) — same exit ramp as Doc's builders. See **Website
+build flow** below.
 
 ### Route 10 — Research / best-practice scout
 **Trigger:** weekly or ad-hoc best-practice scouting for a watched agent; external operating
@@ -125,13 +128,13 @@ Clive's Man so Airtable holds what happened — not only the chat.
 | Should we / trade-off | `@clive` | Decision brief (Route 5) |
 | Red + novel only | `@pam` | Challenge; verdict returns to Matthew (Route 3) |
 | Skin / still direction | `@kathryn-goodchild` | Taste partner; TL decides (Route 7) |
-| Scenic craft | `@kate` | Rooms, plaques, loops, hotspots, scene manifests (Route 9) |
-| Product / API / non-scenic site build | `@doc` → Vercel (or other) minion | Phase A → Matthew approval → Phase B (Route 2) |
+| Front-end UI / interface (incl. painted-world) | `@kate` | Pages, components, rooms, plaques, loops, hotspots, scene manifests (Route 9) |
+| Data / API / env / deploy wiring | `@doc` → Vercel (or other) minion | Phase A → Matthew approval → Phase B (Route 2) |
 | Paper trail | `@clive-man` | Draft Airtable record of what happened (Route 1) |
 
-**Scenic vs product split:** if the change is presentation-layer painted-world
-craft → `@kate`. If it is product UI, API routes, Brain Key wiring, env/deploy,
-or other non-scenic `website/` work → `@doc` (usually Vercel Minion). Never
+**UI vs wiring split:** if the change is front-end UI / interface work (including
+presentation-layer painted-world craft) → `@kate`. If it is API routes, Brain Key
+wiring, env/deploy, or other data/shipping work → `@doc` (usually Vercel Minion). Never
 "whoever is free edits `website/`."
 
 ### Clive's Man exit (mandatory for durable outcomes)
@@ -142,7 +145,7 @@ Hand off to `@clive-man` (or `@clive-man-executor` when triage is unnecessary)
 | Outcome | Who invokes |
 |---|---|
 | Doc Phase B completed (any execution minion) | That minion / Doc thread |
-| Kate scenic change shipped (approved PR/merge path or equivalent) | `@kate` |
+| Kate UI change shipped (approved PR/merge path or equivalent) | `@kate` |
 | Clive decision Matthew accepted that changes what gets built | `@clive` |
 | Pam-cleared brief that changes what gets built | `@pam` (Route 1 brief; Pam does not build) |
 | Kathryn direction TL/Matthew adopts | `@kathryn-goodchild` (Route 1 brief; Kathryn does not edit repo) |
@@ -194,7 +197,7 @@ Targets' own NEVER lists stand unchanged.
 ## Self-check before routing
 
 - Is the brief self-contained — could the target act with zero access to this thread?
-- Right lane? (Truth → Clive's Man. Repo/product build → Doc. Painted-world scenic →
+- Right lane? (Truth → Clive's Man. Repo/product build → Doc. Front-end UI →
   Kate. Red+novel → Pam. Spine → Lazlo. Thinking → Clive. Agent health → Hal.
   Research → Ristral. Data-layer → Ruth. Skin → Kathryn. Motion → Milo.
   Nothing fits → generic; name the lane you considered and why.)

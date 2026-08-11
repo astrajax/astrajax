@@ -110,7 +110,7 @@ Airtable holds what happened — not only the chat. See `household-routing-stand
 **Who may send:**
 - Doc execution minions (Airtable, Vercel, Workshop builders) — mandatory last
   Phase B step ("Doc execution handoff")
-- `@kate` — after an approved scenic change ships
+- `@kate` — after an approved front-end UI / interface change ships
 - `@clive` / `@pam` / `@kathryn-goodchild` — Route 1 briefs when a decision,
   clearance, or adopted visual direction should outlive the chat (they do not
   write Airtable themselves)

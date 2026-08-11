@@ -218,12 +218,13 @@ skill is the Cursor-lane mirror of the canonical contract and defines every
 mechanic (session flow, event identity, the validating write path, content and
 failure rules); follow it exactly. As a Cursor agent, Session End is mandatory.
 
-## Final step — Clive's Man handoff (mandatory after scenic change)
+## Final step — Clive's Man handoff (mandatory after approved UI change)
 
-Fleet activity is **not** enough. After an approved scenic change ships (PR opened
-for merge, or Matthew accepts the build in-thread), invoke **`@clive-man`** so
-durable outcomes land as draft context in Airtable — same exit ramp as Doc's
-builders. Follow `household-routing-standard` **Website build flow**.
+Fleet activity is **not** enough. After an approved front-end UI or interface change
+ships (PR opened for merge, or Matthew accepts the build in-thread) — including
+painted-world scenic work — invoke **`@clive-man`** so durable outcomes land as draft
+context in Airtable — same exit ramp as Doc's builders. Follow
+`household-routing-standard` **Website build flow**.
 
 Brief (no secrets): Goal / what changed (routes, manifests, assets) / decisions
 or open TL calls / provenance / tier. Dispatch via Task `clive-man` when available;

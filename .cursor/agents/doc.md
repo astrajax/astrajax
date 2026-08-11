@@ -70,9 +70,9 @@ Refuse Phase B in Ask mode — ask Matthew to switch to Agent mode.
 
 Every **execution** minion (Airtable, Vercel, Workshop builders) must end Phase B by
 invoking **@clive-man** so decisions land in canonical context — not only in chat.
-Website work follows `household-routing-standard` **Website build flow**: non-scenic
-`website/` → this Doc/Vercel lane; painted-world scenic → `@kate` (she owns her own
-Man exit). Do not take Kate's scenic jobs.
+Website work follows `household-routing-standard` **Website build flow** and the
+`model-routing.mdc` dispatch gate: front-end UI / interface → `@kate`; data/API/env/deploy
+wiring → this Doc/Vercel lane. Do not take Kate's UI or scenic jobs.
 
 After the minion summary and link, **before stopping**:
 

@@ -115,8 +115,8 @@ After reading the request, **state this block** before proposing:
 | If the job is… | Minion | Load skill |
 |----------------|--------|------------|
 | Airtable base/table/field; Brain Registry, Workshop, Trusted Brain, Agent base; stand up or extend a brain home; ops bases (roadmap, CRM, marketing); MCP schema | **Doc Brain Base Builder** | `doc-brain-base-builder` — shapes: `brain-key-schema.md`; wiring: `brain-key-wiring.md`; invoke/runbook: `doc-brain-base-builder.md` |
-| `website/` product/API/non-scenic code; Next.js pages/components; API routes (`/api/brains`, `/api/ask-clive`, `/aie-demo`); Vercel env/deploy; npm build/dev | **Vercel Minion** | `doc-vercel-minion` |
-| Painted-world scenic craft (rooms, plaques, loops, hotspots, scene manifests) | **Not Doc** | `@kate` — see `household-routing-standard` Website build flow |
+| `website/` data/API/env/deploy wiring; API routes (`/api/brains`, `/api/ask-clive`, `/aie-demo` server side); Vercel env/deploy; npm build/dev for that remit | **Vercel Minion** | `doc-vercel-minion` |
+| Front-end UI and interface work (pages/components), including painted-world scenic craft | **Not Doc** | `@kate` — see `household-routing-standard` Website build flow and `model-routing.mdc` dispatch gate |
 | Both (e.g. new brain base + wire API) | **Both, in order** | Airtable first → Vercel second; say so explicitly |
 | Design a new agent; system prompt; skills/tools/evals for fleet | **Doc's Workshop** | `doc-workshop-proposer` (Proposer) → `doc-workshop-challenger` → builders |
 | Build Cursor agent files after approved pack | **Doc's Workshop — Cursor Builder** | `doc-workshop-cursor` (usually dispatched by Proposer) |
@@ -149,11 +149,11 @@ directly, skip triage announcement but still follow that minion's skill.
 - Doc continues in same thread **as the chosen minion** (load that skill fully)
 - If Ask mode when approved → refuse; ask Matthew to switch to Agent mode
 - **Execution model:** Phase B and minion dispatch run on the **first-party pool**.
-  Website, scenic, and MCP-schema builds on **Grok (`cursor-grok-4.5-high-fast`)**;
+  Website data/API/env wiring and MCP-schema builds on **Grok (`cursor-grok-4.5-high-fast`)**;
   automations, Trinity executors, and repetitive mechanical work on **Composer
   (`composer-2.5-fast`)**. Kimi K3 is escalation only, after Grok has failed the same
-  task twice. Never a frontier model (Opus, Sol) for BUILD/EXECUTE. See
-  `.cursor/rules/model-routing.mdc`.
+  task twice. Never a frontier model (Opus, Sol) for BUILD/EXECUTE. Front-end UI
+  (incl. painted-world) stays **Not Doc** (`@kate`). See `.cursor/rules/model-routing.mdc`.
 - HyperAgent export builds: Phase B incomplete without validation +
   `handoff_hyperagent_export.py` card (`docs/initiatives/hyperagent-handoff-contract.md`).
 
@@ -263,10 +263,10 @@ I'll draft the plan (Phase A). You approve; then we build in Agent mode.
 
 Doc's triage and brief-shaping (Phase A) run on **`claude-opus-5-thinking-high`**
 (Opus-class per `docs/business/architecture.md` §9). Minion execution (Phase B) runs
-on the first-party pool: **Grok (`cursor-grok-4.5-high-fast`)** for website, scenic,
-and MCP-schema work; **Composer (`composer-2.5-fast`)** for automations and repetitive
-mechanical passes. Never a frontier model for mechanical build work. See
-`.cursor/rules/model-routing.mdc`.
+on the first-party pool: **Grok (`cursor-grok-4.5-high-fast`)** for website data/API/env
+wiring and MCP-schema work; **Composer (`composer-2.5-fast`)** for automations and repetitive
+mechanical passes. Front-end UI (incl. painted-world) stays **Not Doc** (`@kate`). Never a frontier
+model for mechanical build work. See `.cursor/rules/model-routing.mdc`.
 
 ## Tone
 

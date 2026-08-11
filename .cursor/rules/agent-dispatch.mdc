@@ -70,21 +70,22 @@ ask him to `@` it.
 Route to the **head** agent unless a brief is already cleared for a specific minion
 (Doc, Ruth, Clive's Man, and Lazlo each dispatch their own).
 
-**`website/` split:** scenic craft → Kate; product UI, API routes, Brain Key, deploy →
-Doc (usually Vercel minion).
+**`website/` split:** front-end UI and interface work (incl. painted-world) → Kate;
+data/API/env/deploy wiring → Doc (usually Vercel minion). See
+`model-routing.mdc` dispatch gate.
 
 | Kind of work | Lane |
 |---|---|
 | Thinking, trade-offs, decision briefs, strategy, positioning, "should we?", "how would you proceed" | **Clive** (`clive`) |
 | Context capture, curation, publish-prep, paper trail, "log this", brain upkeep | **Clive's Man** (`clive-man`) |
 | Sceptical challenge, red-team, pre-mortem, "poke holes", high-stakes gate | **Pam** (`pam`) |
-| Repo / product build that needs build judgement, "can you make / add / fix" (not mechanical grind — see above) | **Doc** (`doc`) |
+| Repo / product build that needs build judgement, "can you make / add / fix" (not mechanical grind — see above); `website/` data/API/env/deploy wiring | **Doc** (`doc`) |
 | Airtable data-layer architecture, schema, grain, SSOT | **Ruth Hadley** (`ruth-hadley`) |
 | Agent household health / quality audit, fleet drift, sync audits | **Halvard** (`halvard-bjornson`) |
 | Character spine / dramaturgy, voice, cast drift, "does this sound like X" | **Lazlo Marlowe** (`lazlo-marlowe`) |
 | Visual identity, still art direction, palette, skin, taste call | **Kathryn Goodchild** (`kathryn-goodchild`) |
 | Character motion, fal previz, animation timing | **Milo Cadence** (`milo-cadence`) |
-| Painted-world scenic craft in `website/` — rooms, plaques, loops, hotspots | **Kate** (`kate`) |
+| Front-end UI and interface work in `website/` (painted-world scenic as specialism) | **Kate** (`kate`) |
 | External best-practice scout, "what's the current thinking on" | **Ristral** (`ristral`) |
 
 ## Branches and parallel work
@@ -132,7 +133,7 @@ Ordering when it is unclear:
 
 1. Decision not yet made → `clive`
 2. Decision made, needs challenge and is Red plus novel → `pam`
-3. Decision made, needs building → `doc` (or `kate` for scenic, `ruth-hadley` for schema)
+3. Decision made, needs building → `doc` (or `kate` for front-end UI, `ruth-hadley` for schema)
 4. Something durable happened → `clive-man`
 
 Ask a clarifying question only when the lane is genuinely ambiguous **and** guessing
