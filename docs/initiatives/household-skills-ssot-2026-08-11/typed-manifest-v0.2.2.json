@@ -552,7 +552,7 @@
     "createCapExceeded",
     "anyExistingRecordUpdate",
     "oldSelectChoiceStillInUse",
-    "schemaDriftBeforeMutation",
+    "schemaDriftAbortBeforeMutation",
     "idempotencyKeySlugMismatch"
   ],
   "fixturesRequired": [
