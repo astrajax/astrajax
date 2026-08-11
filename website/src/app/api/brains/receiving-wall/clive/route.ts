@@ -1,3 +1,4 @@
+import { requireOperatorSession, isAuthFailure } from "@/lib/auth/require-operator";
 import {
   handleReceivingWallClive,
   sanitiseReceivingWallCliveHistory,
@@ -8,8 +9,14 @@ import { jsonError, jsonOk } from "@/lib/brains/http";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/**
+ * Operator-only. Sibling of GET /api/brains/receiving-wall — the wall UI is
+ * signed-in, and this endpoint can write Workshop interaction logs and spend
+ * Anthropic when live credentials are present.
+ */
 export async function POST(request: Request) {
   try {
+    await requireOperatorSession();
     const body = (await request.json()) as {
       sessionId?: string;
       message?: string;
@@ -33,6 +40,6 @@ export async function POST(request: Request) {
 
     return jsonOk(result);
   } catch (error) {
-    return jsonError(error);
+    return jsonError(error, isAuthFailure(error) ? 401 : 400);
   }
 }
