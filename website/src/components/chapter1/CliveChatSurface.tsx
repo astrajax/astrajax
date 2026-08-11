@@ -6,6 +6,7 @@ import { StudyAssistantText } from "@/components/chapter1/StudyAssistantText";
 import { StudyMarkdown } from "@/components/chapter1/StudyMarkdown";
 import { useFolioStage } from "@/components/chapter1/FolioStageContext";
 import { usePlatformSession } from "@/components/platform-session/PlatformSessionProvider";
+import { getModelFailureNotice } from "@/lib/clive/model-failure";
 import { useCliveVoice } from "@/lib/clive/use-clive-voice";
 import type { ChatMessage, ClivePersona } from "@/lib/clive/types";
 import type { PlatformTurnContext } from "@/lib/platform-activity/types";
@@ -149,6 +150,10 @@ export function CliveChatSurface({
   const [streamingText, setStreamingText] = useState("");
   const [isThinking, setIsThinking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Visitor-facing line supplied by the server when a reply fails (for example
+  // the model being unreachable). Shown in place of the generic persona line so
+  // a failure reads as a failure, never as an answer.
+  const [errorNotice, setErrorNotice] = useState<string | null>(null);
   const [freshInk, setFreshInk] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
@@ -306,6 +311,7 @@ export function CliveChatSurface({
   const requestReply = useCallback(
     async (message: string, history: ChatMessage[], nextMessages: ChatMessage[]) => {
       setError(null);
+      setErrorNotice(null);
       setVoiceNote(null);
       setIsThinking(true);
       setStreamingText("");
@@ -338,10 +344,25 @@ export function CliveChatSurface({
 
           if (!response.ok) {
             const data = (await response.json().catch(() => ({}))) as { error?: string };
+            // The route's error copy is written for the visitor, so show it
+            // rather than the generic line.
+            if (data.error) setErrorNotice(data.error);
             throw new Error(data.error ?? "Clive could not answer right now.");
           }
 
-          reply = await readTextStream(response, setStreamingText);
+          // A 200 can still fail after headers: mid-stream abort, or a body
+          // that trims to nothing. Both must use the same honest notice as a
+          // 503 — never a blank assistant turn or the generic ink line alone.
+          try {
+            reply = await readTextStream(response, setStreamingText);
+            if (!reply) {
+              throw new Error("Clive returned an empty response.");
+            }
+          } catch {
+            const notice = getModelFailureNotice(persona);
+            setErrorNotice(notice);
+            throw new Error(notice);
+          }
           skipNextAnimationRef.current = true;
         }
 
@@ -356,6 +377,9 @@ export function CliveChatSurface({
         const detail = err instanceof Error ? err.message : "Something went wrong.";
         setError(detail);
         setStreamingText("");
+        // Clear the "thinking" announcement so assistive tech is not left
+        // reporting a reply in progress; the alert region carries the failure.
+        setStatusMessage("");
         onError?.(detail);
       } finally {
         setIsThinking(false);
@@ -458,7 +482,7 @@ export function CliveChatSurface({
     if (!error) return null;
     return (
       <p className={className} role="alert" title={error}>
-        {errorLine}
+        {errorNotice ?? errorLine}
         {canRetry && (
           <button
             type="button"
