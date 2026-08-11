@@ -17,8 +17,14 @@ export type SourcePackFile = {
   id: string;
   name: string;
   extension: string;
-  sizeMb: number;
-  state: "queued" | "staging" | "staged" | "failed";
+  sizeBytes: number;
+  state: "selecting" | "uploading" | "uploaded" | "failed";
+  /** Vercel Blob URL — present only when state is "uploaded". */
+  blobUrl?: string;
+  /** Error message when state is "failed". */
+  error?: string;
+  /** Upload progress 0-100 (not always available). */
+  progress?: number;
 };
 
 export type RouteId = "bring-material" | "talk-through";
@@ -143,6 +149,106 @@ export function stageFile(state: OnboardingState, file: SourcePackFile): Onboard
     ? state.files.map((f) => (f.id === file.id ? file : f))
     : [...state.files, file];
   return { ...state, files };
+}
+
+export function updateFileState(
+  state: OnboardingState,
+  fileId: string,
+  update: Partial<SourcePackFile>,
+): OnboardingState {
+  return {
+    ...state,
+    files: state.files.map((f) => (f.id === fileId ? { ...f, ...update } : f)),
+  };
+}
+
+export function removeFile(state: OnboardingState, fileId: string): OnboardingState {
+  return { ...state, files: state.files.filter((f) => f.id !== fileId) };
+}
+
+/**
+ * Ruth's Source Pack limits — single source of truth for UI copy,
+ * client validation, and server token minting.
+ */
+export const SOURCE_PACK_LIMITS = {
+  maxFiles: 5,
+  maxBytesPerFile: 20 * 1024 * 1024, // 20 MiB
+  maxBytesTotal: 50 * 1024 * 1024, // 50 MiB
+  allowedExtensions: [".pdf", ".docx", ".xlsx", ".csv", ".md", ".txt"] as const,
+  allowedMimeTypes: [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "text/csv",
+    "text/markdown",
+    "text/plain",
+  ] as const,
+  /** Private Blob prefix every minted token is scoped to. */
+  uploadPrefix: "onboarding-uploads/",
+} as const;
+
+/** Plain-English limit line for the Source Pack screen. */
+export function sourcePackLimitsSummary(): string {
+  const maxFiles = SOURCE_PACK_LIMITS.maxFiles;
+  const totalMb = SOURCE_PACK_LIMITS.maxBytesTotal / 1024 / 1024;
+  const eachMb = SOURCE_PACK_LIMITS.maxBytesPerFile / 1024 / 1024;
+  return `Up to ${maxFiles} files · ${totalMb} MB total · ${eachMb} MB each.`;
+}
+
+/** Files that count toward Ruth's Source Pack caps (failed picks do not). */
+export function filesCountingTowardLimit(files: SourcePackFile[]): SourcePackFile[] {
+  return files.filter((f) => f.state !== "failed");
+}
+
+export function canAddFile(state: OnboardingState, sizeBytes: number): { ok: boolean; reason?: string } {
+  const active = filesCountingTowardLimit(state.files);
+  if (active.length >= SOURCE_PACK_LIMITS.maxFiles) {
+    return { ok: false, reason: `Maximum ${SOURCE_PACK_LIMITS.maxFiles} files allowed` };
+  }
+  if (sizeBytes > SOURCE_PACK_LIMITS.maxBytesPerFile) {
+    return { ok: false, reason: `File exceeds ${SOURCE_PACK_LIMITS.maxBytesPerFile / 1024 / 1024} MiB limit` };
+  }
+  const totalBytes = active.reduce((sum, f) => sum + f.sizeBytes, 0) + sizeBytes;
+  if (totalBytes > SOURCE_PACK_LIMITS.maxBytesTotal) {
+    return { ok: false, reason: `Would exceed ${SOURCE_PACK_LIMITS.maxBytesTotal / 1024 / 1024} MiB total limit` };
+  }
+  return { ok: true };
+}
+
+/** Returns true if all files are uploaded (none pending/uploading). */
+export function allFilesUploaded(state: OnboardingState): boolean {
+  return state.files.length > 0 && state.files.every((f) => f.state === "uploaded");
+}
+
+/** Returns true if any file is currently uploading. */
+export function hasUploadingFiles(state: OnboardingState): boolean {
+  return state.files.some((f) => f.state === "uploading");
+}
+
+/** Route A continue: every staged file must be uploaded; uploading/failed block. */
+export function canContinueSourcePack(state: OnboardingState): boolean {
+  return allFilesUploaded(state) && !hasUploadingFiles(state);
+}
+
+export function sourcePackContinueLabel(state: OnboardingState): string {
+  if (hasUploadingFiles(state)) return "Uploading…";
+  if (state.files.length === 0) return "Add files to continue";
+  if (state.files.some((f) => f.state === "failed")) return "Fix failed uploads to continue";
+  return "See what Clive found";
+}
+
+/**
+ * Route B continue: optional supporting file — absent or uploaded is fine;
+ * uploading / failed must not advance (mirrors Route A gating).
+ */
+export function canContinueSupportingFile(state: OnboardingState): boolean {
+  return !state.supportingFile || state.supportingFile.state === "uploaded";
+}
+
+export function supportingFileContinueLabel(state: OnboardingState): string {
+  if (state.supportingFile?.state === "uploading") return "Uploading…";
+  if (state.supportingFile?.state === "failed") return "Fix failed uploads to continue";
+  return "See what Clive has drafted";
 }
 
 export function answerGap(state: OnboardingState, questionId: string, answer: string): OnboardingState {

@@ -9,7 +9,7 @@
 import { describe, expect, it } from "vitest";
 import { validateOnboardingFixture } from "./validate-v1";
 import { ONBOARDING_FIXTURE_V1 } from "./fixture-v1";
-import type { OnboardingFixture } from "./contract-v1";
+import type { ImportedEvidence, OnboardingFixture, SourceObject } from "./contract-v1";
 
 const base: OnboardingFixture = JSON.parse(JSON.stringify(ONBOARDING_FIXTURE_V1));
 
@@ -46,12 +46,17 @@ describe("V1.0.0 semantic validator — rules fire", () => {
   });
 
   it("catches an unresolved evidence source reference", () => {
-    const f = mutate((x) => { (x.evidence[0] as never).sourceId = "src_missing"; });
+    const f = mutate((x) => {
+      (x.evidence[0] as ImportedEvidence).sourceId = "src_missing";
+    });
     expect(validateOnboardingFixture(f).findings.some((k) => k.code === "REF_SOURCE")).toBe(true);
   });
 
   it("catches a hash mismatch between evidence and source", () => {
-    const f = mutate((x) => { (x.evidence[0] as never).sourceSha256 = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"; });
+    const f = mutate((x) => {
+      (x.evidence[0] as ImportedEvidence).sourceSha256 =
+        "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+    });
     expect(validateOnboardingFixture(f).findings.some((k) => k.code === "HASH_MATCH")).toBe(true);
   });
 
@@ -159,11 +164,18 @@ describe("V1.0.0 semantic validator — rules fire", () => {
   });
 
   it("V1.1.0 source statuses: objectStatus and versionProcessingStatus are distinct and queued is barred", () => {
-    const badObj = mutate((x) => { (x.sourcePack.sources[0] as never).objectStatus = "extracted"; });
+    const badObj = mutate((x) => {
+      (x.sourcePack.sources[0] as SourceObject).objectStatus = "extracted" as SourceObject["objectStatus"];
+    });
     expect(validateOnboardingFixture(badObj).findings.some((k) => k.code === "OBJECT_STATUS")).toBe(true);
-    const queued = mutate((x) => { (x.sourcePack.sources[0] as never).versionProcessingStatus = "queued"; });
+    const queued = mutate((x) => {
+      (x.sourcePack.sources[0] as SourceObject).versionProcessingStatus =
+        "queued" as SourceObject["versionProcessingStatus"];
+    });
     expect(validateOnboardingFixture(queued).findings.some((k) => k.code === "VERSION_QUEUED")).toBe(true);
-    const good = mutate((x) => { (x.sourcePack.sources[0] as never).versionProcessingStatus = "ready_for_ai"; });
+    const good = mutate((x) => {
+      x.sourcePack.sources[0].versionProcessingStatus = "ready_for_ai";
+    });
     expect(validateOnboardingFixture(good).valid).toBe(true);
   });
 });

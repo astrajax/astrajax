@@ -14,7 +14,8 @@
  * confirmation events target exact inference ID + version and snapshot the
  * presented value; only accepted-for-Workshop items reach the draft.
  */
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { getOnboardingFixtureV1 } from "@/lib/onboarding/fixture-v1";
 import {
   evidenceEdgesFor,
@@ -29,24 +30,38 @@ import {
   answerProbe,
   backStep,
   canAcceptDraft,
+  canContinueSourcePack,
+  canContinueSupportingFile,
   canSwitchRoute,
   chooseRoute,
   initialOnboardingState,
   nextStep,
   probeProgress,
+  removeFile,
   setConfirmation,
   setCorrection,
+  sourcePackContinueLabel,
+  sourcePackLimitsSummary,
   stageFile,
   stopProbingEarly,
+  supportingFileContinueLabel,
+  updateFileState,
   type OnboardingState,
   type RouteId,
+  type SourcePackFile,
 } from "@/lib/onboarding/machine";
+import {
+  readOnboardingStaging,
+  writeOnboardingStaging,
+} from "@/lib/onboarding/staging-persistence";
+import { SourcePackUploader } from "@/components/onboarding/SourcePackUploader";
 import { StudyMarkdown } from "@/components/chapter1/StudyMarkdown";
 import { FolioActionLedger } from "@/components/chapter1/FolioActionLedger";
 import { SourcePackPlate } from "@/components/onboarding/plates/SourcePackPlate";
 import { CorpusCensusPlate } from "@/components/onboarding/plates/CorpusCensusPlate";
 import { ProvisionalConstellationPlate } from "@/components/onboarding/plates/ProvisionalConstellationPlate";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
+import "./onboarding.css";
 
 const ROUTE_LABELS: Record<RouteId, { verb: string; bestWhen: string }> = {
   "bring-material": { verb: "Bring your material", bestWhen: "Best when your documents already exist." },
@@ -61,7 +76,29 @@ export function OnboardingFlow() {
   const fixture = useMemo(() => getOnboardingFixtureV1(), []);
   const [state, setState] = useState<OnboardingState>(() => initialOnboardingState());
   const [draft, setDraft] = useState("");
+  const [stagingHydrated, setStagingHydrated] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
+
+  // Restore after mount to avoid SSR/client HTML mismatch.
+  useEffect(() => {
+    const restored = readOnboardingStaging();
+    if (restored && (restored.files.length > 0 || restored.supportingFile)) {
+      setState((s) => ({
+        ...s,
+        files: restored.files,
+        supportingFile: restored.supportingFile,
+      }));
+    }
+    setStagingHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!stagingHydrated) return;
+    writeOnboardingStaging({
+      files: state.files,
+      supportingFile: state.supportingFile,
+    });
+  }, [state.files, state.supportingFile, stagingHydrated]);
 
   const choose = useCallback((route: RouteId) => setState((s) => chooseRoute(s, route)), []);
   const next = useCallback(() => setState((s) => nextStep(s)), []);
@@ -114,12 +151,21 @@ export function OnboardingFlow() {
           </p>
           <div className="onboarding__routes">
             {(Object.keys(ROUTE_LABELS) as RouteId[]).map((route, i) => (
-              <button key={route} type="button" className="onboarding__route-card" onClick={() => choose(route)}>
-                <img
+              <button
+                key={route}
+                type="button"
+                className="onboarding__route-card"
+                onClick={() => choose(route)}
+                aria-label={`${ROUTE_LABELS[route].verb}. ${ROUTE_LABELS[route].bestWhen}`}
+              >
+                <Image
                   className="onboarding__route-frame"
                   src={i === 0 ? "/brand/system-assets/folio/furniture/docket-frame-left.svg" : "/brand/system-assets/folio/furniture/docket-frame-right.svg"}
                   alt=""
+                  width={553}
+                  height={287}
                   aria-hidden
+                  unoptimized
                 />
                 <span className="onboarding__route-verb">{ROUTE_LABELS[route].verb}</span>
                 <span className="onboarding__route-best">{ROUTE_LABELS[route].bestWhen}</span>
@@ -153,53 +199,30 @@ export function OnboardingFlow() {
       {state.step === "a-source-pack" && (
         <FlowShell step="Bring your material · the Source Pack" onBack={back}>
           <h2 className="onboarding__h2">Your Source Pack.</h2>
-          <p className="onboarding__lede">
-            Up to {fixture.sourcePack.limits.maxFiles} files ·{" "}
-            {Math.round(fixture.sourcePack.limits.maxBytesTotal / 1048576)} MB total ·{" "}
-            {Math.round(fixture.sourcePack.limits.maxBytesPerFile / 1048576)} MB each.
-          </p>
-          <ul className="onboarding__file-list">
-            {fixture.sourcePack.sources.map((s) => (
-              <li key={s.sourceId} className="onboarding__file onboarding__file--staged">
-                <span className="onboarding__file-name">{s.filename}</span>
-                <span className="onboarding__file-meta">
-                  {s.fileFamily.replace(/_/g, " ")} · {Math.round(s.sizeBytes / 1024)} KB · {s.versionProcessingStatus}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <SourcePackPlate
-            items={fixture.evidence.map((e) => ({
-              id: e.evidenceId,
-              evidenceClass: e.evidenceClass,
-              label: isImported(e) ? e.locator.label : `“${e.responseText.slice(0, 24)}…”`,
-              provenance: isImported(e) ? e.locator.kind.replace(/_/g, " ") : `turn ${e.turnId.replace(/\D/g, "") || e.turnId}`,
-            }))}
-            reducedMotion={reducedMotion}
+          <p className="onboarding__lede">{sourcePackLimitsSummary()}</p>
+          {/* Blank-plate grammar: live file labels on the Source Pack plate;
+              the uploader is the interaction surface beneath. */}
+          {state.files.length > 0 ? (
+            <SourcePackPlate
+              items={state.files.map((f) => ({
+                id: f.id,
+                evidenceClass: "imported_document" as const,
+                label: f.name,
+                provenance: f.state === "uploaded" ? "uploaded" : f.state === "uploading" ? "uploading…" : f.state === "failed" ? "failed" : f.extension || "file",
+              }))}
+              reducedMotion={reducedMotion}
+            />
+          ) : null}
+          <SourcePackUploader
+            state={state}
+            onFileSelect={(file: SourcePackFile) => setState((s) => stageFile(s, file))}
+            onFileUpdate={(fileId, update) => setState((s) => updateFileState(s, fileId, update))}
+            onFileRemove={(fileId) => setState((s) => removeFile(s, fileId))}
           />
-          <div className="onboarding__drop">
-            <p className="onboarding__body">
-              Drop files here, or{" "}
-              <button
-                type="button"
-                className="onboarding__link-btn"
-                onClick={() =>
-                  setState((s) =>
-                    stageFile(s, {
-                      id: `f-${Date.now()}`,
-                      name: "another-document.pdf",
-                      extension: ".pdf",
-                      sizeMb: 1.4,
-                      state: "staging",
-                    }),
-                  )
-                }
-              >
-                browse
-              </button>
-            </p>
-          </div>
-          <NavRow onPrimary={next} primaryLabel="See what Clive found" />
+          <NavRow
+            onPrimary={canContinueSourcePack(state) ? next : undefined}
+            primaryLabel={sourcePackContinueLabel(state)}
+          />
         </FlowShell>
       )}
 
@@ -253,7 +276,12 @@ export function OnboardingFlow() {
           {currentQuestion ? (
             <>
               <Composer value={draft} onChange={setDraft} onSubmit={submitAnswer} label="Your answer" />
-              <button type="button" className="onboarding__link-btn" onClick={() => setState((s) => stopProbingEarly(s))}>
+              <button
+                type="button"
+                className="onboarding__link-btn"
+                onClick={() => setState((s) => stopProbingEarly(s))}
+                aria-label="Stop probing early and go to what you've captured"
+              >
                 That's enough — go to what you've captured
               </button>
             </>
@@ -267,25 +295,23 @@ export function OnboardingFlow() {
       {state.step === "b-supporting-file" && (
         <FlowShell step="Talk it through · one file, if it helps" onBack={back}>
           <h2 className="onboarding__h2">One supporting file — entirely optional.</h2>
-          {state.supportingFile ? (
-            <p className="onboarding__body">✓ {state.supportingFile.name} attached.</p>
-          ) : (
-            <div className="onboarding__drop">
-              <button
-                type="button"
-                className="onboarding__link-btn"
-                onClick={() =>
-                  setState((s) => ({
-                    ...s,
-                    supportingFile: { id: `f-support-${Date.now()}`, name: "supporting-note.md", extension: ".md", sizeMb: 0.1, state: "staged" },
-                  }))
-                }
-              >
-                Attach one file
-              </button>
-            </div>
-          )}
-          <NavRow onPrimary={next} primaryLabel="See what Clive has drafted" />
+          <SourcePackUploader
+            state={{ ...state, files: state.supportingFile ? [state.supportingFile] : [] }}
+            maxFiles={1}
+            onFileSelect={(file: SourcePackFile) => setState((s) => ({ ...s, supportingFile: file }))}
+            onFileUpdate={(fileId, update) =>
+              setState((s) =>
+                s.supportingFile && s.supportingFile.id === fileId
+                  ? { ...s, supportingFile: { ...s.supportingFile, ...update } }
+                  : s,
+              )
+            }
+            onFileRemove={() => setState((s) => ({ ...s, supportingFile: null }))}
+          />
+          <NavRow
+            onPrimary={canContinueSupportingFile(state) ? next : undefined}
+            primaryLabel={supportingFileContinueLabel(state)}
+          />
         </FlowShell>
       )}
 
@@ -359,6 +385,7 @@ export function OnboardingFlow() {
                     className="onboarding__correction onboarding__correction--bracketed"
                     type="text"
                     placeholder="The corrected value"
+                    aria-label={`Corrected value for ${inf.attributeType.replace(/_/g, " ")}`}
                     value={state.corrections[inf.inferenceId] ?? ""}
                     onChange={(e) => setState((s) => setCorrection(s, inf.inferenceId, e.target.value))}
                   />
@@ -371,6 +398,7 @@ export function OnboardingFlow() {
             className="btn-primary onboarding__accept onboarding__accept--plate"
             disabled={!canAcceptDraft(state, proposedInferences.map((i) => i.inferenceId))}
             onClick={() => setState((s) => acceptAsDraft(s))}
+            aria-label="Accept confirmed items as a draft Trusted Brain"
           >
             Accept as draft
           </button>
@@ -385,11 +413,14 @@ export function OnboardingFlow() {
         <section className="onboarding__receipt">
           <p className="onboarding__eyebrow">Clive's handback</p>
           <h1 className="onboarding__h1">
-            <img
+            <Image
               className="onboarding__receipt-seal"
               src="/brand/system-assets/folio/furniture/medallion-accepted-sage.svg"
               alt=""
+              width={48}
+              height={48}
               aria-hidden
+              unoptimized
             />
             A draft, on your word.
           </h1>
@@ -424,9 +455,9 @@ export function OnboardingFlow() {
       {canSwitchRoute(state) && state.step !== "choice" && state.step !== "receipt" && (
         <p className="onboarding__switch">
           {state.route === "bring-material" ? (
-            <>Rather talk it through? <button type="button" className="onboarding__link-btn" onClick={() => choose("talk-through")}>Switch — nothing is lost</button></>
+            <>Rather talk it through? <button type="button" className="onboarding__link-btn" onClick={() => choose("talk-through")} aria-label="Switch to Talk it through — nothing is lost">Switch — nothing is lost</button></>
           ) : (
-            <>Have documents after all? <button type="button" className="onboarding__link-btn" onClick={() => choose("bring-material")}>Switch — nothing is lost</button></>
+            <>Have documents after all? <button type="button" className="onboarding__link-btn" onClick={() => choose("bring-material")} aria-label="Switch to Bring your material — nothing is lost">Switch — nothing is lost</button></>
           )}
         </p>
       )}
@@ -438,18 +469,33 @@ export function OnboardingFlow() {
 
 function FlowShell({ step, children, onBack, chat = false }: { step: string; children: React.ReactNode; onBack: () => void; chat?: boolean }) {
   return (
-    <section className={`onboarding__flow${chat ? " onboarding__flow--chat" : ""}`}>
+    <section className={`onboarding__flow${chat ? " onboarding__flow--chat" : ""}`} aria-label={step}>
       <p className="onboarding__eyebrow">{step}</p>
       {children}
-      <button type="button" className="study-stage__ghost-btn onboarding__back" onClick={onBack}>Back</button>
+      <button
+        type="button"
+        className="study-stage__ghost-btn onboarding__back"
+        onClick={onBack}
+        aria-label="Go back one step"
+      >
+        Back
+      </button>
     </section>
   );
 }
 
-function NavRow({ onPrimary, primaryLabel }: { onPrimary: () => void; primaryLabel: string }) {
+function NavRow({ onPrimary, primaryLabel }: { onPrimary?: () => void; primaryLabel: string }) {
   return (
     <div className="onboarding__nav">
-      <button type="button" className="btn-primary" onClick={onPrimary}>{primaryLabel}</button>
+      <button
+        type="button"
+        className="btn-primary"
+        onClick={onPrimary}
+        disabled={!onPrimary}
+        aria-label={primaryLabel}
+      >
+        {primaryLabel}
+      </button>
     </div>
   );
 }
