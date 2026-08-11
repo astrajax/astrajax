@@ -41,35 +41,56 @@ export function SignInForm() {
   async function submitCode(event: React.FormEvent) {
     event.preventDefault();
     if (!proof) {
-      setMessage("That code can't be verified. Request a fresh one.");
+      setMessage(
+        "That address isn’t on the operator list, or the code step lost its proof. Check the email you used, then request a fresh code.",
+      );
+      return;
+    }
+    const digits = code.replace(/\D/g, "");
+    if (digits.length !== 6) {
+      setMessage("Enter the six digits from the email (spaces are fine).");
       return;
     }
     setBusy(true);
     setMessage(null);
     const result = await signIn("email-code", {
-      email,
-      code,
+      email: email.trim().toLowerCase(),
+      code: digits,
       proof,
       redirect: false,
     });
     setBusy(false);
-    if (result?.error) {
-      setMessage("That code didn't match or has expired. Request a fresh one.");
+    // Auth.js v5 may return a URL string or an object — only treat explicit errors as failure.
+    if (result && typeof result === "object" && "error" in result && result.error) {
+      const codeHint =
+        "code" in result && typeof result.code === "string" ? result.code : "";
+      if (codeHint === "store_unavailable") {
+        setMessage(
+          "Your code was accepted, but we couldn’t open your house record. That’s an operator-store credential problem — not the code. Ask for BRAIN_REGISTRY_WRITE_TOKEN to be checked on Vercel, then try again.",
+        );
+        return;
+      }
+      setMessage(
+        "That code didn’t match this sign-in attempt, or it expired (10 minutes). Request a fresh code and use the newest email only.",
+      );
       return;
     }
     window.location.assign("/enter");
   }
 
   return (
-    <section style={{ maxWidth: "24rem", width: "100%" }}>
-      <h1 style={{ marginBottom: "0.5rem" }}>Enter AstraJax</h1>
-      <p style={{ marginBottom: "1.5rem" }}>
+    <section className="operator-sign-in__plate" aria-labelledby="operator-sign-in-title">
+      <p className="section-label operator-sign-in__eyebrow">Operator entrance</p>
+      <h1 id="operator-sign-in-title" className="operator-sign-in__title">
+        Enter AstraJax
+      </h1>
+      <p className="operator-sign-in__lede">
         Sign in with your operator email. We&rsquo;ll send a six-digit code.
       </p>
 
       {stage === "email" && (
-        <form onSubmit={requestCode}>
-          <label htmlFor="operator-email" style={{ display: "block", marginBottom: "0.25rem" }}>
+        <form className="operator-sign-in__form" onSubmit={requestCode}>
+          <label htmlFor="operator-email" className="operator-sign-in__label">
             Email
           </label>
           <input
@@ -79,17 +100,17 @@ export function SignInForm() {
             autoComplete="email"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem" }}
+            className="platform-gate-input operator-sign-in__input"
           />
-          <button type="submit" disabled={busy} style={{ padding: "0.5rem 1.25rem" }}>
+          <button type="submit" disabled={busy} className="btn-primary operator-sign-in__submit">
             {busy ? "Sending…" : "Send code"}
           </button>
         </form>
       )}
 
       {stage === "code" && (
-        <form onSubmit={submitCode}>
-          <label htmlFor="operator-code" style={{ display: "block", marginBottom: "0.25rem" }}>
+        <form className="operator-sign-in__form" onSubmit={submitCode}>
+          <label htmlFor="operator-code" className="operator-sign-in__label">
             Six-digit code
           </label>
           <input
@@ -100,31 +121,33 @@ export function SignInForm() {
             autoComplete="one-time-code"
             value={code}
             onChange={(event) => setCode(event.target.value)}
-            style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem" }}
+            className="platform-gate-input operator-sign-in__input operator-sign-in__input--code"
           />
-          <button type="submit" disabled={busy} style={{ padding: "0.5rem 1.25rem" }}>
-            {busy ? "Checking…" : "Sign in"}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setStage("email");
-              setCode("");
-              setProof(null);
-              setMessage(null);
-            }}
-            style={{ marginLeft: "0.75rem", padding: "0.5rem 1rem" }}
-          >
-            Use a different email
-          </button>
+          <div className="operator-sign-in__actions">
+            <button type="submit" disabled={busy} className="btn-primary operator-sign-in__submit">
+              {busy ? "Checking…" : "Sign in"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setStage("email");
+                setCode("");
+                setProof(null);
+                setMessage(null);
+              }}
+              className="btn-secondary operator-sign-in__secondary"
+            >
+              Use a different email
+            </button>
+          </div>
         </form>
       )}
 
-      {message && (
-        <p role="status" style={{ marginTop: "1rem" }}>
+      {message ? (
+        <p role="status" className="operator-sign-in__status">
           {message}
         </p>
-      )}
+      ) : null}
     </section>
   );
 }

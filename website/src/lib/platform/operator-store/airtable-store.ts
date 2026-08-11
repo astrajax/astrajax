@@ -129,8 +129,10 @@ async function findRecord(
 
 export const airtableOperatorStore: OperatorStore = {
   async getByEmail(email) {
+    // Email is always stored lowercased on write — exact match avoids
+    // formula quirks on Airtable's email field type.
     return findRecord(
-      `LOWER({${OPERATOR_STATE_FIELDS.EMAIL}}) = '${escapeAirtableString(email.toLowerCase())}'`,
+      `{${OPERATOR_STATE_FIELDS.EMAIL}} = '${escapeAirtableString(email.toLowerCase())}'`,
     );
   },
 
