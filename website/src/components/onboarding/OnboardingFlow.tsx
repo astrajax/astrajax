@@ -15,6 +15,13 @@
  * presented value; only accepted-for-Workshop items reach the draft.
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { furniturePlateUrl, getFurniturePlate } from "@/lib/folio-furniture";
+
+/** Simpler blank brass plate (Blob) — replaces ornate left/right crest frames. */
+const ROUTE_DOCKET_PLATE = getFurniturePlate("docket-plate-short");
+const ROUTE_DOCKET_SRC = ROUTE_DOCKET_PLATE
+  ? furniturePlateUrl(ROUTE_DOCKET_PLATE.blobPathname)
+  : "/brand/system-assets/folio/furniture/docket-plate-short.svg";
 import Image from "next/image";
 import { getOnboardingFixtureV1 } from "@/lib/onboarding/fixture-v1";
 import {
@@ -150,7 +157,7 @@ export function OnboardingFlow() {
             material lives — switch any time before you confirm, and nothing you've said is lost.
           </p>
           <div className="onboarding__routes">
-            {(Object.keys(ROUTE_LABELS) as RouteId[]).map((route, i) => (
+            {(Object.keys(ROUTE_LABELS) as RouteId[]).map((route) => (
               <button
                 key={route}
                 type="button"
@@ -160,7 +167,7 @@ export function OnboardingFlow() {
               >
                 <Image
                   className="onboarding__route-frame"
-                  src={i === 0 ? "/brand/system-assets/folio/furniture/docket-frame-left.svg" : "/brand/system-assets/folio/furniture/docket-frame-right.svg"}
+                  src={ROUTE_DOCKET_SRC}
                   alt=""
                   width={553}
                   height={287}
