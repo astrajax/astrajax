@@ -14,7 +14,7 @@ import {
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 import { acceptReceivingWallRecord } from "@/lib/brains/actions/receiving-wall-accept";
-import { roomStaticClipPath } from "@/lib/man/receiving-wall-arch-mask";
+import { roomStaticMaskUrl } from "@/lib/man/receiving-wall-arch-mask";
 import {
   DOLLY_IN_DEFAULT,
   DOLLY_IN_LADDER,
@@ -39,7 +39,7 @@ type WallData = {
  *   returning— bay fades out; camera holds close until RETURN_MS
  *   settling — dolly pull-back + scroll return; ledger held out until SETTLE_MS
  *
- * Close framing: `--dolly-in-16-9` (default 1.54). Ladder via ?dolly=1.46|1.54|1.62.
+ * Close framing: `--dolly-in-16-9` (default 1.12). Ladder via ?dolly=1.05|1.12|1.22.
  * Spec: website/docs/receiving-wall-portal-spec.md
  */
 type Beat = "idle" | "exiting" | "zooming" | "zoomedIn" | "returning" | "settling";
@@ -750,7 +750,7 @@ export function ReceivingWall({
       style={{
         ["--tint" as string]: zoomed ? CAPTURE_SOURCE_TINT[zoomed] : idleTint,
         ["--dolly-in-16-9" as string]: String(dollyIn169),
-        ["--room-static-clip" as string]: roomStaticClipPath(),
+        ["--room-static-mask" as string]: roomStaticMaskUrl(),
       }}
     >
       <div className={styles.stage}>

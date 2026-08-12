@@ -81,7 +81,7 @@ async function main() {
     console.log(`Wrote ${path}`);
   }
 
-  /* Opaque frame mouldings at dolly 1.54 — 1920×1080 (calibrated on frame overlay). */
+  /* Opaque frame mouldings at settled dolly — 1920×1080 (calibrated on frame overlay). */
   const archRegion = [118, 312, 72, 420];
   const rightArchRegion = [1730, 312, 72, 420];
   /* Letter body column — moves during reading travel. */

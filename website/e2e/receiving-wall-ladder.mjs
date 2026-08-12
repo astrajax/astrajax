@@ -1,12 +1,12 @@
 /**
- * Framing ladder — resting bay state at dolly 1.46, 1.54, 1.62 (16:9).
+ * Framing ladder — resting bay state at dolly 1.05, 1.12, 1.22 (16:9).
  * Usage: node e2e/receiving-wall-ladder.mjs
  */
 import { chromium } from "playwright";
 
 const BASE = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
 const OUT = "/tmp";
-const LADDER = [1.46, 1.54, 1.62];
+const LADDER = [1.05, 1.12, 1.22];
 
 async function captureLadder(browser, dolly) {
   const context = await browser.newContext({ viewport: { width: 1920, height: 1080 } });

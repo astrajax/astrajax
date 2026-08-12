@@ -42,8 +42,12 @@ fallback and is flagged for Kathryn / Tara-Lee's eye.
 > **Amendment (Matthew, Aug 2026 — arch framing fix).** `.roomStatic` must live on `.wall`, **outside**
 > `.plate`'s dolly transform, and use `roomStaticMaskUrl()` (SVG `viewBox="0 0 1 1"`) — not raw
 > `clip-path: path()` with 0–1 coords, which browsers treat as px and hide the mouldings. Only the
-> interior (`.plate` backdrop + text) scales on `--dolly-in-16-9` (default 1.54); the stone frame stays
-> pinned so crown and side mouldings remain visible at settled zoom on 1920×1080 and 1440×900.
+> interior (`.plate` backdrop + text) scales on `--dolly-in-16-9` (default **1.12**, Aug 2026 —
+> was 1.54). `.roomStatic` must use the SVG **luminance** mask (`roomStaticMaskUrl`,
+> `mask-mode: luminance`) — not `clip-path: path()` with 0–1 coords (browsers treat those
+> as px and collapse the hole, so the arch rode the dolly and got cropped). Stone frame
+> stays pinned; crown and side mouldings remain visible at settled zoom on 1920×1080 and
+> 1440×900.
 
 ---
 
