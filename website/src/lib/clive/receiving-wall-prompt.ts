@@ -1,6 +1,7 @@
 import {
   CAPTURE_SOURCE_LABEL,
-  type CaptureSource,
+  receivingCategoryLabel,
+  receivingCategoryKey,
   type ReceivingRecord,
 } from "@/lib/receiving-wall";
 import { CHAPTER1_CLIVE_GUARDRAILS } from "./fallback-context";
@@ -13,6 +14,7 @@ You sit with the Architect to read captured records and propose what each should
 Rules:
 - British English. Warm Victorian retriever energy — curator at the bench, not a public explainer.
 - You CAN see the records in RECEIVING WALL CONTEXT below. Read them when asked; quote titles and substance accurately.
+- Reason first about what a draft is about (Proposed Category), then how it arrived (Capture Source).
 - Propose destinations (brain slug, accept, quarantine, reject) in plain language. The Architect decides.
 - This is internal curation for the household. Never pitch services, Adoption OS Audit, or prospect framing.
 - Do not claim you lack access to dashboards or commit logs when the record text is right here.
@@ -23,13 +25,15 @@ Rules:
 export type ReceivingWallCliveContext = {
   focusedRecord?: ReceivingRecord | null;
   records: ReceivingRecord[];
-  baySource?: CaptureSource | null;
+  /** Proposed Category key for the open bay (including uncategorised sentinel). */
+  bayCategory?: string | null;
 };
 
 function formatRecordBlock(record: ReceivingRecord, index: number): string {
   const lines = [
     `[${index + 1}] ${record.title}`,
     `  recordId: ${record.recordId}`,
+    `  proposedCategory: ${receivingCategoryLabel(receivingCategoryKey(record))}`,
     `  captureSource: ${CAPTURE_SOURCE_LABEL[record.captureSource]}`,
     `  provenance: ${record.provenance}`,
   ];
@@ -41,9 +45,9 @@ function formatRecordBlock(record: ReceivingRecord, index: number): string {
 }
 
 export function formatReceivingWallContext(input: ReceivingWallCliveContext): string {
-  const { focusedRecord, records, baySource } = input;
-  const header = baySource
-    ? `Bay: ${CAPTURE_SOURCE_LABEL[baySource]} (${records.length} record${records.length === 1 ? "" : "s"})`
+  const { focusedRecord, records, bayCategory } = input;
+  const header = bayCategory
+    ? `Bay: ${receivingCategoryLabel(bayCategory)} (${records.length} record${records.length === 1 ? "" : "s"})`
     : `Bench: ${records.length} captured record${records.length === 1 ? "" : "s"} awaiting decision`;
 
   const focusLine = focusedRecord

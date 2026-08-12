@@ -5,6 +5,9 @@
 
 const AIRTABLE_TIMEOUT_MS = 10_000;
 
+/** Max pages when `paginate: true` (100 records each → 2,000 ceiling). */
+export const AIRTABLE_MAX_PAGES = 20;
+
 export type AirtableRecord = {
   id: string;
   fields: Record<string, unknown>;
@@ -72,15 +75,18 @@ export async function airtableSelect(
     maxRecords?: number;
     sortField?: string;
     sortDirection?: "asc" | "desc";
+    /** Follow Airtable `offset` across pages (page size 100). Default off. */
+    paginate?: boolean;
   },
 ): Promise<AirtableRecord[]> {
+  const paginate = options?.paginate === true;
   const params: Record<string, string | number | undefined> = {
-    pageSize: options?.maxRecords ?? 100,
+    pageSize: paginate ? 100 : (options?.maxRecords ?? 100),
   };
   if (options?.filterByFormula) {
     params.filterByFormula = options.filterByFormula;
   }
-  if (options?.maxRecords) {
+  if (!paginate && options?.maxRecords) {
     params.maxRecords = options.maxRecords;
   }
   if (options?.sortField) {
@@ -88,19 +94,45 @@ export async function airtableSelect(
     params["sort[0][direction]"] = options.sortDirection ?? "desc";
   }
 
-  const url = new URL(buildUrl(baseId, tableId));
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined) url.searchParams.append(key, String(value));
-  }
-  if (options?.fields) {
+  const appendFields = (url: URL) => {
+    if (!options?.fields) return;
     for (const field of options.fields) {
       url.searchParams.append("fields[]", field);
     }
+  };
+
+  if (!paginate) {
+    const url = new URL(buildUrl(baseId, tableId));
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined) url.searchParams.append(key, String(value));
+    }
+    appendFields(url);
+    const response = await airtableRequest(url.toString(), token);
+    const data = (await response.json()) as { records?: AirtableRecord[] };
+    return data.records ?? [];
   }
 
-  const response = await airtableRequest(url.toString(), token);
-  const data = (await response.json()) as { records?: AirtableRecord[] };
-  return data.records ?? [];
+  const collected: AirtableRecord[] = [];
+  let offset: string | undefined;
+  for (let page = 0; page < AIRTABLE_MAX_PAGES; page += 1) {
+    const url = new URL(buildUrl(baseId, tableId));
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined) url.searchParams.append(key, String(value));
+    }
+    if (offset) url.searchParams.append("offset", offset);
+    appendFields(url);
+
+    const response = await airtableRequest(url.toString(), token);
+    const data = (await response.json()) as {
+      records?: AirtableRecord[];
+      offset?: string;
+    };
+    collected.push(...(data.records ?? []));
+    if (!data.offset) break;
+    offset = data.offset;
+  }
+
+  return collected;
 }
 
 export async function airtableCreate(

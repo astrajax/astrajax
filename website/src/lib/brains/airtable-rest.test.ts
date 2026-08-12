@@ -49,6 +49,33 @@ describe("airtable-rest", () => {
     );
   });
 
+  it("follows offset when paginate is true", async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            records: [{ id: "rec1", fields: {} }],
+            offset: "page2",
+          }),
+          { status: 200 },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ records: [{ id: "rec2", fields: {} }] }), {
+          status: 200,
+        }),
+      );
+
+    const records = await airtableSelect("appTest", "tblTest", "patToken", {
+      paginate: true,
+    });
+    expect(records.map((row) => row.id)).toEqual(["rec1", "rec2"]);
+    expect(String(mockFetch.mock.calls[0]?.[0])).toContain("pageSize=100");
+    expect(String(mockFetch.mock.calls[0]?.[0])).not.toContain("maxRecords=");
+    expect(String(mockFetch.mock.calls[1]?.[0])).toContain("offset=page2");
+  });
+
   it("throws on non-2xx without echoing response body", async () => {
     const mockFetch = vi.mocked(fetch);
     mockFetch.mockResolvedValueOnce(

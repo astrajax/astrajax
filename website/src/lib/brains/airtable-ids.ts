@@ -133,6 +133,10 @@ export const BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS = {
   title: "fld8BVmRBSsVuXD8I",
   canonicalText: "fld95ls0LG26rCNx4",
   brainSlug: "flddfROfNcP1u6gCy",
+  /** Lookup via Brain Registry link — display name for opened letter. */
+  systemBrainName: "fldeKn3fxdilUw4YK",
+  /** Lookup via Brain Registry link — short slug for card (fallback: brainSlug text). */
+  systemBrainSlug: "fldIm3bUPNLBflyJc",
   brainTheme: "fld8wdl04NOs8CwpX",
   proposedCategory: "fldD4gLnHeihH7yCd",
   horizon: "fldEgLQcvc6L4c9p1",

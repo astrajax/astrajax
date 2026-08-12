@@ -18,6 +18,8 @@ export type ReceivingWallCliveRequest = {
   history: ChatMessage[];
   focusedRecord?: ReceivingRecord | null;
   records?: ReceivingRecord[];
+  /** Proposed Category key for the open bay. */
+  bayCategory?: string | null;
   actor?: string;
 };
 
@@ -41,12 +43,17 @@ function sanitiseRecord(raw: unknown): ReceivingRecord | null {
   ) {
     return null;
   }
+  const category =
+    typeof item.category === "string" && item.category.trim()
+      ? item.category.trim()
+      : undefined;
   return {
     recordId: item.recordId.trim(),
     title: item.title.trim(),
     snippet: item.snippet.trim(),
     provenance: item.provenance.trim(),
     captureSource,
+    category,
     brainSlug: typeof item.brainSlug === "string" ? item.brainSlug.trim() : undefined,
     status: typeof item.status === "string" ? item.status.trim() : undefined,
     canonicalText:
@@ -77,9 +84,14 @@ function buildContext(input: ReceivingWallCliveRequest): ReceivingWallCliveConte
     .map(sanitiseRecord)
     .filter((record): record is ReceivingRecord => record !== null);
   const focusedRecord = sanitiseRecord(input.focusedRecord ?? null);
+  const bayCategory =
+    typeof input.bayCategory === "string" && input.bayCategory.trim()
+      ? input.bayCategory.trim()
+      : null;
   return {
     focusedRecord,
     records: records.length > 0 ? records : focusedRecord ? [focusedRecord] : [],
+    bayCategory,
   };
 }
 

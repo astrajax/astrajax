@@ -4,8 +4,15 @@ import {
   CAPTURE_SOURCE_LABEL,
   CAPTURE_SOURCE_ORDER,
   CAPTURE_SOURCE_TINT,
+  RECEIVING_CATEGORY_ORDER,
+  RECEIVING_UNCATEGORISED_KEY,
   isReceivingRecordActioned,
+  listPopulatedReceivingCategories,
+  receivingCategoryKey,
+  receivingCategoryLabel,
+  receivingCategoryTint,
   type CaptureSource,
+  type ReceivingRecord,
 } from "./receiving-wall";
 
 describe("Receiving Wall capture-source maps", () => {
@@ -20,6 +27,83 @@ describe("Receiving Wall capture-source maps", () => {
 
     const keys = Object.keys(CAPTURE_SOURCE_LABEL) as CaptureSource[];
     expect(keys.sort()).toEqual([...CAPTURE_SOURCE_ORDER].sort());
+  });
+});
+
+describe("Receiving Wall Proposed Category helpers", () => {
+  it("uses the Airtable single-select choice order", () => {
+    expect(RECEIVING_CATEGORY_ORDER).toEqual([
+      "Business Definition",
+      "Positioning",
+      "Method",
+      "Offers",
+      "Proof",
+      "Workflow Rule",
+      "Governance",
+      "Goals & Priorities",
+      "Definition",
+      "Open Questions",
+    ]);
+  });
+
+  it("routes blank category to the uncategorised sentinel", () => {
+    expect(receivingCategoryKey({})).toBe(RECEIVING_UNCATEGORISED_KEY);
+    expect(receivingCategoryKey({ category: "  " })).toBe(RECEIVING_UNCATEGORISED_KEY);
+    expect(receivingCategoryLabel(RECEIVING_UNCATEGORISED_KEY)).toBe("Uncategorised");
+  });
+
+  it("lists only populated categories, appends unknown before uncategorised", () => {
+    const records: ReceivingRecord[] = [
+      {
+        recordId: "a",
+        title: "A",
+        snippet: "A",
+        provenance: "x",
+        captureSource: "chat",
+        category: "Open Questions",
+      },
+      {
+        recordId: "b",
+        title: "B",
+        snippet: "B",
+        provenance: "x",
+        captureSource: "external",
+        category: "Governance",
+      },
+      {
+        recordId: "c",
+        title: "C",
+        snippet: "C",
+        provenance: "x",
+        captureSource: "user-guided",
+      },
+      {
+        recordId: "d",
+        title: "D",
+        snippet: "D",
+        provenance: "x",
+        captureSource: "chat",
+        category: "Brand Voice",
+      },
+    ];
+
+    expect(listPopulatedReceivingCategories(records)).toEqual([
+      "Governance",
+      "Open Questions",
+      "Brand Voice",
+      RECEIVING_UNCATEGORISED_KEY,
+    ]);
+    expect(listPopulatedReceivingCategories(records)).not.toContain(
+      "Business Definition",
+    );
+  });
+
+  it("returns a tint for known and unknown categories", () => {
+    expect(receivingCategoryTint("Governance")).toMatch(/^#[0-9a-f]{6}$/i);
+    expect(receivingCategoryTint("Brand Voice")).toMatch(/^#[0-9a-f]{6}$/i);
+    expect(receivingCategoryTint(RECEIVING_UNCATEGORISED_KEY)).toMatch(
+      /^#[0-9a-f]{6}$/i,
+    );
   });
 });
 

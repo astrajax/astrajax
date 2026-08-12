@@ -12,6 +12,7 @@ const sampleRecord: ReceivingRecord = {
   snippet: "Verified commit d496f5d, 12/12 COMPLETE",
   provenance: "Clive's Man",
   captureSource: "external",
+  category: "Governance",
   brainSlug: "physician",
   status: "Draft",
   canonicalText:
@@ -23,10 +24,13 @@ describe("receiving-wall Clive prompt", () => {
     const formatted = formatReceivingWallContext({
       focusedRecord: sampleRecord,
       records: [sampleRecord],
+      bayCategory: "Governance",
     });
     expect(formatted).toContain(sampleRecord.title);
     expect(formatted).toContain(sampleRecord.canonicalText!);
     expect(formatted).toContain("proposedBrainSlug: physician");
+    expect(formatted).toContain("proposedCategory: Governance");
+    expect(formatted).toContain("Bay: Governance");
     expect(formatted).toContain("Architect has");
   });
 

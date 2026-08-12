@@ -7,7 +7,12 @@ import {
   RECEIVING_WALL_DRAFT_FILTER,
   buildReceivingWallFieldIds,
   handleReceivingWallRecords,
+  mapDraftTruthToReceivingRecord,
 } from "./receiving-wall-records";
+import {
+  RECEIVING_UNCATEGORISED_KEY,
+  receivingCategoryKey,
+} from "@/lib/receiving-wall";
 
 const originalEnv = { ...process.env };
 
@@ -40,7 +45,8 @@ function mockAirtableRecords(
 
 function expectDraftOnlyRequest(requestedUrl: string) {
   expect(requestedUrl).toContain(BRAIN_WORKSHOP_TABLES.draftBrainTruth);
-  expect(requestedUrl).toContain("maxRecords=10");
+  expect(requestedUrl).toContain("pageSize=100");
+  expect(requestedUrl).not.toContain("maxRecords=");
   expect(decodeURIComponent(requestedUrl)).toContain(
     `filterByFormula=${RECEIVING_WALL_DRAFT_FILTER}`,
   );
@@ -58,6 +64,11 @@ describe("handleReceivingWallRecords", () => {
       "chat",
       "external",
       "user-guided",
+    ]);
+    expect(result.records.map((row) => row.category).sort()).toEqual([
+      "Definition",
+      "Goals & Priorities",
+      "Open Questions",
     ]);
     expect(fetch).not.toHaveBeenCalled();
   });
@@ -87,6 +98,8 @@ describe("handleReceivingWallRecords", () => {
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title,
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText,
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainSlug,
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.systemBrainName,
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.systemBrainSlug,
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedCategory,
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status,
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedByAgent,
@@ -155,11 +168,106 @@ describe("handleReceivingWallRecords", () => {
     expect(mockFetch).toHaveBeenCalledTimes(1);
     const requestedUrl = String(mockFetch.mock.calls[0][0]);
     expect(requestedUrl).toContain(BRAIN_WORKSHOP_TABLES.draftBrainTruth);
-    expect(requestedUrl).toContain("maxRecords=10");
+    expect(requestedUrl).toContain("pageSize=100");
+    expect(requestedUrl).not.toContain("maxRecords=");
     expect(decodeURIComponent(requestedUrl)).toContain(
       `filterByFormula=${RECEIVING_WALL_DRAFT_FILTER}`,
     );
     expect(requestedUrl).toContain("fldCaptureSource");
+  });
+
+  it("paginates through an Airtable offset cursor and returns every page", async () => {
+    process.env.BRAIN_WORKSHOP_READ_TOKEN = "patRead";
+    const mockFetch = vi.mocked(fetch);
+    mockFetch
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            records: [
+              {
+                id: "recPage1",
+                fields: {
+                  Title: "Page one",
+                  "Canonical Text": "First page body.",
+                  Status: "Draft",
+                  "Proposed Category": "Governance",
+                  "Proposed By Agent": "Clive",
+                },
+              },
+            ],
+            offset: "offsetPage2",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            records: [
+              {
+                id: "recPage2",
+                fields: {
+                  Title: "Page two",
+                  "Canonical Text": "Second page body.",
+                  Status: "Draft",
+                  "Proposed Category": "Method",
+                  "Proposed By Agent": "Clive",
+                },
+              },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+
+    const result = await handleReceivingWallRecords();
+
+    expect(mockFetch).toHaveBeenCalledTimes(2);
+    expect(String(mockFetch.mock.calls[0]?.[0])).toContain("pageSize=100");
+    expect(String(mockFetch.mock.calls[0]?.[0])).not.toContain("maxRecords=");
+    expect(String(mockFetch.mock.calls[0]?.[0])).not.toContain("offset=");
+    expect(String(mockFetch.mock.calls[1]?.[0])).toContain("offset=offsetPage2");
+    expect(result.records.map((row) => row.recordId)).toEqual([
+      "recPage1",
+      "recPage2",
+    ]);
+    expect(result.records.map((row) => row.category)).toEqual([
+      "Governance",
+      "Method",
+    ]);
+  });
+
+  it("maps Proposed Category onto record.category and leaves empty as undefined", async () => {
+    process.env.BRAIN_WORKSHOP_READ_TOKEN = "patRead";
+    mockAirtableRecords([
+      {
+        id: "recCategorised",
+        fields: {
+          Title: "Governance note",
+          "Canonical Text": "A governance draft.",
+          Status: "Draft",
+          "Proposed Category": "Governance",
+          "Proposed By Agent": "Clive's Man",
+        },
+      },
+      {
+        id: "recUncategorised",
+        fields: {
+          Title: "Loose note",
+          "Canonical Text": "No category yet.",
+          Status: "Draft",
+          "Proposed Category": "   ",
+          "Proposed By Agent": "Clive's Man",
+        },
+      },
+    ]);
+
+    const result = await handleReceivingWallRecords();
+
+    expect(result.records).toHaveLength(2);
+    expect(result.records[0].category).toBe("Governance");
+    expect(result.records[1].category).toBeUndefined();
+    expect(receivingCategoryKey(result.records[1])).toBe(RECEIVING_UNCATEGORISED_KEY);
   });
 
   it("infers capture source from proposer when Capture Source is absent or non-string", async () => {
@@ -289,5 +397,101 @@ describe("handleReceivingWallRecords", () => {
     expect(result.records[0].canonicalText).toBe("");
     expect(result.records[0].provenance).toBe("Manual intake");
     expect(result.records[0].captureSource).toBe("user-guided");
+  });
+});
+
+describe("mapDraftTruthToReceivingRecord — Proposed Category", () => {
+  it("maps a Proposed Category string onto category", () => {
+    const mapped = mapDraftTruthToReceivingRecord({
+      id: "recCat",
+      fields: {
+        Title: "Positioning draft",
+        "Canonical Text": "Body.",
+        Status: "Draft",
+        "Proposed Category": "Positioning",
+        "Proposed By Agent": "Clive's Man",
+      },
+    });
+    expect(mapped?.category).toBe("Positioning");
+  });
+
+  it("leaves category undefined when the field is empty so the wall can bucket it", () => {
+    const mapped = mapDraftTruthToReceivingRecord({
+      id: "recNone",
+      fields: {
+        Title: "Loose draft",
+        "Canonical Text": "Body.",
+        Status: "Draft",
+        "Proposed Category": "",
+        "Proposed By Agent": "Clive's Man",
+      },
+    });
+    expect(mapped?.category).toBeUndefined();
+    expect(receivingCategoryKey(mapped!)).toBe(RECEIVING_UNCATEGORISED_KEY);
+  });
+});
+
+describe("mapDraftTruthToReceivingRecord — System Brain destination", () => {
+  it("surfaces name and slug when lookup arrays are populated", () => {
+    const mapped = mapDraftTruthToReceivingRecord({
+      id: "recLinked",
+      fields: {
+        Title: "Linked draft",
+        "Canonical Text": "Body.",
+        "Brain Slug": "legacy-slug",
+        "System Brain Name": ["AstraJax Chapter 1"],
+        "System Brain Slug": ["astrajax-chapter-1"],
+        Status: "Draft",
+        "Proposed By Agent": "Clive's Man",
+      },
+    });
+
+    expect(mapped).toMatchObject({
+      recordId: "recLinked",
+      brainSlug: "legacy-slug",
+      systemBrainName: "AstraJax Chapter 1",
+      systemBrainSlug: "astrajax-chapter-1",
+    });
+  });
+
+  it("falls back to legacy Brain Slug text when lookup is empty", () => {
+    const mapped = mapDraftTruthToReceivingRecord({
+      id: "recLegacy",
+      fields: {
+        Title: "Unlinked draft",
+        "Canonical Text": "Body.",
+        "Brain Slug": "astrajax-chapter-1",
+        "System Brain Name": [],
+        "System Brain Slug": [],
+        Status: "Draft",
+        "Proposed By Agent": "Clive's Man",
+      },
+    });
+
+    expect(mapped).toMatchObject({
+      recordId: "recLegacy",
+      brainSlug: "astrajax-chapter-1",
+      systemBrainSlug: "astrajax-chapter-1",
+    });
+    expect(mapped?.systemBrainName).toBeUndefined();
+  });
+
+  it("leaves both System Brain fields undefined when lookup and legacy are absent", () => {
+    const mapped = mapDraftTruthToReceivingRecord({
+      id: "recBare",
+      fields: {
+        Title: "Bare draft",
+        "Canonical Text": "Body.",
+        Status: "Draft",
+        "Proposed By Agent": "Clive's Man",
+      },
+    });
+
+    expect(mapped).toMatchObject({
+      recordId: "recBare",
+    });
+    expect(mapped?.brainSlug).toBeUndefined();
+    expect(mapped?.systemBrainName).toBeUndefined();
+    expect(mapped?.systemBrainSlug).toBeUndefined();
   });
 });

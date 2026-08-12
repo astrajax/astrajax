@@ -3,12 +3,14 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
-  CAPTURE_SOURCE_BLURB,
   CAPTURE_SOURCE_LABEL,
-  CAPTURE_SOURCE_ORDER,
   CAPTURE_SOURCE_TINT,
   isReceivingRecordActioned,
-  type CaptureSource,
+  listPopulatedReceivingCategories,
+  receivingCategoryBlurb,
+  receivingCategoryKey,
+  receivingCategoryLabel,
+  receivingCategoryTint,
   type ReceivingRecord,
 } from "@/lib/receiving-wall";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
@@ -30,22 +32,22 @@ type WallData = {
 };
 
 /**
- * Portal — push-in to enter, locked-arch scroll inside.
+ * Portal — slow centre push on one painted plate. Arch legs stay in frame.
  *
- *   idle     — wide wall at dolly 1 + ledger on the upper plate
- *   exiting  — ledger fading (nave only; desktop scroll carries text)
- *   zooming  — dolly push to close framing; plates crossfade (no scroll pan)
- *   zoomedIn — bay on the lower plate; arch pinned on .roomStatic, interior only moves
- *   returning— bay fades out; camera holds close until RETURN_MS
- *   settling — dolly pull-back + scroll return; ledger held out until SETTLE_MS
+ *   idle     — wide wall at dolly 1 + ledger
+ *   exiting  — ledger fading (nave only)
+ *   zooming  — slow scale into centre (same video/poster — no still swap)
+ *   zoomedIn — bay UI overlaid; reading scroll is bayTravel only
+ *   returning— bay fades; camera holds close until RETURN_MS
+ *   settling — slow pull-back; ledger held out until SETTLE_MS
  *
- * Close framing: `--dolly-in-16-9` (default 1.12). Ladder via ?dolly=1.05|1.12|1.22.
+ * Close framing: `--dolly-in-16-9` (default 1.22). Ladder via ?dolly=1.15|1.22|1.30.
  * Spec: website/docs/receiving-wall-portal-spec.md
  */
 type Beat = "idle" | "exiting" | "zooming" | "zoomedIn" | "returning" | "settling";
 
 const TIMINGS = {
-  normal: { EXIT: 220, ARRIVE: 1420, RETURN: 260, SETTLE: 880 },
+  normal: { EXIT: 220, ARRIVE: 2500, RETURN: 260, SETTLE: 1700 },
   reduced: { EXIT: 120, ARRIVE: 240, RETURN: 120, SETTLE: 240 },
 } as const;
 
@@ -85,7 +87,8 @@ export function ReceivingWall({
 
   const [data, setData] = useState<WallData | null>(null);
   const [beat, setBeat] = useState<Beat>("idle");
-  const [zoomed, setZoomed] = useState<CaptureSource | null>(null);
+  /** Proposed Category key, or RECEIVING_UNCATEGORISED_KEY. */
+  const [zoomed, setZoomed] = useState<string | null>(null);
   const [openRecordId, setOpenRecordId] = useState<string | null>(null);
   const [cliveOpen, setCliveOpen] = useState(false);
   const [sessionId] = useState(createSessionId);
@@ -136,14 +139,21 @@ export function ReceivingWall({
   }, []);
 
   const records = data?.records ?? [];
+  const categoryKeys = listPopulatedReceivingCategories(records);
 
   const zoomedRecords = zoomed
-    ? records.filter((r) => r.captureSource === zoomed)
+    ? records.filter((r) => receivingCategoryKey(r) === zoomed)
     : [];
 
   const openRecord = openRecordId
     ? (records.find((r) => r.recordId === openRecordId) ?? null)
     : null;
+  const destinationLabel =
+    openRecord?.systemBrainName ||
+    openRecord?.systemBrainSlug ||
+    openRecord?.brainSlug ||
+    null;
+
 
   const measureReadTravel = useCallback(() => {
     const windowEl = bayWindowRef.current;
@@ -186,15 +196,15 @@ export function ReceivingWall({
     }
   }, [clampReadOffset]);
 
-  const openSource = useCallback(
-    (source: CaptureSource) => {
+  const openCategory = useCallback(
+    (categoryKey: string) => {
       if (beat === "exiting" || beat === "zooming" || beat === "returning") return;
 
       const beginZoom = () => {
         clearPending();
         setOpenRecordId(null);
         setReadOffset(0);
-        setZoomed(source);
+        setZoomed(categoryKey);
         setBeat("zooming");
         after(T.ARRIVE, () => setBeat("zoomedIn"));
       };
@@ -213,10 +223,10 @@ export function ReceivingWall({
       }
 
       if (beat === "zoomedIn") {
-        if (source === zoomed) return;
+        if (categoryKey === zoomed) return;
         clearPending();
         setOpenRecordId(null);
-        setZoomed(source);
+        setZoomed(categoryKey);
         setBeat("zooming");
         after(T.EXIT, () => setBeat("zoomedIn"));
         return;
@@ -270,7 +280,7 @@ export function ReceivingWall({
   const summonClive = useCallback(
     (contextRecord?: ReceivingRecord | null) => {
       const bayRecords = zoomed
-        ? records.filter((record) => record.captureSource === zoomed)
+        ? records.filter((record) => receivingCategoryKey(record) === zoomed)
         : records;
       const contextRecords =
         contextRecord &&
@@ -320,6 +330,7 @@ export function ReceivingWall({
           history,
           focusedRecord: cliveFocusedRecord,
           records: cliveContextRecords,
+          bayCategory: zoomed,
           actor: "Architect",
         }),
       });
@@ -329,7 +340,7 @@ export function ReceivingWall({
       }
       return data.reply ?? "…";
     },
-    [cliveContextRecords, cliveFocusedRecord, sessionId],
+    [cliveContextRecords, cliveFocusedRecord, sessionId, zoomed],
   );
 
   const acceptRecord = useCallback(
@@ -550,7 +561,8 @@ export function ReceivingWall({
     .join(" ");
 
   const ledgerState = beat === "idle" ? styles.contentEnter : styles.contentExit;
-  const bayState = beat === "zoomedIn" ? styles.contentEnter : styles.contentExit;
+  const bayState =
+    beat === "zoomedIn" || beat === "zooming" ? styles.contentEnter : styles.contentExit;
 
   const idleTint = "#e7d1ad";
 
@@ -558,7 +570,7 @@ export function ReceivingWall({
     data?.source !== "live" && data?.message ? (
       <p className={styles.note} role="status">
         {data.source === "derived"
-          ? "Showing live records — source tinting is inferred until the Capture Source field is set."
+          ? "Showing live drafts — Capture Source on each letter is inferred until that field is set."
           : data.message}
       </p>
     ) : null;
@@ -569,20 +581,24 @@ export function ReceivingWall({
       aria-label="Captured context"
     >
       <ul className={styles.sourceList}>
-        {CAPTURE_SOURCE_ORDER.map((source) => {
-          const count = records.filter((r) => r.captureSource === source).length;
+        {categoryKeys.map((categoryKey) => {
+          const count = records.filter(
+            (r) => receivingCategoryKey(r) === categoryKey,
+          ).length;
+          const label = receivingCategoryLabel(categoryKey);
+          const blurb = receivingCategoryBlurb(categoryKey);
           return (
-            <li key={source}>
+            <li key={categoryKey}>
               <button
                 type="button"
                 className={styles.sourceRow}
-                style={{ ["--tint" as string]: CAPTURE_SOURCE_TINT[source] }}
-                onClick={() => openSource(source)}
-                aria-label={`${CAPTURE_SOURCE_LABEL[source]} — ${count} record${count === 1 ? "" : "s"}`}
+                style={{ ["--tint" as string]: receivingCategoryTint(categoryKey) }}
+                onClick={() => openCategory(categoryKey)}
+                aria-label={`${label} — ${count} record${count === 1 ? "" : "s"}`}
               >
                 <span className={styles.sourceIncision}>
-                  <span className={styles.sourceName}>{CAPTURE_SOURCE_LABEL[source]}</span>
-                  <span className={styles.sourceBlurb}>{CAPTURE_SOURCE_BLURB[source]}</span>
+                  <span className={styles.sourceName}>{label}</span>
+                  {blurb ? <span className={styles.sourceBlurb}>{blurb}</span> : null}
                 </span>
                 <span className={styles.sourceCount}>
                   <span className={styles.sourceCountNum}>{count}</span>
@@ -605,19 +621,22 @@ export function ReceivingWall({
     </section>
   );
 
+  const zoomedLabel = zoomed ? receivingCategoryLabel(zoomed) : "";
+  const zoomedBlurb = zoomed ? receivingCategoryBlurb(zoomed) : undefined;
+
   const baySection =
     zoomed !== null ? (
       <section
         key={zoomed}
         className={`${styles.zoom} ${bayState}`}
-        aria-label={CAPTURE_SOURCE_LABEL[zoomed]}
+        aria-label={zoomedLabel}
       >
         <div className={styles.zoomHead}>
           <button type="button" className={styles.backBtn} onClick={closeZoom}>
             ← The wall
           </button>
-          <h2 className={styles.zoomTitle}>{CAPTURE_SOURCE_LABEL[zoomed]}</h2>
-          <p className={styles.zoomBlurb}>{CAPTURE_SOURCE_BLURB[zoomed]}</p>
+          <h2 className={styles.zoomTitle}>{zoomedLabel}</h2>
+          {zoomedBlurb ? <p className={styles.zoomBlurb}>{zoomedBlurb}</p> : null}
         </div>
 
         {zoomedRecords.length === 0 ? (
@@ -641,7 +660,17 @@ export function ReceivingWall({
                     <span id={`record-title-${record.recordId}`} className={styles.recordTitle}>
                       {record.title}
                     </span>
-                    <span className={styles.recordProvenance}>{record.provenance}</span>
+                    <span
+                      className={styles.recordProvenance}
+                      style={{
+                        ["--tint" as string]: CAPTURE_SOURCE_TINT[record.captureSource],
+                      }}
+                    >
+                      {record.provenance}
+                      {record.systemBrainSlug ? (
+                        <span className={styles.recordBrainSlug}>{record.systemBrainSlug}</span>
+                      ) : null}
+                    </span>
                   </span>
                   <span className={styles.recordChevron} aria-hidden>
                     {openRecordId === record.recordId ? "−" : "+"}
@@ -657,8 +686,12 @@ export function ReceivingWall({
                   >
                     <p className={styles.letterMeta}>
                       {openRecord.provenance}
+                      {` · ${CAPTURE_SOURCE_LABEL[openRecord.captureSource]}`}
+                      {openRecord.category
+                        ? ` · ${openRecord.category}`
+                        : " · Uncategorised"}
                       {openRecord.status ? ` · ${openRecord.status}` : ""}
-                      {openRecord.brainSlug ? ` · → ${openRecord.brainSlug}` : ""}
+                      {destinationLabel ? ` · → ${destinationLabel}` : ""}
                     </p>
                     <p className={styles.letterBody}>
                       {openRecord.canonicalText || openRecord.snippet}
@@ -748,7 +781,7 @@ export function ReceivingWall({
       className={wallClasses}
       aria-label="The Receiving Wall"
       style={{
-        ["--tint" as string]: zoomed ? CAPTURE_SOURCE_TINT[zoomed] : idleTint,
+        ["--tint" as string]: zoomed ? receivingCategoryTint(zoomed) : idleTint,
         ["--dolly-in-16-9" as string]: String(dollyIn169),
         ["--room-static-mask" as string]: roomStaticMaskUrl(),
       }}
@@ -758,29 +791,30 @@ export function ReceivingWall({
           <div className={styles.interiorViewport} ref={interiorViewportRef}>
             <div className={styles.voidFill} aria-hidden />
             <div className={styles.portalCore} aria-hidden />
-            <div className={styles.interiorTrack}>
-              <div className={styles.surfacePlate} inert={zoomed !== null && !isNave ? true : undefined}>
-                <div className={styles.surfaceBackdrop}>
-                  <div className={styles.plateBreath}>
-                    <video
-                      className={styles.stageVideo}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      poster="/agent-cast/clives-man/receiving-wall-poster.jpg"
-                    >
-                      <source src="/agent-cast/clives-man/receiving-wall.mp4" type="video/mp4" />
-                    </video>
-                    <div className={styles.plateRecess} />
-                  </div>
-                </div>
-                <div className={styles.surfaceContent}>
-                  {statusNote}
-                  {ledgerSection}
+            <div className={styles.surfacePlate}>
+              <div className={styles.surfaceBackdrop}>
+                <div className={styles.plateBreath}>
+                  <video
+                    className={styles.stageVideo}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    poster="/agent-cast/clives-man/receiving-wall-poster.jpg"
+                  >
+                    <source src="/agent-cast/clives-man/receiving-wall.mp4" type="video/mp4" />
+                  </video>
+                  <div className={styles.plateRecess} />
                 </div>
               </div>
-              <div className={`${styles.surfacePlate} ${styles.bayPlate}`}>
+              <div
+                className={styles.surfaceContent}
+                inert={zoomed !== null && !isNave ? true : undefined}
+              >
+                {statusNote}
+                {ledgerSection}
+              </div>
+              <div className={styles.bayOverlay} aria-hidden={!wallZoomed}>
                 <div className={styles.bayWindow} ref={bayWindowRef} aria-hidden={!reading}>
                   <div
                     className={styles.bayTravel}
@@ -791,15 +825,6 @@ export function ReceivingWall({
                         : undefined
                     }
                   >
-                    <div className={styles.surfaceBackdrop}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        className={styles.surfaceStill}
-                        src="/agent-cast/clives-man/receiving-wall-zoomed.jpg"
-                        alt=""
-                      />
-                      <div className={styles.plateRecess} />
-                    </div>
                     <div className={styles.bayContent}>
                       <div className={styles.surfaceContent}>
                         {zoomed !== null ? baySection : null}
