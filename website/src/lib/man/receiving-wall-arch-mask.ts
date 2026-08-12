@@ -6,7 +6,8 @@ import { APERTURE, ARCH_CURVE } from "./receiving-wall-manifest";
 
 /** Closed SVG path for the inner arch opening (viewBox 0 0 1 1, symmetric about x=0.5). */
 export function buildArchPathD(): string {
-  const bottom = APERTURE.voidBottomY;
+  /** Prefer holeBottomY — keeps ledge props on the pinned room layer. */
+  const bottom = APERTURE.holeBottomY;
   const left = APERTURE.innerLeft;
   const right = APERTURE.innerRight;
   const curve = ARCH_CURVE;
