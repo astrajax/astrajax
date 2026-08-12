@@ -16,12 +16,30 @@ import {
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
 import { usePrefersReducedMotion } from "@/components/command-centre/usePortraitTransition";
 import { acceptReceivingWallRecord } from "@/lib/brains/actions/receiving-wall-accept";
-import { roomStaticMaskUrl } from "@/lib/man/receiving-wall-arch-mask";
+import {
+  archInteriorMaskUrl,
+  roomStaticMaskUrl,
+} from "@/lib/man/receiving-wall-arch-mask";
 import {
   DOLLY_IN_DEFAULT,
   DOLLY_IN_LADDER,
   INTERIOR_WALL,
 } from "@/lib/man/receiving-wall-manifest";
+
+/** Avoid "brain · brain" when provenance already names the destination. */
+function brainLabelForRow(record: ReceivingRecord): string | null {
+  const label =
+    record.systemBrainName || record.systemBrainSlug || record.brainSlug || null;
+  if (!label) return null;
+  const hay = (record.provenance || "").toLowerCase();
+  const needle = label.toLowerCase();
+  if (hay.includes(needle)) return null;
+  // Slug ↔ display-name soft match (astrajax-chapter-1 vs AstraJax Chapter 1)
+  const slugish = needle.replace(/[^a-z0-9]+/g, "");
+  const provish = hay.replace(/[^a-z0-9]+/g, "");
+  if (slugish && provish.includes(slugish)) return null;
+  return label;
+}
 import type { ChatMessage } from "@/lib/clive/types";
 import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 import styles from "./receiving-wall.module.css";
@@ -669,7 +687,9 @@ export function ReceivingWall({
           <p className={styles.empty}>Nothing waits in this bay yet.</p>
         ) : (
           <ul className={styles.recordList}>
-            {zoomedRecords.map((record) => (
+            {zoomedRecords.map((record) => {
+              const brainLabel = brainLabelForRow(record);
+              return (
               <li key={record.recordId}>
                 <button
                   type="button"
@@ -693,10 +713,8 @@ export function ReceivingWall({
                       }}
                     >
                       {record.provenance}
-                      {record.systemBrainName || record.systemBrainSlug || record.brainSlug ? (
-                        <span className={styles.recordBrainSlug}>
-                          {` · ${record.systemBrainName || record.systemBrainSlug || record.brainSlug}`}
-                        </span>
+                      {brainLabel ? (
+                        <span className={styles.recordBrainSlug}>{` · ${brainLabel}`}</span>
                       ) : null}
                     </span>
                   </span>
@@ -789,7 +807,8 @@ export function ReceivingWall({
                   </div>
                 ) : null}
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
 
@@ -812,6 +831,7 @@ export function ReceivingWall({
         ["--tint" as string]: zoomed ? receivingCategoryTint(zoomed) : idleTint,
         ["--dolly-in-16-9" as string]: String(dollyIn169),
         ["--room-static-mask" as string]: roomStaticMaskUrl(),
+        ["--arch-interior-mask" as string]: archInteriorMaskUrl(),
       }}
     >
       <div className={styles.stage}>
@@ -841,14 +861,17 @@ export function ReceivingWall({
                 Arch / sconces / wood stay on .roomStatic; ledge props on .sillForeground.
               */}
               <div className={styles.bayOverlay}>
-                {/* Paint travel — unmasked so the sill join stays stone, not a fade band. */}
+                {/* Paint travel — tall 4K wall image, natural height (no stretch). */}
                 <div className={styles.bayPaintClip} aria-hidden>
                   <div className={styles.bayPaintTravel} style={travelTransform}>
-                    <div
-                      className={styles.bayInteriorWall}
-                      style={{
-                        backgroundImage: `url(${INTERIOR_WALL.src})`,
-                      }}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      className={styles.bayWallStill}
+                      src={INTERIOR_WALL.src}
+                      width={INTERIOR_WALL.width}
+                      height={INTERIOR_WALL.height}
+                      alt=""
+                      draggable={false}
                     />
                   </div>
                 </div>

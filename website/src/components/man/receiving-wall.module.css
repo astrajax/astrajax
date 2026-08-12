@@ -150,19 +150,19 @@
   inset: 0;
   pointer-events: none;
   /*
-   * Portal void behind the travelling interior — mid-height bloom only.
-   * No low horizontal band (that read as a CSS light seam above the sill).
+   * Fallback only — travelling paint must cover the hole. Keep this charcoal
+   * (not sage-green) so any brief uncover never reads as a green sill lip.
    */
   background: radial-gradient(
     ellipse 34% 36% at 50% 42%,
-    #525a50 0%,
-    #3b4039 42%,
-    #252622 72%,
-    #161712 100%
+    #3a3c38 0%,
+    #2a2c28 45%,
+    #1a1c18 75%,
+    #121410 100%
   );
 }
 
-/* Soft core — kept high so it does not pool above the sill join */
+/* Soft core — warm dust, not green screen bloom (bloom read as sill smear). */
 .portalCore {
   position: absolute;
   inset: 0;
@@ -170,12 +170,12 @@
   z-index: 0;
   background:
     radial-gradient(
-      ellipse 22% 26% at 50% 40%,
-      rgba(158, 176, 158, 0.28) 0%,
-      rgba(103, 115, 103, 0.12) 40%,
+      ellipse 20% 22% at 50% 38%,
+      rgba(120, 110, 90, 0.14) 0%,
+      rgba(70, 65, 55, 0.06) 42%,
       transparent 70%
     );
-  mix-blend-mode: screen;
+  mix-blend-mode: soft-light;
 }
 
 .interiorTrack {
@@ -505,41 +505,50 @@
   visibility: visible;
 }
 
-/* Flat interior paint — clipped to the plate, translates with the type. */
+/*
+ * Flat interior paint — luminance-masked to the arch hole so crown/sill lips
+ * match roomStatic; translates with the type. Lead-in above 0 so scroll never
+ * flashes void at the crown.
+ */
 .bayPaintClip {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
+  -webkit-mask-image: var(--arch-interior-mask);
+  mask-image: var(--arch-interior-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  mask-mode: luminance;
+  -webkit-mask-source-type: luminance;
 }
 
 .bayPaintTravel {
   position: absolute;
   left: 0;
   right: 0;
-  top: 0;
-  /* Tall enough for INTERIOR_WALL.plateHeightMult (5×) plus content growth. */
-  height: 500%;
+  /* Lead-in: start above the clip so crown stays covered at scroll 0. */
+  top: -14%;
+  width: 100%;
+  /* Height comes from the img — never force a % that stretches the paint. */
   will-change: transform;
 }
 
 /*
- * Dedicated aperture paint (receiving-wall-interior.jpg) — 5× plate tall,
- * rest-frame registered. No arch moulding, ledge, or letter stack.
+ * Long tall 4K flat wall (receiving-wall-interior-4k.jpg, 3840×12000).
+ * Native aspect only — never object-fit:fill / forced % height.
  */
-.bayInteriorWall {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
+.bayWallStill {
+  display: block;
   width: 100%;
-  height: 100%;
+  height: auto; /* native aspect — never stretch */
+  object-fit: contain;
+  max-width: none;
   pointer-events: none;
-  /* Asset is 5× plate tall; .bayPaintTravel is 500% — map 1:1 for registration. */
-  background-position: center top;
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+  user-select: none;
 }
 
 .bayWindow {

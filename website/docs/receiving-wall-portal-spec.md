@@ -41,12 +41,12 @@ fallback and is flagged for Kathryn / Tara-Lee's eye.
 
 > **Amendment (Matthew, Aug 2026 — pinned arch + travelling interior).** Three layers on `.plate`
 > (which carries the dolly camera push, default `--dolly-in-16-9: 1.22`):
-> 1. **Interior** — dedicated **flat** aperture texture (`receiving-wall-interior.jpg`, 1920×5400 =
->    5× plate). Tiled from mid-aperture plaster only (x 0.21→0.79 / y 0.36→0.62) so the arch
->    crown curve and ledge/letter band are not in the travelling paint. Idle ledger and zoomed
->    bay share one travel offset: paint (`.bayPaintTravel`) and type (`.bayTravel`) translate
->    together. **Not** a second copy of the full poster — that caused ghost arches and a second
->    letter stack mid-scroll. The ambient video under the hole stays at opacity 0 for the same reason.
+> 1. **Interior** — one long tall **4K** flat wall (`receiving-wall-interior-4k.jpg`, 3840×12000).
+>    Mid-aperture plaster only (x 0.26→0.74 / y 0.40→0.68), upscaled at native aspect then
+>    quilted with soft-seam strips — never vertically stretched. Paint clip uses the same
+>    arch luminance mask as the room hole, with a −14% lead-in so scroll never flashes void.
+>    Wired as `<img width=100% height=auto>`. Idle and zoomed share one travel offset. Void
+>    behind the hole is charcoal (not sage bloom). Ambient video under the hole stays at opacity 0.
 > 2. **Room frame** (`.roomStatic`) — poster with SVG **luminance** hole (`roomStaticMaskUrl`,
 >    `mask-mode: luminance`; hole bottom = `APERTURE.holeBottomY` **0.945**, clearing the
 >    letter/quill band so roomStatic cannot double-paint props under the sill). Never use

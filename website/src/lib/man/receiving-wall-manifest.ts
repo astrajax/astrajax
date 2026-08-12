@@ -72,19 +72,22 @@ export const LEDGE_STILL_LIFE = {
 } as const;
 
 /**
- * Travelling interior wall — flat aperture paint only (no arch, sconces, wood,
- * ledge, or letter/quill). Cut from the poster and extended vertically so a
- * busy bay (22+ records) can scroll without ghost props entering the hole.
- * Asset is 1920×5400 (5× plate height); rests registered to the master frame.
+ * Travelling interior wall — one long tall 4K flat plaster strip (no arch,
+ * sconces, wood, ledge, or letter/quill). Cut from the poster mid-aperture and
+ * seamlessly extended; never stretch in CSS (width 100%, height auto).
+ * 3840×10800 = 5× a 3840×2160 plate — enough for Governance-scale bays.
  */
 export const INTERIOR_WALL = {
-  src: "/agent-cast/clives-man/receiving-wall-interior.jpg",
-  plateHeightMult: 5,
+  src: "/agent-cast/clives-man/receiving-wall-interior-4k.jpg",
+  width: 3840,
+  height: 12000,
+  plateHeightMult: 5.55,
   /**
-   * Mid-aperture tile only (flat plaster) — deliberately excludes the arch
-   * crown curve (y ≲ 0.30) and the ledge bloom / letter band (y ≳ 0.72).
+   * Mid-aperture source crop (fractions of the 1920×1080 poster).
+   * Tall asset is this band upscaled at native aspect, then quilted with
+   * soft-seam strips to 12000 — never vertically stretched.
    */
-  cut: { xFrom: 0.21, xTo: 0.79, yFrom: 0.34, yTo: 0.68 },
+  cut: { xFrom: 0.26, xTo: 0.74, yFrom: 0.4, yTo: 0.68 },
 } as const;
 
 /** Palette sampled from the paint — use these, not invented values. */
