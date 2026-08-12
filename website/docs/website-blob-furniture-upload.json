@@ -1,7 +1,18 @@
 {
   "storeId": "store_cvu4L5KwtlOCutGD",
-  "uploadedAt": "2026-08-10T04:44:38.938Z",
+  "uploadedAt": "2026-08-12T05:55:34.539Z",
   "items": [
+    {
+      "key": "bookmark-terracotta",
+      "sourceName": "bookmark-terracotta.png",
+      "sourceSha256": "961496d5dfecf0956496ec9b7d1bd905b16200eb9c0a8d718bef678cd6f7026e",
+      "width": 106,
+      "height": 322,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/bookmark-terracotta.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/bookmark-terracotta.png"
+    },
     {
       "key": "bracket-correction-left",
       "sourceName": "bracket-correction-left.png",
@@ -23,28 +34,6 @@
       "version": 1,
       "blobPathname": "docket-plate-blob/bracket-correction-right.png",
       "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/bracket-correction-right.png"
-    },
-    {
-      "key": "bookmark-terracotta",
-      "sourceName": "bookmark-terracotta.png",
-      "sourceSha256": "961496d5dfecf0956496ec9b7d1bd905b16200eb9c0a8d718bef678cd6f7026e",
-      "width": 106,
-      "height": 322,
-      "mime": "image/png",
-      "version": 1,
-      "blobPathname": "docket-plate-blob/bookmark-terracotta.png",
-      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/bookmark-terracotta.png"
-    },
-    {
-      "key": "docket-frame-slim",
-      "sourceName": "docket-frame-slim.png",
-      "sourceSha256": "5cc5fc2d46c6263658ccb15d4d4d999d4596eeaa06d524d4df727c69e6d8e556",
-      "width": 760,
-      "height": 201,
-      "mime": "image/png",
-      "version": 1,
-      "blobPathname": "docket-plate-blob/docket-frame-slim.png",
-      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-frame-slim.png"
     },
     {
       "key": "docket-frame-button",
@@ -69,39 +58,6 @@
       "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-frame-left.png"
     },
     {
-      "key": "medallion-pending-graphite",
-      "sourceName": "medallion-pending-graphite.png",
-      "sourceSha256": "61a9218057d50ee76ec0cea30a2725325814b3f55a202c719b1cf5c87a8225b0",
-      "width": 247,
-      "height": 250,
-      "mime": "image/png",
-      "version": 1,
-      "blobPathname": "docket-plate-blob/medallion-pending-graphite.png",
-      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/medallion-pending-graphite.png"
-    },
-    {
-      "key": "docket-plate-short",
-      "sourceName": "docket-plate-short.png",
-      "sourceSha256": "de99bc31be8b417c945a9217346e57fcba798c9b0f9863869b37c40b26fdfcf8",
-      "width": 420,
-      "height": 223,
-      "mime": "image/png",
-      "version": 1,
-      "blobPathname": "docket-plate-blob/docket-plate-short.png",
-      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-plate-short.png"
-    },
-    {
-      "key": "medallion-write-brass",
-      "sourceName": "medallion-write-brass.png",
-      "sourceSha256": "c10f94bf5b90c502c96b4b61bdc27af040bd5dc456035205f1f54af4333c7e50",
-      "width": 245,
-      "height": 248,
-      "mime": "image/png",
-      "version": 1,
-      "blobPathname": "docket-plate-blob/medallion-write-brass.png",
-      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/medallion-write-brass.png"
-    },
-    {
       "key": "docket-frame-right",
       "sourceName": "docket-frame-right.png",
       "sourceSha256": "d51729ad0540696c19903e4feaf2a82f934d914f5bf13d5c95cb69c852807da2",
@@ -111,6 +67,17 @@
       "version": 1,
       "blobPathname": "docket-plate-blob/docket-frame-right.png",
       "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-frame-right.png"
+    },
+    {
+      "key": "docket-frame-slim",
+      "sourceName": "docket-frame-slim.png",
+      "sourceSha256": "5cc5fc2d46c6263658ccb15d4d4d999d4596eeaa06d524d4df727c69e6d8e556",
+      "width": 760,
+      "height": 201,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/docket-frame-slim.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-frame-slim.png"
     },
     {
       "key": "docket-plate-long",
@@ -124,17 +91,6 @@
       "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-plate-long.png"
     },
     {
-      "key": "medallion-pin-pair",
-      "sourceName": "medallion-pin-pair.png",
-      "sourceSha256": "8edffa2ff7fba2bfa20c85ac3114afc4d8f85de70d1035a7b0811f3139ddadad",
-      "width": 210,
-      "height": 190,
-      "mime": "image/png",
-      "version": 1,
-      "blobPathname": "docket-plate-blob/medallion-pin-pair.png",
-      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/medallion-pin-pair.png"
-    },
-    {
       "key": "docket-plate-medium",
       "sourceName": "docket-plate-medium.png",
       "sourceSha256": "fe23b887ec7298ae1e201d81a5ae9f5cdae44863adb98099ed71a7a274d58774",
@@ -144,6 +100,149 @@
       "version": 1,
       "blobPathname": "docket-plate-blob/docket-plate-medium.png",
       "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-plate-medium.png"
+    },
+    {
+      "key": "docket-plate-short",
+      "sourceName": "docket-plate-short.png",
+      "sourceSha256": "de99bc31be8b417c945a9217346e57fcba798c9b0f9863869b37c40b26fdfcf8",
+      "width": 420,
+      "height": 223,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/docket-plate-short.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-plate-short.png"
+    },
+    {
+      "key": "folio-brass-divider-alpha",
+      "sourceName": "folio-brass-divider-alpha.png",
+      "sourceSha256": "2b72af0ce42620fe8cc3789435bc354cbb77e896395a80e26ee9b5c0aa9f68da",
+      "width": 2351,
+      "height": 180,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/folio-brass-divider-alpha.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/folio-brass-divider-alpha.png"
+    },
+    {
+      "key": "folio-brass-divider-matte",
+      "sourceName": "folio-brass-divider-matte.png",
+      "sourceSha256": "5e80523d6b94c1c31b22398b93a0025c3e8bdada3c2de85dda4a4fd5c508a33a",
+      "width": 2528,
+      "height": 1696,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/folio-brass-divider-matte.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/folio-brass-divider-matte.png"
+    },
+    {
+      "key": "folio-hourglass-medallion-alpha",
+      "sourceName": "folio-hourglass-medallion-alpha.png",
+      "sourceSha256": "f9a1a90ee58019e3e91e35430f5a61c953772fa30bf17bac6cbf7c4175ca3948",
+      "width": 2048,
+      "height": 2048,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/folio-hourglass-medallion-alpha.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/folio-hourglass-medallion-alpha.png"
+    },
+    {
+      "key": "folio-hourglass-medallion-matte",
+      "sourceName": "folio-hourglass-medallion-matte.png",
+      "sourceSha256": "7243a00bb8a0c816df925e96796c488ee5383210392e5273ce4d0cd88b2d8ec6",
+      "width": 2048,
+      "height": 2048,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/folio-hourglass-medallion-matte.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/folio-hourglass-medallion-matte.png"
+    },
+    {
+      "key": "folio-paper-trail-bookmark-alpha",
+      "sourceName": "folio-paper-trail-bookmark-alpha.png",
+      "sourceSha256": "ed5edb330d9a46b5062166b94b12f6d1404975ccee26bce74b08a94687bf2b98",
+      "width": 531,
+      "height": 1964,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/folio-paper-trail-bookmark-alpha.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/folio-paper-trail-bookmark-alpha.png"
+    },
+    {
+      "key": "folio-paper-trail-bookmark-matte",
+      "sourceName": "folio-paper-trail-bookmark-matte.png",
+      "sourceSha256": "e7a557aedc83dde4657ef02af6611e31a8706212b6e7f715c8f00a8ed9d08dbd",
+      "width": 1696,
+      "height": 2528,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/folio-paper-trail-bookmark-matte.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/folio-paper-trail-bookmark-matte.png"
+    },
+    {
+      "key": "folio-primary-action-plate-alpha",
+      "sourceName": "folio-primary-action-plate-alpha.png",
+      "sourceSha256": "90fcd259807753e48d0029bf23c0e70a7e4590d22eef8eb45e57f939c2a6de63",
+      "width": 2383,
+      "height": 1580,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/folio-primary-action-plate-alpha.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/folio-primary-action-plate-alpha.png"
+    },
+    {
+      "key": "folio-primary-action-plate-matte",
+      "sourceName": "folio-primary-action-plate-matte.png",
+      "sourceSha256": "9e96d44a2234c2895ad81274afd72566b00540a01bebb61b8d505c05b9ba7ba2",
+      "width": 2528,
+      "height": 1696,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/folio-primary-action-plate-matte.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/folio-primary-action-plate-matte.png"
+    },
+    {
+      "key": "folio-secondary-action-plate-alpha",
+      "sourceName": "folio-secondary-action-plate-alpha.png",
+      "sourceSha256": "a1d1ebc4d02cc7a648dccac6cb3d301a269d5a3bfba977fbf5fb9652515dae71",
+      "width": 1468,
+      "height": 1098,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/folio-secondary-action-plate-alpha.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/folio-secondary-action-plate-alpha.png"
+    },
+    {
+      "key": "folio-secondary-action-plate-matte",
+      "sourceName": "folio-secondary-action-plate-matte.png",
+      "sourceSha256": "73e7a66875c00d7aa96bfcb0b68731bbdf6856f11c7cce2d440f58b393144436",
+      "width": 2528,
+      "height": 1696,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/folio-secondary-action-plate-matte.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/folio-secondary-action-plate-matte.png"
+    },
+    {
+      "key": "folio-validation-medallion-alpha",
+      "sourceName": "folio-validation-medallion-alpha.png",
+      "sourceSha256": "e2eb5f6b2402f76947644409eab82f2df5909d00ba466fadbf738b84a9df76fd",
+      "width": 1744,
+      "height": 1766,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/folio-validation-medallion-alpha.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/folio-validation-medallion-alpha.png"
+    },
+    {
+      "key": "folio-validation-medallion-matte",
+      "sourceName": "folio-validation-medallion-matte.png",
+      "sourceSha256": "d20c1c60f6acc8a9814d8e4b974359190002f63262972b49490045357105eab9",
+      "width": 2048,
+      "height": 2048,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/folio-validation-medallion-matte.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/folio-validation-medallion-matte.png"
     },
     {
       "key": "medallion-accepted-sage",
@@ -157,15 +256,37 @@
       "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/medallion-accepted-sage.png"
     },
     {
-      "key": "rule-ornamental-2",
-      "sourceName": "rule-ornamental-2.png",
-      "sourceSha256": "472853a9c8f69a03ba6ed5aa9708a6c6d22b4dbcbbe8c80d21a5b0acca004e3b",
-      "width": 425,
-      "height": 63,
+      "key": "medallion-pending-graphite",
+      "sourceName": "medallion-pending-graphite.png",
+      "sourceSha256": "61a9218057d50ee76ec0cea30a2725325814b3f55a202c719b1cf5c87a8225b0",
+      "width": 247,
+      "height": 250,
       "mime": "image/png",
       "version": 1,
-      "blobPathname": "docket-plate-blob/rule-ornamental-2.png",
-      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/rule-ornamental-2.png"
+      "blobPathname": "docket-plate-blob/medallion-pending-graphite.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/medallion-pending-graphite.png"
+    },
+    {
+      "key": "medallion-pin-pair",
+      "sourceName": "medallion-pin-pair.png",
+      "sourceSha256": "8edffa2ff7fba2bfa20c85ac3114afc4d8f85de70d1035a7b0811f3139ddadad",
+      "width": 210,
+      "height": 190,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/medallion-pin-pair.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/medallion-pin-pair.png"
+    },
+    {
+      "key": "medallion-write-brass",
+      "sourceName": "medallion-write-brass.png",
+      "sourceSha256": "c10f94bf5b90c502c96b4b61bdc27af040bd5dc456035205f1f54af4333c7e50",
+      "width": 245,
+      "height": 248,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/medallion-write-brass.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/medallion-write-brass.png"
     },
     {
       "key": "plate-book-blank",
@@ -179,15 +300,26 @@
       "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/plate-book-blank.png"
     },
     {
-      "key": "seal-terracotta-hand",
-      "sourceName": "seal-terracotta-hand.png",
-      "sourceSha256": "396381d7f39ff71ad6278c6ac9c625c65a09ee0f7f52dd53a7cc15838fe48e30",
-      "width": 197,
-      "height": 203,
+      "key": "rule-ornamental-1",
+      "sourceName": "rule-ornamental-1.png",
+      "sourceSha256": "e58e5fe53b4717e542f3bc93dc839a06e6a8ecb9bd161e7a5c45f1fcc8734650",
+      "width": 312,
+      "height": 56,
       "mime": "image/png",
       "version": 1,
-      "blobPathname": "docket-plate-blob/seal-terracotta-hand.png",
-      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/seal-terracotta-hand.png"
+      "blobPathname": "docket-plate-blob/rule-ornamental-1.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/rule-ornamental-1.png"
+    },
+    {
+      "key": "rule-ornamental-2",
+      "sourceName": "rule-ornamental-2.png",
+      "sourceSha256": "472853a9c8f69a03ba6ed5aa9708a6c6d22b4dbcbbe8c80d21a5b0acca004e3b",
+      "width": 425,
+      "height": 63,
+      "mime": "image/png",
+      "version": 1,
+      "blobPathname": "docket-plate-blob/rule-ornamental-2.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/rule-ornamental-2.png"
     },
     {
       "key": "rule-ornamental-3",
@@ -201,15 +333,15 @@
       "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/rule-ornamental-3.png"
     },
     {
-      "key": "rule-ornamental-1",
-      "sourceName": "rule-ornamental-1.png",
-      "sourceSha256": "e58e5fe53b4717e542f3bc93dc839a06e6a8ecb9bd161e7a5c45f1fcc8734650",
-      "width": 312,
-      "height": 56,
+      "key": "seal-terracotta-hand",
+      "sourceName": "seal-terracotta-hand.png",
+      "sourceSha256": "396381d7f39ff71ad6278c6ac9c625c65a09ee0f7f52dd53a7cc15838fe48e30",
+      "width": 197,
+      "height": 203,
       "mime": "image/png",
       "version": 1,
-      "blobPathname": "docket-plate-blob/rule-ornamental-1.png",
-      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/rule-ornamental-1.png"
+      "blobPathname": "docket-plate-blob/seal-terracotta-hand.png",
+      "url": "https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/seal-terracotta-hand.png"
     }
   ]
 }
