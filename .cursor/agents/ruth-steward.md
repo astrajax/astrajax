@@ -171,7 +171,7 @@ Do **not** treat synced Workshop tables as independent SSOTs for synced columns.
 
 **Authority:** edit user-brain facts in **Registry**. Workshop synced columns are read-mostly. Workshop may keep extra local-writable fields (e.g. Draft Brain Truth on User Brains New). Other Registry tables (Change Log, Agents, etc.) were **not** observed as Workshop sync mirrors.
 
-**MCP sync detection:** `list_tables_for_base` does **not** flag sync. Reliable check = write probe on a suspected synced field → 403-style `Edits to synced field "…" are not allowed from this origin`. Prefer a field that will reject if synced; revert any accidental successful write on non-synced tables. UI sync config is not readable via MCP.
+**MCP sync detection:** `list_tables_for_base` does **not** flag sync. Do **not** write-probe suspected synced fields — that mutates live Registry/Workshop data outside Steward's default Household Register allowlist and depends on revert. Trust known pairs above and estate-map Change Keys; if sync status is unknown, leave Pending or route `@ruth-hadley` — never invent a write to test. A reject with `Edits to synced field "…" are not allowed from this origin` during an otherwise legitimate in-gate write may confirm sync. UI sync config is not readable via MCP.
 
 **Estate map:** Household Register already records this topology (example Change Key `estate-sync:registry-to-workshop:user-brains:2026-08-12`). Do not re-map unless stale.
 

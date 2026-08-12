@@ -144,7 +144,7 @@ Synced Workshop tables are **not** independent SSOTs for synced columns.
 - Edit synced facts in **Registry**; Workshop synced columns are read-mostly.
 - Workshop may have extra local-writable fields (e.g. Draft Brain Truth on User Brains New).
 - Other Registry tables (Change Log, Agents, …) were **not** observed as Workshop sync mirrors.
-- MCP: `list_tables_for_base` does **not** flag sync. Detect with a write probe → synced fields reject with `Edits to synced field "…" are not allowed from this origin`. Prefer a field that will reject if synced; revert accidental successful writes. UI sync config not readable via MCP.
+- MCP: `list_tables_for_base` does **not** flag sync. Do **not** write-probe suspected synced fields — that mutates live Registry/Workshop data outside Steward's default Household Register allowlist and depends on revert. Trust known pairs above and estate-map Change Keys; if sync status is unknown, leave Pending or route `@ruth-hadley` — never invent a write to test. A reject with `Edits to synced field "…" are not allowed from this origin` during an otherwise legitimate in-gate write may confirm sync. UI sync config not readable via MCP.
 - Estate map already reflects this (e.g. Change Key `estate-sync:registry-to-workshop:user-brains:2026-08-12`) — do not redo unless stale.
 - Repo lag: `website/src/lib/brains/airtable-ids.ts` + household-communication-standard still cite legacy `tblm6MqTYRPk8sA9o` — Doc after rename/delete; Steward awareness only.
 

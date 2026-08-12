@@ -103,10 +103,10 @@ retrieval, scanner diffs, small reversible writes within Steward caps).
 **Target:** `@ruth-hadley` (reasoning head — she never executes) **or** `@ruth-steward`
 when the whole job fits Steward's exact gate (one permitted base, one owning table, ≤3
 safe field changes, ≤100 record writes, reversible, no grain/SSOT/topology/ceremony work).
-**Then, only inside Ruth's cleared packs:**
+**Then, only inside Ruth's cleared packs** (Build/Maintenance ceremony — not Steward;
+Steward is ceremony-free and routes from **Target** above when in gate):
 | Job | Target |
 |---|---|
-| Estate map, scanner diffs, bounded Matthew-estate writes (in gate) | `@ruth-steward` |
 | Independent challenge of a Build proposal | `@ruth-build-challenger` |
 | Apply one signed, challenger-cleared typed build manifest | `@ruth-build-executor` |
 | Independent V2 of a maintenance V1 | `@ruth-maintenance-challenger` |
