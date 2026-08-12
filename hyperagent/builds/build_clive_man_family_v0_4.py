@@ -7,7 +7,7 @@ in Airtable. Never hand-source Pending persona text.
 Usage:
   python3 hyperagent/builds/build_clive_man_family_v0_4.py --pin-persona "Operational v0.4"
   python3 hyperagent/builds/build_clive_man_family_v0_4.py --verify-pending-gate
-  python3 hyperagent/builds/build_clive_man_family_v0_4.py --fixture-approved
+  python3 hyperagent/builds/build_clive_man_family_v0_4.py --fixture-approved --output-root /tmp/clive-man-fixture-exports  # tests only
 
 After Matthew approves v0.4 in Airtable, run the first command (no fixture flag).
 Then validate each export and run scripts/test_clive_man_hyperagent_v0_4.py.
@@ -20,6 +20,7 @@ import json
 import shutil
 import sys
 from pathlib import Path
+from dataclasses import dataclass
 from typing import Any
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -87,6 +88,28 @@ from _repo_paths import (  # noqa: E402
 ARCHIVE_AGENTS = EXPORTS_AGENTS_DIR.parent / "archive" / "agents"
 ARCHIVE_SKILLS = EXPORTS_SKILLS_DIR.parent / "archive" / "skills"
 ARCHIVE_BUILDS = Path(__file__).resolve().parent / "archive"
+
+
+@dataclass(frozen=True)
+class ExportPaths:
+    """Resolved agent/skill export directories for one build invocation."""
+
+    agents_dir: Path
+    skills_dir: Path
+    production: bool
+
+
+def resolve_export_paths(output_root: Path | None) -> ExportPaths:
+    if output_root is None:
+        return ExportPaths(EXPORTS_AGENTS_DIR, EXPORTS_SKILLS_DIR, production=True)
+    root = output_root.resolve()
+    return ExportPaths(root / "agents", root / "skills", production=False)
+
+
+def _is_production_export_root(output_root: Path | None) -> bool:
+    paths = resolve_export_paths(output_root)
+    return paths.agents_dir.resolve() == EXPORTS_AGENTS_DIR.resolve()
+
 
 V0_1_AGENT_FILES = (
     "agent-clive-man-v0_1.json",
@@ -235,7 +258,11 @@ def _read_agent_body(slug: str) -> str:
 def _write_json(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(f"wrote {path.relative_to(REPO_ROOT)}")
+    try:
+        label = path.relative_to(REPO_ROOT)
+    except ValueError:
+        label = path
+    print(f"wrote {label}")
 
 
 def _merge_safe_unknown_keys(base: dict, observed: dict | None, keys: tuple[str, ...]) -> dict:
@@ -312,7 +339,7 @@ def _cursor_skill_block(
     )
 
 
-def _build_skills(persona: PersonaSource) -> dict[str, dict]:
+def _build_skills(persona: PersonaSource, export_paths: ExportPaths) -> dict[str, dict]:
     blocks: dict[str, dict] = {}
 
     blocks["clive-man"] = _cursor_skill_block(
@@ -360,7 +387,7 @@ def _build_skills(persona: PersonaSource) -> dict[str, dict]:
         blocks[slug] = load_specialist_skill(slug)
 
     for slug, block in blocks.items():
-        _write_json(EXPORTS_SKILLS_DIR / f"skill-{slug}-v0_4.json", skill_export(block))
+        _write_json(export_paths.skills_dir / f"skill-{slug}-v0_4.json", skill_export(block))
 
     return blocks
 
@@ -397,14 +424,18 @@ def _scheduled_invocations(actor: str, prompt: str) -> list[dict]:
     ]
 
 
-def build_exports(persona: PersonaSource) -> None:
-    from _clive_man_lane_a_allowlist import write_lane_a_allowlist_module
+def build_exports(persona: PersonaSource, *, export_paths: ExportPaths | None = None) -> None:
+    export_paths = export_paths or resolve_export_paths(None)
 
-    write_lane_a_allowlist_module(
-        Path(__file__).resolve().parent / "sources" / "clive-man-v0_4" / "on-demand" / "lane_a_allowlist.py"
-    )
-    _archive_superseded_v0_1()
-    skills = _build_skills(persona)
+    if export_paths.production:
+        from _clive_man_lane_a_allowlist import write_lane_a_allowlist_module
+
+        write_lane_a_allowlist_module(
+            Path(__file__).resolve().parent / "sources" / "clive-man-v0_4" / "on-demand" / "lane_a_allowlist.py"
+        )
+        _archive_superseded_v0_1()
+
+    skills = _build_skills(persona, export_paths)
 
     head_prompt = "\n\n".join(
         [_provenance_block(persona), persona.system_prompt, persona.rules_section, persona.output_format, RUNTIME_DELTA_HEAD]
@@ -428,7 +459,7 @@ def build_exports(persona: PersonaSource) -> None:
         effort="high",
         extra_fields=_merge_safe_unknown_keys(head_extra, observed_head, ("disableAliveScopeOverlay", "executionMode")),
     )
-    _write_json(EXPORTS_AGENTS_DIR / "agent-clive-man-v0_4.json", agent_export(head))
+    _write_json(export_paths.agents_dir / "agent-clive-man-v0_4.json", agent_export(head))
 
     on_demand_specs = (
         ("proposer", RUNTIME_DELTA_PROPOSER, "📜", MODEL_PROPOSER, "low", {"execute-script": True, "web-search": True}),
@@ -454,7 +485,7 @@ def build_exports(persona: PersonaSource) -> None:
             max_thinking_tokens=thinking,
             effort=effort,
         )
-        _write_json(EXPORTS_AGENTS_DIR / f"agent-clive-man-{slug}-v0_4.json", agent_export(agent_block))
+        _write_json(export_paths.agents_dir / f"agent-clive-man-{slug}-v0_4.json", agent_export(agent_block))
 
     ambient_body = _read_agent_body("clive-man-ambient-capture") or _read_skill_body("clive-man-ambient-capture")
     ambient = agent_data(
@@ -471,7 +502,7 @@ def build_exports(persona: PersonaSource) -> None:
         scheduled_invocations=[],
         extra_fields={"scheduleContract": SCHEDULE_CONTRACT[ACTOR_AMBIENT], "checkpointStore": CHECKPOINT_SENTINEL},
     )
-    _write_json(EXPORTS_AGENTS_DIR / "agent-clive-man-ambient-capture-v0_4.json", agent_export(ambient))
+    _write_json(export_paths.agents_dir / "agent-clive-man-ambient-capture-v0_4.json", agent_export(ambient))
 
     context_specs = (
         (ACTOR_AUDITOR, "context-auditor", "clive-man-context-auditor", MODEL_AUDITOR, "high", 6, ""),
@@ -512,10 +543,10 @@ def build_exports(persona: PersonaSource) -> None:
             ),
             extra_fields={"actorLiteral": actor, "maintenanceCap": CAP_DAILY_MUTATIONS["maintenance"]},
         )
-        _write_json(EXPORTS_AGENTS_DIR / f"agent-clive-man-{slug_suffix}-v0_4.json", agent_export(agent_block))
+        _write_json(export_paths.agents_dir / f"agent-clive-man-{slug_suffix}-v0_4.json", agent_export(agent_block))
 
-    emitted = list(EXPORTS_AGENTS_DIR.glob("agent-clive-man*v0_4.json")) + list(
-        EXPORTS_SKILLS_DIR.glob("skill-clive-man*v0_4.json")
+    emitted = list(export_paths.agents_dir.glob("agent-clive-man*v0_4.json")) + list(
+        export_paths.skills_dir.glob("skill-clive-man*v0_4.json")
     )
     if len(emitted) != EXPECTED_EXPORT_COUNT:
         raise SystemExit(f"Export count mismatch: expected {EXPECTED_EXPORT_COUNT}, got {len(emitted)}")
@@ -533,9 +564,28 @@ def main() -> None:
         default=None,
         help="Explicit MCP-approved snapshot JSON (production path when no Airtable token)",
     )
+    parser.add_argument(
+        "--output-root",
+        default=None,
+        metavar="DIR",
+        help="Write exports under DIR/agents and DIR/skills (tests). Default: hyperagent/exports/",
+    )
     parser.add_argument("--verify-pending-gate", action="store_true", help="Confirm v0.4 Pending; exit without generating.")
-    parser.add_argument("--fixture-approved", action="store_true", help="Use labelled offline fixture (tests only).")
+    parser.add_argument(
+        "--fixture-approved",
+        action="store_true",
+        help="Use labelled offline fixture (tests only; requires non-production --output-root)",
+    )
     args = parser.parse_args()
+
+    output_root = Path(args.output_root).resolve() if args.output_root else None
+    export_paths = resolve_export_paths(output_root)
+
+    if args.fixture_approved and export_paths.production:
+        raise SystemExit(
+            "--fixture-approved requires non-production --output-root. "
+            "Refusing to write fixture persona text into hyperagent/exports/."
+        )
 
     if args.verify_pending_gate:
         info = resolve(verify_pending=True)
@@ -549,19 +599,19 @@ def main() -> None:
     if args.fixture_approved:
         persona = resolve(fixture_approved=True)
         assert isinstance(persona, PersonaSource)
-        build_exports(persona)
+        build_exports(persona, export_paths=export_paths)
         return
 
     if args.approved_source_file:
         persona = resolve(approved_source_file=args.approved_source_file)
         assert isinstance(persona, PersonaSource)
-        build_exports(persona)
+        build_exports(persona, export_paths=export_paths)
         return
 
     pin = args.pin_persona or PERSONA_V04_VERSION_NAME
     persona = resolve(pin_version=pin, fixture_approved=False)
     assert isinstance(persona, PersonaSource)
-    build_exports(persona)
+    build_exports(persona, export_paths=export_paths)
 
 
 if __name__ == "__main__":

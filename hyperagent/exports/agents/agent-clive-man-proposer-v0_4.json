@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "agent",
-  "exportedAt": "2026-08-12T11:02:28.000Z",
+  "exportedAt": "2026-08-12T11:06:27.000Z",
   "data": {
     "name": "Clive's Man — Proposer",
     "description": "Composer Proposer minion for Clive's Man. Drafts context actions with evidence; Lane B only. Source-as-data injection fence. Never executes.",

@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
-"""Hyperagent offline contract tests for Clive's Man v0.4 (CM-HA-001 … CM-HA-038).
+"""Hyperagent offline contract tests for Clive's Man v0.4 (CM-HA-001 … CM-HA-050).
 
-Run after generator --fixture-approved. Does not contact Airtable or import exports.
+Production export tests assume committed approved-snapshot exports in
+``hyperagent/exports/``. Fixture generation uses ``--fixture-approved`` with
+``--output-root`` under a temp directory only — never production paths.
+Does not contact Airtable or import exports.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import subprocess
@@ -63,25 +67,48 @@ from _clive_man_persona_gate import load_approved_source_file, load_fixture  # n
 
 APPROVED_JSON = REPO / "agents/registry/cursor/clive/clive-man/persona-config.approved-v0.4.json"
 APPROVED_BUNDLE_SHA = "d78475e7b9ebd973a116725dab79d41a4ba12c27231070cb6167b13b0ce16a73"
+BUILD_SCRIPT = BUILDS / "build_clive_man_family_v0_4.py"
 
 
-def setUpModule() -> None:
-    """Ensure production exports exist from approved mirror (do not overwrite with fixture)."""
-    if not APPROVED_JSON.is_file():
-        raise RuntimeError(f"Missing approved mirror: {APPROVED_JSON}")
+def _production_export_paths() -> list[Path]:
+    paths: list[Path] = [EXPORTS_AGENTS / name for name in AGENT_EXPORTS]
+    paths.extend(EXPORTS_SKILLS / name for name in STANDALONE_SKILL_EXPORTS)
+    return paths
+
+
+def _sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _hash_production_exports() -> dict[str, str]:
+    return {str(p.relative_to(REPO)): _sha256_file(p) for p in _production_export_paths()}
+
+
+def _git_status_exports() -> str:
     proc = subprocess.run(
-        [
-            sys.executable,
-            str(BUILDS / "build_clive_man_family_v0_4.py"),
-            "--approved-source-file",
-            str(APPROVED_JSON.relative_to(REPO)),
-        ],
+        ["git", "status", "--porcelain", "hyperagent/exports/"],
         cwd=REPO,
         capture_output=True,
         text=True,
     )
     if proc.returncode != 0:
         raise RuntimeError(proc.stderr or proc.stdout)
+    return proc.stdout.strip()
+
+
+def _run_fixture_build(output_root: Path) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            sys.executable,
+            str(BUILD_SCRIPT),
+            "--fixture-approved",
+            "--output-root",
+            str(output_root),
+        ],
+        cwd=REPO,
+        capture_output=True,
+        text=True,
+    )
 
 
 def _read_json(path: Path) -> dict:
@@ -108,6 +135,51 @@ def _parse_scripts(skill: dict) -> list[dict]:
     if not raw:
         return []
     return json.loads(raw) if isinstance(raw, str) else raw
+
+
+class FixtureProductionIsolationTest(unittest.TestCase):
+    def test_cm_ha_048_fixture_refused_without_output_root(self) -> None:
+        proc = subprocess.run(
+            [sys.executable, str(BUILD_SCRIPT), "--fixture-approved"],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+        )
+        self.assertNotEqual(proc.returncode, 0)
+        combined = proc.stdout + proc.stderr
+        self.assertIn("--output-root", combined)
+
+    def test_cm_ha_049_fixture_build_leaves_production_exports_untouched(self) -> None:
+        before_hashes = _hash_production_exports()
+        before_status = _git_status_exports()
+        with tempfile.TemporaryDirectory(prefix="clive-man-fixture-") as tmp:
+            output_root = Path(tmp)
+            proc = _run_fixture_build(output_root)
+            self.assertEqual(proc.returncode, 0, proc.stderr or proc.stdout)
+            agents = list((output_root / "agents").glob("agent-clive-man*v0_4.json"))
+            skills = list((output_root / "skills").glob("skill-clive-man*v0_4.json"))
+            self.assertEqual(len(agents) + len(skills), EXPECTED_EXPORT_COUNT)
+            head = _read_json(output_root / "agents" / "agent-clive-man-v0_4.json")["data"]
+            self.assertIn("TEST FIXTURE", head["systemPrompt"])
+        after_hashes = _hash_production_exports()
+        self.assertEqual(before_hashes, after_hashes)
+        self.assertEqual(before_status, _git_status_exports())
+
+    def test_cm_ha_050_temp_fixture_exports_pass_validator(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="clive-man-fixture-") as tmp:
+            output_root = Path(tmp)
+            proc = _run_fixture_build(output_root)
+            self.assertEqual(proc.returncode, 0, proc.stderr or proc.stdout)
+            paths = list((output_root / "agents").glob("agent-clive-man*v0_4.json")) + list(
+                (output_root / "skills").glob("skill-clive-man*v0_4.json")
+            )
+            for path in paths:
+                vproc = subprocess.run(
+                    [sys.executable, str(VALIDATOR), str(path)],
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertEqual(vproc.returncode, 0, f"{path.name}: {vproc.stderr}")
 
 
 class GeneratorGateTest(unittest.TestCase):

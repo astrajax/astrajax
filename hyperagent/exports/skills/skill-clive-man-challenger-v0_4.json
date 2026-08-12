@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "skill",
-  "exportedAt": "2026-08-12T11:02:28.000Z",
+  "exportedAt": "2026-08-12T11:06:27.000Z",
   "data": {
     "name": "clive-man-challenger",
     "description": "Composer minion for Clive's Man. Red-teams proposed context actions before execution, checks confidence by decision type, and escalates risk.",

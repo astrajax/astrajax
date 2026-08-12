@@ -25,7 +25,7 @@ Standalone skills: head + Trinity minions + three context specialists (no standa
 ```bash
 python3 hyperagent/builds/build_clive_man_family_v0_4.py --pin-persona "Operational v0.4"
 python3 hyperagent/builds/build_clive_man_family_v0_4.py --verify-pending-gate
-python3 hyperagent/builds/build_clive_man_family_v0_4.py --fixture-approved  # offline tests only
+python3 hyperagent/builds/build_clive_man_family_v0_4.py --fixture-approved --output-root /tmp/clive-man-fixture-exports  # offline tests only
 ```
 
 Persona gate: `recSKTT8NTTJOmuRu` / `Operational v0.4` — **Approved** (12 Aug 2026).
@@ -51,7 +51,7 @@ Offline behavioural coverage (Aug 2026 Phase B + hardening pass):
 
 | Suite | File | Count |
 |-------|------|------:|
-| CM-HA contract | `scripts/test_clive_man_hyperagent_v0_4.py` | 50 |
+| CM-HA contract | `scripts/test_clive_man_hyperagent_v0_4.py` | 53 |
 | Seam chain (mocked Airtable) | `scripts/test_clive_man_seam_v0_4.py` | 26 |
 | Executable scripts | `scripts/test_clive_man_hyperagent_v0_4_executable.py` | 17 |
 | Hardening pass | `scripts/test_clive_man_hardening_v0_4.py` | 25 |
@@ -59,7 +59,7 @@ Offline behavioural coverage (Aug 2026 Phase B + hardening pass):
 | Context Challenger specialist | `…/context-estate-challenge/test_challenger.py` | 25 |
 | Context Auditor specialist | `…/context-estate-audit-propose/test_auditor.py` | 53 |
 | Context Executor specialist | `…/context-amendment-execute/test_executor.py` | 34 |
-| **Total** | | **238** |
+| **Total** | | **241** |
 
 **Household Routing Standard:** family v0_4 exports embed Option 3 body from
 `.claude/skills/household-routing-standard/SKILL.md`. Standalone export

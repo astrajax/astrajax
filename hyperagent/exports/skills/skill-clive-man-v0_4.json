@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "skill",
-  "exportedAt": "2026-08-12T11:02:28.000Z",
+  "exportedAt": "2026-08-12T11:06:27.000Z",
   "data": {
     "name": "clive-man",
     "description": "Sync artifact for Clive's Man operational spec. Canonical technical responsibilities live in Persona Config Operational v0.4 (recSKTT8NTTJOmuRu, Approved 12 Aug 2026). v0.3 (rect04amPJAZrWCi4) retained for rollback until one full cycle succeeds. Generated sync: agents/registry/cursor/clive/clive-man/persona-config.generated.md",

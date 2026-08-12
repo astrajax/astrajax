@@ -60,8 +60,8 @@ python3 scripts/generate_persona_config_sync.py --agent clive-man --pin-version 
 | Bucket | IDs | Count | Owner |
 |--------|-----|-------|-------|
 | Cursor static + resolver | CM-CUR-001 … CM-CUR-038 | **38** | This pack (`scripts/test_clive_man_context_flow.py`, `scripts/test_generate_persona_config_sync.py`) |
-| Hyperagent runtime / offline | CM-HA-001 … CM-HA-047 + seam + executable + hardening + approved snapshot | **50 + 26 + 17 + 25 + 8 + 112 specialist** | Hyperagent Builder |
-| **Total offline (Hyperagent family)** | | **238** | |
+| Hyperagent runtime / offline | CM-HA-001 … CM-HA-050 + seam + executable + hardening + approved snapshot | **53 + 26 + 17 + 25 + 8 + 112 specialist** | Hyperagent Builder |
+| **Total offline (Hyperagent family)** | | **241** | |
 
 Cursor suites (separate from Hyperagent family total):
 
