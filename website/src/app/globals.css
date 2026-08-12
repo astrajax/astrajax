@@ -7400,7 +7400,10 @@ textarea.clive-chat__input {
   transition: opacity 480ms cubic-bezier(0.45, 0.05, 0.55, 0.95);
 }
 
-/* ── The message pulse — one thin thought-vein to Clive ───────────────── */
+/* ── Message pulse — Kathryn Direction A: "Ink discharge" lightning ─────
+   Thin angular bolt (polyline), three-layer stroke, two-strike + tendrils.
+   Timing mirrors FOLIO_PULSE_TRAVEL_MS = 820 in FolioMessagePulse.tsx.
+   Taste for Tara-Lee / Kathryn eye — not declared final. */
 .folio-pulse {
   pointer-events: none;
   position: absolute;
@@ -7412,72 +7415,207 @@ textarea.clive-chat__input {
   width: 100%;
   height: 100%;
   display: block;
+  overflow: hidden;
 }
 
-.folio-pulse__vein {
-  stroke: var(--folio-gold, rgba(203, 160, 86, 0.92));
-  stroke-width: 2.25;
+/* Shared dash setup — pathLength=1 in markup; draw via dashoffset.
+   non-scaling-stroke keeps hairline weight in screen px while the path
+   maps 1:1 to stage % (preserveAspectRatio none). */
+.folio-pulse__stroke,
+.folio-pulse__tendril {
   stroke-linecap: round;
+  stroke-linejoin: miter;
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
-  filter: drop-shadow(0 0 6px rgba(232, 192, 122, 0.65));
-  animation: folio-vein-travel 900ms cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
-}
-
-.folio-pulse__halo {
-  fill: rgba(232, 192, 122, 0.4);
   opacity: 0;
-  filter: blur(6px);
-  animation: folio-halo-arrive 1400ms cubic-bezier(0.45, 0.05, 0.55, 0.95) 760ms forwards;
+  vector-effect: non-scaling-stroke;
 }
 
-@keyframes folio-vein-travel {
+/* Soft Terracotta-warmed bloom — spills faintly on parchment.
+   Widths are screen px (non-scaling-stroke). */
+.folio-pulse__stroke--bloom {
+  stroke: color-mix(in srgb, #a95a2e 42%, #e4d3a3 58%);
+  stroke-width: 6;
+  filter: blur(2.4px);
+  animation: folio-bolt-strike 820ms linear forwards;
+}
+
+/* Buttermilk sheath */
+.folio-pulse__stroke--sheath {
+  stroke: #e4d3a3;
+  stroke-width: 2.5;
+  filter: drop-shadow(0 0 5px rgba(228, 211, 163, 0.55));
+  animation: folio-bolt-strike 820ms linear forwards;
+}
+
+/* Near-white hairline core — white-hot */
+.folio-pulse__stroke--core {
+  stroke: #fff8e8;
+  stroke-width: 1.25;
+  filter: drop-shadow(0 0 3px rgba(255, 248, 232, 0.85));
+  animation: folio-bolt-strike 820ms linear forwards;
+}
+
+/*
+ * Two-strike keyframes (total 820ms):
+ *   0–17%   (~140ms)  fast first hit — dash draws on
+ *   17–26%  (~70ms)   dark gap
+ *   26–44%  (~150ms)  weaker second hit
+ *   44–100%           decay
+ */
+@keyframes folio-bolt-strike {
   0% {
     stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  2% {
+    opacity: 1;
+  }
+  17% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  18%,
+  25% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+  26% {
+    stroke-dashoffset: 0;
+    opacity: 0.55;
+  }
+  40% {
+    stroke-dashoffset: 0;
+    opacity: 0.45;
+  }
+  44% {
+    stroke-dashoffset: 0;
+    opacity: 0.28;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+/* Wispy tendrils — thinner, die early; fire with the first strike only */
+.folio-pulse__tendril {
+  stroke: #e4d3a3;
+  stroke-width: 1.25;
+  filter: drop-shadow(0 0 3px rgba(228, 211, 163, 0.45));
+  animation: folio-tendril-strike 820ms linear forwards;
+}
+
+.folio-pulse__tendril--b {
+  stroke: color-mix(in srgb, #fff8e8 55%, #e4d3a3);
+  stroke-width: 1;
+  animation-delay: 18ms;
+}
+
+@keyframes folio-tendril-strike {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  3% {
+    opacity: 0.85;
+  }
+  14% {
+    stroke-dashoffset: 0;
+    opacity: 0.7;
+  }
+  18%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+/* Origin orb — concentrated node on SEND plate right edge */
+.folio-pulse__origin {
+  fill: #fff8e8;
+  opacity: 0;
+  filter:
+    drop-shadow(0 0 6px rgba(228, 211, 163, 0.9))
+    drop-shadow(0 0 14px rgba(169, 90, 46, 0.45));
+  animation: folio-origin-pulse 820ms ease-out forwards;
+}
+
+@keyframes folio-origin-pulse {
+  0% {
     opacity: 0;
   }
   6% {
     opacity: 1;
   }
-  82% {
-    stroke-dashoffset: 0;
-    opacity: 1;
+  17% {
+    opacity: 0.95;
+  }
+  26% {
+    opacity: 0.5;
+  }
+  44% {
+    opacity: 0.28;
   }
   100% {
-    stroke-dashoffset: 0;
     opacity: 0;
   }
+}
+
+/* Arrival warmth at chest — soft gold/terracotta, softer than the deckle edge */
+.folio-pulse__halo {
+  fill: color-mix(in srgb, #e4d3a3 55%, #a95a2e 45%);
+  opacity: 0;
+  filter: blur(7px);
+  animation: folio-halo-arrive 820ms ease-out forwards;
 }
 
 @keyframes folio-halo-arrive {
-  0% {
+  0%,
+  14% {
     opacity: 0;
   }
+  18% {
+    opacity: 0.55;
+  }
   30% {
-    opacity: 1;
+    opacity: 0.28;
+  }
+  40% {
+    opacity: 0.42;
+  }
+  55% {
+    opacity: 0.22;
   }
   100% {
     opacity: 0;
   }
 }
 
-/* Reduced motion: no travelling path. The vein resolves at its destination
-   and the halo answers with one gentle opacity change — same sequencing,
-   no travel. */
-.folio-pulse[data-reduced-motion="true"] .folio-pulse__vein {
-  animation: folio-vein-resolve 340ms ease forwards;
-  stroke-dashoffset: 0;
+/* Reduced motion: no travelling bolt — gentle origin + destination halo only */
+.folio-pulse[data-reduced-motion="true"] .folio-pulse__stroke,
+.folio-pulse[data-reduced-motion="true"] .folio-pulse__tendril {
+  animation: none;
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+
+.folio-pulse[data-reduced-motion="true"] .folio-pulse__origin {
+  animation: folio-origin-resolve 340ms ease forwards;
 }
 
 .folio-pulse[data-reduced-motion="true"] .folio-pulse__halo {
   animation: folio-halo-resolve 900ms ease 120ms forwards;
 }
 
-@keyframes folio-vein-resolve {
-  from {
+@keyframes folio-origin-resolve {
+  0% {
     opacity: 0;
   }
-  to {
+  40% {
+    opacity: 0.75;
+  }
+  100% {
     opacity: 0;
   }
 }
@@ -7487,7 +7625,7 @@ textarea.clive-chat__input {
     opacity: 0;
   }
   35% {
-    opacity: 0.85;
+    opacity: 0.7;
   }
   100% {
     opacity: 0;
@@ -7495,9 +7633,15 @@ textarea.clive-chat__input {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .folio-pulse__vein {
-    animation: folio-vein-resolve 340ms ease forwards;
-    stroke-dashoffset: 0;
+  .folio-pulse__stroke,
+  .folio-pulse__tendril {
+    animation: none;
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+
+  .folio-pulse__origin {
+    animation: folio-origin-resolve 340ms ease forwards;
   }
 
   .folio-pulse__halo {
