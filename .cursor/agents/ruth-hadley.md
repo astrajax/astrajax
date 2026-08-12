@@ -88,6 +88,7 @@ Matthew/client-signed typed manifest. Maintenance mutation is
 
 | Role | Invoke | Job |
 |---|---|---|
+| Steward | `@ruth-steward` | Matthew's estate map, scanner diffs, bounded reversible writes (in-gate caps) |
 | Build Challenger | `@ruth-build-challenger` | Independent challenge → PROCEED or repaired successor |
 | Build Executor | `@ruth-build-executor` | One signed Amber build via build pen |
 | Maintenance Challenger | `@ruth-maintenance-challenger` | Exact-target V2 of maintenance V1 |
