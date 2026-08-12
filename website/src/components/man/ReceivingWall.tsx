@@ -155,6 +155,9 @@ export function ReceivingWall({
     openRecord?.brainSlug ||
     null;
 
+  /** Native overflow path — nave and reduced-motion skip custom translateY travel. */
+  const usesNativeBayScroll = isNave || prefersReducedMotion;
+
   const measureReadTravel = useCallback(() => {
     const windowEl = bayWindowRef.current;
     const travelEl = bayTravelRef.current;
@@ -174,12 +177,23 @@ export function ReceivingWall({
     [clampReadOffset],
   );
 
+  const resetBayScroll = useCallback(() => {
+    setReadOffset(0);
+    const el = bayWindowRef.current;
+    if (el) el.scrollTop = 0;
+  }, []);
+
   const scrollFocusedIntoView = useCallback(() => {
     const windowEl = bayWindowRef.current;
     const travelEl = bayTravelRef.current;
     const focused = document.activeElement;
     if (!windowEl || !travelEl || !(focused instanceof HTMLElement)) return;
     if (!travelEl.contains(focused)) return;
+
+    if (usesNativeBayScroll) {
+      focused.scrollIntoView({ block: "nearest", inline: "nearest" });
+      return;
+    }
 
     const windowRect = windowEl.getBoundingClientRect();
     const focusRect = focused.getBoundingClientRect();
@@ -194,7 +208,7 @@ export function ReceivingWall({
         clampReadOffset(current + (focusRect.bottom - (windowRect.bottom - pad))),
       );
     }
-  }, [clampReadOffset]);
+  }, [clampReadOffset, usesNativeBayScroll]);
 
   const openCategory = useCallback(
     (categoryKey: string) => {
@@ -203,7 +217,7 @@ export function ReceivingWall({
       const beginZoom = () => {
         clearPending();
         setOpenRecordId(null);
-        setReadOffset(0);
+        resetBayScroll();
         setZoomed(categoryKey);
         setBeat("zooming");
         after(T.ARRIVE, () => setBeat("zoomedIn"));
@@ -242,7 +256,7 @@ export function ReceivingWall({
       setBeat("exiting");
       after(T.EXIT, beginZoom);
     },
-    [beat, zoomed, after, clearPending, T.EXIT, T.ARRIVE, isNave],
+    [beat, zoomed, after, clearPending, resetBayScroll, T.EXIT, T.ARRIVE, isNave],
   );
 
   const closeZoom = useCallback(() => {
@@ -268,14 +282,14 @@ export function ReceivingWall({
     if (beat !== "zoomedIn") return;
     clearPending();
     setOpenRecordId(null);
-    setReadOffset(0);
+    resetBayScroll();
     setBeat("returning");
     after(T.RETURN, () => {
       setZoomed(null);
       setBeat("settling");
     });
     after(T.SETTLE, () => setBeat("idle"));
-  }, [beat, after, clearPending, T.RETURN, T.SETTLE]);
+  }, [beat, after, clearPending, resetBayScroll, T.RETURN, T.SETTLE]);
 
   const summonClive = useCallback(
     (contextRecord?: ReceivingRecord | null) => {
@@ -403,7 +417,7 @@ export function ReceivingWall({
   }, [beat, zoomed, openRecordId, zoomedRecords.length, clampReadOffset]);
 
   useEffect(() => {
-    if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
+    if (beat !== "zoomedIn" || usesNativeBayScroll || cliveOpen) return;
 
     const surface = bayWindowRef.current;
     if (!surface) return;
@@ -421,15 +435,14 @@ export function ReceivingWall({
     return () => surface.removeEventListener("wheel", onWheel);
   }, [
     beat,
-    isNave,
-    prefersReducedMotion,
+    usesNativeBayScroll,
     cliveOpen,
     clampReadOffset,
     measureReadTravel,
   ]);
 
   useEffect(() => {
-    if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
+    if (beat !== "zoomedIn" || usesNativeBayScroll || cliveOpen) return;
 
     const surface = bayWindowRef.current;
     if (!surface) return;
@@ -466,8 +479,7 @@ export function ReceivingWall({
     };
   }, [
     beat,
-    isNave,
-    prefersReducedMotion,
+    usesNativeBayScroll,
     cliveOpen,
     clampReadOffset,
     measureReadTravel,
@@ -498,7 +510,7 @@ export function ReceivingWall({
         return;
       }
 
-      if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
+      if (beat !== "zoomedIn" || usesNativeBayScroll || cliveOpen) return;
 
       const scrollKeys: Record<string, number> = {
         ArrowDown: 48,
@@ -542,8 +554,7 @@ export function ReceivingWall({
     openRecordId,
     beat,
     closeZoom,
-    isNave,
-    prefersReducedMotion,
+    usesNativeBayScroll,
     applyReadDelta,
     measureReadTravel,
   ]);
@@ -827,7 +838,7 @@ export function ReceivingWall({
                     className={styles.bayTravel}
                     ref={bayTravelRef}
                     style={
-                      reading && !prefersReducedMotion
+                      reading && !usesNativeBayScroll
                         ? { transform: `translateY(${-readOffset}px)` }
                         : undefined
                     }

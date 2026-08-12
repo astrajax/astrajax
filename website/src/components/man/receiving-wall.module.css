@@ -500,6 +500,8 @@
   inset: 0;
   overflow: hidden;
   pointer-events: auto;
+  /* Size queries so bayContent / travel paint use height fractions of the aperture. */
+  container-type: size;
 }
 
 .bayTravel {
@@ -508,11 +510,14 @@
   min-height: 100%;
 }
 
-/* Travelling wall — same poster as the idle plate; scrolls with the type. */
+/* Travelling wall — one plate tall (aligned with .roomStatic); not stretched to content. */
 .bayTravel > .surfaceBackdrop {
   position: absolute;
-  inset: 0;
-  min-height: 100%;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 100cqh;
+  min-height: 0;
 }
 
 .bayWallStill {
@@ -522,12 +527,16 @@
   display: block;
 }
 
-/* Text safe box — layout only (manifest 24%→76% × 22%→86%). */
+/*
+ * Text safe box — layout only (manifest 24%→76% × 22%→86%).
+ * Horizontal % is width-based (correct). Vertical must use cqh — padding % is
+ * always width-relative and would crush the readable band on a 16:9 plate.
+ */
 .bayContent {
   position: relative;
   z-index: 1;
   box-sizing: border-box;
-  padding: 23% 24% 15%;
+  padding: 23cqh 24% 15cqh;
   min-height: 100%;
 }
 
@@ -1220,6 +1229,18 @@
 
   .wall > .aperture > .note {
     margin: 0 auto 1rem;
+  }
+
+  /* Nave: custom travel is off — native aperture scroll (same as reduced motion). */
+  .bayWindow {
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .bayWindow::-webkit-scrollbar {
+    display: none;
+  }
+  .bayTravel {
+    transform: none !important;
   }
 }
 
