@@ -20,6 +20,7 @@ import { roomStaticMaskUrl } from "@/lib/man/receiving-wall-arch-mask";
 import {
   DOLLY_IN_DEFAULT,
   DOLLY_IN_LADDER,
+  INTERIOR_WALL,
 } from "@/lib/man/receiving-wall-manifest";
 import type { ChatMessage } from "@/lib/clive/types";
 import type { PlatformTurnContext } from "@/lib/platform-activity/types";
@@ -32,17 +33,18 @@ type WallData = {
 };
 
 /**
- * Portal — slow centre push; bay reading scrolls the interior behind a pinned arch.
+ * Portal — slow centre push; reading scrolls flat interior paint behind a pinned arch.
  *
- *   idle     — wide wall at dolly 1 + ledger (paint still; list scrolls in aperture)
+ *   idle     — wide wall at dolly 1; ledger + interior paint travel together
  *   exiting  — ledger fading (nave only)
  *   zooming  — slow scale into centre (same video/poster — no still swap)
  *   zoomedIn — interior paint + bay type travel together; arch/sill stay pinned
  *   returning— bay fades; camera holds close until RETURN_MS
  *   settling — slow pull-back; ledger held out until SETTLE_MS
  *
- * Layers on .plate: travelling interior → roomStatic (luminance hole) → sill belt.
- * Close framing: `--dolly-in-16-9` (default 1.22). Ladder via ?dolly=1.15|1.22|1.30.
+ * Layers on .plate: travelling interior texture (aperture paint only) →
+ * roomStatic (luminance hole) → sill belt. Idle and zoomed share one travel
+ * mechanism. Close framing: `--dolly-in-16-9` (default 1.22).
  * Spec: website/docs/receiving-wall-portal-spec.md
  */
 type Beat = "idle" | "exiting" | "zooming" | "zoomedIn" | "returning" | "settling";
@@ -391,8 +393,11 @@ export function ReceivingWall({
     setAcceptError(null);
   }, [openRecordId]);
 
+  /** Idle ledger and zoomed bay share one paint+type travel mechanism. */
+  const paintTravelling = beat === "idle" || beat === "zoomedIn";
+
   useEffect(() => {
-    if (beat !== "zoomedIn") return;
+    if (!paintTravelling) return;
     const travelEl = bayTravelRef.current;
     if (!travelEl) return;
     const observer = new ResizeObserver(() => {
@@ -400,10 +405,19 @@ export function ReceivingWall({
     });
     observer.observe(travelEl);
     return () => observer.disconnect();
-  }, [beat, zoomed, openRecordId, zoomedRecords.length, clampReadOffset]);
+  }, [
+    paintTravelling,
+    beat,
+    zoomed,
+    openRecordId,
+    zoomedRecords.length,
+    categoryKeys.length,
+    records.length,
+    clampReadOffset,
+  ]);
 
   useEffect(() => {
-    if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
+    if (!paintTravelling || isNave || prefersReducedMotion || cliveOpen) return;
 
     const surface = bayWindowRef.current;
     if (!surface) return;
@@ -420,7 +434,7 @@ export function ReceivingWall({
     surface.addEventListener("wheel", onWheel, { passive: false });
     return () => surface.removeEventListener("wheel", onWheel);
   }, [
-    beat,
+    paintTravelling,
     isNave,
     prefersReducedMotion,
     cliveOpen,
@@ -429,7 +443,7 @@ export function ReceivingWall({
   ]);
 
   useEffect(() => {
-    if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
+    if (!paintTravelling || isNave || prefersReducedMotion || cliveOpen) return;
 
     const surface = bayWindowRef.current;
     if (!surface) return;
@@ -465,7 +479,7 @@ export function ReceivingWall({
       surface.removeEventListener("touchcancel", onTouchEnd);
     };
   }, [
-    beat,
+    paintTravelling,
     isNave,
     prefersReducedMotion,
     cliveOpen,
@@ -474,12 +488,12 @@ export function ReceivingWall({
   ]);
 
   useEffect(() => {
-    if (beat !== "zoomedIn" || cliveOpen) return;
+    if (!paintTravelling || cliveOpen) return;
 
     const onFocusIn = () => scrollFocusedIntoView();
     window.addEventListener("focusin", onFocusIn);
     return () => window.removeEventListener("focusin", onFocusIn);
-  }, [beat, cliveOpen, scrollFocusedIntoView]);
+  }, [paintTravelling, cliveOpen, scrollFocusedIntoView]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -498,7 +512,14 @@ export function ReceivingWall({
         return;
       }
 
-      if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
+      if (
+        !(beat === "zoomedIn" || beat === "idle") ||
+        isNave ||
+        prefersReducedMotion ||
+        cliveOpen
+      ) {
+        return;
+      }
 
       const scrollKeys: Record<string, number> = {
         ArrowDown: 48,
@@ -555,6 +576,7 @@ export function ReceivingWall({
     wallZoomed ? styles.zoomed : "",
     beat === "settling" ? styles.settling : "",
     reading ? styles.reading : "",
+    paintTravelling && !prefersReducedMotion ? styles.paintTravel : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -562,6 +584,10 @@ export function ReceivingWall({
   const ledgerState = beat === "idle" ? styles.contentEnter : styles.contentExit;
   const bayState =
     beat === "zoomedIn" || beat === "zooming" ? styles.contentEnter : styles.contentExit;
+  const travelTransform =
+    paintTravelling && !prefersReducedMotion
+      ? { transform: `translateY(${-readOffset}px)` }
+      : undefined;
 
   const idleTint = "#e7d1ad";
 
@@ -579,6 +605,7 @@ export function ReceivingWall({
       className={`${styles.ledger} ${ledgerState}`}
       aria-label="Captured context"
     >
+      {statusNote}
       <ul className={styles.sourceList}>
         {categoryKeys.map((categoryKey) => {
           const count = records.filter(
@@ -793,6 +820,7 @@ export function ReceivingWall({
             <div className={styles.voidFill} aria-hidden />
             <div className={styles.portalCore} aria-hidden />
             <div className={styles.surfacePlate}>
+              {/* Ambient loop under the aperture — covered by the travelling interior. */}
               <div className={styles.surfaceBackdrop}>
                 <div className={styles.plateBreath}>
                   <video
@@ -808,42 +836,42 @@ export function ReceivingWall({
                   <div className={styles.plateRecess} />
                 </div>
               </div>
-              <div
-                className={styles.surfaceContent}
-                inert={zoomed !== null && !isNave ? true : undefined}
-              >
-                {statusNote}
-                {ledgerSection}
-              </div>
-              {/* Bay: travelling interior paint + type behind the pinned arch. */}
-              <div className={styles.bayOverlay} aria-hidden={!wallZoomed}>
+              {/*
+                One travel stack for idle + zoomed: flat interior paint + type.
+                Arch / sconces / wood stay on .roomStatic; ledge props on .sillForeground.
+              */}
+              <div className={styles.bayOverlay}>
+                {/* Paint travel — unmasked so the sill join stays stone, not a fade band. */}
+                <div className={styles.bayPaintClip} aria-hidden>
+                  <div className={styles.bayPaintTravel} style={travelTransform}>
+                    <div
+                      className={styles.bayInteriorWall}
+                      style={{
+                        backgroundImage: `url(${INTERIOR_WALL.src})`,
+                      }}
+                    />
+                  </div>
+                </div>
+                {/* Type travel — same offset; aperture-fixed mask fades rows into the sill. */}
                 <div
                   className={styles.bayWindow}
                   ref={bayWindowRef}
-                  aria-hidden={!wallZoomed}
-                  tabIndex={reading ? 0 : -1}
+                  tabIndex={paintTravelling ? 0 : -1}
+                  aria-label={
+                    wallZoomed
+                      ? `${zoomedLabel} — scroll to read`
+                      : "Captured context — scroll the wall"
+                  }
                 >
                   <div
                     className={styles.bayTravel}
                     ref={bayTravelRef}
-                    style={
-                      reading && !prefersReducedMotion
-                        ? { transform: `translateY(${-readOffset}px)` }
-                        : undefined
-                    }
+                    style={travelTransform}
                   >
-                    <div className={styles.surfaceBackdrop} aria-hidden>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        className={styles.bayWallStill}
-                        src="/agent-cast/clives-man/receiving-wall-poster.jpg"
-                        alt=""
-                      />
-                      <div className={styles.plateRecess} />
-                    </div>
                     <div className={styles.bayContent}>
                       <div className={styles.surfaceContent}>
-                        {zoomed !== null ? baySection : null}
+                        {ledgerSection}
+                        {baySection}
                       </div>
                     </div>
                   </div>

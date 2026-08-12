@@ -34,11 +34,11 @@ export const APERTURE = {
   /** Measured stone-ledge top (void meets sill). */
   voidBottomY: 0.895,
   /**
-   * Room-static mask hole bottom — sits *under* the pinned sill belt so the
-   * hard hole edge is hidden and the letter/quill stay whole on the sill layer.
-   * Props paint begins ~0.88; sill belt covers from 0.85.
+   * Room-static mask hole bottom — must clear the whole letter/quill still-life
+   * (y 0.87→0.93) so roomStatic does not repaint prop bottoms under the sill.
+   * Sill belt (from 0.85) covers the hard hole edge.
    */
-  holeBottomY: 0.88,
+  holeBottomY: 0.945,
 } as const;
 
 /** Inner arch curve — y at each x column (symmetric about 50%). */
@@ -69,6 +69,22 @@ export const LEDGE_STILL_LIFE = {
   xTo: 0.44,
   yFrom: 0.87,
   yTo: 0.93,
+} as const;
+
+/**
+ * Travelling interior wall — flat aperture paint only (no arch, sconces, wood,
+ * ledge, or letter/quill). Cut from the poster and extended vertically so a
+ * busy bay (22+ records) can scroll without ghost props entering the hole.
+ * Asset is 1920×5400 (5× plate height); rests registered to the master frame.
+ */
+export const INTERIOR_WALL = {
+  src: "/agent-cast/clives-man/receiving-wall-interior.jpg",
+  plateHeightMult: 5,
+  /**
+   * Mid-aperture tile only (flat plaster) — deliberately excludes the arch
+   * crown curve (y ≲ 0.30) and the ledge bloom / letter band (y ≳ 0.72).
+   */
+  cut: { xFrom: 0.21, xTo: 0.79, yFrom: 0.34, yTo: 0.68 },
 } as const;
 
 /** Palette sampled from the paint — use these, not invented values. */

@@ -150,20 +150,19 @@
   inset: 0;
   pointer-events: none;
   /*
-   * Portal interior — brightest at centre (the opening glows).
-   * Palette: voidBloomPeak #677367 → voidCentre #3b4039 → voidInnerEdge #161712
+   * Portal void behind the travelling interior — mid-height bloom only.
+   * No low horizontal band (that read as a CSS light seam above the sill).
    */
   background: radial-gradient(
-    ellipse 36% 40% at 50% 44%,
-    #6d786e 0%,
-    #525a50 32%,
-    #3b4039 58%,
-    #252622 82%,
+    ellipse 34% 36% at 50% 42%,
+    #525a50 0%,
+    #3b4039 42%,
+    #252622 72%,
     #161712 100%
   );
 }
 
-/* Bright core — portal is the light source, not the floor */
+/* Soft core — kept high so it does not pool above the sill join */
 .portalCore {
   position: absolute;
   inset: 0;
@@ -171,10 +170,10 @@
   z-index: 0;
   background:
     radial-gradient(
-      ellipse 26% 30% at 50% 42%,
-      rgba(158, 176, 158, 0.42) 0%,
-      rgba(103, 115, 103, 0.22) 38%,
-      transparent 68%
+      ellipse 22% 26% at 50% 40%,
+      rgba(158, 176, 158, 0.28) 0%,
+      rgba(103, 115, 103, 0.12) 40%,
+      transparent 70%
     );
   mix-blend-mode: screen;
 }
@@ -201,6 +200,12 @@
   inset: 0;
   pointer-events: none;
   transition: opacity 420ms ease;
+  /*
+   * Ambient loop stays in the DOM for reduced-motion poster fallback wiring,
+   * but the aperture is owned by the travelling flat interior — showing the
+   * full poster/video through the hole reintroduces ghost arches and letters.
+   */
+  opacity: 0;
 }
 
 .plateBreath {
@@ -221,15 +226,16 @@
   filter: brightness(0.86) saturate(0.76) hue-rotate(-14deg);
 }
 
-/* One painted surface for every beat — the dolly pushes it, the bay scrolls inside it. */
+/* Full poster/video under the hole stays hidden — aperture is the flat interior. */
 .surfacePlate > .surfaceBackdrop {
-  opacity: 1;
+  opacity: 0;
 }
 
 /*
  * Pinned room plate — lives on .plate (rides the dolly), outside .bayTravel.
- * SVG luminance mask punches the arch hole (holeBottomY 0.88 — under the sill
- * belt). Interior paint travels behind this frame; arch / sconces / wood stay put.
+ * SVG luminance mask punches the arch hole (holeBottomY 0.945 — clears the
+ * letter/quill band). Interior paint travels behind this frame; arch / sconces /
+ * wood stay put; props live only on .sillForeground.
  */
 .roomStatic {
   position: absolute;
@@ -249,8 +255,8 @@
 
 /*
  * Pinned sill belt — master pixels for the ledge + letter/quill (top at 85% of
- * the plate). Sits above the room mask so props stay whole even if the hole edge
- * grazes them. Does not travel with bay scroll.
+ * the plate). Soft luminance fade at the belt top so the join reads as paint,
+ * not a hard CSS edge. Does not travel with bay scroll.
  */
 .sillForeground {
   position: absolute;
@@ -261,6 +267,24 @@
   z-index: 6;
   pointer-events: none;
   overflow: hidden;
+  /*
+   * Very short top feather only — a deep fade was revealing the layers under
+   * the sill and looked like a second letter stack.
+   */
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    #fff 6%,
+    #fff 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0%,
+    #fff 6%,
+    #fff 100%
+  );
+  mask-mode: luminance;
+  -webkit-mask-source-type: luminance;
 }
 
 .sillForegroundImg {
@@ -308,16 +332,10 @@
       transparent 70%
     ),
     radial-gradient(
-      ellipse 52% 58% at 50% 52%,
-      rgba(103, 115, 103, 0.14) 0%,
-      rgba(71, 82, 68, 0.07) 48%,
-      transparent 76%
-    ),
-    radial-gradient(
-      ellipse 34% 20% at 50% 86%,
-      rgba(103, 115, 103, 0.11) 0%,
-      rgba(60, 68, 57, 0.04) 50%,
-      transparent 100%
+      ellipse 48% 52% at 50% 48%,
+      rgba(103, 115, 103, 0.1) 0%,
+      rgba(71, 82, 68, 0.05) 48%,
+      transparent 74%
     );
   mix-blend-mode: soft-light;
 }
@@ -476,23 +494,52 @@
 
 
 /*
- * Bay reading — interior paint + type travel together behind the pinned arch.
+ * Idle + zoomed share one travel stack: flat interior paint + type.
  * .bayTravel translates; .roomStatic / .sillForeground stay put on .plate.
  */
 .bayOverlay {
   position: absolute;
   inset: 0;
   z-index: 2;
-  pointer-events: none;
-  visibility: hidden;
-}
-.wall.zoomed .bayOverlay {
   pointer-events: auto;
   visibility: visible;
 }
-/* Idle ledger must stop swallowing the wheel once a bay is open. */
-.wall.zoomed .surfacePlate > .surfaceContent {
+
+/* Flat interior paint — clipped to the plate, translates with the type. */
+.bayPaintClip {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
   pointer-events: none;
+  z-index: 0;
+}
+
+.bayPaintTravel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  /* Tall enough for INTERIOR_WALL.plateHeightMult (5×) plus content growth. */
+  height: 500%;
+  will-change: transform;
+}
+
+/*
+ * Dedicated aperture paint (receiving-wall-interior.jpg) — 5× plate tall,
+ * rest-frame registered. No arch moulding, ledge, or letter stack.
+ */
+.bayInteriorWall {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  /* Asset is 5× plate tall; .bayPaintTravel is 500% — map 1:1 for registration. */
+  background-position: center top;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
 .bayWindow {
@@ -500,6 +547,22 @@
   inset: 0;
   overflow: hidden;
   pointer-events: auto;
+  z-index: 1;
+  /* Viewport-fixed type fade — longer bottom dissolve into the sill. */
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 2.75rem,
+    #000 calc(100% - 5.5rem),
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent 0,
+    #000 2.75rem,
+    #000 calc(100% - 5.5rem),
+    transparent 100%
+  );
 }
 
 .bayTravel {
@@ -508,26 +571,13 @@
   min-height: 100%;
 }
 
-/* Travelling wall — same poster as the idle plate; scrolls with the type. */
-.bayTravel > .surfaceBackdrop {
-  position: absolute;
-  inset: 0;
-  min-height: 100%;
-}
-
-.bayWallStill {
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  display: block;
-}
-
 /* Text safe box — layout only (manifest 24%→76% × 22%→86%). */
 .bayContent {
   position: relative;
   z-index: 1;
   box-sizing: border-box;
-  padding: 23% 24% 15%;
+  /* Extra bottom pad so the last row can sit above the aperture fade. */
+  padding: 23% 24% 18%;
   min-height: 100%;
 }
 
@@ -542,7 +592,15 @@
   max-width: none;
   overflow: visible;
   mask-image: none;
+  -webkit-mask-image: none;
   pointer-events: auto;
+  /* Stack ledger/bay in one cell so a faded-out sibling does not inflate travel. */
+  display: grid;
+}
+
+.bayTravel .surfaceContent > .ledger,
+.bayTravel .surfaceContent > .zoom {
+  grid-area: 1 / 1;
 }
 
 /* ---- Content beats ---- */
@@ -1307,11 +1365,14 @@
   .bayWindow {
     overflow-y: auto;
     scrollbar-width: none;
+    mask-image: none;
+    -webkit-mask-image: none;
   }
   .bayWindow::-webkit-scrollbar {
     display: none;
   }
-  .bayTravel {
+  .bayTravel,
+  .bayPaintTravel {
     transform: none !important;
   }
 }

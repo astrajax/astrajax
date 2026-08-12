@@ -41,15 +41,21 @@ fallback and is flagged for Kathryn / Tara-Lee's eye.
 
 > **Amendment (Matthew, Aug 2026 — pinned arch + travelling interior).** Three layers on `.plate`
 > (which carries the dolly camera push, default `--dolly-in-16-9: 1.22`):
-> 1. **Interior** (`.bayTravel`) — poster + bay type; translates on reading scroll.
+> 1. **Interior** — dedicated **flat** aperture texture (`receiving-wall-interior.jpg`, 1920×5400 =
+>    5× plate). Tiled from mid-aperture plaster only (x 0.21→0.79 / y 0.36→0.62) so the arch
+>    crown curve and ledge/letter band are not in the travelling paint. Idle ledger and zoomed
+>    bay share one travel offset: paint (`.bayPaintTravel`) and type (`.bayTravel`) translate
+>    together. **Not** a second copy of the full poster — that caused ghost arches and a second
+>    letter stack mid-scroll. The ambient video under the hole stays at opacity 0 for the same reason.
 > 2. **Room frame** (`.roomStatic`) — poster with SVG **luminance** hole (`roomStaticMaskUrl`,
->    `mask-mode: luminance`; hole bottom = `APERTURE.holeBottomY` **0.88**, under the sill belt
->    so the hard hole edge is hidden). Never use `clip-path: path()` with 0–1 coords (browsers
->    treat those as px). Arch, sconces, wood stay put while the interior travels.
+>    `mask-mode: luminance`; hole bottom = `APERTURE.holeBottomY` **0.945**, clearing the
+>    letter/quill band so roomStatic cannot double-paint props under the sill). Never use
+>    `clip-path: path()` with 0–1 coords (browsers treat those as px). Arch, sconces, wood stay
+>    put while the interior travels.
 > 3. **Sill belt** (`.sillForeground`) — cut master pixels for the ledge + letter/quill
 >    (`receiving-wall-sill.png`, top at 85% of the plate), pinned above the hole edge so props
->    stay whole.
-> Idle ledger scroll is unchanged (paint still; category list scrolls in the aperture).
+>    stay whole; soft luminance fade at the belt top so the join reads as paint.
+> Type fades at the aperture lip via a mask on `.bayWindow` (viewport-fixed); paint stays opaque.
 
 ---
 
