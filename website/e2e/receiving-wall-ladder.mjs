@@ -14,10 +14,11 @@ async function captureLadder(browser, dolly) {
   await page.goto(`${BASE}/man/receiving-wall?dolly=${dolly}`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1500);
 
-  const door = page.getByRole("button", { name: /External Context Capture/i });
+  const door = page.getByRole("button", { name: /Goals & Priorities/i });
   await door.waitFor({ state: "visible", timeout: 60000 });
   await door.click();
-  await page.waitForTimeout(2200);
+  /* ARRIVE is 2500ms — wait past the push so the screenshot is the resting bay. */
+  await page.waitForTimeout(2800);
 
   const path = `${OUT}/rw-lock-${dolly.toFixed(2)}.png`;
   await page.screenshot({ path, fullPage: false });

@@ -815,7 +815,7 @@ export function ReceivingWall({
                 {ledgerSection}
               </div>
               <div className={styles.bayOverlay} aria-hidden={!wallZoomed}>
-                <div className={styles.bayWindow} ref={bayWindowRef} aria-hidden={!reading}>
+                <div className={styles.bayWindow} ref={bayWindowRef} aria-hidden={!wallZoomed}>
                   <div
                     className={styles.bayTravel}
                     ref={bayTravelRef}

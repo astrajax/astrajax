@@ -37,7 +37,11 @@ function formatRecordBlock(record: ReceivingRecord, index: number): string {
     `  captureSource: ${CAPTURE_SOURCE_LABEL[record.captureSource]}`,
     `  provenance: ${record.provenance}`,
   ];
-  if (record.brainSlug) lines.push(`  proposedBrainSlug: ${record.brainSlug}`);
+  if (record.systemBrainName) lines.push(`  systemBrainName: ${record.systemBrainName}`);
+  if (record.systemBrainSlug) lines.push(`  systemBrainSlug: ${record.systemBrainSlug}`);
+  /* Registry slug is primary; legacy brainSlug is fallback during backfill. */
+  const destinationSlug = record.systemBrainSlug || record.brainSlug;
+  if (destinationSlug) lines.push(`  proposedBrainSlug: ${destinationSlug}`);
   if (record.status) lines.push(`  status: ${record.status}`);
   const body = record.canonicalText?.trim() || record.snippet.trim();
   lines.push(`  canonicalText: ${body || "(empty)"}`);

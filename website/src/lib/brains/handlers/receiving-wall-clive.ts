@@ -54,6 +54,10 @@ function sanitiseRecord(raw: unknown): ReceivingRecord | null {
     provenance: item.provenance.trim(),
     captureSource,
     category,
+    systemBrainName:
+      typeof item.systemBrainName === "string" ? item.systemBrainName.trim() : undefined,
+    systemBrainSlug:
+      typeof item.systemBrainSlug === "string" ? item.systemBrainSlug.trim() : undefined,
     brainSlug: typeof item.brainSlug === "string" ? item.brainSlug.trim() : undefined,
     status: typeof item.status === "string" ? item.status.trim() : undefined,
     canonicalText:

@@ -13,7 +13,9 @@ const sampleRecord: ReceivingRecord = {
   provenance: "Clive's Man",
   captureSource: "external",
   category: "Governance",
-  brainSlug: "physician",
+  systemBrainName: "The Physician",
+  systemBrainSlug: "physician",
+  brainSlug: "physician-legacy",
   status: "Draft",
   canonicalText:
     "Physician build v0.2.1 landed on remote — verified commit d496f5d, 12/12 COMPLETE.",
@@ -28,11 +30,15 @@ describe("receiving-wall Clive prompt", () => {
     });
     expect(formatted).toContain(sampleRecord.title);
     expect(formatted).toContain(sampleRecord.canonicalText!);
+    expect(formatted).toContain("systemBrainName: The Physician");
+    expect(formatted).toContain("systemBrainSlug: physician");
     expect(formatted).toContain("proposedBrainSlug: physician");
+    expect(formatted).not.toContain("proposedBrainSlug: physician-legacy");
     expect(formatted).toContain("proposedCategory: Governance");
     expect(formatted).toContain("Bay: Governance");
     expect(formatted).toContain("Architect has");
   });
+
 
   it("uses curation guardrails and never website sales language in system prompt", () => {
     const system = buildReceivingWallSystemPrompt({
