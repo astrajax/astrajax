@@ -241,12 +241,14 @@ class LaneABindingTest(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.ex = _load_module("od_hard", ON_DEMAND_DIR / "clive_man_on_demand_executor.py", ON_DEMAND_DIR)
 
-    def _lane_a(self, actor: str) -> dict:
+    def _lane_a(self, actor: str, *, source_class: str | None = None) -> dict:
+        if source_class is None:
+            source_class = "human" if actor in ("Matthew", "Tara-Lee") else "household_agent"
         return {
             "lane": "A",
             "verbatim": True,
             "content_judgement": False,
-            "source_class": "human",
+            "source_class": source_class,
             "source_actor": actor,
             "origin": "interactive",
             "idempotency_key": f"lane-a-{actor}",
@@ -281,6 +283,28 @@ class LaneABindingTest(unittest.TestCase):
 
     def test_hyphen_fake_rejected(self) -> None:
         self.assertFalse(self.ex.preview(self._lane_a("made-up-agent"))["ok"])
+
+    def test_ambient_canonical_rejected(self) -> None:
+        brief = self._lane_a("clive-man-ambient-capture", source_class="household_agent")
+        brief["origin"] = "interactive"
+        self.assertFalse(self.ex.preview(brief)["ok"])
+
+    def test_ambient_alias_rejected(self) -> None:
+        brief = self._lane_a("clive-s-man-ambient-capture", source_class="household_agent")
+        brief["origin"] = "interactive"
+        self.assertFalse(self.ex.preview(brief)["ok"])
+
+    def test_clive_human_rejected(self) -> None:
+        self.assertFalse(self.ex.preview(self._lane_a("clive", source_class="human"))["ok"])
+
+    def test_matthew_household_agent_rejected(self) -> None:
+        self.assertFalse(self.ex.preview(self._lane_a("Matthew", source_class="household_agent"))["ok"])
+
+    def test_clive_household_agent_allowed(self) -> None:
+        self.assertTrue(self.ex.preview(self._lane_a("clive", source_class="household_agent"))["ok"])
+
+    def test_matthew_human_allowed(self) -> None:
+        self.assertTrue(self.ex.preview(self._lane_a("Matthew", source_class="human"))["ok"])
 
 
 class LaneBBindingTest(unittest.TestCase):

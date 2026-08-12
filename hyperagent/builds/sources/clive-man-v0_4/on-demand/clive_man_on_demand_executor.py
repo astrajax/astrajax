@@ -34,7 +34,11 @@ from clive_man_config import (
     T_DRAFT_TRUTH,
     WRITE_TABLES,
 )
-from lane_a_allowlist import LANE_A_SOURCE_ACTORS
+from lane_a_allowlist import (
+    LANE_A_AMBIENT_EXCLUDED,
+    LANE_A_HUMAN_ACTORS,
+    LANE_A_SOURCE_ACTORS,
+)
 
 API = "https://api.airtable.com/v0"
 
@@ -97,7 +101,19 @@ def _sel(v):
 def _lane_a_actor_ok(source_actor: str | None) -> bool:
     if not source_actor:
         return False
+    if source_actor in LANE_A_AMBIENT_EXCLUDED:
+        return False
     return source_actor in LANE_A_SOURCE_ACTORS
+
+
+def _lane_a_source_class_ok(source_actor: str | None, source_class: str | None) -> bool:
+    if not source_actor or source_class not in LANE_A_SOURCE_CLASSES:
+        return False
+    if source_actor in LANE_A_HUMAN_ACTORS:
+        return source_class == "human"
+    if _lane_a_actor_ok(source_actor):
+        return source_class == "household_agent"
+    return False
 
 
 def _canonical_json(payload: dict[str, Any]) -> str:
@@ -114,14 +130,22 @@ def validate_lane_a(brief: dict[str, Any]) -> list[str]:
         errors.append("Lane A requires verbatim=true")
     if brief.get("content_judgement"):
         errors.append("Lane A requires content_judgement=false")
+    source_actor = brief.get("source_actor")
     source_class = brief.get("source_class")
     if source_class not in LANE_A_SOURCE_CLASSES:
         errors.append(f"Lane A source_class must be human or household_agent, got {source_class!r}")
     origin = (brief.get("origin") or "").lower()
     if origin in FORBIDDEN_ORIGINS:
         errors.append(f"Lane A origin {origin!r} forbidden")
-    if not _lane_a_actor_ok(brief.get("source_actor")):
+    if source_actor in LANE_A_AMBIENT_EXCLUDED:
+        errors.append("Lane A forbids ambient capture source actors (Lane B only)")
+    elif not _lane_a_actor_ok(source_actor):
         errors.append("Lane A requires source_actor Matthew/Tara-Lee or named household agent")
+    elif not _lane_a_source_class_ok(source_actor, source_class):
+        if source_actor in LANE_A_HUMAN_ACTORS:
+            errors.append(f"Lane A human actors require source_class=human, got {source_class!r}")
+        else:
+            errors.append(f"Lane A household agents require source_class=household_agent, got {source_class!r}")
     actions = brief.get("actions") or []
     if len(actions) > LANE_A_MAX_CREATES:
         errors.append(f"Lane A allows at most {LANE_A_MAX_CREATES} creates")

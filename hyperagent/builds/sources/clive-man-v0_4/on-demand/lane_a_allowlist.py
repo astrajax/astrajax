@@ -3,6 +3,20 @@
 
 from __future__ import annotations
 
+LANE_A_HUMAN_ACTORS = frozenset(
+    {
+        'Matthew',
+        'Tara-Lee',
+    }
+)
+
+LANE_A_AMBIENT_EXCLUDED = frozenset(
+    {
+        'clive-man-ambient-capture',
+        'clive-s-man-ambient-capture',
+    }
+)
+
 LANE_A_SOURCE_ACTORS = frozenset(
     {
         'Matthew',
@@ -10,7 +24,6 @@ LANE_A_SOURCE_ACTORS = frozenset(
         'clive',
         'clive-hyperagent-release-scanner',
         'clive-man',
-        'clive-man-ambient-capture',
         'clive-man-challenger',
         'clive-man-context-auditor',
         'clive-man-context-challenger',
@@ -18,7 +31,6 @@ LANE_A_SOURCE_ACTORS = frozenset(
         'clive-man-executor',
         'clive-man-proposer',
         'clive-s-man',
-        'clive-s-man-ambient-capture',
         'clive-s-man-challenger',
         'clive-s-man-context-auditor',
         'clive-s-man-context-challenger',

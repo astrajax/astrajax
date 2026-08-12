@@ -44,11 +44,11 @@ Offline behavioural coverage (Aug 2026 Phase B + hardening pass):
 | CM-HA contract | `scripts/test_clive_man_hyperagent_v0_4.py` | 50 |
 | Seam chain (mocked Airtable) | `scripts/test_clive_man_seam_v0_4.py` | 26 |
 | Executable scripts | `scripts/test_clive_man_hyperagent_v0_4_executable.py` | 17 |
-| Hardening pass | `scripts/test_clive_man_hardening_v0_4.py` | 19 |
+| Hardening pass | `scripts/test_clive_man_hardening_v0_4.py` | 25 |
 | Context Challenger specialist | `…/context-estate-challenge/test_challenger.py` | 25 |
 | Context Auditor specialist | `…/context-estate-audit-propose/test_auditor.py` | 53 |
 | Context Executor specialist | `…/context-amendment-execute/test_executor.py` | 34 |
-| **Total** | | **224** |
+| **Total** | | **230** |
 
 **Household Routing Standard:** family v0_4 exports embed Option 3 body from
 `.claude/skills/household-routing-standard/SKILL.md`. Standalone export

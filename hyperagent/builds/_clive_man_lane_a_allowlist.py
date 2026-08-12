@@ -9,11 +9,22 @@ from _repo_paths import CURSOR_AGENTS_DIR, REPO_ROOT
 
 FLEET_ROSTER_PATH = REPO_ROOT / "hyperagent" / "scripts" / "fleet_sync_roster.json"
 LANE_A_HUMANS = frozenset({"Matthew", "Tara-Lee"})
+AMBIENT_CAPTURE_CANONICAL = "clive-man-ambient-capture"
+
+
+def ambient_excluded_actors(roster: dict) -> frozenset[str]:
+    """Canonical ambient slug plus every export alias resolving to it — Lane B only."""
+    excluded: set[str] = {AMBIENT_CAPTURE_CANONICAL}
+    for alias, canonical in (roster.get("export_aliases") or {}).items():
+        if canonical == AMBIENT_CAPTURE_CANONICAL:
+            excluded.add(alias)
+    return frozenset(sorted(excluded))
 
 
 def build_lane_a_allowlist() -> frozenset[str]:
     """Exact roster slugs + Cursor agent names + humans — no pattern matching."""
     roster = json.loads(FLEET_ROSTER_PATH.read_text(encoding="utf-8"))
+    excluded = ambient_excluded_actors(roster)
     slugs: set[str] = set(roster.get("agents") or {})
     slugs.update(roster.get("export_aliases") or {})
     for path in CURSOR_AGENTS_DIR.glob("*.md"):
@@ -22,11 +33,14 @@ def build_lane_a_allowlist() -> frozenset[str]:
             continue
         slugs.add(name)
     slugs.update(LANE_A_HUMANS)
+    slugs.difference_update(excluded)
     return frozenset(sorted(slugs))
 
 
 def write_lane_a_allowlist_module(dest: Path) -> frozenset[str]:
     """Write governed allowlist module consumed by on-demand scripts."""
+    roster = json.loads(FLEET_ROSTER_PATH.read_text(encoding="utf-8"))
+    excluded = ambient_excluded_actors(roster)
     allowlist = build_lane_a_allowlist()
     lines = [
         "#!/usr/bin/env python3",
@@ -34,11 +48,17 @@ def write_lane_a_allowlist_module(dest: Path) -> frozenset[str]:
         "",
         "from __future__ import annotations",
         "",
-        "LANE_A_SOURCE_ACTORS = frozenset(",
+        "LANE_A_HUMAN_ACTORS = frozenset(",
         "    {",
     ]
+    for name in sorted(LANE_A_HUMANS):
+        lines.append(f"        {name!r},")
+    lines.extend(["    }", ")", "", "LANE_A_AMBIENT_EXCLUDED = frozenset(", "    {"])
+    for slug in sorted(excluded):
+        lines.append(f"        {slug!r},")
+    lines.extend(["    }", ")", "", "LANE_A_SOURCE_ACTORS = frozenset(", "    {"])
     for slug in sorted(allowlist):
-        lines.append(f'        {slug!r},')
+        lines.append(f"        {slug!r},")
     lines.extend(
         [
             "    }",
