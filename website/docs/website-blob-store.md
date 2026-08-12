@@ -45,6 +45,15 @@ Public URL shape:
 https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/<name>.png
 ```
 
+**Alpha vs matte pairs** (Living Folio part-2 furniture onward): same basename with a suffix so the two deliveries do not collide —
+
+```text
+docket-plate-blob/<basename>-alpha.png   # transparent cut plate
+docket-plate-blob/<basename>-matte.png   # full plate / matte delivery
+```
+
+Asset Keys match those basenames (e.g. `folio-brass-divider-alpha`). Register both on Creative → Media Assets; Kathryn / Tara-Lee own **Locked**.
+
 ## Upload more furniture
 
 From `website/`:
