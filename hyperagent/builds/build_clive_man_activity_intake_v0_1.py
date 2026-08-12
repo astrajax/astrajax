@@ -328,7 +328,7 @@ in UI after pen mint + Cursor/HA parity verified. **Export carries empty** `sche
 See `scripts/test_clive_man_activity_intake.py` (ACT-INT-* capability + boundary cases).
 """
 
-CREDENTIAL_SCHEMA = [
+CREDENTIAL_SCHEMA = json.dumps([
     {
         "name": "HOUSEHOLD_ACTIVITY_READ",
         "label": "HOUSEHOLD_ACTIVITY_READ",
@@ -362,7 +362,7 @@ CREDENTIAL_SCHEMA = [
             "household-activity:activity:clive-man-activity-intake:v1 only."
         ),
     },
-]
+])
 
 BUILD_PACK = """# Clive's Man — Activity Intake (HyperAgent) v0.1 — Build Pack
 
