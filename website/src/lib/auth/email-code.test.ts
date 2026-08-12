@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { issueEmailCode, verifyEmailCode } from "./email-code";
+import {
+  issueEmailCode,
+  normaliseSignInCode,
+  verifyEmailCode,
+} from "./email-code";
 
 const email = "matthew@astrajax.com";
 
@@ -20,6 +24,12 @@ describe("email one-time codes", () => {
     const { code, proof } = issueEmailCode(email);
     const spaced = `${code.slice(0, 3)} ${code.slice(3)}`;
     expect(verifyEmailCode({ email, code: spaced, proof })).toBe(true);
+  });
+
+  it("strips spaces and dashes when normalising pasted codes", () => {
+    expect(normaliseSignInCode("123 456")).toBe("123456");
+    expect(normaliseSignInCode("12-34-56")).toBe("123456");
+    expect(normaliseSignInCode(" 98a7 65 ")).toBe("98765");
   });
 
   it("rejects a wrong code", () => {

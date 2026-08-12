@@ -8,11 +8,13 @@
  */
 import NextAuth, { CredentialsSignin, type DefaultSession } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { randomUUID } from "node:crypto";
-import { initialOperatorState } from "../platform/operator-state";
 import { getOperatorStore } from "../platform/operator-store/get-store";
 import { isAllowedOperatorEmail } from "./allow-list";
 import { normaliseSignInCode, verifyEmailCode } from "./email-code";
+import {
+  loadOrCreateOperatorIdentity,
+  OperatorIdentityUnavailableError,
+} from "./resolve-operator-identity";
 
 declare module "next-auth" {
   interface Session {
@@ -59,32 +61,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new InvalidSignInCode();
 
         try {
-          const store = getOperatorStore();
-          let state = await store.getByEmail(email);
-          if (!state) {
-            try {
-              state = await store.create(
-                initialOperatorState({
-                  operatorId: `op_${randomUUID().slice(0, 12)}`,
-                  email,
-                }),
-              );
-            } catch (createError) {
-              // Concurrent sign-in can create the row between get and create —
-              // that is a conflict, not a store outage. Reload the winner.
-              if (
-                !(createError instanceof Error) ||
-                !/already exists/i.test(createError.message)
-              ) {
-                throw createError;
-              }
-              state = await store.getByEmail(email);
-            }
-          }
-          if (!state) throw new OperatorStoreUnavailable();
-          return { id: state.operatorId, email: state.email };
+          return await loadOrCreateOperatorIdentity(email);
         } catch (error) {
-          if (error instanceof OperatorStoreUnavailable) throw error;
+          if (error instanceof OperatorIdentityUnavailableError) {
+            throw new OperatorStoreUnavailable();
+          }
           console.error(
             "[auth] operator store failed after valid sign-in code",
             error,
