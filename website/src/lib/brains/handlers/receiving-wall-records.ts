@@ -11,17 +11,18 @@ import type { CaptureSource, ReceivingRecord } from "@/lib/receiving-wall";
  * Wall. Live when the Workshop read token is configured; otherwise returns a
  * seeded, clearly-labelled set so the wall is never blank in development.
  *
- * Source tinting is driven by the new `Capture Source` single-select on the
- * Draft Brain Truth table (Matthew to add it — see PR). Until a row carries
- * that value, its capture source is inferred from the proposing agent /
- * created-by fields, and `source: "derived"` tells the UI to note the tint is
- * inferred rather than read.
+ * Wall grouping uses Proposed Category. Capture Source (when present) is
+ * provenance for the opened letter; until a row carries that value, capture
+ * source is inferred from the proposing agent / created-by fields, and
+ * `source: "derived"` tells the UI the tint was inferred rather than read.
  */
 
 type DraftTruthFields = {
   Title?: string;
   "Canonical Text"?: string;
   "Brain Slug"?: string;
+  "System Brain Name"?: unknown;
+  "System Brain Slug"?: unknown;
   "Proposed Category"?: string;
   Status?: string;
   "Proposed By Agent"?: string;
@@ -29,8 +30,6 @@ type DraftTruthFields = {
   /** New single-select, to be added by Matthew. */
   "Capture Source"?: string;
 };
-
-const WALL_CAP = 10;
 
 function truncate(text: string, max = 160): string {
   const trimmed = text.trim();
@@ -60,6 +59,26 @@ function inferCaptureSource(fields: DraftTruthFields): CaptureSource {
   return "user-guided";
 }
 
+
+function firstLookupString(raw: unknown): string | undefined {
+  if (typeof raw === "string") {
+    const trimmed = raw.trim();
+    return trimmed || undefined;
+  }
+  if (Array.isArray(raw)) {
+    for (const item of raw) {
+      if (typeof item === "string" && item.trim()) return item.trim();
+    }
+  }
+  return undefined;
+}
+
+function readProposedCategory(raw: unknown): string | undefined {
+  if (typeof raw !== "string") return undefined;
+  const trimmed = raw.trim();
+  return trimmed || undefined;
+}
+
 export function mapDraftTruthToReceivingRecord(record: {
   id: string;
   fields: Record<string, unknown>;
@@ -69,6 +88,10 @@ export function mapDraftTruthToReceivingRecord(record: {
   if (!title) return null;
   const canonicalText = fields["Canonical Text"]?.trim() ?? "";
   const read = normaliseCaptureSource(fields["Capture Source"]);
+  const legacyBrainSlug = fields["Brain Slug"]?.trim() || undefined;
+  const systemBrainName = firstLookupString(fields["System Brain Name"]);
+  const systemBrainSlug =
+    firstLookupString(fields["System Brain Slug"]) || legacyBrainSlug;
   return {
     recordId: record.id,
     title,
@@ -78,7 +101,10 @@ export function mapDraftTruthToReceivingRecord(record: {
       fields["Created By"]?.trim() ||
       "Clive's Man",
     captureSource: read ?? inferCaptureSource(fields),
-    brainSlug: fields["Brain Slug"]?.trim() || undefined,
+    category: readProposedCategory(fields["Proposed Category"]),
+    systemBrainName,
+    systemBrainSlug,
+    brainSlug: legacyBrainSlug,
     status: fields.Status?.trim() || undefined,
     canonicalText,
   };
@@ -91,6 +117,9 @@ const SEED_RECORDS: ReceivingRecord[] = [
     snippet: "Where AstraJax is headed — the durable aims the work points at.",
     provenance: "Doc Brain Base Builder",
     captureSource: "external",
+    category: "Goals & Priorities",
+    systemBrainName: "AstraJax Chapter 1",
+    systemBrainSlug: "astrajax-chapter-1",
     brainSlug: "astrajax-chapter-1",
     status: "Ready for review",
     canonicalText:
@@ -102,6 +131,9 @@ const SEED_RECORDS: ReceivingRecord[] = [
     snippet: "What AstraJax is, stated plainly enough to govern against.",
     provenance: "User submission",
     captureSource: "user-guided",
+    category: "Definition",
+    systemBrainName: "AstraJax Chapter 1",
+    systemBrainSlug: "astrajax-chapter-1",
     brainSlug: "astrajax-chapter-1",
     status: "Ready for review",
     canonicalText: "The working definition of AstraJax. Read in full in the sitting.",
@@ -112,6 +144,9 @@ const SEED_RECORDS: ReceivingRecord[] = [
     snippet: "Unresolved ambiguity a human still needs to decide.",
     provenance: "Chat session review",
     captureSource: "chat",
+    category: "Open Questions",
+    systemBrainName: "AstraJax Chapter 1",
+    systemBrainSlug: "astrajax-chapter-1",
     brainSlug: "astrajax-chapter-1",
     status: "Ready for review",
     canonicalText: "Open questions surfaced from reviewed conversations. Read in full in the sitting.",
@@ -124,6 +159,8 @@ export function buildReceivingWallFieldIds(): string[] {
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title,
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText,
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainSlug,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.systemBrainName,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.systemBrainSlug,
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedCategory,
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status,
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedByAgent,
@@ -159,9 +196,9 @@ export async function handleReceivingWallRecords(): Promise<{
     const records = await airtableSelect(baseId, tableId, token, {
       fields: buildReceivingWallFieldIds(),
       filterByFormula: RECEIVING_WALL_DRAFT_FILTER,
-      maxRecords: WALL_CAP,
       sortField: "Title",
       sortDirection: "asc",
+      paginate: true,
     });
 
     const mapped = records

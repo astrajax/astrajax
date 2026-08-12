@@ -42,10 +42,11 @@ print(json.dumps(stats(a, b, box)))
 async function openBayWithLongLetter(page) {
   await page.goto(`${BASE}/man/receiving-wall`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1500);
-  const door = page.getByRole("button", { name: /External Context Capture/i });
+  const door = page.getByRole("button", { name: /Goals & Priorities/i });
   await door.waitFor({ state: "visible", timeout: 60000 });
   await door.click();
-  await page.waitForTimeout(2000);
+  /* ARRIVE is 2500ms — wait past the push before opening a letter. */
+  await page.waitForTimeout(2800);
   const record = page.getByRole("button", { name: /Goals \(long-term\)/i });
   await record.waitFor({ state: "visible", timeout: 30000 });
   await record.click();
@@ -121,8 +122,8 @@ async function main() {
   const mobilePage = await mobile.newPage();
   await mobilePage.goto(`${BASE}/man/receiving-wall`, { waitUntil: "domcontentloaded" });
   await mobilePage.waitForTimeout(1500);
-  await mobilePage.click('button:has-text("External")').catch(() => {});
-  await mobilePage.waitForTimeout(2000);
+  await mobilePage.click('button:has-text("Goals & Priorities")').catch(() => {});
+  await mobilePage.waitForTimeout(2800);
   const mobilePath = `${OUT}/rw-scroll-mobile-bay.png`;
   await mobilePage.screenshot({ path: mobilePath, fullPage: false });
   console.log(`Wrote ${mobilePath}`);

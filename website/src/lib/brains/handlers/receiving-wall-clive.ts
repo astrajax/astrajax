@@ -18,6 +18,8 @@ export type ReceivingWallCliveRequest = {
   history: ChatMessage[];
   focusedRecord?: ReceivingRecord | null;
   records?: ReceivingRecord[];
+  /** Proposed Category key for the open bay. */
+  bayCategory?: string | null;
   actor?: string;
 };
 
@@ -41,16 +43,32 @@ function sanitiseRecord(raw: unknown): ReceivingRecord | null {
   ) {
     return null;
   }
+  const category =
+    typeof item.category === "string" && item.category.trim()
+      ? item.category.trim()
+      : undefined;
   return {
     recordId: item.recordId.trim(),
     title: item.title.trim(),
     snippet: item.snippet.trim(),
     provenance: item.provenance.trim(),
     captureSource,
-    brainSlug: typeof item.brainSlug === "string" ? item.brainSlug.trim() : undefined,
+    category,
+    systemBrainName:
+      typeof item.systemBrainName === "string"
+        ? item.systemBrainName.trim()
+        : undefined,
+    systemBrainSlug:
+      typeof item.systemBrainSlug === "string"
+        ? item.systemBrainSlug.trim()
+        : undefined,
+    brainSlug:
+      typeof item.brainSlug === "string" ? item.brainSlug.trim() : undefined,
     status: typeof item.status === "string" ? item.status.trim() : undefined,
     canonicalText:
-      typeof item.canonicalText === "string" ? item.canonicalText.trim() : undefined,
+      typeof item.canonicalText === "string"
+        ? item.canonicalText.trim()
+        : undefined,
   };
 }
 
@@ -72,14 +90,22 @@ export function sanitiseReceivingWallCliveHistory(raw: unknown): ChatMessage[] {
     }));
 }
 
-function buildContext(input: ReceivingWallCliveRequest): ReceivingWallCliveContext {
+function buildContext(
+  input: ReceivingWallCliveRequest,
+): ReceivingWallCliveContext {
   const records = (input.records ?? [])
     .map(sanitiseRecord)
     .filter((record): record is ReceivingRecord => record !== null);
   const focusedRecord = sanitiseRecord(input.focusedRecord ?? null);
+  const bayCategory =
+    typeof input.bayCategory === "string" && input.bayCategory.trim()
+      ? input.bayCategory.trim()
+      : null;
   return {
     focusedRecord,
-    records: records.length > 0 ? records : focusedRecord ? [focusedRecord] : [],
+    records:
+      records.length > 0 ? records : focusedRecord ? [focusedRecord] : [],
+    bayCategory,
   };
 }
 
@@ -92,10 +118,9 @@ async function callReceivingWallClive(
     throw new Error("ANTHROPIC_API_KEY is not configured.");
   }
 
-  const apiBase = (process.env.ANTHROPIC_API_BASE ?? "https://api.anthropic.com").replace(
-    /\/+$/,
-    "",
-  );
+  const apiBase = (
+    process.env.ANTHROPIC_API_BASE ?? "https://api.anthropic.com"
+  ).replace(/\/+$/, "");
   const model = resolveReceivingWallCliveModel();
   const response = await fetch(`${apiBase}/v1/messages`, {
     method: "POST",
@@ -114,7 +139,9 @@ async function callReceivingWallClive(
 
   if (!response.ok) {
     const detail = await response.text();
-    throw new Error(`Receiving Wall Clive failed (${response.status}): ${detail.slice(0, 200)}`);
+    throw new Error(
+      `Receiving Wall Clive failed (${response.status}): ${detail.slice(0, 200)}`,
+    );
   }
 
   const data = (await response.json()) as {
@@ -140,7 +167,9 @@ export async function handleReceivingWallClive(
   const message = input.message.trim();
   if (!message) throw new Error("message is required.");
   if (message.length > MAX_MESSAGE_LENGTH) {
-    throw new Error(`Message must be ${MAX_MESSAGE_LENGTH} characters or fewer.`);
+    throw new Error(
+      `Message must be ${MAX_MESSAGE_LENGTH} characters or fewer.`,
+    );
   }
 
   const context = buildContext(input);
@@ -152,7 +181,10 @@ export async function handleReceivingWallClive(
     await handleInteractionLog({
       sessionId: input.sessionId,
       persona: "clive",
-      brainSlug: context.focusedRecord?.brainSlug ?? CHAPTER1_BRAIN_SLUG,
+      brainSlug:
+        context.focusedRecord?.systemBrainSlug ||
+        context.focusedRecord?.brainSlug ||
+        CHAPTER1_BRAIN_SLUG,
       userMessage: message,
       assistantReply: reply,
       channel: "website",

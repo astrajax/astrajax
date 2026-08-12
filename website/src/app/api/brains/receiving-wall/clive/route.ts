@@ -23,6 +23,7 @@ export async function POST(request: Request) {
       history?: unknown;
       focusedRecord?: unknown;
       records?: unknown;
+      bayCategory?: string | null;
       actor?: string;
     };
 
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
           ? null
           : (body.focusedRecord as ReceivingWallCliveRequest["focusedRecord"]),
       records: Array.isArray(body.records) ? body.records : [],
+      bayCategory: body.bayCategory ?? null,
       actor: body.actor,
     });
 
