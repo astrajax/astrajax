@@ -8610,3 +8610,187 @@ textarea.clive-chat__input {
    auto-grows to a 132px cap (resizeInput in CliveChatSurface) then scrolls,
    which surfaces a native scrollbar with arrow caps on the painted page.
    Hide its chrome too; it stays scrollable and keyboard-navigable. */
+
+/* ── Operator sign-in (/enter/sign-in) — Victorian entrance, folio plate form ── */
+.operator-sign-in {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  background: var(--color-cream);
+  color: var(--color-ink);
+}
+
+.operator-sign-in__wall {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.operator-sign-in__lighting {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 120% 70% at 50% 0%, color-mix(in srgb, var(--color-cream-paper) 88%, transparent), transparent 62%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--color-cream) 72%, transparent) 0%,
+      color-mix(in srgb, var(--color-cream) 94%, transparent) 42%,
+      color-mix(in srgb, var(--color-cream-deep) 96%, transparent) 100%
+    );
+}
+
+.operator-sign-in__header {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-cream-paper) 92%, transparent) 0%,
+    color-mix(in srgb, var(--color-cream) 55%, transparent) 70%,
+    transparent 100%
+  );
+}
+
+.operator-sign-in__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-family: var(--font-display);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.operator-sign-in__logo {
+  width: auto;
+  height: 2rem;
+}
+
+.operator-sign-in__back {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ink-muted);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.operator-sign-in__back:hover {
+  color: var(--color-ink);
+}
+
+.operator-sign-in__back:focus-visible {
+  outline: 2px solid var(--color-apricot);
+  outline-offset: 2px;
+}
+
+.operator-sign-in__stage {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 2rem) clamp(2.5rem, 6vw, 4rem);
+}
+
+.operator-sign-in__plate {
+  --folio-plate-img: url("/brand/system-assets/folio/furniture/docket-plate-medium.svg");
+  position: relative;
+  width: min(100%, 26rem);
+  padding: clamp(2rem, 5vw, 2.75rem) clamp(1.75rem, 4.5vw, 2.5rem);
+  border: none;
+  border-radius: 0;
+  background: transparent var(--folio-plate-img) no-repeat center / 100% 100%;
+}
+
+.operator-sign-in__eyebrow {
+  margin-bottom: 0.75rem;
+  color: color-mix(in srgb, var(--color-ink-muted) 88%, transparent);
+}
+
+.operator-sign-in__title {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.625rem, 4vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--color-ink);
+}
+
+.operator-sign-in__lede {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--color-ink-muted);
+}
+
+.operator-sign-in__form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.operator-sign-in__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+
+.operator-sign-in__input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--color-ink) 16%, transparent);
+  background: color-mix(in srgb, var(--color-cream-paper) 88%, white);
+  padding: 0.625rem 0.75rem;
+  font-size: 1rem;
+  color: var(--color-ink);
+}
+
+.operator-sign-in__input--code {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.18em;
+}
+
+.operator-sign-in__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.operator-sign-in__submit {
+  margin-top: 0.25rem;
+}
+
+.operator-sign-in__secondary {
+  padding-inline: 1.125rem;
+}
+
+.operator-sign-in__status {
+  margin: 1rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+}
+
+@media (max-width: 480px) {
+  .operator-sign-in__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .operator-sign-in__secondary {
+    justify-content: center;
+  }
+}
