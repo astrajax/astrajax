@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "agent",
-  "exportedAt": "2026-08-12T11:06:27.000Z",
+  "exportedAt": "2026-08-12T11:29:14.000Z",
   "data": {
     "name": "Clive's Man — Executor",
     "description": "Composer Executor minion for Clive's Man. Lane A direct capture or Lane B final brief only. Reversible writes; Draft/Quarantined status only.",

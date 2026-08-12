@@ -21,7 +21,7 @@ touches Trusted canon, and **never writes Draft Brain Truth directly**.
 | Property | Value |
 |----------|-------|
 | Cron | `0 5 * * *` Europe/London |
-| Enabled | **false** until Ruth checkpoint + UI verification |
+| Enabled | **false** until append credential + boundary + UI verification |
 | readOnlyMode | `false` (metadata; UI verify required) |
 | Model | Kimi K3, effort **low** |
 | maxBudgetUsd | **20** |
@@ -58,10 +58,21 @@ enforces writes to Amendment Versions only — never Draft Brain Truth directly.
 2. Pass the returned report record id as `v1_report_record_id` on every candidate
    submitted to `ambient_v1_intake.py`.
 
-## Checkpoint
+## Checkpoint (schema resolved — activation gated)
 
-UTC checkpoint store sentinel: **`PENDING_RUTH_CHECKPOINT_STORE`**. Do not invent
-schema. Live import and 05:00 enablement blocked pending Ruth Hadley.
+| Property | Value |
+|----------|-------|
+| Table | Ambient Checkpoint Versions `tblRbjD0PHtuTWsIL` |
+| Bootstrap | `recHsDmDx00c636BP` — event `acp-genesis-hyperagent-ambient-v1`, revision 0 |
+| Append pen env | `AMBIENT_CHECKPOINT_APPEND` — **not minted** |
+
+**Checkpoint schema resolved** (Ruth V2, 12 Aug 2026). Live import and 05:00
+enablement remain blocked until: `AMBIENT_CHECKPOINT_APPEND` minted, **initial scan
+boundary selected**, **UI source-order verification** complete. Schedule metadata:
+present, **disabled**.
+
+Field and choice IDs: `AMBIENT_CHECKPOINT_*` in `website/src/lib/brains/airtable-ids.ts`.
+Signed build: `AMBIENT_CHECKPOINT_BUILD_EVIDENCE`.
 
 ## Throughput
 
@@ -80,6 +91,7 @@ on first miss.
 - Enable tools beyond searchthreads + execute-script.
 - Alias the actor slug to another name.
 - Enable schedule without UI verification pass.
+- Claim checkpoint append credential minted or 05:00 schedule enabled.
 
 ## Acceptance tests
 
@@ -87,5 +99,5 @@ on first miss.
 - AMB-002: Payload status Draft + Capture Source Chat Session choice ID.
 - AMB-003: Only searchthreads + execute-script enabled.
 - AMB-004: Create credential scoped to Context Amendment Versions (`tblsuOKGjSGYv0Vov`) V1 queue only — not Draft Brain Truth.
-- AMB-005: Checkpoint sentinel `PENDING_RUTH_CHECKPOINT_STORE` documented.
+- AMB-005: Checkpoint table `tblRbjD0PHtuTWsIL` + bootstrap `recHsDmDx00c636BP` documented; activation gates explicit.
 - AMB-006: Schedule present and disabled in repo metadata.

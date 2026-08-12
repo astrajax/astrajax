@@ -98,7 +98,7 @@ class AmbientNoLossTest(unittest.TestCase):
         self.assertGreaterEqual(out["requeued_count"], 4)
         self.assertEqual(out["stop_reason"], "failure_cap")
 
-    @patch.dict(os.environ, {"AMBIENT_V1_CREATE": "pat", "CLIVE_MAN_CHECKPOINT_STORE": "resolved-store"})
+    @patch.dict(os.environ, {"AMBIENT_V1_CREATE": "pat", "AMBIENT_CHECKPOINT_APPEND": "pat-append"})
     @patch("urllib.request.urlopen")
     def test_short_post_requeues_all(self, mock_urlopen: MagicMock) -> None:
         def _responses(*args, **kwargs):

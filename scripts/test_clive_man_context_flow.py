@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Cursor-relevant static contract tests for Clive's Man context flow (Option 3).
 
-Manifest: 38 Cursor tests (CM-CUR-001 … CM-CUR-038) of 76 total cleared manifest.
+Manifest: 41 Cursor tests (CM-CUR-001 … CM-CUR-040, plus 028b/032b/032c) of 76 total cleared manifest.
 Hyperagent runtime/offline tests (CM-HA-001 … CM-HA-038) belong to Hyperagent Builder.
 """
 
@@ -197,14 +197,51 @@ class AmbientCaptureStaticTest(unittest.TestCase):
         self.assertIn("20", text)
 
 
-class CheckpointAndThroughputStaticTest(unittest.TestCase):
-    def test_cm_cur_031_checkpoint_sentinel_constant(self) -> None:
-        text = _read("website/src/lib/brains/airtable-ids.ts")
-        self.assertIn("PENDING_RUTH_CHECKPOINT_STORE", text)
+ACTIVE_CHECKPOINT_SOURCES = (
+    ".cursor/skills/clive-man-ambient-capture/SKILL.md",
+    ".cursor/agents/clive-man-ambient-capture.md",
+    ".cursor/skills/clive-man/SKILL.md",
+    "agents/registry/cursor/clive/clive-man/build-pack-v0.3.md",
+    "agents/registry/hyperagent/clive/man/build-pack-v0.3.md",
+    "hyperagent/builds/sources/clive-man-v0_4/ambient/ambient_config.py",
+)
 
-    def test_cm_cur_032_skill_checkpoint_sentinel(self) -> None:
+
+class CheckpointAndThroughputStaticTest(unittest.TestCase):
+    def test_cm_cur_031_checkpoint_id_map_complete(self) -> None:
+        text = _read("website/src/lib/brains/airtable-ids.ts")
+        self.assertIn('ambientCheckpointVersions: "tblRbjD0PHtuTWsIL"', text)
+        self.assertIn('recordId: "recHsDmDx00c636BP"', text)
+        self.assertIn("AMBIENT_CHECKPOINT_VERSIONS_FIELDS", text)
+        self.assertIn("AMBIENT_CHECKPOINT_EVENT_TYPE", text)
+        self.assertIn("AMBIENT_CHECKPOINT_STREAM_STATE", text)
+        self.assertIn("AMBIENT_CHECKPOINT_BACKLOG_MEASUREMENT", text)
+        self.assertIn("AMBIENT_CHECKPOINT_BOOTSTRAP", text)
+        self.assertIn("AMBIENT_CHECKPOINT_BUILD_EVIDENCE", text)
+        self.assertIn('AMBIENT_CHECKPOINT_APPEND_CRED_ENV = "AMBIENT_CHECKPOINT_APPEND"', text)
+        self.assertIn("selq6zHnw1iZ2uHRc", text)
+        self.assertIn("acp-genesis-hyperagent-ambient-v1", text)
+        self.assertIn(
+            "e3781da03aabb01ac4660f0d089e1a245b5fa74e81623a80721f8cfd2dff9d1e", text
+        )
+
+    def test_cm_cur_032_no_sentinel_in_active_sources(self) -> None:
+        for path in ACTIVE_CHECKPOINT_SOURCES:
+            with self.subTest(path=path):
+                self.assertNotIn("PENDING_RUTH_CHECKPOINT_STORE", _read(path))
+
+    def test_cm_cur_032b_persona_generated_retains_design_time_sentinel(self) -> None:
+        gen = _read("agents/registry/cursor/clive/clive-man/persona-config.generated.md")
+        self.assertIn("PENDING_RUTH_CHECKPOINT_STORE", gen)
+
+    def test_cm_cur_032c_activation_gates_documented(self) -> None:
         text = _read(".cursor/skills/clive-man-ambient-capture/SKILL.md")
-        self.assertIn("PENDING_RUTH_CHECKPOINT_STORE", text)
+        self.assertIn("AMBIENT_CHECKPOINT_APPEND", text)
+        self.assertIn("not minted", text.lower())
+        self.assertIn("disabled", text.lower())
+        self.assertIn("initial scan", text.lower())
+        self.assertIn("boundary selected", text.lower())
+        self.assertIn("ui", text.lower())
 
     def test_cm_cur_033_no_five_row_intake_cap(self) -> None:
         text = _read(".cursor/skills/clive-man/SKILL.md")
@@ -222,6 +259,7 @@ class IdLedgerAndAliasesStaticTest(unittest.TestCase):
         self.assertIn("tblsuOKGjSGYv0Vov", text)
         self.assertIn("tblM7gxcsWYijdaM8", text)
         self.assertIn("tblakbMPiim1K13Ru", text)
+        self.assertIn("tblRbjD0PHtuTWsIL", text)
 
     def test_cm_cur_036_household_versions_ids(self) -> None:
         text = _read("website/src/lib/brains/airtable-ids.ts")

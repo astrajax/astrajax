@@ -87,7 +87,7 @@ Europe/London: Ambient Capture **05:00**; Context Auditor **06:00**; Context Cha
 
 - Ambient: actor `clive-man-ambient-capture`; V1-only `CREATE_DRAFT_TRUTH`; Kimi K3 low; $20 cap; uncapped thread drain with requeue.
 - Intake / maintenance separated; maintenance cap **5**; per-lane failure cap **2**; three-run backlog report alarm only.
-- Checkpoint sentinel: `PENDING_RUTH_CHECKPOINT_STORE` — live 05:00 enablement blocked pending Ruth.
+- Checkpoint table `tblRbjD0PHtuTWsIL` (bootstrap `recHsDmDx00c636BP`) — schema resolved; live 05:00 enablement blocked on `AMBIENT_CHECKPOINT_APPEND` not minted, initial scan boundary, UI verification.
 - Ambient schedule: present, **disabled**, `readOnlyMode=false` until UI verification.
 
 ## Airtable architecture stewardship

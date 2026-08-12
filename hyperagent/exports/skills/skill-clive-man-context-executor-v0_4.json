@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "skill",
-  "exportedAt": "2026-08-12T11:06:27.000Z",
+  "exportedAt": "2026-08-12T11:29:14.000Z",
   "data": {
     "name": "Context Amendment Execute",
     "description": "Context Amendment Execute — the Executor's role-scoped rail for Clive's Man Daily Context Review (v3 runtime fallback). Two-pass typed executor: whole-batch preflight (any failure = ZERO mutations), authoritative V2 loading + exact field match, adapter_version enforced, monotonic attempts, replay/dedupe, Amber→Green gate, readback, hash-chained Change Log, rollback classification. Implementation v2.1: Capture Source gate — creates require exact allowed choice in payload; blank-metadata may set Capture Source only if blank + exact choice; Draft-preserving updates refuse to leave a reviewable Draft with blank Capture Source unless the action fills it; QUARANTINE exempt. Trusted canon unreachable. Audience: Executor only.",

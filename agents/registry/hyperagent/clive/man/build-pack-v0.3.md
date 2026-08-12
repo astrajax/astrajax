@@ -59,7 +59,8 @@ Offline behavioural coverage (Aug 2026 Phase B + hardening pass):
 | Context Challenger specialist | `…/context-estate-challenge/test_challenger.py` | 25 |
 | Context Auditor specialist | `…/context-estate-audit-propose/test_auditor.py` | 53 |
 | Context Executor specialist | `…/context-amendment-execute/test_executor.py` | 34 |
-| **Total** | | **241** |
+| Checkpoint append (mocked) | `scripts/test_clive_man_checkpoint_append.py` | 21 |
+| **Total** | | **262** |
 
 **Household Routing Standard:** family v0_4 exports embed Option 3 body from
 `.claude/skills/household-routing-standard/SKILL.md`. Standalone export
@@ -74,6 +75,7 @@ python3 scripts/test_clive_man_seam_v0_4.py
 python3 scripts/test_clive_man_hyperagent_v0_4_executable.py
 python3 scripts/test_clive_man_hardening_v0_4.py
 python3 scripts/test_clive_man_approved_persona_source.py
+python3 scripts/test_clive_man_checkpoint_append.py
 python3 hyperagent/builds/sources/clive-man-v0_4/specialists/*/test_*.py
 ```
 
@@ -103,7 +105,7 @@ historical daily brief not in upload set.
 
 ## Remaining human gates
 
-1. Ruth checkpoint store (`PENDING_RUTH_CHECKPOINT_STORE`)
+1. Ruth checkpoint schema resolved (`tblRbjD0PHtuTWsIL`); activation blocked on `AMBIENT_CHECKPOINT_APPEND` not minted, boundary, UI verify
 2. Matthew UI verification before enabling Ambient 05:00 schedule
 3. Hyperagent UI import (handoff cards ready — not performed in repo)
 4. v0.3 rollback available until one full v0.4 cycle succeeds

@@ -40,7 +40,9 @@ from _clive_man_v0_4_contract import (  # noqa: E402
     CAP_FAILURES,
     CAPTURE_SOURCE_CHAT_SESSION,
     CHAT_BACKFILL_CLEAR_CAP,
+    CHECKPOINT_APPEND_CRED_ENV,
     CHECKPOINT_SENTINEL,
+    CHECKPOINT_TABLE_ID,
     CONTEXT_AMENDMENT_VERSIONS_TABLE,
     CRED_AMBIENT_V1_CREATE,
     CRED_CLIVE_MAN_ON_DEMAND_WRITE,
@@ -357,10 +359,16 @@ class AmbientContractTest(unittest.TestCase):
         self.assertNotIn("up to 5 rows", prompt.lower())
         self.assertNotIn("5 rows per tick", prompt.lower())
 
-    def test_cm_ha_019_checkpoint_sentinel(self) -> None:
+    def test_cm_ha_019_checkpoint_table_in_export(self) -> None:
         export = _read_json(EXPORTS_AGENTS / "agent-clive-man-ambient-capture-v0_4.json")
+        data = export["data"]
         blob = json.dumps(export)
-        self.assertIn(CHECKPOINT_SENTINEL, blob)
+        self.assertEqual(data.get("checkpointStore"), CHECKPOINT_TABLE_ID)
+        self.assertIn(CHECKPOINT_TABLE_ID, blob)
+        self.assertNotIn(CHECKPOINT_SENTINEL, blob)
+        skill = _embedded_skills(export)[0]
+        self.assertIn(CHECKPOINT_APPEND_CRED_ENV, skill.get("credentialSchema") or "")
+        self.assertIn(CRED_AMBIENT_V1_CREATE, skill.get("credentialSchema") or "")
 
     def test_cm_ha_020_disabled_schedule_omitted(self) -> None:
         data = _read_json(EXPORTS_AGENTS / "agent-clive-man-ambient-capture-v0_4.json")["data"]

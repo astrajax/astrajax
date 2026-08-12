@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "agent",
-  "exportedAt": "2026-08-12T11:06:27.000Z",
+  "exportedAt": "2026-08-12T11:29:14.000Z",
   "data": {
     "name": "Clive's Man — Context Challenger",
     "description": "Context Estate Challenge — the Challenger's role-scoped rail for Clive's Man Daily Context Review (v3 runtime fallback). Independently re-reads targeted objects/evidence (never trusts V1 prose), then writes immutable V2 Amendment Versions (Stage=V2, Supersedes V1, Cleared/Held/Rejected). Implementation v1.3: independently verifies Capture Source classification — value must be an exact live choice AND provenance must support it (Chat Session via ambient actor + live blank target; External via proven external evidence; User Guided via direct human request). Missing/invalid/ambiguous = Held/Rejected non-actionable V2. Deterministic ambient actor + live blank + Chat Session payload may clear (batch cap one). Malformed V1 → Held/Rejected with defects, no Executor payload. Executor adapter field preserved. Owns Amber→Green tier promotion (Pam R5). Audience: Challenger only.",

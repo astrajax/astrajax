@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "skill",
-  "exportedAt": "2026-08-12T11:06:27.000Z",
+  "exportedAt": "2026-08-12T11:29:14.000Z",
   "data": {
     "name": "clive-man-executor",
     "description": "Composer minion for Clive's Man. Executes only the final Trinity brief through reversible writes, quarantine, draft/proposed records, logs, or publish prep.",

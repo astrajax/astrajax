@@ -30,7 +30,7 @@ Route 1 (`household-routing-standard`): only **complete Lane A** → Executor.
 
 - Verdict: **PROCEED**
 - Pending v0.4 Persona Config (`recSKTT8NTTJOmuRu`) is **Approved** (12 Aug 2026) — MCP snapshot mirror in repo
-- Checkpoint sentinel `PENDING_RUTH_CHECKPOINT_STORE` — no invented schema
+- Checkpoint schema resolved — `tblRbjD0PHtuTWsIL` / bootstrap `recHsDmDx00c636BP`; activation still gated (append cred, schedule, boundary, UI)
 - Archive / control IDs labelled **live-observed**, not canonical promotion
 
 ## Persona Config gate
@@ -59,17 +59,17 @@ python3 scripts/generate_persona_config_sync.py --agent clive-man --pin-version 
 
 | Bucket | IDs | Count | Owner |
 |--------|-----|-------|-------|
-| Cursor static + resolver | CM-CUR-001 … CM-CUR-038 | **38** | This pack (`scripts/test_clive_man_context_flow.py`, `scripts/test_generate_persona_config_sync.py`) |
-| Hyperagent runtime / offline | CM-HA-001 … CM-HA-050 + seam + executable + hardening + approved snapshot | **53 + 26 + 17 + 25 + 8 + 112 specialist** | Hyperagent Builder |
-| **Total offline (Hyperagent family)** | | **241** | |
+| Cursor static + resolver | CM-CUR-001 … CM-CUR-040 (+ 028b, 032b, 032c) | **41** | This pack (`scripts/test_clive_man_context_flow.py`, `scripts/test_generate_persona_config_sync.py`) |
+| Hyperagent runtime / offline | CM-HA-001 … CM-HA-050 + seam + executable + hardening + approved snapshot + checkpoint | **53 + 26 + 17 + 25 + 8 + 21 + 112 specialist** | Hyperagent Builder |
+| **Total offline (Hyperagent family)** | | **262** | |
 
 Cursor suites (separate from Hyperagent family total):
 
 | Suite | File | Count |
 |-------|------|------:|
-| CM-CUR static + routing | `scripts/test_clive_man_context_flow.py` | 40 |
-| Persona resolver gate | `scripts/test_generate_persona_config_sync.py` | 12 |
-| **Cursor offline** | | **52** |
+| CM-CUR static + routing | `scripts/test_clive_man_context_flow.py` | 41 |
+| Persona resolver gate | `scripts/test_generate_persona_config_sync.py` | 14 |
+| **Cursor offline** | | **55** |
 
 Cursor tests **do not** claim Hyperagent runtime passes.
 
@@ -110,6 +110,7 @@ Ambient: V1-only `CREATE_DRAFT_TRUTH` on Context Amendment Versions
 - Amendments: `tblsuOKGjSGYv0Vov`
 - Events: `tblM7gxcsWYijdaM8`
 - Fingerprints: `tblakbMPiim1K13Ru`
+- Ambient Checkpoint Versions: `tblRbjD0PHtuTWsIL` (bootstrap `recHsDmDx00c636BP`)
 - Household Versions: `appPrpfvsAr71RPP3` / `tbleX09zbkUNKTGBz`
 
 ## Active Cursor artifacts
@@ -147,7 +148,7 @@ Ambient: V1-only `CREATE_DRAFT_TRUTH` on Context Amendment Versions
 
 ## Remaining gates (explicit)
 
-1. **Ruth checkpoint** — `PENDING_RUTH_CHECKPOINT_STORE` schema + live store
+1. **Ambient checkpoint activation** — schema resolved (`tblRbjD0PHtuTWsIL`); blocked on `AMBIENT_CHECKPOINT_APPEND` **not minted**, 05:00 **disabled**, **initial scan boundary not selected**, **UI source-order verification pending**
 2. **Hyperagent import** — handoff cards ready; Matthew imports when ready (not done in repo)
 3. **UI verification** — Ambient 05:00 schedule hard stop before enablement
 4. **v0.3 rollback** — retain until one full v0.4 operational cycle succeeds

@@ -43,4 +43,4 @@ Invoke: **`@clive-man`**. Load the **`clive-man`** skill for Cursor routing, Opt
 
 ## Scheduled family (HyperAgent — repo contract only)
 
-Europe/London: Ambient Capture **05:00** (primary intake); Context Auditor **06:00**; Context Challenger **07:00**; Context Executor **08:00**. Checkpoint store sentinel: `PENDING_RUTH_CHECKPOINT_STORE` — live import blocked pending Ruth. Ambient schedule metadata: present, **disabled**, `readOnlyMode=false` (UNVERIFIED until UI check).
+Europe/London: Ambient Capture **05:00** (primary intake); Context Auditor **06:00**; Context Challenger **07:00**; Context Executor **08:00**. Checkpoint store: `tblRbjD0PHtuTWsIL` (bootstrap `recHsDmDx00c636BP`). Live append still gated: `AMBIENT_CHECKPOINT_APPEND` not minted, initial scan boundary unset, UI source-order verification pending. Ambient schedule metadata: present, **disabled**, `readOnlyMode=false` (UNVERIFIED until UI check).

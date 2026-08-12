@@ -279,6 +279,35 @@ Primary field: **Title** (singleLineText). **Workshop only** — uploaded source
 
 Field IDs: `BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS` in `airtable-ids.ts`.
 
+### Table: Ambient Checkpoint Versions
+
+Primary field: **Checkpoint Event ID** (`fld3ZfUhXoTx6UqLV`). **Workshop only** — append-only durable UTC cursor for Ambient Capture thread scans. Live table ID `tblRbjD0PHtuTWsIL` (Ruth V2 build, 12 Aug 2026).
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Checkpoint Event ID | singleLineText | Primary; immutable event key |
+| Stream Key | singleLineText | e.g. `hyperagent:eligible-threads:clive-man-ambient-capture:v1` |
+| Revision | number | Monotonic per stream |
+| Event Type | singleSelect | Bootstrap, Observation, Advance, Pause, Resume, Held |
+| Stream State | singleSelect | Active, Paused, Held |
+| Previous Event ID | singleLineText | Hash-chain link |
+| Cursor UTC | dateTime | Read back ISO/24h/timeZone `utc` |
+| Cursor Token JSON | multilineText | Opaque restart token |
+| Observed Through UTC | dateTime | Read back ISO/24h/timeZone `utc` |
+| Backlog Lower Bound | number | |
+| Backlog Measurement | singleSelect | Exact, Lower bound, Unknown |
+| Disposition Unit Count | number | |
+| Disposition Manifest Hash | singleLineText | |
+| Run ID | singleLineText | |
+
+**Grain:** one immutable row per checkpoint event. **Append-only** — no in-place edits or deletes by agents.
+
+**Bootstrap (live-observed):** record `recHsDmDx00c636BP` — event `acp-genesis-hyperagent-ambient-v1`, revision 0, Bootstrap/Active, backlog 0/Unknown, run `ruth-build-bootstrap`.
+
+**Activation boundary (distinct from schema):** checkpoint **schema resolved** (this table). Live Ambient still blocked on: `AMBIENT_CHECKPOINT_APPEND` credential **not minted**, 05:00 schedule **disabled**, **initial scan boundary not selected**, **UI source-order verification pending**. Persona Config v0.4 may still record the design-time sentinel `PENDING_RUTH_CHECKPOINT_STORE` — runtime sources use this table ID.
+
+Field and choice IDs: `AMBIENT_CHECKPOINT_*` in `airtable-ids.ts`. Signed build: `AMBIENT_CHECKPOINT_BUILD_EVIDENCE`.
+
 ---
 
 ## Promote boundary (Workshop → Trusted)

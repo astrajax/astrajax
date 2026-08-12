@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "skill",
-  "exportedAt": "2026-08-12T11:06:27.000Z",
+  "exportedAt": "2026-08-12T11:29:14.000Z",
   "data": {
     "name": "clive-man-proposer",
     "description": "Composer minion for Clive's Man. Proposes context actions with evidence across intake, curation, and publish-prep. Does not challenge or execute.",

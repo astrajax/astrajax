@@ -48,7 +48,9 @@ from _clive_man_v0_4_contract import (  # noqa: E402
     CAP_DAILY_MUTATIONS,
     CAP_FAILURES,
     CHAT_BACKFILL_CLEAR_CAP,
-    CHECKPOINT_SENTINEL,
+    CHECKPOINT_APPEND_CRED_ENV,
+    CHECKPOINT_BOOTSTRAP_RECORD_ID,
+    CHECKPOINT_TABLE_ID,
     CONTEXT_AMENDMENT_VERSIONS_TABLE,
     CRED_AMBIENT_V1_CREATE,
     CRED_CLIVE_MAN_ON_DEMAND_WRITE,
@@ -163,7 +165,9 @@ RUNTIME (Hyperagent v0.4):
   by on-demand Proposer/Challenger via clive_man_workshop_read.py ({read_cred}).
 - Scheduled family (repo contract): Ambient 05:00 disabled; Context Auditor 06:00;
   Context Challenger 07:00; Context Executor 08:00 Europe/London.
-- Checkpoint sentinel PENDING_RUTH_CHECKPOINT_STORE — live Ambient enable blocked.
+- Checkpoint table tblRbjD0PHtuTWsIL (schema resolved); bootstrap recHsDmDx00c636BP.
+  Live Ambient enable blocked: AMBIENT_CHECKPOINT_APPEND not minted; 05:00 disabled;
+  initial scan boundary + UI verification pending.
 - Pam is not on-platform; escalate to Matthew and digest.
 - Repo read-only via tarball; Airtable writes through Executor / scheduled specialists only.
 - Digests replace per-record gates; structural NEVER rules unchanged.""".format(
@@ -200,7 +204,8 @@ RUNTIME (Hyperagent Ambient Capture):
 - Model: {MODEL_KIMI_K3} effort low; maxBudgetUsd 20.
 - Credential: {CRED_AMBIENT_V1_CREATE} — base-scoped read+write PAT (dedupe + readback); script enforces Amendment Versions writes only.
 - Schedule 05:00 Europe/London: contract present, import JSON omits schedule (disabled gate).
-- Checkpoint: {CHECKPOINT_SENTINEL}.
+- Checkpoint table: {CHECKPOINT_TABLE_ID}; bootstrap {CHECKPOINT_BOOTSTRAP_RECORD_ID}.
+- Append credential {CHECKPOINT_APPEND_CRED_ENV} — not minted; schedule 05:00 disabled until boundary + UI verify.
 - CAP_DAILY_MUTATIONS={json.dumps(CAP_DAILY_MUTATIONS)}; CAP_FAILURES={json.dumps(CAP_FAILURES)}.
 - CHAT_BACKFILL_CLEAR_CAP={CHAT_BACKFILL_CLEAR_CAP}."""
 
@@ -500,7 +505,7 @@ def build_exports(persona: PersonaSource, *, export_paths: ExportPaths | None = 
         effort="low",
         max_budget_usd=20,
         scheduled_invocations=[],
-        extra_fields={"scheduleContract": SCHEDULE_CONTRACT[ACTOR_AMBIENT], "checkpointStore": CHECKPOINT_SENTINEL},
+        extra_fields={"scheduleContract": SCHEDULE_CONTRACT[ACTOR_AMBIENT], "checkpointStore": CHECKPOINT_TABLE_ID},
     )
     _write_json(export_paths.agents_dir / "agent-clive-man-ambient-capture-v0_4.json", agent_export(ambient))
 

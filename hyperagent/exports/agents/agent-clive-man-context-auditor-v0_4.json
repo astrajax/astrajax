@@ -1,7 +1,7 @@
 {
   "version": 1,
   "type": "agent",
-  "exportedAt": "2026-08-12T11:06:27.000Z",
+  "exportedAt": "2026-08-12T11:29:14.000Z",
   "data": {
     "name": "Clive's Man — Context Auditor",
     "description": "Context Estate Audit & Propose — the Context Auditor's role-scoped rail for Clive's Man Daily Context Review (v3 runtime fallback). Implementation v2.1: Capture Source is the first gate for human review and is mandatory routing evidence. A deterministic classifier (exact three live choices; provenance required — never inferred from Created By) routes blank Capture Source: Chat Session via proven chat/thread or allowed ambient-capture actor, External via proven external evidence, User Guided only via direct human request. Ambiguous source = no executable V1 (report/hold). Deterministic ambient blanks produce complete FILL_BLANK_DRAFT_METADATA V1 with Target Field ID fld9zhLHPvjnq8lHT + exact payload. All v2.0/v1.x fixes preserved; adapter field stamps executor contract. Audience: Context Auditor only.",

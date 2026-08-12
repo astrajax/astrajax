@@ -104,7 +104,7 @@ class AmbientIntakeTest(unittest.TestCase):
         )
         self.assertEqual(errs, [])
 
-    @patch.dict(os.environ, {"AMBIENT_V1_CREATE": "pat-test-token", "CLIVE_MAN_CHECKPOINT_STORE": "resolved-store"})
+    @patch.dict(os.environ, {"AMBIENT_V1_CREATE": "pat-test-token", "AMBIENT_CHECKPOINT_APPEND": "pat-append"})
     @patch("urllib.request.urlopen")
     def test_one_candidate_creates_v1(self, mock_urlopen: MagicMock) -> None:
         posted_fields: dict = {}
@@ -139,7 +139,7 @@ class AmbientIntakeTest(unittest.TestCase):
         self.assertEqual(len(post_calls), 1)
         self.assertNotIn("pat-test-token", post_calls[0].full_url)
 
-    @patch.dict(os.environ, {"AMBIENT_V1_CREATE": "pat-test-token", "CLIVE_MAN_CHECKPOINT_STORE": "resolved-store"})
+    @patch.dict(os.environ, {"AMBIENT_V1_CREATE": "pat-test-token", "AMBIENT_CHECKPOINT_APPEND": "pat-append"})
     @patch("urllib.request.urlopen")
     def test_thirty_seven_candidates_chunked(self, mock_urlopen: MagicMock) -> None:
         store: dict[str, dict] = {}
@@ -173,7 +173,7 @@ class AmbientIntakeTest(unittest.TestCase):
         result = self.amb.process_candidates(candidates, run_id="run-37", dry_run=False)
         self.assertEqual(result["written_count"], 37)
 
-    @patch.dict(os.environ, {"AMBIENT_V1_CREATE": "pat-test-token", "CLIVE_MAN_CHECKPOINT_STORE": "resolved-store"})
+    @patch.dict(os.environ, {"AMBIENT_V1_CREATE": "pat-test-token", "AMBIENT_CHECKPOINT_APPEND": "pat-append"})
     @patch("time.sleep")
     @patch("urllib.request.urlopen")
     def test_429_retry(self, mock_urlopen: MagicMock, _sleep: MagicMock) -> None:
@@ -222,7 +222,7 @@ class AmbientIntakeTest(unittest.TestCase):
         self.assertEqual(result["written_count"], 1)
 
     def test_checkpoint_blocks_production(self) -> None:
-        with patch.dict(os.environ, {"AMBIENT_V1_CREATE": "pat", "CLIVE_MAN_CHECKPOINT_STORE": "PENDING_RUTH_CHECKPOINT_STORE"}):
+        with patch.dict(os.environ, {"AMBIENT_V1_CREATE": "pat"}):
             with self.assertRaises(self.amb.CheckpointBlocked):
                 self.amb.process_candidates([self._candidate(0)], run_id="x", dry_run=False)
 

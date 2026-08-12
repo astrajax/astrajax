@@ -85,6 +85,8 @@ export const BRAIN_WORKSHOP_TABLES = {
   contextAmendments: "tblsuOKGjSGYv0Vov",
   contextAmendmentEvents: "tblM7gxcsWYijdaM8",
   contextAuditFingerprints: "tblakbMPiim1K13Ru",
+  /** Ambient durable UTC checkpoint — Ruth V2 build 12 Aug 2026 (live-observed). */
+  ambientCheckpointVersions: "tblRbjD0PHtuTWsIL",
 } as const;
 
 /** Workshop User Brains — identity + operator development (Phase B, 29 Jun 2026). */
@@ -179,8 +181,77 @@ export const DRAFT_TRUTH_CAPTURE_SOURCE = {
   chatSession: "sel16ONJz9yPx76hH",
 } as const;
 
-/** Ambient capture UTC checkpoint store sentinel — schema owned by Ruth; do not invent. */
+/** @deprecated Persona v0.4 design-time sentinel only — live home is ambientCheckpointVersions. */
 export const AMBIENT_CAPTURE_CHECKPOINT_SENTINEL = "PENDING_RUTH_CHECKPOINT_STORE" as const;
+
+/** Ambient Checkpoint Versions — append-only stream cursor (Ruth V2, live 12 Aug 2026). */
+export const AMBIENT_CHECKPOINT_VERSIONS_TABLE_ID = "tblRbjD0PHtuTWsIL";
+
+export const AMBIENT_CHECKPOINT_VERSIONS_FIELDS = {
+  checkpointEventId: "fld3ZfUhXoTx6UqLV",
+  streamKey: "fldeZnYJ3291BXPOp",
+  revision: "flddQZdINPYJlXoLy",
+  eventType: "fldtIlV22PQOCx3J9",
+  streamState: "fldS02GlL0PWoPHJT",
+  previousEventId: "fldkZnD4t6xQvNDxl",
+  cursorUtc: "fldbYb4TwAZ5sezRX",
+  cursorTokenJson: "fldoaDS0ur5bsg8eX",
+  observedThroughUtc: "fld8U8bk5ZxKsTWA8",
+  backlogLowerBound: "fldMA539rrSoxTlIc",
+  backlogMeasurement: "fldiN307ABPVVjsTw",
+  dispositionUnitCount: "fldu0CzeHS2YPeusV",
+  dispositionManifestHash: "fldF0zh4nTh15fgCl",
+  runId: "fldtZflzjl4iTBYhn",
+} as const;
+
+export const AMBIENT_CHECKPOINT_EVENT_TYPE = {
+  bootstrap: "selq6zHnw1iZ2uHRc",
+  observation: "selSxMJOmkxErHtjJ",
+  advance: "selZ8sIe3C9ncSMTx",
+  pause: "selXgyebePE3GohSB",
+  resume: "selH9ySAG9S0eQC5t",
+  held: "selzx1mL39bQp7Jqp",
+} as const;
+
+export const AMBIENT_CHECKPOINT_STREAM_STATE = {
+  active: "sel1jm5IQM7yWSO71",
+  paused: "selDHrRuXmPdzpcJ4",
+  held: "selp97WbZLcnRTbeD",
+} as const;
+
+export const AMBIENT_CHECKPOINT_BACKLOG_MEASUREMENT = {
+  exact: "selpR7TJCstAVrGNr",
+  lowerBound: "seloOZakalWZIOg9q",
+  unknown: "sel6SE2DsQiNTT3hM",
+} as const;
+
+/** Bootstrap row — live-observed 12 Aug 2026; append-only chain starts here. */
+export const AMBIENT_CHECKPOINT_BOOTSTRAP = {
+  recordId: "recHsDmDx00c636BP",
+  checkpointEventId: "acp-genesis-hyperagent-ambient-v1",
+  streamKey: "hyperagent:eligible-threads:clive-man-ambient-capture:v1",
+  revision: 0,
+  eventType: "Bootstrap",
+  streamState: "Active",
+  backlogMeasurement: "Unknown",
+  dispositionUnitCount: 0,
+  runId: "ruth-build-bootstrap",
+} as const;
+
+/** Ruth signed build evidence — live-observed 12 Aug 2026. */
+export const AMBIENT_CHECKPOINT_BUILD_EVIDENCE = {
+  decision: "RUTH-AMBIENT-CHECKPOINT-2026-08-12-v0.2",
+  canonicalManifestHash:
+    "e3781da03aabb01ac4660f0d089e1a245b5fa74e81623a80721f8cfd2dff9d1e",
+  rawManifestSha256:
+    "72cfc5c264e050cef09eccdb463ce5798f5675a0d204239a766d94722d676703",
+  runArtifactHash:
+    "6005596786e17d5aeb34b94cb6a79ad86a4f9ccecfe691ac9733e8108454feb9",
+  builtAt: "2026-08-12",
+} as const;
+
+/** Append pen env — not minted; schedule remains disabled until boundary + UI verify. */
+export const AMBIENT_CHECKPOINT_APPEND_CRED_ENV = "AMBIENT_CHECKPOINT_APPEND" as const;
 
 /** Approval Decisions Decision — live single-select values. */
 export const APPROVAL_DECISION_VALUE = {

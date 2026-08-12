@@ -43,14 +43,22 @@ is Executor lane only).
 
 ## Schedule metadata (UNVERIFIED live)
 
-- Cron: `0 5 * * *` Europe/London — **present, disabled** until Ruth checkpoint + UI verify
+- Cron: `0 5 * * *` Europe/London — **present, disabled** until boundary + UI verify
 - `readOnlyMode=false` — metadata only; UI verification is a hard stop before enablement
 - Model: Kimi K3, effort **low**, `maxBudgetUsd`: **20**
 
-## Checkpoint store
+## Checkpoint (schema resolved — activation gated)
 
-Sentinel exact string: `PENDING_RUTH_CHECKPOINT_STORE` — do not invent schema.
-Repo may build; live import and 05:00 enablement blocked pending Ruth Hadley.
+| Property | Value |
+|----------|-------|
+| Table | Ambient Checkpoint Versions `tblRbjD0PHtuTWsIL` |
+| Bootstrap | `recHsDmDx00c636BP` — event `acp-genesis-hyperagent-ambient-v1` |
+| Append pen env | `AMBIENT_CHECKPOINT_APPEND` — **not minted** |
+
+**Checkpoint schema resolved** (Ruth V2, 12 Aug 2026). Distinct from live enablement:
+append credential not minted, 05:00 schedule disabled, **initial scan boundary not
+selected**, **UI source-order verification pending**. Persona Config v0.4 may still
+record design-time sentinel — runtime sources use this table ID.
 
 ## Required skill
 

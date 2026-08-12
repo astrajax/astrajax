@@ -8,6 +8,8 @@ from pathlib import Path
 from _clive_man_v0_4_contract import (
     ACTOR_AMBIENT,
     BRAIN_WORKSHOP_BASE,
+    CHECKPOINT_APPEND_CRED_ENV,
+    CHECKPOINT_TABLE_ID,
     CONTEXT_AMENDMENT_VERSIONS_TABLE,
     CRED_AMBIENT_V1_CREATE,
     DRAFT_BRAIN_TRUTH_TABLE,
@@ -62,7 +64,21 @@ def ambient_credential_schema() -> str:
                 f"only; never grant use for direct Draft Brain Truth "
                 f"{DRAFT_BRAIN_TRUTH_TABLE} mutation. Injected as env {CRED_AMBIENT_V1_CREATE}."
             ),
-        }
+        },
+        {
+            "name": CHECKPOINT_APPEND_CRED_ENV,
+            "label": CHECKPOINT_APPEND_CRED_ENV,
+            "required": False,
+            "type": "password",
+            "hint": (
+                f"Separate append pen for Ambient Checkpoint Versions {CHECKPOINT_TABLE_ID} "
+                f"only. Typed script allows GET checkpoint + Amendment Versions and POST "
+                f"checkpoint append only — no PATCH/PUT/DELETE and no Draft/Fingerprint/"
+                f"Event/Trusted/Registry writes. **Not minted** until initial scan boundary "
+                f"selected and UI source-order verification complete. Injected as env "
+                f"{CHECKPOINT_APPEND_CRED_ENV}."
+            ),
+        },
     ]
     return json.dumps(schema)
 
@@ -101,7 +117,7 @@ def simulate_chunk_drain(count: int, *, interrupt_after: int = 0) -> dict:
             total = first["written_count"] + second["written_count"]
             return {"partial": first, "resume": second, "total_written": total}
         result = process_candidates(candidates, run_id="sim", dry_run=True)
-        return {"total_written": result["written_count"], "checkpoint": "PENDING_RUTH_CHECKPOINT_STORE"}
+        return {"total_written": result["written_count"], "checkpoint": CHECKPOINT_TABLE_ID}
     finally:
         if str(spec_dir) in sys.path:
             sys.path.remove(str(spec_dir))
