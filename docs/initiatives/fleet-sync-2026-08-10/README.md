@@ -2,25 +2,26 @@
 
 Reversal record for the HyperAgent → Airtable fleet sync (25 agents).
 
-## FREEZE — 2026-08-11
+## Status — freeze lifted 2026-08-12
 
-**No HyperAgent → Airtable fleet sync runs** until the idempotent writer exists and passes smoke tests.
+Matthew lifted the HyperAgent → Airtable fleet sync freeze. Live syncs are allowed again via the idempotent writer.
 
-- **Blocked:** ad-hoc MCP writes, manual wave scripts, or re-running the 2026-08-10 sync pattern.
-- **Allowed:** dry-run and offline tests only against `hyperagent/scripts/sync_hyperagent_fleet_to_airtable.py`.
 - **Writer:** `hyperagent/scripts/sync_hyperagent_fleet_to_airtable.py` + roster `hyperagent/scripts/fleet_sync_roster.json`.
-- **Lift freeze when:** Matthew has reviewed a clean dry-run plan and the idempotency test passes (`python3 hyperagent/scripts/test_fleet_sync_idempotency.py`).
+- **Offline check:** `python3 hyperagent/scripts/test_fleet_sync_idempotency.py`
+- Prefer a dry-run first. `--apply` writes a verified reversal log JSON in this folder.
 
-### How to dry-run (after env token present)
+### How to run (after env token present)
 
 ```bash
 python3 hyperagent/scripts/sync_hyperagent_fleet_to_airtable.py \
   --input-dir hyperagent/exports/agents
 ```
 
-Default is dry-run. Pass `--apply` only after Matthew explicitly approves a plan. Every apply writes a verified reversal log JSON in this folder.
+Default is dry-run. Pass `--apply` to write.
 
-### What the writer refuses
+### What the writer still refuses
+
+These are safety rails, not a freeze:
 
 - Creating Agent bases for **minions** (ever).
 - Creating any Agent base unless `--allow-create-bases` **and** roster classifies the agent as **head** (reserved; existing heads use known base IDs).
@@ -92,7 +93,7 @@ Created **Skills** table on Halvard base `appr3I2G6Ix1BLAwM`, field template cop
 
 ## Exception — Kathryn Goodchild 2026-08-11
 
-Matthew explicitly authorised a **Kathryn-only** setup outside the freeze:
+Matthew authorised a **Kathryn-only** setup during the former freeze:
 
 | Item | Value |
 |------|-------|
