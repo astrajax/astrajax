@@ -89,87 +89,90 @@ export function SignInForm() {
   }
 
   return (
-    <section
-      className="operator-sign-in__plate"
-      aria-labelledby="operator-sign-in-title"
-    >
+    <div className="operator-sign-in__docket">
+      {/* Eyebrow sits above the painted frame — never inside the moulding. */}
       <p className="section-label operator-sign-in__eyebrow">
         Operator entrance
       </p>
-      <h1 id="operator-sign-in-title" className="operator-sign-in__title">
-        Enter AstraJax
-      </h1>
-      <p className="operator-sign-in__lede">
-        Sign in with your operator email. We&rsquo;ll send a six-digit code.
-      </p>
+      <section
+        className="operator-sign-in__plate"
+        aria-labelledby="operator-sign-in-title"
+      >
+        <h1 id="operator-sign-in-title" className="operator-sign-in__title">
+          Enter AstraJax
+        </h1>
+        <p className="operator-sign-in__lede">
+          Sign in with your operator email. We&rsquo;ll send a six-digit code.
+        </p>
 
-      {stage === "email" && (
-        <form className="operator-sign-in__form" onSubmit={requestCode}>
-          <label htmlFor="operator-email" className="operator-sign-in__label">
-            Email
-          </label>
-          <input
-            id="operator-email"
-            type="email"
-            required
-            autoComplete="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className="platform-gate-input operator-sign-in__input"
-          />
-          <button
-            type="submit"
-            disabled={busy}
-            className="btn-primary operator-sign-in__submit"
-          >
-            {busy ? "Sending…" : "Send code"}
-          </button>
-        </form>
-      )}
-
-      {stage === "code" && (
-        <form className="operator-sign-in__form" onSubmit={submitCode}>
-          <label htmlFor="operator-code" className="operator-sign-in__label">
-            Six-digit code
-          </label>
-          <input
-            id="operator-code"
-            inputMode="numeric"
-            required
-            autoComplete="one-time-code"
-            value={code}
-            onChange={(event) => setCode(event.target.value)}
-            className="platform-gate-input operator-sign-in__input operator-sign-in__input--code"
-          />
-          <div className="operator-sign-in__actions">
+        {stage === "email" && (
+          <form className="operator-sign-in__form" onSubmit={requestCode}>
+            <label htmlFor="operator-email" className="operator-sign-in__label">
+              Email
+            </label>
+            <input
+              id="operator-email"
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              className="platform-gate-input operator-sign-in__input"
+            />
             <button
               type="submit"
               disabled={busy}
               className="btn-primary operator-sign-in__submit"
             >
-              {busy ? "Checking…" : "Sign in"}
+              {busy ? "Sending…" : "Send code"}
             </button>
-            <button
-              type="button"
-              onClick={() => {
-                setStage("email");
-                setCode("");
-                setProof(null);
-                setMessage(null);
-              }}
-              className="btn-secondary operator-sign-in__secondary"
-            >
-              Use a different email
-            </button>
-          </div>
-        </form>
-      )}
+          </form>
+        )}
 
-      {message ? (
-        <p role="status" className="operator-sign-in__status">
-          {message}
-        </p>
-      ) : null}
-    </section>
+        {stage === "code" && (
+          <form className="operator-sign-in__form" onSubmit={submitCode}>
+            <label htmlFor="operator-code" className="operator-sign-in__label">
+              Six-digit code
+            </label>
+            <input
+              id="operator-code"
+              inputMode="numeric"
+              required
+              autoComplete="one-time-code"
+              value={code}
+              onChange={(event) => setCode(event.target.value)}
+              className="platform-gate-input operator-sign-in__input operator-sign-in__input--code"
+            />
+            <div className="operator-sign-in__actions">
+              <button
+                type="submit"
+                disabled={busy}
+                className="btn-primary operator-sign-in__submit"
+              >
+                {busy ? "Checking…" : "Sign in"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setStage("email");
+                  setCode("");
+                  setProof(null);
+                  setMessage(null);
+                }}
+                className="btn-secondary operator-sign-in__secondary"
+              >
+                Use a different email
+              </button>
+            </div>
+          </form>
+        )}
+
+        {message ? (
+          <p role="status" className="operator-sign-in__status">
+            {message}
+          </p>
+        ) : null}
+      </section>
+    </div>
   );
 }

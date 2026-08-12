@@ -8704,25 +8704,53 @@ textarea.clive-chat__input {
   padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 4vw, 2rem) clamp(2.5rem, 6vw, 4rem);
 }
 
-.operator-sign-in__plate {
-  --folio-plate-img: url("/brand/system-assets/folio/furniture/docket-plate-medium.svg");
-  position: relative;
+/*
+ * Painted docket plates have a fixed moulding (gold rail). Live form content
+ * is fluid. Never stretch a whole-frame background under rem padding and hope —
+ * 9-slice the plate so rails stay true and the parchment face grows.
+ *
+ * Craft rule: content lives in the inner safe face only; CTAs must clear the
+ * bottom rail; labels that belong outside the frame stay outside the plate.
+ * Slice measured on docket-plate-medium 560×338 (face ≈ T13% R9% B12% L9%).
+ */
+.operator-sign-in__docket {
   width: min(100%, 26rem);
-  padding: clamp(2rem, 5vw, 2.75rem) clamp(1.75rem, 4.5vw, 2.5rem);
-  border: none;
-  border-radius: 0;
-  background: transparent var(--folio-plate-img) no-repeat center / 100% 100%;
+  display: grid;
+  justify-items: stretch;
+  gap: 0.65rem;
 }
 
 .operator-sign-in__eyebrow {
-  margin-bottom: 0.75rem;
+  margin: 0;
+  text-align: center;
   color: color-mix(in srgb, var(--color-ink-muted) 88%, transparent);
 }
 
+.operator-sign-in__plate {
+  /* Blob PNG (not the SVG wrapper) — border-image slice is reliable in Safari. */
+  --folio-plate-img: url("https://cvu4l5kwtlocutgd.public.blob.vercel-storage.com/docket-plate-blob/docket-plate-medium.png");
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: transparent;
+  /* Layout reserve tracks plate width so moulding scales on narrow viewports.
+     Slightly generous vs measured face so soft gold falloff never eats the CTA. */
+  border-width: clamp(2rem, 9vw, 2.5rem) clamp(1.65rem, 7.5vw, 2.5rem)
+    clamp(2rem, 9vw, 2.45rem);
+  border-image-source: var(--folio-plate-img);
+  border-image-slice: 48 52 48 52 fill;
+  border-image-repeat: stretch;
+  border-radius: 0;
+  background: none;
+  /* Air inside the parchment face — never let the CTA sit on the rail. */
+  padding: 0.65rem 0.7rem 1.1rem;
+}
+
 .operator-sign-in__title {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.4rem;
   font-family: var(--font-display);
-  font-size: clamp(1.625rem, 4vw, 2rem);
+  font-size: clamp(1.5rem, 3.8vw, 1.875rem);
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.15;
@@ -8730,9 +8758,9 @@ textarea.clive-chat__input {
 }
 
 .operator-sign-in__lede {
-  margin: 0 0 1.5rem;
-  font-size: 1rem;
-  line-height: 1.55;
+  margin: 0 0 1.15rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
   color: var(--color-ink-muted);
 }
 
@@ -8778,9 +8806,9 @@ textarea.clive-chat__input {
 }
 
 .operator-sign-in__status {
-  margin: 1rem 0 0;
-  font-size: 0.9375rem;
-  line-height: 1.5;
+  margin: 0.85rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
   color: var(--color-ink-muted);
 }
 
