@@ -825,6 +825,16 @@ export function ReceivingWall({
                         : undefined
                     }
                   >
+                    {/* Wall paint rides bayTravel with the type — scroll moves the surface, not a text overlay. */}
+                    <div className={styles.surfaceBackdrop} aria-hidden>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        className={styles.bayWallStill}
+                        src="/agent-cast/clives-man/receiving-wall-poster.jpg"
+                        alt=""
+                      />
+                      <div className={styles.plateRecess} />
+                    </div>
                     <div className={styles.bayContent}>
                       <div className={styles.surfaceContent}>
                         {zoomed !== null ? baySection : null}
