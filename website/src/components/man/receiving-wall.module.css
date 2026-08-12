@@ -36,7 +36,7 @@
   /* --- camera + scroll (push-in to enter, locked arch scroll inside) --- */
   --dolly: 1;
   --dolly-y: 0px;
-  --dolly-in-16-9: 1.54;
+  --dolly-in-16-9: 1.12;
   --dolly-in: var(--dolly-in-16-9);
   --dolly-in-y: 2.5vh;
   --scroll-y: 0%;
@@ -312,7 +312,10 @@
 
 /*
  * Static room plate — pinned on .wall, outside .plate's dolly transform.
- * SVG mask (viewBox 0 0 1 1) keeps mouldings visible; interior scales behind the hole.
+ * SVG luminance mask (viewBox 0 0 1 1): white = room stone, black = arch hole.
+ * Do NOT use clip-path: path() with 0–1 coords — browsers treat those as px, so the
+ * hole collapses and the whole plate (arch included) rides the dolly.
+ * mask-mode: luminance is required (Safari ignores alpha-only mattes).
  */
 .roomStatic {
   position: fixed;
@@ -325,9 +328,14 @@
   z-index: 5;
   pointer-events: none;
   background: url("/agent-cast/clives-man/receiving-wall-poster.jpg") center / 100% 100% no-repeat;
-  /* clip-path punches the arch hole; SVG mask-image left the interior opaque (poster void). */
-  clip-path: var(--room-static-clip);
-  -webkit-clip-path: var(--room-static-clip);
+  -webkit-mask-image: var(--room-static-mask);
+  mask-image: var(--room-static-mask);
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  mask-mode: luminance;
+  -webkit-mask-source-type: luminance;
 }
 
 /*
@@ -339,8 +347,14 @@
   content: "";
   position: absolute;
   inset: 0;
-  clip-path: inherit;
-  -webkit-clip-path: inherit;
+  -webkit-mask-image: inherit;
+  mask-image: inherit;
+  -webkit-mask-size: inherit;
+  mask-size: inherit;
+  -webkit-mask-repeat: inherit;
+  mask-repeat: inherit;
+  mask-mode: inherit;
+  -webkit-mask-source-type: inherit;
   pointer-events: none;
   background:
     radial-gradient(

@@ -68,9 +68,14 @@ export const LEDGE_STILL_LIFE = {
 /**
  * Close portal framing — 16:9 bucket. Matthew picks from the ladder; other aspect
  * buckets scale proportionally (ratios vs the old 1.38 reference in the spec).
+ *
+ * Default 1.12 (Aug 2026): bay still uses receiving-wall-zoomed.jpg (~1.61× crop of
+ * the poster). Stacking the old 1.54 dolly on that still over-zoomed into the teal
+ * void. With the arch pinned on .roomStatic (luminance mask), 1.12 is a light interior
+ * push that keeps the multi-tiered stone arch fully in frame (Matthew yellow-outline).
  */
-export const DOLLY_IN_LADDER = [1.46, 1.54, 1.62] as const;
-export const DOLLY_IN_DEFAULT = 1.54;
+export const DOLLY_IN_LADDER = [1.05, 1.12, 1.22] as const;
+export const DOLLY_IN_DEFAULT = 1.12;
 /** Legacy spec reference scale — used to derive aspect-ratio bucket multipliers. */
 export const DOLLY_IN_REFERENCE = 1.38;
 export const DOLLY_ASPECT_RATIOS = {
