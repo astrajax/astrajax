@@ -69,7 +69,7 @@
   transition: none;
 }
 
-/* After entry completes, lock the track — reading scroll is bayTravel only. */
+/* After entry completes, lock the track — reading scroll lives in the bay box. */
 .wall.reading .interiorTrack {
   transition: none;
 }
@@ -196,68 +196,6 @@
   overflow: hidden;
 }
 
-.bayPlate {
-  overflow: hidden;
-}
-
-/* Bay scroll viewport — full plate; no rectangular clip on imagery.
-   Arch curve is .roomStatic clip-path only. */
-.bayWindow {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: auto;
-  z-index: 1;
-}
-
-.bayTravel {
-  position: relative;
-  will-change: transform;
-  min-height: 100%;
-}
-
-/* Full-bleed travelling wall — same poster as the idle plate; scrolls with the type. */
-.bayTravel > .surfaceBackdrop {
-  position: absolute;
-  inset: 0;
-  min-height: 100%;
-}
-
-.bayWallStill {
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  display: block;
-}
-
-/* Text safe box — layout only (manifest 24%→76% × 22%→86%), no clip. */
-.bayContent {
-  position: relative;
-  z-index: 1;
-  box-sizing: border-box;
-  padding: 23% 24% 15%;
-}
-
-.bayTravel .surfaceContent {
-  position: relative;
-  inset: auto;
-  left: auto;
-  top: auto;
-  bottom: auto;
-  translate: none;
-  width: 100%;
-  max-width: none;
-  overflow: visible;
-  mask-image: linear-gradient(
-    180deg,
-    transparent 0,
-    #000 2.75rem,
-    #000 calc(100% - 2.75rem),
-    transparent 100%
-  );
-  padding: 0 0.15rem 2.5rem;
-}
-
 .surfaceBackdrop {
   position: absolute;
   inset: 0;
@@ -283,15 +221,9 @@
   filter: brightness(0.86) saturate(0.76) hue-rotate(-14deg);
 }
 
-/* Idle video for the dolly push; once in a bay the travelling poster takes over so scroll moves the wall. */
+/* One painted surface for every beat — the dolly pushes it, the bay scrolls inside it. */
 .surfacePlate > .surfaceBackdrop {
   opacity: 1;
-  transition: opacity 0.7s ease;
-}
-
-.wall.zoomed .surfacePlate > .surfaceBackdrop {
-  opacity: 0;
-  pointer-events: none;
 }
 
 /*
@@ -534,10 +466,12 @@
 }
 
 
-/* Bay UI overlays the same plate — no second camera, no still swap. */
+/*
+ * Bay reading box — shares .surfaceContent geometry so scroll happens *inside* the
+ * arch aperture (paint fixed, records travel), exactly like the idle ledger. Never
+ * translate a wrapper that contains the painting: that reads as the whole screen moving.
+ */
 .bayOverlay {
-  position: absolute;
-  inset: 0;
   z-index: 2;
   pointer-events: none;
   visibility: hidden;
@@ -546,28 +480,12 @@
   pointer-events: auto;
   visibility: visible;
 }
-.bayOverlay .bayWindow {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: inherit;
+/* Idle ledger must stop swallowing the wheel once a bay is open, or the page scrolls instead. */
+.wall.zoomed .surfaceContent:not(.bayOverlay) {
+  pointer-events: none;
 }
-.bayOverlay .bayContent {
-  padding: 23% 24% 15%;
-  box-sizing: border-box;
-  min-height: 100%;
-}
-.bayOverlay .surfaceContent {
-  position: relative;
-  inset: auto;
-  left: auto;
-  top: auto;
-  bottom: auto;
-  translate: none;
-  width: 100%;
-  max-width: none;
-  overflow: visible;
-  padding: 0 0.15rem 2.5rem;
+.bayOverlay:focus-visible {
+  outline: none;
 }
 
 /* ---- Content beats ---- */
@@ -973,6 +891,8 @@
 }
 
 .recordBrainSlug {
+  display: inline;
+  margin-left: 0.15em;
   font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1334,15 +1254,5 @@
   .incisedActionMuted,
   .acceptBtn {
     transition: none;
-  }
-  .bayWindow {
-    overflow-y: auto;
-    scrollbar-width: none;
-  }
-  .bayWindow::-webkit-scrollbar {
-    display: none;
-  }
-  .bayTravel {
-    transform: none !important;
   }
 }

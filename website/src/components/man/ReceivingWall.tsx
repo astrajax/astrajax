@@ -37,7 +37,7 @@ type WallData = {
  *   idle     — wide wall at dolly 1 + ledger
  *   exiting  — ledger fading (nave only)
  *   zooming  — slow scale into centre (same video/poster — no still swap)
- *   zoomedIn — bay UI overlaid; reading scroll is bayTravel only
+ *   zoomedIn — bay records scroll inside the arch aperture; paint stays put
  *   returning— bay fades; camera holds close until RETURN_MS
  *   settling — slow pull-back; ledger held out until SETTLE_MS
  *
@@ -102,13 +102,8 @@ export function ReceivingWall({
   openRecordIdRef.current = openRecordId;
   const interiorViewportRef = useRef<HTMLDivElement>(null);
   const plateRef = useRef<HTMLDivElement>(null);
-  const bayWindowRef = useRef<HTMLDivElement>(null);
-  const bayTravelRef = useRef<HTMLDivElement>(null);
-  const [readOffset, setReadOffset] = useState(0);
-  const readOffsetRef = useRef(0);
-  readOffsetRef.current = readOffset;
-  const touchStartY = useRef<number | null>(null);
-  const touchStartOffset = useRef(0);
+  /** Bay reading scroll box — native overflow, same aperture geometry as the idle ledger. */
+  const bayScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -154,47 +149,10 @@ export function ReceivingWall({
     openRecord?.brainSlug ||
     null;
 
-
-  const measureReadTravel = useCallback(() => {
-    const windowEl = bayWindowRef.current;
-    const travelEl = bayTravelRef.current;
-    if (!windowEl || !travelEl) return 0;
-    return Math.max(0, travelEl.scrollHeight - windowEl.clientHeight);
+  const resetBayScroll = useCallback(() => {
+    const el = bayScrollRef.current;
+    if (el) el.scrollTop = 0;
   }, []);
-
-  const clampReadOffset = useCallback(
-    (next: number) => Math.max(0, Math.min(next, measureReadTravel())),
-    [measureReadTravel],
-  );
-
-  const applyReadDelta = useCallback(
-    (delta: number) => {
-      setReadOffset((current) => clampReadOffset(current + delta));
-    },
-    [clampReadOffset],
-  );
-
-  const scrollFocusedIntoView = useCallback(() => {
-    const windowEl = bayWindowRef.current;
-    const travelEl = bayTravelRef.current;
-    const focused = document.activeElement;
-    if (!windowEl || !travelEl || !(focused instanceof HTMLElement)) return;
-    if (!travelEl.contains(focused)) return;
-
-    const windowRect = windowEl.getBoundingClientRect();
-    const focusRect = focused.getBoundingClientRect();
-    const pad = 12;
-
-    if (focusRect.top < windowRect.top + pad) {
-      setReadOffset((current) =>
-        clampReadOffset(current - (windowRect.top + pad - focusRect.top)),
-      );
-    } else if (focusRect.bottom > windowRect.bottom - pad) {
-      setReadOffset((current) =>
-        clampReadOffset(current + (focusRect.bottom - (windowRect.bottom - pad))),
-      );
-    }
-  }, [clampReadOffset]);
 
   const openCategory = useCallback(
     (categoryKey: string) => {
@@ -203,7 +161,7 @@ export function ReceivingWall({
       const beginZoom = () => {
         clearPending();
         setOpenRecordId(null);
-        setReadOffset(0);
+        resetBayScroll();
         setZoomed(categoryKey);
         setBeat("zooming");
         after(T.ARRIVE, () => setBeat("zoomedIn"));
@@ -242,7 +200,7 @@ export function ReceivingWall({
       setBeat("exiting");
       after(T.EXIT, beginZoom);
     },
-    [beat, zoomed, after, clearPending, T.EXIT, T.ARRIVE, isNave],
+    [beat, zoomed, after, clearPending, resetBayScroll, T.EXIT, T.ARRIVE, isNave],
   );
 
   const closeZoom = useCallback(() => {
@@ -268,14 +226,14 @@ export function ReceivingWall({
     if (beat !== "zoomedIn") return;
     clearPending();
     setOpenRecordId(null);
-    setReadOffset(0);
+    resetBayScroll();
     setBeat("returning");
     after(T.RETURN, () => {
       setZoomed(null);
       setBeat("settling");
     });
     after(T.SETTLE, () => setBeat("idle"));
-  }, [beat, after, clearPending, T.RETURN, T.SETTLE]);
+  }, [beat, after, clearPending, resetBayScroll, T.RETURN, T.SETTLE]);
 
   const summonClive = useCallback(
     (contextRecord?: ReceivingRecord | null) => {
@@ -389,98 +347,7 @@ export function ReceivingWall({
   useEffect(() => {
     setAcceptState("idle");
     setAcceptError(null);
-    setReadOffset(0);
   }, [openRecordId]);
-
-  useEffect(() => {
-    if (beat !== "zoomedIn") return;
-    const travelEl = bayTravelRef.current;
-    if (!travelEl) return;
-    const observer = new ResizeObserver(() => {
-      setReadOffset((current) => clampReadOffset(current));
-    });
-    observer.observe(travelEl);
-    return () => observer.disconnect();
-  }, [beat, zoomed, openRecordId, zoomedRecords.length, clampReadOffset]);
-
-  useEffect(() => {
-    if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
-
-    const surface = bayWindowRef.current;
-    if (!surface) return;
-
-    const onWheel = (event: WheelEvent) => {
-      const max = measureReadTravel();
-      if (max <= 0) return;
-      event.preventDefault();
-      const next = clampReadOffset(readOffsetRef.current + event.deltaY);
-      if (next === readOffsetRef.current) return;
-      setReadOffset(next);
-    };
-
-    surface.addEventListener("wheel", onWheel, { passive: false });
-    return () => surface.removeEventListener("wheel", onWheel);
-  }, [
-    beat,
-    isNave,
-    prefersReducedMotion,
-    cliveOpen,
-    clampReadOffset,
-    measureReadTravel,
-  ]);
-
-  useEffect(() => {
-    if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
-
-    const surface = bayWindowRef.current;
-    if (!surface) return;
-
-    const onTouchStart = (event: TouchEvent) => {
-      if (event.touches.length !== 1) return;
-      touchStartY.current = event.touches[0].clientY;
-      touchStartOffset.current = readOffsetRef.current;
-    };
-
-    const onTouchMove = (event: TouchEvent) => {
-      if (touchStartY.current === null || event.touches.length !== 1) return;
-      const max = measureReadTravel();
-      if (max <= 0) return;
-      const delta = touchStartY.current - event.touches[0].clientY;
-      const next = clampReadOffset(touchStartOffset.current + delta);
-      if (next !== readOffsetRef.current) event.preventDefault();
-      setReadOffset(next);
-    };
-
-    const onTouchEnd = () => {
-      touchStartY.current = null;
-    };
-
-    surface.addEventListener("touchstart", onTouchStart, { passive: true });
-    surface.addEventListener("touchmove", onTouchMove, { passive: false });
-    surface.addEventListener("touchend", onTouchEnd);
-    surface.addEventListener("touchcancel", onTouchEnd);
-    return () => {
-      surface.removeEventListener("touchstart", onTouchStart);
-      surface.removeEventListener("touchmove", onTouchMove);
-      surface.removeEventListener("touchend", onTouchEnd);
-      surface.removeEventListener("touchcancel", onTouchEnd);
-    };
-  }, [
-    beat,
-    isNave,
-    prefersReducedMotion,
-    cliveOpen,
-    clampReadOffset,
-    measureReadTravel,
-  ]);
-
-  useEffect(() => {
-    if (beat !== "zoomedIn" || cliveOpen) return;
-
-    const onFocusIn = () => scrollFocusedIntoView();
-    document.addEventListener("focusin", onFocusIn);
-    return () => document.removeEventListener("focusin", onFocusIn);
-  }, [beat, cliveOpen, scrollFocusedIntoView]);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -496,58 +363,11 @@ export function ReceivingWall({
         ) {
           closeZoom();
         }
-        return;
       }
-
-      if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
-
-      const scrollKeys: Record<string, number> = {
-        ArrowDown: 48,
-        ArrowUp: -48,
-        PageDown: 320,
-        PageUp: -320,
-        Home: -Infinity,
-        End: Infinity,
-      };
-      const delta = scrollKeys[event.key];
-      if (delta === undefined) return;
-      if (measureReadTravel() <= 0) return;
-
-      const target = event.target;
-      if (
-        target instanceof HTMLElement &&
-        (target.isContentEditable ||
-          target.closest("input, textarea, button, select, a, [contenteditable]"))
-      ) {
-        return;
-      }
-
-      if (event.key === "Home") {
-        event.preventDefault();
-        setReadOffset(0);
-        return;
-      }
-      if (event.key === "End") {
-        event.preventDefault();
-        setReadOffset(measureReadTravel());
-        return;
-      }
-
-      event.preventDefault();
-      applyReadDelta(delta);
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [
-    cliveOpen,
-    openRecordId,
-    beat,
-    closeZoom,
-    isNave,
-    prefersReducedMotion,
-    applyReadDelta,
-    measureReadTravel,
-  ]);
+  }, [cliveOpen, openRecordId, beat, closeZoom]);
 
   const wallZoomed = zoomed !== null;
   const reading = beat === "zoomedIn";
@@ -667,8 +487,10 @@ export function ReceivingWall({
                       }}
                     >
                       {record.provenance}
-                      {record.systemBrainSlug ? (
-                        <span className={styles.recordBrainSlug}>{record.systemBrainSlug}</span>
+                      {record.systemBrainName || record.systemBrainSlug || record.brainSlug ? (
+                        <span className={styles.recordBrainSlug}>
+                          {` · ${record.systemBrainName || record.systemBrainSlug || record.brainSlug}`}
+                        </span>
                       ) : null}
                     </span>
                   </span>
@@ -814,34 +636,15 @@ export function ReceivingWall({
                 {statusNote}
                 {ledgerSection}
               </div>
-              <div className={styles.bayOverlay} aria-hidden={!wallZoomed}>
-                <div className={styles.bayWindow} ref={bayWindowRef} aria-hidden={!wallZoomed}>
-                  <div
-                    className={styles.bayTravel}
-                    ref={bayTravelRef}
-                    style={
-                      reading && !prefersReducedMotion
-                        ? { transform: `translateY(${-readOffset}px)` }
-                        : undefined
-                    }
-                  >
-                    {/* Wall paint rides bayTravel with the type — scroll moves the surface, not a text overlay. */}
-                    <div className={styles.surfaceBackdrop} aria-hidden>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        className={styles.bayWallStill}
-                        src="/agent-cast/clives-man/receiving-wall-poster.jpg"
-                        alt=""
-                      />
-                      <div className={styles.plateRecess} />
-                    </div>
-                    <div className={styles.bayContent}>
-                      <div className={styles.surfaceContent}>
-                        {zoomed !== null ? baySection : null}
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              {/* Bay reads inside the arch aperture — same scroll box as the idle ledger. */}
+              <div
+                className={`${styles.surfaceContent} ${styles.bayOverlay}`}
+                ref={bayScrollRef}
+                tabIndex={reading ? 0 : -1}
+                aria-hidden={!wallZoomed}
+                inert={wallZoomed ? undefined : true}
+              >
+                {zoomed !== null ? baySection : null}
               </div>
             </div>
           </div>
