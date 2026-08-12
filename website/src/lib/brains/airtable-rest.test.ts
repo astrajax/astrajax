@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  AIRTABLE_MAX_PAGES,
   airtableCreate,
   airtableFindOne,
   airtableSelect,
@@ -74,6 +75,32 @@ describe("airtable-rest", () => {
     expect(String(mockFetch.mock.calls[0]?.[0])).toContain("pageSize=100");
     expect(String(mockFetch.mock.calls[0]?.[0])).not.toContain("maxRecords=");
     expect(String(mockFetch.mock.calls[1]?.[0])).toContain("offset=page2");
+  });
+
+  it("stops paginating at AIRTABLE_MAX_PAGES even when offset continues", async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockImplementation(async (input) => {
+      const url = String(input);
+      const offset = new URL(url).searchParams.get("offset");
+      const page = offset ? Number.parseInt(offset.replace("p", ""), 10) : 0;
+      return new Response(
+        JSON.stringify({
+          records: [{ id: `rec${page}`, fields: {} }],
+          offset: `p${page + 1}`,
+        }),
+        { status: 200 },
+      );
+    });
+
+    const records = await airtableSelect("appTest", "tblTest", "patToken", {
+      paginate: true,
+    });
+    expect(mockFetch).toHaveBeenCalledTimes(AIRTABLE_MAX_PAGES);
+    expect(records).toHaveLength(AIRTABLE_MAX_PAGES);
+    expect(records[0]?.id).toBe("rec0");
+    expect(records[AIRTABLE_MAX_PAGES - 1]?.id).toBe(
+      `rec${AIRTABLE_MAX_PAGES - 1}`,
+    );
   });
 
   it("throws on non-2xx without echoing response body", async () => {
