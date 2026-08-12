@@ -420,8 +420,11 @@ def list_existing_by_dedupe(dedupe_keys: set[str], *, dry_run: bool) -> dict[str
     if dry_run or not dedupe_keys:
         return {}
     # AMBIENT_V1_CREATE is POST-only; workshop GETs use the checkpoint pen when minted.
+    # Missing pen must block — never treat as "nothing exists" (duplicate V1 risk).
     if not os.environ.get(CHECKPOINT_APPEND_CRED_ENV, ""):
-        return {}
+        raise CheckpointBlocked(
+            f"{CHECKPOINT_APPEND_CRED_ENV} not present; dedupe preflight blocked"
+        )
     found: dict[str, str] = {}
     offset = None
     while True:
