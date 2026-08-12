@@ -16,16 +16,18 @@ const AIRTABLE_API = "https://api.airtable.com/v0";
  * Fetch records modified since `since`. Airtable exposes LAST_MODIFIED_TIME()
  * as a formula — incremental without webhooks.
  * Watermark advances to run start time (not record createdTime) so edits are caught.
+ *
+ * Paginate until Airtable reports no further `offset`. A hard page cap used to stop
+ * after 500 rows and still advance the watermark — permanently skipping the rest
+ * until those rows were edited again.
  */
 async function fetchChanged(
   source: ContextIndexSource,
   token: string,
   since: Date | null,
-  pageLimit = 5,
 ): Promise<AirtableSyncRecord[]> {
   const out: AirtableSyncRecord[] = [];
   let offset: string | undefined;
-  let pages = 0;
 
   do {
     const params = new URLSearchParams({ pageSize: "100" });
@@ -59,8 +61,7 @@ async function fetchChanged(
     };
     out.push(...json.records);
     offset = json.offset;
-    pages += 1;
-  } while (offset && pages < pageLimit);
+  } while (offset);
 
   return out;
 }
@@ -213,24 +214,14 @@ export async function runIncremental(source: ContextIndexSource) {
     }
 
     const chunks = records.flatMap((r) => toChunks(source, r));
-    if (chunks.length === 0) {
-      await sql`
-        INSERT INTO sync_state (source_key, watermark, last_run_at, last_error)
-        VALUES (${key}, ${runStartedAt.toISOString()}, now(), NULL)
-        ON CONFLICT (source_key) DO UPDATE SET
-          watermark = EXCLUDED.watermark, last_run_at = now(), last_error = NULL
-      `;
-      await sql`
-        UPDATE sync_runs
-        SET finished_at = now(), fetched = ${records.length}
-        WHERE id = ${runId}
-      `;
-      return { fetched: records.length, upserted: 0 };
+    let upserted = 0;
+    if (chunks.length > 0) {
+      const vectors = await embed(chunks.map((c) => c.content));
+      upserted = await upsert(source, chunks, vectors);
     }
 
-    const vectors = await embed(chunks.map((c) => c.content));
-    const upserted = await upsert(source, chunks, vectors);
-
+    // Always prune — including the zero-chunk path where cleared fields must
+    // drop stale embeddings before the watermark advances past these rows.
     for (const rec of records) {
       const kept = chunks
         .filter((c) => c.recordId === rec.id)
