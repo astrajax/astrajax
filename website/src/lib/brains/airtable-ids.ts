@@ -500,11 +500,14 @@ export const CLIVE_MAN_AGENT_TABLES = {
 
 /**
  * Clive's Man Persona Config.
- * v0.3 Approved (2 Aug 2026). v0.2 Retired. v0.4 Pending gate (12 Aug 2026).
+ * v0.3 Approved (2 Aug 2026) — rollback until one full v0.4 cycle succeeds.
+ * v0.4 Approved (12 Aug 2026) via MCP snapshot mirror in repo registry.
  */
 export const CLIVE_MAN_PERSONA_CONFIG = {
   operationalV02Retired: "rec6b8PB3HY3yv0Wq",
   operationalV03: "rect04amPJAZrWCi4",
+  operationalV04: "recSKTT8NTTJOmuRu",
+  /** @deprecated alias — same record as operationalV04 after 12 Aug 2026 approval */
   operationalV04Pending: "recSKTT8NTTJOmuRu",
   /** @deprecated use operationalV03 */
   operationalV02: "rec6b8PB3HY3yv0Wq",

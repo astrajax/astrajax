@@ -24,10 +24,10 @@ from _clive_man_v0_4_contract import (  # noqa: E402
     PERSONA_V04_VERSION_NAME,
 )
 
-try:
-    import generate_persona_config_sync as persona_sync  # noqa: E402
-except ImportError as exc:  # pragma: no cover
-    raise SystemExit(f"Cannot import persona sync module: {exc}") from exc
+from _clive_man_approved_persona_source import (  # noqa: E402
+    APPROVED_SOURCE_NOTE,
+    load_approved_source_json,
+)
 
 
 @dataclass(frozen=True)
@@ -39,7 +39,7 @@ class PersonaSource:
     rules_section: str
     output_format: str
     content_sha256: str
-    source: str  # "airtable" | "fixture"
+    source: str  # "airtable" | "fixture" | "airtable-mcp-approved-snapshot"
 
 
 def _bundle_text(system_prompt: str, rules: str, output: str) -> str:
@@ -79,6 +79,26 @@ def _from_record(record: dict, *, source: str) -> PersonaSource:
         output_format=output,
         content_sha256=digest,
         source=source,
+    )
+
+
+try:
+    import generate_persona_config_sync as persona_sync  # noqa: E402
+except ImportError as exc:  # pragma: no cover
+    raise SystemExit(f"Cannot import persona sync module: {exc}") from exc
+
+
+def load_approved_source_file(path: Path) -> PersonaSource:
+    payload = load_approved_source_json(path)
+    return PersonaSource(
+        record_id=str(payload["record_id"]),
+        config_name=str(payload["config_name"]),
+        status=str(payload["status"]),
+        system_prompt=str(payload["system_prompt"]),
+        rules_section=str(payload["rules_section"]),
+        output_format=str(payload["output_format"]),
+        content_sha256=str(payload["content_sha256"]),
+        source=APPROVED_SOURCE_NOTE,
     )
 
 
@@ -137,11 +157,17 @@ def resolve(
     pin_version: str | None = PERSONA_V04_VERSION_NAME,
     fixture_approved: bool = False,
     verify_pending: bool = False,
+    approved_source_file: Path | str | None = None,
 ) -> PersonaSource | dict[str, Any]:
     if verify_pending:
         return verify_pending_gate()
     if fixture_approved:
         return load_fixture()
+    if approved_source_file:
+        return load_approved_source_file(Path(approved_source_file))
     if not pin_version:
-        raise SystemExit("pin_version required unless --fixture-approved or --verify-pending-gate")
+        raise SystemExit(
+            "pin_version required unless --fixture-approved, --approved-source-file, "
+            "or --verify-pending-gate"
+        )
     return resolve_live_pin(pin_version)

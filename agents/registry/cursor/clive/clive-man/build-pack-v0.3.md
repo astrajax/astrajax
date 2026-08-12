@@ -29,7 +29,7 @@ Route 1 (`household-routing-standard`): only **complete Lane A** → Executor.
 ## Challenger clearance
 
 - Verdict: **PROCEED**
-- Pending v0.4 Persona Config (`recSKTT8NTTJOmuRu`) remains **Pending** — fail-closed
+- Pending v0.4 Persona Config (`recSKTT8NTTJOmuRu`) is **Approved** (12 Aug 2026) — MCP snapshot mirror in repo
 - Checkpoint sentinel `PENDING_RUTH_CHECKPOINT_STORE` — no invented schema
 - Archive / control IDs labelled **live-observed**, not canonical promotion
 
@@ -37,19 +37,22 @@ Route 1 (`household-routing-standard`): only **complete Lane A** → Executor.
 
 | Record | Config Name | Status | Repo action |
 |--------|-------------|--------|-------------|
-| `rect04amPJAZrWCi4` | Operational v0.3 | Approved | Current `persona-config.generated.md` |
-| `recSKTT8NTTJOmuRu` | Operational v0.4 | **Pending** | ID map only; `--pin-version` fails closed |
+| `recSKTT8NTTJOmuRu` | Operational v0.4 | **Approved** | MCP mirror + generated sync; v0.3 rollback until one cycle |
+| `rect04amPJAZrWCi4` | Operational v0.3 | Approved | Rollback pin |
 
-Regenerate v0.4 sync only after Matthew sets Status → Approved in Airtable:
+Regenerate v0.4 sync from approved mirror (no token) or live pin (token present):
+
+```bash
+python3 scripts/generate_persona_config_sync.py --agent clive-man \
+  --approved-source-file agents/registry/cursor/clive/clive-man/persona-config.approved-v0.4.json
+python3 hyperagent/builds/build_clive_man_family_v0_4.py \
+  --approved-source-file agents/registry/cursor/clive/clive-man/persona-config.approved-v0.4.json
+```
+
+Live pin when token exists:
 
 ```bash
 python3 scripts/generate_persona_config_sync.py --agent clive-man --pin-version "Operational v0.4"
-```
-
-Verify gate without generating:
-
-```bash
-python3 scripts/generate_persona_config_sync.py --agent clive-man --verify-pending-gate
 ```
 
 ## 76-test manifest arithmetic
@@ -57,8 +60,8 @@ python3 scripts/generate_persona_config_sync.py --agent clive-man --verify-pendi
 | Bucket | IDs | Count | Owner |
 |--------|-----|-------|-------|
 | Cursor static + resolver | CM-CUR-001 … CM-CUR-038 | **38** | This pack (`scripts/test_clive_man_context_flow.py`, `scripts/test_generate_persona_config_sync.py`) |
-| Hyperagent runtime / offline | CM-HA-001 … CM-HA-047 + seam + executable + hardening | **50 + 26 + 17 + 25 + 112 specialist** | Hyperagent Builder (exports, schedules, pen scripts) |
-| **Total offline (Hyperagent family)** | | **230** | |
+| Hyperagent runtime / offline | CM-HA-001 … CM-HA-047 + seam + executable + hardening + approved snapshot | **50 + 26 + 17 + 25 + 8 + 112 specialist** | Hyperagent Builder |
+| **Total offline (Hyperagent family)** | | **238** | |
 
 Cursor suites (separate from Hyperagent family total):
 
@@ -144,10 +147,10 @@ Ambient: V1-only `CREATE_DRAFT_TRUTH` on Context Amendment Versions
 
 ## Remaining gates (explicit)
 
-1. **Persona v0.4** — Matthew approves `recSKTT8NTTJOmuRu` in Airtable → re-run pin sync
-2. **Ruth checkpoint** — `PENDING_RUTH_CHECKPOINT_STORE` schema + live store
-3. **Hyperagent Builder** — export JSON, enabled schedules, pen wiring, offline CM-HA tests
-4. **UI verification** — Ambient schedule hard stop before 05:00 enablement
+1. **Ruth checkpoint** — `PENDING_RUTH_CHECKPOINT_STORE` schema + live store
+2. **Hyperagent import** — handoff cards ready; Matthew imports when ready (not done in repo)
+3. **UI verification** — Ambient 05:00 schedule hard stop before enablement
+4. **v0.3 rollback** — retain until one full v0.4 operational cycle succeeds
 
 ## Hyperagent Builder handoff (self-contained)
 
@@ -177,6 +180,6 @@ Ambient: V1-only `CREATE_DRAFT_TRUTH` on Context Amendment Versions
 - [x] Persona resolver Pending gate + tests
 - [x] ID map + archive ledger + fleet aliases
 - [x] Cursor test manifest (40 CM-CUR + 12 persona gate)
-- [ ] Hyperagent exports (next builder)
-- [ ] v0.4 Persona Approved (Matthew)
+- [x] Persona v0.4 Approved mirror + generated sync
+- [x] Hyperagent production exports (15 active, validated, handoff cards)
 - [ ] Ruth checkpoint store live

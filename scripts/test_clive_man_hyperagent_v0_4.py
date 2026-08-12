@@ -59,13 +59,23 @@ from _clive_man_v0_4_contract import (  # noqa: E402
     SCHEDULE_CONTRACT,
     STANDALONE_SKILL_EXPORTS,
 )
-from _clive_man_persona_gate import load_fixture  # noqa: E402
+from _clive_man_persona_gate import load_approved_source_file, load_fixture  # noqa: E402
+
+APPROVED_JSON = REPO / "agents/registry/cursor/clive/clive-man/persona-config.approved-v0.4.json"
+APPROVED_BUNDLE_SHA = "d78475e7b9ebd973a116725dab79d41a4ba12c27231070cb6167b13b0ce16a73"
 
 
 def setUpModule() -> None:
-    """Generate labelled fixture exports once before any CM-HA test reads them."""
+    """Ensure production exports exist from approved mirror (do not overwrite with fixture)."""
+    if not APPROVED_JSON.is_file():
+        raise RuntimeError(f"Missing approved mirror: {APPROVED_JSON}")
     proc = subprocess.run(
-        [sys.executable, str(BUILDS / "build_clive_man_family_v0_4.py"), "--fixture-approved"],
+        [
+            sys.executable,
+            str(BUILDS / "build_clive_man_family_v0_4.py"),
+            "--approved-source-file",
+            str(APPROVED_JSON.relative_to(REPO)),
+        ],
         cwd=REPO,
         capture_output=True,
         text=True,
@@ -137,17 +147,6 @@ class GeneratorGateTest(unittest.TestCase):
 
 
 class ExportInventoryTest(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls) -> None:
-        proc = subprocess.run(
-            [sys.executable, str(BUILDS / "build_clive_man_family_v0_4.py"), "--fixture-approved"],
-            cwd=REPO,
-            capture_output=True,
-            text=True,
-        )
-        if proc.returncode != 0:
-            raise RuntimeError(proc.stderr or proc.stdout)
-
     def test_cm_ha_004_exact_fifteen_exports(self) -> None:
         agents = list(EXPORTS_AGENTS.glob("agent-clive-man*v0_4.json"))
         skills = list(EXPORTS_SKILLS.glob("skill-clive-man*v0_4.json"))
@@ -415,7 +414,9 @@ class PersonaProvenanceTest(unittest.TestCase):
     def test_cm_ha_037_head_carries_persona_hash(self) -> None:
         data = _read_json(EXPORTS_AGENTS / "agent-clive-man-v0_4.json")["data"]
         self.assertEqual(data["personaConfigRecordId"], PERSONA_V04_RECORD_ID)
-        self.assertRegex(data["personaConfigSha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(data["personaConfigSha256"], APPROVED_BUNDLE_SHA)
+        self.assertEqual(data.get("personaSource"), "airtable-mcp-approved-snapshot")
+        self.assertNotIn("TEST FIXTURE", data["systemPrompt"])
 
 
 class SecurityAndEvidenceTest(unittest.TestCase):

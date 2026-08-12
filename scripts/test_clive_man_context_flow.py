@@ -39,14 +39,17 @@ class PersonaResolverContractTest(unittest.TestCase):
     def test_cm_cur_003_strict_semver_rejects_suffix(self) -> None:
         self.assertIsNone(sync._parse_operational_version("Operational v0.4 (draft)"))
 
-    def test_cm_cur_004_airtable_ids_pending_v04(self) -> None:
+    def test_cm_cur_004_airtable_ids_v04_approved(self) -> None:
         text = _read("website/src/lib/brains/airtable-ids.ts")
-        self.assertIn('operationalV04Pending: "recSKTT8NTTJOmuRu"', text)
+        self.assertIn('operationalV04: "recSKTT8NTTJOmuRu"', text)
+        self.assertIn("rollback", text.lower())
 
-    def test_cm_cur_005_no_v04_generated_sync_file(self) -> None:
+    def test_cm_cur_005_v04_generated_sync_present(self) -> None:
         gen = _read("agents/registry/cursor/clive/clive-man/persona-config.generated.md")
-        self.assertIn("Operational v0.3", gen)
-        self.assertNotIn("recSKTT8NTTJOmuRu", gen)
+        self.assertIn("Operational v0.4", gen)
+        self.assertIn("recSKTT8NTTJOmuRu", gen)
+        self.assertIn("airtable-mcp-approved-snapshot", gen)
+        self.assertNotIn("TEST FIXTURE", gen)
 
     def test_cm_cur_006_generator_documents_full_sha256(self) -> None:
         text = _read("scripts/generate_persona_config_sync.py")
@@ -248,7 +251,7 @@ class NoHardcodedPersonaAnchorsTest(unittest.TestCase):
         """Agents reference record IDs, not embedded Persona prompt paragraphs."""
         agent = _read(".cursor/agents/clive-man.md")
         gen = _read("agents/registry/cursor/clive/clive-man/persona-config.generated.md")
-        prompt_snippet = "FLEET STANDARDS (5 Jul 2026)"
+        prompt_snippet = "context steward"
         self.assertIn(prompt_snippet, gen)
         self.assertNotIn(prompt_snippet, agent)
 

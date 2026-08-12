@@ -34,6 +34,7 @@ from _clive_man_on_demand import (  # noqa: E402
     read_credential_schema,
     read_scripts_json,
 )
+from _clive_man_approved_persona_source import APPROVED_SOURCE_NOTE  # noqa: E402
 from _clive_man_persona_gate import PersonaSource, resolve  # noqa: E402
 from _clive_man_household_loader import FLEET_ACTIVITY_CRED_ENV, household_skill_embeds
 from _clive_man_specialist_loader import load_specialist_skill  # noqa: E402
@@ -105,15 +106,30 @@ V0_1_BUILD_FILES = (
     "build_clive_man_v0_1.py",
 )
 
-PROVENANCE_BLOCK = f"""\
+PROVENANCE_BLOCK_TEMPLATE = """\
 PROVENANCE (v0.4 build of record)
 =================================
 - Build pack: agents/registry/cursor/clive/clive-man/build-pack-v0.3.md
 - Challenger: PROCEED — agents/registry/hyperagent/clive/man/challenger-verdict-v0.4.md
-- Persona gate: {PERSONA_V04_RECORD_ID} / {PERSONA_V04_VERSION_NAME} (Approved pin required)
+- Persona gate: {record_id} / {config_name} ({persona_source})
+- Persona bundle sha256: {content_sha256}
 - Generator: hyperagent/builds/build_clive_man_family_v0_4.py
 - Persona text: resolved at build time via _clive_man_persona_gate (never hardcoded literals)
 """
+
+
+def _provenance_block(persona: PersonaSource) -> str:
+    source_label = {
+        "airtable": "Approved live Airtable pin",
+        "fixture": "OFFLINE TEST FIXTURE — synthetic placeholder only",
+        APPROVED_SOURCE_NOTE: "MCP-approved mirror snapshot",
+    }.get(persona.source, persona.source)
+    return PROVENANCE_BLOCK_TEMPLATE.format(
+        record_id=persona.record_id,
+        config_name=persona.config_name,
+        persona_source=source_label,
+        content_sha256=persona.content_sha256,
+    )
 
 RUNTIME_DELTA_HEAD = """\
 RUNTIME (Hyperagent v0.4):
@@ -391,12 +407,13 @@ def build_exports(persona: PersonaSource) -> None:
     skills = _build_skills(persona)
 
     head_prompt = "\n\n".join(
-        [PROVENANCE_BLOCK, persona.system_prompt, persona.rules_section, persona.output_format, RUNTIME_DELTA_HEAD]
+        [_provenance_block(persona), persona.system_prompt, persona.rules_section, persona.output_format, RUNTIME_DELTA_HEAD]
     )
     head_extra = {
         "personaConfigRecordId": persona.record_id,
         "personaConfigSha256": persona.content_sha256,
         "personaConfigVersion": persona.config_name,
+        "personaSource": persona.source,
     }
     observed_head = _load_observed_agent("agent-clive-s-man.json")
     head = agent_data(
@@ -511,6 +528,11 @@ def build_exports(persona: PersonaSource) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pin-persona", default=None, help=f'Strict pin (default: "{PERSONA_V04_VERSION_NAME}")')
+    parser.add_argument(
+        "--approved-source-file",
+        default=None,
+        help="Explicit MCP-approved snapshot JSON (production path when no Airtable token)",
+    )
     parser.add_argument("--verify-pending-gate", action="store_true", help="Confirm v0.4 Pending; exit without generating.")
     parser.add_argument("--fixture-approved", action="store_true", help="Use labelled offline fixture (tests only).")
     args = parser.parse_args()
@@ -520,12 +542,18 @@ def main() -> None:
         print(json.dumps(info, indent=2))
         print(
             "\nGate verified: Pending. Final generation command after Matthew approves:\n"
-            f'  python3 hyperagent/builds/build_clive_man_family_v0_4.py --pin-persona "{PERSONA_V04_VERSION_NAME}"'
+            f'  python3 hyperagent/builds/build_clive_man_family_v0_4.py --approved-source-file agents/registry/cursor/clive/clive-man/persona-config.approved-v0.4.json'
         )
         return
 
     if args.fixture_approved:
         persona = resolve(fixture_approved=True)
+        assert isinstance(persona, PersonaSource)
+        build_exports(persona)
+        return
+
+    if args.approved_source_file:
+        persona = resolve(approved_source_file=args.approved_source_file)
         assert isinstance(persona, PersonaSource)
         build_exports(persona)
         return

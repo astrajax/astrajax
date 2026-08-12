@@ -2,18 +2,22 @@
 name: clive-man
 description: >-
   Sync artifact for Clive's Man operational spec. Canonical technical
-  responsibilities live in Persona Config Operational v0.3 (rect04amPJAZrWCi4).
-  Generated sync: agents/registry/cursor/clive/clive-man/persona-config.generated.md
+  responsibilities live in Persona Config Operational v0.4 (recSKTT8NTTJOmuRu,
+  Approved 12 Aug 2026). v0.3 (rect04amPJAZrWCi4) retained for rollback until one
+  full cycle succeeds. Generated sync:
+  agents/registry/cursor/clive/clive-man/persona-config.generated.md
 ---
 
 # clive-man
 
 > **Canonical source:** Clive's Man Agent base (`appZ71CSKBlhnb4hR`) → **Persona Config**
-> → `Operational v0.3` (`rect04amPJAZrWCi4`, Approved). v0.2 (`rec6b8PB3HY3yv0Wq`) is Retired.
-> **`Operational v0.4`** (`recSKTT8NTTJOmuRu`) is **Pending** — fail-closed until Matthew approves in Airtable.
-> Generated Airtable sync (do not hand-edit):
+> → `Operational v0.4` (`recSKTT8NTTJOmuRu`, **Approved** 12 Aug 2026). Mirror:
+> `agents/registry/cursor/clive/clive-man/persona-config.approved-v0.4.json`.
+> Rollback: `Operational v0.3` (`rect04amPJAZrWCi4`) until one full v0.4 cycle succeeds.
+> Generated sync (do not hand-edit):
 > `agents/registry/cursor/clive/clive-man/persona-config.generated.md`
-> (`python3 scripts/generate_persona_config_sync.py --agent clive-man`).
+> (`python3 scripts/generate_persona_config_sync.py --agent clive-man --approved-source-file …`
+> or live pin when token present).
 > This SKILL remains the Cursor operating contract; Persona Config owns role text.
 
 ## Purpose

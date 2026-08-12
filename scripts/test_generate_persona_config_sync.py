@@ -182,8 +182,13 @@ class VerifyPendingGateTest(unittest.TestCase):
             },
         }
 
-    def test_verify_pending_gate_reports_closed(self) -> None:
+    def test_verify_pending_gate_reports_closed_when_pending(self) -> None:
         record = self._gate_record("Operational v0.4", "Pending")
+        with patch.object(sync, "_fetch_record", return_value=record):
+            sync.verify_pending_gate("clive-man")
+
+    def test_verify_pending_gate_reports_open_when_approved(self) -> None:
+        record = self._gate_record("Operational v0.4", "Approved")
         with patch.object(sync, "_fetch_record", return_value=record):
             sync.verify_pending_gate("clive-man")
 
