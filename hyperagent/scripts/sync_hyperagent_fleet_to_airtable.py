@@ -17,8 +17,7 @@ Usage:
 Env: AIRTABLE_READ_TOKEN (dry-run reads), AIRTABLE_WRITE_TOKEN (--apply writes).
 Roster: hyperagent/scripts/fleet_sync_roster.json (Head/Minion classification).
 
-FREEZE (2026-08-11): do not run live fleet sync until this script passes smoke tests.
-See docs/initiatives/fleet-sync-2026-08-10/README.md.
+Freeze lifted 2026-08-12 (Matthew). See docs/initiatives/fleet-sync-2026-08-10/README.md.
 """
 
 from __future__ import annotations
