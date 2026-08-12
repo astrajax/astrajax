@@ -31,7 +31,14 @@ export const APERTURE = {
   /** Safe content width (24% → 76%). */
   safeWidth: 0.52,
   crownApexY: 0.0815,
+  /** Measured stone-ledge top (void meets sill). */
   voidBottomY: 0.895,
+  /**
+   * Room-static mask hole bottom — sits *under* the pinned sill belt so the
+   * hard hole edge is hidden and the letter/quill stay whole on the sill layer.
+   * Props paint begins ~0.88; sill belt covers from 0.85.
+   */
+  holeBottomY: 0.88,
 } as const;
 
 /** Inner arch curve — y at each x column (symmetric about 50%). */

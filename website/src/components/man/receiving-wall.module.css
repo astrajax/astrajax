@@ -69,7 +69,7 @@
   transition: none;
 }
 
-/* After entry completes, lock the track — reading scroll lives in the bay box. */
+/* After entry completes, lock the track — reading scroll is bayTravel only. */
 .wall.reading .interiorTrack {
   transition: none;
 }
@@ -227,22 +227,13 @@
 }
 
 /*
- * Static room plate — DISABLED (Aug 2026).
- * Dual-layer mask (poster outside arch hole + plate inside) split the sill: hard
- * teal rectangle, wood gaps at the legs, letter stack cut by voidBottom. With the
- * dolly on .plate, the painted arch already rides the camera — one surface only.
+ * Pinned room plate — lives on .plate (rides the dolly), outside .bayTravel.
+ * SVG luminance mask punches the arch hole (holeBottomY 0.88 — under the sill
+ * belt). Interior paint travels behind this frame; arch / sconces / wood stay put.
  */
 .roomStatic {
-  display: none;
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  width: var(--plate-w);
-  aspect-ratio: 16 / 9;
-  transform: translate(-50%, -50%) translateY(var(--dolly-y)) scale(var(--dolly));
-  transform-origin: 50% 50%;
-  transition: transform var(--scroll-ms) var(--scroll-ease);
-  will-change: transform;
+  position: absolute;
+  inset: 0;
   z-index: 5;
   pointer-events: none;
   background: url("/agent-cast/clives-man/receiving-wall-poster.jpg") center / 100% 100% no-repeat;
@@ -256,9 +247,27 @@
   -webkit-mask-source-type: luminance;
 }
 
-.wall.settling .roomStatic {
-  transition-duration: 900ms;
-  transition-timing-function: var(--scroll-ease-out);
+/*
+ * Pinned sill belt — master pixels for the ledge + letter/quill (top at 85% of
+ * the plate). Sits above the room mask so props stay whole even if the hole edge
+ * grazes them. Does not travel with bay scroll.
+ */
+.sillForeground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 85%;
+  height: 15%;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sillForegroundImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
 }
 
 /*
@@ -467,11 +476,12 @@
 
 
 /*
- * Bay reading box — shares .surfaceContent geometry so scroll happens *inside* the
- * arch aperture (paint fixed, records travel), exactly like the idle ledger. Never
- * translate a wrapper that contains the painting: that reads as the whole screen moving.
+ * Bay reading — interior paint + type travel together behind the pinned arch.
+ * .bayTravel translates; .roomStatic / .sillForeground stay put on .plate.
  */
 .bayOverlay {
+  position: absolute;
+  inset: 0;
   z-index: 2;
   pointer-events: none;
   visibility: hidden;
@@ -480,12 +490,59 @@
   pointer-events: auto;
   visibility: visible;
 }
-/* Idle ledger must stop swallowing the wheel once a bay is open, or the page scrolls instead. */
-.wall.zoomed .surfaceContent:not(.bayOverlay) {
+/* Idle ledger must stop swallowing the wheel once a bay is open. */
+.wall.zoomed .surfacePlate > .surfaceContent {
   pointer-events: none;
 }
-.bayOverlay:focus-visible {
-  outline: none;
+
+.bayWindow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.bayTravel {
+  position: relative;
+  will-change: transform;
+  min-height: 100%;
+}
+
+/* Travelling wall — same poster as the idle plate; scrolls with the type. */
+.bayTravel > .surfaceBackdrop {
+  position: absolute;
+  inset: 0;
+  min-height: 100%;
+}
+
+.bayWallStill {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+}
+
+/* Text safe box — layout only (manifest 24%→76% × 22%→86%). */
+.bayContent {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  padding: 23% 24% 15%;
+  min-height: 100%;
+}
+
+.bayTravel .surfaceContent {
+  position: relative;
+  inset: auto;
+  left: auto;
+  top: auto;
+  bottom: auto;
+  translate: none;
+  width: 100%;
+  max-width: none;
+  overflow: visible;
+  mask-image: none;
+  pointer-events: auto;
 }
 
 /* ---- Content beats ---- */
@@ -1142,14 +1199,6 @@
     aspect-ratio: 16 / 9;
   }
 
-  .roomStatic {
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 125vw;
-    aspect-ratio: 16 / 9;
-  }
-
   .stageVideo {
     object-fit: cover;
     object-position: 50% 8%;
@@ -1212,8 +1261,7 @@
   .plateBreath {
     animation: none;
   }
-  .plate,
-  .roomStatic {
+  .plate {
     transition: none;
     will-change: auto;
   }
@@ -1254,5 +1302,16 @@
   .incisedActionMuted,
   .acceptBtn {
     transition: none;
+  }
+  /* Reduced motion: native scroll in the aperture; paint does not translate. */
+  .bayWindow {
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .bayWindow::-webkit-scrollbar {
+    display: none;
+  }
+  .bayTravel {
+    transform: none !important;
   }
 }
