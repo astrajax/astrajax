@@ -31,7 +31,14 @@ export const APERTURE = {
   /** Safe content width (24% → 76%). */
   safeWidth: 0.52,
   crownApexY: 0.0815,
+  /** Measured stone-ledge top (void meets sill). */
   voidBottomY: 0.895,
+  /**
+   * Room-static mask hole bottom — sits *under* the pinned sill belt so the
+   * hard hole edge is hidden and the letter/quill stay whole on the sill layer.
+   * Props paint begins ~0.88; sill belt covers from 0.85.
+   */
+  holeBottomY: 0.88,
 } as const;
 
 /** Inner arch curve — y at each x column (symmetric about 50%). */
@@ -66,16 +73,12 @@ export const LEDGE_STILL_LIFE = {
 
 /** Palette sampled from the paint — use these, not invented values. */
 /**
- * Close portal framing — 16:9 bucket. Matthew picks from the ladder; other aspect
- * buckets scale proportionally (ratios vs the old 1.38 reference in the spec).
- *
- * Default 1.12 (Aug 2026): bay still uses receiving-wall-zoomed.jpg (~1.61× crop of
- * the poster). Stacking the old 1.54 dolly on that still over-zoomed into the teal
- * void. With the arch pinned on .roomStatic (luminance mask), 1.12 is a light interior
- * push that keeps the multi-tiered stone arch fully in frame (Matthew yellow-outline).
+ * Close portal framing — slow centre push on the *same* painted plate.
+ * No second still, no track slide. Default 1.22 keeps both arch legs in frame.
+ * Ladder via ?dolly=1.15|1.22|1.30.
  */
-export const DOLLY_IN_LADDER = [1.05, 1.12, 1.22] as const;
-export const DOLLY_IN_DEFAULT = 1.12;
+export const DOLLY_IN_LADDER = [1.15, 1.22, 1.30] as const;
+export const DOLLY_IN_DEFAULT = 1.22;
 /** Legacy spec reference scale — used to derive aspect-ratio bucket multipliers. */
 export const DOLLY_IN_REFERENCE = 1.38;
 export const DOLLY_ASPECT_RATIOS = {

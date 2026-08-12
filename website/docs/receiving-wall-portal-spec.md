@@ -39,15 +39,17 @@ and §5 follows deterministically from that. §3 (surface treatment) and §6 (Cl
 craft proposals I cannot fully judge without seeing them rendered — each carries an explicit
 fallback and is flagged for Kathryn / Tara-Lee's eye.
 
-> **Amendment (Matthew, Aug 2026 — arch framing fix).** `.roomStatic` must live on `.wall`, **outside**
-> `.plate`'s dolly transform, and use `roomStaticMaskUrl()` (SVG `viewBox="0 0 1 1"`) — not raw
-> `clip-path: path()` with 0–1 coords, which browsers treat as px and hide the mouldings. Only the
-> interior (`.plate` backdrop + text) scales on `--dolly-in-16-9` (default **1.12**, Aug 2026 —
-> was 1.54). `.roomStatic` must use the SVG **luminance** mask (`roomStaticMaskUrl`,
-> `mask-mode: luminance`) — not `clip-path: path()` with 0–1 coords (browsers treat those
-> as px and collapse the hole, so the arch rode the dolly and got cropped). Stone frame
-> stays pinned; crown and side mouldings remain visible at settled zoom on 1920×1080 and
-> 1440×900.
+> **Amendment (Matthew, Aug 2026 — pinned arch + travelling interior).** Three layers on `.plate`
+> (which carries the dolly camera push, default `--dolly-in-16-9: 1.22`):
+> 1. **Interior** (`.bayTravel`) — poster + bay type; translates on reading scroll.
+> 2. **Room frame** (`.roomStatic`) — poster with SVG **luminance** hole (`roomStaticMaskUrl`,
+>    `mask-mode: luminance`; hole bottom = `APERTURE.holeBottomY` **0.88**, under the sill belt
+>    so the hard hole edge is hidden). Never use `clip-path: path()` with 0–1 coords (browsers
+>    treat those as px). Arch, sconces, wood stay put while the interior travels.
+> 3. **Sill belt** (`.sillForeground`) — cut master pixels for the ledge + letter/quill
+>    (`receiving-wall-sill.png`, top at 85% of the plate), pinned above the hole edge so props
+>    stay whole.
+> Idle ledger scroll is unchanged (paint still; category list scrolls in the aperture).
 
 ---
 

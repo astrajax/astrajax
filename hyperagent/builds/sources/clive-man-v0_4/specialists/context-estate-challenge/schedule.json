@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Context Estate Challenge \u2014 V2",
+    "rrule": "FREQ=DAILY;BYHOUR=7;BYMINUTE=0",
+    "timezone": "Europe/London",
+    "prompt": "Review unchallenged V1 context amendments, independently verify evidence, and persist immutable V2 Report and V2 Amendment Versions. Report only findings or kill events.",
+    "threadNamingHint": null,
+    "readOnlyMode": true
+  }
+]

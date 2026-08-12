@@ -160,7 +160,7 @@ def airtable_request(
     dry_run: bool = False,
 ) -> dict[str, Any]:
     _enforce_path_for_role(method, path, credential_role)
-    if dry_run:
+    if dry_run and method != "GET":
         return {"records": [], "dry_run": True, "method": method, "path": path}
     token = _token_for_role(credential_role)
     url = f"{API}{path}"
@@ -600,7 +600,7 @@ def read_stream_tip(
         if offset:
             q += f"&offset={offset}"
         res = airtable_request(
-            "GET", q, credential_role=CRED_ROLE_CHECKPOINT_APPEND, dry_run=False
+            "GET", q, credential_role=CRED_ROLE_CHECKPOINT_APPEND, dry_run=dry_run
         )
         for rec in res.get("records") or []:
             f = rec.get("fields") or {}

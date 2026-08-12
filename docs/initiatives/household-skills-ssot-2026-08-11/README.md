@@ -15,4 +15,4 @@ Working initiative (not canonical business doctrine).
 - `SCHEMA-PROPOSAL-v0.1.md` — signed; Challenger **ESCALATE**
 - `ha-skills-inventory.json` — inventory of HyperAgent skill dumps
 
-Outbound fleet sync remains **out of scope**. Fleet sync freeze remains in force.
+Outbound fleet sync remains **out of scope** for this initiative. Fleet sync freeze was lifted 2026-08-12.

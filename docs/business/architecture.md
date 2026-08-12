@@ -117,7 +117,7 @@ Product messaging for this pattern lives in `docs/business/positioning.md` §4. 
 | Clive         | `appBd9tudgvOSrhSX` | `Operational v0.2` — `recJFiRQjbIecCAQ5` | Reason            |
 | Pam           | `appH7NeSSNntuKRL4` | `Operational v0.2` — `rect3MIejCMhCWdH1` | Challenge         |
 | Doc           | `appI5tpwsKNwjfrqR` | `Operational v0.2` — `rec0KNMfpdSlPWQuf` | Act               |
-| Clive's Man   | `appZ71CSKBlhnb4hR` | `Operational v0.2` — `rec6b8PB3HY3yv0Wq` | Steward           |
+| Clive's Man   | `appZ71CSKBlhnb4hR` | `Operational v0.3` — `rect04amPJAZrWCi4` (Approved); `Operational v0.4` — `recSKTT8NTTJOmuRu` (Pending gate) | Steward           |
 | Lazlo Marlowe | `appMHIxnwPMljiAQB` | `Operational v0.2` — `recHipJdrgeh0PAof` | Agent Storywriter |
 | Kathryn Goodchild | `appzvesAIpPxjfAMF` | `Operational v1.0 (HyperAgent sync)` — `recZkhAbib7fQBL8Z` | Coach |
 
@@ -257,7 +257,7 @@ Clive's Man is the **brain steward** — same person as The Man in Clive's cast 
 
 Clive thinks with the user. Clive's Man keeps the study and the brain. Doc's execution minions invoke Clive's Man as the **mandatory last Phase B step** so architecture and context sources stay synced in repo — not only in chat.
 
-**Technical role (canonical):** Clive's Man Agent base Persona Config `Operational v0.2` (`rec6b8PB3HY3yv0Wq`). Minion roster: Minions table on the same base.
+**Technical role (canonical):** Clive's Man Agent base Persona Config `Operational v0.3` (`rect04amPJAZrWCi4`, Approved). **`Operational v0.4`** (`recSKTT8NTTJOmuRu`) is **Pending** — repo sync and runtime promotion fail-closed until Matthew approves in Airtable. Minion roster: Minions table on the same base. **Option 3 lanes** (A direct Executor / B Trinity / C human): see `.cursor/skills/clive-man/SKILL.md`.
 
 **Source document mining (V1):** Full Pam gates, API, and Matthew manual steps — `[docs/initiatives/source-document-mining.md](../initiatives/source-document-mining.md)`.
 

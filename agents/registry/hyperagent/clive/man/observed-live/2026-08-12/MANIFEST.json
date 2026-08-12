@@ -1,0 +1,48 @@
+{
+  "captured_at": "2026-08-12",
+  "provenance_gaps": [
+    "historical daily brief export absent from upload session"
+  ],
+  "files": [
+    {
+      "name": "agent-clive-s-man-ambient-capture.json",
+      "sha256": "e7ada5dc21d1675942bf5da58099c15fd18324a1eb079cca269841db0508485f",
+      "bytes": 165825
+    },
+    {
+      "name": "agent-clive-s-man-challenger.json",
+      "sha256": "2afd2894b36fd38f21f2f661422edd9bc8abac2bc7758ae2a9aafc292c336997",
+      "bytes": 112327
+    },
+    {
+      "name": "agent-clive-s-man-context-auditor.json",
+      "sha256": "f648d1dbea74b15b7f0d9118810f1f7d4d1342470b38fdbbf1c7142b39a1beb2",
+      "bytes": 233177
+    },
+    {
+      "name": "agent-clive-s-man-context-challenger.json",
+      "sha256": "9d460718dc8986a548ff93e809619100b4309ae2745a640475c7e9627ccd56bc",
+      "bytes": 157523
+    },
+    {
+      "name": "agent-clive-s-man-context-executor.json",
+      "sha256": "52768115fc5c2485f77d05e77412d87a53ea6fbb982ca00c203e02c7189890af",
+      "bytes": 180444
+    },
+    {
+      "name": "agent-clive-s-man-executor.json",
+      "sha256": "0556285fc7e0c6af456abc522948971a1cb101f73005757fc5756354e969d9ee",
+      "bytes": 212606
+    },
+    {
+      "name": "agent-clive-s-man-proposer.json",
+      "sha256": "8b396c61fcd5c4836b2319156c84f0ce1837906a4f5d3580fe87787f257dd505",
+      "bytes": 110233
+    },
+    {
+      "name": "agent-clive-s-man.json",
+      "sha256": "c1f877a497d5a1bbfed530e1a02370daebee56d5dfafbd324b61e2b17e11c170",
+      "bytes": 141076
+    }
+  ]
+}

@@ -52,6 +52,7 @@ Strictest practical rules:
 | `BRAIN_KEY_ADMIN_TOKEN`           | Registry           | Registry (grants)                                      | Human approve route                                                                        |
 | `BRAIN_AGENT_{SLUG}_READ_TOKEN`   | That Agent base    | —                                                      | Server loads Narrative Arch + Persona Config + Persona Memories + Minions for that persona |
 | `BRAIN_AGENT_{SLUG}_WRITE_TOKEN`  | That Agent base    | That Agent base (Persona Memories, Minions state only) | Server-side persona auto-save; never browser or model prompt                               |
+| `AMBIENT_CHECKPOINT_APPEND`       | Workshop (append)  | Ambient Checkpoint Versions `tblRbjD0PHtuTWsIL` only   | HyperAgent Ambient checkpoint advance — **not minted**; schedule disabled until boundary + UI verify |
 
 
 **Invariant:** No env var used by Clive/Pam chat routes may write to a Trusted Brain base.
@@ -134,7 +135,13 @@ Summary: **Brains**, **Agents**, **Brain Key Requests**, **Access Grants**, **Ch
 
 Full blueprint: `[brain-key-schema.md](./brain-key-schema.md)`.
 
-Summary: **User Brains**, **Draft Brain Truth**, **Source Documents**, **Brain Interactions**, **Pam Reviews**, **Approval Decisions**, **Doc Actions**.
+Summary: **User Brains**, **Draft Brain Truth**, **Source Documents**, **Brain Interactions**, **Pam Reviews**, **Approval Decisions**, **Doc Actions**, **Context Amendment Versions**, **Context Amendment Events**, **Context Audit Fingerprints**, **Ambient Checkpoint Versions**.
+
+### Ambient Checkpoint Versions (Workshop control plane)
+
+Append-only durable UTC cursor for Clive's Man Ambient Capture. Table **`tblRbjD0PHtuTWsIL`** in Brain Workshop (`appL2fdnGmhA02WXd`). Bootstrap record **`recHsDmDx00c636BP`**. Full grain and append-only rules: [brain-key-schema.md](./brain-key-schema.md) (Ambient Checkpoint Versions).
+
+**Checkpoint schema resolved** (Ruth V2, 12 Aug 2026). **Activation boundary (distinct):** `AMBIENT_CHECKPOINT_APPEND` credential **not minted**; 05:00 schedule **disabled**; **initial scan boundary not selected**; **UI source-order verification pending**. Persona Config v0.4 may still record design-time sentinel `PENDING_RUTH_CHECKPOINT_STORE` — runtime sources use this table ID. Field IDs: `AMBIENT_CHECKPOINT_*` in `airtable-ids.ts`.
 
 ## Trusted Brain tables (per theme)
 

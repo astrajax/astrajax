@@ -7,6 +7,7 @@ const sampleRecord = {
   snippet: "Verified commit d496f5d",
   provenance: "Clive's Man",
   captureSource: "external" as const,
+  category: "Governance",
   brainSlug: "physician",
   status: "Draft",
   canonicalText:

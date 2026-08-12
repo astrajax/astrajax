@@ -36,12 +36,12 @@
   /* --- camera + scroll (push-in to enter, locked arch scroll inside) --- */
   --dolly: 1;
   --dolly-y: 0px;
-  --dolly-in-16-9: 1.12;
+  --dolly-in-16-9: 1.22;
   --dolly-in: var(--dolly-in-16-9);
   --dolly-in-y: 2.5vh;
   --scroll-y: 0%;
-  --scroll-ms: 1500ms;
-  --scroll-ease: cubic-bezier(0.30, 0.10, 0.30, 1);
+  --scroll-ms: 2600ms;
+  --scroll-ease: cubic-bezier(0.25, 0.08, 0.25, 1);
   --scroll-ease-out: cubic-bezier(0.40, 0.00, 0.20, 1);
   --scroll-delay: 0ms;
 
@@ -59,7 +59,7 @@
 .wall.zoomed {
   --dolly: var(--dolly-in);
   --dolly-y: 0px;
-  --scroll-y: -50%;
+  --scroll-y: 0%;
   --scroll-delay: 0ms;
 }
 
@@ -82,25 +82,20 @@
 }
 
 .wall.settling .plate {
-  transition-duration: 900ms;
+  transition-duration: 1600ms;
   transition-timing-function: var(--scroll-ease-out);
 }
 
-/* Aspect buckets — scale proportionally from --dolly-in-16-9 (spec §1.2 ratios). */
-@media (max-aspect-ratio: 16/9) {
-  .wall {
-    --dolly-in: calc(var(--dolly-in-16-9) * 0.899);
-  }
-}
-@media (min-aspect-ratio: 16/9) {
+/* Aspect buckets — same centre push everywhere except nave (plate already cover-crops). */
+@media (max-aspect-ratio: 16/9), (min-aspect-ratio: 16/9) {
   .wall {
     --dolly-in: var(--dolly-in-16-9);
   }
 }
 @media (max-aspect-ratio: 3/2) {
   .wall {
-    --dolly-in: calc(var(--dolly-in-16-9) * 0.754);
-    --dolly-in-y: 3vh;
+    --dolly-in: var(--dolly-in-16-9);
+    --dolly-in-y: 0;
   }
 }
 @media (max-aspect-ratio: 6/5) {
@@ -194,65 +189,11 @@
 }
 
 .surfacePlate {
-  position: relative;
-  flex: 0 0 52%;
-  width: 100%;
-  overflow: hidden;
-}
-
-.bayPlate {
-  overflow: hidden;
-}
-
-/* Bay scroll viewport — full plate; no rectangular clip on imagery.
-   Arch curve is .roomStatic clip-path only. */
-.bayWindow {
   position: absolute;
   inset: 0;
-  overflow: hidden;
-  pointer-events: auto;
-  z-index: 1;
-}
-
-.bayTravel {
-  position: relative;
-  will-change: transform;
-  min-height: 100%;
-}
-
-/* Full-bleed travelling surface — fills plate; boundary is the arch hole only. */
-.bayTravel > .surfaceBackdrop {
-  position: absolute;
-  inset: 0;
-  min-height: 100%;
-}
-
-/* Text safe box — layout only (manifest 24%→76% × 22%→86%), no clip. */
-.bayContent {
-  position: relative;
-  z-index: 1;
-  box-sizing: border-box;
-  padding: 23% 24% 15%;
-}
-
-.bayTravel .surfaceContent {
-  position: relative;
-  inset: auto;
-  left: auto;
-  top: auto;
-  bottom: auto;
-  translate: none;
   width: 100%;
-  max-width: none;
-  overflow: visible;
-  mask-image: linear-gradient(
-    180deg,
-    transparent 0,
-    #000 2.75rem,
-    #000 calc(100% - 2.75rem),
-    transparent 100%
-  );
-  padding: 0 0.15rem 2.5rem;
+  height: 100%;
+  overflow: hidden;
 }
 
 .surfaceBackdrop {
@@ -280,51 +221,19 @@
   filter: brightness(0.86) saturate(0.76) hue-rotate(-14deg);
 }
 
-/* Continuous surface — crossfade plates during entry so the void never goes blank. */
-.surfacePlate:first-child .surfaceBackdrop {
+/* One painted surface for every beat — the dolly pushes it, the bay scrolls inside it. */
+.surfacePlate > .surfaceBackdrop {
   opacity: 1;
-}
-
-.surfacePlate:last-child .surfaceBackdrop {
-  opacity: 0;
-  transition: opacity 520ms ease 240ms;
-}
-
-.wall.zoomed .surfacePlate:first-child .surfaceBackdrop {
-  opacity: 0;
-  transition: opacity 560ms ease 720ms;
-}
-
-.wall.zoomed .surfacePlate:last-child .surfaceBackdrop {
-  opacity: 1;
-  transition: opacity 640ms ease 120ms;
-}
-
-.wall.settling .surfacePlate:first-child .surfaceBackdrop {
-  opacity: 1;
-  transition: opacity 320ms ease 120ms;
-}
-
-.wall.settling .surfacePlate:last-child .surfaceBackdrop {
-  opacity: 0;
-  transition: opacity 280ms ease;
 }
 
 /*
- * Static room plate — pinned on .wall, outside .plate's dolly transform.
- * SVG luminance mask (viewBox 0 0 1 1): white = room stone, black = arch hole.
- * Do NOT use clip-path: path() with 0–1 coords — browsers treat those as px, so the
- * hole collapses and the whole plate (arch included) rides the dolly.
- * mask-mode: luminance is required (Safari ignores alpha-only mattes).
+ * Pinned room plate — lives on .plate (rides the dolly), outside .bayTravel.
+ * SVG luminance mask punches the arch hole (holeBottomY 0.88 — under the sill
+ * belt). Interior paint travels behind this frame; arch / sconces / wood stay put.
  */
 .roomStatic {
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  width: var(--plate-w);
-  aspect-ratio: 16 / 9;
-  transform: translate(-50%, -50%);
-  transform-origin: 50% 50%;
+  position: absolute;
+  inset: 0;
   z-index: 5;
   pointer-events: none;
   background: url("/agent-cast/clives-man/receiving-wall-poster.jpg") center / 100% 100% no-repeat;
@@ -336,6 +245,29 @@
   mask-repeat: no-repeat;
   mask-mode: luminance;
   -webkit-mask-source-type: luminance;
+}
+
+/*
+ * Pinned sill belt — master pixels for the ledge + letter/quill (top at 85% of
+ * the plate). Sits above the room mask so props stay whole even if the hole edge
+ * grazes them. Does not travel with bay scroll.
+ */
+.sillForeground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 85%;
+  height: 15%;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sillForegroundImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
 }
 
 /*
@@ -466,7 +398,7 @@
   }
 
   .surfaceContent .sourceList {
-    gap: clamp(0.75rem, 2.2vh, 1.35rem);
+    gap: clamp(0.45rem, 1.4vh, 0.9rem);
   }
 
   .surfaceContent .bench {
@@ -491,7 +423,7 @@
   }
 
   .surfaceContent .sourceList {
-    gap: clamp(0.6rem, 1.8vh, 1rem);
+    gap: clamp(0.35rem, 1.1vh, 0.7rem);
   }
 
   .surfaceContent .bench {
@@ -542,11 +474,82 @@
   }
 }
 
+
+/*
+ * Bay reading — interior paint + type travel together behind the pinned arch.
+ * .bayTravel translates; .roomStatic / .sillForeground stay put on .plate.
+ */
+.bayOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  visibility: hidden;
+}
+.wall.zoomed .bayOverlay {
+  pointer-events: auto;
+  visibility: visible;
+}
+/* Idle ledger must stop swallowing the wheel once a bay is open. */
+.wall.zoomed .surfacePlate > .surfaceContent {
+  pointer-events: none;
+}
+
+.bayWindow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.bayTravel {
+  position: relative;
+  will-change: transform;
+  min-height: 100%;
+}
+
+/* Travelling wall — same poster as the idle plate; scrolls with the type. */
+.bayTravel > .surfaceBackdrop {
+  position: absolute;
+  inset: 0;
+  min-height: 100%;
+}
+
+.bayWallStill {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  display: block;
+}
+
+/* Text safe box — layout only (manifest 24%→76% × 22%→86%). */
+.bayContent {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  padding: 23% 24% 15%;
+  min-height: 100%;
+}
+
+.bayTravel .surfaceContent {
+  position: relative;
+  inset: auto;
+  left: auto;
+  top: auto;
+  bottom: auto;
+  translate: none;
+  width: 100%;
+  max-width: none;
+  overflow: visible;
+  mask-image: none;
+  pointer-events: auto;
+}
+
 /* ---- Content beats ---- */
 .ledger,
 .zoom {
   max-width: 100%;
-  transition: opacity 0.26s ease, transform 0.26s ease;
+  transition: opacity 0.9s ease, transform 0.9s ease;
 }
 .contentExit {
   opacity: 0;
@@ -651,7 +654,7 @@
   border: none;
   cursor: pointer;
   text-align: left;
-  padding: 0.5rem 0.25rem;
+  padding: 0.35rem 0.25rem;
   border-bottom: 0;
   background-image:
     linear-gradient(90deg, transparent 0, rgba(12, 14, 10, 0.55) 14%, rgba(12, 14, 10, 0.55) 86%, transparent 100%),
@@ -673,7 +676,7 @@
 .sourceName {
   font-family: var(--font-wall), serif;
   font-weight: 700;
-  font-size: clamp(1.5rem, calc(var(--ap-base-w) * 0.042), 2.5rem);
+  font-size: clamp(1.15rem, calc(var(--ap-base-w) * 0.032), 1.85rem);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: #ddd0ae;
@@ -692,7 +695,7 @@
     0 0 6px color-mix(in oklab, var(--tint) 30%, transparent);
 }
 .sourceBlurb {
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: rgba(240, 230, 204, 0.72);
   font-style: italic;
   max-width: 46rem;
@@ -706,7 +709,7 @@
 }
 .sourceCountNum {
   font-family: var(--font-wall), serif;
-  font-size: clamp(1.75rem, calc(var(--ap-base-w) * 0.048), 2.5rem);
+  font-size: clamp(1.35rem, calc(var(--ap-base-w) * 0.036), 1.9rem);
   font-weight: 700;
   color: var(--tint);
   text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.8);
@@ -942,6 +945,15 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: rgba(240, 230, 204, 0.55);
+}
+
+.recordBrainSlug {
+  display: inline;
+  margin-left: 0.15em;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(240, 230, 204, 0.38);
 }
 .recordChevron {
   font-family: var(--font-wall), serif;
@@ -1187,14 +1199,6 @@
     aspect-ratio: 16 / 9;
   }
 
-  .roomStatic {
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 125vw;
-    aspect-ratio: 16 / 9;
-  }
-
   .stageVideo {
     object-fit: cover;
     object-position: 50% 8%;
@@ -1272,23 +1276,11 @@
     --dolly-y: 0px;
     --scroll-delay: 0ms;
   }
-  .wall.zoomed .surfacePlate:first-child {
-    display: none;
-  }
   .wall.zoomed .interiorTrack {
     transform: none;
   }
-  .wall:not(.zoomed) .surfacePlate:last-child {
+  .wall:not(.zoomed) .bayOverlay {
     display: none;
-  }
-  .surfacePlate:last-child .surfaceBackdrop,
-  .wall.zoomed .surfacePlate:last-child .surfaceBackdrop {
-    opacity: 1;
-    transition: none;
-  }
-  .wall.zoomed .surfacePlate:first-child .surfaceBackdrop {
-    opacity: 0;
-    transition: none;
   }
   .ledger,
   .zoom {
@@ -1311,6 +1303,7 @@
   .acceptBtn {
     transition: none;
   }
+  /* Reduced motion: native scroll in the aperture; paint does not translate. */
   .bayWindow {
     overflow-y: auto;
     scrollbar-width: none;

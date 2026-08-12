@@ -12,10 +12,11 @@ const OUT = "/tmp";
 async function openExpandedLetter(page) {
   await page.goto(`${BASE}/man/receiving-wall`, { waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1500);
-  const door = page.getByRole("button", { name: /External Context Capture/i });
+  const door = page.getByRole("button", { name: /Goals & Priorities/i });
   await door.waitFor({ state: "visible", timeout: 60000 });
   await door.click();
-  await page.waitForTimeout(2000);
+  /* ARRIVE is 2500ms — wait past the push before interacting with bay records. */
+  await page.waitForTimeout(2800);
   const record = page.getByRole("button", { name: /Goals \(long-term\)/i });
   await record.waitFor({ state: "visible", timeout: 30000 });
   await record.click();
@@ -95,10 +96,10 @@ async function main() {
     if (recordsOnly) {
       await page.goto(`${BASE}/man/receiving-wall`, { waitUntil: "domcontentloaded" });
       await page.waitForTimeout(1500);
-      const door = page.getByRole("button", { name: /External Context Capture/i });
+      const door = page.getByRole("button", { name: /Goals & Priorities/i });
       await door.waitFor({ state: "visible", timeout: 60000 });
       await door.click();
-      await page.waitForTimeout(2000);
+      await page.waitForTimeout(2800);
     } else {
       await openExpandedLetter(page);
     }
