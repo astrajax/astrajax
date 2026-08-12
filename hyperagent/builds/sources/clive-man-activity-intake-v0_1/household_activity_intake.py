@@ -160,7 +160,7 @@ def airtable_request(
     dry_run: bool = False,
 ) -> dict[str, Any]:
     _enforce_path_for_role(method, path, credential_role)
-    if dry_run and method != "GET":
+    if dry_run:
         return {"records": [], "dry_run": True, "method": method, "path": path}
     token = _token_for_role(credential_role)
     url = f"{API}{path}"
@@ -363,12 +363,13 @@ def build_v1_fields(candidate: dict[str, Any], run_id: str, *, actor: str = ACTO
 
 def build_candidate_from_activity(
     activity_rec: dict[str, Any],
-    session_rec: dict[str, Any],
+    session_rec: dict[str, Any] | None,
     *,
     v1_report_record_id: str,
 ) -> dict[str, Any]:
+    if not session_rec:
+        raise IntakeError("resolved Sessions row required for activity candidate")
     af = activity_rec.get("fields") or {}
-    sf = session_rec.get("fields") or {}
     session_id = session_rec.get("id") or activity_session_record_id(af)
     event_id = str(af.get(ACT["event_id"]) or activity_rec.get("id") or "")
     user_msg = activity_user_message(af)
@@ -399,8 +400,14 @@ def filter_eligible_rows(
     for act in activity:
         af = act.get("fields") or {}
         sid = activity_session_record_id(af)
-        session = session_by_id.get(sid)
-        ok, reason = is_eligible_exchange_row(af, session.get("fields") if session else None)
+        session = session_by_id.get(sid) if sid else None
+        if not session:
+            # Unresolved join: public sessionId only, missing link, or deleted session.
+            # Skip so we never pass session=None into build_candidate_from_activity,
+            # and so excluded-agent filtering still applies when a Sessions row exists.
+            stats["missing_session"] = stats.get("missing_session", 0) + 1
+            continue
+        ok, reason = is_eligible_exchange_row(af, session.get("fields") or {})
         if not ok:
             stats[reason] = stats.get(reason, 0) + 1
             continue
@@ -412,6 +419,9 @@ def filter_eligible_rows(
 def list_existing_by_dedupe(dedupe_keys: set[str], *, dry_run: bool) -> dict[str, str]:
     if dry_run or not dedupe_keys:
         return {}
+    # AMBIENT_V1_CREATE is POST-only; workshop GETs use the checkpoint pen when minted.
+    if not os.environ.get(CHECKPOINT_APPEND_CRED_ENV, ""):
+        return {}
     found: dict[str, str] = {}
     offset = None
     while True:
@@ -419,7 +429,9 @@ def list_existing_by_dedupe(dedupe_keys: set[str], *, dry_run: bool) -> dict[str
         q += f"&fields[]={AV['dedupe_key']}"
         if offset:
             q += f"&offset={offset}"
-        res = airtable_request("GET", q, credential_role=CRED_ROLE_V1_CREATE, dry_run=False)
+        res = airtable_request(
+            "GET", q, credential_role=CRED_ROLE_CHECKPOINT_APPEND, dry_run=False
+        )
         for rec in res.get("records") or []:
             f = rec.get("fields") or {}
             dk = f.get(AV["dedupe_key"])
@@ -570,8 +582,15 @@ def read_stream_tip(
 ) -> dict[str, Any]:
     if stream_key == LEGACY_THREAD_STREAM_KEY:
         raise IntakeError("legacy thread stream is out of bounds for Activity Intake")
-    if not dry_run and not os.environ.get(CHECKPOINT_APPEND_CRED_ENV, ""):
-        raise CheckpointBlocked(f"{CHECKPOINT_APPEND_CRED_ENV} not minted; checkpoint read blocked")
+    # Checkpoint pen is optional for this build (first-live = read + V1 create only).
+    # Without it, proceed with an empty tip so lease check allows the run.
+    if dry_run or not os.environ.get(CHECKPOINT_APPEND_CRED_ENV, ""):
+        return {
+            "stream_key": stream_key,
+            "tip_revision": -1,
+            "tip_semantic": {},
+            "cursor_token": {},
+        }
     rows: list[dict[str, Any]] = []
     offset = None
     while True:
@@ -581,7 +600,7 @@ def read_stream_tip(
         if offset:
             q += f"&offset={offset}"
         res = airtable_request(
-            "GET", q, credential_role=CRED_ROLE_CHECKPOINT_APPEND, dry_run=dry_run
+            "GET", q, credential_role=CRED_ROLE_CHECKPOINT_APPEND, dry_run=False
         )
         for rec in res.get("records") or []:
             f = rec.get("fields") or {}

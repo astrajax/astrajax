@@ -234,10 +234,12 @@ class ActivityIntakeBoundaryTests(unittest.TestCase):
         with self.assertRaises(self.intake.IntakeError):
             self.intake.read_stream_tip(stream_key=self.cfg.LEGACY_THREAD_STREAM_KEY, dry_run=False)
 
-    def test_boundary_checkpoint_blocked_without_append_pen(self) -> None:
+    def test_boundary_checkpoint_optional_without_append_pen(self) -> None:
+        """Checkpoint pen is optional; missing pen yields empty tip, not a hard block."""
         with patch.dict(os.environ, {}, clear=True):
-            with self.assertRaises(self.intake.CheckpointBlocked):
-                self.intake.read_stream_tip(dry_run=False)
+            tip = self.intake.read_stream_tip(dry_run=False)
+        self.assertEqual(tip.get("tip_revision"), -1)
+        self.assertEqual(tip.get("cursor_token"), {})
 
     def test_boundary_dedupe_skips_existing(self) -> None:
         cands = [self._candidate()]

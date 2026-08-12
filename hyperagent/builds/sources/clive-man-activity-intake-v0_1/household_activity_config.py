@@ -150,7 +150,9 @@ CRED_ROLE_CHECKPOINT_APPEND = CHECKPOINT_APPEND_CRED_ENV
 
 CRED_ROLE_GET_TABLES: dict[str, frozenset[str]] = {
     CRED_ROLE_READ: frozenset({SESSIONS_TABLE, ACTIVITY_TABLE}),
-    CRED_ROLE_V1_CREATE: frozenset({AMENDMENT_VERSIONS_TABLE}),
+    # Write pen is POST-only (No GET on AMBIENT_V1_CREATE).
+    CRED_ROLE_V1_CREATE: frozenset(),
+    # Workshop GETs (dedupe + tip) use the checkpoint pen when minted.
     CRED_ROLE_CHECKPOINT_APPEND: frozenset({AMENDMENT_VERSIONS_TABLE, CHECKPOINT_TABLE}),
 }
 CRED_ROLE_POST_TABLES: dict[str, frozenset[str]] = {
