@@ -50,6 +50,17 @@ def _validate_embedded_skill(skill: Any, index: int) -> None:
     for field in EMBEDDED_SKILL_REQUIRED_FIELDS:
         if field not in skill:
             _fail(f"data.skills[{index}] missing required field '{field}'")
+    schema = skill.get("credentialSchema")
+    if schema is not None and not isinstance(schema, str):
+        _fail(
+            f"data.skills[{index}].credentialSchema must be a JSON-encoded string "
+            f"or null, got {type(schema).__name__}"
+        )
+    if isinstance(schema, str):
+        try:
+            json.loads(schema)
+        except json.JSONDecodeError as exc:
+            _fail(f"data.skills[{index}].credentialSchema is not valid JSON: {exc}")
 
 
 def _validate_skill_data(data: dict[str, Any]) -> None:

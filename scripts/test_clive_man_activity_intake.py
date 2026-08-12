@@ -300,7 +300,9 @@ class ActivityIntakeBoundaryTests(unittest.TestCase):
         if not EXPORT_PATH.is_file():
             self.skipTest("export not built yet")
         export = json.loads(EXPORT_PATH.read_text(encoding="utf-8"))
-        schema = export["data"]["skills"][0]["credentialSchema"]
+        raw_schema = export["data"]["skills"][0]["credentialSchema"]
+        self.assertIsInstance(raw_schema, str)
+        schema = json.loads(raw_schema)
         names = [e["name"] for e in schema]
         self.assertIn("AMBIENT_V1_CREATE", names)
         self.assertIn("HOUSEHOLD_ACTIVITY_READ", names)
