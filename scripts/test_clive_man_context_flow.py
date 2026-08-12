@@ -176,7 +176,7 @@ class AmbientCaptureStaticTest(unittest.TestCase):
         self.assertIn("appL2fdnGmhA02WXd", text)
         self.assertIn("tblsuOKGjSGYv0Vov", text)
         self.assertNotIn("tblswvXNYFDqnl6af", text)
-        self.assertIn("cannot write draft brain truth directly", text.lower())
+        self.assertIn("never writes draft brain truth directly", text.lower())
 
     def test_cm_cur_028b_control_plane_id_map_retains_both_tables(self) -> None:
         ids = _read("website/src/lib/brains/airtable-ids.ts")

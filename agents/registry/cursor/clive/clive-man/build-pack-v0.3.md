@@ -57,10 +57,22 @@ python3 scripts/generate_persona_config_sync.py --agent clive-man --verify-pendi
 | Bucket | IDs | Count | Owner |
 |--------|-----|-------|-------|
 | Cursor static + resolver | CM-CUR-001 … CM-CUR-038 | **38** | This pack (`scripts/test_clive_man_context_flow.py`, `scripts/test_generate_persona_config_sync.py`) |
-| Hyperagent runtime / offline | CM-HA-001 … CM-HA-038 | **38** | Hyperagent Builder (exports, schedules, pen scripts, live checkpoint) |
-| **Total** | | **76** | |
+| Hyperagent runtime / offline | CM-HA-001 … CM-HA-047 + seam + executable + hardening | **50 + 26 + 17 + 19 + 112 specialist** | Hyperagent Builder (exports, schedules, pen scripts) |
+| **Total offline (Hyperagent family)** | | **224** | |
+
+Cursor suites (separate from Hyperagent family total):
+
+| Suite | File | Count |
+|-------|------|------:|
+| CM-CUR static + routing | `scripts/test_clive_man_context_flow.py` | 40 |
+| Persona resolver gate | `scripts/test_generate_persona_config_sync.py` | 12 |
+| **Cursor offline** | | **52** |
 
 Cursor tests **do not** claim Hyperagent runtime passes.
+
+**Routing freshness note:** Clive's Man family v0_4 exports embed Option 3 Route 1 from
+`.claude/skills/household-routing-standard/SKILL.md`. The standalone Hyperagent export
+`skill-household-routing-standard-v0_1.json` is unchanged legacy text — do not conflate.
 
 ## Scheduled family contract (HyperAgent — repo metadata)
 
@@ -164,7 +176,7 @@ Ambient: V1-only `CREATE_DRAFT_TRUTH` on Context Amendment Versions
 - [x] Three Context specialist governed skills
 - [x] Persona resolver Pending gate + tests
 - [x] ID map + archive ledger + fleet aliases
-- [x] Cursor test manifest (38/76)
+- [x] Cursor test manifest (40 CM-CUR + 12 persona gate)
 - [ ] Hyperagent exports (next builder)
 - [ ] v0.4 Persona Approved (Matthew)
 - [ ] Ruth checkpoint store live

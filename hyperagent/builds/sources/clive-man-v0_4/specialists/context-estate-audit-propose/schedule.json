@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Context Estate Audit \u2014 V1",
+    "rrule": "FREQ=DAILY;BYHOUR=6;BYMINUTE=0",
+    "timezone": "Europe/London",
+    "prompt": "Run V1 context estate audit and persist immutable V1 Report, V1 Amendment Versions and fingerprints. Report only findings or kill events.",
+    "threadNamingHint": null,
+    "readOnlyMode": false
+  }
+]

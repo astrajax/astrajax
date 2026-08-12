@@ -49,8 +49,14 @@ All other tools **false**. Global tables **false**. Native integrations **none**
 
 One create-only credential to Brain Workshop `appL2fdnGmhA02WXd` /
 Context Amendment Versions `tblsuOKGjSGYv0Vov` (V1 proposal queue only).
-**Ambient cannot write Draft Brain Truth directly** — Draft Brain Truth is
-Context Executor lane only. No Trusted writes.
+PAT is **base-scoped read+write** (dedupe preflight + readback); the typed script
+enforces writes to Amendment Versions only — never Draft Brain Truth directly.
+
+## Run order (mandatory)
+
+1. **Household Activity Logging** — create the V1 run report (`FLEET_ACTIVITY_WRITE`).
+2. Pass the returned report record id as `v1_report_record_id` on every candidate
+   submitted to `ambient_v1_intake.py`.
 
 ## Checkpoint
 
