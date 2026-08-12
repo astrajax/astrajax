@@ -236,7 +236,7 @@ Primary field: **Title** (singleLineText). **Workshop only** — never approved 
 | Brain Slug | singleLineText | |
 | Brain Theme | singleLineText | Theme slug, e.g. `core`, `sales-forecasting` |
 | Proposed Category | singleSelect | Workshop sorting only — not access control. See universal set below. |
-| Status | singleSelect | Draft, Quarantined |
+| Status | singleSelect | Draft, Quarantined, Rejected, Promoted — agents write **Draft** / **Quarantined** only; **Rejected** / **Promoted** read-and-respect; **Approved** is observed drift (never write); distinct from Source Document Mine Status **Proposed** |
 | Proposed By Agent | singleLineText | e.g. clive |
 | Created By | singleSelect | Matthew, Agent, Website, TL |
 
