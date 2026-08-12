@@ -39,7 +39,6 @@ describe("receiving-wall Clive prompt", () => {
     expect(formatted).toContain("Architect has");
   });
 
-
   it("uses curation guardrails and never website sales language in system prompt", () => {
     const system = buildReceivingWallSystemPrompt({
       focusedRecord: sampleRecord,
@@ -57,6 +56,8 @@ describe("receiving-wall Clive prompt", () => {
     });
     expect(reply).toContain(sampleRecord.title);
     expect(reply).toContain("d496f5d");
+    expect(reply).toContain("I'd route it toward physician");
+    expect(reply).not.toContain("physician-legacy");
     expect(reply).not.toContain("Adoption OS Audit");
   });
 });
