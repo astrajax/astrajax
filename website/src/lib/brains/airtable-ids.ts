@@ -81,6 +81,12 @@ export const BRAIN_WORKSHOP_TABLES = {
   pamReviews: "tblMsU9nQTB1TuigK",
   approvalDecisions: "tblJExsLJghdI01XX",
   docActions: "tblimAjCOdFEcl52x",
+  /** Context amendment control plane (live-observed 12 Aug 2026). */
+  contextAmendments: "tblsuOKGjSGYv0Vov",
+  contextAmendmentEvents: "tblM7gxcsWYijdaM8",
+  contextAuditFingerprints: "tblakbMPiim1K13Ru",
+  /** Ambient durable UTC checkpoint — Ruth V2 build 12 Aug 2026 (live-observed). */
+  ambientCheckpointVersions: "tblRbjD0PHtuTWsIL",
 } as const;
 
 /** Workshop User Brains — identity + operator development (Phase B, 29 Jun 2026). */
@@ -158,15 +164,94 @@ export const BRAIN_WORKSHOP_APPROVAL_DECISIONS_FIELDS = {
   sendToDoc: "fldLdTmnkAnzlEWMR",
 } as const;
 
-/** Draft Brain Truth Status — live single-select values (verify in Airtable UI). */
+/** Draft Brain Truth Status — four-value operating set (12 Aug 2026). */
 export const DRAFT_TRUTH_STATUS = {
   draft: "Draft",
   quarantined: "Quarantined",
   rejected: "Rejected",
   promoted: "Promoted",
-  /** Human confirmed on the Receiving Wall — add this option in Airtable if missing. */
+  /** Human Receiving Wall accept path only — agents must not write (treat as drift). */
   approved: "Approved",
+  /** Alias documenting agent-side drift semantics (same live value as approved). */
+  approvedDrift: "Approved",
 } as const;
+
+/** Capture Source — Draft Brain Truth single-select (live-observed). */
+export const DRAFT_TRUTH_CAPTURE_SOURCE = {
+  chatSession: "sel16ONJz9yPx76hH",
+} as const;
+
+/** @deprecated Persona v0.4 design-time sentinel only — live home is ambientCheckpointVersions. */
+export const AMBIENT_CAPTURE_CHECKPOINT_SENTINEL = "PENDING_RUTH_CHECKPOINT_STORE" as const;
+
+/** Ambient Checkpoint Versions — append-only stream cursor (Ruth V2, live 12 Aug 2026). */
+export const AMBIENT_CHECKPOINT_VERSIONS_TABLE_ID = "tblRbjD0PHtuTWsIL";
+
+export const AMBIENT_CHECKPOINT_VERSIONS_FIELDS = {
+  checkpointEventId: "fld3ZfUhXoTx6UqLV",
+  streamKey: "fldeZnYJ3291BXPOp",
+  revision: "flddQZdINPYJlXoLy",
+  eventType: "fldtIlV22PQOCx3J9",
+  streamState: "fldS02GlL0PWoPHJT",
+  previousEventId: "fldkZnD4t6xQvNDxl",
+  cursorUtc: "fldbYb4TwAZ5sezRX",
+  cursorTokenJson: "fldoaDS0ur5bsg8eX",
+  observedThroughUtc: "fld8U8bk5ZxKsTWA8",
+  backlogLowerBound: "fldMA539rrSoxTlIc",
+  backlogMeasurement: "fldiN307ABPVVjsTw",
+  dispositionUnitCount: "fldu0CzeHS2YPeusV",
+  dispositionManifestHash: "fldF0zh4nTh15fgCl",
+  runId: "fldtZflzjl4iTBYhn",
+} as const;
+
+export const AMBIENT_CHECKPOINT_EVENT_TYPE = {
+  bootstrap: "selq6zHnw1iZ2uHRc",
+  observation: "selSxMJOmkxErHtjJ",
+  advance: "selZ8sIe3C9ncSMTx",
+  pause: "selXgyebePE3GohSB",
+  resume: "selH9ySAG9S0eQC5t",
+  held: "selzx1mL39bQp7Jqp",
+} as const;
+
+export const AMBIENT_CHECKPOINT_STREAM_STATE = {
+  active: "sel1jm5IQM7yWSO71",
+  paused: "selDHrRuXmPdzpcJ4",
+  held: "selp97WbZLcnRTbeD",
+} as const;
+
+export const AMBIENT_CHECKPOINT_BACKLOG_MEASUREMENT = {
+  exact: "selpR7TJCstAVrGNr",
+  lowerBound: "seloOZakalWZIOg9q",
+  unknown: "sel6SE2DsQiNTT3hM",
+} as const;
+
+/** Bootstrap row — live-observed 12 Aug 2026; append-only chain starts here. */
+export const AMBIENT_CHECKPOINT_BOOTSTRAP = {
+  recordId: "recHsDmDx00c636BP",
+  checkpointEventId: "acp-genesis-hyperagent-ambient-v1",
+  streamKey: "hyperagent:eligible-threads:clive-man-ambient-capture:v1",
+  revision: 0,
+  eventType: "Bootstrap",
+  streamState: "Active",
+  backlogMeasurement: "Unknown",
+  dispositionUnitCount: 0,
+  runId: "ruth-build-bootstrap",
+} as const;
+
+/** Ruth signed build evidence — live-observed 12 Aug 2026. */
+export const AMBIENT_CHECKPOINT_BUILD_EVIDENCE = {
+  decision: "RUTH-AMBIENT-CHECKPOINT-2026-08-12-v0.2",
+  canonicalManifestHash:
+    "e3781da03aabb01ac4660f0d089e1a245b5fa74e81623a80721f8cfd2dff9d1e",
+  rawManifestSha256:
+    "72cfc5c264e050cef09eccdb463ce5798f5675a0d204239a766d94722d676703",
+  runArtifactHash:
+    "6005596786e17d5aeb34b94cb6a79ad86a4f9ccecfe691ac9733e8108454feb9",
+  builtAt: "2026-08-12",
+} as const;
+
+/** Append pen env — not minted; schedule remains disabled until boundary + UI verify. */
+export const AMBIENT_CHECKPOINT_APPEND_CRED_ENV = "AMBIENT_CHECKPOINT_APPEND" as const;
 
 /** Approval Decisions Decision — live single-select values. */
 export const APPROVAL_DECISION_VALUE = {
@@ -486,13 +571,33 @@ export const CLIVE_MAN_AGENT_TABLES = {
 
 /**
  * Clive's Man Persona Config.
- * v0.3 Approved (2 Aug 2026 check). v0.2 Retired.
+ * v0.3 Approved (2 Aug 2026) — rollback until one full v0.4 cycle succeeds.
+ * v0.4 Approved (12 Aug 2026) via MCP snapshot mirror in repo registry.
  */
 export const CLIVE_MAN_PERSONA_CONFIG = {
   operationalV02Retired: "rec6b8PB3HY3yv0Wq",
   operationalV03: "rect04amPJAZrWCi4",
+  operationalV04: "recSKTT8NTTJOmuRu",
+  /** @deprecated alias — same record as operationalV04 after 12 Aug 2026 approval */
+  operationalV04Pending: "recSKTT8NTTJOmuRu",
   /** @deprecated use operationalV03 */
   operationalV02: "rec6b8PB3HY3yv0Wq",
+} as const;
+
+/** Household Versions archive ledger — live-observed 12 Aug 2026; not canonical promotion IDs. */
+export const HOUSEHOLD_VERSIONS_BASE_ID = "appPrpfvsAr71RPP3";
+export const HOUSEHOLD_VERSIONS_TABLE_ID = "tbleX09zbkUNKTGBz";
+
+/** Head → minion archive pairs (What changed blank until post-build parent update). */
+export const CLIVE_MAN_HOUSEHOLD_ARCHIVE_LEDGER = {
+  head: { head: "recAYg5sOLH1JHYdK", minion: "reclxxOUDOW6FoztJ" },
+  proposer: { head: "recNXbUfwRw0LyIoD", minion: "recj6Hi6DSOafmyhB" },
+  challenger: { head: "recLffOxIGvnzg5pM", minion: "rec7wUHWrDBwxlY5j" },
+  executor: { head: "recjSvUrWZdms2WV5", minion: "rec26uMdaXzMhghVR" },
+  ambient: { head: "rec7jSAcGf464sVli", minion: "rec7PtTNAhAZX6ATT" },
+  contextAuditor: { head: "recj8VrSp8iFecHf5", minion: "recfPjrVRbmG0l3yH" },
+  contextChallenger: { head: "reckC1zjpHVovd4jA", minion: "recsDPj5MkDEkduys" },
+  contextExecutor: { head: "recRKvsDUVicStHBu", minion: "reccRTyohm8BOwxJX" },
 } as const;
 
 /** Clive's Man spine record IDs — Approved-Canonical 27 Jun 2026 (legacy Narrative Arch schema; tier fields not yet on this base). */

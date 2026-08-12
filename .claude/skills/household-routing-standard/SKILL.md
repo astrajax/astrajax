@@ -35,7 +35,11 @@ Notify, don't ask: after routing, one line in your reply is enough
 ### Route 1 — New context to capture
 **Trigger:** anything worth keeping — a fact, decision, preference, correction, lesson,
 or source material that should live in the brains as draft truth.
-**Target:** `@clive-man-executor` (reasoning head `@clive-man` if triage needed first)
+**Target:** `@clive-man-executor` **only when Lane A is complete**; otherwise `@clive-man`
+**Lane A (direct Executor):** exact verbatim from Matthew / Tara-Lee / named household
+agent; pure transcription; **new** Draft / Workshop / Pending or append-only log; **no**
+existing edit; trusted source **not** ambient / document / Slack / email / thread / web;
+**1–3 rows**. Any gap → `@clive-man` (Lane B Head triage).
 **Notes:** draft/proposed records only. Matthew's gate is PROMOTION, not capture volume.
 
 ### Route 2 — Something to build (AstraJax repo / product agents)

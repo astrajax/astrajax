@@ -1,0 +1,9 @@
+{
+  "_fixture_note": "OFFLINE TEST FIXTURE ONLY — synthetic placeholder text; NOT sourced from Pending Airtable recSKTT8NTTJOmuRu. Production generation requires live Approved pin.",
+  "record_id": "recSKTT8NTTJOmuRu",
+  "config_name": "Operational v0.4",
+  "status": "Approved",
+  "system_prompt": "You are Clive's Man for Clive by AstraJax — TEST FIXTURE steward prompt for offline Hyperagent export validation only.",
+  "rules_section": "NEVER approve canonical truth in this fixture. ALWAYS fail closed outside labelled test runs.",
+  "output_format": "Lead with the result. TEST FIXTURE output shape only."
+}

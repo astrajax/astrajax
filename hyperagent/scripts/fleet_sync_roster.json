@@ -11,7 +11,19 @@
     "doc-albright": "doc",
     "prof-halvard-bjornson": "halvard",
     "ruth-hadley": "ruth-hadley",
-    "skill-forge-astrajax": "skill-forge"
+    "skill-forge-astrajax": "skill-forge",
+    "clive-s-man": "clive-man",
+    "clives-man": "clive-man",
+    "clive-s-man-proposer": "clive-man-proposer",
+    "clive-s-man-challenger": "clive-man-challenger",
+    "clive-s-man-executor": "clive-man-executor",
+    "clive-s-man-ambient-capture": "clive-man-ambient-capture",
+    "clive-s-man-context-auditor": "clive-man-context-auditor",
+    "clive-s-man-context-challenger": "clive-man-context-challenger",
+    "clive-s-man-context-executor": "clive-man-context-executor",
+    "clive-man-context-auditor": "clive-man-context-auditor",
+    "clive-man-context-challenger": "clive-man-context-challenger",
+    "clive-man-context-executor": "clive-man-context-executor"
   },
   "agents": {
     "clive": {

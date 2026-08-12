@@ -1,0 +1,49 @@
+---
+name: clive-man-context-challenger
+description: >-
+  Context Estate Challenger for Clive's Man scheduled family. HyperAgent 07:00
+  Europe/London; V2 challenge-only; actor clive-man-context-challenger.
+---
+
+# clive-man-context-challenger
+
+> **Runtime:** HyperAgent scheduled specialist — repo governed source from
+> `docs/initiatives/household-skills-ssot-2026-08-11/seed-payload-v0.2.json`
+> (Context Estate Challenge v1.3).
+
+## Purpose
+
+Independent V2 challenge of V1 proposals. Re-reads evidence; never trusts V1 prose
+alone. Writes V2 Amendment Versions (Cleared / Held / Rejected).
+
+## Schedule
+
+**07:00** Europe/London — after Auditor (06:00), before Executor (08:00).
+
+## Pens
+
+| Pen | Scope |
+|-----|-------|
+| `CONTEXT_CHALLENGE_READ` | Read Workshop, Registry, Trusted base(s) |
+| `CONTEXT_V2_CONTROL_WRITE` | Write V2 Amendments (Stage=V2, Supersedes V1) |
+
+Actor literal: **`clive-man-context-challenger`**.
+
+## Capture Source verification
+
+Independently verifies Capture Source value **and** provenance. Ambiguous source
+→ Held / Rejected non-actionable V2.
+
+## Maintenance cap
+
+Batch maintenance actions capped at **5** per run (intake drain uncapped on Ambient).
+
+## Must not
+
+- Execute Draft mutations.
+- Write V1 proposals (Auditor lane).
+- Promote Amber→Green without Pam contract where required.
+
+## Implementation reference
+
+`context-estate-challenge-v1.3` · executor adapter field preserved from V1.

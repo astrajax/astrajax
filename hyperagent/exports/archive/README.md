@@ -30,6 +30,20 @@ Matching skills are in `skills/`.
 - `agents/agent-clive-context-scanner-v0_3.json`
 - `skills/skill-clive-context-curator-v0_1.json` … `v4.json`
 
+## Clive's Man v0_1 (superseded 2026-08-12)
+
+On-platform Trinity family v0_1 exports and generators archived when v0_4 context-flow
+family landed. **Do not import v0_1** — use `agent-clive-man-*-v0_4.json` from
+`hyperagent/exports/agents/` after Persona v0.4 Approved generation.
+
+| Artifact | Archive path |
+|----------|----------------|
+| v0_1 agent exports (5) | `agents/agent-clive-man-*-v0_1.json` |
+| v0_1 skill exports (4) | `skills/skill-clive-man-*-v0_1.json` |
+| Generators | `hyperagent/builds/archive/build_clive_man_family_v0_1.py`, `build_clive_man_v0_1.py` |
+
+Registry: `agents/registry/hyperagent/clive/man/build-pack-v0.3.md`
+
 ## Promotion rule
 
 Build scripts in `hyperagent/builds/archive/` regenerate older versions into

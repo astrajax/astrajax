@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Context Amendment Execute \u2014 V2 Cleared",
+    "rrule": "FREQ=DAILY;BYHOUR=8;BYMINUTE=0",
+    "timezone": "Europe/London",
+    "prompt": "Execute only authoritative Cleared V2 context amendments with no terminal event through the typed pen. Report mutations, blockers or kill events.",
+    "threadNamingHint": null,
+    "readOnlyMode": true
+  }
+]
