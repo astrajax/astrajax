@@ -7811,7 +7811,12 @@ textarea.clive-chat__input {
   .study-stage--book .study-stage__content strong,
   .study-stage--book .study-stage__right-panel strong,
   .study-stage--book .study-stage__content a,
-  .study-stage--book .study-stage__right-panel a {
+  .study-stage--book .study-stage__right-panel a,
+  .study-stage--book .onboarding__h1,
+  .study-stage--book .onboarding__h2,
+  .study-stage--book .onboarding__lede,
+  .study-stage--book .onboarding__body,
+  .study-stage--book .onboarding__eyebrow {
     text-shadow: none;
   }
 }

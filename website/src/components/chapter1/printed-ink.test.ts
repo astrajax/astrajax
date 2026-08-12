@@ -19,6 +19,11 @@ const css = readFileSync(
   "utf8",
 );
 
+const onboardingCss = readFileSync(
+  fileURLToPath(new URL("../onboarding/onboarding.css", import.meta.url)),
+  "utf8",
+);
+
 describe("printed-ink shared layer", () => {
   it("defines the shared fibre tile exactly once, on :root", () => {
     expect(css).toContain("--ink-fibre: url(\"data:image/svg+xml");
@@ -83,9 +88,30 @@ describe("ink surfaces consume the shared layer", () => {
     // forced-colours strips texture on both surfaces
     const forced = css.match(/@media \(forced-colors: active\)/g) ?? [];
     expect(forced.length).toBeGreaterThanOrEqual(2);
+    // folio forced-colours also clears onboarding parchment copy
+    expect(css).toContain(".study-stage--book .onboarding__h1");
+    expect(css).toContain(".study-stage--book .onboarding__lede");
     // small-label mobile strip
     expect(css).toMatch(/@media \(max-width: 767px\)/);
     // reduced-motion veil guard
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)/);
+  });
+
+  it("the onboarding thin scope consumes shared presets (not a hand-rolled shadow)", () => {
+    expect(onboardingCss).toContain("text-shadow: var(--ink-display-shadow);");
+    expect(onboardingCss).toContain("text-shadow: var(--ink-body-shadow);");
+    expect(onboardingCss).toContain("text-shadow: var(--ink-label-shadow);");
+    // denser surface values for choice-step — same Ink + three-layer grammar
+    expect(onboardingCss).toMatch(
+      /--ink-display-shadow:\s*\n\s*0 0 1px rgba\(35, 39, 27/,
+    );
+    expect(onboardingCss).toMatch(
+      /--ink-body-shadow:\s*\n\s*0 0 0\.7px rgba\(35, 39, 27/,
+    );
+    expect(onboardingCss).toContain(".study-stage--book:has(.onboarding)");
+    expect(onboardingCss).toContain("--ink-fibre-opacity: 0.06;");
+    // no resurrected pre-#98 local ink vars / blend-mode shortcuts
+    expect(onboardingCss).not.toContain("--folio-ink-");
+    expect(onboardingCss).not.toContain("mix-blend-mode");
   });
 });

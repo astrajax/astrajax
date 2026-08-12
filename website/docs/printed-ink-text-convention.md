@@ -51,9 +51,21 @@ never take the ink texture — don't add `.no-ink` to them.
   `text-shadow` per preset. Identical in Chromium and Safari.
 - Base ink is **Ink #23271B** — the surface palette, not sepia.
 
+## Living Folio onboarding (thin scope)
+
+Onboarding craft lives in `website/src/components/onboarding/onboarding.css`
+(kept out of `globals.css` for parallel scenic work). It maps
+`.onboarding__h1` / `__lede` / etc. onto the shared `--ink-*-shadow`
+tokens. On the choice-step, large display type next to engraved brass
+dockets made the default presets read flat even when correctly applied —
+so that surface sets denser local values for those three tokens (same
+Ink `#23271B`, same halo + offset + soft-ghost grammar; no new effect)
+and bumps `--ink-fibre-opacity` on `.study-stage--book:has(.onboarding)`.
+Taste finish for that strength sits with Kathryn / Tara-Lee.
+
 ## Regression check
 
 `website/src/components/chapter1/printed-ink.test.ts` (vitest) asserts the
 shared layer still defines the fibre, the three presets, the page geometry and
-the `.no-ink` route, and that the Folio and Court scopes still consume them.
-Run it with the chapter-1/brain vitest suites.
+the `.no-ink` route, and that the Folio, Court, and onboarding scopes still
+consume them. Run it with the chapter-1/brain vitest suites.
