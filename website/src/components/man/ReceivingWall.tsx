@@ -23,7 +23,6 @@ import {
 import {
   HEALTH_BAND_STILL_SRC,
   shrineArtForBand,
-  type BrainShelfEntry,
 } from "@/lib/platform/brains";
 import type { ChatMessage } from "@/lib/clive/types";
 import type { PlatformTurnContext } from "@/lib/platform-activity/types";
@@ -38,6 +37,7 @@ import {
   pendingDraftsForJudgement,
   portalDoor,
   portalRightMark,
+  wallHonestyNote,
   type OperatorPortalId,
   type OperatorWallPayload,
   type PortalQueueItem,
@@ -135,39 +135,21 @@ export function ReceivingWall({
     let cancelled = false;
     void (async () => {
       try {
-        const [wallResponse, brainsResponse] = await Promise.all([
-          fetch("/api/brains/receiving-wall"),
-          fetch("/api/brains/list"),
-        ]);
-        const wallJson = (await wallResponse.json()) as {
-          records?: ReceivingRecord[];
-          held?: OperatorWallPayload["held"];
-          proposals?: OperatorWallPayload["proposals"];
-          reports?: OperatorWallPayload["reports"];
-          brains?: BrainShelfEntry[];
-          source?: "live" | "derived" | "seed";
-          message?: string;
+        const wallResponse = await fetch("/api/brains/receiving-wall");
+        const wallJson = (await wallResponse.json()) as Partial<OperatorWallPayload> & {
+          error?: string;
         };
-        let brains: BrainShelfEntry[] | undefined = wallJson.brains;
-        if (brainsResponse.ok) {
-          try {
-            const brainsJson = (await brainsResponse.json()) as {
-              brains?: BrainShelfEntry[];
-            };
-            if (brainsJson.brains?.length) brains = brainsJson.brains;
-          } catch {
-            /* shelf seed */
-          }
-        }
         if (!cancelled && wallResponse.ok) {
+          setData(mergeOperatorWallPayload(wallJson));
+        } else if (!cancelled) {
           setData(
             mergeOperatorWallPayload({
-              ...wallJson,
-              brains,
+              source: "seed",
+              message:
+                wallJson.error ||
+                "Could not read the wall — showing seeded portals so the room is never blank.",
             }),
           );
-        } else if (!cancelled) {
-          setData(mergeOperatorWallPayload({ brains, source: "seed" }));
         }
       } catch {
         if (!cancelled) {
@@ -648,15 +630,12 @@ export function ReceivingWall({
   const idleTint = "#e7d1ad";
   const activeTint = zoomed ? portalDoor(zoomed).tint : idleTint;
 
-  const statusNote =
-    data?.source !== "live" && data?.message ? (
-      <p className={styles.note} role="status">
-        {data.source === "derived"
-          ? data.message ||
-            "Showing live drafts — some bays still use seeded stand-ins until the extended read lands."
-          : data.message}
-      </p>
-    ) : null;
+  const honesty = data ? wallHonestyNote(data) : null;
+  const statusNote = honesty ? (
+    <p className={styles.note} role="status">
+      {honesty}
+    </p>
+  ) : null;
 
   const sill = HOTSPOTS.sillLetter;
   const showSillHotspot = beat === "idle" || beat === "settling";

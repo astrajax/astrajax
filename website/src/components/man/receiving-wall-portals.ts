@@ -1,15 +1,18 @@
 /**
- * Operator portals v1 — idle doors + zoomed bay shapes for the Receiving Wall.
+ * Operator portals v1 — idle doors + zoomed bay helpers (Kate scenic).
  *
- * Kate-owned UI types and seeds. When Doc’s extended API lands on
- * `/api/brains/receiving-wall`, prefer those fields; until then the wall never
- * goes blank. Working look: `docs/initiatives/receiving-wall-kathryn-look-v1.md`
- * (not final — Kathryn / TL own finish).
+ * Payload shapes come from Doc (`@/lib/receiving-wall` +
+ * `ReceivingWallPortalsPayload`). Seeds fill gaps so the painted wall never
+ * blanks. Working look: `docs/initiatives/receiving-wall-kathryn-look-v1.md`.
  */
 
 import {
   isReceivingRecordActioned,
+  type ReceivingPortalId,
+  type ReceivingQueueItem,
   type ReceivingRecord,
+  type ReceivingReportLetter,
+  type ReceivingWallPayload,
 } from "@/lib/receiving-wall";
 import {
   BRAINS_SHELF,
@@ -19,31 +22,14 @@ import {
   type BrainShelfEntry,
 } from "@/lib/platform/brains";
 
-export type OperatorPortalId = "judgement" | "health" | "reports";
-
-/** Queue rows that are not yet Draft Brain Truth (Held / V1 proposals). */
-export type PortalQueueItem = {
-  recordId: string;
-  title: string;
-  snippet: string;
-  provenance: string;
-  reason?: string;
-  stage?: string;
-  verdict?: string;
-  reportUrl?: string;
-  kind: "held" | "proposal";
+/** Client-safe mirror of Doc’s `ReceivingWallPortalsPayload` (brains + bays). */
+export type OperatorWallPayload = ReceivingWallPayload & {
+  brains: BrainShelfEntry[];
 };
 
-/** Household Activity Reports — tip of the paper trail. */
-export type PortalReportLetter = {
-  recordId: string;
-  title: string;
-  reportType: string;
-  agentSlug?: string;
-  headline?: string;
-  body: string;
-  period?: string;
-};
+export type OperatorPortalId = ReceivingPortalId;
+export type PortalQueueItem = ReceivingQueueItem;
+export type PortalReportLetter = ReceivingReportLetter;
 
 export type OperatorPortalDoor = {
   id: OperatorPortalId;
@@ -103,8 +89,8 @@ export function isOperatorPortalId(value: string | null): value is OperatorPorta
   return value === "judgement" || value === "health" || value === "reports";
 }
 
-/** Seed Held / stuck amendment versions — honest stand-in until Doc’s read lands. */
-export const SEED_HELD_ITEMS: PortalQueueItem[] = [
+/** Seed Held — only used if the API omits the array entirely. */
+export const SEED_HELD_ITEMS: ReceivingQueueItem[] = [
   {
     recordId: "seed-held-auditor-overflow",
     title: "Auditor overflow — Context Amendment held",
@@ -118,8 +104,7 @@ export const SEED_HELD_ITEMS: PortalQueueItem[] = [
   },
 ];
 
-/** Seed this-morning V1 proposals not yet drafted. */
-export const SEED_PROPOSAL_ITEMS: PortalQueueItem[] = [
+export const SEED_PROPOSAL_ITEMS: ReceivingQueueItem[] = [
   {
     recordId: "seed-proposal-intake-v1",
     title: "Intake V1 — morning pipe proposals",
@@ -129,23 +114,9 @@ export const SEED_PROPOSAL_ITEMS: PortalQueueItem[] = [
     verdict: "Proposed",
     kind: "proposal",
   },
-  {
-    recordId: "seed-proposal-auditor-v1",
-    title: "Auditor V1 — findings awaiting draft",
-    snippet: "Auditor proposed amendments that have not yet been written as Draft Brain Truth.",
-    provenance: "Context Auditor",
-    stage: "V1",
-    verdict: "Proposed",
-    kind: "proposal",
-    reportUrl: "airtable://Household Activity Reports/recSmDfozEz98ZTH2",
-  },
 ];
 
-/**
- * Canonical shape: Household Activity Reports `recSmDfozEz98ZTH2`
- * (Daily change summary — 13 Aug 2026). Seed body is operator-facing.
- */
-export const SEED_REPORTS: PortalReportLetter[] = [
+export const SEED_REPORTS: ReceivingReportLetter[] = [
   {
     recordId: "recSmDfozEz98ZTH2",
     title: "Daily change summary — 13 Aug 2026",
@@ -153,66 +124,42 @@ export const SEED_REPORTS: PortalReportLetter[] = [
     agentSlug: "summarize-changes-daily",
     headline: "What moved overnight — and what still needs your eye.",
     body:
-      "Overnight the household filed Activity and Reports as usual. The morning pipe wrote Context Amendment Versions first; drafts land on the wall when the Executor finishes.\n\nOpen Judgement for anything that still needs a human. The brains are next door. This letter is the tip of the Reports table — revisions arrive as new rows, never silent edits.",
-    period: "13 Aug 2026",
-  },
-  {
-    recordId: "seed-report-auditor-v1",
-    title: "Context Auditor V1 — morning findings",
-    reportType: "Auditor V1",
-    agentSlug: "context-auditor",
-    headline: "Auditor wrote up what it found; work items sit in Judgement.",
-    body:
-      "This is the written V1 report body. The judgement portal shows the work items; this bay holds the write-up. Tip of the Reports table — superseding rows replace, they do not rewrite.",
-    period: "13 Aug 2026",
-  },
-  {
-    recordId: "seed-report-challenger-v2",
-    title: "Context Challenger V2 — held items explained",
-    reportType: "Challenger V2",
-    agentSlug: "context-challenger",
-    headline: "Why Challenger held work for a human.",
-    body:
-      "Challenger’s V2 write-up when present. Held verdicts stay Held until a human decides — no silent rewrite of V1 from this wall.",
+      "Overnight the household filed Activity and Reports as usual. Open Judgement for anything that still needs a human. The brains are next door.",
     period: "13 Aug 2026",
   },
 ];
 
-export type OperatorWallPayload = {
-  records: ReceivingRecord[];
-  held: PortalQueueItem[];
-  proposals: PortalQueueItem[];
-  reports: PortalReportLetter[];
-  brains: BrainShelfEntry[];
-  source: "live" | "derived" | "seed";
-  message?: string;
+const EMPTY_PORTALS: ReceivingWallPayload["portals"] = {
+  judgement: { source: "seed" },
+  health: { source: "seed" },
+  reports: { source: "seed" },
 };
 
 /** Prefer live API fields; fill gaps so portals never read empty by accident. */
-export function mergeOperatorWallPayload(input: {
-  records?: ReceivingRecord[];
-  held?: PortalQueueItem[];
-  proposals?: PortalQueueItem[];
-  reports?: PortalReportLetter[];
-  brains?: BrainShelfEntry[];
-  source?: "live" | "derived" | "seed";
-  message?: string;
-}): OperatorWallPayload {
-  const records = input.records?.length ? input.records : [];
-  const held = input.held?.length ? input.held : SEED_HELD_ITEMS;
-  const proposals = input.proposals?.length ? input.proposals : SEED_PROPOSAL_ITEMS;
+export function mergeOperatorWallPayload(
+  input: Partial<OperatorWallPayload> & {
+    source?: ReceivingWallPayload["source"];
+    message?: string;
+  },
+): OperatorWallPayload {
+  const records = input.records ?? [];
+  const held = input.held ?? SEED_HELD_ITEMS;
+  const proposals = input.proposals ?? SEED_PROPOSAL_ITEMS;
   const reports = input.reports?.length ? input.reports : SEED_REPORTS;
   const brains = input.brains?.length ? input.brains : BRAINS_SHELF;
-  const usingSeedQueues =
-    !input.held?.length || !input.proposals?.length || !input.reports?.length;
+  const portals = input.portals ?? EMPTY_PORTALS;
   const source = input.source ?? (records.length ? "derived" : "seed");
-  let message = input.message;
-  if (usingSeedQueues && source !== "seed") {
-    message =
-      message ??
-      "Held, proposals, and reports are seeded until the wall’s extended read is wired.";
-  }
-  return { records, held, proposals, reports, brains, source, message };
+
+  return {
+    records,
+    held,
+    proposals,
+    reports,
+    brains,
+    source,
+    message: input.message,
+    portals,
+  };
 }
 
 export function pendingDraftsForJudgement(
@@ -231,7 +178,7 @@ export function pendingDraftsForJudgement(
 
 export function judgementWaitingCount(
   records: ReceivingRecord[],
-  held: PortalQueueItem[],
+  held: ReceivingQueueItem[],
   customAcceptStatus?: string,
 ): number {
   return pendingDraftsForJudgement(records, customAcceptStatus).length + held.length;
@@ -247,11 +194,6 @@ export function worstBrainBand(brains: BrainShelfEntry[]): BrainHealthBand {
   }, "thriving");
 }
 
-export function worstBrainBandWord(brains: BrainShelfEntry[]): string {
-  return HEALTH_BAND_LABELS[worstBrainBand(brains)];
-}
-
-/** Default featured brain in the health aperture — worst band, then first. */
 export function featuredBrain(brains: BrainShelfEntry[]): BrainShelfEntry | null {
   if (!brains.length) return null;
   const worst = worstBrainBand(brains);
@@ -274,7 +216,7 @@ export function portalRightMark(
     const band = worstBrainBand(payload.brains);
     return {
       kind: "state",
-      value: healthBandLabel(band),
+      value: HEALTH_BAND_LABELS[band],
       tint: HEALTH_BAND_WORD_TINT[band],
     };
   }
@@ -282,7 +224,7 @@ export function portalRightMark(
 }
 
 /** Prefer Handoff / summarize-changes-daily as the default opened letter. */
-export function defaultReportLetterId(reports: PortalReportLetter[]): string | null {
+export function defaultReportLetterId(reports: ReceivingReportLetter[]): string | null {
   if (!reports.length) return null;
   const daily =
     reports.find((report) => report.agentSlug === "summarize-changes-daily") ??
@@ -294,4 +236,16 @@ export function defaultReportLetterId(reports: PortalReportLetter[]): string | n
 
 export function brainBandLine(brain: BrainShelfEntry): string {
   return healthBandLabel(brain.healthBand);
+}
+
+/** Pick an operator-facing honesty line from per-portal or top-level messages. */
+export function wallHonestyNote(payload: OperatorWallPayload): string | null {
+  if (payload.source === "live" && !payload.message) {
+    const portalNotes = Object.values(payload.portals)
+      .filter((bay) => bay.source !== "live" && bay.message)
+      .map((bay) => bay.message!);
+    if (!portalNotes.length) return null;
+    return portalNotes[0] ?? null;
+  }
+  return payload.message ?? null;
 }
