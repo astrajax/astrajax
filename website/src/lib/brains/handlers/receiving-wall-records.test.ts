@@ -432,12 +432,14 @@ describe("handleReceivingWallAmendments — judgement portal", () => {
 
     await handleReceivingWallAmendments();
 
-    const requestedUrl = decodeURIComponent(String(mockFetch.mock.calls[0]?.[0]));
-    expect(requestedUrl).toContain(BRAIN_WORKSHOP_TABLES.contextAmendments);
-    expect(requestedUrl).toContain(`filterByFormula=${RECEIVING_WALL_AMENDMENT_FILTER}`);
-    expect(requestedUrl).toContain("sort[0][field]=Created");
-    expect(requestedUrl).toContain("sort[0][direction]=desc");
-    expect(requestedUrl).toContain("maxRecords=100");
+    const requestedUrl = new URL(String(mockFetch.mock.calls[0]?.[0]));
+    expect(requestedUrl.pathname).toContain(BRAIN_WORKSHOP_TABLES.contextAmendments);
+    expect(requestedUrl.searchParams.get("filterByFormula")).toBe(
+      RECEIVING_WALL_AMENDMENT_FILTER,
+    );
+    expect(requestedUrl.searchParams.get("sort[0][field]")).toBe("Created");
+    expect(requestedUrl.searchParams.get("sort[0][direction]")).toBe("desc");
+    expect(requestedUrl.searchParams.get("maxRecords")).toBe("100");
     expect(buildReceivingWallAmendmentFieldIds()).toContain(
       BRAIN_WORKSHOP_AMENDMENT_FIELDS.challengerVerdict,
     );
@@ -664,11 +666,11 @@ describe("handleReceivingWallReports — reports portal", () => {
       period: "13 Aug 2026",
     });
 
-    const requestedUrl = decodeURIComponent(String(mockFetch.mock.calls[0]?.[0]));
-    expect(requestedUrl).toContain(HOUSEHOLD_ACTIVITY_TABLES.reports);
-    expect(requestedUrl).toContain("sort[0][field]=Period End");
-    expect(requestedUrl).toContain("sort[0][direction]=desc");
-    expect(requestedUrl).toContain("maxRecords=12");
+    const requestedUrl = new URL(String(mockFetch.mock.calls[0]?.[0]));
+    expect(requestedUrl.pathname).toContain(HOUSEHOLD_ACTIVITY_TABLES.reports);
+    expect(requestedUrl.searchParams.get("sort[0][field]")).toBe("Period End");
+    expect(requestedUrl.searchParams.get("sort[0][direction]")).toBe("desc");
+    expect(requestedUrl.searchParams.get("maxRecords")).toBe("12");
     expect(buildReceivingWallReportFieldIds()).toContain(
       HOUSEHOLD_ACTIVITY_REPORT_FIELDS.body,
     );
