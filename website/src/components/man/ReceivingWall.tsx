@@ -833,7 +833,7 @@ export function ReceivingWall({
                         : undefined
                     }
                   >
-                    {prefersReducedMotion ? (
+                    {prefersReducedMotion || !wallZoomed ? (
                       /* eslint-disable-next-line @next/next/no-img-element */
                       <img
                         className={styles.bayWallStill}
