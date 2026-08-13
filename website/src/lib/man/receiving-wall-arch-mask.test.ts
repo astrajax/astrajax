@@ -11,9 +11,10 @@ describe("receiving-wall arch mask geometry", () => {
   it("builds a closed symmetric path from the aperture legs and arch curve", () => {
     const path = buildArchPathD();
 
-    // Hole bottom sits under the sill belt (props covered by .sillForeground).
+    // Hole must clear the letter/quill band so portal paint reaches the sill.
     expect(APERTURE.holeBottomY).toBeGreaterThan(APERTURE.safeBox.yTo);
-    expect(APERTURE.holeBottomY).toBeLessThanOrEqual(APERTURE.voidBottomY);
+    expect(APERTURE.holeBottomY).toBeGreaterThan(0.93);
+    expect(APERTURE.holeBottomY).toBeLessThanOrEqual(1);
     expect(path.startsWith(`M ${APERTURE.innerLeft} ${APERTURE.holeBottomY}`)).toBe(true);
     expect(path).toContain(`L ${APERTURE.innerRight}`);
     expect(path.endsWith(" Z")).toBe(true);

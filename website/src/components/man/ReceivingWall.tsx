@@ -20,6 +20,7 @@ import { roomStaticMaskUrl } from "@/lib/man/receiving-wall-arch-mask";
 import {
   DOLLY_IN_DEFAULT,
   DOLLY_IN_LADDER,
+  INTERIOR_PORTAL,
   INTERIOR_WALL,
 } from "@/lib/man/receiving-wall-manifest";
 import type { ChatMessage } from "@/lib/clive/types";
@@ -808,8 +809,6 @@ export function ReceivingWall({
                   <div className={styles.plateRecess} />
                 </div>
               </div>
-              {/* Idle portal motion — sits over the room loop, under the ledger. */}
-              <div className={styles.portalSwirl} aria-hidden />
               <div
                 className={styles.surfaceContent}
                 inert={zoomed !== null && !isNave ? true : undefined}
@@ -834,18 +833,31 @@ export function ReceivingWall({
                         : undefined
                     }
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      className={styles.bayWallStill}
-                      src={INTERIOR_WALL.src}
-                      width={INTERIOR_WALL.width}
-                      height={INTERIOR_WALL.height}
-                      alt=""
-                      draggable={false}
-                    />
+                    {prefersReducedMotion || !wallZoomed ? (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        className={styles.bayWallStill}
+                        src={INTERIOR_WALL.src}
+                        width={INTERIOR_WALL.width}
+                        height={INTERIOR_WALL.height}
+                        alt=""
+                        draggable={false}
+                      />
+                    ) : (
+                      <video
+                        className={styles.bayWallVideo}
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        poster={INTERIOR_PORTAL.poster}
+                        width={INTERIOR_PORTAL.width}
+                        height={INTERIOR_PORTAL.height}
+                      >
+                        <source src={INTERIOR_PORTAL.src} type="video/mp4" />
+                      </video>
+                    )}
                   </div>
-                  {/* Zoomed portal motion — aperture-fixed, above paint, under type. */}
-                  <div className={styles.portalSwirl} aria-hidden />
                   <div
                     className={styles.bayTravel}
                     ref={bayTravelRef}
