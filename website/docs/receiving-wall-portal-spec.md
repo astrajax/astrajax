@@ -985,6 +985,11 @@ which is the point: he is a person in the room, not a support widget in the corn
 
 ### 6.4 The expanded letter — incised, not panelled
 
+> **Amendment (Matthew / Kate, Aug 2026 — Clive in the aperture).** Sitting with Clive continues
+> the same void and incised type inside the arch. No cream slide-over, no new surface, no Chapter 1
+> folio chrome in the bay. Close is incised **Leave Clive** (back to the bay / doors), never a
+> round ×. He is a person in the room, not a drawer.
+
 **Amendment (Matthew, Aug 2026).** An open record ("the letter") must read as text carved into the
 plaster like every other element on the wall — not as a UI card dropped onto the painting.
 

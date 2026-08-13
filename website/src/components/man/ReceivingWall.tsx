@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
-  CAPTURE_SOURCE_LABEL,
+  CAPTURE_SOURCE_BLURB,
   CAPTURE_SOURCE_TINT,
   isReceivingRecordActioned,
   type ReceivingRecord,
@@ -146,8 +146,7 @@ export function ReceivingWall({
             mergeOperatorWallPayload({
               source: "seed",
               message:
-                wallJson.error ||
-                "Could not read the wall — showing seeded portals so the room is never blank.",
+                "This bay is a stand-in until the house can read the real shelf.",
             }),
           );
         }
@@ -332,6 +331,23 @@ export function ReceivingWall({
     after(T.SETTLE, () => setBeat("idle"));
   }, [beat, after, clearPending, T.RETURN, T.SETTLE]);
 
+  const dismissClive = useCallback(() => {
+    // Idle bench is a fourth door — hold cliveOpen through return so the dolly
+    // does not snap, then settle like a portal close.
+    if (zoomed === null && (beat === "zoomedIn" || beat === "zooming")) {
+      clearPending();
+      setReadOffset(0);
+      setBeat("returning");
+      after(T.RETURN, () => {
+        setCliveOpen(false);
+        setBeat("settling");
+      });
+      after(T.SETTLE, () => setBeat("idle"));
+      return;
+    }
+    setCliveOpen(false);
+  }, [zoomed, beat, after, clearPending, T.RETURN, T.SETTLE]);
+
   const summonClive = useCallback(
     (contextRecord?: ReceivingRecord | null) => {
       const bayRecords =
@@ -352,12 +368,12 @@ export function ReceivingWall({
       const recordLine = contextRecord
         ? `You have "${contextRecord.title}" open — read it properly or tell me what it should become.`
         : zoomed === "judgement"
-          ? "Tell me which draft needs deciding, or ask me to walk the judgement bay."
+          ? "Tell me which letter needs deciding, or ask me to walk this bay."
           : zoomed === "health"
-            ? "Ask me which brains need attention, or what the shrine states mean."
+            ? "Ask me which brains need attention, or what the shrine is saying."
             : zoomed === "reports"
               ? "Ask me to summarise this morning’s letters, or what still needs your eye."
-              : "Tell me which record you'd like to read properly, or ask me to walk the bench.";
+              : "Tell me which letter you'd like to read properly, or ask me to walk the bench.";
       setChatSeed([
         {
           role: "assistant",
@@ -365,8 +381,21 @@ export function ReceivingWall({
         },
       ]);
       setCliveOpen(true);
+
+      // Bench as fourth door — idle Sit with Clive uses the same dolly push.
+      if (
+        zoomed === null &&
+        (beat === "idle" || beat === "settling" || beat === "returning")
+      ) {
+        clearPending();
+        setOpenLetterId(null);
+        setOpenLetterKind(null);
+        setReadOffset(0);
+        setBeat("zooming");
+        after(T.ARRIVE, () => setBeat("zoomedIn"));
+      }
     },
-    [records, zoomed, customAcceptStatus],
+    [records, zoomed, beat, customAcceptStatus, after, clearPending, T.ARRIVE],
   );
 
   const handleReceivingWallCliveSend = useCallback(
@@ -546,7 +575,7 @@ export function ReceivingWall({
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        if (cliveOpen) setCliveOpen(false);
+        if (cliveOpen) dismissClive();
         else if (openLetterId) {
           setOpenLetterId(null);
           setOpenLetterKind(null);
@@ -606,13 +635,15 @@ export function ReceivingWall({
     openLetterId,
     beat,
     closeZoom,
+    dismissClive,
     isNave,
     prefersReducedMotion,
     applyReadDelta,
     measureReadTravel,
   ]);
 
-  const wallZoomed = zoomed !== null;
+  /* Clive from the bench dollies in like a door — wallZoomed even without a portal id. */
+  const wallZoomed = zoomed !== null || cliveOpen;
   const reading = beat === "zoomedIn";
   const wallClasses = [
     styles.wall,
@@ -631,20 +662,42 @@ export function ReceivingWall({
   const activeTint = zoomed ? portalDoor(zoomed).tint : idleTint;
 
   const honesty = data ? wallHonestyNote(data) : null;
-  const statusNote = honesty ? (
-    <p className={styles.note} role="status">
-      {honesty}
-    </p>
+  const honestyLine = honesty ? (
+    <p className={styles.honestyLine}>{honesty}</p>
   ) : null;
 
   const sill = HOTSPOTS.sillLetter;
   const showSillHotspot = beat === "idle" || beat === "settling";
 
+  const cliveConversation = (
+    <div
+      className={styles.cliveAperture}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Sit with Clive"
+    >
+      <button type="button" className={styles.incisedAction} onClick={dismissClive}>
+        ← Leave Clive
+      </button>
+      <h2 className={styles.zoomTitle}>Sit with Clive</h2>
+      <div className={styles.cliveConversation}>
+        <CliveChatSurface
+          sessionId={sessionId}
+          userLabel="Architect"
+          studyMode
+          placeholder="Ask Clive to read a letter, or say what it should become…"
+          starterPrompts={[]}
+          initialMessages={chatSeed}
+          onCustomSend={handleReceivingWallCliveSend}
+        />
+      </div>
+    </div>
+  );
+
   const renderDraftLetter = (record: ReceivingRecord) => {
     const isOpen = openLetterKind === "draft" && openLetterId === record.recordId;
     const letter = isOpen ? openDraft : null;
-    const dest =
-      letter?.systemBrainName || letter?.systemBrainSlug || letter?.brainSlug || null;
+    const dest = letter?.systemBrainName || null;
     return (
       <li key={record.recordId}>
         <button
@@ -658,25 +711,6 @@ export function ReceivingWall({
             <span id={`record-title-${record.recordId}`} className={styles.recordTitle}>
               {record.title}
             </span>
-            <span
-              className={styles.recordProvenance}
-              style={{
-                ["--tint" as string]: CAPTURE_SOURCE_TINT[record.captureSource],
-              }}
-            >
-              {record.provenance}
-              {record.category ? (
-                <span className={styles.recordBrainSlug}>{` · ${record.category}`}</span>
-              ) : null}
-              {record.systemBrainName || record.systemBrainSlug || record.brainSlug ? (
-                <span className={styles.recordBrainSlug}>
-                  {` · ${record.systemBrainName || record.systemBrainSlug || record.brainSlug}`}
-                </span>
-              ) : null}
-            </span>
-          </span>
-          <span className={styles.recordChevron} aria-hidden>
-            {isOpen ? "−" : "+"}
           </span>
         </button>
 
@@ -687,11 +721,13 @@ export function ReceivingWall({
             role="region"
             aria-labelledby={`record-title-${record.recordId}`}
           >
-            <p className={styles.letterMeta}>
-              {letter.provenance}
-              {` · ${CAPTURE_SOURCE_LABEL[letter.captureSource]}`}
-              {letter.category ? ` · ${letter.category}` : " · Uncategorised"}
-              {letter.status ? ` · ${letter.status}` : ""}
+            <p
+              className={styles.letterMeta}
+              style={{
+                ["--tint" as string]: CAPTURE_SOURCE_TINT[letter.captureSource],
+              }}
+            >
+              {letter.provenance || CAPTURE_SOURCE_BLURB[letter.captureSource]}
               {dest ? ` · → ${dest}` : ""}
             </p>
             <p className={styles.letterBody}>{letter.canonicalText || letter.snippet}</p>
@@ -726,10 +762,10 @@ export function ReceivingWall({
                 aria-busy={acceptState === "pending"}
                 aria-label={
                   acceptState === "pending"
-                    ? "Accepting record"
+                    ? "Accepting letter"
                     : acceptState === "success" ||
                         isReceivingRecordActioned(letter.status, customAcceptStatus)
-                      ? "Record accepted"
+                      ? "Letter accepted"
                       : `Accept ${letter.title}`
                 }
                 onClick={() => void acceptRecord(letter)}
@@ -747,17 +783,6 @@ export function ReceivingWall({
                 onClick={() => summonClive(letter)}
               >
                 Discuss with Clive
-              </button>
-              <button
-                type="button"
-                className={styles.incisedActionMuted}
-                onClick={() => {
-                  setOpenLetterId(null);
-                  setOpenLetterKind(null);
-                }}
-                aria-label={`Fold the letter — ${letter.title}`}
-              >
-                Fold the letter
               </button>
             </div>
           </div>
@@ -783,18 +808,6 @@ export function ReceivingWall({
             <span id={`record-title-${item.recordId}`} className={styles.recordTitle}>
               {item.title}
             </span>
-            <span className={styles.recordProvenance}>
-              {item.provenance}
-              {item.stage ? (
-                <span className={styles.recordBrainSlug}>{` · ${item.stage}`}</span>
-              ) : null}
-              {item.verdict ? (
-                <span className={styles.recordBrainSlug}>{` · ${item.verdict}`}</span>
-              ) : null}
-            </span>
-          </span>
-          <span className={styles.recordChevron} aria-hidden>
-            {isOpen ? "−" : "+"}
           </span>
         </button>
         {isOpen && letter ? (
@@ -806,30 +819,12 @@ export function ReceivingWall({
           >
             <p className={styles.letterMeta}>
               {letter.provenance}
-              {letter.stage ? ` · ${letter.stage}` : ""}
-              {letter.verdict ? ` · ${letter.verdict}` : ""}
               {" · Held for a human"}
             </p>
             <p className={styles.letterBody}>
               {letter.reason ? `${letter.reason}\n\n` : ""}
               {letter.snippet}
             </p>
-            <p className={styles.letterStatus} role="status">
-              Held — read only. No silent rewrite from this wall.
-            </p>
-            <div className={styles.letterActions}>
-              <button
-                type="button"
-                className={styles.incisedActionMuted}
-                onClick={() => {
-                  setOpenLetterId(null);
-                  setOpenLetterKind(null);
-                }}
-                aria-label={`Fold the letter — ${letter.title}`}
-              >
-                Fold the letter
-              </button>
-            </div>
           </div>
         ) : null}
       </li>
@@ -852,18 +847,6 @@ export function ReceivingWall({
             <span id={`record-title-${report.recordId}`} className={styles.recordTitle}>
               {report.title}
             </span>
-            <span className={styles.recordProvenance}>
-              {report.reportType}
-              {report.period ? (
-                <span className={styles.recordBrainSlug}>{` · ${report.period}`}</span>
-              ) : null}
-              {report.agentSlug ? (
-                <span className={styles.recordBrainSlug}>{` · ${report.agentSlug}`}</span>
-              ) : null}
-            </span>
-          </span>
-          <span className={styles.recordChevron} aria-hidden>
-            {isOpen ? "−" : "+"}
           </span>
         </button>
         {isOpen && letter ? (
@@ -873,14 +856,8 @@ export function ReceivingWall({
             role="region"
             aria-labelledby={`record-title-${report.recordId}`}
           >
-            <p className={styles.letterMeta}>
-              {letter.reportType}
-              {letter.period ? ` · ${letter.period}` : ""}
-              {letter.agentSlug ? ` · ${letter.agentSlug}` : ""}
-            </p>
-            {letter.headline ? (
-              <p className={styles.baySectionHint}>{letter.headline}</p>
-            ) : null}
+            {letter.period ? <p className={styles.letterMeta}>{letter.period}</p> : null}
+            {letter.headline ? <p className={styles.letterLead}>{letter.headline}</p> : null}
             <p className={styles.letterBody}>{letter.body}</p>
             <div className={styles.letterActions}>
               <button
@@ -889,17 +866,6 @@ export function ReceivingWall({
                 onClick={() => summonClive()}
               >
                 Discuss with Clive
-              </button>
-              <button
-                type="button"
-                className={styles.incisedActionMuted}
-                onClick={() => {
-                  setOpenLetterId(null);
-                  setOpenLetterKind(null);
-                }}
-                aria-label={`Fold the letter — ${letter.title}`}
-              >
-                Fold the letter
               </button>
             </div>
           </div>
@@ -944,6 +910,8 @@ export function ReceivingWall({
         })}
       </ul>
 
+      {honestyLine}
+
       <section className={styles.bench} aria-label="The bench">
         <div className={styles.benchRule} aria-hidden />
         <p className={styles.benchKicker}>THE BENCH</p>
@@ -970,46 +938,32 @@ export function ReceivingWall({
   const judgementBay = (
     <>
       <div className={styles.baySection}>
-        <p className={styles.letterMeta}>Needs a human</p>
-        <p className={styles.baySectionHint}>
-          Draft truths still pending — read, discuss with Clive, Accept.
-        </p>
+        <p className={styles.sectionHead}>Needs you</p>
         {pendingDrafts.length === 0 ? (
-          <p className={styles.empty}>Nothing pending in Draft Brain Truth right now.</p>
+          <p className={styles.emptyQuiet}>Nothing waiting.</p>
         ) : (
           <ul className={styles.recordList}>{pendingDrafts.map(renderDraftLetter)}</ul>
         )}
       </div>
 
       <div className={`${styles.baySection} ${styles.heldLip}`}>
-        <p className={styles.letterMeta}>Held / stuck</p>
-        <p className={styles.baySectionHint}>
-          Amendment versions Challenger held — read why; no Accept from here.
-        </p>
+        <p className={styles.sectionHead}>Held back</p>
         {payload.held.length === 0 ? (
-          <p className={styles.empty}>Nothing held this morning.</p>
+          <p className={styles.emptyQuiet}>Someone stopped this. Read why.</p>
         ) : (
           <ul className={styles.recordList}>{payload.held.map(renderHeldLetter)}</ul>
         )}
       </div>
 
       <div className={styles.baySection}>
-        <p className={styles.letterMeta}>This morning’s proposals</p>
-        <p className={styles.baySectionHint}>
-          Recent V1 Proposed work not yet drafted — one line each; no execute from this wall.
-        </p>
+        <p className={styles.sectionHead}>Proposed overnight</p>
         {payload.proposals.length === 0 ? (
-          <p className={styles.empty}>No open V1 proposals on the wall yet.</p>
+          <p className={styles.emptyQuiet}>Nothing proposed overnight.</p>
         ) : (
           <ul className={styles.recordList}>
             {payload.proposals.map((item) => (
               <li key={item.recordId} className={styles.proposalLine}>
                 {item.title}
-                <span className={styles.proposalLineMeta}>
-                  {item.provenance}
-                  {item.stage ? ` · ${item.stage}` : ""}
-                  {item.verdict ? ` · ${item.verdict}` : ""}
-                </span>
               </li>
             ))}
           </ul>
@@ -1049,11 +1003,11 @@ export function ReceivingWall({
               <source src={shrineArtForBand(featured.healthBand)} type="video/mp4" />
             </video>
           )}
+          <div className={styles.shrineVarnish} aria-hidden />
         </div>
         <div className={styles.shrineMeta}>
           <span className={styles.shrineName}>{featured.name}</span>
           <span className={styles.shrineBandLabel}>{brainBandLine(featured)}</span>
-          <p className={styles.shrineTheme}>{featured.theme}</p>
           <Link
             href={`/brain/${featured.slug}?tab=overview`}
             className={styles.shrineOpen}
@@ -1065,7 +1019,7 @@ export function ReceivingWall({
       </div>
     </div>
   ) : (
-    <p className={styles.empty}>No household brains on the shelf yet.</p>
+    <p className={styles.emptyQuiet}>No brains on the shelf yet.</p>
   );
 
   const reportsBay = (
@@ -1077,16 +1031,14 @@ export function ReceivingWall({
           aria-label={tipReport.title}
           style={{ marginTop: 0 }}
         >
-          <p className={styles.letterMeta}>
-            {tipReport.reportType}
-            {tipReport.period ? ` · ${tipReport.period}` : ""}
-            {tipReport.agentSlug ? ` · ${tipReport.agentSlug}` : ""}
-          </p>
+          {tipReport.period ? (
+            <p className={styles.letterMeta}>{tipReport.period}</p>
+          ) : null}
           <h3 className={styles.recordTitle} style={{ marginBottom: "0.65rem" }}>
             {tipReport.title}
           </h3>
           {tipReport.headline ? (
-            <p className={styles.baySectionHint}>{tipReport.headline}</p>
+            <p className={styles.letterLead}>{tipReport.headline}</p>
           ) : null}
           <p className={styles.letterBody}>{tipReport.body}</p>
           <div className={styles.letterActions}>
@@ -1100,12 +1052,12 @@ export function ReceivingWall({
           </div>
         </div>
       ) : (
-        <p className={styles.empty}>No daily change summary on the wall yet.</p>
+        <p className={styles.emptyQuiet}>No letter from this morning yet.</p>
       )}
 
       {siblingReports.length > 0 ? (
         <>
-          <p className={`${styles.letterMeta}`} style={{ marginTop: "1.5rem" }}>
+          <p className={styles.sectionHead} style={{ marginTop: "1.5rem" }}>
             Other letters
           </p>
           <ul className={styles.siblingList}>
@@ -1133,11 +1085,10 @@ export function ReceivingWall({
         aria-label={zoomedDoor.label}
       >
         <div className={styles.zoomHead}>
-          <button type="button" className={styles.backBtn} onClick={closeZoom}>
+          <button type="button" className={styles.incisedAction} onClick={closeZoom}>
             ← The wall
           </button>
           <h2 className={styles.zoomTitle}>{zoomedDoor.label}</h2>
-          <p className={styles.zoomBlurb}>{zoomedDoor.blurb}</p>
         </div>
 
         {zoomed === "judgement"
@@ -1154,6 +1105,18 @@ export function ReceivingWall({
         </div>
       </section>
     ) : null;
+
+  /* Clive always in the travelling bay (bench dollies in like a fourth door). */
+  const idleSurface = cliveOpen ? null : ledgerSection;
+
+  const showCliveBay =
+    cliveOpen && beat !== "returning" && beat !== "settling";
+
+  const baySurface = showCliveBay
+    ? cliveConversation
+    : zoomed !== null && !cliveOpen
+      ? baySection
+      : null;
 
   return (
     <main
@@ -1191,10 +1154,9 @@ export function ReceivingWall({
               </div>
               <div
                 className={styles.surfaceContent}
-                inert={zoomed !== null && !isNave ? true : undefined}
+                inert={wallZoomed && !isNave ? true : undefined}
               >
-                {statusNote}
-                {ledgerSection}
+                {idleSurface}
               </div>
               {/* Bay: travelling interior paint + type behind the pinned arch. */}
               <div className={styles.bayOverlay} aria-hidden={!wallZoomed}>
@@ -1248,9 +1210,7 @@ export function ReceivingWall({
                     }
                   >
                     <div className={styles.bayContent}>
-                      <div className={styles.surfaceContent}>
-                        {zoomed !== null ? baySection : null}
-                      </div>
+                      <div className={styles.surfaceContent}>{baySurface}</div>
                     </div>
                   </div>
                 </div>
@@ -1285,40 +1245,6 @@ export function ReceivingWall({
       <div className={styles.varnishTint} aria-hidden />
       <div className={styles.varnishShade} aria-hidden />
       <div className={styles.varnishGrain} aria-hidden />
-
-      {cliveOpen ? (
-        <div className={styles.popOverlay} role="dialog" aria-modal="true" aria-label="Sit with Clive">
-          <div className={styles.popPanel}>
-            <div className={styles.popHead}>
-              <div>
-                <p className={styles.popKicker}>Guided curation</p>
-                <p className={styles.popTitle}>Sit with Clive</p>
-              </div>
-              <button
-                type="button"
-                className={styles.popClose}
-                onClick={() => setCliveOpen(false)}
-                aria-label="Close"
-              >
-                ×
-              </button>
-            </div>
-            <div className={styles.popBody}>
-              <CliveChatSurface
-                sessionId={sessionId}
-                userLabel="Architect"
-                placeholder="Ask Clive to read a record, or propose what it should become…"
-                starterPrompts={[
-                  "Walk the bench — what needs deciding?",
-                  "Read the first record properly",
-                ]}
-                initialMessages={chatSeed}
-                onCustomSend={handleReceivingWallCliveSend}
-              />
-            </div>
-          </div>
-        </div>
-      ) : null}
     </main>
   );
 }

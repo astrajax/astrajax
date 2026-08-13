@@ -93,11 +93,11 @@ export function isOperatorPortalId(value: string | null): value is OperatorPorta
 export const SEED_HELD_ITEMS: ReceivingQueueItem[] = [
   {
     recordId: "seed-held-auditor-overflow",
-    title: "Auditor overflow — Context Amendment held",
+    title: "Auditor overflow — held for a human",
     snippet:
-      "Challenger held this amendment: the Auditor burst needs a human before any rewrite.",
+      "The Challenger held this letter: the Auditor burst needs a human before any rewrite.",
     provenance: "Context Challenger",
-    reason: "Human Decision Needed — do not silently rewrite V1.",
+    reason: "Needs a human — do not silently rewrite what is already held.",
     stage: "V2",
     verdict: "Held",
     kind: "held",
@@ -107,8 +107,8 @@ export const SEED_HELD_ITEMS: ReceivingQueueItem[] = [
 export const SEED_PROPOSAL_ITEMS: ReceivingQueueItem[] = [
   {
     recordId: "seed-proposal-intake-v1",
-    title: "Intake V1 — morning pipe proposals",
-    snippet: "Recent V1 Proposed rows from Intake, still waiting to become drafts.",
+    title: "Morning pipe — proposals waiting to be drafted",
+    snippet: "Recent proposals from Intake, still waiting to become drafts.",
     provenance: "Clive Intake",
     stage: "V1",
     verdict: "Proposed",
@@ -119,16 +119,19 @@ export const SEED_PROPOSAL_ITEMS: ReceivingQueueItem[] = [
 export const SEED_REPORTS: ReceivingReportLetter[] = [
   {
     recordId: "recSmDfozEz98ZTH2",
-    title: "Daily change summary — 13 Aug 2026",
+    title: "What moved overnight — 13 Aug 2026",
     reportType: "Handoff",
     agentSlug: "summarize-changes-daily",
     headline: "What moved overnight — and what still needs your eye.",
     body:
-      "Overnight the household filed Activity and Reports as usual. Open Judgement for anything that still needs a human. The brains are next door.",
+      "Overnight the household filed as usual. Open Judgement for anything that still needs a human. The brains are next door.",
     period: "13 Aug 2026",
   },
 ];
 
+/** Plain stand-in when the house cannot yet read the real shelf. */
+export const SEED_HONESTY_LINE =
+  "This bay is a stand-in until the house can read the real shelf.";
 const EMPTY_PORTALS: ReceivingWallPayload["portals"] = {
   judgement: { source: "seed" },
   health: { source: "seed" },
@@ -238,14 +241,29 @@ export function brainBandLine(brain: BrainShelfEntry): string {
   return healthBandLabel(brain.healthBand);
 }
 
-/** Pick an operator-facing honesty line from per-portal or top-level messages. */
+/**
+ * One plain honesty sentence for the aperture — never a status banner,
+ * never engineer field names. Seed / partial live → stand-in line.
+ */
 export function wallHonestyNote(payload: OperatorWallPayload): string | null {
+  if (payload.source === "seed") return SEED_HONESTY_LINE;
+
   if (payload.source === "live" && !payload.message) {
-    const portalNotes = Object.values(payload.portals)
-      .filter((bay) => bay.source !== "live" && bay.message)
-      .map((bay) => bay.message!);
+    const portalNotes = Object.values(payload.portals).filter(
+      (bay) => bay.source !== "live" && bay.message,
+    );
     if (!portalNotes.length) return null;
-    return portalNotes[0] ?? null;
+    return SEED_HONESTY_LINE;
   }
-  return payload.message ?? null;
+
+  if (payload.message) {
+    // Keep API copy only when it already reads as plain English; else stand-in.
+    const raw = payload.message.trim();
+    if (/PAT|token|Draft Brain Truth|Amendment|Workshop|V1|V2|slug/i.test(raw)) {
+      return SEED_HONESTY_LINE;
+    }
+    return raw;
+  }
+
+  return null;
 }
