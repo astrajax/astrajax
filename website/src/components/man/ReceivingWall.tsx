@@ -792,7 +792,6 @@ export function ReceivingWall({
         <div className={styles.plate} ref={plateRef}>
           <div className={styles.interiorViewport} ref={interiorViewportRef}>
             <div className={styles.voidFill} aria-hidden />
-            <div className={styles.portalCore} aria-hidden />
             <div className={styles.surfacePlate}>
               <div className={styles.surfaceBackdrop}>
                 <div className={styles.plateBreath}>
@@ -809,6 +808,8 @@ export function ReceivingWall({
                   <div className={styles.plateRecess} />
                 </div>
               </div>
+              {/* Idle portal motion — sits over the room loop, under the ledger. */}
+              <div className={styles.portalSwirl} aria-hidden />
               <div
                 className={styles.surfaceContent}
                 inert={zoomed !== null && !isNave ? true : undefined}
@@ -825,6 +826,27 @@ export function ReceivingWall({
                   tabIndex={reading ? 0 : -1}
                 >
                   <div
+                    className={styles.bayPaintTravel}
+                    aria-hidden
+                    style={
+                      reading && !prefersReducedMotion
+                        ? { transform: `translateY(${-readOffset}px)` }
+                        : undefined
+                    }
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      className={styles.bayWallStill}
+                      src={INTERIOR_WALL.src}
+                      width={INTERIOR_WALL.width}
+                      height={INTERIOR_WALL.height}
+                      alt=""
+                      draggable={false}
+                    />
+                  </div>
+                  {/* Zoomed portal motion — aperture-fixed, above paint, under type. */}
+                  <div className={styles.portalSwirl} aria-hidden />
+                  <div
                     className={styles.bayTravel}
                     ref={bayTravelRef}
                     style={
@@ -833,18 +855,6 @@ export function ReceivingWall({
                         : undefined
                     }
                   >
-                    <div className={styles.surfaceBackdrop} aria-hidden>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        className={styles.bayWallStill}
-                        src={INTERIOR_WALL.src}
-                        width={INTERIOR_WALL.width}
-                        height={INTERIOR_WALL.height}
-                        alt=""
-                        draggable={false}
-                      />
-                      <div className={styles.plateRecess} />
-                    </div>
                     <div className={styles.bayContent}>
                       <div className={styles.surfaceContent}>
                         {zoomed !== null ? baySection : null}

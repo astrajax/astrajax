@@ -34,11 +34,11 @@ export const APERTURE = {
   /** Measured stone-ledge top (void meets sill). */
   voidBottomY: 0.895,
   /**
-   * Room-static mask hole bottom — sits *under* the pinned sill belt so the
-   * hard hole edge is hidden and the letter/quill stay whole on the sill layer.
-   * Props paint begins ~0.88; sill belt covers from 0.85.
+   * Room-static mask hole bottom — flush with the measured ledge so the
+   * sage/grey void cannot flash a band above the sill. Letter/quill live on
+   * `.sillForeground` (from 85%).
    */
-  holeBottomY: 0.88,
+  holeBottomY: 0.895,
 } as const;
 
 /** Inner arch curve — y at each x column (symmetric about 50%). */
