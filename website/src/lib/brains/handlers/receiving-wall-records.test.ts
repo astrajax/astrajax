@@ -1,13 +1,24 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  BRAIN_WORKSHOP_AMENDMENT_FIELDS,
   BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS,
   BRAIN_WORKSHOP_TABLES,
+  HOUSEHOLD_ACTIVITY_REPORT_FIELDS,
+  HOUSEHOLD_ACTIVITY_TABLES,
 } from "../airtable-ids";
 import {
+  RECEIVING_WALL_AMENDMENT_FILTER,
   RECEIVING_WALL_DRAFT_FILTER,
+  buildReceivingWallAmendmentFieldIds,
   buildReceivingWallFieldIds,
+  buildReceivingWallReportFieldIds,
+  handleReceivingWallAmendments,
   handleReceivingWallRecords,
+  handleReceivingWallReports,
+  mapAmendmentToQueueItem,
   mapDraftTruthToReceivingRecord,
+  mapReportToLetter,
+  orderReportLetters,
 } from "./receiving-wall-records";
 import {
   RECEIVING_UNCATEGORISED_KEY,
@@ -22,6 +33,8 @@ beforeEach(() => {
   delete process.env.BRAIN_WORKSHOP_WRITE_TOKEN;
   delete process.env.BRAIN_DOC_PROMOTE_TOKEN;
   delete process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID;
+  delete process.env.HOUSEHOLD_ACTIVITY_READ_TOKEN;
+  delete process.env.HOUSEHOLD_ACTIVITY_REPORTS_TABLE_ID;
   process.env.BRAIN_WORKSHOP_BASE_ID = "appWorkshopTest";
 });
 
@@ -397,6 +410,326 @@ describe("handleReceivingWallRecords", () => {
     expect(result.records[0].canonicalText).toBe("");
     expect(result.records[0].provenance).toBe("Manual intake");
     expect(result.records[0].captureSource).toBe("user-guided");
+  });
+});
+
+describe("handleReceivingWallAmendments — judgement portal", () => {
+  it("seeds held work and proposals when the Workshop read token is missing", async () => {
+    const result = await handleReceivingWallAmendments();
+
+    expect(result.source).toBe("seed");
+    expect(result.message).toMatch(/not configured/i);
+    expect(result.held).toHaveLength(1);
+    expect(result.proposals).toHaveLength(1);
+    expect(result.held[0].kind).toBe("held");
+    expect(result.proposals[0].kind).toBe("proposal");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("reads the control plane newest-first and asks only for held or proposed rows", async () => {
+    process.env.BRAIN_WORKSHOP_READ_TOKEN = "patRead";
+    const mockFetch = mockAirtableRecords([]);
+
+    await handleReceivingWallAmendments();
+
+    const requestedUrl = decodeURIComponent(String(mockFetch.mock.calls[0]?.[0]));
+    expect(requestedUrl).toContain(BRAIN_WORKSHOP_TABLES.contextAmendments);
+    expect(requestedUrl).toContain(`filterByFormula=${RECEIVING_WALL_AMENDMENT_FILTER}`);
+    expect(requestedUrl).toContain("sort[0][field]=Created");
+    expect(requestedUrl).toContain("sort[0][direction]=desc");
+    expect(requestedUrl).toContain("maxRecords=100");
+    expect(buildReceivingWallAmendmentFieldIds()).toContain(
+      BRAIN_WORKSHOP_AMENDMENT_FIELDS.challengerVerdict,
+    );
+    expect(buildReceivingWallAmendmentFieldIds()).toContain(
+      BRAIN_WORKSHOP_AMENDMENT_FIELDS.targetDraft,
+    );
+  });
+
+  it("splits held work from undrafted proposals and drops already-drafted V1 rows", async () => {
+    process.env.BRAIN_WORKSHOP_READ_TOKEN = "patRead";
+    mockAirtableRecords([
+      {
+        id: "recHeldVerdict",
+        fields: {
+          "Amendment Version ID": "cav-held-v2",
+          Stage: "V2",
+          "Challenger Verdict": "Held",
+          "Created By Agent": "clive-man-context-challenger",
+          Reason: "Needs a human before any rewrite of V1.",
+          "V2 Report URL":
+            "https://airtable.com/appF7jQD4ZKrDC7e1/tblFzWUIPSiIGZPln/recV2",
+        },
+      },
+      {
+        id: "recHumanDecision",
+        fields: {
+          "Amendment Version ID": "cav-human-v1",
+          Stage: "V1",
+          "Challenger Verdict": "Proposed",
+          "Human Decision Needed": true,
+          "Created By Agent": "clive-man-context-auditor",
+          Reason: "Conflicting canon — a human must choose.",
+        },
+      },
+      {
+        id: "recUndraftedProposal",
+        fields: {
+          "Amendment Version ID": "cav-intake-v1",
+          Stage: "V1",
+          "Challenger Verdict": "Proposed",
+          "Action Class": "CREATE_DRAFT_TRUTH",
+          "Created By Agent": "clive-man-activity-intake-cursor",
+          Reason: "Household Activity exchange intake",
+          "After Payload": JSON.stringify({
+            title: "Brand · Terracotta sole primary CTA",
+            canonical_text:
+              "On Pale Cream surfaces, Terracotta is the only solid primary CTA fill.",
+          }),
+        },
+      },
+      {
+        id: "recAlreadyDrafted",
+        fields: {
+          "Amendment Version ID": "cav-done-v1",
+          Stage: "V1",
+          "Challenger Verdict": "Proposed",
+          "Created By Agent": "clive-man-ambient-capture",
+          Reason: "Already written as a draft.",
+          "Target Draft": [{ id: "recDraftAlready" }],
+        },
+      },
+    ]);
+
+    const result = await handleReceivingWallAmendments();
+
+    expect(result.source).toBe("live");
+    expect(result.held.map((item) => item.recordId)).toEqual([
+      "recHeldVerdict",
+      "recHumanDecision",
+    ]);
+    expect(result.proposals.map((item) => item.recordId)).toEqual([
+      "recUndraftedProposal",
+    ]);
+    expect(result.held[0]).toMatchObject({
+      title: "Needs a human before any rewrite of V1.",
+      provenance: "clive-man-context-challenger",
+      stage: "V2",
+      verdict: "Held",
+      reportUrl: "https://airtable.com/appF7jQD4ZKrDC7e1/tblFzWUIPSiIGZPln/recV2",
+    });
+    expect(result.proposals[0].title).toBe("Brand · Terracotta sole primary CTA");
+    expect(result.proposals[0].snippet).toMatch(
+      /Terracotta is the only solid primary CTA/,
+    );
+  });
+
+  it("says so honestly when nothing is held and nothing was proposed", async () => {
+    process.env.BRAIN_WORKSHOP_READ_TOKEN = "patRead";
+    mockAirtableRecords([]);
+
+    const result = await handleReceivingWallAmendments();
+
+    expect(result.source).toBe("live");
+    expect(result.held).toEqual([]);
+    expect(result.proposals).toEqual([]);
+    expect(result.message).toMatch(/nothing held/i);
+  });
+
+  it("caps each section and says how many are waiting behind", async () => {
+    process.env.BRAIN_WORKSHOP_READ_TOKEN = "patRead";
+    mockAirtableRecords(
+      Array.from({ length: 30 }, (_, index) => ({
+        id: `recProposal${index}`,
+        fields: {
+          "Amendment Version ID": `cav-burst-${index}`,
+          Stage: "V1",
+          "Challenger Verdict": "Proposed",
+          "Created By Agent": "clive-man-activity-intake-cursor",
+          Reason: `Intake row ${index}`,
+        },
+      })),
+    );
+
+    const result = await handleReceivingWallAmendments();
+
+    expect(result.proposals).toHaveLength(24);
+    expect(result.message).toMatch(/6 more waiting/);
+  });
+
+  it("falls back to seeded queues when the control-plane read fails", async () => {
+    process.env.BRAIN_WORKSHOP_READ_TOKEN = "patRead";
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: "NOT_FOUND" } }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const result = await handleReceivingWallAmendments();
+
+    expect(result.source).toBe("seed");
+    expect(result.message).toMatch(/seeded/i);
+    expect(result.held).toHaveLength(1);
+    expect(result.proposals).toHaveLength(1);
+  });
+});
+
+describe("mapAmendmentToQueueItem", () => {
+  it("reads a title from a field-id keyed payload and truncates a long one", () => {
+    const item = mapAmendmentToQueueItem({
+      id: "recFieldIdPayload",
+      fields: {
+        Stage: "V1",
+        "Challenger Verdict": "Proposed",
+        "Before Snapshot": JSON.stringify({
+          [BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title]: "x".repeat(200),
+          [BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText]: "Body from the snapshot.",
+        }),
+      },
+    });
+
+    expect(item?.title).toHaveLength(121);
+    expect(item?.snippet).toBe("Body from the snapshot.");
+    expect(item?.provenance).toBe("Morning pipe");
+  });
+
+  it("survives unparseable payloads and falls back to the action class", () => {
+    const item = mapAmendmentToQueueItem({
+      id: "recBadJson",
+      fields: {
+        Stage: "V1",
+        "Challenger Verdict": "Proposed",
+        "Action Class": "LINK_SOURCE_DOCUMENT",
+        "After Payload": "{not json",
+      },
+    });
+
+    expect(item?.title).toBe("Link source document");
+    expect(item?.snippet).toBe("Link source document — no reason recorded.");
+    expect(item?.kind).toBe("proposal");
+  });
+
+  it("treats a select returned as an object the same as a plain name", () => {
+    const item = mapAmendmentToQueueItem({
+      id: "recObjectSelect",
+      fields: {
+        Stage: { id: "selA2ZgWCc44mTwTh", name: "V1" },
+        "Challenger Verdict": { id: "selL254cysgbNuy2f", name: "Held" },
+        Reason: "Held by the Challenger.",
+      },
+    });
+
+    expect(item).toMatchObject({ stage: "V1", verdict: "Held", kind: "held" });
+  });
+});
+
+describe("handleReceivingWallReports — reports portal", () => {
+  it("seeds this morning's letters when the Household Activity token is missing", async () => {
+    const result = await handleReceivingWallReports();
+
+    expect(result.source).toBe("seed");
+    expect(result.message).toMatch(/not configured/i);
+    expect(result.reports).toHaveLength(1);
+    expect(result.reports[0].agentSlug).toBe("summarize-changes-daily");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("reads the Reports table newest-first and maps a letter", async () => {
+    process.env.HOUSEHOLD_ACTIVITY_READ_TOKEN = "patHousehold";
+    const mockFetch = mockAirtableRecords([
+      {
+        id: "recSmDfozEz98ZTH2",
+        fields: {
+          Title: "Daily change summary — 13 Aug 2026",
+          "Report Type": "Handoff",
+          "Agent Slug": "summarize-changes-daily",
+          Headline: "What moved overnight.",
+          Body: "The full write-up, already written for a human.",
+          "Period Start": "2026-08-13",
+          "Period End": "2026-08-13",
+        },
+      },
+    ]);
+
+    const result = await handleReceivingWallReports();
+
+    expect(result.source).toBe("live");
+    expect(result.reports[0]).toMatchObject({
+      recordId: "recSmDfozEz98ZTH2",
+      title: "Daily change summary — 13 Aug 2026",
+      reportType: "Handoff",
+      agentSlug: "summarize-changes-daily",
+      body: "The full write-up, already written for a human.",
+      period: "13 Aug 2026",
+    });
+
+    const requestedUrl = decodeURIComponent(String(mockFetch.mock.calls[0]?.[0]));
+    expect(requestedUrl).toContain(HOUSEHOLD_ACTIVITY_TABLES.reports);
+    expect(requestedUrl).toContain("sort[0][field]=Period End");
+    expect(requestedUrl).toContain("sort[0][direction]=desc");
+    expect(requestedUrl).toContain("maxRecords=12");
+    expect(buildReceivingWallReportFieldIds()).toContain(
+      HOUSEHOLD_ACTIVITY_REPORT_FIELDS.body,
+    );
+  });
+
+  it("keeps the wall honest when the Reports read is refused", async () => {
+    process.env.HOUSEHOLD_ACTIVITY_READ_TOKEN = "patHousehold";
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(JSON.stringify({ error: { message: "NOT_AUTHORIZED" } }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const result = await handleReceivingWallReports();
+
+    expect(result.source).toBe("seed");
+    expect(result.message).toMatch(/NOT_AUTHORIZED/);
+    expect(result.reports).toHaveLength(1);
+  });
+
+  it("reports an empty table as empty rather than seeding over it", async () => {
+    process.env.HOUSEHOLD_ACTIVITY_READ_TOKEN = "patHousehold";
+    mockAirtableRecords([]);
+
+    const result = await handleReceivingWallReports();
+
+    expect(result.source).toBe("live");
+    expect(result.reports).toEqual([]);
+    expect(result.message).toMatch(/no written reports/i);
+  });
+});
+
+describe("report letter mapping", () => {
+  it("skips untitled rows and falls back to the headline for a missing body", () => {
+    expect(mapReportToLetter({ id: "recNoTitle", fields: { Title: "  " } })).toBeNull();
+
+    const letter = mapReportToLetter({
+      id: "recNoBody",
+      fields: { Title: "Ward round", Headline: "All agents accounted for." },
+    });
+    expect(letter).toMatchObject({
+      reportType: "Report",
+      body: "All agents accounted for.",
+    });
+    expect(letter?.period).toBeUndefined();
+  });
+
+  it("puts the daily change summary first so it is the letter that opens", () => {
+    const ordered = orderReportLetters([
+      { recordId: "recAudit", title: "Audit", reportType: "Audit", body: "b" },
+      {
+        recordId: "recDaily",
+        title: "Daily change summary",
+        reportType: "Handoff",
+        agentSlug: "summarize-changes-daily",
+        body: "b",
+      },
+    ]);
+
+    expect(ordered.map((letter) => letter.recordId)).toEqual(["recDaily", "recAudit"]);
   });
 });
 
