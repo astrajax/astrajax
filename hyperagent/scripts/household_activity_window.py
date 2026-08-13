@@ -2,7 +2,9 @@
 """Compact Household Activity window digest for the daily change summary.
 
 Read-only. Does not write Sessions, Activity, or Reports. Reports are indexed
-(title / type / headline / link) — Body is never fetched.
+(title / type / headline / link) — Body is never fetched. Activity is read
+through both turn labels: User Turn Type (what Matthew/TL asked or decided)
+and Agent Turn Type (what the agent did). Chat bodies are never fetched.
 
 Usage:
   python3 hyperagent/scripts/household_activity_window.py --hours 24
@@ -50,6 +52,7 @@ ACTIVITY_FIELDS = {
     "summary": "fldoVtBIAKanaafMg",
     "event_id": "fldxIVVOp7VvfVQ5j",
     "session_id": "fldz1skahzUvg1vzX",
+    "user_turn_type": "fldTCd93XF8XhsVoZ",  # AI-owned; read only. Never fetch User Message / Reply Digest.
     "agent_turn_type": "fldvskIDzutu4JzQt",
     "outcome": "fldYYSYt5yVgN8dc1",
     "ai_turn_summary": "fldwmWz6k1ws9TpmP",
@@ -73,8 +76,11 @@ CREDENTIAL_KEYS = (
     "AIRTABLE_API_KEY",
 )
 ENV_FILES = (".env", "website/.env.local")
-SKIP_TURN_TYPES = {"Session End"}
-NARRATIVE_TURN_TYPES = {
+SKIP_AGENT_TURN_TYPES = {"Session End"}
+# Open Ended is unclassified chat filler — not a daily-note signal.
+SKIP_USER_TURN_TYPES = {"Open Ended"}
+HUMAN_NARRATIVE_TYPES = {"Decision", "Correction", "Brief", "Question"}
+AGENT_NARRATIVE_TYPES = {
     "Action", "Completion", "Blocker", "Error", "Decision", "Escalation", "Question",
 }
 
@@ -197,12 +203,18 @@ def build_digest(
         "sessions": set(),
         "actions": [],
         "blockers": [],
+        "human_turns": [],
         "session_count": 0,
     })
     blockers: list[dict[str, str]] = []
     notable: list[dict[str, str]] = []
+    human_turns: list[dict[str, str]] = []
+    questions: list[dict[str, str]] = []
     skipped_session_end = 0
+    skipped_open_ended = 0
     in_window_activity = 0
+    user_turn_counts: dict[str, int] = defaultdict(int)
+    agent_turn_counts: dict[str, int] = defaultdict(int)
 
     for record in activity:
         fields = cells(record)
@@ -210,9 +222,15 @@ def build_digest(
         if started is None or started < window_start or started > window_end:
             continue
         in_window_activity += 1
-        turn_type = _choice_name(fields.get(ACTIVITY_FIELDS["agent_turn_type"]))
-        if turn_type in SKIP_TURN_TYPES:
+        agent_turn = _choice_name(fields.get(ACTIVITY_FIELDS["agent_turn_type"]))
+        user_turn = _choice_name(fields.get(ACTIVITY_FIELDS["user_turn_type"]))
+        agent_turn_counts[agent_turn or "(empty)"] += 1
+        user_turn_counts[user_turn or "(empty)"] += 1
+        if agent_turn in SKIP_AGENT_TURN_TYPES:
             skipped_session_end += 1
+            continue
+        if user_turn in SKIP_USER_TURN_TYPES and not agent_turn:
+            skipped_open_ended += 1
             continue
         sid = str(fields.get(ACTIVITY_FIELDS["session_id"]) or "")
         meta = session_meta.get(sid, {})
@@ -222,22 +240,47 @@ def build_digest(
             bucket["sessions"].add(sid)
         summary = str(fields.get(ACTIVITY_FIELDS["summary"]) or "").strip()
         ai_summary = _ai_text(fields.get(ACTIVITY_FIELDS["ai_turn_summary"]))
-        line = summary or ai_summary
+        # Exchanges: AI Turn Summary is the one-liner. Mechanical rows: Summary.
+        if user_turn:
+            line = ai_summary or summary
+        else:
+            line = summary or ai_summary
         outcome = _choice_name(fields.get(ACTIVITY_FIELDS["outcome"]))
         rec_id = str(record.get("id") or "")
         item = {
             "summary": line,
             "outcome": outcome,
-            "turn_type": turn_type,
+            "user_turn_type": user_turn,
+            "agent_turn_type": agent_turn,
+            "turn_type": agent_turn or user_turn,
             "session_id": sid,
             "record_id": rec_id,
+            "user": meta.get("user") or "",
         }
-        if outcome == "Blocked" or turn_type in {"Blocker", "Error"}:
+        is_blocker = (
+            outcome in {"Blocked", "Failed"}
+            or agent_turn in {"Blocker", "Error"}
+            or user_turn == "Error"
+        )
+        is_question = user_turn == "Question" or agent_turn in {"Question", "Escalation"}
+        is_human = user_turn in HUMAN_NARRATIVE_TYPES
+        is_agent_work = agent_turn in AGENT_NARRATIVE_TYPES or (
+            not agent_turn and not user_turn and bool(line)
+        )
+        tagged = {"agent_slug": slug, **item}
+        if is_blocker:
             bucket["blockers"].append(item)
-            blockers.append({"agent_slug": slug, **item})
-        elif line and (turn_type in NARRATIVE_TURN_TYPES or (not turn_type and summary)):
+            blockers.append(tagged)
+        elif is_human:
+            bucket["human_turns"].append(item)
+            human_turns.append(tagged)
+            if is_question:
+                questions.append(tagged)
+        elif is_question:
+            questions.append(tagged)
+        elif line and is_agent_work:
             bucket["actions"].append(item)
-            notable.append({"agent_slug": slug, **item})
+            notable.append(tagged)
 
     agents = []
     for slug, bucket in sorted(by_slug.items()):
@@ -250,8 +293,10 @@ def build_digest(
             "session_count": len(bucket["sessions"]),
             "action_count": len(bucket["actions"]),
             "blocker_count": len(bucket["blockers"]),
+            "human_turn_count": len(bucket["human_turns"]),
             "actions": [row["summary"] for row in bucket["actions"][:8] if row.get("summary")],
             "blockers": [row["summary"] for row in bucket["blockers"][:8] if row.get("summary")],
+            "human_turns": [row["summary"] for row in bucket["human_turns"][:8] if row.get("summary")],
         })
 
     return {
@@ -260,9 +305,16 @@ def build_digest(
         "session_count": len(session_meta),
         "activity_count": in_window_activity,
         "skipped_session_end": skipped_session_end,
+        "skipped_open_ended": skipped_open_ended,
         "blocked_count": len(blockers),
+        "human_turn_count": len(human_turns),
+        "question_count": len(questions),
+        "user_turn_counts": dict(user_turn_counts),
+        "agent_turn_counts": dict(agent_turn_counts),
         "by_agent": agents,
         "blockers": blockers[:20],
+        "human_turns": human_turns[:40],
+        "questions": questions[:20],
         "notable": notable[:40],
         "activity_view": (
             "https://airtable.com/appF7jQD4ZKrDC7e1/tblNxNLyC31KDQbRl/viwPtyC2Ga4C3G0gZ"
@@ -397,6 +449,16 @@ def _self_test() -> None:
             SESSION_FIELDS["trigger"]: {"name": "Interactive"},
             SESSION_FIELDS["user"]: {"name": "Matthew"},
         },
+    }, {
+        "id": "recS2",
+        "cellValuesByFieldId": {
+            SESSION_FIELDS["session_id"]: "doc-workshop-proposer--20260812T0931Z--b1",
+            SESSION_FIELDS["agent_slug"]: "doc-workshop-proposer",
+            SESSION_FIELDS["agent_name"]: "Doc's Workshop Proposer",
+            SESSION_FIELDS["runtime"]: {"name": "Cursor"},
+            SESSION_FIELDS["trigger"]: {"name": "Interactive"},
+            SESSION_FIELDS["user"]: {"name": "Matthew"},
+        },
     }]
     activity = [
         {
@@ -431,18 +493,76 @@ def _self_test() -> None:
                 ACTIVITY_FIELDS["turn_started"]: "2026-08-13T03:00:00.000Z",
             },
         },
+        {
+            "id": "recA4",
+            "createdTime": "2026-08-12T09:37:41.000Z",
+            "cellValuesByFieldId": {
+                ACTIVITY_FIELDS["session_id"]: "doc-workshop-proposer--20260812T0931Z--b1",
+                ACTIVITY_FIELDS["user_turn_type"]: {"name": "Decision"},
+                ACTIVITY_FIELDS["ai_turn_summary"]: {
+                    "state": "generated",
+                    "value": "Matthew approved Ruth Steward Phase B.",
+                },
+                ACTIVITY_FIELDS["outcome"]: {"name": "Completed"},
+                ACTIVITY_FIELDS["turn_started"]: "2026-08-12T16:00:00.000Z",
+            },
+        },
+        {
+            "id": "recA5",
+            "createdTime": "2026-08-13T04:24:55.000Z",
+            "cellValuesByFieldId": {
+                ACTIVITY_FIELDS["session_id"]: "clive-man-activity-intake-cursor--20260813T0423Z--uc01",
+                ACTIVITY_FIELDS["user_turn_type"]: {"name": "Brief"},
+                ACTIVITY_FIELDS["ai_turn_summary"]: {
+                    "state": "generated",
+                    "value": "Asked for an uncapped intake run; 142 V1 rows written.",
+                },
+                ACTIVITY_FIELDS["outcome"]: {"name": "Completed"},
+                ACTIVITY_FIELDS["turn_started"]: "2026-08-13T04:24:55.000Z",
+            },
+        },
+        {
+            "id": "recA6",
+            "createdTime": "2026-08-13T04:30:00.000Z",
+            "cellValuesByFieldId": {
+                ACTIVITY_FIELDS["session_id"]: "kate--20260813T0100Z--ab",
+                ACTIVITY_FIELDS["user_turn_type"]: {"name": "Open Ended"},
+                ACTIVITY_FIELDS["ai_turn_summary"]: {
+                    "state": "generated",
+                    "value": "Casual chat, not a daily-note signal.",
+                },
+                ACTIVITY_FIELDS["outcome"]: {"name": "Completed"},
+                ACTIVITY_FIELDS["turn_started"]: "2026-08-13T04:30:00.000Z",
+            },
+        },
     ]
     digest = build_digest(
         sessions=sessions, activity=activity,
         window_start=window_start, window_end=window_end,
     )
-    assert digest["activity_count"] == 3, digest
+    assert digest["activity_count"] == 6, digest
     assert digest["skipped_session_end"] == 1, digest
+    assert digest["skipped_open_ended"] == 1, digest
     assert digest["blocked_count"] == 1, digest
+    assert digest["human_turn_count"] == 2, digest
     slugs = {row["slug"] for row in digest["by_agent"]}
-    assert slugs == {"kate", "clive-man-context-auditor"}, slugs
+    assert slugs == {
+        "kate",
+        "clive-man-context-auditor",
+        "doc-workshop-proposer",
+        "clive-man-activity-intake-cursor",
+    }, slugs
     kate = next(row for row in digest["by_agent"] if row["slug"] == "kate")
     assert kate["actions"] == ["Opened PR #139"], kate
+    assert kate["human_turns"] == [], kate
+    human_lines = [row["summary"] for row in digest["human_turns"]]
+    assert "Matthew approved Ruth Steward Phase B." in human_lines, digest["human_turns"]
+    assert "Asked for an uncapped intake run; 142 V1 rows written." in human_lines
+    assert digest["user_turn_counts"]["Decision"] == 1, digest["user_turn_counts"]
+    assert digest["user_turn_counts"]["Brief"] == 1, digest["user_turn_counts"]
+    # Human rows must not also appear as mechanical agent actions.
+    notable_lines = [row["summary"] for row in digest["notable"]]
+    assert "Matthew approved Ruth Steward Phase B." not in notable_lines
     assert slug_from_session_id("clive-man-context-auditor--20260813T0300Z--q7") == (
         "clive-man-context-auditor"
     )
