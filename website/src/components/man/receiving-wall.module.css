@@ -508,18 +508,27 @@
   min-height: 100%;
 }
 
-/* Travelling wall — same poster as the idle plate; scrolls with the type. */
+/*
+ * Travelling wall — tall 4K plaster only (no arch, no letters).
+ * Height comes from the image; never stretch a 16:9 poster to the list.
+ */
 .bayTravel > .surfaceBackdrop {
   position: absolute;
-  inset: 0;
-  min-height: 100%;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100%;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .bayWallStill {
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
   display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
 }
 
 /* Text safe box — layout only (manifest 24%→76% × 22%→86%). */

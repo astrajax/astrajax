@@ -71,6 +71,16 @@ export const LEDGE_STILL_LIFE = {
   yTo: 0.93,
 } as const;
 
+/**
+ * Travelling interior wall — one long tall 4K plaster strip (no arch, sill,
+ * or letter/quill). Wired as width 100% / height auto — never object-fit:fill.
+ */
+export const INTERIOR_WALL = {
+  src: "/agent-cast/clives-man/receiving-wall-interior-4k.jpg",
+  width: 3840,
+  height: 12000,
+} as const;
+
 /** Palette sampled from the paint — use these, not invented values. */
 /**
  * Close portal framing — slow centre push on the *same* painted plate.

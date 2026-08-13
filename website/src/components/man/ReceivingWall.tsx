@@ -20,6 +20,7 @@ import { roomStaticMaskUrl } from "@/lib/man/receiving-wall-arch-mask";
 import {
   DOLLY_IN_DEFAULT,
   DOLLY_IN_LADDER,
+  INTERIOR_WALL,
 } from "@/lib/man/receiving-wall-manifest";
 import type { ChatMessage } from "@/lib/clive/types";
 import type { PlatformTurnContext } from "@/lib/platform-activity/types";
@@ -836,8 +837,11 @@ export function ReceivingWall({
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         className={styles.bayWallStill}
-                        src="/agent-cast/clives-man/receiving-wall-poster.jpg"
+                        src={INTERIOR_WALL.src}
+                        width={INTERIOR_WALL.width}
+                        height={INTERIOR_WALL.height}
                         alt=""
+                        draggable={false}
                       />
                       <div className={styles.plateRecess} />
                     </div>

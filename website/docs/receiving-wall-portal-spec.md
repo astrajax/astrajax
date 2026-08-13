@@ -41,7 +41,9 @@ fallback and is flagged for Kathryn / Tara-Lee's eye.
 
 > **Amendment (Matthew, Aug 2026 — pinned arch + travelling interior).** Three layers on `.plate`
 > (which carries the dolly camera push, default `--dolly-in-16-9: 1.22`):
-> 1. **Interior** (`.bayTravel`) — poster + bay type; translates on reading scroll.
+> 1. **Interior** (`.bayTravel`) — tall 4K plaster (`receiving-wall-interior-4k.jpg`,
+>    3840×12000) + bay type; translates on reading scroll. Not the full poster —
+>    stretching that 16:9 still ghosted the letter stack at the scroll lips.
 > 2. **Room frame** (`.roomStatic`) — poster with SVG **luminance** hole (`roomStaticMaskUrl`,
 >    `mask-mode: luminance`; hole bottom = `APERTURE.holeBottomY` **0.88**, under the sill belt
 >    so the hard hole edge is hidden). Never use `clip-path: path()` with 0–1 coords (browsers
