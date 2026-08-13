@@ -45,9 +45,11 @@ fallback and is flagged for Kathryn / Tara-Lee's eye.
 >    3840×12000) + bay type; translates on reading scroll. Not the full poster —
 >    stretching that 16:9 still ghosted the letter stack at the scroll lips.
 > 2. **Room frame** (`.roomStatic`) — poster with SVG **luminance** hole (`roomStaticMaskUrl`,
->    `mask-mode: luminance`; hole bottom = `APERTURE.holeBottomY` **0.88**, under the sill belt
+>    `mask-mode: luminance`; hole bottom = `APERTURE.holeBottomY` **0.895**, at the ledge
 >    so the hard hole edge is hidden). Never use `clip-path: path()` with 0–1 coords (browsers
->    treat those as px). Arch, sconces, wood stay put while the interior travels.
+>    treat those as px). Arch, sconces, wood stay put while the interior travels. Aperture
+>    carries a CSS contra-rotating dust swirl (`.portalSwirl`) — a 4K mp4 of this height is
+>    a Kathryn commission, not a stretch of the room loop.
 > 3. **Sill belt** (`.sillForeground`) — cut master pixels for the ledge + letter/quill
 >    (`receiving-wall-sill.png`, top at 85% of the plate), pinned above the hole edge so props
 >    stay whole.
