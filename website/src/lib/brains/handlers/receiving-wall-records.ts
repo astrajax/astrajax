@@ -1,10 +1,33 @@
 import { airtableSelect } from "../airtable-rest";
 import {
+  AMENDMENT_CHALLENGER_VERDICT,
+  AMENDMENT_STAGE,
+  BRAIN_WORKSHOP_AMENDMENT_FIELD_NAMES,
+  BRAIN_WORKSHOP_AMENDMENT_FIELDS,
   BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS,
   BRAIN_WORKSHOP_TABLES,
+  HOUSEHOLD_ACTIVITY_DAILY_SUMMARY,
+  HOUSEHOLD_ACTIVITY_REPORT_FIELD_NAMES,
+  HOUSEHOLD_ACTIVITY_REPORT_FIELDS,
 } from "../airtable-ids";
-import { getWorkshopBaseId, getWorkshopReadToken } from "../config";
-import type { CaptureSource, ReceivingRecord } from "@/lib/receiving-wall";
+import {
+  getHouseholdActivityBaseId,
+  getHouseholdActivityReadToken,
+  getHouseholdActivityReportsTableId,
+  getWorkshopBaseId,
+  getWorkshopReadToken,
+} from "../config";
+import { handleBrainList } from "./brain-list";
+import type { BrainShelfEntry } from "@/lib/platform/brains";
+import type {
+  CaptureSource,
+  ReceivingBaySource,
+  ReceivingQueueItem,
+  ReceivingRecord,
+  ReceivingReportLetter,
+  ReceivingWallPayload,
+} from "@/lib/receiving-wall";
+import { formatReportPeriod, weakestBaySource } from "@/lib/receiving-wall";
 
 /**
  * Reads the household's pending draft-brain-truth records for the Receiving
@@ -225,4 +248,442 @@ export async function handleReceivingWallRecords(): Promise<{
       error instanceof Error ? error.message : "Could not load the receiving wall.";
     return { records: SEED_RECORDS, source: "seed", message };
   }
+}
+
+/* ------------------------------------------------------------------ *
+ * Judgement portal — Held / stuck work and this morning's proposals.
+ *
+ * The morning pipe writes Context Amendment Versions first; drafts only
+ * appear once the Executor has run. Without this read, a held amendment or a
+ * 142-row intake burst is invisible on the wall until it becomes a draft.
+ *
+ * Read-only. The wall never writes to the control plane.
+ * ------------------------------------------------------------------ */
+
+/** How many rows each judgement section shows before it says "and more". */
+export const RECEIVING_QUEUE_SECTION_LIMIT = 24;
+
+/** Newest-first ceiling for the control-plane read. */
+export const RECEIVING_AMENDMENT_MAX_RECORDS = 100;
+
+const AV_NAMES = BRAIN_WORKSHOP_AMENDMENT_FIELD_NAMES;
+
+/** Held, needs-a-human, or an undrafted V1 proposal. Nothing already applied. */
+export const RECEIVING_WALL_AMENDMENT_FILTER = [
+  "OR(",
+  `{${AV_NAMES.challengerVerdict}}='${AMENDMENT_CHALLENGER_VERDICT.held}',`,
+  `{${AV_NAMES.humanDecisionNeeded}}=1,`,
+  `AND({${AV_NAMES.stage}}='${AMENDMENT_STAGE.v1}',`,
+  `{${AV_NAMES.challengerVerdict}}='${AMENDMENT_CHALLENGER_VERDICT.proposed}')`,
+  ")",
+].join("");
+
+export function buildReceivingWallAmendmentFieldIds(): string[] {
+  return [
+    BRAIN_WORKSHOP_AMENDMENT_FIELDS.amendmentVersionId,
+    BRAIN_WORKSHOP_AMENDMENT_FIELDS.stage,
+    BRAIN_WORKSHOP_AMENDMENT_FIELDS.challengerVerdict,
+    BRAIN_WORKSHOP_AMENDMENT_FIELDS.humanDecisionNeeded,
+    BRAIN_WORKSHOP_AMENDMENT_FIELDS.createdByAgent,
+    BRAIN_WORKSHOP_AMENDMENT_FIELDS.reason,
+    BRAIN_WORKSHOP_AMENDMENT_FIELDS.actionClass,
+    BRAIN_WORKSHOP_AMENDMENT_FIELDS.afterPayload,
+    BRAIN_WORKSHOP_AMENDMENT_FIELDS.beforeSnapshot,
+    BRAIN_WORKSHOP_AMENDMENT_FIELDS.v1ReportUrl,
+    BRAIN_WORKSHOP_AMENDMENT_FIELDS.v2ReportUrl,
+    BRAIN_WORKSHOP_AMENDMENT_FIELDS.targetDraft,
+  ];
+}
+
+function readString(raw: unknown): string | undefined {
+  if (typeof raw === "string") return raw.trim() || undefined;
+  if (typeof raw === "number") return String(raw);
+  return undefined;
+}
+
+/** Airtable single-selects arrive as a name string; be tolerant of objects. */
+function readSelectName(raw: unknown): string | undefined {
+  if (typeof raw === "string") return raw.trim() || undefined;
+  if (raw && typeof raw === "object" && "name" in raw) {
+    const name = (raw as { name?: unknown }).name;
+    if (typeof name === "string") return name.trim() || undefined;
+  }
+  return undefined;
+}
+
+function readLinkCount(raw: unknown): number {
+  return Array.isArray(raw) ? raw.length : 0;
+}
+
+/**
+ * Amendment payloads are canonical JSON keyed either semantically or by Draft
+ * Brain Truth field id. Pull the first readable value for a logical key.
+ */
+function readPayloadValue(
+  payload: unknown,
+  semanticKey: string,
+  fieldId: string,
+): string | undefined {
+  if (!payload || typeof payload !== "object") return undefined;
+  const record = payload as Record<string, unknown>;
+  return readString(record[semanticKey]) ?? readString(record[fieldId]);
+}
+
+function parsePayload(raw: unknown): unknown {
+  const text = readString(raw);
+  if (!text) return undefined;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+}
+
+function humaniseActionClass(actionClass: string | undefined): string {
+  if (!actionClass) return "Context amendment";
+  return actionClass
+    .toLowerCase()
+    .split("_")
+    .filter(Boolean)
+    .map((word, index) => (index === 0 ? `${word[0]?.toUpperCase()}${word.slice(1)}` : word))
+    .join(" ");
+}
+
+export function mapAmendmentToQueueItem(record: {
+  id: string;
+  fields: Record<string, unknown>;
+}): ReceivingQueueItem | null {
+  const fields = record.fields;
+  const stage = readSelectName(fields[AV_NAMES.stage]);
+  const verdict = readSelectName(fields[AV_NAMES.challengerVerdict]);
+  const humanDecisionNeeded = fields[AV_NAMES.humanDecisionNeeded] === true;
+  const actionClass = readSelectName(fields[AV_NAMES.actionClass]);
+  const reason = readString(fields[AV_NAMES.reason]);
+
+  const after = parsePayload(fields[AV_NAMES.afterPayload]);
+  const before = parsePayload(fields[AV_NAMES.beforeSnapshot]);
+  const payloadTitle =
+    readPayloadValue(after, "title", BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title) ??
+    readPayloadValue(before, "title", BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title);
+  const payloadBody =
+    readPayloadValue(after, "canonical_text", BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText) ??
+    readPayloadValue(before, "canonical_text", BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText);
+
+  const isHeld = verdict === AMENDMENT_CHALLENGER_VERDICT.held || humanDecisionNeeded;
+  const title =
+    payloadTitle ??
+    reason?.split("\n")[0] ??
+    readString(fields[AV_NAMES.amendmentVersionId]) ??
+    humaniseActionClass(actionClass);
+
+  const snippet =
+    payloadBody ??
+    reason ??
+    `${humaniseActionClass(actionClass)} — no reason recorded.`;
+
+  return {
+    recordId: record.id,
+    title: truncate(title, 120),
+    snippet: truncate(snippet),
+    provenance: readString(fields[AV_NAMES.createdByAgent]) ?? "Morning pipe",
+    reason: isHeld && humanDecisionNeeded ? reason ?? "A human must decide." : reason,
+    stage,
+    verdict,
+    reportUrl:
+      readString(fields[AV_NAMES.v2ReportUrl]) ??
+      readString(fields[AV_NAMES.v1ReportUrl]),
+    kind: isHeld ? "held" : "proposal",
+  };
+}
+
+/** A V1 proposal the Executor has not yet turned into a Draft Brain Truth. */
+function isUndraftedProposal(record: {
+  fields: Record<string, unknown>;
+}): boolean {
+  return readLinkCount(record.fields[AV_NAMES.targetDraft]) === 0;
+}
+
+const SEED_HELD_ITEMS: ReceivingQueueItem[] = [
+  {
+    recordId: "seed-held-human-decision",
+    title: "Held — a human must decide before anything is rewritten",
+    snippet:
+      "The Challenger held this amendment. Held stays Held until you decide; the wall never rewrites V1 for you.",
+    provenance: "Context Challenger",
+    reason: "Human Decision Needed",
+    stage: AMENDMENT_STAGE.v2,
+    verdict: AMENDMENT_CHALLENGER_VERDICT.held,
+    kind: "held",
+  },
+];
+
+const SEED_PROPOSAL_ITEMS: ReceivingQueueItem[] = [
+  {
+    recordId: "seed-proposal-morning-v1",
+    title: "This morning's proposals — waiting to become drafts",
+    snippet:
+      "Recent V1 rows from Intake, Ambient, and the Auditor. You can see the queue here; nothing runs from this wall.",
+    provenance: "Morning pipe",
+    stage: AMENDMENT_STAGE.v1,
+    verdict: AMENDMENT_CHALLENGER_VERDICT.proposed,
+    kind: "proposal",
+  },
+];
+
+export interface ReceivingWallAmendmentsResult {
+  held: ReceivingQueueItem[];
+  proposals: ReceivingQueueItem[];
+  source: ReceivingBaySource;
+  message?: string;
+}
+
+function seededAmendments(message: string): ReceivingWallAmendmentsResult {
+  return {
+    held: SEED_HELD_ITEMS,
+    proposals: SEED_PROPOSAL_ITEMS,
+    source: "seed",
+    message,
+  };
+}
+
+export async function handleReceivingWallAmendments(): Promise<ReceivingWallAmendmentsResult> {
+  const baseId = getWorkshopBaseId();
+  const token = getWorkshopReadToken();
+
+  if (!baseId || !token) {
+    return seededAmendments(
+      "Workshop read token not configured — held work and proposals are seeded.",
+    );
+  }
+
+  try {
+    const records = await airtableSelect(
+      baseId,
+      BRAIN_WORKSHOP_TABLES.contextAmendments,
+      token,
+      {
+        fields: buildReceivingWallAmendmentFieldIds(),
+        filterByFormula: RECEIVING_WALL_AMENDMENT_FILTER,
+        sortField: AV_NAMES.created,
+        sortDirection: "desc",
+        maxRecords: RECEIVING_AMENDMENT_MAX_RECORDS,
+      },
+    );
+
+    const held: ReceivingQueueItem[] = [];
+    const proposals: ReceivingQueueItem[] = [];
+    for (const record of records) {
+      const item = mapAmendmentToQueueItem(record);
+      if (!item) continue;
+      if (item.kind === "held") {
+        held.push(item);
+      } else if (isUndraftedProposal(record)) {
+        proposals.push(item);
+      }
+    }
+
+    if (held.length === 0 && proposals.length === 0) {
+      return {
+        held: [],
+        proposals: [],
+        source: "live",
+        message: "Nothing held and nothing proposed this morning.",
+      };
+    }
+
+    const heldShown = held.slice(0, RECEIVING_QUEUE_SECTION_LIMIT);
+    const proposalsShown = proposals.slice(0, RECEIVING_QUEUE_SECTION_LIMIT);
+    const trimmed =
+      held.length - heldShown.length + (proposals.length - proposalsShown.length);
+
+    return {
+      held: heldShown,
+      proposals: proposalsShown,
+      source: "live",
+      message:
+        trimmed > 0
+          ? `Showing the most recent — ${trimmed} more waiting behind these.`
+          : undefined,
+    };
+  } catch (error) {
+    const detail =
+      error instanceof Error ? error.message : "Could not read the control plane.";
+    return seededAmendments(`Held work and proposals are seeded — ${detail}`);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Reports portal — this morning's written write-ups.
+ *
+ * Household Activity Reports is create-only in the world; the wall only shows
+ * the tip. Revisions arrive as new rows via Supersedes, never as silent edits.
+ * ------------------------------------------------------------------ */
+
+/** How many letters the reports bay carries. */
+export const RECEIVING_REPORTS_LIMIT = 12;
+
+const REPORT_NAMES = HOUSEHOLD_ACTIVITY_REPORT_FIELD_NAMES;
+
+export function buildReceivingWallReportFieldIds(): string[] {
+  return [
+    HOUSEHOLD_ACTIVITY_REPORT_FIELDS.title,
+    HOUSEHOLD_ACTIVITY_REPORT_FIELDS.reportType,
+    HOUSEHOLD_ACTIVITY_REPORT_FIELDS.agentSlug,
+    HOUSEHOLD_ACTIVITY_REPORT_FIELDS.headline,
+    HOUSEHOLD_ACTIVITY_REPORT_FIELDS.body,
+    HOUSEHOLD_ACTIVITY_REPORT_FIELDS.periodStart,
+    HOUSEHOLD_ACTIVITY_REPORT_FIELDS.periodEnd,
+  ];
+}
+
+export function mapReportToLetter(record: {
+  id: string;
+  fields: Record<string, unknown>;
+}): ReceivingReportLetter | null {
+  const fields = record.fields;
+  const title = readString(fields[REPORT_NAMES.title]);
+  if (!title) return null;
+  const body = readString(fields[REPORT_NAMES.body]);
+  const headline = readString(fields[REPORT_NAMES.headline]);
+  return {
+    recordId: record.id,
+    title,
+    reportType: readSelectName(fields[REPORT_NAMES.reportType]) ?? "Report",
+    agentSlug: readString(fields[REPORT_NAMES.agentSlug]),
+    headline,
+    body: body ?? headline ?? "This report has no body yet.",
+    period: formatReportPeriod(
+      readString(fields[REPORT_NAMES.periodStart]),
+      readString(fields[REPORT_NAMES.periodEnd]),
+    ),
+  };
+}
+
+/**
+ * The daily change summary is the letter that opens by default, so it leads
+ * even when several reports share a Period End.
+ */
+export function orderReportLetters(
+  letters: ReceivingReportLetter[],
+): ReceivingReportLetter[] {
+  const dailyIndex = letters.findIndex(
+    (letter) => letter.agentSlug === HOUSEHOLD_ACTIVITY_DAILY_SUMMARY.agentSlug,
+  );
+  if (dailyIndex <= 0) return letters;
+  const daily = letters[dailyIndex]!;
+  return [daily, ...letters.filter((_, index) => index !== dailyIndex)];
+}
+
+const SEED_REPORTS: ReceivingReportLetter[] = [
+  {
+    recordId: "seed-report-daily-change-summary",
+    title: "Daily change summary",
+    reportType: HOUSEHOLD_ACTIVITY_DAILY_SUMMARY.reportType,
+    agentSlug: HOUSEHOLD_ACTIVITY_DAILY_SUMMARY.agentSlug,
+    headline: "This morning's written summary is not readable from here yet.",
+    body:
+      "The household files a daily change summary, plus Auditor and Challenger write-ups, in Household Activity Reports.\n\nThe wall cannot read that table with its current credential, so this is a labelled stand-in rather than a real letter. Nothing has been invented: open the Reports table to read the real thing.",
+  },
+];
+
+export interface ReceivingWallReportsResult {
+  reports: ReceivingReportLetter[];
+  source: ReceivingBaySource;
+  message?: string;
+}
+
+export async function handleReceivingWallReports(): Promise<ReceivingWallReportsResult> {
+  const baseId = getHouseholdActivityBaseId();
+  const token = getHouseholdActivityReadToken();
+
+  if (!baseId || !token) {
+    return {
+      reports: SEED_REPORTS,
+      source: "seed",
+      message:
+        "Household Activity read token not configured — this morning's letters are seeded.",
+    };
+  }
+
+  try {
+    const records = await airtableSelect(
+      baseId,
+      getHouseholdActivityReportsTableId(),
+      token,
+      {
+        fields: buildReceivingWallReportFieldIds(),
+        sortField: REPORT_NAMES.periodEnd,
+        sortDirection: "desc",
+        maxRecords: RECEIVING_REPORTS_LIMIT,
+      },
+    );
+
+    const letters = orderReportLetters(
+      records
+        .map((record) => mapReportToLetter(record))
+        .filter((letter): letter is ReceivingReportLetter => letter !== null),
+    );
+
+    if (letters.length === 0) {
+      return {
+        reports: [],
+        source: "live",
+        message: "No written reports filed yet.",
+      };
+    }
+
+    return { reports: letters, source: "live" };
+  } catch (error) {
+    const detail =
+      error instanceof Error ? error.message : "Could not read the Reports table.";
+    return {
+      reports: SEED_REPORTS,
+      source: "seed",
+      message: `This morning's letters are seeded — ${detail}`,
+    };
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * The whole wall — three portals in one operator-only read.
+ * ------------------------------------------------------------------ */
+
+export type ReceivingWallPortalsPayload = ReceivingWallPayload & {
+  brains: BrainShelfEntry[];
+};
+
+export async function handleReceivingWallPortals(): Promise<ReceivingWallPortalsPayload> {
+  const [drafts, amendments, reports, brains] = await Promise.all([
+    handleReceivingWallRecords(),
+    handleReceivingWallAmendments(),
+    handleReceivingWallReports(),
+    handleBrainList(),
+  ]);
+
+  const judgementSource = weakestBaySource([drafts.source, amendments.source]);
+  const judgementMessage = [drafts.message, amendments.message]
+    .filter((line): line is string => Boolean(line))
+    .join(" ");
+
+  return {
+    records: drafts.records,
+    held: amendments.held,
+    proposals: amendments.proposals,
+    reports: reports.reports,
+    brains: brains.brains,
+    // Top-level source/message keep the original single-bay contract honest.
+    source: drafts.source,
+    message: drafts.message,
+    portals: {
+      judgement: {
+        source: judgementSource,
+        message: judgementMessage || undefined,
+      },
+      health: {
+        source: brains.source === "live" ? "live" : "seed",
+        message: brains.message,
+      },
+      reports: { source: reports.source, message: reports.message },
+    },
+  };
 }

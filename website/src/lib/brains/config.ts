@@ -4,6 +4,7 @@ import {
   BRAIN_TRUSTED_CHAPTER1_TABLES,
   BRAIN_WORKSHOP_BASE_ID,
   BRAIN_WORKSHOP_TABLES,
+  HOUSEHOLD_ACTIVITY_TABLES,
 } from "./airtable-ids";
 
 /** Server-only Brain Key configuration. Never import from client components. */
@@ -69,6 +70,17 @@ export function getHouseholdActivityBaseId(): string {
 
 export function getHouseholdActivityTableId(): string {
   return process.env.HOUSEHOLD_ACTIVITY_TABLE_ID ?? "tblNxNLyC31KDQbRl";
+}
+
+/**
+ * Standing reports table. Read-only from the website — reports are create-only
+ * in the world, and the Receiving Wall only ever shows the tip.
+ */
+export function getHouseholdActivityReportsTableId(): string {
+  return (
+    process.env.HOUSEHOLD_ACTIVITY_REPORTS_TABLE_ID ??
+    HOUSEHOLD_ACTIVITY_TABLES.reports
+  );
 }
 
 export function getHouseholdActivityReadToken(): string | undefined {
