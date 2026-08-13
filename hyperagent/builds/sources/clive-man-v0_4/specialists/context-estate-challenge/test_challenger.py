@@ -253,6 +253,35 @@ def ambient_create_no_draft_required():
 truthy("ambient-create-no-draft-required", ambient_create_no_draft_required())
 
 
+def activity_intake_create_may_clear(actor):
+    v1f = {cfg.AV["after_payload"]: _json.dumps({"capture_source": "Chat Session"}),
+           cfg.AV["evidence"]: "recSession",
+           cfg.AV["action_class"]: {"name": "CREATE_DRAFT_TRUTH"},
+           cfg.AV["created_by_agent"]: actor}
+    return ch.verify_capture_source(v1f, None) is None
+
+
+truthy(
+    "activity-intake-cursor-create-may-clear",
+    activity_intake_create_may_clear("clive-man-activity-intake-cursor"),
+)
+truthy(
+    "activity-intake-hyperagent-create-may-clear",
+    activity_intake_create_may_clear("clive-man-activity-intake-hyperagent"),
+)
+
+
+def unknown_intake_actor_held():
+    v1f = {cfg.AV["after_payload"]: _json.dumps({"capture_source": "Chat Session"}),
+           cfg.AV["evidence"]: "recSession",
+           cfg.AV["action_class"]: {"name": "CREATE_DRAFT_TRUTH"},
+           cfg.AV["created_by_agent"]: "someone-else"}
+    return ch.verify_capture_source(v1f, None) is not None
+
+
+truthy("unknown-intake-actor-held", unknown_intake_actor_held())
+
+
 def invalid_select_held():
     v1f = {cfg.AV["after_payload"]: _json.dumps({"fields": {"capture_source": "Bogus"}}),
            cfg.AV["evidence"]: "recX"}

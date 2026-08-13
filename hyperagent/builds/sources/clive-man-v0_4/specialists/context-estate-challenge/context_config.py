@@ -23,7 +23,14 @@ CAPTURE_SOURCE_CHOICES = {
     "User Guided Capture": "selaJPbbEyDNf1Gz8",
     "Chat Session": "sel16ONJz9yPx76hH",
 }
-CHAT_CAPTURE_ACTORS = {"clive-man-ambient-capture", "clive-man"}
+# Chat Session CREATE_DRAFT_TRUTH (no target): Ambient thread scan + Activity Intake twins.
+CHAT_SESSION_CREATE_ACTORS = {
+    "clive-man-ambient-capture",
+    "clive-man-activity-intake-cursor",
+    "clive-man-activity-intake-hyperagent",
+}
+# Legacy blank-target backfill may also cite the steward slug.
+CHAT_CAPTURE_ACTORS = CHAT_SESSION_CREATE_ACTORS | {"clive-man"}
 CHAT_BACKFILL_CLEAR_CAP = 1
 
 BASE_WORKSHOP = "appL2fdnGmhA02WXd"

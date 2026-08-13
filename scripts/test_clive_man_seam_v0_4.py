@@ -107,6 +107,19 @@ class AmbientChallengerExecutorChainTest(unittest.TestCase):
         }
         self.assertIsNotNone(self.ch.verify_capture_source(v1f, None))
 
+    def test_activity_intake_create_capture_source_valid(self) -> None:
+        for actor in (
+            "clive-man-activity-intake-cursor",
+            "clive-man-activity-intake-hyperagent",
+        ):
+            v1f = {
+                self.ch_cfg.AV["action_class"]: {"name": "CREATE_DRAFT_TRUTH"},
+                self.ch_cfg.AV["created_by_agent"]: actor,
+                self.ch_cfg.AV["evidence"]: "recSession",
+                self.ch_cfg.AV["after_payload"]: json.dumps({"capture_source": "Chat Session"}),
+            }
+            self.assertIsNone(self.ch.verify_capture_source(v1f, None), msg=actor)
+
     def test_capture_source_missing_evidence(self) -> None:
         v1f = {
             self.ch_cfg.AV["action_class"]: {"name": "CREATE_DRAFT_TRUTH"},
@@ -173,6 +186,20 @@ class AmbientChallengerExecutorChainTest(unittest.TestCase):
         }
         self.assertEqual(self.ex.classify_lane_from_v1(v1_intake), "intake")
         self.assertEqual(self.ex.classify_lane_from_v1(v1_maint), "maintenance")
+        for actor in (
+            "clive-man-activity-intake-cursor",
+            "clive-man-activity-intake-hyperagent",
+        ):
+            v1_activity = {
+                self.ex.AV["stage"]: {"name": "V1"},
+                self.ex.AV["action_class"]: {"name": "CREATE_DRAFT_TRUTH"},
+                self.ex.AV["created_by_agent"]: actor,
+            }
+            self.assertEqual(
+                self.ex.classify_lane_from_v1(v1_activity),
+                "intake",
+                msg=actor,
+            )
 
 
 class ExecutorQueueMockTest(unittest.TestCase):

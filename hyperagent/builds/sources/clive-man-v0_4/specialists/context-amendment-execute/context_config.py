@@ -11,6 +11,13 @@ EXECUTOR_IMPLEMENTATION_VERSION = "context-amendment-execute-v2.1"
 ROLE = "clive-man-context-executor"
 ACTOR_SCHEDULED = ROLE
 ACTOR_INTAKE = "clive-man-ambient-capture"
+INTAKE_ACTORS = frozenset(
+    {
+        "clive-man-ambient-capture",
+        "clive-man-activity-intake-cursor",
+        "clive-man-activity-intake-hyperagent",
+    }
+)
 
 BASE_WORKSHOP = "appL2fdnGmhA02WXd"
 BASE_REGISTRY = "appbdTVHevH6Bl5ZZ"

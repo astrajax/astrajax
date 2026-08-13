@@ -213,7 +213,7 @@ RUNTIME_DELTA_CONTEXT = """\
 RUNTIME (Hyperagent Context specialist):
 - Scheduled unattended run per repo contract (Europe/London).
 - Actor literal frozen in skill; pens per governed skill doc.
-- Maintenance cap 5; intake drain uncapped on Ambient lane only.
+- Maintenance cap 5; intake drain uncapped for Ambient Capture and Activity Intake.
 - Three-run backlog digest alarm only — never hard stop on first miss."""
 
 
