@@ -844,8 +844,6 @@ export function ReceivingWall({
                       draggable={false}
                     />
                   </div>
-                  {/* Zoomed portal motion — aperture-fixed, above paint, under type. */}
-                  <div className={styles.portalSwirl} aria-hidden />
                   <div
                     className={styles.bayTravel}
                     ref={bayTravelRef}
@@ -862,6 +860,9 @@ export function ReceivingWall({
                     </div>
                   </div>
                 </div>
+                {/* Zoomed portal — sibling of bayWindow so reduced-motion native
+                    scroll cannot carry it out of the aperture (paint < swirl < type). */}
+                <div className={styles.portalSwirl} aria-hidden />
               </div>
             </div>
           </div>
