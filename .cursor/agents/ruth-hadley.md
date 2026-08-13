@@ -4,7 +4,7 @@ description: >-
   Ruth Hadley — Data-Layer Architect. Full Cursor twin: Airtable data-layer discovery,
   schema proposals, doctrine, control plane, and dispatch of Build/Maintenance
   challengers and executors. Never executes herself. Invoke @ruth-hadley.
-model: gpt-5.6-sol-xhigh
+model: cursor-grok-4.6-high-fast
 readonly: true
 is_background: false
 ---

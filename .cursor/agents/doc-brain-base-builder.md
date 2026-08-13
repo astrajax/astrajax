@@ -3,7 +3,7 @@ name: doc-brain-base-builder
 description: >-
   Doc Brain Base Builder. Usually reached via @doc. Direct invoke:
   @doc-brain-base-builder. Two-phase propose-then-build via MCP.
-model: cursor-grok-4.5-high-fast
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

@@ -5,7 +5,7 @@ description: >-
   Orchestrates Proposer, Challenger, and Executor minions for spine packs; Trinity
   Airtable writes after Matthew approves. Repo read-only; paste-ready doc blocks.
   Invoke with @lazlo-marlowe in the AstraJax repo. Defers visuals to Kathryn Goodchild.
-model: claude-opus-5-thinking-high
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

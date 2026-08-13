@@ -2,7 +2,7 @@
 name: clive-man-proposer
 description: >-
   Composer Proposer minion for Clive's Man. Drafts context actions with evidence and never executes.
-model: composer-2.5-fast
+model: cursor-grok-4.6-high-fast
 readonly: true
 is_background: false
 ---

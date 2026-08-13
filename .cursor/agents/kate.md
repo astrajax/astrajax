@@ -5,7 +5,7 @@ description: >-
   painted-world UI: rooms, scenes, hotspots, plaques, loops, transitions, asset
   pipeline. Next.js on Vercel, website/. Invoke with @kate in the AstraJax repo.
   Hyperagent is Kate's reasoning-head runtime; this is the in-IDE version.
-model: cursor-grok-4.5-high-fast
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

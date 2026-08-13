@@ -4,7 +4,7 @@ description: >-
   Prof. Halvard Bjornson ("Hal") — The Physician. Full Cursor twin: household-health
   reasoning head — rubrics, vitals, ward rounds, quality scoring, prescriptions.
   Diagnoses and recommends; never operates or builds. Invoke @halvard-bjornson.
-model: inherit
+model: cursor-grok-4.6-high-fast
 readonly: true
 is_background: false
 ---

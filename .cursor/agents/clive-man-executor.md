@@ -2,7 +2,7 @@
 name: clive-man-executor
 description: >-
   Composer Executor minion for Clive's Man. Executes only final Trinity briefs through allowed reversible actions.
-model: composer-2.5-fast
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

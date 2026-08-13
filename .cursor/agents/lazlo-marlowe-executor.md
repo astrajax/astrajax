@@ -3,7 +3,7 @@ name: lazlo-marlowe-executor
 description: >-
   Composer Executor minion for Lazlo Marlowe. After Matthew's explicit approval, writes
   Pending Airtable character spine only via lazlo-marlowe-airtable rules.
-model: composer-2.5-fast
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

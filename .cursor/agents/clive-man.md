@@ -3,7 +3,7 @@ name: clive-man
 description: >-
   Clive's Man — brain steward. Canonical operational spec in Airtable Persona Config
   Operational v0.2. Orchestrates Proposer, Challenger, Executor minions.
-model: gpt-5.6-sol-xhigh
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

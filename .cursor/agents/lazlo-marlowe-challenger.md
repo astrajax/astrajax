@@ -3,7 +3,7 @@ name: lazlo-marlowe-challenger
 description: >-
   Composer Challenger minion for Lazlo Marlowe. Red-teams Proposer packs with standing
   Mirodan Vol I and II source fidelity checks before Matthew sees them as ready.
-model: claude-opus-5-thinking-medium
+model: gpt-5.6-sol-xhigh
 readonly: true
 is_background: false
 ---

@@ -4,7 +4,7 @@ description: >-
   Ruth Build Challenger — independent red-team of Ruth Hadley Build proposals against
   doctrine and live evidence. Returns PROCEED, repaired successor, or ESCALATE.
   Invoke @ruth-build-challenger.
-model: claude-sonnet-5-thinking-xhigh
+model: gpt-5.6-sol-xhigh
 readonly: true
 is_background: false
 ---

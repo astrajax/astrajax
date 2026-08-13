@@ -5,7 +5,7 @@ description: >-
   booth and demo visuals, art direction, and tasteful critique. Invoke with
   @kathryn-goodchild in the AstraJax repo. Hyperagent is TL's primary runtime;
   this is the full in-IDE version.
-model: claude-opus-5-thinking-high
+model: cursor-grok-4.6-high-fast
 readonly: true
 is_background: false
 ---

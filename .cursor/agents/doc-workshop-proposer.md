@@ -4,7 +4,7 @@ description: >-
   Doc's Workshop Proposer — PROPOSER in Doc's Workshop Trinity. Design interview,
   roster check, config pack. Dispatches Challenger then runtime builders.
   @doc-workshop-proposer or via @doc.
-model: gpt-5.6-sol-xhigh
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

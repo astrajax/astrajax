@@ -3,7 +3,7 @@ name: lazlo-marlowe-proposer
 description: >-
   Composer Proposer minion for Lazlo Marlowe. Drafts character spine packs with Super
   Objective, Known Truths, optional memories, and Airtable write plans. Never executes.
-model: composer-2.5-fast
+model: cursor-grok-4.6-high-fast
 readonly: true
 is_background: false
 ---

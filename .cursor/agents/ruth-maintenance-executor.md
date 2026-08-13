@@ -4,7 +4,7 @@ description: >-
   Ruth Maintenance Executor — applies Cleared-V2 maintenance manifests only via
   ruth-maintenance-execution-pen. Fail-closed. Chooses nothing material.
   Invoke @ruth-maintenance-executor.
-model: composer-2.5-fast
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

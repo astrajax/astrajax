@@ -3,7 +3,7 @@ name: doc-workshop-cursor
 description: >-
   Doc's Workshop Cursor Builder. EXECUTOR for Cursor agent artifacts from an
   approved Trinity brief. Composer-pinned. @doc-workshop-cursor.
-model: composer-2.5-fast
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

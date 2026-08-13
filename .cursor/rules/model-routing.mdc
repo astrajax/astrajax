@@ -14,7 +14,7 @@ Cursor bills from two separate pools. Getting this wrong is the main way spend l
 
 | Pool | Models | Behaviour |
 |---|---|---|
-| **First-party** (subsidised, generous) | Grok 4.5, Composer 2.5, Auto | Cheap. Website and repo hands live here. |
+| **First-party** (subsidised, generous) | Grok 4.6, Grok 4.5, Composer 2.5, Auto | Cheap. Website and repo hands live here. |
 | **Frontier / Other Models** (metered) | GPT Sol, Claude Opus 5, Sonnet 5, Kimi K3 | Scarce. Reserve for judgement. |
 
 Matthew has repeatedly emptied the frontier pool while leaving first-party unused.
@@ -28,6 +28,8 @@ That is the failure mode this rule exists to prevent.
 | **Challenge / taste** | Red-team, craft judgement, Doc Phase A triage | `claude-opus-5-thinking-high` (Sonnet 5 for structured verification) | Frontier |
 | **Build** | Website vibecoding, scenic craft, multi-file product work | `cursor-grok-4.5-high-fast` | First-party |
 | **Grind** | Automations, Trinity executors, repetitive mechanical edits | `composer-2.5-fast` | First-party |
+
+These four tiers are **State A doctrine**. Live `.cursor/agents/` pins follow the operating pin state below.
 
 Deliberate family split: OpenAI reasons, Anthropic challenges. Do not collapse both
 sides onto one vendor — the point is independent judgement, not agreement.
@@ -52,15 +54,35 @@ K3's economics differ by runtime, so there is no single answer:
 Do not pin K3 in Cursor agent frontmatter. Cursor twins of HyperAgent agents should
 mirror the **doctrine**, not the slug.
 
-## Current pins (`.cursor/agents/`)
+## Operating pin state (toggle)
+
+Two maps. Switch by rewriting `.cursor/agents/` frontmatter to match the table.
+
+**Active: B — frontier-empty fallback** (2026-08-13). Restore **A** when frontier credits refill.
+
+While B is active: non-challenger work stays on Grok. Do **not** escalate think work to Sol from a Grok chat. Challengers are pinned `gpt-5.6-sol-xhigh`.
+
+### State A — Canonical (restore this)
 
 | Lane | Agents | Model |
 |---|---|---|
 | Think | `clive`, `clive-man`, `ruth-hadley`, `doc-workshop-proposer` | `gpt-5.6-sol-xhigh` |
 | Challenge / taste | `pam`, `doc`, `kathryn-goodchild`, `lazlo-marlowe`, `doc-workshop-challenger` | `claude-opus-5-thinking-high` |
 | Structured verification | `ruth-build-challenger`, `ruth-maintenance-challenger` | `claude-sonnet-5-thinking-xhigh` |
+| Challenge (Lazlo) | `lazlo-marlowe-challenger` | `claude-opus-5-thinking-medium` |
+| Challenge (Clive's Man) | `clive-man-challenger` | `composer-2.5-fast` |
 | Build | `doc-vercel-minion`, `kate`, `doc-brain-base-builder` | `cursor-grok-4.5-high-fast` |
-| Grind | all `*-executor`, `*-proposer` minions, `doc-workshop-cursor`, `doc-workshop-hyperagent` | `composer-2.5-fast` |
+| Grind | `*-executor`, `*-proposer` minions, `doc-workshop-cursor`, `doc-workshop-hyperagent` | `composer-2.5-fast` |
+| Inherit | `milo-cadence`, `ristral`, `halvard-bjornson`, `clive-hyperagent-release-scanner` | `inherit` |
+
+### State B — Frontier-empty (ACTIVE)
+
+Non-challenger `.cursor/agents/` → `cursor-grok-4.6-high-fast`. Challengers → `gpt-5.6-sol-xhigh`.
+
+| Lane | Agents | Model |
+|---|---|---|
+| Non-challenger (all) | every `.cursor/agents/*.md` except `*-challenger.md` | `cursor-grok-4.6-high-fast` |
+| Challengers | `doc-workshop-challenger`, `lazlo-marlowe-challenger`, `ruth-build-challenger`, `ruth-maintenance-challenger`, `clive-man-challenger` | `gpt-5.6-sol-xhigh` |
 
 Runtime work belongs to **HyperAgent**, not the coding lane.
 
@@ -98,7 +120,7 @@ If no named agent owns the lane, a generic worker is the right answer. Say so in
 
 Say something briefly, once, if:
 
-- Heavy reasoning or strategy is happening on a build model → move it to Sol.
+- Heavy reasoning or strategy is happening on a build model → move it to Sol. **Skip this flag while State B is active** (frontier empty; Sol will fail).
 - A frontier head is doing mechanical edits → dispatch Grok or Composer instead.
 - A task is clearly mechanical and repeatable → offer to hand it to a Composer subagent.
 - Website building has started in an expensive frontier chat → suggest Grok.

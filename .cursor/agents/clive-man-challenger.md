@@ -2,7 +2,7 @@
 name: clive-man-challenger
 description: >-
   Composer Challenger minion for Clive's Man. Red-teams proposed context actions and escalates risk.
-model: composer-2.5-fast
+model: gpt-5.6-sol-xhigh
 readonly: true
 is_background: false
 ---

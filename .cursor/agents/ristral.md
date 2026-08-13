@@ -4,7 +4,7 @@ description: >-
   Ristral — Weekly Best-Practice Scout (Red Kite). One focused run per watched agent;
   grounded in real household activity; draft Recommendations only; never edits skills
   or canon. Invoke @ristral.
-model: inherit
+model: cursor-grok-4.6-high-fast
 readonly: true
 is_background: false
 ---

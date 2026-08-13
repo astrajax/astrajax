@@ -4,7 +4,7 @@ description: >-
   Doc Albright — triage and dispatch for build work. Names the best minion
   (Airtable or Vercel), proposes Phase A, executes Phase B after approval.
   Single entry point: @doc.
-model: claude-opus-5-thinking-high
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

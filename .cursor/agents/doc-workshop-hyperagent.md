@@ -3,7 +3,7 @@ name: doc-workshop-hyperagent
 description: >-
   Doc's Workshop Hyperagent Builder. EXECUTOR for Hyperagent exports and build
   scripts from an approved Trinity brief. Composer-pinned. @doc-workshop-hyperagent.
-model: composer-2.5-fast
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

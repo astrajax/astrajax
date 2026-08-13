@@ -3,7 +3,7 @@ name: doc-vercel-minion
 description: >-
   Doc's Vercel Minion. Usually reached via @doc. Direct invoke:
   @doc-vercel-minion. Two-phase: propose then build website/ after approval.
-model: cursor-grok-4.5-high-fast
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

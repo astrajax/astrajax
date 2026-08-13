@@ -4,7 +4,7 @@ description: >-
   Pam Portiscue, AstraJax's challenger. Stress-tests assumptions, scope, evidence,
   and decision quality before action gates. Read-only sceptical pass; does not
   decide, approve, execute, or replace Matthew.
-model: claude-opus-5-thinking-high
+model: cursor-grok-4.6-high-fast
 readonly: true
 is_background: false
 ---

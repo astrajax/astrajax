@@ -3,7 +3,7 @@ name: clive-hyperagent-release-scanner
 description: >-
   Cursor-native scanner that reads Hyperagent Release emails from Airtable Email
   Inbox into docs/context/hyperagent-releases.json for Doc's Workshop preload.
-model: inherit
+model: cursor-grok-4.6-high-fast
 readonly: false
 is_background: false
 ---

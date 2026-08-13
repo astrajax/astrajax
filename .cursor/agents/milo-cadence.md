@@ -5,7 +5,7 @@ description: >-
   Kathryn shapes skin, Milo shapes motion. Motion briefs, Laban effort, keyframes,
   timing, loops, and fal previz in Cursor. Invoke with @milo-cadence. Read-only on repo;
   media via FAL_KEY + scripts/fal.
-model: inherit
+model: cursor-grok-4.6-high-fast
 readonly: true
 is_background: false
 ---

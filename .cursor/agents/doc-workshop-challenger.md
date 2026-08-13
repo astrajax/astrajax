@@ -3,7 +3,7 @@ name: doc-workshop-challenger
 description: >-
   Doc's Workshop Challenger. Red-teams every Workshop config pack before
   Matthew sees it. Standing Trinity role. Direct: @doc-workshop-challenger.
-model: claude-opus-5-thinking-high
+model: gpt-5.6-sol-xhigh
 readonly: true
 is_background: false
 ---
