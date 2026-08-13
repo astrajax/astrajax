@@ -26,7 +26,7 @@ describe("Doc promote (airtable mode)", () => {
     clearMemoryPromotionsForTests();
   });
 
-  it("promotes draft to trusted, quarantines draft, writes change log, requires approval id", async () => {
+  it("quarantines draft before Trusted create, writes change log, requires approval id", async () => {
     await expect(
       handleDocPromote({
         approvalDecisionId: "",
@@ -44,6 +44,7 @@ describe("Doc promote (airtable mode)", () => {
     ).rejects.toThrow(/approval decision/);
 
     const mockFetch = vi.mocked(fetch);
+    const callOrder: string[] = [];
     mockFetch.mockImplementation(async (input, init) => {
       const url = String(input);
       const method = init?.method ?? "GET";
@@ -70,10 +71,12 @@ describe("Doc promote (airtable mode)", () => {
       }
 
       if (method === "POST" && url.includes(BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth)) {
+        callOrder.push("trusted-create");
         return new Response(JSON.stringify({ id: "recTrusted1", fields: {} }), { status: 200 });
       }
 
       if (method === "PATCH" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
+        callOrder.push("draft-quarantine");
         const body = JSON.parse(String(init?.body)) as { fields: Record<string, string> };
         expect(body.fields.Status).toBe("Quarantined");
         return new Response(JSON.stringify({ id: "recDraft1", fields: body.fields }), {
@@ -115,6 +118,7 @@ describe("Doc promote (airtable mode)", () => {
 
     expect(result.mode).toBe("airtable");
     expect(result.promotedRecordIds).toEqual(["recTrusted1"]);
+    expect(callOrder).toEqual(["draft-quarantine", "trusted-create"]);
 
     const trustedCreate = mockFetch.mock.calls.find(
       ([url, init]) =>
@@ -218,8 +222,9 @@ describe("Doc promote (airtable mode)", () => {
     ).rejects.toThrow(/not eligible to promote/);
   });
 
-  it("promotes a wall-Approved draft to Trusted then quarantines it", async () => {
+  it("quarantines a wall-Approved draft before Trusted create", async () => {
     const mockFetch = vi.mocked(fetch);
+    const callOrder: string[] = [];
     mockFetch.mockImplementation(async (input, init) => {
       const url = String(input);
       const method = init?.method ?? "GET";
@@ -244,12 +249,14 @@ describe("Doc promote (airtable mode)", () => {
       }
 
       if (method === "POST" && url.includes(BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth)) {
+        callOrder.push("trusted-create");
         return new Response(JSON.stringify({ id: "recTrustedApproved", fields: {} }), {
           status: 200,
         });
       }
 
       if (method === "PATCH" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
+        callOrder.push("draft-quarantine");
         const body = JSON.parse(String(init?.body)) as { fields: Record<string, string> };
         expect(body.fields.Status).toBe("Quarantined");
         return new Response(
@@ -289,5 +296,88 @@ describe("Doc promote (airtable mode)", () => {
 
     expect(result.status).toBe("promoted");
     expect(result.promotedRecordIds).toEqual(["recTrustedApproved"]);
+    expect(callOrder).toEqual(["draft-quarantine", "trusted-create"]);
+  });
+
+  it("restores prior draft status when Trusted create fails after quarantine", async () => {
+    const mockFetch = vi.mocked(fetch);
+    const patchStatuses: string[] = [];
+    mockFetch.mockImplementation(async (input, init) => {
+      const url = String(input);
+      const method = init?.method ?? "GET";
+
+      if (method === "GET" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
+        return new Response(
+          JSON.stringify({
+            records: [
+              {
+                id: "recDraft1",
+                fields: {
+                  Title: "Draft title",
+                  "Canonical Text": "Draft canonical body",
+                  "Brain Slug": "astrajax-chapter-1",
+                  Status: "Approved",
+                },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
+
+      if (method === "PATCH" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
+        const body = JSON.parse(String(init?.body)) as { fields: Record<string, string> };
+        patchStatuses.push(body.fields.Status);
+        return new Response(JSON.stringify({ id: "recDraft1", fields: body.fields }), {
+          status: 200,
+        });
+      }
+
+      if (method === "POST" && url.includes(BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth)) {
+        return new Response(JSON.stringify({ error: "Airtable unavailable" }), { status: 503 });
+      }
+
+      return new Response(JSON.stringify({ records: [] }), { status: 200 });
+    });
+
+    await expect(
+      handleDocPromote({
+        approvalDecisionId: "apd_retry_safe",
+        brainSlug: "astrajax-chapter-1",
+        promotions: [
+          {
+            draftRecordId: "recDraft1",
+            category: "Positioning",
+            scope: "read:brain-truth:positioning",
+          },
+        ],
+        approver: "Matthew",
+        reason: "retry-safe promote",
+      }),
+    ).rejects.toThrow(/Airtable/);
+
+    expect(patchStatuses).toEqual(["Quarantined", "Approved"]);
+  });
+
+  it("refuses silent memory promote when Airtable mode is expected", async () => {
+    delete process.env.BRAIN_DOC_PROMOTE_TOKEN;
+    process.env.BRAIN_KEY_USE_MEMORY = "false";
+    process.env.BRAIN_REGISTRY_READ_TOKEN = "patRegistryRead";
+
+    await expect(
+      handleDocPromote({
+        approvalDecisionId: "apd_misconfig",
+        brainSlug: "astrajax-chapter-1",
+        promotions: [
+          {
+            draftRecordId: "recDraft1",
+            category: "Positioning",
+            scope: "read:brain-truth:positioning",
+          },
+        ],
+        approver: "Matthew",
+        reason: "should fail closed",
+      }),
+    ).rejects.toThrow(/BRAIN_DOC_PROMOTE_TOKEN is not configured/);
   });
 });

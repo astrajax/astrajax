@@ -8,11 +8,13 @@ import { revokeGrantsForBrain } from "../grants-store";
 import {
   getDocPromoteToken,
   getWorkshopBaseId,
+  useMemoryStore,
 } from "../config";
 import {
   BRAIN_TRUSTED_CHAPTER1_BASE_ID,
   BRAIN_TRUSTED_CHAPTER1_TABLES,
   BRAIN_WORKSHOP_TABLES,
+  DRAFT_TRUTH_STATUS,
 } from "../airtable-ids";
 import { airtableCreate, airtableFindOne, airtableUpdate } from "../airtable-rest";
 import { assertDraftEligibleForPromote } from "./draft-propose";
@@ -55,6 +57,12 @@ export async function handleDocPromote(body: DocPromoteBody) {
 
   const docToken = getDocPromoteToken();
   if (!docToken) {
+    // Auth may accept BRAIN_KEY_ADMIN_SECRET as a promote header fallback, but
+    // that secret is not an Airtable PAT. Only the explicit memory store may
+    // pretend a promote succeeded without writing Trusted rows.
+    if (!useMemoryStore()) {
+      throw new Error("BRAIN_DOC_PROMOTE_TOKEN is not configured.");
+    }
     memoryPromotions.push(body);
     const revoked = await revokeGrantsForBrain(body.brainSlug.trim());
     return {
@@ -101,26 +109,46 @@ export async function handleDocPromote(body: DocPromoteBody) {
     });
 
     const authority = body.approver.trim();
+    const priorStatus = String(draft.fields.Status ?? "").trim();
 
-    const trusted = await airtableCreate(trustedBaseId, trustedTableId, docToken, {
-      Title: title,
-      "Canonical Text": canonicalText,
-      Category: category.trim(),
-      Scope: scope.trim(),
-      Authority: authority,
-      Freshness: "Current",
-      "Last Reviewed": today,
-    });
-
-    promotedRecordIds.push(trusted.id);
-
+    // Quarantine before Trusted create. Create-then-quarantine left a
+    // promote-eligible draft when the update failed after create succeeded;
+    // retries then duplicated Trusted rows.
     await airtableUpdate(
       workshopBaseId,
       BRAIN_WORKSHOP_TABLES.draftBrainTruth,
       docToken,
       draftRecordId,
-      { Status: "Quarantined" },
+      { Status: DRAFT_TRUTH_STATUS.quarantined },
     );
+
+    let trusted;
+    try {
+      trusted = await airtableCreate(trustedBaseId, trustedTableId, docToken, {
+        Title: title,
+        "Canonical Text": canonicalText,
+        Category: category.trim(),
+        Scope: scope.trim(),
+        Authority: authority,
+        Freshness: "Current",
+        "Last Reviewed": today,
+      });
+    } catch (error) {
+      try {
+        await airtableUpdate(
+          workshopBaseId,
+          BRAIN_WORKSHOP_TABLES.draftBrainTruth,
+          docToken,
+          draftRecordId,
+          { Status: priorStatus },
+        );
+      } catch {
+        // Prefer the create failure; draft may need a manual status restore.
+      }
+      throw error;
+    }
+
+    promotedRecordIds.push(trusted.id);
   }
 
   await appendChangeLog({
