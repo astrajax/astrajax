@@ -18,25 +18,34 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 INIT = ROOT / "docs/initiatives/household-skills-ssot-2026-08-11"
 API = "https://api.airtable.com/v0"
+BATCH = 10
 
 
 def patch_records(base_id: str, table_id: str, records: list[dict], token: str) -> dict:
-    body = json.dumps({"records": records}).encode("utf-8")
-    req = urllib.request.Request(
-        f"{API}/{base_id}/{table_id}",
-        data=body,
-        method="PATCH",
-        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
-    )
-    try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
-            return json.load(resp)
-    except urllib.error.HTTPError as e:
-        if e.code == 429:
-            time.sleep(30)
+    updated: list[dict] = []
+    for i in range(0, len(records), BATCH):
+        chunk = records[i : i + BATCH]
+        body = json.dumps({"records": chunk}).encode("utf-8")
+        req = urllib.request.Request(
+            f"{API}/{base_id}/{table_id}",
+            data=body,
+            method="PATCH",
+            headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        )
+        try:
             with urllib.request.urlopen(req, timeout=120) as resp:
-                return json.load(resp)
-        raise
+                out = json.load(resp)
+        except urllib.error.HTTPError as e:
+            if e.code == 429:
+                time.sleep(30)
+                with urllib.request.urlopen(req, timeout=120) as resp:
+                    out = json.load(resp)
+            else:
+                raise
+        updated.extend(out.get("records", []))
+        if i + BATCH < len(records):
+            time.sleep(0.25)
+    return {"records": updated}
 
 
 def main() -> int:

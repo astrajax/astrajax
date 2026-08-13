@@ -162,17 +162,20 @@ def resolve_agent(path: Path, payload: dict) -> tuple[str, str] | None:
             candidate = file_slug if file_slug in MINIONS else suffix if suffix in MINIONS else file_slug
             if candidate in MINIONS:
                 return "minion", candidate
-            # clive-man-* style
-            if candidate.startswith("clive-man-"):
-                return "minion", candidate
 
     for candidate in (file_slug, json_slug):
         if not candidate:
             continue
         hit = classify_slug(candidate, file_slug)
         if hit:
-            # Avoid attaching minion-role dumps to member head
-            if hit[0] == "member" and any(file_slug.endswith(f"-{s}") for s in MINION_SUFFIXES):
+            # Avoid attaching minion-role dumps to a head member, but allow
+            # members whose own slug legitimately ends in a role suffix
+            # (e.g. investing-lane-trade-executor).
+            if (
+                hit[0] == "member"
+                and any(file_slug.endswith(f"-{s}") for s in MINION_SUFFIXES)
+                and hit[1] != file_slug
+            ):
                 continue
             return hit
     return None

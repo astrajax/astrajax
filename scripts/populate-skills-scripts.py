@@ -188,7 +188,8 @@ def main() -> int:
             if not existing_repo:
                 fields[FLD_REPO_PATH] = REPO_PATH_PREFIX + key + "/"
 
-            if attachments:
+            # Require a complete attachment set; partial uploads must not land.
+            if len(attachments) == len(scripts):
                 fields[FLD_SCRIPT_FILES] = attachments
                 stats["large_to_script_files"] += 1
             else:
