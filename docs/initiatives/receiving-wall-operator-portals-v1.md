@@ -112,6 +112,7 @@ Locked grammar: `website/docs/receiving-wall-portal-spec.md` (portal, dolly, pin
 - Type stays incised into the paint. No SaaS cards, no neon, no mascot.
 - Palette: `docs/business/brand-colours.md` (Nocturne Orchard).
 - Kathryn: still direction and how three doors + health shrine read. She does not edit the repo. Kate implements. TL/Kathryn finish authority stands for *final* look; **v1 draft may ship to Matthew without waiting for a second human**. Mark working tints as working, as today’s category tints already do.
+- **Working look (13 Aug):** `docs/initiatives/receiving-wall-kathryn-look-v1.md` — apply on this branch. Not final.
 - No new full-scene painting. Layers, hotspots, ledger, letter, shrine loops you already have.
 - Agent plates: if a cast still/video sits on parchment in this bay, full-perimeter deckle (`.cursor/rules/folio-agent-plate-deckle.mdc`). Prefer the wall’s own grammar over dropping a folio plate into the arch.
 
