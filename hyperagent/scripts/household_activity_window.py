@@ -3,8 +3,9 @@
 
 Read-only. Does not write Sessions, Activity, or Reports. Reports are indexed
 (title / type / headline / link) — Body is never fetched. Activity is read
-through both turn labels: User Turn Type (what Matthew/TL asked or decided)
-and Agent Turn Type (what the agent did). Chat bodies are never fetched.
+through both turn labels and the four text fields: User Message, Reply Digest,
+AI Turn Summary, Summary. The digest stores a one-liner plus short clips —
+not full chat transcripts.
 
 Usage:
   python3 hyperagent/scripts/household_activity_window.py --hours 24
@@ -52,8 +53,10 @@ ACTIVITY_FIELDS = {
     "summary": "fldoVtBIAKanaafMg",
     "event_id": "fldxIVVOp7VvfVQ5j",
     "session_id": "fldz1skahzUvg1vzX",
-    "user_turn_type": "fldTCd93XF8XhsVoZ",  # AI-owned; read only. Never fetch User Message / Reply Digest.
+    "user_turn_type": "fldTCd93XF8XhsVoZ",  # AI-owned; read only
     "agent_turn_type": "fldvskIDzutu4JzQt",
+    "user_message": "fldzSTdm15GQf88Ph",
+    "reply_digest": "fldBj92Hu9gDesX6u",
     "outcome": "fldYYSYt5yVgN8dc1",
     "ai_turn_summary": "fldwmWz6k1ws9TpmP",
     "turn_started": "fldXoctP5BTnzYsAP",
@@ -83,6 +86,8 @@ HUMAN_NARRATIVE_TYPES = {"Decision", "Correction", "Brief", "Question"}
 AGENT_NARRATIVE_TYPES = {
     "Action", "Completion", "Blocker", "Error", "Decision", "Escalation", "Question",
 }
+# Clips in the digest JSON — full transcripts stay in Airtable.
+TEXT_CLIP = 280
 
 
 def _repo_root() -> str:
@@ -151,6 +156,44 @@ def _ai_text(value: Any) -> str:
     return str(value).strip()
 
 
+def _plain_text(value: Any) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, dict):
+        return str(value.get("value") or "").strip()
+    return str(value).strip()
+
+
+def _clip(text: str, limit: int = TEXT_CLIP) -> str:
+    collapsed = " ".join(text.split())
+    if len(collapsed) <= limit:
+        return collapsed
+    return collapsed[: limit - 1].rstrip() + "…"
+
+
+def _turn_line(fields: dict[str, Any]) -> tuple[str, str, str, str]:
+    """One-liner plus clips from the four Activity text fields.
+
+    Preference: generated AI Turn Summary → mechanical Summary → User Message
+    → Reply Digest. Returns (line, source, user_ask_clip, reply_clip).
+    """
+    summary = _plain_text(fields.get(ACTIVITY_FIELDS["summary"]))
+    ai_summary = _ai_text(fields.get(ACTIVITY_FIELDS["ai_turn_summary"]))
+    user_message = _plain_text(fields.get(ACTIVITY_FIELDS["user_message"]))
+    reply_digest = _plain_text(fields.get(ACTIVITY_FIELDS["reply_digest"]))
+    if ai_summary:
+        line, source = ai_summary, "ai_turn_summary"
+    elif summary:
+        line, source = summary, "summary"
+    elif user_message:
+        line, source = _clip(user_message), "user_message"
+    elif reply_digest:
+        line, source = _clip(reply_digest), "reply_digest"
+    else:
+        line, source = "", ""
+    return line, source, _clip(user_message) if user_message else "", _clip(reply_digest) if reply_digest else ""
+
+
 def _parse_iso(value: str) -> dt.datetime | None:
     if not value:
         return None
@@ -213,8 +256,10 @@ def build_digest(
     skipped_session_end = 0
     skipped_open_ended = 0
     in_window_activity = 0
+    exchange_count = 0
     user_turn_counts: dict[str, int] = defaultdict(int)
     agent_turn_counts: dict[str, int] = defaultdict(int)
+    line_source_counts: dict[str, int] = defaultdict(int)
 
     for record in activity:
         fields = cells(record)
@@ -238,17 +283,18 @@ def build_digest(
         bucket = by_slug[slug]
         if sid:
             bucket["sessions"].add(sid)
-        summary = str(fields.get(ACTIVITY_FIELDS["summary"]) or "").strip()
-        ai_summary = _ai_text(fields.get(ACTIVITY_FIELDS["ai_turn_summary"]))
-        # Exchanges: AI Turn Summary is the one-liner. Mechanical rows: Summary.
-        if user_turn:
-            line = ai_summary or summary
-        else:
-            line = summary or ai_summary
+        line, line_source, user_ask, reply_clip = _turn_line(fields)
+        if user_ask or reply_clip:
+            exchange_count += 1
+        if line_source:
+            line_source_counts[line_source] += 1
         outcome = _choice_name(fields.get(ACTIVITY_FIELDS["outcome"]))
         rec_id = str(record.get("id") or "")
         item = {
             "summary": line,
+            "line_source": line_source,
+            "user_ask": user_ask,
+            "reply_clip": reply_clip,
             "outcome": outcome,
             "user_turn_type": user_turn,
             "agent_turn_type": agent_turn,
@@ -263,9 +309,11 @@ def build_digest(
             or user_turn == "Error"
         )
         is_question = user_turn == "Question" or agent_turn in {"Question", "Escalation"}
-        is_human = user_turn in HUMAN_NARRATIVE_TYPES
+        is_human = user_turn in HUMAN_NARRATIVE_TYPES or (
+            not user_turn and not agent_turn and bool(user_ask)
+        )
         is_agent_work = agent_turn in AGENT_NARRATIVE_TYPES or (
-            not agent_turn and not user_turn and bool(line)
+            not agent_turn and not user_turn and bool(line) and not user_ask
         )
         tagged = {"agent_slug": slug, **item}
         if is_blocker:
@@ -309,8 +357,10 @@ def build_digest(
         "blocked_count": len(blockers),
         "human_turn_count": len(human_turns),
         "question_count": len(questions),
+        "exchange_count": exchange_count,
         "user_turn_counts": dict(user_turn_counts),
         "agent_turn_counts": dict(agent_turn_counts),
+        "line_source_counts": dict(line_source_counts),
         "by_agent": agents,
         "blockers": blockers[:20],
         "human_turns": human_turns[:40],
@@ -499,6 +549,14 @@ def _self_test() -> None:
             "cellValuesByFieldId": {
                 ACTIVITY_FIELDS["session_id"]: "doc-workshop-proposer--20260812T0931Z--b1",
                 ACTIVITY_FIELDS["user_turn_type"]: {"name": "Decision"},
+                ACTIVITY_FIELDS["user_message"]: (
+                    "Matthew has approved, verbatim:\n\n"
+                    "> **Approved: build Ruth Steward from the cleared single pack.**"
+                ),
+                ACTIVITY_FIELDS["reply_digest"]: (
+                    "Built @ruth-steward, created three Household Register map tables, "
+                    "and ran the first estate-read scan."
+                ),
                 ACTIVITY_FIELDS["ai_turn_summary"]: {
                     "state": "generated",
                     "value": "Matthew approved Ruth Steward Phase B.",
@@ -513,6 +571,11 @@ def _self_test() -> None:
             "cellValuesByFieldId": {
                 ACTIVITY_FIELDS["session_id"]: "clive-man-activity-intake-cursor--20260813T0423Z--uc01",
                 ACTIVITY_FIELDS["user_turn_type"]: {"name": "Brief"},
+                ACTIVITY_FIELDS["user_message"]: (
+                    "Process the remaining eligible Household Activity exchanges now. "
+                    "Treat this run as UNCAPPED."
+                ),
+                ACTIVITY_FIELDS["reply_digest"]: "Uncapped Activity Intake: written=142 skipped=1.",
                 ACTIVITY_FIELDS["ai_turn_summary"]: {
                     "state": "generated",
                     "value": "Asked for an uncapped intake run; 142 V1 rows written.",
@@ -527,6 +590,8 @@ def _self_test() -> None:
             "cellValuesByFieldId": {
                 ACTIVITY_FIELDS["session_id"]: "kate--20260813T0100Z--ab",
                 ACTIVITY_FIELDS["user_turn_type"]: {"name": "Open Ended"},
+                ACTIVITY_FIELDS["user_message"]: "Thanks",
+                ACTIVITY_FIELDS["reply_digest"]: "Anytime.",
                 ACTIVITY_FIELDS["ai_turn_summary"]: {
                     "state": "generated",
                     "value": "Casual chat, not a daily-note signal.",
@@ -535,16 +600,34 @@ def _self_test() -> None:
                 ACTIVITY_FIELDS["turn_started"]: "2026-08-13T04:30:00.000Z",
             },
         },
+        {
+            "id": "recA7",
+            "createdTime": "2026-08-13T04:40:00.000Z",
+            "cellValuesByFieldId": {
+                ACTIVITY_FIELDS["session_id"]: "clive-man-activity-intake-cursor--20260813T0423Z--uc01",
+                ACTIVITY_FIELDS["user_turn_type"]: {"name": "Decision"},
+                ACTIVITY_FIELDS["user_message"]: "Try now",
+                ACTIVITY_FIELDS["reply_digest"]: "Dry run complete: 143 eligible, V1 would create 0.",
+                ACTIVITY_FIELDS["ai_turn_summary"]: {
+                    "state": "error",
+                    "errorType": "emptyDependency",
+                    "value": None,
+                },
+                ACTIVITY_FIELDS["outcome"]: {"name": "Completed"},
+                ACTIVITY_FIELDS["turn_started"]: "2026-08-13T04:40:00.000Z",
+            },
+        },
     ]
     digest = build_digest(
         sessions=sessions, activity=activity,
         window_start=window_start, window_end=window_end,
     )
-    assert digest["activity_count"] == 6, digest
+    assert digest["activity_count"] == 7, digest
     assert digest["skipped_session_end"] == 1, digest
     assert digest["skipped_open_ended"] == 1, digest
     assert digest["blocked_count"] == 1, digest
-    assert digest["human_turn_count"] == 2, digest
+    assert digest["human_turn_count"] == 3, digest
+    assert digest["exchange_count"] == 3, digest
     slugs = {row["slug"] for row in digest["by_agent"]}
     assert slugs == {
         "kate",
@@ -558,11 +641,27 @@ def _self_test() -> None:
     human_lines = [row["summary"] for row in digest["human_turns"]]
     assert "Matthew approved Ruth Steward Phase B." in human_lines, digest["human_turns"]
     assert "Asked for an uncapped intake run; 142 V1 rows written." in human_lines
-    assert digest["user_turn_counts"]["Decision"] == 1, digest["user_turn_counts"]
+    assert "Try now" in human_lines, digest["human_turns"]
+    ruth = next(row for row in digest["human_turns"] if "Ruth Steward" in row["summary"])
+    assert ruth["line_source"] == "ai_turn_summary", ruth
+    assert "Approved: build Ruth Steward" in ruth["user_ask"], ruth
+    try_now = next(row for row in digest["human_turns"] if row["summary"] == "Try now")
+    assert try_now["line_source"] == "user_message", try_now
+    assert digest["line_source_counts"]["ai_turn_summary"] == 2, digest["line_source_counts"]
+    assert digest["line_source_counts"]["user_message"] == 1, digest["line_source_counts"]
+    assert digest["line_source_counts"]["summary"] == 2, digest["line_source_counts"]
+    assert digest["user_turn_counts"]["Decision"] == 2, digest["user_turn_counts"]
     assert digest["user_turn_counts"]["Brief"] == 1, digest["user_turn_counts"]
     # Human rows must not also appear as mechanical agent actions.
     notable_lines = [row["summary"] for row in digest["notable"]]
     assert "Matthew approved Ruth Steward Phase B." not in notable_lines
+    clipped, source, ask, _reply = _turn_line({
+        ACTIVITY_FIELDS["user_message"]: "x" * 400,
+    })
+    assert source == "user_message"
+    assert clipped.endswith("…")
+    assert len(clipped) == TEXT_CLIP
+    assert len(ask) == TEXT_CLIP
     assert slug_from_session_id("clive-man-context-auditor--20260813T0300Z--q7") == (
         "clive-man-context-auditor"
     )
