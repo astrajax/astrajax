@@ -261,6 +261,8 @@ Clive thinks with the user. Clive's Man keeps the study and the brain. Doc's exe
 
 **Source document mining (V1):** Full Pam gates, API, and Matthew manual steps — `[docs/initiatives/source-document-mining.md](../initiatives/source-document-mining.md)`.
 
+**Context flow (operator):** Chat and agent work → Household Activity → Activity Intake (Cursor on-demand / HyperAgent scheduled twin) or Thread Ambient → V1 proposal queue → human approve. Walkthrough: `[docs/context/clive-man-context-flow.md](../context/clive-man-context-flow.md)`.
+
 ### 4.4A Command centre (product UI)
 
 **Decision (29 Jun 2026).** The AstraJax website homepage hero is the **command centre**: three founding portraits (Pam, Clive centre, Doc) on cream paper. In **Full Story mode**, each portrait is a door that widens into that character's **night-mode room** — moss immersive surfaces that front existing platform routes, not a replacement card grid.
