@@ -267,16 +267,16 @@
   opacity: 1;
 }
 
-/* Video + idle swirl stay behind the travelling 4K wall once a bay is open. */
-.wall.zoomed .surfacePlate > .surfaceBackdrop,
-.wall.zoomed .surfacePlate > .portalSwirl {
+/* Room loop stays behind the travelling portal film once a bay is open. */
+.wall.zoomed .surfacePlate > .surfaceBackdrop {
   opacity: 0;
 }
 
 /*
  * Pinned room plate — lives on .plate (rides the dolly), outside .bayTravel.
- * SVG luminance mask punches the arch hole (holeBottomY 0.895 — ledge top).
- * Interior paint travels behind this frame; arch / sconces / wood stay put.
+ * SVG luminance mask punches the arch hole (holeBottomY 0.945 — under the
+ * letter band). Travelling portal film fills the hole to the sill; arch /
+ * sconces / wood stay put.
  */
 .roomStatic {
   position: absolute;
@@ -562,8 +562,8 @@
 }
 
 /*
- * Travelling wall — tall 4K plaster only (no arch, no letters).
- * Height comes from the image; never stretch a 16:9 poster to the list.
+ * Travelling portal film — tall MP4 (1080×3840). Translates with the type.
+ * min-height 100% so the plate cannot fall short of the sill at scroll 0.
  */
 .bayPaintTravel {
   position: absolute;
@@ -572,15 +572,19 @@
   top: 0;
   z-index: 0;
   width: 100%;
+  min-height: 100%;
   pointer-events: none;
   will-change: transform;
 }
 
-.bayWallStill {
+.bayWallStill,
+.bayWallVideo {
   display: block;
   width: 100%;
   height: auto;
-  object-fit: contain;
+  min-height: 100%;
+  object-fit: cover;
+  object-position: center top;
   pointer-events: none;
   user-select: none;
 }

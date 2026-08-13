@@ -34,11 +34,12 @@ export const APERTURE = {
   /** Measured stone-ledge top (void meets sill). */
   voidBottomY: 0.895,
   /**
-   * Room-static mask hole bottom — flush with the measured ledge so the
-   * sage/grey void cannot flash a band above the sill. Letter/quill live on
-   * `.sillForeground` (from 85%).
+   * Room-static mask hole bottom — must run *under* the letter/quill band
+   * (yTo 0.93) so travelling portal paint reaches the sill. Hard hole edge is
+   * hidden by `.sillForeground` (from 85%). A hole that stops at the ledge
+   * (0.895) leaves a grey gap above the wood — that is the defect.
    */
-  holeBottomY: 0.895,
+  holeBottomY: 0.945,
 } as const;
 
 /** Inner arch curve — y at each x column (symmetric about 50%). */
@@ -72,8 +73,18 @@ export const LEDGE_STILL_LIFE = {
 } as const;
 
 /**
- * Travelling interior wall — one long tall 4K plaster strip (no arch, sill,
- * or letter/quill). Wired as width 100% / height auto — never object-fit:fill.
+ * Travelling portal plate — tall MP4 (Kathryn brief: 1080×3840, no arch/sill/
+ * letters). Scrolls with bay type. Reduced-motion falls back to the still.
+ */
+export const INTERIOR_PORTAL = {
+  src: "/agent-cast/clives-man/receiving-wall-portal-travel.mp4",
+  poster: "/agent-cast/clives-man/receiving-wall-interior-4k.jpg",
+  width: 1080,
+  height: 3840,
+} as const;
+
+/**
+ * Travelling interior wall still — fallback / poster for the portal film.
  */
 export const INTERIOR_WALL = {
   src: "/agent-cast/clives-man/receiving-wall-interior-4k.jpg",
