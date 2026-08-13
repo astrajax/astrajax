@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Compact Household Activity window digest for the daily change summary.
 
-Read-only. Does not write Sessions, Activity, or Reports.
+Read-only. Does not write Sessions, Activity, or Reports. Reports are indexed
+(title / type / headline / link) — Body is never fetched.
 
 Usage:
   python3 hyperagent/scripts/household_activity_window.py --hours 24
@@ -32,6 +33,8 @@ BASE_ID = "appF7jQD4ZKrDC7e1"
 API = "https://api.airtable.com/v0"
 SESSIONS_TABLE = "tblUi4nmBKX2u8nFx"
 ACTIVITY_TABLE = "tblNxNLyC31KDQbRl"
+REPORTS_TABLE = "tblFzWUIPSiIGZPln"
+OWN_SLUG = "summarize-changes-daily"
 
 SESSION_FIELDS = {
     "session_id": "fldHTqDQeAEqE4JCb",
@@ -51,6 +54,15 @@ ACTIVITY_FIELDS = {
     "outcome": "fldYYSYt5yVgN8dc1",
     "ai_turn_summary": "fldwmWz6k1ws9TpmP",
     "turn_started": "fldXoctP5BTnzYsAP",
+}
+# Index only — never fetch Body (fldt5UAqRVsm0mICy).
+REPORTS_FIELDS = {
+    "title": "fldr0pNUAYm9jEITx",
+    "report_type": "fld3uIBw78HahcUms",
+    "agent_slug": "fldijGsAXxwMikENa",
+    "headline": "fldyI1UVIyIcSVhkj",
+    "period_start": "fldnbnJgwJhjpOPz2",
+    "period_end": "fldc1uSKfB1wE0MfE",
 }
 
 CREDENTIAL_KEYS = (
@@ -261,11 +273,60 @@ def build_digest(
     }
 
 
+def build_reports_index(
+    records: list[dict[str, Any]],
+    *,
+    window_start: dt.datetime,
+    window_end: dt.datetime,
+) -> dict[str, Any]:
+    """Index Reports filed in the window. Never includes Body."""
+
+    def cells(record: dict[str, Any]) -> dict[str, Any]:
+        return record.get("cellValuesByFieldId") or record.get("fields") or {}
+
+    standing: list[dict[str, str]] = []
+    prior_self: list[dict[str, str]] = []
+    for record in records:
+        created = _parse_iso(str(record.get("createdTime") or ""))
+        if created is None or created < window_start or created > window_end:
+            continue
+        fields = cells(record)
+        rec_id = str(record.get("id") or "")
+        slug = str(fields.get(REPORTS_FIELDS["agent_slug"]) or "")
+        item = {
+            "id": rec_id,
+            "title": str(fields.get(REPORTS_FIELDS["title"]) or ""),
+            "report_type": _choice_name(fields.get(REPORTS_FIELDS["report_type"])),
+            "agent_slug": slug,
+            "headline": str(fields.get(REPORTS_FIELDS["headline"]) or ""),
+            "period_start": str(fields.get(REPORTS_FIELDS["period_start"]) or ""),
+            "period_end": str(fields.get(REPORTS_FIELDS["period_end"]) or ""),
+            "url": f"https://airtable.com/{BASE_ID}/{REPORTS_TABLE}/{rec_id}" if rec_id else "",
+        }
+        if slug == OWN_SLUG:
+            prior_self.append(item)
+        else:
+            standing.append(item)
+    return {
+        "filed_count": len(standing) + len(prior_self),
+        "standing": standing,
+        "prior_self": prior_self,
+    }
+
+
+def _sort_field_for(table_id: str) -> str:
+    if table_id == SESSIONS_TABLE:
+        return SESSION_FIELDS["created"]
+    if table_id == ACTIVITY_TABLE:
+        return ACTIVITY_FIELDS["turn_started"]
+    return REPORTS_FIELDS["period_end"]
+
+
 def _get_page(token: str, table_id: str, field_ids: list[str], offset: str | None) -> dict[str, Any]:
     params: list[tuple[str, str]] = [
         ("pageSize", "100"),
         ("returnFieldsByFieldId", "true"),
-        ("sort[0][field]", "fld4nhnuB5EmQIN4w" if table_id == SESSIONS_TABLE else "fldXoctP5BTnzYsAP"),
+        ("sort[0][field]", _sort_field_for(table_id)),
         ("sort[0][direction]", "desc"),
     ]
     for fid in field_ids:
@@ -291,15 +352,25 @@ def _get_page(token: str, table_id: str, field_ids: list[str], offset: str | Non
 def fetch_table(token: str, table_id: str, field_ids: list[str], window_start: dt.datetime) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     offset = None
-    stamp_field = SESSION_FIELDS["created"] if table_id == SESSIONS_TABLE else ACTIVITY_FIELDS["turn_started"]
+    if table_id == SESSIONS_TABLE:
+        stamp_field = SESSION_FIELDS["created"]
+    elif table_id == ACTIVITY_TABLE:
+        stamp_field = ACTIVITY_FIELDS["turn_started"]
+    else:
+        stamp_field = None
     while True:
         page = _get_page(token, table_id, field_ids, offset)
         records = page.get("records") or []
         stop = False
         for record in records:
             fields = record.get("fields") or record.get("cellValuesByFieldId") or {}
-            stamp = _parse_iso(str(fields.get(stamp_field) or record.get("createdTime") or ""))
-            if stamp is not None and stamp < window_start:
+            stamp_raw = record.get("createdTime") if stamp_field is None else fields.get(stamp_field)
+            stamp = _parse_iso(str(stamp_raw or record.get("createdTime") or ""))
+            if (
+                table_id != REPORTS_TABLE
+                and stamp is not None
+                and stamp < window_start
+            ):
                 stop = True
                 break
             # Normalise to cellValuesByFieldId so build_digest is one shape.
@@ -308,6 +379,8 @@ def fetch_table(token: str, table_id: str, field_ids: list[str], window_start: d
         if stop or not page.get("offset"):
             break
         offset = page.get("offset")
+        if table_id == REPORTS_TABLE and len(rows) >= 100:
+            break
     return rows
 
 
@@ -373,6 +446,47 @@ def _self_test() -> None:
     assert slug_from_session_id("clive-man-context-auditor--20260813T0300Z--q7") == (
         "clive-man-context-auditor"
     )
+    reports = [
+        {
+            "id": "recR1",
+            "createdTime": "2026-08-12T19:26:27.000Z",
+            "cellValuesByFieldId": {
+                REPORTS_FIELDS["title"]: "Ward Round 17 — 12 August 2026",
+                REPORTS_FIELDS["report_type"]: {"name": "Ward Round"},
+                REPORTS_FIELDS["agent_slug"]: "dr-halvard-bjornson",
+                REPORTS_FIELDS["headline"]: "Moderate window; overflow did not repeat",
+                REPORTS_FIELDS["period_end"]: "2026-08-12",
+            },
+        },
+        {
+            "id": "recR2",
+            "createdTime": "2026-08-13T05:28:38.000Z",
+            "cellValuesByFieldId": {
+                REPORTS_FIELDS["title"]: "Daily change summary — 13 Aug 2026",
+                REPORTS_FIELDS["report_type"]: {"name": "Handoff"},
+                REPORTS_FIELDS["agent_slug"]: OWN_SLUG,
+                REPORTS_FIELDS["headline"]: "Inaugural filing",
+            },
+        },
+        {
+            "id": "recR3",
+            "createdTime": "2026-08-10T07:04:22.000Z",
+            "cellValuesByFieldId": {
+                REPORTS_FIELDS["title"]: "Weekly Ledger — 10 Aug 2026",
+                REPORTS_FIELDS["report_type"]: {"name": "Spend Digest"},
+                REPORTS_FIELDS["agent_slug"]: "horace-farthing",
+                REPORTS_FIELDS["headline"]: "Old ledger outside window",
+            },
+        },
+    ]
+    index = build_reports_index(
+        reports, window_start=window_start, window_end=window_end,
+    )
+    assert index["filed_count"] == 2, index
+    assert len(index["standing"]) == 1, index
+    assert index["standing"][0]["title"].startswith("Ward Round 17"), index
+    assert "body" not in index["standing"][0]
+    assert len(index["prior_self"]) == 1, index
     print(json.dumps({"success": True, "self_test": "ok"}))
 
 
@@ -400,11 +514,15 @@ def main() -> None:
     window_start = window_end - dt.timedelta(hours=max(1, args.hours))
     sessions = fetch_table(token, SESSIONS_TABLE, list(SESSION_FIELDS.values()), window_start)
     activity = fetch_table(token, ACTIVITY_TABLE, list(ACTIVITY_FIELDS.values()), window_start)
+    reports = fetch_table(token, REPORTS_TABLE, list(REPORTS_FIELDS.values()), window_start)
     digest = build_digest(
         sessions=sessions,
         activity=activity,
         window_start=window_start,
         window_end=window_end,
+    )
+    digest["reports"] = build_reports_index(
+        reports, window_start=window_start, window_end=window_end,
     )
     digest["credential_source"] = source
     digest["success"] = True
