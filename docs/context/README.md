@@ -18,7 +18,7 @@ review, diff, and update them safely.
 | Area | Path | Meaning |
 |---|---|---|
 | **Packs** | Files listed below | Bootstrap or approved context packs agents may treat as canonical *after Matthew approves the underlying Context Items* |
-| **Operational** | `clive-operating-rules.md`, `trinity-agent-flow.md`, `email-inbox-setup.md` | Live procedures and agent patterns not yet folded into a named pack |
+| **Operational** | `clive-operating-rules.md`, `clive-man-context-flow.md`, `trinity-agent-flow.md`, `email-inbox-setup.md` | Live procedures and agent patterns not yet folded into a named pack |
 | **Working drafts** | `Airtable/`, `Seeds-of-Promise/`, dated one-offs | In-progress material stored here for convenience until Clive's Man intake → curation → publish-prep |
 | **Reference assets** | `clive/screenshots/` | UI evidence for reviews and applications |
 | **Audit mirror** | `audit/` | Append-only Change Log mirror (see `audit/README.md`) |
@@ -30,6 +30,7 @@ Items. When in doubt, prefer the pack files and root architecture docs.
 
 - Business positioning now lives in `docs/business/positioning.md` (start at `docs/START-HERE.md`). The former `astrajax-core-positioning.md` pack is archived in `docs/archive/`.
 - `clive-operating-rules.md` — Clive's Man context lane, Trinity minions, human approval gates.
+- `clive-man-context-flow.md` — founder walkthrough: chat → Household Activity → Activity Intake → V1 queue → human approve. Cursor vs HyperAgent, `.env`, cap, bookmark.
 - `model-collaboration.md` — model roles and routing policy (bootstrap draft).
 - `docs/archive/context-architecture-v1.md` — schema, lifecycle, and governance summary (V1 tables; archived).
 - `docs/archive/context-architecture-v2.md` — enforcement, provenance, and human approval (supersedes V1 gates; archived).

@@ -90,6 +90,7 @@ Humans must decide:
 
 ## Source IDs
 
+- `SRC-CLIVE-MAN-CONTEXT-FLOW`: `docs/context/clive-man-context-flow.md`
 - `SRC-CLIVE-MAN-SKILL`: `.cursor/skills/clive-man/SKILL.md`
 - `SRC-CLIVE-MAN-PROPOSER`: `.cursor/skills/clive-man-proposer/SKILL.md`
 - `SRC-CLIVE-MAN-CHALLENGER`: `.cursor/skills/clive-man-challenger/SKILL.md`
