@@ -1,16 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   CAPTURE_SOURCE_LABEL,
   CAPTURE_SOURCE_TINT,
   isReceivingRecordActioned,
-  listPopulatedReceivingCategories,
-  receivingCategoryBlurb,
-  receivingCategoryKey,
-  receivingCategoryLabel,
-  receivingCategoryTint,
   type ReceivingRecord,
 } from "@/lib/receiving-wall";
 import { CliveChatSurface } from "@/components/chapter1/CliveChatSurface";
@@ -20,23 +16,40 @@ import { roomStaticMaskUrl } from "@/lib/man/receiving-wall-arch-mask";
 import {
   DOLLY_IN_DEFAULT,
   DOLLY_IN_LADDER,
+  HOTSPOTS,
   INTERIOR_PORTAL,
   INTERIOR_WALL,
 } from "@/lib/man/receiving-wall-manifest";
+import {
+  HEALTH_BAND_STILL_SRC,
+  shrineArtForBand,
+  type BrainShelfEntry,
+} from "@/lib/platform/brains";
 import type { ChatMessage } from "@/lib/clive/types";
 import type { PlatformTurnContext } from "@/lib/platform-activity/types";
+import {
+  OPERATOR_PORTAL_DOORS,
+  brainBandLine,
+  defaultReportLetterId,
+  isOperatorPortalId,
+  mergeOperatorWallPayload,
+  pendingDraftsForJudgement,
+  portalCount,
+  portalDoor,
+  type OperatorPortalId,
+  type OperatorWallPayload,
+  type PortalQueueItem,
+  type PortalReportLetter,
+} from "./receiving-wall-portals";
 import styles from "./receiving-wall.module.css";
-
-type WallData = {
-  records: ReceivingRecord[];
-  source: "live" | "derived" | "seed";
-  message?: string;
-};
 
 /**
  * Portal — slow centre push; bay reading scrolls the interior behind a pinned arch.
  *
- *   idle     — wide wall at dolly 1 + ledger (paint still; list scrolls in aperture)
+ * Operator portals v1: idle = three job doors (Judgement / Brain health / This morning).
+ * Zoomed bay layouts differ by portal; camera grammar unchanged.
+ *
+ *   idle     — wide wall at dolly 1 + portal doors (paint still; list scrolls in aperture)
  *   exiting  — ledger fading (nave only)
  *   zooming  — slow scale into centre (same video/poster — no still swap)
  *   zoomedIn — interior paint + bay type travel together; arch/sill stay pinned
@@ -44,8 +57,8 @@ type WallData = {
  *   settling — slow pull-back; ledger held out until SETTLE_MS
  *
  * Layers on .plate: travelling interior → roomStatic (luminance hole) → sill belt.
- * Close framing: `--dolly-in-16-9` (default 1.22). Ladder via ?dolly=1.15|1.22|1.30.
  * Spec: website/docs/receiving-wall-portal-spec.md
+ * Brief: docs/initiatives/receiving-wall-operator-portals-v1.md
  */
 type Beat = "idle" | "exiting" | "zooming" | "zoomedIn" | "returning" | "settling";
 
@@ -55,6 +68,8 @@ const TIMINGS = {
 } as const;
 
 type AcceptState = "idle" | "pending" | "success" | "error";
+
+type LetterKind = "draft" | "queue" | "report";
 
 function createSessionId(): string {
   return `rw_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -88,11 +103,12 @@ export function ReceivingWall({
     return () => mq.removeEventListener("change", sync);
   }, []);
 
-  const [data, setData] = useState<WallData | null>(null);
+  const [data, setData] = useState<OperatorWallPayload | null>(null);
   const [beat, setBeat] = useState<Beat>("idle");
-  /** Proposed Category key, or RECEIVING_UNCATEGORISED_KEY. */
-  const [zoomed, setZoomed] = useState<string | null>(null);
-  const [openRecordId, setOpenRecordId] = useState<string | null>(null);
+  /** Operator portal id when zoomed. */
+  const [zoomed, setZoomed] = useState<OperatorPortalId | null>(null);
+  const [openLetterId, setOpenLetterId] = useState<string | null>(null);
+  const [openLetterKind, setOpenLetterKind] = useState<LetterKind | null>(null);
   const [cliveOpen, setCliveOpen] = useState(false);
   const [sessionId] = useState(createSessionId);
   const [chatSeed, setChatSeed] = useState<ChatMessage[]>([]);
@@ -101,8 +117,8 @@ export function ReceivingWall({
   const [acceptState, setAcceptState] = useState<AcceptState>("idle");
   const [acceptError, setAcceptError] = useState<string | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const openRecordIdRef = useRef<string | null>(null);
-  openRecordIdRef.current = openRecordId;
+  const openLetterIdRef = useRef<string | null>(null);
+  openLetterIdRef.current = openLetterId;
   const interiorViewportRef = useRef<HTMLDivElement>(null);
   const plateRef = useRef<HTMLDivElement>(null);
   const bayWindowRef = useRef<HTMLDivElement>(null);
@@ -117,11 +133,44 @@ export function ReceivingWall({
     let cancelled = false;
     void (async () => {
       try {
-        const response = await fetch("/api/brains/receiving-wall");
-        const json = (await response.json()) as WallData;
-        if (!cancelled && response.ok) setData(json);
+        const [wallResponse, brainsResponse] = await Promise.all([
+          fetch("/api/brains/receiving-wall"),
+          fetch("/api/brains/list"),
+        ]);
+        const wallJson = (await wallResponse.json()) as {
+          records?: ReceivingRecord[];
+          held?: OperatorWallPayload["held"];
+          proposals?: OperatorWallPayload["proposals"];
+          reports?: OperatorWallPayload["reports"];
+          brains?: BrainShelfEntry[];
+          source?: "live" | "derived" | "seed";
+          message?: string;
+        };
+        let brains: BrainShelfEntry[] | undefined = wallJson.brains;
+        if (brainsResponse.ok) {
+          try {
+            const brainsJson = (await brainsResponse.json()) as {
+              brains?: BrainShelfEntry[];
+            };
+            if (brainsJson.brains?.length) brains = brainsJson.brains;
+          } catch {
+            /* shelf seed */
+          }
+        }
+        if (!cancelled && wallResponse.ok) {
+          setData(
+            mergeOperatorWallPayload({
+              ...wallJson,
+              brains,
+            }),
+          );
+        } else if (!cancelled) {
+          setData(mergeOperatorWallPayload({ brains, source: "seed" }));
+        }
       } catch {
-        /* leave wall in its loading state */
+        if (!cancelled) {
+          setData(mergeOperatorWallPayload({ source: "seed" }));
+        }
       }
     })();
     return () => {
@@ -141,21 +190,23 @@ export function ReceivingWall({
     timers.current.push(id);
   }, []);
 
-  const records = data?.records ?? [];
-  const categoryKeys = listPopulatedReceivingCategories(records);
+  const payload = data ?? mergeOperatorWallPayload({ source: "seed" });
+  const records = payload.records;
+  const pendingDrafts = pendingDraftsForJudgement(records, customAcceptStatus);
 
-  const zoomedRecords = zoomed
-    ? records.filter((r) => receivingCategoryKey(r) === zoomed)
-    : [];
-
-  const openRecord = openRecordId
-    ? (records.find((r) => r.recordId === openRecordId) ?? null)
-    : null;
-  const destinationLabel =
-    openRecord?.systemBrainName ||
-    openRecord?.systemBrainSlug ||
-    openRecord?.brainSlug ||
-    null;
+  const openDraft =
+    openLetterKind === "draft" && openLetterId
+      ? (records.find((r) => r.recordId === openLetterId) ?? null)
+      : null;
+  const openQueue =
+    openLetterKind === "queue" && openLetterId
+      ? ([...payload.held, ...payload.proposals].find((r) => r.recordId === openLetterId) ??
+        null)
+      : null;
+  const openReport =
+    openLetterKind === "report" && openLetterId
+      ? (payload.reports.find((r) => r.recordId === openLetterId) ?? null)
+      : null;
 
   const measureReadTravel = useCallback(() => {
     const windowEl = bayWindowRef.current;
@@ -198,22 +249,42 @@ export function ReceivingWall({
     }
   }, [clampReadOffset]);
 
-  const openCategory = useCallback(
-    (categoryKey: string) => {
+  const toggleLetter = useCallback((id: string, kind: LetterKind) => {
+    setOpenLetterId((current) => {
+      if (current === id) {
+        setOpenLetterKind(null);
+        return null;
+      }
+      setOpenLetterKind(kind);
+      return id;
+    });
+  }, []);
+
+  const openPortal = useCallback(
+    (portalId: OperatorPortalId) => {
       if (beat === "exiting" || beat === "zooming" || beat === "returning") return;
 
       const beginZoom = () => {
         clearPending();
-        setOpenRecordId(null);
+        setOpenLetterId(null);
+        setOpenLetterKind(null);
         setReadOffset(0);
-        setZoomed(categoryKey);
+        setZoomed(portalId);
+        if (portalId === "reports") {
+          const tipId = defaultReportLetterId(payload.reports);
+          if (tipId) {
+            setOpenLetterId(tipId);
+            setOpenLetterKind("report");
+          }
+        }
         setBeat("zooming");
         after(T.ARRIVE, () => setBeat("zoomedIn"));
       };
 
       if (beat === "settling") {
         clearPending();
-        setOpenRecordId(null);
+        setOpenLetterId(null);
+        setOpenLetterKind(null);
         setZoomed(null);
         if (!isNave) {
           beginZoom();
@@ -225,10 +296,18 @@ export function ReceivingWall({
       }
 
       if (beat === "zoomedIn") {
-        if (categoryKey === zoomed) return;
+        if (portalId === zoomed) return;
         clearPending();
-        setOpenRecordId(null);
-        setZoomed(categoryKey);
+        setOpenLetterId(null);
+        setOpenLetterKind(null);
+        setZoomed(portalId);
+        if (portalId === "reports") {
+          const tipId = defaultReportLetterId(payload.reports);
+          if (tipId) {
+            setOpenLetterId(tipId);
+            setOpenLetterKind("report");
+          }
+        }
         setBeat("zooming");
         after(T.EXIT, () => setBeat("zoomedIn"));
         return;
@@ -240,11 +319,12 @@ export function ReceivingWall({
       }
 
       clearPending();
-      setOpenRecordId(null);
+      setOpenLetterId(null);
+      setOpenLetterKind(null);
       setBeat("exiting");
       after(T.EXIT, beginZoom);
     },
-    [beat, zoomed, after, clearPending, T.EXIT, T.ARRIVE, isNave],
+    [beat, zoomed, after, clearPending, T.EXIT, T.ARRIVE, isNave, payload.reports],
   );
 
   const closeZoom = useCallback(() => {
@@ -255,21 +335,24 @@ export function ReceivingWall({
     }
     if (beat === "zooming") {
       clearPending();
-      setOpenRecordId(null);
+      setOpenLetterId(null);
+      setOpenLetterKind(null);
       setZoomed(null);
       setBeat("idle");
       return;
     }
     if (beat === "returning" || beat === "settling") {
       clearPending();
-      setOpenRecordId(null);
+      setOpenLetterId(null);
+      setOpenLetterKind(null);
       setZoomed(null);
       setBeat("idle");
       return;
     }
     if (beat !== "zoomedIn") return;
     clearPending();
-    setOpenRecordId(null);
+    setOpenLetterId(null);
+    setOpenLetterKind(null);
     setReadOffset(0);
     setBeat("returning");
     after(T.RETURN, () => {
@@ -281,9 +364,10 @@ export function ReceivingWall({
 
   const summonClive = useCallback(
     (contextRecord?: ReceivingRecord | null) => {
-      const bayRecords = zoomed
-        ? records.filter((record) => receivingCategoryKey(record) === zoomed)
-        : records;
+      const bayRecords =
+        zoomed === "judgement"
+          ? pendingDraftsForJudgement(records, customAcceptStatus)
+          : records;
       const contextRecords =
         contextRecord &&
         bayRecords.some((record) => record.recordId === contextRecord.recordId)
@@ -297,7 +381,13 @@ export function ReceivingWall({
 
       const recordLine = contextRecord
         ? `You have "${contextRecord.title}" open — read it properly or tell me what it should become.`
-        : "Tell me which record you'd like to read properly, or ask me to walk the bench and propose what each should become.";
+        : zoomed === "judgement"
+          ? "Tell me which draft needs deciding, or ask me to walk the judgement bay."
+          : zoomed === "health"
+            ? "Ask me which brains need attention, or what the shrine states mean."
+            : zoomed === "reports"
+              ? "Ask me to summarise this morning’s letters, or what still needs your eye."
+              : "Tell me which record you'd like to read properly, or ask me to walk the bench.";
       setChatSeed([
         {
           role: "assistant",
@@ -306,7 +396,7 @@ export function ReceivingWall({
       ]);
       setCliveOpen(true);
     },
-    [records, zoomed],
+    [records, zoomed, customAcceptStatus],
   );
 
   const handleReceivingWallCliveSend = useCallback(
@@ -336,11 +426,11 @@ export function ReceivingWall({
           actor: "Architect",
         }),
       });
-      const data = (await response.json()) as { reply?: string; error?: string };
+      const replyData = (await response.json()) as { reply?: string; error?: string };
       if (!response.ok) {
-        throw new Error(data.error ?? "Receiving Wall curation chat failed.");
+        throw new Error(replyData.error ?? "Receiving Wall curation chat failed.");
       }
-      return data.reply ?? "…";
+      return replyData.reply ?? "…";
     },
     [cliveContextRecords, cliveFocusedRecord, sessionId, zoomed],
   );
@@ -357,7 +447,7 @@ export function ReceivingWall({
           actor: "Architect",
         });
         if (!result.ok) {
-          if (openRecordIdRef.current === acceptedRecordId) {
+          if (openLetterIdRef.current === acceptedRecordId) {
             setAcceptState("error");
             setAcceptError(result.error);
           }
@@ -373,11 +463,11 @@ export function ReceivingWall({
               }
             : current,
         );
-        if (openRecordIdRef.current === acceptedRecordId) {
+        if (openLetterIdRef.current === acceptedRecordId) {
           setAcceptState("success");
         }
       } catch (error) {
-        if (openRecordIdRef.current === acceptedRecordId) {
+        if (openLetterIdRef.current === acceptedRecordId) {
           setAcceptState("error");
           setAcceptError(
             error instanceof Error ? error.message : "Could not accept this record.",
@@ -391,7 +481,7 @@ export function ReceivingWall({
   useEffect(() => {
     setAcceptState("idle");
     setAcceptError(null);
-  }, [openRecordId]);
+  }, [openLetterId]);
 
   useEffect(() => {
     if (beat !== "zoomedIn") return;
@@ -402,7 +492,7 @@ export function ReceivingWall({
     });
     observer.observe(travelEl);
     return () => observer.disconnect();
-  }, [beat, zoomed, openRecordId, zoomedRecords.length, clampReadOffset]);
+  }, [beat, zoomed, openLetterId, pendingDrafts.length, clampReadOffset]);
 
   useEffect(() => {
     if (beat !== "zoomedIn" || isNave || prefersReducedMotion || cliveOpen) return;
@@ -487,8 +577,10 @@ export function ReceivingWall({
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         if (cliveOpen) setCliveOpen(false);
-        else if (openRecordId) setOpenRecordId(null);
-        else if (
+        else if (openLetterId) {
+          setOpenLetterId(null);
+          setOpenLetterKind(null);
+        } else if (
           beat === "zoomedIn" ||
           beat === "zooming" ||
           beat === "exiting" ||
@@ -541,7 +633,7 @@ export function ReceivingWall({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [
     cliveOpen,
-    openRecordId,
+    openLetterId,
     beat,
     closeZoom,
     isNave,
@@ -566,44 +658,318 @@ export function ReceivingWall({
     beat === "zoomedIn" || beat === "zooming" ? styles.contentEnter : styles.contentExit;
 
   const idleTint = "#e7d1ad";
+  const activeTint = zoomed ? portalDoor(zoomed).tint : idleTint;
 
   const statusNote =
     data?.source !== "live" && data?.message ? (
       <p className={styles.note} role="status">
         {data.source === "derived"
-          ? "Showing live drafts — Capture Source on each letter is inferred until that field is set."
+          ? data.message ||
+            "Showing live drafts — some bays still use seeded stand-ins until the extended read lands."
           : data.message}
       </p>
     ) : null;
 
+  const sill = HOTSPOTS.sillLetter;
+  const showSillHotspot = beat === "idle" || beat === "settling";
+
+  const renderDraftLetter = (record: ReceivingRecord) => {
+    const isOpen = openLetterKind === "draft" && openLetterId === record.recordId;
+    const letter = isOpen ? openDraft : null;
+    const dest =
+      letter?.systemBrainName || letter?.systemBrainSlug || letter?.brainSlug || null;
+    return (
+      <li key={record.recordId}>
+        <button
+          type="button"
+          className={`${styles.recordRow} ${isOpen ? styles.recordRowOpen : ""}`}
+          aria-expanded={isOpen}
+          aria-controls={`letter-${record.recordId}`}
+          onClick={() => toggleLetter(record.recordId, "draft")}
+        >
+          <span className={styles.recordIncision}>
+            <span id={`record-title-${record.recordId}`} className={styles.recordTitle}>
+              {record.title}
+            </span>
+            <span
+              className={styles.recordProvenance}
+              style={{
+                ["--tint" as string]: CAPTURE_SOURCE_TINT[record.captureSource],
+              }}
+            >
+              {record.provenance}
+              {record.category ? (
+                <span className={styles.recordBrainSlug}>{` · ${record.category}`}</span>
+              ) : null}
+              {record.systemBrainName || record.systemBrainSlug || record.brainSlug ? (
+                <span className={styles.recordBrainSlug}>
+                  {` · ${record.systemBrainName || record.systemBrainSlug || record.brainSlug}`}
+                </span>
+              ) : null}
+            </span>
+          </span>
+          <span className={styles.recordChevron} aria-hidden>
+            {isOpen ? "−" : "+"}
+          </span>
+        </button>
+
+        {isOpen && letter ? (
+          <div
+            id={`letter-${record.recordId}`}
+            className={styles.letter}
+            role="region"
+            aria-labelledby={`record-title-${record.recordId}`}
+          >
+            <p className={styles.letterMeta}>
+              {letter.provenance}
+              {` · ${CAPTURE_SOURCE_LABEL[letter.captureSource]}`}
+              {letter.category ? ` · ${letter.category}` : " · Uncategorised"}
+              {letter.status ? ` · ${letter.status}` : ""}
+              {dest ? ` · → ${dest}` : ""}
+            </p>
+            <p className={styles.letterBody}>{letter.canonicalText || letter.snippet}</p>
+            {acceptState === "success" ? (
+              <p className={styles.letterStatus} role="status">
+                Accepted — recorded on the bench with a paper trail.
+              </p>
+            ) : null}
+            {acceptState === "error" && acceptError ? (
+              <p className={styles.letterError} role="alert">
+                {acceptError}
+              </p>
+            ) : null}
+            <div className={styles.letterActions}>
+              <button
+                type="button"
+                className={[
+                  styles.acceptBtn,
+                  acceptState === "pending" ? styles.acceptBtnPending : "",
+                  acceptState === "success" ||
+                  isReceivingRecordActioned(letter.status, customAcceptStatus)
+                    ? styles.acceptBtnSuccess
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+                disabled={
+                  acceptState === "pending" ||
+                  isReceivingRecordActioned(letter.status, customAcceptStatus) ||
+                  acceptState === "success"
+                }
+                aria-busy={acceptState === "pending"}
+                aria-label={
+                  acceptState === "pending"
+                    ? "Accepting record"
+                    : acceptState === "success" ||
+                        isReceivingRecordActioned(letter.status, customAcceptStatus)
+                      ? "Record accepted"
+                      : `Accept ${letter.title}`
+                }
+                onClick={() => void acceptRecord(letter)}
+              >
+                {acceptState === "pending"
+                  ? "Accepting…"
+                  : acceptState === "success" ||
+                      isReceivingRecordActioned(letter.status, customAcceptStatus)
+                    ? "Accepted"
+                    : "Accept"}
+              </button>
+              <button
+                type="button"
+                className={styles.incisedAction}
+                onClick={() => summonClive(letter)}
+              >
+                Discuss with Clive
+              </button>
+              <button
+                type="button"
+                className={styles.incisedActionMuted}
+                onClick={() => {
+                  setOpenLetterId(null);
+                  setOpenLetterKind(null);
+                }}
+                aria-label={`Fold the letter — ${letter.title}`}
+              >
+                Fold the letter
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </li>
+    );
+  };
+
+  const renderQueueLetter = (item: PortalQueueItem) => {
+    const isOpen = openLetterKind === "queue" && openLetterId === item.recordId;
+    const letter = isOpen ? openQueue : null;
+    return (
+      <li key={item.recordId}>
+        <button
+          type="button"
+          className={`${styles.recordRow} ${isOpen ? styles.recordRowOpen : ""}`}
+          aria-expanded={isOpen}
+          aria-controls={`letter-${item.recordId}`}
+          onClick={() => toggleLetter(item.recordId, "queue")}
+        >
+          <span className={styles.recordIncision}>
+            <span id={`record-title-${item.recordId}`} className={styles.recordTitle}>
+              {item.title}
+            </span>
+            <span className={styles.recordProvenance}>
+              {item.provenance}
+              {item.stage ? (
+                <span className={styles.recordBrainSlug}>{` · ${item.stage}`}</span>
+              ) : null}
+              {item.verdict ? (
+                <span className={styles.recordBrainSlug}>{` · ${item.verdict}`}</span>
+              ) : null}
+            </span>
+          </span>
+          <span className={styles.recordChevron} aria-hidden>
+            {isOpen ? "−" : "+"}
+          </span>
+        </button>
+        {isOpen && letter ? (
+          <div
+            id={`letter-${item.recordId}`}
+            className={styles.letter}
+            role="region"
+            aria-labelledby={`record-title-${item.recordId}`}
+          >
+            <p className={styles.letterMeta}>
+              {letter.provenance}
+              {letter.stage ? ` · ${letter.stage}` : ""}
+              {letter.verdict ? ` · ${letter.verdict}` : ""}
+              {letter.kind === "held" ? " · Held for a human" : " · Proposal — not yet drafted"}
+            </p>
+            <p className={styles.letterBody}>
+              {letter.reason ? `${letter.reason}\n\n` : ""}
+              {letter.snippet}
+            </p>
+            <p className={styles.letterStatus} role="status">
+              {letter.kind === "held"
+                ? "Held — no silent rewrite from this wall."
+                : "Seen on the queue only — this wall does not start the morning machine."}
+            </p>
+            <div className={styles.letterActions}>
+              <button
+                type="button"
+                className={styles.incisedAction}
+                onClick={() => summonClive()}
+              >
+                Discuss with Clive
+              </button>
+              <button
+                type="button"
+                className={styles.incisedActionMuted}
+                onClick={() => {
+                  setOpenLetterId(null);
+                  setOpenLetterKind(null);
+                }}
+                aria-label={`Fold the letter — ${letter.title}`}
+              >
+                Fold the letter
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </li>
+    );
+  };
+
+  const renderReportLetter = (report: PortalReportLetter) => {
+    const isOpen = openLetterKind === "report" && openLetterId === report.recordId;
+    const letter = isOpen ? openReport : null;
+    return (
+      <li key={report.recordId}>
+        <button
+          type="button"
+          className={`${styles.recordRow} ${isOpen ? styles.recordRowOpen : ""}`}
+          aria-expanded={isOpen}
+          aria-controls={`letter-${report.recordId}`}
+          onClick={() => toggleLetter(report.recordId, "report")}
+        >
+          <span className={styles.recordIncision}>
+            <span id={`record-title-${report.recordId}`} className={styles.recordTitle}>
+              {report.title}
+            </span>
+            <span className={styles.recordProvenance}>
+              {report.reportType}
+              {report.period ? (
+                <span className={styles.recordBrainSlug}>{` · ${report.period}`}</span>
+              ) : null}
+              {report.agentSlug ? (
+                <span className={styles.recordBrainSlug}>{` · ${report.agentSlug}`}</span>
+              ) : null}
+            </span>
+          </span>
+          <span className={styles.recordChevron} aria-hidden>
+            {isOpen ? "−" : "+"}
+          </span>
+        </button>
+        {isOpen && letter ? (
+          <div
+            id={`letter-${report.recordId}`}
+            className={styles.letter}
+            role="region"
+            aria-labelledby={`record-title-${report.recordId}`}
+          >
+            <p className={styles.letterMeta}>
+              {letter.reportType}
+              {letter.period ? ` · ${letter.period}` : ""}
+              {letter.agentSlug ? ` · ${letter.agentSlug}` : ""}
+            </p>
+            {letter.headline ? (
+              <p className={styles.baySectionHint}>{letter.headline}</p>
+            ) : null}
+            <p className={styles.letterBody}>{letter.body}</p>
+            <div className={styles.letterActions}>
+              <button
+                type="button"
+                className={styles.incisedAction}
+                onClick={() => summonClive()}
+              >
+                Discuss with Clive
+              </button>
+              <button
+                type="button"
+                className={styles.incisedActionMuted}
+                onClick={() => {
+                  setOpenLetterId(null);
+                  setOpenLetterKind(null);
+                }}
+                aria-label={`Fold the letter — ${letter.title}`}
+              >
+                Fold the letter
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </li>
+    );
+  };
+
   const ledgerSection = (
-    <section
-      className={`${styles.ledger} ${ledgerState}`}
-      aria-label="Captured context"
-    >
+    <section className={`${styles.ledger} ${ledgerState}`} aria-label="Operator portals">
       <ul className={styles.sourceList}>
-        {categoryKeys.map((categoryKey) => {
-          const count = records.filter(
-            (r) => receivingCategoryKey(r) === categoryKey,
-          ).length;
-          const label = receivingCategoryLabel(categoryKey);
-          const blurb = receivingCategoryBlurb(categoryKey);
+        {OPERATOR_PORTAL_DOORS.map((door) => {
+          const count = portalCount(door.id, payload, customAcceptStatus);
           return (
-            <li key={categoryKey}>
+            <li key={door.id}>
               <button
                 type="button"
                 className={styles.sourceRow}
-                style={{ ["--tint" as string]: receivingCategoryTint(categoryKey) }}
-                onClick={() => openCategory(categoryKey)}
-                aria-label={`${label} — ${count} record${count === 1 ? "" : "s"}`}
+                style={{ ["--tint" as string]: door.tint }}
+                onClick={() => openPortal(door.id)}
+                aria-label={`${door.label} — ${count} ${door.countWord}`}
               >
                 <span className={styles.sourceIncision}>
-                  <span className={styles.sourceName}>{label}</span>
-                  {blurb ? <span className={styles.sourceBlurb}>{blurb}</span> : null}
+                  <span className={styles.sourceName}>{door.label}</span>
+                  <span className={styles.sourceBlurb}>{door.blurb}</span>
                 </span>
                 <span className={styles.sourceCount}>
                   <span className={styles.sourceCountNum}>{count}</span>
-                  <span className={styles.sourceCountWord}>within</span>
+                  <span className={styles.sourceCountWord}>{door.countWord}</span>
                 </span>
               </button>
             </li>
@@ -622,156 +988,149 @@ export function ReceivingWall({
     </section>
   );
 
-  const zoomedLabel = zoomed ? receivingCategoryLabel(zoomed) : "";
-  const zoomedBlurb = zoomed ? receivingCategoryBlurb(zoomed) : undefined;
+  const zoomedDoor = zoomed && isOperatorPortalId(zoomed) ? portalDoor(zoomed) : null;
+
+  const judgementBay = (
+    <>
+      <div className={styles.baySection}>
+        <p className={styles.baySectionKicker}>Needs a human</p>
+        <p className={styles.baySectionHint}>
+          Draft truths still pending — read, discuss with Clive, Accept.
+        </p>
+        {pendingDrafts.length === 0 ? (
+          <p className={styles.empty}>Nothing pending in Draft Brain Truth right now.</p>
+        ) : (
+          <ul className={styles.recordList}>{pendingDrafts.map(renderDraftLetter)}</ul>
+        )}
+      </div>
+
+      <div className={styles.baySection}>
+        <p className={styles.baySectionKicker}>Held / stuck</p>
+        <p className={styles.baySectionHint}>
+          Amendment versions Challenger held, or marked for a human decision.
+        </p>
+        {payload.held.length === 0 ? (
+          <p className={styles.empty}>Nothing held this morning.</p>
+        ) : (
+          <ul className={styles.recordList}>{payload.held.map(renderQueueLetter)}</ul>
+        )}
+      </div>
+
+      <div className={styles.baySection}>
+        <p className={styles.baySectionKicker}>This morning’s proposals</p>
+        <p className={styles.baySectionHint}>
+          Recent V1 Proposed work not yet drafted — see the queue; do not execute from here.
+        </p>
+        {payload.proposals.length === 0 ? (
+          <p className={styles.empty}>No open V1 proposals on the wall yet.</p>
+        ) : (
+          <ul className={styles.recordList}>{payload.proposals.map(renderQueueLetter)}</ul>
+        )}
+      </div>
+    </>
+  );
+
+  const healthBay = (
+    <div className={styles.baySection}>
+      <p className={styles.baySectionKicker}>Household brains</p>
+      <p className={styles.baySectionHint}>
+        Living shrine states — one glance at thriving versus rotten. The portal stays on the wall.
+      </p>
+      <ul className={styles.shrineBand}>
+        {payload.brains.map((brain) => (
+          <li
+            key={brain.slug}
+            className={styles.shrineRow}
+            style={{ ["--tint" as string]: portalDoor("health").tint }}
+          >
+            <div className={styles.shrineLoop}>
+              {prefersReducedMotion ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  className={styles.shrineStill}
+                  src={HEALTH_BAND_STILL_SRC[brain.healthBand]}
+                  alt=""
+                  draggable={false}
+                />
+              ) : (
+                <video
+                  className={styles.shrineVideo}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  poster={HEALTH_BAND_STILL_SRC[brain.healthBand]}
+                  aria-label={`${brain.name} — ${brainBandLine(brain)}`}
+                >
+                  <source src={shrineArtForBand(brain.healthBand)} type="video/mp4" />
+                </video>
+              )}
+            </div>
+            <div className={styles.shrineMeta}>
+              <span className={styles.shrineName}>{brain.name}</span>
+              <span className={styles.shrineBandLabel}>{brainBandLine(brain)}</span>
+              <p className={styles.shrineTheme}>{brain.theme}</p>
+              <Link
+                href={`/brain/${brain.slug}?tab=overview`}
+                className={styles.shrineOpen}
+                aria-label={`Open ${brain.name} workspace`}
+              >
+                Open workspace →
+              </Link>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+
+  const reportsBay = (
+    <div className={styles.baySection}>
+      <p className={styles.baySectionKicker}>Written reports</p>
+      <p className={styles.baySectionHint}>
+        Latest daily change summary opens as the letter. Sibling Auditor and Challenger write-ups
+        sit below.
+      </p>
+      {payload.reports.length === 0 ? (
+        <p className={styles.empty}>No reports on the wall yet.</p>
+      ) : (
+        <ul className={styles.recordList}>{payload.reports.map(renderReportLetter)}</ul>
+      )}
+    </div>
+  );
+
+  const marginCopy =
+    zoomed === "judgement"
+      ? "Clive can walk this judgement bay and help you decide what each draft becomes."
+      : zoomed === "health"
+        ? "Clive can read the shrine states with you — he does not heal a brain from here."
+        : zoomed === "reports"
+          ? "Clive can sit with this morning’s letters and help you name what still needs an eye."
+          : "Clive can read this bay and propose what each record becomes.";
 
   const baySection =
-    zoomed !== null ? (
+    zoomed !== null && zoomedDoor ? (
       <section
         key={zoomed}
         className={`${styles.zoom} ${bayState}`}
-        aria-label={zoomedLabel}
+        aria-label={zoomedDoor.label}
       >
         <div className={styles.zoomHead}>
           <button type="button" className={styles.backBtn} onClick={closeZoom}>
             ← The wall
           </button>
-          <h2 className={styles.zoomTitle}>{zoomedLabel}</h2>
-          {zoomedBlurb ? <p className={styles.zoomBlurb}>{zoomedBlurb}</p> : null}
+          <h2 className={styles.zoomTitle}>{zoomedDoor.label}</h2>
+          <p className={styles.zoomBlurb}>{zoomedDoor.blurb}</p>
         </div>
 
-        {zoomedRecords.length === 0 ? (
-          <p className={styles.empty}>Nothing waits in this bay yet.</p>
-        ) : (
-          <ul className={styles.recordList}>
-            {zoomedRecords.map((record) => (
-              <li key={record.recordId}>
-                <button
-                  type="button"
-                  className={`${styles.recordRow} ${
-                    openRecordId === record.recordId ? styles.recordRowOpen : ""
-                  }`}
-                  aria-expanded={openRecordId === record.recordId}
-                  aria-controls={`letter-${record.recordId}`}
-                  onClick={() =>
-                    setOpenRecordId(openRecordId === record.recordId ? null : record.recordId)
-                  }
-                >
-                  <span className={styles.recordIncision}>
-                    <span id={`record-title-${record.recordId}`} className={styles.recordTitle}>
-                      {record.title}
-                    </span>
-                    <span
-                      className={styles.recordProvenance}
-                      style={{
-                        ["--tint" as string]: CAPTURE_SOURCE_TINT[record.captureSource],
-                      }}
-                    >
-                      {record.provenance}
-                      {record.systemBrainName || record.systemBrainSlug || record.brainSlug ? (
-                        <span className={styles.recordBrainSlug}>
-                          {` · ${record.systemBrainName || record.systemBrainSlug || record.brainSlug}`}
-                        </span>
-                      ) : null}
-                    </span>
-                  </span>
-                  <span className={styles.recordChevron} aria-hidden>
-                    {openRecordId === record.recordId ? "−" : "+"}
-                  </span>
-                </button>
-
-                {openRecordId === record.recordId && openRecord ? (
-                  <div
-                    id={`letter-${record.recordId}`}
-                    className={styles.letter}
-                    role="region"
-                    aria-labelledby={`record-title-${record.recordId}`}
-                  >
-                    <p className={styles.letterMeta}>
-                      {openRecord.provenance}
-                      {` · ${CAPTURE_SOURCE_LABEL[openRecord.captureSource]}`}
-                      {openRecord.category
-                        ? ` · ${openRecord.category}`
-                        : " · Uncategorised"}
-                      {openRecord.status ? ` · ${openRecord.status}` : ""}
-                      {destinationLabel ? ` · → ${destinationLabel}` : ""}
-                    </p>
-                    <p className={styles.letterBody}>
-                      {openRecord.canonicalText || openRecord.snippet}
-                    </p>
-                    {acceptState === "success" ? (
-                      <p className={styles.letterStatus} role="status">
-                        Accepted — recorded on the bench with a paper trail.
-                      </p>
-                    ) : null}
-                    {acceptState === "error" && acceptError ? (
-                      <p className={styles.letterError} role="alert">
-                        {acceptError}
-                      </p>
-                    ) : null}
-                    <div className={styles.letterActions}>
-                      <button
-                        type="button"
-                        className={[
-                          styles.acceptBtn,
-                          acceptState === "pending" ? styles.acceptBtnPending : "",
-                          acceptState === "success" ||
-                          isReceivingRecordActioned(openRecord.status, customAcceptStatus)
-                            ? styles.acceptBtnSuccess
-                            : "",
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
-                        disabled={
-                          acceptState === "pending" ||
-                          isReceivingRecordActioned(openRecord.status, customAcceptStatus) ||
-                          acceptState === "success"
-                        }
-                        aria-busy={acceptState === "pending"}
-                        aria-label={
-                          acceptState === "pending"
-                            ? "Accepting record"
-                            : acceptState === "success" ||
-                                isReceivingRecordActioned(openRecord.status, customAcceptStatus)
-                              ? "Record accepted"
-                              : `Accept ${openRecord.title}`
-                        }
-                        onClick={() => void acceptRecord(openRecord)}
-                      >
-                        {acceptState === "pending"
-                          ? "Accepting…"
-                          : acceptState === "success" ||
-                              isReceivingRecordActioned(openRecord.status, customAcceptStatus)
-                            ? "Accepted"
-                            : "Accept"}
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.incisedAction}
-                        onClick={() => summonClive(openRecord)}
-                      >
-                        Discuss with Clive
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.incisedActionMuted}
-                        onClick={() => setOpenRecordId(null)}
-                        aria-label={`Fold the letter — ${openRecord.title}`}
-                      >
-                        Fold the letter
-                      </button>
-                    </div>
-                  </div>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        )}
+        {zoomed === "judgement"
+          ? judgementBay
+          : zoomed === "health"
+            ? healthBay
+            : reportsBay}
 
         <div className={styles.margin}>
-          <p className={styles.marginText}>
-            Clive can read this bay and propose what each record becomes.
-          </p>
+          <p className={styles.marginText}>{marginCopy}</p>
           <button type="button" className={styles.incisedAction} onClick={() => summonClive()}>
             Sit with Clive →
           </button>
@@ -784,9 +1143,13 @@ export function ReceivingWall({
       className={wallClasses}
       aria-label="The Receiving Wall"
       style={{
-        ["--tint" as string]: zoomed ? receivingCategoryTint(zoomed) : idleTint,
+        ["--tint" as string]: activeTint,
         ["--dolly-in-16-9" as string]: String(dollyIn169),
         ["--room-static-mask" as string]: roomStaticMaskUrl(),
+        ["--sill-x" as string]: String(sill.xFrom),
+        ["--sill-x-to" as string]: String(sill.xTo),
+        ["--sill-y" as string]: String(sill.yFrom),
+        ["--sill-y-to" as string]: String(sill.yTo),
       }}
     >
       <div className={styles.stage}>
@@ -888,6 +1251,16 @@ export function ReceivingWall({
               alt=""
             />
           </div>
+          {/* Hotspot on the plate (manifest fractions), not the 15% sill strip. */}
+          {showSillHotspot ? (
+            <button
+              type="button"
+              className={styles.sillHotspot}
+              style={{ ["--tint" as string]: portalDoor("reports").tint }}
+              aria-label={sill.ariaLabel}
+              onClick={() => openPortal(sill.portalId)}
+            />
+          ) : null}
         </div>
         <div className={styles.stageScrim} />
       </div>

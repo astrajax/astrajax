@@ -636,7 +636,9 @@
   .incisedAction,
   .acceptBtn,
   .backBtn,
-  .recordRow
+  .recordRow,
+  .sillHotspot,
+  .shrineOpen
 ):focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 4px;
@@ -1301,6 +1303,142 @@
   }
 }
 
+/* ---- Operator portals v1 — bay sections + shrine bands (working) ---- */
+.baySection {
+  margin: 0 0 1.75rem;
+}
+.baySectionKicker {
+  font-family: var(--font-wall), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.36em;
+  text-transform: uppercase;
+  color: rgba(221, 208, 174, 0.58);
+  margin: 0 0 0.65rem;
+  text-shadow: 0 -1px 0 rgba(12, 14, 10, 0.85);
+}
+.baySectionHint {
+  font-family: var(--font-wall), serif;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: rgba(240, 230, 204, 0.62);
+  margin: 0 0 0.85rem;
+  max-width: 46rem;
+}
+
+.shrineBand {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+.shrineRow {
+  display: grid;
+  grid-template-columns: minmax(4.5rem, 22%) 1fr;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.35rem 0.15rem 0.85rem;
+  background-image:
+    linear-gradient(90deg, transparent 0, rgba(12, 14, 10, 0.55) 14%, rgba(12, 14, 10, 0.55) 86%, transparent 100%),
+    linear-gradient(90deg, transparent 0, rgba(231, 209, 173, 0.15) 14%, rgba(231, 209, 173, 0.15) 86%, transparent 100%);
+  background-size: 100% 1px, 100% 1px;
+  background-position: 0 calc(100% - 1px), 0 100%;
+  background-repeat: no-repeat;
+}
+.shrineLoop {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow:
+    inset 0 0 0 1px rgba(12, 14, 10, 0.45),
+    0 0 18px color-mix(in oklab, var(--tint) 18%, transparent);
+}
+.shrineVideo,
+.shrineStill {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+.shrineMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.shrineName {
+  font-family: var(--font-wall), serif;
+  font-weight: 700;
+  font-size: clamp(1.05rem, calc(var(--ap-base-w) * 0.028), 1.45rem);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ddd0ae;
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.92),
+    0 -2px 2px rgba(12, 14, 10, 0.5),
+    0 1px 0 color-mix(in oklab, var(--tint) 55%, transparent);
+}
+.shrineBandLabel {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in oklab, var(--tint) 80%, #ddd0ae);
+}
+.shrineTheme {
+  font-family: var(--font-wall), serif;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: rgba(240, 230, 204, 0.62);
+  margin: 0;
+}
+.shrineOpen {
+  align-self: flex-start;
+  margin-top: 0.15rem;
+  font-family: var(--font-wall), serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ddd0ae;
+  text-decoration: none;
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.9),
+    0 1px 0 color-mix(in oklab, var(--tint) 45%, transparent);
+  padding: 0.45rem 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.shrineOpen:hover {
+  color: #f0e5c6;
+  letter-spacing: 0.16em;
+}
+
+/* Sill letter hotspot — idle only; opens This morning */
+.sillHotspot {
+  position: absolute;
+  z-index: 8;
+  left: calc(var(--sill-x, 0.27) * 100%);
+  top: calc(var(--sill-y, 0.87) * 100%);
+  width: calc((var(--sill-x-to, 0.44) - var(--sill-x, 0.27)) * 100%);
+  height: calc((var(--sill-y-to, 0.93) - var(--sill-y, 0.87)) * 100%);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 2px;
+  /* Parent .stage / .sillForeground are pointer-events: none — re-enable here. */
+  pointer-events: auto;
+}
+.sillHotspot:hover {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tint) 35%, transparent);
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 640px) {
   .sourceRow {
@@ -1316,6 +1454,10 @@
   .margin {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .shrineRow {
+    grid-template-columns: minmax(3.75rem, 28%) 1fr;
     gap: 0.75rem;
   }
 }

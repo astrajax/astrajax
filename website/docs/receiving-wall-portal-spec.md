@@ -51,7 +51,14 @@ fallback and is flagged for Kathryn / Tara-Lee's eye.
 > 3. **Sill belt** (`.sillForeground`) — cut master pixels for the ledge + letter/quill
 >    (`receiving-wall-sill.png`, top at 85% of the plate), pinned above the hole edge so props
 >    stay whole.
-> Idle ledger scroll is unchanged (paint still; category list scrolls in the aperture).
+> Idle ledger scroll is unchanged (paint still; list scrolls in the aperture).
+
+> **Amendment (Matthew, Aug 2026 — operator portals v1).** Idle doors are no longer
+> Proposed Category plaques. Three job portals: **Judgement**, **Brain health**,
+> **This morning**. Same zoom grammar (pinned arch, travelling interior, sill).
+> Category may still sort *inside* the judgement bay’s pending drafts and appear
+> on the opened letter — it is not an idle door. Sill letter hotspot may open
+> This morning. See `docs/initiatives/receiving-wall-operator-portals-v1.md`.
 
 ---
 
