@@ -11,6 +11,7 @@ Agents whose **production runtime is Cursor** - invoked as subagents in the IDE.
 | Clive's Man Challenger | `clive-man-challenger` | `clive/clive-man/` | `.cursor/agents/clive-man-challenger.md` |
 | Clive's Man Executor | `clive-man-executor` | `clive/clive-man/` | `.cursor/agents/clive-man-executor.md` |
 | Hyperagent Release Scanner | `clive-hyperagent-release-scanner` | `clive/hyperagent-release-scanner/` | `.cursor/agents/clive-hyperagent-release-scanner.md` |
+| Daily change summary (Cursor automation) | `summarize-changes-daily` | `clive/daily-change-summary/` | Cursor automation [Summarize changes daily](https://cursor.com/automations/3d8feb77-8e64-11f1-a7d1-d6b4613131ce) — not an `@` agent. Follow `runbook.md`. |
 
 Clive is the visible reasoning partner. **Pam** is the challenger who stress-tests
 assumptions before action gates and does not decide. **Clive's Man** is the same person as **The Man**
