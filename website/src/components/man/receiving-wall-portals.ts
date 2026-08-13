@@ -3,7 +3,8 @@
  *
  * Kate-owned UI types and seeds. When Doc’s extended API lands on
  * `/api/brains/receiving-wall`, prefer those fields; until then the wall never
- * goes blank. Working tints (Nocturne Orchard) — Kathryn owns final taste.
+ * goes blank. Working look: `docs/initiatives/receiving-wall-kathryn-look-v1.md`
+ * (not final — Kathryn / TL own finish).
  */
 
 import {
@@ -12,7 +13,9 @@ import {
 } from "@/lib/receiving-wall";
 import {
   BRAINS_SHELF,
+  HEALTH_BAND_LABELS,
   healthBandLabel,
+  type BrainHealthBand,
   type BrainShelfEntry,
 } from "@/lib/platform/brains";
 
@@ -46,39 +49,51 @@ export type OperatorPortalDoor = {
   id: OperatorPortalId;
   label: string;
   blurb: string;
-  /** Working tint — Nocturne Orchard family; not final art direction. */
+  /** Working tint — bay light / varnish; not final art direction. */
   tint: string;
-  countWord: string;
 };
 
 /**
- * Working plaque tints for the three idle doors.
- * judgement = Burnt Apricot (human warmth), health = Sage Signal,
- * reports = Parchment Dim. Marked working until Kathryn’s eye.
+ * Working door inscriptions + bay lights (Kathryn look v1).
+ * Order: Judgement, The brains, This morning. Doors never hide when empty.
  */
 export const OPERATOR_PORTAL_DOORS: readonly OperatorPortalDoor[] = [
   {
     id: "judgement",
     label: "Judgement",
-    blurb: "Drafts that need a human, Held work, and this morning’s proposals.",
-    tint: "#d77545",
-    countWord: "waiting",
+    blurb: "What waits on you.",
+    tint: "#e7d1ad",
   },
   {
     id: "health",
-    label: "Brain health",
-    blurb: "How the household brains are — shrine states, not a table.",
+    label: "The brains",
+    blurb: "How the household is holding.",
     tint: "#9aa77a",
-    countWord: "brains",
   },
   {
     id: "reports",
     label: "This morning",
-    blurb: "Written reports — daily change summary and sibling write-ups.",
-    tint: "#e7d1ad",
-    countWord: "letters",
+    blurb: "What the house did overnight.",
+    tint: "#e4d3a3",
   },
 ] as const;
+
+/** Working band word colours — catch on the word only, never a room fill. */
+export const HEALTH_BAND_WORD_TINT: Record<BrainHealthBand, string> = {
+  rotten: "#8b3a2a",
+  unhappy: "#b85c38",
+  okay: "#e4d3a3",
+  happy: "#9aa77a",
+  thriving: "#9aa77a",
+};
+
+const BAND_SEVERITY: Record<BrainHealthBand, number> = {
+  rotten: 0,
+  unhappy: 1,
+  okay: 2,
+  happy: 3,
+  thriving: 4,
+};
 
 export function portalDoor(id: OperatorPortalId): OperatorPortalDoor {
   return OPERATOR_PORTAL_DOORS.find((door) => door.id === id) ?? OPERATOR_PORTAL_DOORS[0]!;
@@ -138,7 +153,7 @@ export const SEED_REPORTS: PortalReportLetter[] = [
     agentSlug: "summarize-changes-daily",
     headline: "What moved overnight — and what still needs your eye.",
     body:
-      "Overnight the household filed Activity and Reports as usual. The morning pipe wrote Context Amendment Versions first; drafts land on the wall when the Executor finishes.\n\nOpen Judgement for anything that still needs a human. Brain health is next door. This letter is the tip of the Reports table — revisions arrive as new rows, never silent edits.",
+      "Overnight the household filed Activity and Reports as usual. The morning pipe wrote Context Amendment Versions first; drafts land on the wall when the Executor finishes.\n\nOpen Judgement for anything that still needs a human. The brains are next door. This letter is the tip of the Reports table — revisions arrive as new rows, never silent edits.",
     period: "13 Aug 2026",
   },
   {
@@ -217,27 +232,53 @@ export function pendingDraftsForJudgement(
 export function judgementWaitingCount(
   records: ReceivingRecord[],
   held: PortalQueueItem[],
-  proposals: PortalQueueItem[],
   customAcceptStatus?: string,
 ): number {
-  return pendingDraftsForJudgement(records, customAcceptStatus).length + held.length + proposals.length;
+  return pendingDraftsForJudgement(records, customAcceptStatus).length + held.length;
 }
 
-export function portalCount(
+/** Worst shrine band present — idle right-hand mark for The brains. */
+export function worstBrainBand(brains: BrainShelfEntry[]): BrainHealthBand {
+  if (!brains.length) return "okay";
+  return brains.reduce<BrainHealthBand>((worst, brain) => {
+    return BAND_SEVERITY[brain.healthBand] < BAND_SEVERITY[worst]
+      ? brain.healthBand
+      : worst;
+  }, "thriving");
+}
+
+export function worstBrainBandWord(brains: BrainShelfEntry[]): string {
+  return HEALTH_BAND_LABELS[worstBrainBand(brains)];
+}
+
+/** Default featured brain in the health aperture — worst band, then first. */
+export function featuredBrain(brains: BrainShelfEntry[]): BrainShelfEntry | null {
+  if (!brains.length) return null;
+  const worst = worstBrainBand(brains);
+  return brains.find((brain) => brain.healthBand === worst) ?? brains[0] ?? null;
+}
+
+export function portalRightMark(
   id: OperatorPortalId,
   payload: OperatorWallPayload,
   customAcceptStatus?: string,
-): number {
+): { kind: "numeral" | "state" | "time"; value: string; tint?: string } {
   if (id === "judgement") {
-    return judgementWaitingCount(
-      payload.records,
-      payload.held,
-      payload.proposals,
-      customAcceptStatus,
-    );
+    return {
+      kind: "numeral",
+      value: String(judgementWaitingCount(payload.records, payload.held, customAcceptStatus)),
+      tint: "#e7d1ad",
+    };
   }
-  if (id === "health") return payload.brains.length;
-  return payload.reports.length;
+  if (id === "health") {
+    const band = worstBrainBand(payload.brains);
+    return {
+      kind: "state",
+      value: healthBandLabel(band),
+      tint: HEALTH_BAND_WORD_TINT[band],
+    };
+  }
+  return { kind: "time", value: "Today", tint: "#e4d3a3" };
 }
 
 /** Prefer Handoff / summarize-changes-daily as the default opened letter. */

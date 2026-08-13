@@ -709,7 +709,53 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(1.25rem, 3vh, 2rem);
+  /* Kathryn look v1 — three inscriptions, generous door spacing */
+  gap: clamp(2.5rem, 7vh, 4.5rem);
+}
+
+/* Idle portal door names — ~.zoomTitle scale; type never tracks --dolly */
+.portalDoorName {
+  font-family: var(--font-wall), serif;
+  font-weight: 700;
+  font-size: clamp(1.6rem, calc(var(--ap-base-w) * 0.052), 2.6rem);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ddd0ae;
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.92),
+    0 -2px 3px rgba(12, 14, 10, 0.55),
+    0 1px 0 color-mix(in oklab, var(--tint) 55%, transparent),
+    0 2px 1px rgba(12, 14, 10, 0.35);
+}
+.sourceRow:hover .portalDoorName {
+  color: #ece0c0;
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.92),
+    0 -2px 3px rgba(12, 14, 10, 0.55),
+    0 1px 0 var(--tint),
+    0 0 6px color-mix(in oklab, var(--tint) 30%, transparent);
+}
+.portalMark {
+  font-family: var(--font-wall), serif;
+  font-size: clamp(1.2rem, calc(var(--ap-base-w) * 0.034), 1.75rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mark-tint, var(--tint));
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.9),
+    0 1px 0 color-mix(in oklab, var(--mark-tint, var(--tint)) 40%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.portalMarkState {
+  font-size: clamp(0.95rem, calc(var(--ap-base-w) * 0.028), 1.35rem);
+  letter-spacing: 0.16em;
+}
+.portalMarkTime {
+  font-size: clamp(0.95rem, calc(var(--ap-base-w) * 0.028), 1.35rem);
+  letter-spacing: 0.2em;
+  font-style: italic;
+  font-weight: 600;
 }
 
 .sourceRow {
@@ -1325,56 +1371,53 @@
   max-width: 46rem;
 }
 
-.shrineBand {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* One shrine in the upper aperture — dissolve on all four sides (Kathryn look) */
+.shrineStage {
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
-}
-.shrineRow {
-  display: grid;
-  grid-template-columns: minmax(4.5rem, 22%) 1fr;
-  gap: 1rem;
   align-items: center;
-  padding: 0.35rem 0.15rem 0.85rem;
-  background-image:
-    linear-gradient(90deg, transparent 0, rgba(12, 14, 10, 0.55) 14%, rgba(12, 14, 10, 0.55) 86%, transparent 100%),
-    linear-gradient(90deg, transparent 0, rgba(231, 209, 173, 0.15) 14%, rgba(231, 209, 173, 0.15) 86%, transparent 100%);
-  background-size: 100% 1px, 100% 1px;
-  background-position: 0 calc(100% - 1px), 0 100%;
-  background-repeat: no-repeat;
+  gap: 1rem;
+  margin: 0.25rem 0 1.5rem;
 }
 .shrineLoop {
   position: relative;
-  width: 100%;
+  width: min(46%, 16rem);
   aspect-ratio: 1;
   overflow: hidden;
-  border-radius: 2px;
-  box-shadow:
-    inset 0 0 0 1px rgba(12, 14, 10, 0.45),
-    0 0 18px color-mix(in oklab, var(--tint) 18%, transparent);
+  -webkit-mask-image: radial-gradient(
+    ellipse 72% 72% at 50% 50%,
+    #fff 42%,
+    rgba(255, 255, 255, 0.55) 68%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 72% 72% at 50% 50%,
+    #fff 42%,
+    rgba(255, 255, 255, 0.55) 68%,
+    transparent 100%
+  );
 }
 .shrineVideo,
 .shrineStill {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   pointer-events: none;
   user-select: none;
 }
 .shrineMeta {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  min-width: 0;
+  align-items: center;
+  gap: 0.4rem;
+  text-align: center;
+  max-width: 28rem;
 }
 .shrineName {
   font-family: var(--font-wall), serif;
   font-weight: 700;
-  font-size: clamp(1.05rem, calc(var(--ap-base-w) * 0.028), 1.45rem);
+  font-size: clamp(1.15rem, calc(var(--ap-base-w) * 0.032), 1.6rem);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #ddd0ae;
@@ -1384,10 +1427,13 @@
     0 1px 0 color-mix(in oklab, var(--tint) 55%, transparent);
 }
 .shrineBandLabel {
-  font-size: 0.78rem;
-  letter-spacing: 0.16em;
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: color-mix(in oklab, var(--tint) 80%, #ddd0ae);
+  color: var(--band-tint, var(--tint));
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.9),
+    0 1px 0 color-mix(in oklab, var(--band-tint, var(--tint)) 45%, transparent);
 }
 .shrineTheme {
   font-family: var(--font-wall), serif;
@@ -1397,10 +1443,9 @@
   margin: 0;
 }
 .shrineOpen {
-  align-self: flex-start;
-  margin-top: 0.15rem;
+  margin-top: 0.25rem;
   font-family: var(--font-wall), serif;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #ddd0ae;
@@ -1408,7 +1453,7 @@
   text-shadow:
     0 -1px 0 rgba(12, 14, 10, 0.9),
     0 1px 0 color-mix(in oklab, var(--tint) 45%, transparent);
-  padding: 0.45rem 0;
+  padding: 0.55rem 0;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
@@ -1416,6 +1461,35 @@
 .shrineOpen:hover {
   color: #f0e5c6;
   letter-spacing: 0.16em;
+}
+.proposalLine {
+  font-family: var(--font-wall), serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  color: rgba(221, 208, 174, 0.78);
+  padding: 0.65rem 0.25rem;
+  background-image:
+    linear-gradient(90deg, transparent 0, rgba(12, 14, 10, 0.55) 14%, rgba(12, 14, 10, 0.55) 86%, transparent 100%),
+    linear-gradient(90deg, transparent 0, rgba(231, 209, 173, 0.15) 14%, rgba(231, 209, 173, 0.15) 86%, transparent 100%);
+  background-size: 100% 1px, 100% 1px;
+  background-position: 0 calc(100% - 1px), 0 100%;
+  background-repeat: no-repeat;
+}
+.proposalLineMeta {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(240, 230, 204, 0.48);
+}
+.siblingList {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+}
+.heldLip {
+  --tint: #d77545;
 }
 
 /* Sill letter hotspot — idle only; opens This morning */
@@ -1456,9 +1530,8 @@
     align-items: flex-start;
     gap: 0.75rem;
   }
-  .shrineRow {
-    grid-template-columns: minmax(3.75rem, 28%) 1fr;
-    gap: 0.75rem;
+  .shrineLoop {
+    width: min(58%, 14rem);
   }
 }
 

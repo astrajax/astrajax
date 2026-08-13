@@ -28,14 +28,16 @@ import {
 import type { ChatMessage } from "@/lib/clive/types";
 import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 import {
+  HEALTH_BAND_WORD_TINT,
   OPERATOR_PORTAL_DOORS,
   brainBandLine,
   defaultReportLetterId,
+  featuredBrain,
   isOperatorPortalId,
   mergeOperatorWallPayload,
   pendingDraftsForJudgement,
-  portalCount,
   portalDoor,
+  portalRightMark,
   type OperatorPortalId,
   type OperatorWallPayload,
   type PortalQueueItem,
@@ -270,13 +272,6 @@ export function ReceivingWall({
         setOpenLetterKind(null);
         setReadOffset(0);
         setZoomed(portalId);
-        if (portalId === "reports") {
-          const tipId = defaultReportLetterId(payload.reports);
-          if (tipId) {
-            setOpenLetterId(tipId);
-            setOpenLetterKind("report");
-          }
-        }
         setBeat("zooming");
         after(T.ARRIVE, () => setBeat("zoomedIn"));
       };
@@ -301,13 +296,6 @@ export function ReceivingWall({
         setOpenLetterId(null);
         setOpenLetterKind(null);
         setZoomed(portalId);
-        if (portalId === "reports") {
-          const tipId = defaultReportLetterId(payload.reports);
-          if (tipId) {
-            setOpenLetterId(tipId);
-            setOpenLetterKind("report");
-          }
-        }
         setBeat("zooming");
         after(T.EXIT, () => setBeat("zoomedIn"));
         return;
@@ -324,7 +312,7 @@ export function ReceivingWall({
       setBeat("exiting");
       after(T.EXIT, beginZoom);
     },
-    [beat, zoomed, after, clearPending, T.EXIT, T.ARRIVE, isNave, payload.reports],
+    [beat, zoomed, after, clearPending, T.EXIT, T.ARRIVE, isNave],
   );
 
   const closeZoom = useCallback(() => {
@@ -799,11 +787,12 @@ export function ReceivingWall({
     );
   };
 
-  const renderQueueLetter = (item: PortalQueueItem) => {
+  /** Held only — read-only letter, no Accept (Kathryn look). */
+  const renderHeldLetter = (item: PortalQueueItem) => {
     const isOpen = openLetterKind === "queue" && openLetterId === item.recordId;
     const letter = isOpen ? openQueue : null;
     return (
-      <li key={item.recordId}>
+      <li key={item.recordId} className={styles.heldLip}>
         <button
           type="button"
           className={`${styles.recordRow} ${isOpen ? styles.recordRowOpen : ""}`}
@@ -840,25 +829,16 @@ export function ReceivingWall({
               {letter.provenance}
               {letter.stage ? ` · ${letter.stage}` : ""}
               {letter.verdict ? ` · ${letter.verdict}` : ""}
-              {letter.kind === "held" ? " · Held for a human" : " · Proposal — not yet drafted"}
+              {" · Held for a human"}
             </p>
             <p className={styles.letterBody}>
               {letter.reason ? `${letter.reason}\n\n` : ""}
               {letter.snippet}
             </p>
             <p className={styles.letterStatus} role="status">
-              {letter.kind === "held"
-                ? "Held — no silent rewrite from this wall."
-                : "Seen on the queue only — this wall does not start the morning machine."}
+              Held — read only. No silent rewrite from this wall.
             </p>
             <div className={styles.letterActions}>
-              <button
-                type="button"
-                className={styles.incisedAction}
-                onClick={() => summonClive()}
-              >
-                Discuss with Clive
-              </button>
               <button
                 type="button"
                 className={styles.incisedActionMuted}
@@ -953,23 +933,31 @@ export function ReceivingWall({
     <section className={`${styles.ledger} ${ledgerState}`} aria-label="Operator portals">
       <ul className={styles.sourceList}>
         {OPERATOR_PORTAL_DOORS.map((door) => {
-          const count = portalCount(door.id, payload, customAcceptStatus);
+          const mark = portalRightMark(door.id, payload, customAcceptStatus);
+          const markClass =
+            mark.kind === "state"
+              ? `${styles.portalMark} ${styles.portalMarkState}`
+              : mark.kind === "time"
+                ? `${styles.portalMark} ${styles.portalMarkTime}`
+                : styles.portalMark;
           return (
             <li key={door.id}>
               <button
                 type="button"
                 className={styles.sourceRow}
-                style={{ ["--tint" as string]: door.tint }}
+                style={{
+                  ["--tint" as string]: door.tint,
+                  ["--mark-tint" as string]: mark.tint ?? door.tint,
+                }}
                 onClick={() => openPortal(door.id)}
-                aria-label={`${door.label} — ${count} ${door.countWord}`}
+                aria-label={`${door.label} — ${door.blurb} ${mark.value}`}
               >
                 <span className={styles.sourceIncision}>
-                  <span className={styles.sourceName}>{door.label}</span>
+                  <span className={styles.portalDoorName}>{door.label}</span>
                   <span className={styles.sourceBlurb}>{door.blurb}</span>
                 </span>
                 <span className={styles.sourceCount}>
-                  <span className={styles.sourceCountNum}>{count}</span>
-                  <span className={styles.sourceCountWord}>{door.countWord}</span>
+                  <span className={markClass}>{mark.value}</span>
                 </span>
               </button>
             </li>
@@ -990,10 +978,20 @@ export function ReceivingWall({
 
   const zoomedDoor = zoomed && isOperatorPortalId(zoomed) ? portalDoor(zoomed) : null;
 
+  const featured = featuredBrain(payload.brains);
+  const tipReportId = defaultReportLetterId(payload.reports);
+  const tipReport =
+    tipReportId != null
+      ? (payload.reports.find((report) => report.recordId === tipReportId) ?? null)
+      : null;
+  const siblingReports = tipReportId
+    ? payload.reports.filter((report) => report.recordId !== tipReportId)
+    : payload.reports;
+
   const judgementBay = (
     <>
       <div className={styles.baySection}>
-        <p className={styles.baySectionKicker}>Needs a human</p>
+        <p className={styles.letterMeta}>Needs a human</p>
         <p className={styles.baySectionHint}>
           Draft truths still pending — read, discuss with Clive, Accept.
         </p>
@@ -1004,98 +1002,138 @@ export function ReceivingWall({
         )}
       </div>
 
-      <div className={styles.baySection}>
-        <p className={styles.baySectionKicker}>Held / stuck</p>
+      <div className={`${styles.baySection} ${styles.heldLip}`}>
+        <p className={styles.letterMeta}>Held / stuck</p>
         <p className={styles.baySectionHint}>
-          Amendment versions Challenger held, or marked for a human decision.
+          Amendment versions Challenger held — read why; no Accept from here.
         </p>
         {payload.held.length === 0 ? (
           <p className={styles.empty}>Nothing held this morning.</p>
         ) : (
-          <ul className={styles.recordList}>{payload.held.map(renderQueueLetter)}</ul>
+          <ul className={styles.recordList}>{payload.held.map(renderHeldLetter)}</ul>
         )}
       </div>
 
       <div className={styles.baySection}>
-        <p className={styles.baySectionKicker}>This morning’s proposals</p>
+        <p className={styles.letterMeta}>This morning’s proposals</p>
         <p className={styles.baySectionHint}>
-          Recent V1 Proposed work not yet drafted — see the queue; do not execute from here.
+          Recent V1 Proposed work not yet drafted — one line each; no execute from this wall.
         </p>
         {payload.proposals.length === 0 ? (
           <p className={styles.empty}>No open V1 proposals on the wall yet.</p>
         ) : (
-          <ul className={styles.recordList}>{payload.proposals.map(renderQueueLetter)}</ul>
+          <ul className={styles.recordList}>
+            {payload.proposals.map((item) => (
+              <li key={item.recordId} className={styles.proposalLine}>
+                {item.title}
+                <span className={styles.proposalLineMeta}>
+                  {item.provenance}
+                  {item.stage ? ` · ${item.stage}` : ""}
+                  {item.verdict ? ` · ${item.verdict}` : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </>
   );
 
-  const healthBay = (
+  const healthBay = featured ? (
     <div className={styles.baySection}>
-      <p className={styles.baySectionKicker}>Household brains</p>
-      <p className={styles.baySectionHint}>
-        Living shrine states — one glance at thriving versus rotten. The portal stays on the wall.
-      </p>
-      <ul className={styles.shrineBand}>
-        {payload.brains.map((brain) => (
-          <li
-            key={brain.slug}
-            className={styles.shrineRow}
-            style={{ ["--tint" as string]: portalDoor("health").tint }}
+      <div
+        className={styles.shrineStage}
+        style={{
+          ["--tint" as string]: portalDoor("health").tint,
+          ["--band-tint" as string]: HEALTH_BAND_WORD_TINT[featured.healthBand],
+        }}
+      >
+        <div className={styles.shrineLoop}>
+          {prefersReducedMotion ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              className={styles.shrineStill}
+              src={HEALTH_BAND_STILL_SRC[featured.healthBand]}
+              alt=""
+              draggable={false}
+            />
+          ) : (
+            <video
+              className={styles.shrineVideo}
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster={HEALTH_BAND_STILL_SRC[featured.healthBand]}
+              aria-label={`${featured.name} — ${brainBandLine(featured)}`}
+            >
+              <source src={shrineArtForBand(featured.healthBand)} type="video/mp4" />
+            </video>
+          )}
+        </div>
+        <div className={styles.shrineMeta}>
+          <span className={styles.shrineName}>{featured.name}</span>
+          <span className={styles.shrineBandLabel}>{brainBandLine(featured)}</span>
+          <p className={styles.shrineTheme}>{featured.theme}</p>
+          <Link
+            href={`/brain/${featured.slug}?tab=overview`}
+            className={styles.shrineOpen}
+            aria-label={`To the brains — ${featured.name}`}
           >
-            <div className={styles.shrineLoop}>
-              {prefersReducedMotion ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  className={styles.shrineStill}
-                  src={HEALTH_BAND_STILL_SRC[brain.healthBand]}
-                  alt=""
-                  draggable={false}
-                />
-              ) : (
-                <video
-                  className={styles.shrineVideo}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  poster={HEALTH_BAND_STILL_SRC[brain.healthBand]}
-                  aria-label={`${brain.name} — ${brainBandLine(brain)}`}
-                >
-                  <source src={shrineArtForBand(brain.healthBand)} type="video/mp4" />
-                </video>
-              )}
-            </div>
-            <div className={styles.shrineMeta}>
-              <span className={styles.shrineName}>{brain.name}</span>
-              <span className={styles.shrineBandLabel}>{brainBandLine(brain)}</span>
-              <p className={styles.shrineTheme}>{brain.theme}</p>
-              <Link
-                href={`/brain/${brain.slug}?tab=overview`}
-                className={styles.shrineOpen}
-                aria-label={`Open ${brain.name} workspace`}
-              >
-                Open workspace →
-              </Link>
-            </div>
-          </li>
-        ))}
-      </ul>
+            To the brains →
+          </Link>
+        </div>
+      </div>
     </div>
+  ) : (
+    <p className={styles.empty}>No household brains on the shelf yet.</p>
   );
 
   const reportsBay = (
     <div className={styles.baySection}>
-      <p className={styles.baySectionKicker}>Written reports</p>
-      <p className={styles.baySectionHint}>
-        Latest daily change summary opens as the letter. Sibling Auditor and Challenger write-ups
-        sit below.
-      </p>
-      {payload.reports.length === 0 ? (
-        <p className={styles.empty}>No reports on the wall yet.</p>
+      {tipReport ? (
+        <div
+          className={styles.letter}
+          role="region"
+          aria-label={tipReport.title}
+          style={{ marginTop: 0 }}
+        >
+          <p className={styles.letterMeta}>
+            {tipReport.reportType}
+            {tipReport.period ? ` · ${tipReport.period}` : ""}
+            {tipReport.agentSlug ? ` · ${tipReport.agentSlug}` : ""}
+          </p>
+          <h3 className={styles.recordTitle} style={{ marginBottom: "0.65rem" }}>
+            {tipReport.title}
+          </h3>
+          {tipReport.headline ? (
+            <p className={styles.baySectionHint}>{tipReport.headline}</p>
+          ) : null}
+          <p className={styles.letterBody}>{tipReport.body}</p>
+          <div className={styles.letterActions}>
+            <button
+              type="button"
+              className={styles.incisedAction}
+              onClick={() => summonClive()}
+            >
+              Discuss with Clive
+            </button>
+          </div>
+        </div>
       ) : (
-        <ul className={styles.recordList}>{payload.reports.map(renderReportLetter)}</ul>
+        <p className={styles.empty}>No daily change summary on the wall yet.</p>
       )}
+
+      {siblingReports.length > 0 ? (
+        <>
+          <p className={`${styles.letterMeta}`} style={{ marginTop: "1.5rem" }}>
+            Other letters
+          </p>
+          <ul className={styles.siblingList}>
+            {siblingReports.map(renderReportLetter)}
+          </ul>
+        </>
+      ) : null}
     </div>
   );
 

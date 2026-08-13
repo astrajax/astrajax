@@ -81,7 +81,7 @@ export const HOTSPOTS = {
     id: "sill-letter",
     portalId: "reports" as const,
     ...LEDGE_STILL_LIFE,
-    ariaLabel: "Open this morning’s reports — the letter on the sill",
+    ariaLabel: "This morning — what the house did overnight",
   },
 } as const;
 
