@@ -360,8 +360,12 @@ def _gate_existing_capture_source(cur_fields, payload, will_fill_cs):
 
 def _draft_create_fields(am):
     p = am["payload"]
+    # capture_source_chat_session: Activity Intake provenance on after_payload;
+    # accepted here so create preflight does not refuse, but not written to Draft
+    # (Draft Brain Truth has no matching field — session id stays on the V1/V2 payload).
     _validate_payload_keys(p, {"title", "canonical_text", "brain_slug", "proposed_category",
                                "brain_theme", "record_type", "horizon", "capture_source",
+                               "capture_source_chat_session",
                                "supersedes_trusted_truth_id", "source_documents"})
     _gate_create_capture_source(p)  # v2.1: mandatory, exact allowed choice
     fields = {
@@ -579,6 +583,15 @@ def _parse_payload(raw):
     return p if isinstance(p, dict) else {}
 
 
+def _intake_executing_agent(v1_row: dict | None) -> str:
+    """Stamp Draft/EE/Change Log with the V1 creator, not a hard-coded Ambient actor."""
+    if v1_row:
+        actor = _sel_name(v1_row.get("fields", {}).get(AV["created_by_agent"]))
+        if actor in INTAKE_ACTORS:
+            return actor
+    return ACTOR_INTAKE
+
+
 def amendment_from_v2(v2_row: dict, v1_row: dict | None, *, lane: str, run_id: str) -> dict:
     vf = v2_row.get("fields", {})
     action = _sel_name(vf.get(AV["action_class"]))
@@ -594,7 +607,9 @@ def amendment_from_v2(v2_row: dict, v1_row: dict | None, *, lane: str, run_id: s
         "tier": _sel_name(vf.get(AV["tier"])),
         "adapter_version": vf.get(AV["adapter_version"]),
         "run_id": run_id,
-        "executing_agent": ACTOR_INTAKE if lane == "intake" else ACTOR_SCHEDULED,
+        "executing_agent": (
+            _intake_executing_agent(v1_row) if lane == "intake" else ACTOR_SCHEDULED
+        ),
         "target_url": "",
         "_lane": lane,
     }
@@ -699,7 +714,15 @@ def build_lane_manifests(amendments: list[dict], run_id: str) -> dict[str, dict]
     for lane, items in lanes.items():
         if not items:
             continue
-        actor = ACTOR_INTAKE if lane == "intake" else ACTOR_SCHEDULED
+        if lane == "intake":
+            # Prefer the sole V1 creator when the batch is homogeneous; else Ambient
+            # fallback (per-amendment executing_agent already set in amendment_from_v2).
+            actors = {am.get("executing_agent") for am in items if am.get("executing_agent")}
+            actor = next(iter(actors)) if len(actors) == 1 else ACTOR_INTAKE
+            if actor not in INTAKE_ACTORS:
+                actor = ACTOR_INTAKE
+        else:
+            actor = ACTOR_SCHEDULED
         out[lane] = {
             "run_id": f"{run_id}-{lane}",
             "executing_agent": actor,
