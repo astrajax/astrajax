@@ -32,6 +32,18 @@ describe("wallHonestyNote", () => {
     expect(wallHonestyNote(payload)).toBe("The shelf is a little behind this morning.");
   });
 
+  it("owns up to a bay that is standing in even without a message", () => {
+    const payload = mergeOperatorWallPayload({
+      source: "live",
+      portals: {
+        judgement: { source: "live" },
+        health: { source: "live" },
+        reports: { source: "seed" },
+      },
+    });
+    expect(wallHonestyNote(payload)).toBe(SEED_HONESTY_LINE);
+  });
+
   it("stays quiet when live portals are fully live", () => {
     const payload = mergeOperatorWallPayload({
       source: "live",
@@ -42,5 +54,40 @@ describe("wallHonestyNote", () => {
       },
     });
     expect(wallHonestyNote(payload)).toBeNull();
+  });
+});
+
+describe("mergeOperatorWallPayload", () => {
+  it("leaves a live-but-empty letters bay empty instead of inventing one", () => {
+    const payload = mergeOperatorWallPayload({
+      source: "live",
+      records: [],
+      held: [],
+      proposals: [],
+      reports: [],
+      brains: [],
+      portals: {
+        judgement: { source: "live" },
+        health: { source: "live" },
+        reports: { source: "live", message: "No written reports filed yet." },
+      },
+    });
+
+    expect(payload.reports).toEqual([]);
+    expect(payload.brains).toEqual([]);
+  });
+
+  it("stands in for a letters bay that could not be read", () => {
+    const payload = mergeOperatorWallPayload({
+      source: "live",
+      reports: [],
+      portals: {
+        judgement: { source: "live" },
+        health: { source: "live" },
+        reports: { source: "seed" },
+      },
+    });
+
+    expect(payload.reports).toHaveLength(1);
   });
 });

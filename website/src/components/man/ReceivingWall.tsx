@@ -30,6 +30,7 @@ import {
   HEALTH_BAND_WORD_TINT,
   OPERATOR_PORTAL_DOORS,
   SEED_HONESTY_LINE,
+  SIGNED_OUT_LINE,
   brainBandLine,
   defaultReportLetterId,
   featuredBrain,
@@ -119,6 +120,8 @@ export function ReceivingWall({
   const [cliveContextRecords, setCliveContextRecords] = useState<ReceivingRecord[]>([]);
   const [acceptState, setAcceptState] = useState<AcceptState>("idle");
   const [acceptError, setAcceptError] = useState<string | null>(null);
+  /** The wall is readable but this visitor is not signed in as an operator. */
+  const [signedOut, setSignedOut] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const openLetterIdRef = useRef<string | null>(null);
   openLetterIdRef.current = openLetterId;
@@ -143,6 +146,8 @@ export function ReceivingWall({
         if (!cancelled && wallResponse.ok) {
           setData(mergeOperatorWallPayload(wallJson));
         } else if (!cancelled) {
+          // 401/403 is a sign-in gap, not a reading gap — say the right one.
+          setSignedOut(wallResponse.status === 401 || wallResponse.status === 403);
           setData(
             mergeOperatorWallPayload({
               source: "seed",
@@ -661,7 +666,7 @@ export function ReceivingWall({
   const idleTint = "#e7d1ad";
   const activeTint = zoomed ? portalDoor(zoomed).tint : idleTint;
 
-  const honesty = data ? wallHonestyNote(data) : null;
+  const honesty = signedOut ? SIGNED_OUT_LINE : data ? wallHonestyNote(data) : null;
   const honestyLine = honesty ? (
     <p className={styles.honestyLine}>{honesty}</p>
   ) : null;

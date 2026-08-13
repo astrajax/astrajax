@@ -71,7 +71,7 @@ describe("handleReceivingWallRecords", () => {
     const result = await handleReceivingWallRecords();
 
     expect(result.source).toBe("seed");
-    expect(result.message).toMatch(/not configured/i);
+    expect(result.message).toMatch(/stand-ins/i);
     expect(result.records).toHaveLength(3);
     expect(result.records.map((row) => row.captureSource).sort()).toEqual([
       "chat",
@@ -369,7 +369,7 @@ describe("handleReceivingWallRecords", () => {
     ]);
     const emptyMapped = await handleReceivingWallRecords();
     expect(emptyMapped.source).toBe("seed");
-    expect(emptyMapped.message).toMatch(/no pending draft truths/i);
+    expect(emptyMapped.message).toMatch(/nothing is waiting on the bench/i);
     expect(emptyMapped.records).toHaveLength(3);
   });
 
@@ -418,7 +418,7 @@ describe("handleReceivingWallAmendments — judgement portal", () => {
     const result = await handleReceivingWallAmendments();
 
     expect(result.source).toBe("seed");
-    expect(result.message).toMatch(/not configured/i);
+    expect(result.message).toMatch(/stand-ins/i);
     expect(result.held).toHaveLength(1);
     expect(result.proposals).toHaveLength(1);
     expect(result.held[0].kind).toBe("held");
@@ -571,7 +571,7 @@ describe("handleReceivingWallAmendments — judgement portal", () => {
     const result = await handleReceivingWallAmendments();
 
     expect(result.source).toBe("seed");
-    expect(result.message).toMatch(/seeded/i);
+    expect(result.message).toMatch(/stand-ins/i);
     expect(result.held).toHaveLength(1);
     expect(result.proposals).toHaveLength(1);
   });
@@ -631,7 +631,7 @@ describe("handleReceivingWallReports — reports portal", () => {
     const result = await handleReceivingWallReports();
 
     expect(result.source).toBe("seed");
-    expect(result.message).toMatch(/not configured/i);
+    expect(result.message).toMatch(/stand-in/i);
     expect(result.reports).toHaveLength(1);
     expect(result.reports[0].agentSlug).toBe("summarize-changes-daily");
     expect(fetch).not.toHaveBeenCalled();
@@ -688,7 +688,9 @@ describe("handleReceivingWallReports — reports portal", () => {
     const result = await handleReceivingWallReports();
 
     expect(result.source).toBe("seed");
-    expect(result.message).toMatch(/NOT_AUTHORIZED/);
+    // The Airtable failure detail belongs in the server log, not on the wall.
+    expect(result.message).toMatch(/stand-in/i);
+    expect(result.message).not.toMatch(/NOT_AUTHORIZED/);
     expect(result.reports).toHaveLength(1);
   });
 
@@ -701,6 +703,59 @@ describe("handleReceivingWallReports — reports portal", () => {
     expect(result.source).toBe("live");
     expect(result.reports).toEqual([]);
     expect(result.message).toMatch(/no written reports/i);
+  });
+});
+
+/**
+ * Everything a stand-in bay puts in front of an operator has to read as plain
+ * English. Credentials, table names, and pipe stages belong in the server log.
+ * `stage` / `verdict` / `agentSlug` / `reportType` are data the UI never prints.
+ */
+describe("stand-in copy stays operator-facing", () => {
+  const ENGINEER_NOUNS =
+    /\bPAT\b|token|credential|Draft Brain Truth|Amendment|control plane|Airtable|Workshop|Household Activity|Reports table|\bV1\b|\bV2\b|\bslug\b|\bfield\b|\btbl[A-Za-z0-9]{6}|\bapp[A-Za-z0-9]{10}/i;
+
+  function visibleStrings(value: unknown, skipKeys: string[] = []): string[] {
+    if (typeof value === "string") return [value];
+    if (Array.isArray(value)) return value.flatMap((item) => visibleStrings(item, skipKeys));
+    if (value && typeof value === "object") {
+      return Object.entries(value as Record<string, unknown>).flatMap(([key, val]) =>
+        skipKeys.includes(key) ? [] : visibleStrings(val, skipKeys),
+      );
+    }
+    return [];
+  }
+
+  it("keeps engineer nouns out of seeded drafts, held work, proposals and letters", async () => {
+    const [drafts, amendments, reports] = await Promise.all([
+      handleReceivingWallRecords(),
+      handleReceivingWallAmendments(),
+      handleReceivingWallReports(),
+    ]);
+
+    const strings = [
+      ...visibleStrings(drafts, ["recordId", "captureSource", "systemBrainSlug", "brainSlug"]),
+      ...visibleStrings(amendments, ["recordId", "stage", "verdict", "kind"]),
+      ...visibleStrings(reports, ["recordId", "agentSlug", "reportType"]),
+    ];
+
+    const leaks = strings.filter((text) => ENGINEER_NOUNS.test(text));
+    expect(leaks).toEqual([]);
+  });
+
+  it("never titles a held row with its internal reference number", () => {
+    const item = mapAmendmentToQueueItem({
+      id: "recNoTitleSource",
+      fields: {
+        "Amendment Version ID": "av_20260813_0007",
+        Stage: "V2",
+        "Challenger Verdict": "Held",
+        "Action Class": "UPDATE_DRAFT",
+      },
+    });
+
+    expect(item?.title).not.toContain("av_20260813_0007");
+    expect(item?.title).toBe("Update draft");
   });
 });
 

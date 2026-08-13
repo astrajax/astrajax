@@ -113,6 +113,6 @@ describe("handleReceivingWallAccept", () => {
   it("rejects seeded demo record ids", async () => {
     await expect(
       handleReceivingWallAccept({ recordId: "seed-core-definition" }),
-    ).rejects.toThrow(/Seeded demo records cannot be accepted/i);
+    ).rejects.toThrow(/stand-in letter/i);
   });
 });

@@ -132,6 +132,11 @@ export const SEED_REPORTS: ReceivingReportLetter[] = [
 /** Plain stand-in when the house cannot yet read the real shelf. */
 export const SEED_HONESTY_LINE =
   "Stand-in shelf until the house can read the real one.";
+/**
+ * Same register, different cause: the wall is readable, the reader is not
+ * signed in. Saying "the house cannot read it" there would be a lie.
+ */
+export const SIGNED_OUT_LINE = "Stand-in shelf — sign in to see the real one.";
 const EMPTY_PORTALS: ReceivingWallPayload["portals"] = {
   judgement: { source: "seed" },
   health: { source: "seed" },
@@ -148,9 +153,17 @@ export function mergeOperatorWallPayload(
   const records = input.records ?? [];
   const held = input.held ?? SEED_HELD_ITEMS;
   const proposals = input.proposals ?? SEED_PROPOSAL_ITEMS;
-  const reports = input.reports?.length ? input.reports : SEED_REPORTS;
-  const brains = input.brains?.length ? input.brains : BRAINS_SHELF;
   const portals = input.portals ?? EMPTY_PORTALS;
+  // A bay that read live and genuinely had nothing must stay empty. Filling it
+  // with a stand-in would show invented letters as though they were real.
+  const reports =
+    input.reports?.length || portals.reports?.source === "live"
+      ? (input.reports ?? [])
+      : SEED_REPORTS;
+  const brains =
+    input.brains?.length || portals.health?.source === "live"
+      ? (input.brains ?? [])
+      : BRAINS_SHELF;
   const source = input.source ?? (records.length ? "derived" : "seed");
 
   return {
@@ -249,10 +262,11 @@ export function wallHonestyNote(payload: OperatorWallPayload): string | null {
   if (payload.source === "seed") return SEED_HONESTY_LINE;
 
   if (payload.source === "live" && !payload.message) {
-    const portalNotes = Object.values(payload.portals).filter(
-      (bay) => bay.source !== "live" && bay.message,
+    // A bay standing in still gets said out loud, message or not.
+    const standingIn = Object.values(payload.portals).filter(
+      (bay) => bay.source !== "live",
     );
-    if (!portalNotes.length) return null;
+    if (!standingIn.length) return null;
     return SEED_HONESTY_LINE;
   }
 

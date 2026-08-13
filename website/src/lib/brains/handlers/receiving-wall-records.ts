@@ -137,6 +137,23 @@ export function mapDraftTruthToReceivingRecord(record: {
   };
 }
 
+/**
+ * Operator-facing honesty lines. Written as `cause — effect` so bays sharing a
+ * door merge into one sentence (see `mergeBayMessages`), and in plain English:
+ * nothing the operator reads names a credential, a table, or a pipe stage.
+ * The engineer detail goes to the server log instead.
+ */
+const BENCH_UNREADABLE_CAUSE = "The house cannot read the real bench yet";
+const BENCH_UNREADABLE_NOW_CAUSE = "The house could not read the bench just now";
+const LETTERS_UNREADABLE_CAUSE = "The house cannot read this morning's letters yet";
+const LETTERS_UNREADABLE_NOW_CAUSE =
+  "The house could not read this morning's letters just now";
+
+function logBayFailure(bay: string, error: unknown): void {
+  const detail = error instanceof Error ? error.message : String(error);
+  console.error(`Receiving Wall could not read ${bay}:`, detail);
+}
+
 const SEED_RECORDS: ReceivingRecord[] = [
   {
     recordId: "seed-core-goals-long-term",
@@ -215,7 +232,7 @@ export async function handleReceivingWallRecords(): Promise<{
     return {
       records: SEED_RECORDS,
       source: "seed",
-      message: "Workshop read token not configured — showing seeded records.",
+      message: `${BENCH_UNREADABLE_CAUSE} — these letters are stand-ins.`,
     };
   }
 
@@ -236,7 +253,7 @@ export async function handleReceivingWallRecords(): Promise<{
       return {
         records: SEED_RECORDS,
         source: "seed",
-        message: "No pending draft truths on the bench — showing seeded records.",
+        message: "Nothing is waiting on the bench — these letters are stand-ins.",
       };
     }
 
@@ -248,9 +265,12 @@ export async function handleReceivingWallRecords(): Promise<{
 
     return { records: mapped, source: anyExplicit ? "live" : "derived" };
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Could not load the receiving wall.";
-    return { records: SEED_RECORDS, source: "seed", message };
+    logBayFailure("pending drafts", error);
+    return {
+      records: SEED_RECORDS,
+      source: "seed",
+      message: `${BENCH_UNREADABLE_NOW_CAUSE} — these letters are stand-ins.`,
+    };
   }
 }
 
@@ -344,7 +364,7 @@ function parsePayload(raw: unknown): unknown {
 }
 
 function humaniseActionClass(actionClass: string | undefined): string {
-  if (!actionClass) return "Context amendment";
+  if (!actionClass) return "A piece of the household's work";
   return actionClass
     .toLowerCase()
     .split("_")
@@ -374,11 +394,10 @@ export function mapAmendmentToQueueItem(record: {
     readPayloadValue(before, "canonical_text", BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText);
 
   const isHeld = verdict === AMENDMENT_CHALLENGER_VERDICT.held || humanDecisionNeeded;
+  // Never fall back to the internal row id — an operator reading the bay would
+  // see a reference number instead of a sentence.
   const title =
-    payloadTitle ??
-    reason?.split("\n")[0] ??
-    readString(fields[AV_NAMES.amendmentVersionId]) ??
-    humaniseActionClass(actionClass);
+    payloadTitle ?? reason?.split("\n")[0] ?? humaniseActionClass(actionClass);
 
   const snippet =
     payloadBody ??
@@ -412,9 +431,9 @@ const SEED_HELD_ITEMS: ReceivingQueueItem[] = [
     recordId: "seed-held-human-decision",
     title: "Held — a human must decide before anything is rewritten",
     snippet:
-      "The Challenger held this amendment. Held stays Held until you decide; the wall never rewrites V1 for you.",
-    provenance: "Context Challenger",
-    reason: "Human Decision Needed",
+      "This is a stand-in, not real held work. When the house can read the bench, anything it stopped will sit here until you decide — it is never quietly rewritten for you.",
+    provenance: "Clive's Man",
+    reason: "A human must decide before this moves.",
     stage: AMENDMENT_STAGE.v2,
     verdict: AMENDMENT_CHALLENGER_VERDICT.held,
     kind: "held",
@@ -424,10 +443,10 @@ const SEED_HELD_ITEMS: ReceivingQueueItem[] = [
 const SEED_PROPOSAL_ITEMS: ReceivingQueueItem[] = [
   {
     recordId: "seed-proposal-morning-v1",
-    title: "This morning's proposals — waiting to become drafts",
+    title: "Proposed overnight — waiting to become letters",
     snippet:
-      "Recent V1 rows from Intake, Ambient, and the Auditor. You can see the queue here; nothing runs from this wall.",
-    provenance: "Morning pipe",
+      "A stand-in for what the household proposed overnight. You can see the queue here; nothing is started or run from this wall.",
+    provenance: "Clive's Man",
     stage: AMENDMENT_STAGE.v1,
     verdict: AMENDMENT_CHALLENGER_VERDICT.proposed,
     kind: "proposal",
@@ -456,7 +475,7 @@ export async function handleReceivingWallAmendments(): Promise<ReceivingWallAmen
 
   if (!baseId || !token) {
     return seededAmendments(
-      "Workshop read token not configured — held work and proposals are seeded.",
+      `${BENCH_UNREADABLE_CAUSE} — held work and proposals are stand-ins.`,
     );
   }
 
@@ -510,9 +529,10 @@ export async function handleReceivingWallAmendments(): Promise<ReceivingWallAmen
           : undefined,
     };
   } catch (error) {
-    const detail =
-      error instanceof Error ? error.message : "Could not read the control plane.";
-    return seededAmendments(`Held work and proposals are seeded — ${detail}`);
+    logBayFailure("held work and proposals", error);
+    return seededAmendments(
+      `${BENCH_UNREADABLE_NOW_CAUSE} — held work and proposals are stand-ins.`,
+    );
   }
 }
 
@@ -586,7 +606,7 @@ const SEED_REPORTS: ReceivingReportLetter[] = [
     agentSlug: HOUSEHOLD_ACTIVITY_DAILY_SUMMARY.agentSlug,
     headline: "This morning's written summary is not readable from here yet.",
     body:
-      "The household files a daily change summary, plus Auditor and Challenger write-ups, in Household Activity Reports.\n\nThe wall cannot read that table with its current credential, so this is a labelled stand-in rather than a real letter. Nothing has been invented: open the Reports table to read the real thing.",
+      "Every morning the household writes up what changed, alongside its own review notes.\n\nThe house cannot reach those write-ups from this wall yet, so this is a stand-in rather than a real letter. Nothing here has been invented, and nothing real has been hidden: the written summary still exists where the household filed it.",
   },
 ];
 
@@ -604,8 +624,7 @@ export async function handleReceivingWallReports(): Promise<ReceivingWallReports
     return {
       reports: SEED_REPORTS,
       source: "seed",
-      message:
-        "Household Activity read token not configured — this morning's letters are seeded.",
+      message: `${LETTERS_UNREADABLE_CAUSE} — this one is a stand-in.`,
     };
   }
 
@@ -638,12 +657,11 @@ export async function handleReceivingWallReports(): Promise<ReceivingWallReports
 
     return { reports: letters, source: "live" };
   } catch (error) {
-    const detail =
-      error instanceof Error ? error.message : "Could not read the Reports table.";
+    logBayFailure("this morning's letters", error);
     return {
       reports: SEED_REPORTS,
       source: "seed",
-      message: `This morning's letters are seeded — ${detail}`,
+      message: `${LETTERS_UNREADABLE_NOW_CAUSE} — this one is a stand-in.`,
     };
   }
 }
