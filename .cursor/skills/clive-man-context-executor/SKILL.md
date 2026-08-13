@@ -37,6 +37,16 @@ never normalize drift.
 
 First human-review gate on executed rows. Exact choice IDs only.
 
+## Intake drain
+
+Uncapped when the V1 ancestor is `CREATE_DRAFT_TRUTH` from:
+
+- `clive-man-ambient-capture`
+- `clive-man-activity-intake-cursor`
+- `clive-man-activity-intake-hyperagent`
+
+Anything else is maintenance (cap **5**).
+
 ## Failure cap
 
 Per-lane failure cap **2**. Three-run backlog alarm — not immediate fleet halt.

@@ -57,7 +57,7 @@ from context_config import (
     EXISTING_RECORD_ACTIONS, CREATE_ACTIONS,
     QUARANTINE_ALLOWED_FROM,
     CAP_DAILY_MUTATIONS, CAP_FAILURES, ENV_EXECUTE,
-    ACTOR_SCHEDULED, ACTOR_INTAKE, TERMINAL_EVENT_TYPES,
+    ACTOR_SCHEDULED, ACTOR_INTAKE, INTAKE_ACTORS, TERMINAL_EVENT_TYPES,
 )
 
 API = "https://api.airtable.com/v0"
@@ -542,7 +542,6 @@ def append_change_log(am, token, summary, affected_url):
 INTAKE_V1_SIGNATURE = {
     "stage": "V1",
     "action_class": "CREATE_DRAFT_TRUTH",
-    "created_by_agent": ACTOR_INTAKE,
 }
 
 
@@ -555,14 +554,14 @@ def _lane_fail_cap(lane: str) -> int:
 
 
 def classify_lane_from_v1(v1_fields: dict) -> str:
-    """Intake only when V1 ancestor matches ambient CREATE signature."""
+    """Intake when V1 ancestor is CREATE_DRAFT_TRUTH from an allowed intake actor."""
     stage = _sel_name(v1_fields.get(AV["stage"]))
     action = _sel_name(v1_fields.get(AV["action_class"]))
     actor = _sel_name(v1_fields.get(AV["created_by_agent"]))
     if (
         stage == INTAKE_V1_SIGNATURE["stage"]
         and action == INTAKE_V1_SIGNATURE["action_class"]
-        and actor == INTAKE_V1_SIGNATURE["created_by_agent"]
+        and actor in INTAKE_ACTORS
     ):
         return "intake"
     return "maintenance"

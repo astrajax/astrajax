@@ -247,7 +247,8 @@ def v1_defects(v1_fields):
 
 # --- Capture Source verification (v1.3) -----------------------------------------
 from context_config import (CAPTURE_SOURCE_FIELD, CAPTURE_SOURCE_CHOICES,
-                            CHAT_CAPTURE_ACTORS, CHAT_BACKFILL_CLEAR_CAP)
+                            CHAT_CAPTURE_ACTORS, CHAT_SESSION_CREATE_ACTORS,
+                            CHAT_BACKFILL_CLEAR_CAP)
 
 
 def _payload_value(after_payload_raw, sem_key):
@@ -269,9 +270,10 @@ def verify_capture_source(v1_fields, draft_fields=None):
     """Independently verify the Capture Source classification on a V1 that fills it.
     Returns None when valid+supported, else a defect reason string.
     Rules: value must be an exact live choice AND evidence/provenance must support it.
-      CREATE_DRAFT_TRUTH ambient create: Created By Agent exact clive-man-ambient-capture,
-        evidence non-empty, no target record — no blank-target draft requirement.
-      Legacy backfill: Chat Session via ambient actor on existing blank draft.
+      CREATE_DRAFT_TRUTH chat create: Created By Agent in CHAT_SESSION_CREATE_ACTORS
+        (Ambient thread scan or Activity Intake twins), evidence non-empty, no target
+        record — no blank-target draft requirement.
+      Legacy backfill: Chat Session via allowed chat-capture actor on existing blank draft.
       External: proven external Source Document/URL/sentinel.
       User Guided: direct human request evidence (never merely Created By).
     Ambiguous/missing/invalid -> defect (Held/Rejected V2 downstream)."""
@@ -285,9 +287,9 @@ def verify_capture_source(v1_fields, draft_fields=None):
     if choice == "Chat Session":
         if action == "CREATE_DRAFT_TRUTH" and not has_target:
             created_by = _sel(v1_fields.get(AV["created_by_agent"]))
-            if created_by == "clive-man-ambient-capture" and v1_fields.get(AV["evidence"]):
+            if created_by in CHAT_SESSION_CREATE_ACTORS and v1_fields.get(AV["evidence"]):
                 return None
-            return "Chat Session CREATE lacks ambient actor, evidence, or has unexpected target"
+            return "Chat Session CREATE lacks allowed intake actor, evidence, or has unexpected target"
         proposed_by = _sel((draft_fields or {}).get("proposed_by_agent")) if draft_fields else None
         cur_cs = (draft_fields or {}).get(CAPTURE_SOURCE_FIELD) if draft_fields else None
         cur_cs_name = _sel(cur_cs) if isinstance(cur_cs, dict) else cur_cs

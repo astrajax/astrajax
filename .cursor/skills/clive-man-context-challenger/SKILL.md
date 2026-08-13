@@ -34,9 +34,18 @@ Actor literal: **`clive-man-context-challenger`**.
 Independently verifies Capture Source value **and** provenance. Ambiguous source
 → Held / Rejected non-actionable V2.
 
+Chat Session **creates** (no existing draft) clear when Created By is one of:
+
+- `clive-man-ambient-capture` (thread scan)
+- `clive-man-activity-intake-cursor`
+- `clive-man-activity-intake-hyperagent`
+
+and evidence is present. Other names on a Chat Session create → Held / Rejected.
+
 ## Maintenance cap
 
-Batch maintenance actions capped at **5** per run (intake drain uncapped on Ambient).
+Batch maintenance actions capped at **5** per run (intake drain uncapped for Ambient
+and Activity Intake).
 
 ## Must not
 
