@@ -14,6 +14,7 @@ import {
   RECEIVING_PORTAL_IDS,
   formatReportPeriod,
   isReceivingPortalId,
+  mergeBayMessages,
   weakestBaySource,
   type CaptureSource,
   type ReceivingRecord,
@@ -144,6 +145,42 @@ describe("operator portals", () => {
     expect(weakestBaySource(["live", "derived"])).toBe("derived");
     expect(weakestBaySource(["live", "derived", "seed"])).toBe("seed");
     expect(weakestBaySource([])).toBe("live");
+  });
+});
+
+describe("mergeBayMessages", () => {
+  it("states a shared cause once and lists both effects", () => {
+    expect(
+      mergeBayMessages([
+        "Workshop read token not configured — showing seeded records.",
+        "Workshop read token not configured — held work and proposals are seeded.",
+      ]),
+    ).toBe(
+      "Workshop read token not configured — showing seeded records; held work and proposals are seeded.",
+    );
+  });
+
+  it("keeps genuinely different causes as separate sentences", () => {
+    expect(
+      mergeBayMessages([
+        "Workshop read token not configured — showing seeded records.",
+        "Control-plane read failed — held work and proposals are seeded.",
+      ]),
+    ).toBe(
+      "Workshop read token not configured — showing seeded records. Control-plane read failed — held work and proposals are seeded.",
+    );
+  });
+
+  it("returns undefined when every bay is fully live", () => {
+    expect(mergeBayMessages([])).toBeUndefined();
+    expect(mergeBayMessages([undefined, "  "])).toBeUndefined();
+  });
+
+  it("passes through a single line and drops an exact duplicate", () => {
+    expect(mergeBayMessages(["Reports are seeded."])).toBe("Reports are seeded.");
+    expect(
+      mergeBayMessages(["Same cause — same effect.", "Same cause — same effect."]),
+    ).toBe("Same cause — same effect.");
   });
 });
 

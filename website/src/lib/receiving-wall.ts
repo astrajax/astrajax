@@ -270,6 +270,36 @@ export function weakestBaySource(
 }
 
 /**
+ * Join the honesty lines for bays that share one door, without telling the
+ * operator the same thing twice. Lines are written as `cause — effect`, so a
+ * single missing token reads as one sentence with both effects rather than the
+ * cause repeated per bay.
+ */
+export function mergeBayMessages(
+  lines: readonly (string | undefined)[],
+): string | undefined {
+  const effectsByCause = new Map<string, string[]>();
+  for (const line of lines) {
+    const trimmed = line?.trim();
+    if (!trimmed) continue;
+    const split = trimmed.indexOf(" — ");
+    const cause = split > 0 ? trimmed.slice(0, split) : trimmed;
+    // Drop each effect's full stop so two of them can share one sentence.
+    const effect =
+      split > 0 ? trimmed.slice(split + 3).trim().replace(/\.$/, "") : "";
+    const effects = effectsByCause.get(cause) ?? [];
+    if (effect && !effects.includes(effect)) effects.push(effect);
+    effectsByCause.set(cause, effects);
+  }
+  if (effectsByCause.size === 0) return undefined;
+  return [...effectsByCause]
+    .map(([cause, effects]) =>
+      effects.length > 0 ? `${cause} — ${effects.join("; ")}.` : cause,
+    )
+    .join(" ");
+}
+
+/**
  * Operator-facing period line for a report letter. Single date when start and
  * end match (or only one is set); a range otherwise.
  */

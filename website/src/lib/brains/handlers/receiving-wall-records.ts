@@ -27,7 +27,11 @@ import type {
   ReceivingReportLetter,
   ReceivingWallPayload,
 } from "@/lib/receiving-wall";
-import { formatReportPeriod, weakestBaySource } from "@/lib/receiving-wall";
+import {
+  formatReportPeriod,
+  mergeBayMessages,
+  weakestBaySource,
+} from "@/lib/receiving-wall";
 
 /**
  * Reads the household's pending draft-brain-truth records for the Receiving
@@ -661,9 +665,7 @@ export async function handleReceivingWallPortals(): Promise<ReceivingWallPortals
   ]);
 
   const judgementSource = weakestBaySource([drafts.source, amendments.source]);
-  const judgementMessage = [drafts.message, amendments.message]
-    .filter((line): line is string => Boolean(line))
-    .join(" ");
+  const judgementMessage = mergeBayMessages([drafts.message, amendments.message]);
 
   return {
     records: drafts.records,
@@ -677,7 +679,7 @@ export async function handleReceivingWallPortals(): Promise<ReceivingWallPortals
     portals: {
       judgement: {
         source: judgementSource,
-        message: judgementMessage || undefined,
+        message: judgementMessage,
       },
       health: {
         source: brains.source === "live" ? "live" : "seed",
