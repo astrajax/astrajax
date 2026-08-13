@@ -21,14 +21,15 @@ import {
   INTERIOR_WALL,
 } from "@/lib/man/receiving-wall-manifest";
 import {
-  HEALTH_BAND_STILL_SRC,
   shrineArtForBand,
+  shrineStillForBand,
 } from "@/lib/platform/brains";
 import type { ChatMessage } from "@/lib/clive/types";
 import type { PlatformTurnContext } from "@/lib/platform-activity/types";
 import {
   HEALTH_BAND_WORD_TINT,
   OPERATOR_PORTAL_DOORS,
+  SEED_HONESTY_LINE,
   brainBandLine,
   defaultReportLetterId,
   featuredBrain,
@@ -145,8 +146,7 @@ export function ReceivingWall({
           setData(
             mergeOperatorWallPayload({
               source: "seed",
-              message:
-                "This bay is a stand-in until the house can read the real shelf.",
+              message: SEED_HONESTY_LINE,
             }),
           );
         }
@@ -796,7 +796,7 @@ export function ReceivingWall({
     const isOpen = openLetterKind === "queue" && openLetterId === item.recordId;
     const letter = isOpen ? openQueue : null;
     return (
-      <li key={item.recordId} className={styles.heldLip}>
+      <li key={item.recordId}>
         <button
           type="button"
           className={`${styles.recordRow} ${isOpen ? styles.recordRowOpen : ""}`}
@@ -949,7 +949,7 @@ export function ReceivingWall({
       <div className={`${styles.baySection} ${styles.heldLip}`}>
         <p className={styles.sectionHead}>Held back</p>
         {payload.held.length === 0 ? (
-          <p className={styles.emptyQuiet}>Someone stopped this. Read why.</p>
+          <p className={styles.emptyQuiet}>Nothing held back.</p>
         ) : (
           <ul className={styles.recordList}>{payload.held.map(renderHeldLetter)}</ul>
         )}
@@ -986,7 +986,7 @@ export function ReceivingWall({
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
               className={styles.shrineStill}
-              src={HEALTH_BAND_STILL_SRC[featured.healthBand]}
+              src={shrineStillForBand(featured.healthBand)}
               alt=""
               draggable={false}
             />
@@ -997,7 +997,7 @@ export function ReceivingWall({
               muted
               loop
               playsInline
-              poster={HEALTH_BAND_STILL_SRC[featured.healthBand]}
+              poster={shrineStillForBand(featured.healthBand)}
               aria-label={`${featured.name} — ${brainBandLine(featured)}`}
             >
               <source src={shrineArtForBand(featured.healthBand)} type="video/mp4" />

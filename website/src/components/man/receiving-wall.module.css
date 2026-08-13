@@ -51,9 +51,8 @@
   --ap-safe-w: calc(var(--wall-w) * 0.52);
   --ap-base-w: calc(var(--plate-w) * 0.52);
 
-  /* Keyboard focus — warm gold, high contrast on dark plaster */
-  --focus-ring: #e8c97a;
-  --focus-glow: rgba(232, 201, 122, 0.55);
+  /* Keyboard focus — warm parchment gold on dark plaster (Kathryn QA) */
+  --focus-ring: #e4d3a3;
 }
 
 .wall.zoomed {
@@ -488,7 +487,10 @@
   display: none;
 }
 
-/* Nave / mobile — fixed aperture outside the scroll plate */
+/*
+ * Nave / phone aperture — landscape hides this (bay travels on the plate);
+ * portrait re-enables it as a static column under the crown (see max-aspect-ratio block).
+ */
 .aperture {
   position: fixed;
   left: 50%;
@@ -640,9 +642,7 @@
   outline: 2px solid var(--focus-ring);
   outline-offset: 4px;
   border-radius: 2px;
-  box-shadow:
-    0 0 0 4px color-mix(in oklab, var(--focus-ring) 35%, transparent),
-    0 0 14px 3px var(--focus-glow);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--focus-ring) 35%, transparent);
 }
 
 /* Secondary incised action — fold, dismiss (§6.3 variant) */
@@ -680,8 +680,8 @@
   color: rgba(240, 230, 204, 0.68);
   text-align: center;
   text-shadow:
-    0 1px 3px rgba(12, 14, 10, 0.92),
-    0 -1px 0 rgba(12, 14, 10, 0.72);
+    0 -1px 0 rgba(12, 14, 10, 0.88),
+    0 1px 0 color-mix(in oklab, var(--tint) 30%, transparent);
   background: none;
   border: 0;
   border-radius: 0;
@@ -693,12 +693,13 @@
 .honestyLine {
   font-family: var(--font-wall), serif;
   font-size: 0.68rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  font-style: normal;
+  letter-spacing: 0.06em;
+  font-style: italic;
   color: rgba(221, 208, 174, 0.55);
   text-align: center;
-  text-shadow: 0 -1px 0 rgba(12, 14, 10, 0.85);
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.88),
+    0 1px 0 color-mix(in oklab, var(--tint) 30%, transparent);
   background: none;
   border: 0;
   margin: 2rem auto 0.25rem;
@@ -1153,7 +1154,9 @@
   line-height: 1.5;
   color: rgba(240, 230, 204, 0.78);
   margin: 0 0 0.85rem;
-  text-shadow: 0 1px 2px rgba(12, 14, 10, 0.65);
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.88),
+    0 1px 0 color-mix(in oklab, var(--tint) 30%, transparent);
 }
 .letterBody {
   font-family: var(--font-wall), serif;
@@ -1164,7 +1167,9 @@
   white-space: pre-wrap;
   max-width: 100%;
   overflow-wrap: anywhere;
-  text-shadow: 0 1px 2px rgba(12, 14, 10, 0.65);
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.88),
+    0 1px 0 color-mix(in oklab, var(--tint) 30%, transparent);
 }
 .letterStatus {
   font-family: var(--font-wall), serif;
@@ -1492,9 +1497,8 @@
 }
 .shrineLoop {
   position: relative;
-  /* ~38–46% of the safe box — jar dominates; caption stays secondary */
-  width: min(46%, 18rem);
-  aspect-ratio: 1;
+  /* Jar dominates; width raised per Kathryn QA — ratio follows the loop, not a square lock */
+  width: min(46%, 26rem);
   overflow: hidden;
   /*
    * Working dissolve — awaiting a dedicated wall shrine matte (Kathryn v1.1).
@@ -1511,39 +1515,36 @@
   mask-mode: luminance;
   -webkit-mask-source-type: luminance;
 }
-/* Contact darkening at the loop base — jar sits on the void */
+/* Radial contact shadow — jar sits on the void (not left/right rectangles) */
 .shrineLoop::after {
   content: "";
   position: absolute;
-  left: 8%;
-  right: 8%;
-  bottom: 0;
-  height: 28%;
+  inset: 0;
   pointer-events: none;
-  background: linear-gradient(
-    to top,
+  background: radial-gradient(
+    ellipse 72% 42% at 50% 100%,
     rgba(12, 14, 10, 0.55) 0%,
-    rgba(12, 14, 10, 0.18) 55%,
-    transparent 100%
+    rgba(12, 14, 10, 0.2) 42%,
+    transparent 72%
   );
 }
 .shrineVideo,
 .shrineStill {
   display: block;
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: contain;
   pointer-events: none;
   user-select: none;
 }
-/* Local varnish tooth over the jar — same grain as the wall grade pass */
+/* Local varnish tooth over the jar — kept light so wall grain does not double-dip */
 .shrineVarnish {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 160px 160px;
-  opacity: 0.14;
+  opacity: 0.05;
   mix-blend-mode: overlay;
 }
 .shrineMeta {
@@ -1642,9 +1643,6 @@
   border-radius: 2px;
   /* Parent .stage / .sillForeground are pointer-events: none — re-enable here. */
   pointer-events: auto;
-}
-.sillHotspot:hover {
-  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tint) 35%, transparent);
 }
 
 /* ---- Responsive ---- */

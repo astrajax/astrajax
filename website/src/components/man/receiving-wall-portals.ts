@@ -131,7 +131,7 @@ export const SEED_REPORTS: ReceivingReportLetter[] = [
 
 /** Plain stand-in when the house cannot yet read the real shelf. */
 export const SEED_HONESTY_LINE =
-  "This bay is a stand-in until the house can read the real shelf.";
+  "Stand-in shelf until the house can read the real one.";
 const EMPTY_PORTALS: ReceivingWallPayload["portals"] = {
   judgement: { source: "seed" },
   health: { source: "seed" },
