@@ -397,7 +397,7 @@ def main() -> None:
     table = str(payload.get("table", "")).lower()
     table_id = TABLES.get(table)
     if not table_id:
-        fail("payload.table must be 'sessions' or 'activity'")
+        fail("payload.table must be 'sessions', 'activity', or 'reports'")
 
     records = [r.get("fields", r) for r in (payload.get("records") or [])]
     if not records:
