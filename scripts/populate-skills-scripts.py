@@ -59,6 +59,46 @@ def ha_json_string(scripts: list[dict]) -> str:
     return json.dumps(payload, ensure_ascii=False)
 
 
+def should_use_attachment(scripts: list[dict]) -> bool:
+    """Large or multi-file dumps go to Script files; tiny single files stay inline."""
+    if not scripts:
+        return False
+    total = sum(len(s.get("content", "")) for s in scripts)
+    max_file = max(len(s.get("content", "")) for s in scripts)
+    return len(scripts) > 1 or max_file > SMALL_FILE or total > SMALL_TOTAL
+
+
+def build_large_skill_fields(
+    *,
+    key: str,
+    scripts: list[dict],
+    attachments: list[dict],
+    existing_repo: str,
+    total: int,
+) -> tuple[dict, str]:
+    """
+    Build Airtable fields for a large skill.
+
+    Complete attachment sets only — a partial upload must fall back to the
+    repo-path note so half-written Script files never land on the record.
+    Returns (fields, stats_bucket).
+    """
+    fields: dict = {}
+    if not (existing_repo or "").strip():
+        fields[FLD_REPO_PATH] = REPO_PATH_PREFIX + key + "/"
+
+    if len(attachments) == len(scripts):
+        fields[FLD_SCRIPT_FILES] = attachments
+        return fields, "large_to_script_files"
+
+    fields[FLD_SCRIPT] = (
+        f"[Scripts stored in repo at {REPO_PATH_PREFIX}{key}/ — "
+        f"{len(scripts)} file(s), {total} chars total. "
+        "Attachment upload unavailable via automation; see initiative folder.]"
+    )
+    return fields, "large_repo_path_fallback"
+
+
 def upload_public_url(path: Path) -> str | None:
     try:
         boundary = "----AstraJaxBoundary"
@@ -160,8 +200,7 @@ def main() -> int:
             continue
 
         total = sum(len(s.get("content", "")) for s in scripts)
-        max_file = max(len(s.get("content", "")) for s in scripts)
-        use_attach = len(scripts) > 1 or max_file > SMALL_FILE or total > SMALL_TOTAL
+        use_attach = should_use_attachment(scripts)
 
         fields: dict = {}
         rec_id = rec["id"]
@@ -185,20 +224,15 @@ def main() -> int:
                     stats["attachment_upload_failed"] += 1
 
             existing_repo = (rec.get("repoPath") or "").strip()
-            if not existing_repo:
-                fields[FLD_REPO_PATH] = REPO_PATH_PREFIX + key + "/"
-
-            # Require a complete attachment set; partial uploads must not land.
-            if len(attachments) == len(scripts):
-                fields[FLD_SCRIPT_FILES] = attachments
-                stats["large_to_script_files"] += 1
-            else:
-                fields[FLD_SCRIPT] = (
-                    f"[Scripts stored in repo at {REPO_PATH_PREFIX}{key}/ — "
-                    f"{len(scripts)} file(s), {total} chars total. "
-                    "Attachment upload unavailable via automation; see initiative folder.]"
-                )
-                stats["large_repo_path_fallback"] += 1
+            large_fields, bucket = build_large_skill_fields(
+                key=key,
+                scripts=scripts,
+                attachments=attachments,
+                existing_repo=existing_repo,
+                total=total,
+            )
+            fields.update(large_fields)
+            stats[bucket] += 1
 
         updates.append({"id": rec_id, "fields": fields, "key": key, "name": name})
 
