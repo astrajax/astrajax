@@ -61,7 +61,9 @@ ACT = {
     "sequence": "fldeQ8SjlrZfj3a6M",
     "session_id": "fldz1skahzUvg1vzX",
     "session_link": "fldRD3GFz3PqYTANC",
-    "event_type": "fldTCd93XF8XhsVoZ",
+    # Agent Turn Type (mechanical). Never User Turn Type — that field is AI-owned
+    # (fldTCd93XF8XhsVoZ) and is not used for eligibility exclusions.
+    "event_type": "fldvskIDzutu4JzQt",
     "timestamp": "fldTl7rXvf7YHgImz",
     "user_message": "fldzSTdm15GQf88Ph",
     "reply_digest": "fldBj92Hu9gDesX6u",
@@ -160,13 +162,15 @@ CRED_ROLE_POST_TABLES: dict[str, frozenset[str]] = {
     CRED_ROLE_CHECKPOINT_APPEND: frozenset({CHECKPOINT_TABLE}),
 }
 
+# Matches Ambient / executor CREATE_DRAFT_TRUTH allowlist. Sessions provenance
+# lives on the candidate + evidence JSON — never in after_payload (executor refuses
+# unknown keys such as capture_source_chat_session).
 SEMANTIC_AFTER_KEYS = frozenset(
     {
         "title",
         "canonical_text",
         "brain_slug",
         "capture_source",
-        "capture_source_chat_session",
         "proposed_category",
         "brain_theme",
         "record_type",
