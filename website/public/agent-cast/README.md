@@ -28,6 +28,7 @@ agent-cast/
 | `professor-iris-mortimer` | Iris | legacy flat PNG |
 | `vera-vinegar-toes` | Vera | legacy flat PNG |
 | `halvard-bjornson` | Hal (Prof. Halvard Bjornson) | **rough direction** — `art/` pack + `animations/tower-loop.mp4`; Blob mirror `halvard-bjornson/` |
+| `ruth-hadley` | Ruth Hadley | **canonical** — `hero.png` + `animations/idle-loop.mp4` (leaving-room cabin idle, locked 13 Aug 2026) |
 
 Extended DS fleet characters (Juan, Marcel, KK, Reggie, Marlowe, Tashi) use the same layout when they get animations.
 

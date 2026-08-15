@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-08-10",
+  "updated": "2026-08-13",
   "convention": {
     "root": "website/public/agent-cast",
     "hero": "{slug}/hero.png",
@@ -33,6 +33,20 @@
       "heroStatus": "canonical",
       "heroLegacyPath": null,
       "animations": []
+    },
+    {
+      "slug": "ruth-hadley",
+      "name": "Ruth Hadley",
+      "foundingCast": false,
+      "heroStatus": "canonical",
+      "heroLegacyPath": null,
+      "animations": [
+        {
+          "id": "idle-loop",
+          "file": "idle-loop.mp4",
+          "purpose": "Leaving-room cabin idle (approved 13 Aug 2026)"
+        }
+      ]
     },
     {
       "slug": "pam-portiscue",
