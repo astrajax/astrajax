@@ -154,6 +154,112 @@ export const BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS = {
   captureSource: "fld9zhLHPvjnq8lHT",
 } as const;
 
+/**
+ * Workshop Context Amendment Versions — morning-pipe control plane
+ * (live-observed 13 Aug 2026). Read-only for the Receiving Wall: the wall shows
+ * Held / stuck work and this morning's V1 proposals, and never writes here.
+ */
+export const BRAIN_WORKSHOP_AMENDMENT_FIELDS = {
+  amendmentVersionId: "fldQxEy1xkA6cW4ns",
+  runId: "fld013GgbDvipHaoO",
+  created: "fldnmFagVIjQVVpjO",
+  stage: "fldkuxYpAshlyysTQ",
+  supersedesVersion: "fldoL2hAsZF1CWO46",
+  v1ReportUrl: "fldp3pgFYZwG6TKVG",
+  v2ReportUrl: "fldOXHhUOvVZ7eLga",
+  actionClass: "fldgtnn8eXHmdHSUC",
+  beforeSnapshot: "fldCiIBLVP4MKplMz",
+  afterPayload: "fldIBr9n66Ek4MvNX",
+  reason: "fldxc0t7emGLkK76x",
+  tier: "fldtAci9wgwcihcZb",
+  challengerVerdict: "fldPUsdAy9FXmYeAh",
+  humanDecisionNeeded: "fldoZDmZPz8iVoqUg",
+  createdByAgent: "fldSQdzOLrl4tqVQB",
+  targetDraft: "fldNB2R9bYKdLXjo1",
+} as const;
+
+/**
+ * Field *names* for the same table. Airtable REST returns cell keys by name
+ * (and formulas only accept names), so reads need both maps.
+ */
+export const BRAIN_WORKSHOP_AMENDMENT_FIELD_NAMES = {
+  amendmentVersionId: "Amendment Version ID",
+  created: "Created",
+  stage: "Stage",
+  v1ReportUrl: "V1 Report URL",
+  v2ReportUrl: "V2 Report URL",
+  actionClass: "Action Class",
+  beforeSnapshot: "Before Snapshot",
+  afterPayload: "After Payload",
+  reason: "Reason",
+  tier: "Tier",
+  challengerVerdict: "Challenger Verdict",
+  humanDecisionNeeded: "Human Decision Needed",
+  createdByAgent: "Created By Agent",
+  targetDraft: "Target Draft",
+} as const;
+
+/** Amendment Version Stage — two-value single-select. */
+export const AMENDMENT_STAGE = {
+  v1: "V1",
+  v2: "V2",
+} as const;
+
+/** Challenger Verdict — single-select on Amendment Versions. */
+export const AMENDMENT_CHALLENGER_VERDICT = {
+  proposed: "Proposed",
+  cleared: "Cleared",
+  held: "Held",
+  rejected: "Rejected",
+} as const;
+
+/**
+ * Household Activity — fleet telemetry and standing reports
+ * (base renamed from "Fleet Activity" 16 Jul 2026; always key on the ID).
+ */
+export const HOUSEHOLD_ACTIVITY_BASE_ID = "appF7jQD4ZKrDC7e1";
+
+export const HOUSEHOLD_ACTIVITY_TABLES = {
+  sessions: "tblUi4nmBKX2u8nFx",
+  activity: "tblNxNLyC31KDQbRl",
+  /** Standing reports — create-only in the world, read-only from the website. */
+  reports: "tblFzWUIPSiIGZPln",
+} as const;
+
+/** Household Activity Reports — field IDs (live-observed 13 Aug 2026). */
+export const HOUSEHOLD_ACTIVITY_REPORT_FIELDS = {
+  title: "fldr0pNUAYm9jEITx",
+  reportType: "fld3uIBw78HahcUms",
+  agentSlug: "fldijGsAXxwMikENa",
+  headline: "fldyI1UVIyIcSVhkj",
+  body: "fldt5UAqRVsm0mICy",
+  periodStart: "fldnbnJgwJhjpOPz2",
+  periodEnd: "fldc1uSKfB1wE0MfE",
+  evidence: "fldGnweCWJkjXVRxu",
+  supersedes: "fldGbXhILELIuJ0vZ",
+} as const;
+
+/** Household Activity Reports — field names for REST cell keys and sorts. */
+export const HOUSEHOLD_ACTIVITY_REPORT_FIELD_NAMES = {
+  title: "Title",
+  reportType: "Report Type",
+  agentSlug: "Agent Slug",
+  headline: "Headline",
+  body: "Body",
+  periodStart: "Period Start",
+  periodEnd: "Period End",
+} as const;
+
+/**
+ * Canonical daily change summary example — Household Activity Reports.
+ * Matthew's reference row for the reports portal shape (13 Aug 2026).
+ */
+export const HOUSEHOLD_ACTIVITY_DAILY_SUMMARY = {
+  exampleRecordId: "recSmDfozEz98ZTH2",
+  agentSlug: "summarize-changes-daily",
+  reportType: "Handoff",
+} as const;
+
 /** Workshop Approval Decisions — human judgement before Doc acts. */
 export const BRAIN_WORKSHOP_APPROVAL_DECISIONS_FIELDS = {
   decisionId: "fldjWPtPUG4qbYYPu",

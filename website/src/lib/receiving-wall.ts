@@ -2,9 +2,13 @@
  * The Receiving Wall — Clive's Man's context-intake landing surface.
  *
  * The whole household's draft context arrives here, engraved into the living
- * wall. Drafts group by Proposed Category (Airtable single-select). Capture
- * Source remains provenance detail on the opened letter — not the wall's
- * organising principle.
+ * wall. The idle wall is three portals — doors into jobs, not kinds of truth:
+ * judgement (work that needs a human), health (how the brains are), and
+ * reports (this morning's written write-ups).
+ *
+ * Proposed Category still sorts inside pending drafts and still shows on the
+ * opened letter. Capture Source remains provenance detail on the letter.
+ * Neither is a top-level door.
  */
 
 export type CaptureSource = "external" | "user-guided" | "chat";
@@ -168,6 +172,159 @@ export const RECEIVING_WALL_ACCEPTED_STATUSES = new Set([
   "Quarantined",
   "Rejected",
 ]);
+
+/* ------------------------------------------------------------------ *
+ * Operator portals v1 — the three doors on the idle wall.
+ *
+ * A "portal" is a door into a job, not a kind of truth. Proposed Category
+ * still sorts inside the pending-drafts section and still shows on the opened
+ * letter; it is no longer a top-level door.
+ *
+ * These are the stable shapes the wall UI imports. The API fills them; the
+ * painted-world components render them.
+ * ------------------------------------------------------------------ */
+
+export type ReceivingPortalId = "judgement" | "health" | "reports";
+
+export const RECEIVING_PORTAL_IDS: readonly ReceivingPortalId[] = [
+  "judgement",
+  "health",
+  "reports",
+] as const;
+
+export function isReceivingPortalId(value: unknown): value is ReceivingPortalId {
+  return (
+    value === "judgement" || value === "health" || value === "reports"
+  );
+}
+
+/**
+ * A judgement-bay row that is not (yet) a Draft Brain Truth: Context Amendment
+ * Versions that are Held or need a human, and this morning's V1 proposals.
+ */
+export interface ReceivingQueueItem {
+  recordId: string;
+  title: string;
+  snippet: string;
+  /** Proposing agent slug, or the pipe stage that wrote the row. */
+  provenance: string;
+  /** Why it is stuck, or why it was proposed. */
+  reason?: string;
+  /** Amendment stage — V1 (proposed) or V2 (challenged). */
+  stage?: string;
+  /** Challenger Verdict — Proposed / Cleared / Held / Rejected. */
+  verdict?: string;
+  /** Written report this row points at, when one exists. */
+  reportUrl?: string;
+  kind: "held" | "proposal";
+}
+
+/** A written report from Household Activity — the tip of the paper trail. */
+export interface ReceivingReportLetter {
+  recordId: string;
+  title: string;
+  reportType: string;
+  agentSlug?: string;
+  headline?: string;
+  body: string;
+  /** Human-readable period, e.g. "13 Aug 2026". */
+  period?: string;
+}
+
+/**
+ * How honest a bay is being. `live` read from Airtable, `derived` read but
+ * partly inferred, `seed` a labelled stand-in so the wall is never blank.
+ */
+export type ReceivingBaySource = "live" | "derived" | "seed";
+
+export interface ReceivingBayState {
+  source: ReceivingBaySource;
+  /** Operator-facing line when the bay is not fully live. */
+  message?: string;
+}
+
+/** Per-portal honesty, so one dead token does not mislabel the whole wall. */
+export type ReceivingPortalStates = Record<ReceivingPortalId, ReceivingBayState>;
+
+/**
+ * The whole idle wall in one payload. `records`, `source`, and `message` keep
+ * the original single-bay contract working; the rest fills the new doors.
+ */
+export interface ReceivingWallPayload {
+  records: ReceivingRecord[];
+  held: ReceivingQueueItem[];
+  proposals: ReceivingQueueItem[];
+  reports: ReceivingReportLetter[];
+  source: ReceivingBaySource;
+  message?: string;
+  portals: ReceivingPortalStates;
+}
+
+/** Pick the least-live source across bays — used for the top-level label. */
+export function weakestBaySource(
+  sources: readonly ReceivingBaySource[],
+): ReceivingBaySource {
+  if (sources.some((source) => source === "seed")) return "seed";
+  if (sources.some((source) => source === "derived")) return "derived";
+  return "live";
+}
+
+/**
+ * Join the honesty lines for bays that share one door, without telling the
+ * operator the same thing twice. Lines are written as `cause — effect`, so a
+ * single missing token reads as one sentence with both effects rather than the
+ * cause repeated per bay.
+ */
+export function mergeBayMessages(
+  lines: readonly (string | undefined)[],
+): string | undefined {
+  const effectsByCause = new Map<string, string[]>();
+  for (const line of lines) {
+    const trimmed = line?.trim();
+    if (!trimmed) continue;
+    const split = trimmed.indexOf(" — ");
+    const cause = split > 0 ? trimmed.slice(0, split) : trimmed;
+    // Drop each effect's full stop so two of them can share one sentence.
+    const effect =
+      split > 0 ? trimmed.slice(split + 3).trim().replace(/\.$/, "") : "";
+    const effects = effectsByCause.get(cause) ?? [];
+    if (effect && !effects.includes(effect)) effects.push(effect);
+    effectsByCause.set(cause, effects);
+  }
+  if (effectsByCause.size === 0) return undefined;
+  return [...effectsByCause]
+    .map(([cause, effects]) =>
+      effects.length > 0 ? `${cause} — ${effects.join("; ")}.` : cause,
+    )
+    .join(" ");
+}
+
+/**
+ * Operator-facing period line for a report letter. Single date when start and
+ * end match (or only one is set); a range otherwise.
+ */
+export function formatReportPeriod(
+  periodStart?: string,
+  periodEnd?: string,
+): string | undefined {
+  const start = formatReportDate(periodStart);
+  const end = formatReportDate(periodEnd);
+  if (start && end) return start === end ? start : `${start} – ${end}`;
+  return end ?? start;
+}
+
+function formatReportDate(value?: string): string | undefined {
+  const raw = value?.trim();
+  if (!raw) return undefined;
+  const parsed = new Date(raw.length === 10 ? `${raw}T00:00:00Z` : raw);
+  if (Number.isNaN(parsed.getTime())) return raw;
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(parsed);
+}
 
 /**
  * Whether a Receiving Wall record has already been acted on.

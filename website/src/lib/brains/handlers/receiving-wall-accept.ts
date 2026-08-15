@@ -109,7 +109,7 @@ export async function handleReceivingWallAccept(input: {
   }
   if (recordId.startsWith("seed-")) {
     throw new Error(
-      "Seeded demo records cannot be accepted — wire live Workshop drafts first.",
+      "This is a stand-in letter, not a real one — there is nothing here to accept yet.",
     );
   }
   if (!AIRTABLE_RECORD_ID_RE.test(recordId)) {
