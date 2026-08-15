@@ -212,9 +212,13 @@ export async function handleReceivingWallAccept(input: {
     /* Registry change log is best-effort when not wired. */
   }
 
+  // Airtable PATCH responses often return only the fields that changed (Status
+  // here). Merge onto the lookup payload so Title / provenance / destination
+  // survive — same pattern as interaction-household-review. Mapping Status-only
+  // would throw after the draft was already Approved and the paper trail written.
   const record = mapDraftTruthToReceivingRecord({
     id: updated.id,
-    fields: updated.fields,
+    fields: { ...existing.fields, ...(updated.fields ?? {}) },
   });
   if (!record) {
     throw new Error("Accepted record could not be mapped for the wall.");
