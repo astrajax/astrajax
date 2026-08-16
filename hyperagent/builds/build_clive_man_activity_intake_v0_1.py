@@ -101,8 +101,8 @@ Forbidden:
 |-------|-------|
 | Actor literal | `clive-man-activity-intake-hyperagent` (never alias) |
 | Action class | `CREATE_DRAFT_TRUTH` — V1 proposal queue only |
-| Capture Source (after_payload) | **Chat Session** |
-| Capture Source Chat Session | Household Activity **Sessions** record id — **mandatory, never blank** on every V1 create |
+| Capture Source (after_payload) | **Chat Session** only — executor allowlist; no extra keys |
+| Sessions provenance | Household Activity **Sessions** `rec…` on the candidate + evidence JSON — **never** in `after_payload` (executor terminal Refusal) |
 
 ## Phase-one read filter
 
@@ -148,7 +148,8 @@ do not fork the stream. The legacy HyperAgent thread stream
 - Write Draft Brain Truth (`tblswvXNYFDqnl6af`) directly
 - Update or delete existing Amendment Version rows
 - Create V2, Trusted, or Approved records
-- Leave Capture Source Chat Session blank on any V1 create
+- Put `capture_source_chat_session` (or any non-allowlisted key) in `after_payload`
+- Leave Sessions provenance blank on the candidate / evidence for any V1 create
 - Touch v0.4 legacy thread-intake artifacts
 - Commit, push, deploy, mint credentials, or write Airtable outside sealed pens
 
@@ -198,12 +199,12 @@ Every V1 create must include:
 | Verdict | `Proposed` |
 | Action class | `CREATE_DRAFT_TRUTH` |
 | Created By Agent | `clive-man-activity-intake-hyperagent` |
-| after_payload.capture_source | **Chat Session** (semantic) |
-| Capture Source Chat Session | Household Activity **Sessions** record id (`rec…`) — **same create payload, never blank** |
+| after_payload.capture_source | **Chat Session** (semantic) — executor allowlist only |
+| Sessions provenance | Household Activity **Sessions** record id (`rec…`) on candidate + evidence — **never** in `after_payload` |
 | Adapter version | `context-amendment-adapters-v2.0` |
 | v1_report_record_id | Reports row from run report — required when checkpoint append is live |
 
-**Never:** Draft/Trusted/V2 stages; updates; deletes; blank Capture Source Chat Session.
+**Never:** Draft/Trusted/V2 stages; updates; deletes; blank Sessions provenance; unknown `after_payload` keys.
 
 ## Phase-one eligibility (Activity rows)
 
@@ -224,8 +225,8 @@ Include **only** human↔agent **exchange** rows where **both** are non-empty:
 | Agent Turn Type Action / Completion / Question | Routine mechanical noise |
 | Rows missing either message field | Not a complete exchange |
 
-Join Activity → Sessions on session link; carry Sessions record id into
-**Capture Source Chat Session** on the V1 row.
+Join Activity → Sessions on session link; carry Sessions record id on the
+candidate + evidence JSON (not in `after_payload`).
 
 ## Analyst rubric (Context Proposal)
 
@@ -319,7 +320,7 @@ in UI after pen mint + Cursor/HA parity verified. **Export carries empty** `sche
 - Write Draft Brain Truth directly.
 - Use Airtable MCP, browser, or web search in this lane.
 - Alias the actor slug.
-- Omit Capture Source Chat Session on any V1 create.
+- Put Sessions provenance in `after_payload`, or omit it from the candidate / evidence.
 - Modify legacy v0.4 thread-intake artifacts (hash-preservation list in build pack).
 - Mint credentials, import agents, or enable schedules (human gates).
 
