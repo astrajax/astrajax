@@ -24,6 +24,16 @@ function baseEnvelope(
 }
 
 describe("mapEnvelopeToActivityFields", () => {
+  it("writes mechanical event_type to Agent Turn Type, never User Turn Type", () => {
+    // #163: User Turn Type (fldTCd93…) is AI-owned; platform outbox must not overwrite it.
+    expect(fields.eventType).toBe("fldvskIDzutu4JzQt");
+    expect(fields.eventType).not.toBe("fldTCd93XF8XhsVoZ");
+
+    const mapped = mapEnvelopeToActivityFields(baseEnvelope());
+    expect(mapped).toHaveProperty("fldvskIDzutu4JzQt", "Turn");
+    expect(mapped).not.toHaveProperty("fldTCd93XF8XhsVoZ");
+  });
+
   it("maps required Household Activity fields and defaults review/outcome", () => {
     const mapped = mapEnvelopeToActivityFields(baseEnvelope());
 
