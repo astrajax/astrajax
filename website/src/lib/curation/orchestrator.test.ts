@@ -1,12 +1,20 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("./knowledge", () => ({
-  loadCurationDocket: vi.fn(),
-}));
+vi.mock("./knowledge", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("./knowledge")>();
+  return {
+    ...actual,
+    loadCurationDocket: vi.fn(),
+  };
+});
 
-vi.mock("@/lib/brains/trusted-truth", () => ({
-  retrieveTrustedSnippets: vi.fn(async () => []),
-}));
+vi.mock("@/lib/brains/trusted-truth", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/brains/trusted-truth")>();
+  return {
+    ...actual,
+    retrieveTrustedSnippets: vi.fn(async () => []),
+  };
+});
 
 vi.mock("@/lib/brains/handlers/interaction-log", () => ({
   handleInteractionLog: vi.fn(async () => ({ mode: "memory", logged: true })),
