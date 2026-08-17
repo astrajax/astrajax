@@ -127,7 +127,7 @@ describe("handleReceivingWallAccept", () => {
               fields: {
                 Title: "Partial patch draft",
                 Status: DRAFT_TRUTH_STATUS.draft,
-                "Canonical Text": "Body that must survive accept.",
+                "Canonical Text for Agents": "Body that must survive accept.",
                 "Proposed By Agent": "Clive's Man",
                 "Proposed Category": "Definition",
                 "System Brain Slug": "astrajax-chapter-1",

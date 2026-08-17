@@ -56,6 +56,26 @@ Every V1 create must include:
 
 **Never:** Draft/Trusted/V2 stages; updates; deletes; blank Capture Source Chat Session.
 
+### Carry the Draft write contract into `after_payload`
+
+This lane still never writes Draft Brain Truth. But the Context Executor can only
+materialise what the proposal carries, so every `CREATE_DRAFT_TRUTH` payload must
+include the material for the 17 Aug 2026 contract (see `clive-man` skill):
+
+| Payload key | Why |
+|---|---|
+| `canonical_text` | Complete agent register |
+| `canonical_text_for_humans` | Plain register of the same claim, no record IDs |
+| `brain_slug` **and** `brain_registry` | The executor links a live brain; a slug alone is not a destination |
+| `record_type`, `proposed_category`, `horizon` | Routing the reviewer relies on |
+
+**Blocked today:** the HyperAgent executor's payload allowlist
+(`hyperagent/builds/sources/clive-man-v0_4/specialists/context-amendment-execute/context_config.py`)
+does not yet accept `canonical_text_for_humans` or `brain_registry`, and will refuse
+a payload carrying them. Until that build is regenerated and re-imported, carry the
+human register in `reason`/`evidence` and say so in the run summary — do not silently
+drop it.
+
 ## Phase-one eligibility (Activity rows)
 
 Include **only** human↔agent **exchange** rows where **both** are non-empty:

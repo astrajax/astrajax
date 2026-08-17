@@ -15,7 +15,7 @@ describe("assertDraftEligibleForPromote", () => {
         brainSlug: "astrajax-chapter-1",
         fields: {
           Title: "Positioning line",
-          "Canonical Text": "Approved wording.",
+          "Canonical Text for Agents": "Approved wording.",
           "Brain Slug": "astrajax-chapter-1",
           Status: "Draft",
         },
@@ -33,7 +33,7 @@ describe("assertDraftEligibleForPromote", () => {
         brainSlug: "astrajax-chapter-1",
         fields: {
           Title: "Wall-accepted line",
-          "Canonical Text": "Human confirmed on the Receiving Wall.",
+          "Canonical Text for Agents": "Human confirmed on the Receiving Wall.",
           "Brain Slug": "astrajax-chapter-1",
           Status: "Approved",
         },
@@ -53,7 +53,7 @@ describe("assertDraftEligibleForPromote", () => {
           brainSlug: "astrajax-chapter-1",
           fields: {
             Title: "Custom accept status",
-            "Canonical Text": "Accepted under a custom status label.",
+            "Canonical Text for Agents": "Accepted under a custom status label.",
             "Brain Slug": "astrajax-chapter-1",
             Status: "Ready for Doc",
           },
@@ -74,7 +74,7 @@ describe("assertDraftEligibleForPromote", () => {
         brainSlug: "astrajax-chapter-1",
         fields: {
           Title: "Brand line",
-          "Canonical Text": "Other brain.",
+          "Canonical Text for Agents": "Other brain.",
           "Brain Slug": "astrajax-brand",
           Status: "Draft",
         },
@@ -87,7 +87,7 @@ describe("assertDraftEligibleForPromote", () => {
         brainSlug: "astrajax-chapter-1",
         fields: {
           Title: "Already promoted",
-          "Canonical Text": "Should not re-enter Trusted.",
+          "Canonical Text for Agents": "Should not re-enter Trusted.",
           "Brain Slug": "astrajax-chapter-1",
           Status: "Quarantined",
         },

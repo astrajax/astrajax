@@ -236,9 +236,15 @@ One row is one proposed claim. Dual text is **one claim, two registers** — bot
 | Title | singleLineText | Primary |
 | Canonical Text for Agents | multilineText | Complete register for agents. Same meaning as the human text; do not strip facts. Field ID `fld95ls0LG26rCNx4` |
 | Canonical Text for Humans | multilineText | Plain register of the same claim (no record IDs). Capture agents write this at create. Field ID `fldbnsCNSXmLXE51y` |
-| Brain Slug | singleLineText | |
+| Brain Slug | singleLineText | Free text. **Not** a destination on its own — always link Brain Registry too |
+| Brain Registry | link → Workshop Brain Registry (`tblsI93ayQm4hq5bw`) | The destination. Capture agents link a live brain at create. Field ID `fldB1vIzRA6NBxEYs` |
 | Brain Theme | singleLineText | Theme slug, e.g. `core`, `sales-forecasting` |
 | Proposed Category | singleSelect | Workshop sorting only — not access control. See universal set below. |
+| Record Type | singleSelect | Truth Claim, Amendment, Open Question, Next Step, Test, Parked Idea. Field ID `fldCViiokjEMdp3vb` |
+| Horizon | singleSelect | Persistent, Long-term, Short-term, Fleeting. Field ID `fldEgLQcvc6L4c9p1` |
+| Capture Source | singleSelect | Chat Session, User Guided Capture, External Context Capture. Field ID `fld9zhLHPvjnq8lHT` |
+| Source Documents | link → Source Documents | Inverse of that table's **Linked Drafts**. Link when a file is the evidence. Field ID `fldsspqpNL4vDUU50` |
+| Context Amendment Versions | link → Context Amendment Versions | Inverse of **Target Draft**. Link when the row came from the V1 queue. Field ID `fldAeXTX1uLgkNa5d` |
 | Status | singleSelect | Draft, Quarantined, Rejected, Promoted — agents write **Draft** / **Quarantined** only; **Rejected** / **Promoted** read-and-respect; **Approved** and **Accepted with amendments** are observed drift (never write); distinct from Source Document Mine Status **Proposed** |
 | Proposed By Agent | singleLineText | e.g. clive |
 | Created By | singleSelect | Matthew, Agent, Website, TL |
@@ -250,6 +256,14 @@ One row is one proposed claim. Dual text is **one claim, two registers** — bot
 | Follow-up Candidate | checkbox | Digest input only — not an instruction to ask |
 
 **Do not copy the builder-review overlay into client brain bases.**
+
+**Rename warning (17 Aug 2026):** `Canonical Text` on this table was renamed to
+**Canonical Text for Agents**. Airtable REST writes key on field *names*, so any
+caller still sending `Canonical Text` gets `UNKNOWN_FIELD_NAME` and any reader
+gets an empty body. Website callers go through
+`website/src/lib/brains/draft-truth-write.ts`; the HyperAgent builds key on field
+IDs and are unaffected by the rename. Trusted **Brain Truth** still uses
+`Canonical Text` — do not rename it there.
 
 **Workshop Draft Brain Truth — Proposed Category options (canonical, 29 Jun 2026):**  
 Definition, Goals & Priorities, Workflow, Data & Metrics, Rules & Guardrails, Knowledge, Examples & Edge Cases, Open Questions, Business Context, Adjacent Functions

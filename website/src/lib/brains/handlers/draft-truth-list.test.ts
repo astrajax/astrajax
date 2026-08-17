@@ -69,7 +69,7 @@ describe("handleDraftTruthList", () => {
         id: "recComplete",
         fields: {
           Title: " Trusted write gate ",
-          "Canonical Text": " Humans approve before execute. ",
+          "Canonical Text for Agents": " Humans approve before execute. ",
           "Proposed Category": "Principle",
           "Brain Theme": "Governance ",
           Status: "Draft",

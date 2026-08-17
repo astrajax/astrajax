@@ -72,6 +72,37 @@ Full Known Truths: `docs/initiatives/character-provenance.md` §7.
 
 **Route 1:** only **complete Lane A** → `@clive-man-executor`; otherwise `@clive-man`.
 
+## Draft Brain Truth write contract (17 Aug 2026)
+
+Every capture door that creates a Draft row writes **all** of these. A row that
+misses one is a defect, not a partial success. Control-plane record:
+`rpt-draft-truth-builder-overlay-20260817`.
+
+| Field | ID | Rule |
+|---|---|---|
+| Title | `fld8BVmRBSsVuXD8I` | Required |
+| Canonical Text for Agents | `fld95ls0LG26rCNx4` | Complete register — keep IDs and precision. **Renamed from `Canonical Text`; the old name no longer exists.** |
+| Canonical Text for Humans | `fldbnsCNSXmLXE51y` | Same claim, plain, no record IDs. Two registers of one claim — if they disagree, that is a defect |
+| Brain Registry | `fldB1vIzRA6NBxEYs` | Link the live brain record. A slug alone is not a destination |
+| Proposed Category | `fldD4gLnHeihH7yCd` | |
+| Record Type | `fldCViiokjEMdp3vb` | |
+| Horizon | `fldEgLQcvc6L4c9p1` | When the claim applies |
+| Status | `fldiMCxuBITyZIOXW` | **Draft** (or Quarantined when that is the action) |
+| Proposed By Agent | `flde1d1sda9lWwrj9` | Honest actor slug — `clive-man`, `clive-man-executor`, `clive-man-ambient-capture` |
+| Created By | `fldEonKVeEsrbiwkm` | Agent |
+| Capture Source | `fld9zhLHPvjnq8lHT` | Chat Session / User Guided Capture / External Context Capture |
+| Source Documents | `fldsspqpNL4vDUU50` | Link when a file is the evidence. Never invent an upload for a chat-only capture |
+| Context Amendment Versions | `fldAeXTX1uLgkNa5d` | Link when the row came from the V1 proposal queue |
+
+**Never write** — this is Matthew's builder-review loop with Doc, and an agent-set
+value would make the review signal a lie: Human Reviewed, Human Chosen
+Brain / Category / Record Type / Horizon, Readability Rating, Capture Quality,
+Context Importance, Readability Notes, Capture Quality Notes, Builder Notes,
+Should Have Been Auto-Handled, Follow-up Candidate.
+
+The website capture paths enforce this in one place:
+`website/src/lib/brains/draft-truth-write.ts`.
+
 ## Draft Brain Truth status contract
 
 Field `fldiMCxuBITyZIOXW` operating set: **Draft**, **Quarantined**, **Rejected**, **Promoted**.
