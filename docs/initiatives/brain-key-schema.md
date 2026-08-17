@@ -2,7 +2,7 @@
 
 **Status:** Replicable schema reference (context-agnostic)  
 **Owner:** Matthew  
-**Last updated:** 29 June 2026 (Context Health Phase 2 schema pending); Operator State table added 4 Aug 2026  
+**Last updated:** 17 August 2026 (Draft Brain Truth write contract); Context Health Phase 2 schema pending
 **Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance), [`chapter1-context-structure.md`](./chapter1-context-structure.md) (canonical brain themes + categories), [`doc-brain-base-builder.md`](./doc-brain-base-builder.md) (scaffold/extend bases via Doc Brain Base Builder)
 
 Any agent (especially **@doc-brain-base-builder**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
@@ -261,9 +261,11 @@ One row is one proposed claim. Dual text is **one claim, two registers** — bot
 **Canonical Text for Agents**. Airtable REST writes key on field *names*, so any
 caller still sending `Canonical Text` gets `UNKNOWN_FIELD_NAME` and any reader
 gets an empty body. Website callers go through
-`website/src/lib/brains/draft-truth-write.ts`; the HyperAgent builds key on field
-IDs and are unaffected by the rename. Trusted **Brain Truth** still uses
-`Canonical Text` — do not rename it there.
+`website/src/lib/brains/draft-truth-write.ts`. HyperAgent field-ID writes are
+unaffected by the rename itself, but the current v0.4 executor allowlists do not
+yet accept the human register or Brain Registry link; regeneration and human
+re-import remain open. Trusted **Brain Truth** still uses `Canonical Text` — do
+not rename it there.
 
 **Workshop Draft Brain Truth — Proposed Category options (canonical, 29 Jun 2026):**  
 Definition, Goals & Priorities, Workflow, Data & Metrics, Rules & Guardrails, Knowledge, Examples & Edge Cases, Open Questions, Business Context, Adjacent Functions
@@ -340,7 +342,7 @@ Field and choice IDs: `AMBIENT_CHECKPOINT_*` in `airtable-ids.ts`. Signed build:
 Doc promote is a **copy-out**, not a status flip on one table.
 
 1. Human approves via **Approval Decisions** (+ Pam at action gate if required).
-2. Doc route reads draft **Title** and **Canonical Text** from Workshop only.
+2. Doc route reads draft **Title** and **Canonical Text for Agents** from Workshop only.
 3. Doc **creates a new row** in Trusted **Brain Truth** with human-specified **Category** and **Scope** (from promote payload — not from draft fields).
 4. Workshop draft **Status → Quarantined** (consumed proposal, not “Approved”).
 5. **Change Log** + grant revoke on Registry.
