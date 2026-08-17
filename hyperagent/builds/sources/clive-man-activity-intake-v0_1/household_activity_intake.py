@@ -279,13 +279,14 @@ def build_lease_token(
 
 
 def build_after_payload(candidate: dict[str, Any]) -> dict[str, Any]:
-    chat_session = candidate["capture_source_chat_session"]
+    # Executor CREATE_DRAFT_TRUTH allowlist only. Sessions rec id stays on the
+    # candidate / evidence — putting capture_source_chat_session here makes every
+    # Cleared V2 fail with forbidden/unknown payload keys.
     payload: dict[str, Any] = {
         "title": candidate["title"],
         "canonical_text": candidate["canonical_text"],
         "brain_slug": candidate["brain_slug"],
         "capture_source": CAPTURE_SOURCE_CHAT,
-        "capture_source_chat_session": chat_session,
     }
     for key in ("proposed_category", "brain_theme", "record_type", "horizon"):
         if candidate.get(key):
@@ -308,8 +309,6 @@ def validate_candidate(candidate: dict[str, Any], *, actor: str = ACTOR_HYPERAGE
         errors.append(f"unknown after_payload keys: {sorted(unknown)}")
     if after.get("capture_source") != CAPTURE_SOURCE_CHAT:
         errors.append("after_payload capture_source must be Chat Session")
-    if not str(after.get("capture_source_chat_session") or "").startswith("rec"):
-        errors.append("after_payload capture_source_chat_session must be nonblank rec…")
     if candidate.get("created_by_agent") and candidate.get("created_by_agent") != actor:
         errors.append(f"created_by_agent must be {actor!r}")
     return errors
@@ -416,12 +415,18 @@ def filter_eligible_rows(
     return eligible, stats
 
 
-def list_existing_by_dedupe(dedupe_keys: set[str], *, dry_run: bool) -> dict[str, str]:
+def list_existing_by_dedupe(dedupe_keys: set[str], *, dry_run: bool) -> dict[str, str] | None:
+    """Return existing dedupe_key → record id.
+
+    Dry-run skips the lookup (empty map). Live runs require the checkpoint pen for
+    workshop GETs; without it return None so callers refuse create rather than
+    silently duplicating V1 rows.
+    """
     if dry_run or not dedupe_keys:
         return {}
     # AMBIENT_V1_CREATE is POST-only; workshop GETs use the checkpoint pen when minted.
     if not os.environ.get(CHECKPOINT_APPEND_CRED_ENV, ""):
-        return {}
+        return None
     found: dict[str, str] = {}
     offset = None
     while True:
@@ -475,6 +480,21 @@ def process_candidates(
 
     dedupe_keys = {c["dedupe_key"] for c in candidates if c.get("dedupe_key")}
     existing = list_existing_by_dedupe(dedupe_keys, dry_run=dry_run)
+    if existing is None:
+        # Live create without dedupe would duplicate V1 rows on every re-run.
+        return {
+            "written": [],
+            "written_count": 0,
+            "skipped": [
+                {"candidate": c, "reason": "dedupe_unavailable"} for c in candidates
+            ],
+            "skipped_count": len(candidates),
+            "requeued": [],
+            "requeued_count": 0,
+            "cap": cap,
+            "stop_reason": "dedupe_unavailable",
+            "complete": False,
+        }
 
     for item in candidates:
         if len(written) >= cap:

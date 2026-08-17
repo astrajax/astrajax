@@ -44,6 +44,22 @@ export function stillArtForBand(band: BrainHealthBand): string {
   return HEALTH_BAND_STILL_SRC[band];
 }
 
+/**
+ * Unframed jar still — frame-zero of each shrine loop.
+ * Receiving Wall poster / prefers-reduced-motion (not the framed state-*.png portraits).
+ */
+export const SHRINE_BAND_STILL_SRC: Record<BrainHealthBand, string> = {
+  rotten: "/brain/shrine-rotten.jpg",
+  unhappy: "/brain/shrine-unhappy.jpg",
+  okay: "/brain/shrine-okay.jpg",
+  happy: "/brain/shrine-happy.jpg",
+  thriving: "/brain/shrine-thriving.jpg",
+};
+
+export function shrineStillForBand(band: BrainHealthBand): string {
+  return SHRINE_BAND_STILL_SRC[band];
+}
+
 export const HEALTH_BAND_LABELS: Record<BrainHealthBand, string> = {
   rotten: "Rotten",
   unhappy: "Unhappy",

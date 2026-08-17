@@ -51,9 +51,8 @@
   --ap-safe-w: calc(var(--wall-w) * 0.52);
   --ap-base-w: calc(var(--plate-w) * 0.52);
 
-  /* Keyboard focus — warm gold, high contrast on dark plaster */
-  --focus-ring: #e8c97a;
-  --focus-glow: rgba(232, 201, 122, 0.55);
+  /* Keyboard focus — warm parchment gold on dark plaster (Kathryn QA) */
+  --focus-ring: #e4d3a3;
 }
 
 .wall.zoomed {
@@ -114,9 +113,6 @@
 }
 .roomStatic {
   z-index: 5;
-}
-.popOverlay {
-  z-index: 30;
 }
 
 /* ---- Living wall plate (§1) ---- */
@@ -491,7 +487,10 @@
   display: none;
 }
 
-/* Nave / mobile — fixed aperture outside the scroll plate */
+/*
+ * Nave / phone aperture — landscape hides this (bay travels on the plate);
+ * portrait re-enables it as a static column under the crown (see max-aspect-ratio block).
+ */
 .aperture {
   position: fixed;
   left: 50%;
@@ -636,14 +635,14 @@
   .incisedAction,
   .acceptBtn,
   .backBtn,
-  .recordRow
+  .recordRow,
+  .sillHotspot,
+  .shrineOpen
 ):focus-visible {
   outline: 2px solid var(--focus-ring);
   outline-offset: 4px;
   border-radius: 2px;
-  box-shadow:
-    0 0 0 4px color-mix(in oklab, var(--focus-ring) 35%, transparent),
-    0 0 14px 3px var(--focus-glow);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--focus-ring) 35%, transparent);
 }
 
 /* Secondary incised action — fold, dismiss (§6.3 variant) */
@@ -678,18 +677,34 @@
   font-style: italic;
   letter-spacing: 0.04em;
   line-height: 1.5;
-  color: rgba(240, 230, 204, 0.78);
+  color: rgba(240, 230, 204, 0.68);
   text-align: center;
   text-shadow:
-    0 1px 3px rgba(12, 14, 10, 0.92),
-    0 -1px 0 rgba(12, 14, 10, 0.72);
+    0 -1px 0 rgba(12, 14, 10, 0.88),
+    0 1px 0 color-mix(in oklab, var(--tint) 30%, transparent);
   background: none;
   border: 0;
   border-radius: 0;
   padding: 0 0.5rem;
   max-width: min(82vw, 34rem);
-  /* Below aperture top fade (3.5rem) and crown dark band — lighter void zone */
   margin: clamp(3.75rem, 9vh, 5rem) auto 1.25rem;
+}
+/* Honesty sits below the doors — .benchKicker weight, not a status banner */
+.honestyLine {
+  font-family: var(--font-wall), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  font-style: italic;
+  color: rgba(221, 208, 174, 0.55);
+  text-align: center;
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.88),
+    0 1px 0 color-mix(in oklab, var(--tint) 30%, transparent);
+  background: none;
+  border: 0;
+  margin: 2rem auto 0.25rem;
+  max-width: min(82vw, 34rem);
+  padding: 0 0.5rem;
 }
 
 /* ---- The engraved ledger ---- */
@@ -707,7 +722,53 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(1.25rem, 3vh, 2rem);
+  /* Kathryn look v1 — three inscriptions, generous door spacing */
+  gap: clamp(2.5rem, 7vh, 4.5rem);
+}
+
+/* Idle portal door names — ~.zoomTitle scale; type never tracks --dolly */
+.portalDoorName {
+  font-family: var(--font-wall), serif;
+  font-weight: 700;
+  font-size: clamp(1.6rem, calc(var(--ap-base-w) * 0.052), 2.6rem);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ddd0ae;
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.92),
+    0 -2px 3px rgba(12, 14, 10, 0.55),
+    0 1px 0 color-mix(in oklab, var(--tint) 55%, transparent),
+    0 2px 1px rgba(12, 14, 10, 0.35);
+}
+.sourceRow:hover .portalDoorName {
+  color: #ece0c0;
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.92),
+    0 -2px 3px rgba(12, 14, 10, 0.55),
+    0 1px 0 var(--tint),
+    0 0 6px color-mix(in oklab, var(--tint) 30%, transparent);
+}
+.portalMark {
+  font-family: var(--font-wall), serif;
+  font-size: clamp(1.2rem, calc(var(--ap-base-w) * 0.034), 1.75rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mark-tint, var(--tint));
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.9),
+    0 1px 0 color-mix(in oklab, var(--mark-tint, var(--tint)) 40%, transparent);
+  font-variant-numeric: tabular-nums;
+}
+.portalMarkState {
+  font-size: clamp(0.95rem, calc(var(--ap-base-w) * 0.028), 1.35rem);
+  letter-spacing: 0.16em;
+}
+.portalMarkTime {
+  font-size: clamp(0.95rem, calc(var(--ap-base-w) * 0.028), 1.35rem);
+  letter-spacing: 0.2em;
+  font-style: italic;
+  font-weight: 600;
 }
 
 .sourceRow {
@@ -937,7 +998,8 @@
 }
 .zoomTitle {
   font-family: var(--font-wall), serif;
-  font-size: clamp(1.75rem, calc(var(--ap-base-w) * 0.048), 2.75rem);
+  /* Kathryn v1.1 — bay title recedes (~0.040 of aperture width) */
+  font-size: clamp(1.35rem, calc(var(--ap-base-w) * 0.04), 2.2rem);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -949,12 +1011,6 @@
     0 1px 0 color-mix(in oklab, var(--tint) 55%, transparent),
     0 2px 1px rgba(12, 14, 10, 0.35);
   text-wrap: balance;
-}
-.zoomBlurb {
-  font-style: italic;
-  color: rgba(240, 230, 204, 0.72);
-  margin: 0.4rem 0 0;
-  max-width: 46rem;
 }
 
 .recordList {
@@ -1014,19 +1070,14 @@
   color: rgba(240, 230, 204, 0.55);
 }
 
-.recordBrainSlug {
+.recordBrainSlug,
+.recordQuietMeta {
   display: inline;
   margin-left: 0.15em;
   font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(240, 230, 204, 0.38);
-}
-.recordChevron {
-  font-family: var(--font-wall), serif;
-  font-size: 1.5rem;
-  color: var(--tint);
-  flex-shrink: 0;
 }
 
 /* ---- Margin note — zoomed Clive entry (§6.2) ---- */
@@ -1073,7 +1124,8 @@
     transform: translateY(0);
   }
 }
-.letterMeta {
+.letterMeta,
+.sectionHead {
   font-family: var(--font-wall), serif;
   font-size: 0.72rem;
   letter-spacing: 0.14em;
@@ -1084,6 +1136,28 @@
     0 -1px 0 rgba(12, 14, 10, 0.88),
     0 1px 0 color-mix(in oklab, var(--tint) 40%, transparent);
 }
+/* Quiet bay heads — scored hairline under the carved label, no how-to stack */
+.sectionHead {
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.55rem;
+  background-image:
+    linear-gradient(90deg, transparent 0, rgba(12, 14, 10, 0.55) 14%, rgba(12, 14, 10, 0.55) 86%, transparent 100%),
+    linear-gradient(90deg, transparent 0, rgba(231, 209, 173, 0.15) 14%, rgba(231, 209, 173, 0.15) 86%, transparent 100%);
+  background-size: 100% 1px, 100% 1px;
+  background-position: 0 calc(100% - 1px), 0 100%;
+  background-repeat: no-repeat;
+}
+.letterLead {
+  font-family: var(--font-wall), serif;
+  font-size: 0.98rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: rgba(240, 230, 204, 0.78);
+  margin: 0 0 0.85rem;
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.88),
+    0 1px 0 color-mix(in oklab, var(--tint) 30%, transparent);
+}
 .letterBody {
   font-family: var(--font-wall), serif;
   font-size: 0.98rem;
@@ -1093,7 +1167,9 @@
   white-space: pre-wrap;
   max-width: 100%;
   overflow-wrap: anywhere;
-  text-shadow: 0 1px 2px rgba(12, 14, 10, 0.65);
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.88),
+    0 1px 0 color-mix(in oklab, var(--tint) 30%, transparent);
 }
 .letterStatus {
   font-family: var(--font-wall), serif;
@@ -1124,11 +1200,14 @@
   align-items: center;
   padding-top: 0.35rem;
 }
-.empty {
+.empty,
+.emptyQuiet {
+  font-family: var(--font-wall), serif;
   font-style: italic;
-  color: rgba(240, 230, 204, 0.7);
-  padding: 2rem 0;
-  text-align: center;
+  color: rgba(240, 230, 204, 0.55);
+  padding: 0.35rem 0 0.75rem;
+  margin: 0;
+  text-align: left;
 }
 
 /* ---- Varnish grade pass (§3.3) ---- */
@@ -1166,91 +1245,193 @@
   mix-blend-mode: overlay;
 }
 
-/* ---- Clive pop-out ---- */
-.popOverlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(18, 22, 17, 0.72);
-  backdrop-filter: blur(3px);
-  display: flex;
-  align-items: stretch;
-  justify-content: flex-end;
-  animation: fadeIn 0.2s ease both;
-  overscroll-behavior: contain;
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-.popPanel {
-  width: min(560px, 100%);
-  background: var(--color-cream-paper);
-  color: var(--color-ink);
+/*
+ * Clive in the aperture (§6) — same void, same incised type, no cream slide-over.
+ * Conversation continues the wall; Leave Clive returns to the bay / doors.
+ */
+.cliveAperture {
+  width: 100%;
+  max-width: 100%;
   display: flex;
   flex-direction: column;
-  box-shadow: -18px 0 50px rgba(0, 0, 0, 0.5);
-  animation: slideIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  min-height: 0;
+  padding: 0.25rem 0 1.25rem;
+  color: rgba(239, 231, 208, 0.9);
+  background: transparent;
+  animation: letterIn 0.22s ease both;
 }
-@keyframes slideIn {
-  from {
-    transform: translateX(40px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
+.cliveAperture .zoomTitle {
+  margin-bottom: 0.85rem;
 }
-.popHead {
+.cliveConversation {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+/* studyMode chat — retint to wall varnish; no bubbles, no starter pills, no Send chrome */
+.cliveConversation :global(.clive-chat),
+.cliveConversation :global(.clive-chat--study) {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: rgba(239, 231, 208, 0.9);
+  font-family: var(--font-wall), serif;
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  min-height: 0;
+  gap: 0.85rem;
+}
+.cliveConversation :global(.clive-chat__messages) {
+  max-height: min(42vh, 22rem);
+  gap: 1.25rem;
+  padding-right: 0.15rem;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 6%,
+    #000 92%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 6%,
+    #000 92%,
+    transparent 100%
+  );
+}
+.cliveConversation :global(.clive-chat__prompt),
+.cliveConversation :global(.clive-chat__user-echo) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.cliveConversation :global(.clive-chat__prompt-label),
+.cliveConversation :global(.clive-chat__turn-label),
+.cliveConversation :global(.clive-chat__architect-label) {
+  font-family: var(--font-wall), serif !important;
+  font-size: 0.72rem !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: color-mix(in oklab, var(--tint) 85%, #ddd0ae) !important;
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.88),
+    0 1px 0 color-mix(in oklab, var(--tint) 40%, transparent);
+}
+.cliveConversation :global(.clive-chat__prompt-label::after) {
+  display: none !important;
+}
+.cliveConversation :global(.clive-chat__prompt-text),
+.cliveConversation :global(.clive-chat__prompt-text--user),
+.cliveConversation :global(.clive-chat__bubble),
+.cliveConversation :global(.clive-chat__bubble p) {
+  font-family: var(--font-wall), serif !important;
+  font-size: 0.98rem !important;
+  line-height: 1.65 !important;
+  color: rgba(239, 231, 208, 0.88) !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  text-shadow: 0 1px 2px rgba(12, 14, 10, 0.65);
+}
+.cliveConversation :global(.clive-chat__prompt-text--user) {
+  color: rgba(221, 208, 174, 0.78) !important;
+}
+.cliveConversation :global(.clive-chat__thinking) {
+  font-family: var(--font-wall), serif;
+  font-style: italic;
+  color: rgba(240, 230, 204, 0.55);
+  background: transparent;
+}
+.cliveConversation :global(.clive-chat__starters),
+.cliveConversation :global(.clive-chat__starter) {
+  display: none !important;
+}
+.cliveConversation :global(.clive-chat__form) {
+  margin-top: 0.5rem;
+  gap: 0.75rem;
+  flex-direction: column;
+  align-items: stretch;
+}
+.cliveConversation :global(.clive-chat__form-row) {
+  width: 100%;
+}
+.cliveConversation :global(.clive-chat__control-row) {
+  display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1.4rem 1.5rem 1rem;
-  border-bottom: 1px solid rgba(23, 26, 24, 0.1);
 }
-.popKicker {
-  font-size: 0.7rem;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--color-ink-muted);
-  margin: 0;
-}
-.popTitle {
+.cliveConversation :global(.clive-chat__input) {
+  width: 100%;
+  border-radius: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0.65rem 0.15rem;
+  min-height: 44px;
   font-family: var(--font-wall), serif;
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--color-moss);
-  margin: 0.2rem 0 0;
+  font-size: 0.95rem;
+  color: rgba(239, 231, 208, 0.92);
+  /* Same scored hairline as an open letter */
+  background-image:
+    linear-gradient(90deg, transparent 0, rgba(12, 14, 10, 0.55) 14%, rgba(12, 14, 10, 0.55) 86%, transparent 100%),
+    linear-gradient(90deg, transparent 0, rgba(231, 209, 173, 0.18) 14%, rgba(231, 209, 173, 0.18) 86%, transparent 100%) !important;
+  background-size: 100% 1px, 100% 1px !important;
+  background-position: 0 calc(100% - 1px), 0 100% !important;
+  background-repeat: no-repeat !important;
 }
-.popClose {
+.cliveConversation :global(.clive-chat__input::placeholder) {
+  color: rgba(240, 230, 204, 0.42);
+  font-style: italic;
+}
+.cliveConversation :global(.clive-chat__input:focus) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 4px;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+.cliveConversation :global(.btn-primary) {
+  font-family: var(--font-wall), serif !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0.65rem 0.35rem !important;
+  min-height: 44px;
+  color: #ddd0ae !important;
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.9),
+    0 1px 0 color-mix(in oklab, var(--tint) 55%, transparent);
+}
+.cliveConversation :global(.btn-primary:hover:not(:disabled)) {
+  color: #f0e5c6 !important;
+  letter-spacing: 0.17em !important;
+  background: transparent !important;
+}
+.cliveConversation :global(.btn-primary:focus-visible) {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 4px;
+}
+.cliveConversation :global(.clive-chat__fresh-ink),
+.cliveConversation :global(.clive-chat__retry),
+.cliveConversation :global(.clive-chat__study-error) {
+  border: 0;
+  border-radius: 0;
   background: transparent;
-  border: 1px solid rgba(23, 26, 24, 0.2);
-  border-radius: 999px;
-  width: 2.25rem;
-  height: 2.25rem;
-  font-size: 1.4rem;
-  line-height: 1;
-  color: var(--color-ink);
-  cursor: pointer;
-  flex-shrink: 0;
-}
-.popClose:hover {
-  background: rgba(23, 26, 24, 0.06);
-}
-.popClose:focus-visible {
-  outline: 2px solid var(--color-moss);
-  outline-offset: 2px;
-}
-.popBody {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1rem 1.5rem 1.5rem;
-  overscroll-behavior: contain;
+  font-family: var(--font-wall), serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ddd0ae;
 }
 
 /* ---- Nave mode (§2.4 fallback — crown + vignette, no skirt) ---- */
@@ -1301,6 +1482,169 @@
   }
 }
 
+/* ---- Operator portals v1 — bay sections + shrine bands (working) ---- */
+.baySection {
+  margin: 0 0 1.75rem;
+}
+
+/* One shrine in the upper aperture — dissolve on all four sides (Kathryn look) */
+.shrineStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  margin: 0.5rem 0 1.25rem;
+}
+.shrineLoop {
+  position: relative;
+  /* Jar dominates; width raised per Kathryn QA — ratio follows the loop, not a square lock */
+  width: min(46%, 26rem);
+  overflow: hidden;
+  /*
+   * Working dissolve — awaiting a dedicated wall shrine matte (Kathryn v1.1).
+   * Four-edge luminance feather for now; not a soft oval / radial blur.
+   */
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  mask-image:
+    linear-gradient(to right, transparent 0%, #000 14%, #000 86%, transparent 100%),
+    linear-gradient(to bottom, transparent 0%, #000 14%, #000 86%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+  mask-mode: luminance;
+  -webkit-mask-source-type: luminance;
+}
+/* Radial contact shadow — jar sits on the void (not left/right rectangles) */
+.shrineLoop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 72% 42% at 50% 100%,
+    rgba(12, 14, 10, 0.55) 0%,
+    rgba(12, 14, 10, 0.2) 42%,
+    transparent 72%
+  );
+}
+.shrineVideo,
+.shrineStill {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+/* Local varnish tooth over the jar — kept light so wall grain does not double-dip */
+.shrineVarnish {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+}
+.shrineMeta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  max-width: 22rem;
+}
+.shrineName {
+  font-family: var(--font-wall), serif;
+  font-weight: 700;
+  font-size: clamp(1.05rem, calc(var(--ap-base-w) * 0.028), 1.4rem);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #ddd0ae;
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.92),
+    0 -2px 2px rgba(12, 14, 10, 0.5),
+    0 1px 0 color-mix(in oklab, var(--tint) 55%, transparent);
+}
+/* Band colour lives on the word only — never a room fill */
+.shrineBandLabel {
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--band-tint, var(--tint));
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.9),
+    0 1px 0 color-mix(in oklab, var(--band-tint, var(--tint)) 45%, transparent);
+}
+.shrineOpen {
+  margin-top: 0.15rem;
+  font-family: var(--font-wall), serif;
+  font-size: 0.88rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #ddd0ae;
+  text-decoration: none;
+  text-shadow:
+    0 -1px 0 rgba(12, 14, 10, 0.9),
+    0 1px 0 color-mix(in oklab, var(--tint) 45%, transparent);
+  padding: 0.55rem 0;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+.shrineOpen:hover {
+  color: #f0e5c6;
+  letter-spacing: 0.16em;
+}
+.proposalLine {
+  font-family: var(--font-wall), serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  color: rgba(221, 208, 174, 0.78);
+  padding: 0.65rem 0.25rem;
+  background-image:
+    linear-gradient(90deg, transparent 0, rgba(12, 14, 10, 0.55) 14%, rgba(12, 14, 10, 0.55) 86%, transparent 100%),
+    linear-gradient(90deg, transparent 0, rgba(231, 209, 173, 0.15) 14%, rgba(231, 209, 173, 0.15) 86%, transparent 100%);
+  background-size: 100% 1px, 100% 1px;
+  background-position: 0 calc(100% - 1px), 0 100%;
+  background-repeat: no-repeat;
+}
+.proposalLineMeta {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(240, 230, 204, 0.48);
+}
+.siblingList {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+}
+.heldLip {
+  --tint: #d77545;
+}
+
+/* Sill letter hotspot — idle only; opens This morning */
+.sillHotspot {
+  position: absolute;
+  z-index: 8;
+  left: calc(var(--sill-x, 0.27) * 100%);
+  top: calc(var(--sill-y, 0.87) * 100%);
+  width: calc((var(--sill-x-to, 0.44) - var(--sill-x, 0.27)) * 100%);
+  height: calc((var(--sill-y-to, 0.93) - var(--sill-y, 0.87)) * 100%);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 2px;
+  /* Parent .stage / .sillForeground are pointer-events: none — re-enable here. */
+  pointer-events: auto;
+}
+
 /* ---- Responsive ---- */
 @media (max-width: 640px) {
   .sourceRow {
@@ -1317,6 +1661,9 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 0.75rem;
+  }
+  .shrineLoop {
+    width: min(62%, 16rem);
   }
 }
 
@@ -1357,8 +1704,7 @@
     transition: none;
   }
   .letter,
-  .popOverlay,
-  .popPanel {
+  .cliveAperture {
     animation: none;
   }
   .sourceRow,

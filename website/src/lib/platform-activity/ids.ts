@@ -22,7 +22,8 @@ export const HOUSEHOLD_ACTIVITY_FIELDS = {
   sequence: "fldeQ8SjlrZfj3a6M",
   sessionId: "fldz1skahzUvg1vzX",
   sessionLink: "fldRD3GFz3PqYTANC",
-  eventType: "fldTCd93XF8XhsVoZ",
+  /** Agent Turn Type — mechanical event_type writes. User Turn Type (fldTCd93…) is AI-owned. */
+  eventType: "fldvskIDzutu4JzQt",
   timestamp: "fldTl7rXvf7YHgImz",
   userMessage: "fldzSTdm15GQf88Ph",
   replyDigest: "fldBj92Hu9gDesX6u",

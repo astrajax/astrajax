@@ -11,6 +11,11 @@ import {
   receivingCategoryKey,
   receivingCategoryLabel,
   receivingCategoryTint,
+  RECEIVING_PORTAL_IDS,
+  formatReportPeriod,
+  isReceivingPortalId,
+  mergeBayMessages,
+  weakestBaySource,
   type CaptureSource,
   type ReceivingRecord,
 } from "./receiving-wall";
@@ -122,5 +127,76 @@ describe("isReceivingRecordActioned", () => {
     expect(isReceivingRecordActioned("Wall Accepted", "Wall Accepted")).toBe(true);
     expect(isReceivingRecordActioned("Wall Accepted", "Something Else")).toBe(false);
     expect(isReceivingRecordActioned(" Wall Accepted ", "Wall Accepted")).toBe(true);
+  });
+});
+
+describe("operator portals", () => {
+  it("names exactly three doors and guards the ids", () => {
+    expect(RECEIVING_PORTAL_IDS).toEqual(["judgement", "health", "reports"]);
+    expect(isReceivingPortalId("judgement")).toBe(true);
+    expect(isReceivingPortalId("reports")).toBe(true);
+    expect(isReceivingPortalId("Business Definition")).toBe(false);
+    expect(isReceivingPortalId(null)).toBe(false);
+    expect(isReceivingPortalId(undefined)).toBe(false);
+  });
+
+  it("labels the wall by its least-live bay", () => {
+    expect(weakestBaySource(["live", "live"])).toBe("live");
+    expect(weakestBaySource(["live", "derived"])).toBe("derived");
+    expect(weakestBaySource(["live", "derived", "seed"])).toBe("seed");
+    expect(weakestBaySource([])).toBe("live");
+  });
+});
+
+describe("mergeBayMessages", () => {
+  it("states a shared cause once and lists both effects", () => {
+    expect(
+      mergeBayMessages([
+        "Workshop read token not configured — showing seeded records.",
+        "Workshop read token not configured — held work and proposals are seeded.",
+      ]),
+    ).toBe(
+      "Workshop read token not configured — showing seeded records; held work and proposals are seeded.",
+    );
+  });
+
+  it("keeps genuinely different causes as separate sentences", () => {
+    expect(
+      mergeBayMessages([
+        "Workshop read token not configured — showing seeded records.",
+        "Control-plane read failed — held work and proposals are seeded.",
+      ]),
+    ).toBe(
+      "Workshop read token not configured — showing seeded records. Control-plane read failed — held work and proposals are seeded.",
+    );
+  });
+
+  it("returns undefined when every bay is fully live", () => {
+    expect(mergeBayMessages([])).toBeUndefined();
+    expect(mergeBayMessages([undefined, "  "])).toBeUndefined();
+  });
+
+  it("passes through a single line and drops an exact duplicate", () => {
+    expect(mergeBayMessages(["Reports are seeded."])).toBe("Reports are seeded.");
+    expect(
+      mergeBayMessages(["Same cause — same effect.", "Same cause — same effect."]),
+    ).toBe("Same cause — same effect.");
+  });
+});
+
+describe("formatReportPeriod", () => {
+  it("shows one date for a single day and a range across days", () => {
+    expect(formatReportPeriod("2026-08-13", "2026-08-13")).toBe("13 Aug 2026");
+    expect(formatReportPeriod("2026-07-28", "2026-08-03")).toBe(
+      "28 Jul 2026 – 3 Aug 2026",
+    );
+  });
+
+  it("copes with one side missing, blank values, and unparseable dates", () => {
+    expect(formatReportPeriod(undefined, "2026-08-13")).toBe("13 Aug 2026");
+    expect(formatReportPeriod("2026-08-13", undefined)).toBe("13 Aug 2026");
+    expect(formatReportPeriod("  ", "  ")).toBeUndefined();
+    expect(formatReportPeriod(undefined, undefined)).toBeUndefined();
+    expect(formatReportPeriod(undefined, "this morning")).toBe("this morning");
   });
 });

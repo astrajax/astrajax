@@ -11,6 +11,7 @@ export type CastAssetSlug =
   | "clive-wigglesworth"
   | "clives-man"
   | "lazlo-marlowe"
+  | "ruth-hadley"
   | "pam-portiscue"
   | "doc-albright"
   | "professor-iris-mortimer"
@@ -94,6 +95,20 @@ export const CAST_CHARACTERS: CastCharacterAssets[] = [
     foundingCast: true,
     heroStatus: "canonical",
     animations: [],
+  },
+  {
+    slug: "ruth-hadley",
+    name: "Ruth Hadley",
+    role: "Data-Layer Architect",
+    foundingCast: false,
+    heroStatus: "canonical",
+    animations: [
+      {
+        id: "idle-loop",
+        file: "idle-loop.mp4",
+        purpose: "Leaving-room cabin idle (approved 13 Aug 2026)",
+      },
+    ],
   },
   {
     slug: "pam-portiscue",

@@ -115,7 +115,7 @@ class ActivityIntakeCapabilityTests(unittest.TestCase):
         fields = self.intake.build_v1_fields(cand, "run-1")
         self.assertEqual(fields[self.cfg.AV["created_by_agent"]], "clive-man-activity-intake-hyperagent")
 
-    def test_act_int_011_capture_chat_session_in_after_payload(self) -> None:
+    def test_act_int_011_after_payload_matches_executor_allowlist(self) -> None:
         cand = {
             "title": "T",
             "canonical_text": "x" * 25,
@@ -124,7 +124,26 @@ class ActivityIntakeCapabilityTests(unittest.TestCase):
         }
         after = self.intake.build_after_payload(cand)
         self.assertEqual(after["capture_source"], "Chat Session")
-        self.assertEqual(after["capture_source_chat_session"], "recSessABC")
+        self.assertNotIn("capture_source_chat_session", after)
+        # Executor CREATE_DRAFT_TRUTH allowlist — any extra key is a terminal Refusal.
+        executor_allowed = {
+            "title",
+            "canonical_text",
+            "brain_slug",
+            "proposed_category",
+            "brain_theme",
+            "record_type",
+            "horizon",
+            "capture_source",
+            "supersedes_trusted_truth_id",
+            "source_documents",
+        }
+        self.assertTrue(set(after) <= executor_allowed, after)
+
+    def test_act_int_011b_event_type_is_agent_turn_type(self) -> None:
+        # User Turn Type is AI-owned; eligibility reads Agent Turn Type only.
+        self.assertEqual(self.cfg.ACT["event_type"], "fldvskIDzutu4JzQt")
+        self.assertNotEqual(self.cfg.ACT["event_type"], "fldTCd93XF8XhsVoZ")
 
     def test_act_int_012_export_governed_defaults(self) -> None:
         if not EXPORT_PATH.is_file():
@@ -184,7 +203,10 @@ class ActivityIntakeBoundaryTests(unittest.TestCase):
     def test_boundary_nonblank_capture_same_create_payload(self) -> None:
         cand = self._candidate()
         after = self.intake.build_after_payload(cand)
-        self.assertTrue(str(after["capture_source_chat_session"]).startswith("rec"))
+        # Sessions provenance stays on the candidate / evidence, not after_payload.
+        self.assertTrue(str(cand["capture_source_chat_session"]).startswith("rec"))
+        self.assertNotIn("capture_source_chat_session", after)
+        self.assertEqual(after["capture_source"], "Chat Session")
 
     def test_boundary_wrong_created_by_agent(self) -> None:
         errs = self.intake.validate_candidate(
@@ -278,8 +300,38 @@ class ActivityIntakeBoundaryTests(unittest.TestCase):
         cand = self._candidate()
         after = self.intake.build_after_payload(cand)
         self.assertEqual(after.get("capture_source"), "Chat Session")
+        self.assertNotIn("capture_source_chat_session", after)
         errs = self.intake.validate_candidate({**cand, "after_payload": after})
         self.assertEqual(errs, [])
+
+    def test_boundary_live_dedupe_unavailable_refuses_create(self) -> None:
+        """Without the checkpoint pen, live create must not silently skip dedupe."""
+        cands = [self._candidate()]
+        with patch.dict(os.environ, {}, clear=True):
+            out = self.intake.process_candidates(cands, run_id="r1", dry_run=False)
+        self.assertEqual(out["written_count"], 0)
+        self.assertEqual(out["stop_reason"], "dedupe_unavailable")
+        self.assertEqual(out["skipped_count"], 1)
+        self.assertEqual(out["skipped"][0]["reason"], "dedupe_unavailable")
+
+    def test_boundary_user_question_not_excluded_via_agent_field(self) -> None:
+        """User Turn Type=Question must not exclude; exclusions use Agent Turn Type."""
+        af = {
+            self.cfg.ACT["user_message"]: "Should we promote?",
+            self.cfg.ACT["reply_digest"]: "Only after Phase B clears.",
+            # Agent Turn Type blank (ordinary exchange) — eligible.
+        }
+        ok, reason = self.intake.is_eligible_exchange_row(af, None)
+        self.assertTrue(ok, reason)
+        # If someone stuffed User Turn Type into the old wrong field id, Agent field
+        # still governs — confirm Session End on Agent field excludes.
+        af_end = {
+            **af,
+            self.cfg.ACT["event_type"]: {"name": "Session End"},
+        }
+        ok2, reason2 = self.intake.is_eligible_exchange_row(af_end, None)
+        self.assertFalse(ok2)
+        self.assertIn("Session End", reason2)
 
     def test_boundary_manifest_forbids_draft_truth_target(self) -> None:
         manifest = {

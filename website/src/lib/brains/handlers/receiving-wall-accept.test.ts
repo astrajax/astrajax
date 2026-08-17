@@ -113,6 +113,56 @@ describe("handleReceivingWallAccept", () => {
   it("rejects seeded demo record ids", async () => {
     await expect(
       handleReceivingWallAccept({ recordId: "seed-core-definition" }),
-    ).rejects.toThrow(/Seeded demo records cannot be accepted/i);
+    ).rejects.toThrow(/stand-in letter/i);
+  });
+
+  it("maps the wall record when PATCH returns only Status (partial Airtable body)", async () => {
+    mockFetchSequence([
+      {
+        status: 200,
+        body: {
+          records: [
+            {
+              id: VALID_RECORD_ID,
+              fields: {
+                Title: "Partial patch draft",
+                Status: DRAFT_TRUTH_STATUS.draft,
+                "Canonical Text": "Body that must survive accept.",
+                "Proposed By Agent": "Clive's Man",
+                "Proposed Category": "Definition",
+                "System Brain Slug": "astrajax-chapter-1",
+              },
+            },
+          ],
+        },
+      },
+      {
+        status: 200,
+        // Realistic Airtable PATCH: only the fields written come back.
+        body: {
+          id: VALID_RECORD_ID,
+          fields: { Status: DRAFT_TRUTH_STATUS.approved },
+        },
+      },
+      {
+        status: 200,
+        body: {
+          id: "recApprovalPartial01",
+          fields: { "Decision ID": "apd_rw_partial" },
+        },
+      },
+    ]);
+
+    const result = await handleReceivingWallAccept({
+      recordId: VALID_RECORD_ID,
+      actor: "Matthew",
+    });
+
+    expect(result.record.title).toBe("Partial patch draft");
+    expect(result.record.status).toBe(DRAFT_TRUTH_STATUS.approved);
+    expect(result.record.canonicalText).toBe("Body that must survive accept.");
+    expect(result.record.systemBrainSlug).toBe("astrajax-chapter-1");
+    expect(result.record.category).toBe("Definition");
+    expect(result.approvalDecisionId).toMatch(/^apd_rw_/);
   });
 });

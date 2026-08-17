@@ -232,4 +232,49 @@ describe("context-index sync", () => {
     );
     expect(watermarkWrite).toBeTruthy();
   });
+
+  it("records last_error and rethrows when embedding fails mid-run", async () => {
+    getSourceReadTokenMock.mockReturnValue("pat-test");
+    delete process.env.OPENAI_API_KEY;
+
+    sqlMock.mockImplementation(async (strings: TemplateStringsArray) => {
+      const text = strings.join(" ");
+      if (text.includes("INSERT INTO sync_runs")) return [{ id: "run_fail" }];
+      if (text.includes("SELECT watermark")) {
+        return [{ watermark: "2026-08-01T00:00:00.000Z" }];
+      }
+      return [];
+    });
+
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          records: [
+            {
+              id: "recLive",
+              createdTime: "2026-08-02T00:00:00.000Z",
+              fields: { Title: "Live row", CanonicalText: "Body" },
+            },
+          ],
+        }),
+        { status: 200 },
+      ),
+    );
+
+    const { runIncremental } = await import("./sync");
+    await expect(runIncremental(source)).rejects.toThrow(/OPENAI_API_KEY is not configured/);
+
+    const errorWrite = sqlMock.mock.calls.find((call) => {
+      const text = sqlCallText(call);
+      return text.includes("INSERT INTO sync_state") && text.includes("last_error");
+    });
+    expect(errorWrite).toBeTruthy();
+    expect(errorWrite?.[errorWrite.length - 1]).toMatch(/OPENAI_API_KEY/);
+
+    const watermarkAdvance = sqlMock.mock.calls.find((call) => {
+      const text = sqlCallText(call);
+      return text.includes("watermark = EXCLUDED.watermark");
+    });
+    expect(watermarkAdvance).toBeUndefined();
+  });
 });

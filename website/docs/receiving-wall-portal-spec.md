@@ -51,7 +51,14 @@ fallback and is flagged for Kathryn / Tara-Lee's eye.
 > 3. **Sill belt** (`.sillForeground`) — cut master pixels for the ledge + letter/quill
 >    (`receiving-wall-sill.png`, top at 85% of the plate), pinned above the hole edge so props
 >    stay whole.
-> Idle ledger scroll is unchanged (paint still; category list scrolls in the aperture).
+> Idle ledger scroll is unchanged (paint still; list scrolls in the aperture).
+
+> **Amendment (Matthew, Aug 2026 — operator portals v1).** Idle doors are no longer
+> Proposed Category plaques. Three job portals: **Judgement**, **Brain health**,
+> **This morning**. Same zoom grammar (pinned arch, travelling interior, sill).
+> Category may still sort *inside* the judgement bay’s pending drafts and appear
+> on the opened letter — it is not an idle door. Sill letter hotspot may open
+> This morning. See `docs/initiatives/receiving-wall-operator-portals-v1.md`.
 
 ---
 
@@ -977,6 +984,11 @@ and the margin note in every bay, Clive is reachable in both states without a pe
 which is the point: he is a person in the room, not a support widget in the corner.
 
 ### 6.4 The expanded letter — incised, not panelled
+
+> **Amendment (Matthew / Kate, Aug 2026 — Clive in the aperture).** Sitting with Clive continues
+> the same void and incised type inside the arch. No cream slide-over, no new surface, no Chapter 1
+> folio chrome in the bay. Close is incised **Leave Clive** (back to the bay / doors), never a
+> round ×. He is a person in the room, not a drawer.
 
 **Amendment (Matthew, Aug 2026).** An open record ("the letter") must read as text carved into the
 plaster like every other element on the wall — not as a UI card dropped onto the painting.

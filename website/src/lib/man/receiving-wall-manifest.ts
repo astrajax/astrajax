@@ -73,6 +73,19 @@ export const LEDGE_STILL_LIFE = {
 } as const;
 
 /**
+ * Idle hotspots — real buttons over the paint (house convention).
+ * Sill letter opens the This morning / reports portal (operator portals v1).
+ */
+export const HOTSPOTS = {
+  sillLetter: {
+    id: "sill-letter",
+    portalId: "reports" as const,
+    ...LEDGE_STILL_LIFE,
+    ariaLabel: "This morning — what the house did overnight",
+  },
+} as const;
+
+/**
  * Travelling portal plate — tall MP4 (Kathryn brief: 1080×3840, no arch/sill/
  * letters). Scrolls with bay type. Reduced-motion falls back to the still.
  */
