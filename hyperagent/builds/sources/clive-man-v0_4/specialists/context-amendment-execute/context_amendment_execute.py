@@ -47,6 +47,10 @@ import time
 import urllib.request
 import urllib.error
 
+# D3 (2026-08-17): fail loudly on a runtime older than 3.9 rather than
+# invite a runtime hand-patch that later gets recorded as a clean success.
+assert sys.version_info >= (3, 9), "Context Amendment Execute requires Python >= 3.9"
+
 from context_config import (
     ADAPTER_VERSION, BASE_WORKSHOP, BASE_REGISTRY,
     T_DRAFT_TRUTH, T_AMENDMENT_VERSIONS, T_EXECUTION_EVENTS,
@@ -58,6 +62,7 @@ from context_config import (
     QUARANTINE_ALLOWED_FROM,
     CAP_DAILY_MUTATIONS, CAP_FAILURES, ENV_EXECUTE,
     ACTOR_SCHEDULED, ACTOR_INTAKE, INTAKE_ACTORS, TERMINAL_EVENT_TYPES,
+    canonical_snapshot,
 )
 
 API = "https://api.airtable.com/v0"
@@ -545,7 +550,7 @@ INTAKE_V1_SIGNATURE = {
 }
 
 
-def _lane_cap(lane: str) -> int | None:
+def _lane_cap(lane: str):
     return CAP_DAILY_MUTATIONS.get(lane)
 
 
@@ -579,7 +584,7 @@ def _parse_payload(raw):
     return p if isinstance(p, dict) else {}
 
 
-def amendment_from_v2(v2_row: dict, v1_row: dict | None, *, lane: str, run_id: str) -> dict:
+def amendment_from_v2(v2_row: dict, v1_row, *, lane: str, run_id: str) -> dict:
     vf = v2_row.get("fields", {})
     action = _sel_name(vf.get(AV["action_class"]))
     am = {
@@ -612,7 +617,7 @@ def amendment_from_v2(v2_row: dict, v1_row: dict | None, *, lane: str, run_id: s
     return am
 
 
-def _v1_link_ids(v2_fields: dict) -> list[str]:
+def _v1_link_ids(v2_fields: dict):
     links = v2_fields.get(AV["supersedes_version_link"]) or []
     return [l["id"] if isinstance(l, dict) else l for l in links]
 
@@ -625,7 +630,7 @@ def _has_terminal_event(amendment_record_id: str, token: str) -> bool:
     return False
 
 
-def evaluate_backlog_alarm(backlog_history: list[int] | None, current_backlog: int) -> bool:
+def evaluate_backlog_alarm(backlog_history, current_backlog: int) -> bool:
     """Pure reporting control: True only when backlog rises three runs in a row."""
     history = list(backlog_history or [])
     if len(history) < 2:
@@ -634,7 +639,7 @@ def evaluate_backlog_alarm(backlog_history: list[int] | None, current_backlog: i
     return len(seq) == 3 and seq[0] < seq[1] < seq[2]
 
 
-def load_cleared_v2_queue(token: str) -> list[dict]:
+def load_cleared_v2_queue(token: str):
     """Cleared V2 rows with no terminal Execution Event."""
     rows = _list_records(
         BASE_WORKSHOP,
@@ -670,7 +675,7 @@ def load_cleared_v2_queue(token: str) -> list[dict]:
     return out
 
 
-def load_v1_ancestor(v2_fields: dict, token: str) -> dict | None:
+def load_v1_ancestor(v2_fields: dict, token: str):
     link_ids = _v1_link_ids(v2_fields)
     if link_ids:
         return _get_record(BASE_WORKSHOP, T_AMENDMENT_VERSIONS, link_ids[0], token)
@@ -690,7 +695,7 @@ def load_v1_ancestor(v2_fields: dict, token: str) -> dict | None:
     return None
 
 
-def build_lane_manifests(amendments: list[dict], run_id: str) -> dict[str, dict]:
+def build_lane_manifests(amendments, run_id: str) -> dict:
     lanes: dict[str, list] = {"intake": [], "maintenance": []}
     for am in amendments:
         lane = am.pop("_lane", "maintenance")
@@ -709,7 +714,7 @@ def build_lane_manifests(amendments: list[dict], run_id: str) -> dict[str, dict]
     return out
 
 
-def execute_lane(manifest: dict, token: str | None, *, dry_run: bool) -> dict:
+def execute_lane(manifest: dict, token, *, dry_run: bool) -> dict:
     lane = manifest.get("lane", "maintenance")
     executing_agent = manifest.get("executing_agent", ACTOR_SCHEDULED)
     amendments = manifest.get("amendments", [])
@@ -747,7 +752,7 @@ def execute_lane(manifest: dict, token: str | None, *, dry_run: bool) -> dict:
     mutations = 0
     failures = sum(1 for r in results if r.get("preflight") == "FAILED")
     requeued = max(0, len(amendments) - len(preflight_ok) - failures)
-    requeued_list: list[str] = []
+    requeued_list = []  # type: list
 
     for pos, am in enumerate(preflight_ok):
         if daily_cap is not None and mutations >= daily_cap:
@@ -774,7 +779,7 @@ def execute_lane(manifest: dict, token: str | None, *, dry_run: bool) -> dict:
             if action in EXISTING_HANDLERS:
                 cur = _get_record(am["target_base_id"], T_DRAFT_TRUTH, am["target_record_id"], token)
                 cur_fields = cur.get("fields", {})
-                before_snap = canonical(cur_fields)
+                before_snap = canonical_snapshot(cur_fields)
                 before_hash = sha(before_snap)
                 if before_hash != am["before_hash"]:
                     raise Blocked(f"before-hash mismatch on {am['target_record_id']}")
@@ -803,7 +808,7 @@ def execute_lane(manifest: dict, token: str | None, *, dry_run: bool) -> dict:
 
             readback = _get_record(am["target_base_id"], T_DRAFT_TRUTH, am["target_record_id"], token)
             rb_fields = readback.get("fields", {})
-            after_snap = canonical(rb_fields)
+            after_snap = canonical_snapshot(rb_fields)
             after_hash = sha(after_snap)
             try:
                 _verify_readback(action, out, rb_fields)
@@ -844,14 +849,14 @@ def execute_lane(manifest: dict, token: str | None, *, dry_run: bool) -> dict:
 
 
 def run_queue(
-    token: str | None,
+    token,
     *,
     dry_run: bool,
     run_id: str,
-    backlog_history: list[int] | None = None,
+    backlog_history=None,
 ) -> dict:
     v2_rows = [] if dry_run else load_cleared_v2_queue(token)
-    amendments: list[dict] = []
+    amendments = []  # type: list
     for v2 in v2_rows:
         vf = v2.get("fields", {})
         v1 = None if dry_run else load_v1_ancestor(vf, token)

@@ -17,6 +17,7 @@ import {
   getWorkshopReadToken,
   getWorkshopWriteToken,
 } from "../config";
+import { readDraftTruthText } from "../draft-truth-write";
 import {
   isReceivingRecordActioned,
   type ReceivingRecord,
@@ -134,6 +135,8 @@ export async function handleReceivingWallAccept(input: {
       tableId,
       readToken ?? writeToken,
       `RECORD_ID()='${escapeAirtableString(recordId)}'`,
+      undefined,
+      { returnFieldsByFieldId: true },
     );
   } catch (cause) {
     throw userFacingAcceptError(cause, "lookup");
@@ -142,14 +145,13 @@ export async function handleReceivingWallAccept(input: {
     throw new Error(`Draft record not found: ${recordId}`);
   }
 
-  const title = String(existing.fields.Title ?? "").trim();
+  const title = readDraftTruthText(existing.fields, "title");
   if (!title) {
     throw new Error("Draft record is missing a Title.");
   }
 
-  const priorStatus = String(
-    existing.fields.Status ?? DRAFT_TRUTH_STATUS.draft,
-  );
+  const priorStatus =
+    readDraftTruthText(existing.fields, "status") || DRAFT_TRUTH_STATUS.draft;
   if (isReceivingRecordActioned(priorStatus)) {
     throw new Error(
       `This record is already ${priorStatus} and cannot be accepted again.`,
@@ -160,9 +162,14 @@ export async function handleReceivingWallAccept(input: {
 
   let updated;
   try {
-    updated = await airtableUpdate(baseId, tableId, writeToken, recordId, {
-      Status: targetStatus,
-    });
+    updated = await airtableUpdate(
+      baseId,
+      tableId,
+      writeToken,
+      recordId,
+      { [BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status]: targetStatus },
+      { returnFieldsByFieldId: true },
+    );
   } catch (cause) {
     throw userFacingAcceptError(cause, "status");
   }
@@ -173,23 +180,31 @@ export async function handleReceivingWallAccept(input: {
       BRAIN_WORKSHOP_TABLES.approvalDecisions,
       writeToken,
       {
-        "Decision ID": approvalDecisionId,
-        "Decision Summary": `Accepted draft truth: ${title}`,
-        Approver: actor,
-        Decision: APPROVAL_DECISION_VALUE.approved,
-        "Decision Notes": [
+        [BRAIN_WORKSHOP_APPROVAL_DECISIONS_FIELDS.decisionId]: approvalDecisionId,
+        [BRAIN_WORKSHOP_APPROVAL_DECISIONS_FIELDS.decisionSummary]:
+          `Accepted draft truth: ${title}`,
+        [BRAIN_WORKSHOP_APPROVAL_DECISIONS_FIELDS.approver]: actor,
+        [BRAIN_WORKSHOP_APPROVAL_DECISIONS_FIELDS.decision]:
+          APPROVAL_DECISION_VALUE.approved,
+        [BRAIN_WORKSHOP_APPROVAL_DECISIONS_FIELDS.decisionNotes]: [
           `Surface: ${RECEIVING_WALL_SURFACE}`,
           `Accepted at: ${acceptedAt}`,
           `Draft record: ${recordId}`,
         ].join("\n"),
-        "Send To Doc": false,
+        [BRAIN_WORKSHOP_APPROVAL_DECISIONS_FIELDS.sendToDoc]: false,
       },
+      { returnFieldsByFieldId: true },
     );
   } catch (cause) {
     try {
-      await airtableUpdate(baseId, tableId, writeToken, recordId, {
-        Status: priorStatus,
-      });
+      await airtableUpdate(
+        baseId,
+        tableId,
+        writeToken,
+        recordId,
+        { [BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status]: priorStatus },
+        { returnFieldsByFieldId: true },
+      );
     } catch (revertCause) {
       throw userFacingAcceptError(revertCause, "revert");
     }

@@ -44,6 +44,9 @@ import urllib.request
 import urllib.error
 from datetime import datetime, timezone, timedelta
 
+# D3 (2026-08-17): fail loudly on a runtime older than 3.9.
+assert sys.version_info >= (3, 9), "Daily Context Review scripts require Python >= 3.9"
+
 from context_config import (
     ADAPTER_VERSION, EXECUTOR_ADAPTER_VERSION, SKILL_IMPLEMENTATION_VERSION,
     ROLE, BASE_WORKSHOP, BASE_REGISTRY,

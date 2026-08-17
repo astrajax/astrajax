@@ -13,10 +13,15 @@ import {
 import {
   BRAIN_TRUSTED_CHAPTER1_BASE_ID,
   BRAIN_TRUSTED_CHAPTER1_TABLES,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS,
   BRAIN_WORKSHOP_TABLES,
   DRAFT_TRUTH_STATUS,
 } from "../airtable-ids";
 import { airtableCreate, airtableFindOne, airtableUpdate } from "../airtable-rest";
+import {
+  buildTrustedPromoteFields,
+  trustedRegistersForTarget,
+} from "../trusted-truth-write";
 import { assertDraftEligibleForPromote } from "./draft-propose";
 import type { DocPromoteBody, DocPromoteItem } from "../types";
 
@@ -85,10 +90,15 @@ export async function handleDocPromote(body: DocPromoteBody) {
     process.env.BRAIN_TRUSTED_CONTEXT_TABLE_ID ??
     BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth;
 
+  const brainSlug = body.brainSlug.trim();
+  const registers = trustedRegistersForTarget({
+    brainSlug,
+    baseId: trustedBaseId,
+    tableId: trustedTableId,
+  });
+
   const promotedRecordIds: string[] = [];
   const today = new Date().toISOString().slice(0, 10);
-
-  const brainSlug = body.brainSlug.trim();
 
   for (const { draftRecordId, category, scope } of body.promotions) {
     const draft = await airtableFindOne(
@@ -96,20 +106,28 @@ export async function handleDocPromote(body: DocPromoteBody) {
       BRAIN_WORKSHOP_TABLES.draftBrainTruth,
       docToken,
       `RECORD_ID()='${draftRecordId.replace(/'/g, "\\'")}'`,
+      undefined,
+      { returnFieldsByFieldId: true },
     );
 
     if (!draft) {
       throw new Error(`Draft record not found: ${draftRecordId}`);
     }
 
-    const { title, canonicalText } = assertDraftEligibleForPromote({
-      draftRecordId,
-      brainSlug,
-      fields: draft.fields,
-    });
+    const { title, canonicalText, canonicalTextForHumans } =
+      assertDraftEligibleForPromote({
+        draftRecordId,
+        brainSlug,
+        fields: draft.fields,
+      });
 
     const authority = body.approver.trim();
-    const priorStatus = String(draft.fields.Status ?? "").trim();
+    const priorStatus =
+      String(
+        draft.fields[BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status] ??
+          draft.fields.Status ??
+          "",
+      ).trim();
 
     // Quarantine before Trusted create. Create-then-quarantine left a
     // promote-eligible draft when the update failed after create succeeded;
@@ -119,20 +137,28 @@ export async function handleDocPromote(body: DocPromoteBody) {
       BRAIN_WORKSHOP_TABLES.draftBrainTruth,
       docToken,
       draftRecordId,
-      { Status: DRAFT_TRUTH_STATUS.quarantined },
+      { [BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status]: DRAFT_TRUTH_STATUS.quarantined },
+      { returnFieldsByFieldId: true },
     );
 
     let trusted;
     try {
-      trusted = await airtableCreate(trustedBaseId, trustedTableId, docToken, {
-        Title: title,
-        "Canonical Text": canonicalText,
-        Category: category.trim(),
-        Scope: scope.trim(),
-        Authority: authority,
-        Freshness: "Current",
-        "Last Reviewed": today,
-      });
+      trusted = await airtableCreate(
+        trustedBaseId,
+        trustedTableId,
+        docToken,
+        buildTrustedPromoteFields({
+          registers,
+          title,
+          canonicalTextForAgents: canonicalText,
+          canonicalTextForHumans,
+          category: category.trim(),
+          scope: scope.trim(),
+          authority,
+          lastReviewed: today,
+        }),
+        { returnFieldsByFieldId: true },
+      );
     } catch (error) {
       try {
         await airtableUpdate(
@@ -140,7 +166,8 @@ export async function handleDocPromote(body: DocPromoteBody) {
           BRAIN_WORKSHOP_TABLES.draftBrainTruth,
           docToken,
           draftRecordId,
-          { Status: priorStatus },
+          { [BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status]: priorStatus },
+          { returnFieldsByFieldId: true },
         );
       } catch {
         // Prefer the create failure; draft may need a manual status restore.

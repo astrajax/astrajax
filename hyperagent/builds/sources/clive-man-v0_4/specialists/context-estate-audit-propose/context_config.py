@@ -5,6 +5,10 @@ Shared constants for Clive's Man Daily Context Review — ROLE: Context Auditor
 no V2 writer, no broad write config.
 """
 
+import sys
+
+assert sys.version_info >= (3, 9), "Daily Context Review scripts require Python >= 3.9"
+
 # v2.0 contract repair: the Amendment Version "Adapter Version" field is the
 # EXECUTOR adapter contract version ONLY. The Auditor's own implementation version
 # is recorded in report/evidence/reason metadata, never in that field.
@@ -59,7 +63,8 @@ AV = {
     "tier": "fldtAci9wgwcihcZb", "challenger_verdict": "fldPUsdAy9FXmYeAh",
     "confidence": "fld2ypDkBf8qo3Qmu", "human_decision_needed": "fldoZDmZPz8iVoqUg",
     "dedupe_key": "fldm9DV7zrjlbiM3D", "created_by_agent": "fldSQdzOLrl4tqVQB",
-    "execution_events": "fldvekhFz1CLBi3sp",
+    # D9b (2026-08-17): dead AV reciprocal execution_events → fldvekhFz1CLBi3sp
+    # removed.
     "v1_report_record_id": "fldQvrUp6UAh5kqKC", "v2_report_record_id": "fld3fOFooui0ATmUv",
 }
 
@@ -107,7 +112,7 @@ ACTION_CLASSES = {
 CAP_FINDING_DETAILS = 25
 # Proposal cap: max V1 Amendment Versions created per run. Under overflow all
 # proposals are Tier=Amber (non-executable until Challenger V2 clears them).
-CAP_V1_AMENDMENTS = 10
+CAP_V1_AMENDMENTS = 50
 STALE_DAYS_DEFAULT = 30
 
 # Deterministic check -> approved typed-action priority map. Lower number =

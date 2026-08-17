@@ -57,6 +57,51 @@ export const IMPLEMENTATION_JOBS_FIELDS = {
   notes: "fldnntiTCTtm4YuxG",
 } as const;
 
+/** Registry Brain Key Requests — persona asks, human approves (live-observed 17 Aug 2026). */
+export const BRAIN_REGISTRY_KEY_REQUEST_FIELDS = {
+  requestId: "fldzBzHzys7hfiaHH",
+  brainSlug: "fldWv02Iu977pfkEM",
+  persona: "fld9mb8dMMwsiqN89",
+  purpose: "fldjEHeiVJK6w6Yg3",
+  scope: "fldP85AfP5wIgMj7S",
+  reason: "fldSg8c7myGBEFZK7",
+  sessionId: "fldGF6HWVu0ffwP7i",
+  status: "fldtGq9HECHZAjkLg",
+  requestedAt: "fldN1F2i8XbZ61roB",
+  expiresAt: "fldNvKMcuc8G6Yk8i",
+} as const;
+
+/** Registry Access Grants — short-lived approved grants (live-observed 17 Aug 2026). */
+export const BRAIN_REGISTRY_ACCESS_GRANT_FIELDS = {
+  grantId: "fld9EAa4WqUg0ks0e",
+  requestId: "fldP4wSzQfSTDiilT",
+  brainSlug: "fldSt2c3MB6GC04qR",
+  persona: "fldya9e260jejJojt",
+  scope: "flddOTxOTuQFyfJe1",
+  sessionId: "fld3bKlY7AdwLLD5O",
+  approvedBy: "fldCwslOj9c4MtmYS",
+  approvedAt: "fldUqvPmVA0KiTBZB",
+  expiresAt: "fldFlM0OC52G99sS6",
+  maxUses: "fldnqlkgBXmA8BkCY",
+  useCount: "fldgWxdQXRzSVKBeO",
+  status: "fldaZM4qsqk99WErZ",
+} as const;
+
+/** Registry Operator State — one row per operator (live-observed 17 Aug 2026). */
+export const BRAIN_REGISTRY_OPERATOR_STATE_FIELDS = {
+  operatorId: "fld1yRzlUEk4qRhoy",
+  email: "fldrbWbfyF37axvnQ",
+  role: "fldaWQXico9HHQZZb",
+  journeyChapter: "flduRIsMBz8GOtF4q",
+  journeyStep: "fldPVocLW6LpkA1jp",
+  completedChapters: "fldua43e88NpHwEBW",
+  ownedBrainSlugs: "fld4Xz5Np7jHMjrb0",
+  configuredFunctions: "fldlWut1LCw7HJkfy",
+  introducedMembers: "fldwcJZl1YcVRDlQX",
+  lastSafeDestination: "fldaJ9QMZmW62IQX2",
+  updatedAt: "fldWDS8EDi9BtN3zM",
+} as const;
+
 /** Registry Brains table — Chapter 1 context structure fields (Phase B, 29 Jun 2026). */
 export const BRAIN_REGISTRY_BRAINS_FIELDS = {
   brainSlug: "fldXw8rDWqzrIDcGA",
@@ -74,7 +119,8 @@ export const BRAIN_REGISTRY_BRAINS_FIELDS = {
 export const BRAIN_WORKSHOP_BASE_ID = "appL2fdnGmhA02WXd";
 
 export const BRAIN_WORKSHOP_TABLES = {
-  userBrains: "tblm6MqTYRPk8sA9o",
+  /** Corrected 17 Aug 2026 — the old ID (tblm6MqTYRPk8sA9o) is not on this base. */
+  userBrains: "tbl8ovE5njOh1c6iK",
   draftBrainTruth: "tblswvXNYFDqnl6af",
   sourceDocuments: "tblfWdhwbq4QsCjUf",
   brainInteractions: "tblNqNSuIJ2akHyA1",
@@ -85,28 +131,36 @@ export const BRAIN_WORKSHOP_TABLES = {
   contextAmendments: "tblsuOKGjSGYv0Vov",
   contextAmendmentEvents: "tblM7gxcsWYijdaM8",
   contextAuditFingerprints: "tblakbMPiim1K13Ru",
+  /** Workshop-local brain index — link target for Draft Brain Truth destinations. */
+  brainRegistry: "tblsI93ayQm4hq5bw",
   /** Ambient durable UTC checkpoint — Ruth V2 build 12 Aug 2026 (live-observed). */
   ambientCheckpointVersions: "tblRbjD0PHtuTWsIL",
+  /** Evolving-work register — thin Projects table (17 Aug 2026). */
+  projects: "tbl5jo7EKBxAjjKbf",
 } as const;
 
-/** Workshop User Brains — identity + operator development (Phase B, 29 Jun 2026). */
+/**
+ * Workshop User Brains — identity + operator development.
+ * Re-observed 17 Aug 2026 against tbl8ovE5njOh1c6iK; the previous map pointed at a
+ * table that is not on this base, so intake saves were failing.
+ */
 export const BRAIN_WORKSHOP_USER_BRAINS_FIELDS = {
-  userLabel: "fldi06frit7tJGBqZ",
-  archetype: "fldK3PP8kdgLwcjPd",
-  primaryFunction: "fldN5rZRjgEgzBWT4",
-  brainSet: "fldRa47ySX1yWui2A",
-  oneLineRemit: "fldEgPO6TXmBpDVaI",
-  roleDomain: "fldjO5b8ZkZ6fLUrw",
-  guideMode: "fldtkpb76WqRX4KDb",
-  aiConfidence: "fldxhhjBkFsI1AnPk",
-  contextEnvironmentConfidence: "fldM4WRnlbuzynXR2",
-  strengths: "fldPn5Bv0ouRgCi0T",
-  weaknesses: "fldFoXvkSAF1EYfqS",
-  coachingPreferences: "fldbMUmiaKHSP4UNb",
-  developmentFocus: "fldAGVdVxp0JFe4BL",
-  developmentNotes: "fldWWPyNMYAVzfLtO",
-  psychometricReference: "fldYF3O7dFOJTHWUt",
-  notes: "fldTn2QCcji7c3cPv",
+  userLabel: "fldra752LD1ZsOuw9",
+  archetype: "fldkTPj5BKcdvF4Fh",
+  primaryFunction: "fldwr8lvzXy3uM1zX",
+  brainSet: "fldYqphoZP5w173sV",
+  oneLineRemit: "flda0Pz3oB5t1EQ2y",
+  roleDomain: "fldR7Fdu182eSjURv",
+  guideMode: "fldM3t8cHqqfttM8G",
+  aiConfidence: "fldSdUQ8wFflVKsUc",
+  contextEnvironmentConfidence: "fldmLDlKsqMn9vhl9",
+  strengths: "fldVzCR0SKR47HT9Y",
+  weaknesses: "fldeXrbfbAX2h8IA0",
+  coachingPreferences: "fldEm4ojoR8cRpk5S",
+  developmentFocus: "fld6PghfGhFuyPd0F",
+  developmentNotes: "fldx1xxGVBfMiSUXt",
+  psychometricReference: "fldMiH2Xpz677PY29",
+  notes: "fldBB777wX4FnYdon",
 } as const;
 
 /** Matthew demo row — Workshop User Brains (Phase B seed). */
@@ -137,22 +191,123 @@ export const BRAIN_WORKSHOP_SOURCE_DOCUMENTS_MINE_STATUS = {
 /** Workshop Draft Brain Truth — Chapter 1 context structure (Phase B, 29 Jun 2026). */
 export const BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS = {
   title: "fld8BVmRBSsVuXD8I",
+  /** Live name is "Canonical Text for Agents" — see canonicalTextForAgents alias. */
   canonicalText: "fld95ls0LG26rCNx4",
+  canonicalTextForAgents: "fld95ls0LG26rCNx4",
   brainSlug: "flddfROfNcP1u6gCy",
   /** Lookup via Brain Registry link — display name for opened letter. */
   systemBrainName: "fldeKn3fxdilUw4YK",
   /** Lookup via Brain Registry link — short slug for card (fallback: brainSlug text). */
   systemBrainSlug: "fldIm3bUPNLBflyJc",
+  /** Live brain link — the destination. Slug text alone is not a destination. */
+  brainRegistry: "fldB1vIzRA6NBxEYs",
   brainTheme: "fld8wdl04NOs8CwpX",
   proposedCategory: "fldD4gLnHeihH7yCd",
+  recordType: "fldCViiokjEMdp3vb",
   horizon: "fldEgLQcvc6L4c9p1",
   status: "fldiMCxuBITyZIOXW",
+  /** Link → Workshop Source Documents (inverse of that table's Linked Drafts). */
+  sourceDocuments: "fldsspqpNL4vDUU50",
+  /** Link → Context Amendment Versions (inverse of Target Draft). */
+  contextAmendmentVersions: "fldAeXTX1uLgkNa5d",
   proposedByAgent: "flde1d1sda9lWwrj9",
   createdBy: "fldEonKVeEsrbiwkm",
   supersedesTrustedTruthId: "fldbWiOWBg5nmNMJv",
   /** Receiving Wall source tint — single-select (2 Aug 2026). */
   captureSource: "fld9zhLHPvjnq8lHT",
+  /** Dual-register human text — same claim as canonicalText. */
+  canonicalTextForHumans: "fldbnsCNSXmLXE51y",
+  humanChosenBrain: "fldDmfyM7wK6k8DKj",
+  humanChosenCategory: "fldepH6sz70MAl1lJ",
+  humanChosenRecordType: "fld8RMUWe9grDx9F6",
+  humanChosenHorizon: "fldjkIGcHIbw0ucGs",
+  readabilityRating: "fld9VYQEf4b0PMSJm",
+  captureQuality: "fldaEEJvOK3YMepwK",
+  readabilityNotes: "fldV4xwixcBhcpnHv",
+  captureQualityNotes: "fld7iMmXepwsZ3ieD",
+  contextImportance: "fld31KoLoNuuYUx6V",
+  shouldHaveBeenAutoHandled: "fldWEGX7L3cGuqxe9",
+  followUpCandidate: "fldqxz6XyOQwCwyCz",
+  builderNotes: "fld6SLo2yjscSEU5v",
+  humanReviewed: "fldi0T3Kq4psOpLoi",
+  /** Optional link → Projects. Persistent truths may have none. */
+  relatedProjects: "fld9wY5ncNSeMxVye",
 } as const;
+
+/** Workshop Projects — evolving work, not draft truth (17 Aug 2026). */
+export const BRAIN_WORKSHOP_PROJECTS_FIELDS = {
+  projectName: "fldonDAGcLRG2GEzD",
+  intendedOutcome: "fldrb5LY13Feofm2l",
+  lifecycle: "fld4SAa3XCObipxa8",
+  relatedDrafts: "fldHUpN0X5IlvClU8",
+} as const;
+
+export const BRAIN_WORKSHOP_PROJECT_LIFECYCLE = {
+  active: { id: "seljDftZRizDXWaK8", name: "Active" },
+  paused: { id: "selbbJnwjmjnSCR8M", name: "Paused" },
+  closed: { id: "selED0i2J4g8kJGaE", name: "Closed" },
+} as const;
+
+/** Seed projects — live-observed 17 Aug 2026. All three Active. Agents never create rows. */
+export const BRAIN_WORKSHOP_PROJECTS_SEEDS = {
+  k3OpenWeightsFineTuning: {
+    recordId: "rec9deYmfHS8s39za",
+    projectName: "Establish K3 Open-Weights Fine-Tuning for AstraJax",
+  },
+  manageContextOnPlatform: {
+    recordId: "rechmkpaan4o4R6CT",
+    projectName: "Manage AstraJax Context On-Platform",
+  },
+  proveAutonomousSelfImprovement: {
+    recordId: "recH3hh1hPrLhsyVH",
+    projectName: "Prove Autonomous Agent Self-Improvement",
+  },
+} as const;
+
+/** Workshop-local Brain Registry — resolves a brain slug to the link record. */
+export const BRAIN_WORKSHOP_BRAIN_REGISTRY_FIELDS = {
+  brainSlug: "flda7wdzniHrZf2SC",
+  brainName: "fldBdwGWgUmxYM9rs",
+} as const;
+
+/**
+ * Matthew's builder-review overlay on Draft Brain Truth. Capture agents must never
+ * write these — an agent-set value would make the review signal meaningless, since
+ * Human Reviewed is the only thing that says a human looked at the row.
+ * Recorded 17 Aug 2026 (`rpt-draft-truth-builder-overlay-20260817`).
+ */
+export const DRAFT_TRUTH_HUMAN_ONLY_FIELDS = [
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.humanReviewed,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.humanChosenBrain,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.humanChosenCategory,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.humanChosenRecordType,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.humanChosenHorizon,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.readabilityRating,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.captureQuality,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.contextImportance,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.readabilityNotes,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.captureQualityNotes,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.builderNotes,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.shouldHaveBeenAutoHandled,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.followUpCandidate,
+] as const;
+
+/** Same overlay, by Airtable field name — REST writes key on names. */
+export const DRAFT_TRUTH_HUMAN_ONLY_FIELD_NAMES = [
+  "Human Reviewed",
+  "Human Chosen Brain",
+  "Human Chosen Category",
+  "Human Chosen Record Type",
+  "Human Chosen Horizon",
+  "Readability Rating",
+  "Capture Quality",
+  "Context Importance",
+  "Readability Notes",
+  "Capture Quality Notes",
+  "Builder Notes",
+  "Should Have Been Auto-Handled",
+  "Follow-up Candidate",
+] as const;
 
 /**
  * Workshop Context Amendment Versions — morning-pipe control plane
@@ -416,7 +571,10 @@ export const BRAIN_TRUSTED_CHAPTER1_TABLES = {
 /** Trusted Brain Truth — Chapter 1 context structure (Phase B, 29 Jun 2026). */
 export const BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS = {
   title: "fldVxNhopdtZTjR6n",
+  /** Trusted keeps the name "Canonical Text" — do not rename it here or in Airtable. */
   canonicalText: "fldX79BWrIGBUccHT",
+  /** Human register — same claim, no record IDs (live-observed 17 Aug 2026). */
+  canonicalTextForHumans: "fld8EiI0tAZh8tIs0",
   category: "fld4gG1ZjH3ETmqa3",
   scope: "fldtQVETmrrHUiYMw",
   brainTheme: "fldFGVJhAUHTq7Xco",
@@ -450,6 +608,8 @@ export const BRAIN_TRUSTED_CREATIVE_TABLES = {
 export const BRAIN_TRUSTED_CREATIVE_TRUTH_FIELDS = {
   title: "fldEO8Fx51R8seeQa",
   canonicalText: "fldzBgcUEa0NOPzUu",
+  /** Human register — same claim, no record IDs (live-observed 17 Aug 2026). */
+  canonicalTextForHumans: "fldqSfbyveYYUdKhV",
   category: "fldVE6JafERlO7IVQ",
   scope: "flde80ZCUQum1d0V6",
   brainTheme: "fldzIvnJbtQUQ68sq",

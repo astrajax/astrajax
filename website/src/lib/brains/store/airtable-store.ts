@@ -6,7 +6,14 @@ import {
   airtableUpdate,
   escapeAirtableString,
 } from "../airtable-rest";
-import { BRAIN_REGISTRY_TABLES } from "../airtable-ids";
+import {
+  BRAIN_REGISTRY_ACCESS_GRANT_FIELDS,
+  BRAIN_REGISTRY_KEY_REQUEST_FIELDS,
+  BRAIN_REGISTRY_TABLES,
+} from "../airtable-ids";
+
+const KR = BRAIN_REGISTRY_KEY_REQUEST_FIELDS;
+const AG = BRAIN_REGISTRY_ACCESS_GRANT_FIELDS;
 import {
   getRegistryBaseId,
   getRegistryWriteToken,
@@ -121,16 +128,16 @@ export const airtableStore: GrantStore = {
     const expiresAt = addMinutes(input.requestedExpiryMinutes);
 
     await airtableCreate(baseId, BRAIN_REGISTRY_TABLES.keyRequests, token, {
-      "Request ID": requestId,
-      "Brain Slug": input.brainSlug,
-      Persona: input.persona,
-      Purpose: input.purpose,
-      Scope: input.scope,
-      Reason: input.reason,
-      "Session ID": input.sessionId,
-      Status: "Pending",
-      "Requested At": requestedAt,
-      "Expires At": expiresAt,
+      [KR.requestId]: requestId,
+      [KR.brainSlug]: input.brainSlug,
+      [KR.persona]: input.persona,
+      [KR.purpose]: input.purpose,
+      [KR.scope]: input.scope,
+      [KR.reason]: input.reason,
+      [KR.sessionId]: input.sessionId,
+      [KR.status]: "Pending",
+      [KR.requestedAt]: requestedAt,
+      [KR.expiresAt]: expiresAt,
     });
 
     return {
@@ -178,7 +185,7 @@ export const airtableStore: GrantStore = {
     if (!record) return false;
 
     await airtableUpdate(baseId, BRAIN_REGISTRY_TABLES.keyRequests, token, record.id, {
-      Status: toRequestStatus(status),
+      [KR.status]: toRequestStatus(status),
     });
     return true;
   },
@@ -190,18 +197,18 @@ export const airtableStore: GrantStore = {
     const expiresAt = addMinutes(input.grantExpiryMinutes);
 
     await airtableCreate(baseId, BRAIN_REGISTRY_TABLES.accessGrants, token, {
-      "Grant ID": grantId,
-      "Request ID": input.requestId,
-      "Brain Slug": input.brainSlug,
-      Persona: input.persona,
-      Scope: input.scope,
-      "Session ID": input.sessionId,
-      "Approved By": input.approvedBy,
-      "Approved At": approvedAt,
-      "Expires At": expiresAt,
-      "Max Uses": input.grantMaxUses,
-      "Use Count": 0,
-      Status: "Active",
+      [AG.grantId]: grantId,
+      [AG.requestId]: input.requestId,
+      [AG.brainSlug]: input.brainSlug,
+      [AG.persona]: input.persona,
+      [AG.scope]: input.scope,
+      [AG.sessionId]: input.sessionId,
+      [AG.approvedBy]: input.approvedBy,
+      [AG.approvedAt]: approvedAt,
+      [AG.expiresAt]: expiresAt,
+      [AG.maxUses]: input.grantMaxUses,
+      [AG.useCount]: 0,
+      [AG.status]: "Active",
     });
 
     return {
@@ -264,8 +271,8 @@ export const airtableStore: GrantStore = {
         : "Active";
 
     await airtableUpdate(baseId, BRAIN_REGISTRY_TABLES.accessGrants, token, record.id, {
-      "Use Count": nextUseCount,
-      Status: nextStatus,
+      [AG.useCount]: nextUseCount,
+      [AG.status]: nextStatus,
     });
 
     return refreshGrantStatus({
@@ -298,8 +305,8 @@ export const airtableStore: GrantStore = {
         : "Expired";
 
     await airtableUpdate(baseId, BRAIN_REGISTRY_TABLES.accessGrants, token, record.id, {
-      "Use Count": nextUseCount,
-      Status: nextStatus,
+      [AG.useCount]: nextUseCount,
+      [AG.status]: nextStatus,
     });
 
     return refreshGrantStatus({
@@ -321,7 +328,7 @@ export const airtableStore: GrantStore = {
     if (!record) return false;
 
     await airtableUpdate(baseId, BRAIN_REGISTRY_TABLES.accessGrants, token, record.id, {
-      Status: toGrantStatus(status),
+      [AG.status]: toGrantStatus(status),
     });
     return true;
   },
@@ -336,7 +343,7 @@ export const airtableStore: GrantStore = {
 
     for (const record of records) {
       await airtableUpdate(baseId, BRAIN_REGISTRY_TABLES.accessGrants, token, record.id, {
-        Status: "Revoked",
+        [AG.status]: "Revoked",
       });
     }
     return records.length;

@@ -1,5 +1,8 @@
 import { getWorkshopBaseId, getWorkshopWriteToken } from "../config";
-import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
+import {
+  BRAIN_WORKSHOP_TABLES,
+  BRAIN_WORKSHOP_USER_BRAINS_FIELDS,
+} from "../airtable-ids";
 import { airtableCreate } from "../airtable-rest";
 
 export type UserBrainSaveBody = {
@@ -35,6 +38,7 @@ export async function handleUserBrainSave(body: UserBrainSaveBody) {
   const workshopToken = getWorkshopWriteToken();
   const tableId =
     process.env.BRAIN_WORKSHOP_USER_BRAINS_TABLE_ID ?? BRAIN_WORKSHOP_TABLES.userBrains;
+  const f = BRAIN_WORKSHOP_USER_BRAINS_FIELDS;
 
   const label = body.name?.trim() || `Session ${body.sessionId.slice(0, 8)}`;
   const notes = [
@@ -46,17 +50,17 @@ export async function handleUserBrainSave(body: UserBrainSaveBody) {
     .join("\n\n");
 
   const fields: Record<string, string> = {
-    "User Label": label,
-    Notes: notes,
-    "Guide Mode": mapGuideMode(body.guideMode) ?? "Full Story",
+    [f.userLabel]: label,
+    [f.notes]: notes,
+    [f.guideMode]: mapGuideMode(body.guideMode) ?? "Full Story",
   };
 
-  if (body.goal?.trim()) fields["One Line Remit"] = body.goal.trim();
-  if (body.profileLabel?.trim()) fields["Development Notes"] = body.profileLabel.trim();
+  if (body.goal?.trim()) fields[f.oneLineRemit] = body.goal.trim();
+  if (body.profileLabel?.trim()) fields[f.developmentNotes] = body.profileLabel.trim();
   const ai = mapConfidence(body.aiConfidence);
   const ctx = mapConfidence(body.contextConfidence);
-  if (ai) fields["AI Confidence"] = ai;
-  if (ctx) fields["Context Environment Confidence"] = ctx;
+  if (ai) fields[f.aiConfidence] = ai;
+  if (ctx) fields[f.contextEnvironmentConfidence] = ctx;
 
   if (!workshopBaseId || !workshopToken) {
     return {

@@ -20,12 +20,29 @@ import {
 } from "../../brains/airtable-rest";
 import {
   BRAIN_REGISTRY_BASE_ID,
+  BRAIN_REGISTRY_OPERATOR_STATE_FIELDS,
   BRAIN_REGISTRY_TABLES,
 } from "../../brains/airtable-ids";
 import type { OperatorState } from "../operator-state";
 import type { OperatorStore } from "./index";
 
+/** Field IDs for writes. Formula/sort still use the display-name map below. */
 export const OPERATOR_STATE_FIELDS = {
+  OPERATOR_ID: BRAIN_REGISTRY_OPERATOR_STATE_FIELDS.operatorId,
+  EMAIL: BRAIN_REGISTRY_OPERATOR_STATE_FIELDS.email,
+  ROLE: BRAIN_REGISTRY_OPERATOR_STATE_FIELDS.role,
+  JOURNEY_CHAPTER: BRAIN_REGISTRY_OPERATOR_STATE_FIELDS.journeyChapter,
+  JOURNEY_STEP: BRAIN_REGISTRY_OPERATOR_STATE_FIELDS.journeyStep,
+  COMPLETED_CHAPTERS: BRAIN_REGISTRY_OPERATOR_STATE_FIELDS.completedChapters,
+  OWNED_BRAIN_SLUGS: BRAIN_REGISTRY_OPERATOR_STATE_FIELDS.ownedBrainSlugs,
+  CONFIGURED_FUNCTIONS: BRAIN_REGISTRY_OPERATOR_STATE_FIELDS.configuredFunctions,
+  INTRODUCED_MEMBERS: BRAIN_REGISTRY_OPERATOR_STATE_FIELDS.introducedMembers,
+  LAST_SAFE_DESTINATION: BRAIN_REGISTRY_OPERATOR_STATE_FIELDS.lastSafeDestination,
+  UPDATED_AT: BRAIN_REGISTRY_OPERATOR_STATE_FIELDS.updatedAt,
+} as const;
+
+/** Display names — Airtable filterByFormula only accepts these. */
+export const OPERATOR_STATE_FIELD_NAMES = {
   OPERATOR_ID: "Operator ID",
   EMAIL: "Email",
   ROLE: "Role",
@@ -132,6 +149,8 @@ async function findRecord(
     tableId,
     writeToken(),
     filter,
+    undefined,
+    { returnFieldsByFieldId: true },
   );
   return record ? toState(record) : undefined;
 }
@@ -141,13 +160,13 @@ export const airtableOperatorStore: OperatorStore = {
     // LOWER() so legacy / manually entered mixed-case Email rows still match
     // (writes always lowercase, but older records may not).
     return findRecord(
-      `LOWER({${OPERATOR_STATE_FIELDS.EMAIL}}) = '${escapeAirtableString(email.toLowerCase())}'`,
+      `LOWER({${OPERATOR_STATE_FIELD_NAMES.EMAIL}}) = '${escapeAirtableString(email.toLowerCase())}'`,
     );
   },
 
   async getById(operatorId) {
     return findRecord(
-      `{${OPERATOR_STATE_FIELDS.OPERATOR_ID}} = '${escapeAirtableString(operatorId)}'`,
+      `{${OPERATOR_STATE_FIELD_NAMES.OPERATOR_ID}} = '${escapeAirtableString(operatorId)}'`,
     );
   },
 

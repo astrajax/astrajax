@@ -232,13 +232,17 @@ Primary field: **Title** (singleLineText). **Workshop only** — never approved 
 | Field | Type | Notes |
 |-------|------|-------|
 | Title | singleLineText | Primary |
-| Canonical Text | multilineText | Proposed content only |
-| Brain Slug | singleLineText | |
+| Canonical Text for Agents | multilineText | Complete claim; may keep record IDs. Field ID `fld95ls0LG26rCNx4`. |
+| Canonical Text for Humans | multilineText | Same claim, readable, **no record IDs**. Field ID `fldbnsCNSXmLXE51y`. Both registers required on every new create. |
+| Brain Slug | singleLineText | Label only — not a destination |
+| Brain Registry | link → Workshop Brain Registry | **Required** on create — live brain destination (`fldB1vIzRA6NBxEYs`) |
 | Brain Theme | singleLineText | Theme slug, e.g. `core`, `sales-forecasting` |
 | Proposed Category | singleSelect | Workshop sorting only — not access control. See universal set below. |
 | Status | singleSelect | Draft, Quarantined, Rejected, Promoted — agents write **Draft** / **Quarantined** only; **Rejected** / **Promoted** read-and-respect; **Approved** is observed drift (never write); distinct from Source Document Mine Status **Proposed** |
 | Proposed By Agent | singleLineText | e.g. clive |
 | Created By | singleSelect | Matthew, Agent, Website, TL |
+
+**Website write contract (17 Aug 2026):** all website Draft creates go through `draft-truth-write.ts` and key Airtable REST payloads on **field IDs**, not field-name strings. Live IDs: `BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS` in `airtable-ids.ts`.
 
 **Workshop Draft Brain Truth — Proposed Category options (canonical, 29 Jun 2026):**  
 Definition, Goals & Priorities, Workflow, Data & Metrics, Rules & Guardrails, Knowledge, Examples & Edge Cases, Open Questions, Business Context, Adjacent Functions
@@ -315,10 +319,12 @@ Field and choice IDs: `AMBIENT_CHECKPOINT_*` in `airtable-ids.ts`. Signed build:
 Doc promote is a **copy-out**, not a status flip on one table.
 
 1. Human approves via **Approval Decisions** (+ Pam at action gate if required).
-2. Doc route reads draft **Title** and **Canonical Text** from Workshop only.
-3. Doc **creates a new row** in Trusted **Brain Truth** with human-specified **Category** and **Scope** (from promote payload — not from draft fields).
+2. Doc route reads draft **Title** and **both text registers** from Workshop only (by field ID).
+3. Doc **creates a new row** in Trusted **Brain Truth** with both registers by field ID (Trusted agent register keeps live name **Canonical Text** — do not rename) and human-specified **Category** and **Scope** (from promote payload — not from draft fields).
 4. Workshop draft **Status → Quarantined** (consumed proposal, not “Approved”).
 5. **Change Log** + grant revoke on Registry.
+
+**Trusted human-register backfill (Matthew, 17 Aug 2026):** blank-only fill of the Trusted human register from the row’s own agent text; never overwrite populated human text; touch no other columns. Helper: `trusted-truth-write.ts`.
 
 Trusted Brain tokens never read Workshop; Clive/Pam tokens never write Trusted. Only the Doc promote credential crosses both bases for this flow.
 

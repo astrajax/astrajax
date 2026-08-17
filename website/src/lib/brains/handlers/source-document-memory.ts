@@ -1,3 +1,4 @@
+import { buildDraftTruthCreateFields, DRAFT_TRUTH_CAPTURE_SOURCE } from "../draft-truth-write";
 import {
   SOURCE_DOCUMENT_MINE_STATUS,
   structureProposalsFromSummary,
@@ -69,19 +70,26 @@ export function mineMemorySourceDocuments(
 
     for (const proposal of structured) {
       const draftId = nextMemoryId("draft");
+      // Same builder the live door uses, so memory mode exercises the real
+      // contract — both registers, field-ID keys, forbid-list enforced.
       memoryDrafts.push({
         recordId: draftId,
-        fields: {
-          Title: proposal.title,
-          "Canonical Text": proposal.canonicalText,
-          "Brain Slug": proposal.brainSlug,
-          "Brain Theme": proposal.brainTheme ?? "",
-          "Proposed Category": proposal.proposedCategory,
-          Status: "Draft",
-          "Proposed By Agent": "clive-man",
-          "Created By": "Agent",
-          "Source Document Record ID": proposal.sourceDocumentRecordId,
-        },
+        fields: buildDraftTruthCreateFields({
+          title: proposal.title,
+          canonicalTextForAgents: proposal.canonicalText,
+          brainSlug: proposal.brainSlug,
+          brainTheme: proposal.brainTheme,
+          proposedCategory: proposal.proposedCategory,
+          captureSource: DRAFT_TRUTH_CAPTURE_SOURCE.external,
+          proposedByAgent: "clive-man",
+          createdBy: "Agent",
+          sourceDocumentRecordIds: proposal.sourceDocumentRecordId
+            ? [proposal.sourceDocumentRecordId]
+            : undefined,
+          // Nothing is written to Airtable in memory mode, so there is no live
+          // brain to resolve; the link requirement is enforced on the real door.
+          requireBrainRegistryLink: false,
+        }),
       });
       draftRecordIds.push(draftId);
     }

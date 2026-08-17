@@ -3,6 +3,7 @@ import {
   actionHouseholdInteraction,
   scoreHouseholdInteraction,
 } from "./interaction-household-review";
+import { HOUSEHOLD_ACTIVITY_FIELDS } from "@/lib/platform-activity/ids";
 
 const originalEnv = { ...process.env };
 
@@ -143,10 +144,10 @@ describe("Household Activity review writes", () => {
     });
 
     const patchBody = JSON.parse(String(patchInit.body)) as {
-      fields: { Detail: string; "Review Status": string };
+      fields: Record<string, unknown>;
     };
-    expect(patchBody.fields["Review Status"]).toBe("No action");
-    const detail = JSON.parse(patchBody.fields.Detail) as {
+    expect(patchBody.fields[HOUSEHOLD_ACTIVITY_FIELDS.reviewStatus]).toBe("No action");
+    const detail = JSON.parse(String(patchBody.fields[HOUSEHOLD_ACTIVITY_FIELDS.detail])) as {
       keep?: string;
       review?: { reviewer?: string; contextFlagged?: string };
     };
@@ -183,15 +184,11 @@ describe("Household Activity review writes", () => {
     const patchBody = JSON.parse(
       String((mockFetch.mock.calls[1]?.[1] as RequestInit).body),
     ) as {
-      fields: {
-        "Agent Quality": number;
-        "Human Quality": number;
-        Detail: string;
-      };
+      fields: Record<string, unknown>;
     };
-    expect(patchBody.fields["Agent Quality"]).toBe(4);
-    expect(patchBody.fields["Human Quality"]).toBe(5);
-    const detail = JSON.parse(patchBody.fields.Detail) as {
+    expect(patchBody.fields[HOUSEHOLD_ACTIVITY_FIELDS.agentQuality]).toBe(4);
+    expect(patchBody.fields[HOUSEHOLD_ACTIVITY_FIELDS.humanQuality]).toBe(5);
+    const detail = JSON.parse(String(patchBody.fields[HOUSEHOLD_ACTIVITY_FIELDS.detail])) as {
       review?: { suspectedContextIssue?: boolean; notes?: string };
     };
     expect(detail.review?.suspectedContextIssue).toBe(true);

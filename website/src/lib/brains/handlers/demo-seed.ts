@@ -3,11 +3,13 @@ import { normalizeCreatedBy } from "../airtable-field-values";
 import {
   BRAIN_TRUSTED_CHAPTER1_BASE_ID,
   BRAIN_TRUSTED_CHAPTER1_TABLES,
+  BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS,
   BRAIN_WORKSHOP_TABLES,
   CHAPTER1_BRAIN_SLUG,
 } from "../airtable-ids";
 import { appendChangeLog } from "../change-log";
 import { getDocPromoteToken, getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
+import { deriveHumanText } from "../draft-truth-write";
 import { createDraftTruth } from "./draft-propose";
 
 export type DemoSeedTruth = {
@@ -66,12 +68,18 @@ async function listExistingTrustedTitles(
   const formula = `OR(${titles.map((title) => `{Title}='${escapeAirtableString(title)}'`).join(",")})`;
   const records = await airtableSelect(baseId, tableId, token, {
     filterByFormula: formula,
-    fields: ["Title"],
+    fields: [BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS.title],
     maxRecords: titles.length,
+    returnFieldsByFieldId: true,
   });
   return new Set(
     records
-      .map((record) => record.fields.Title)
+      .map((record) => {
+        const title =
+          record.fields[BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS.title] ??
+          record.fields.Title;
+        return typeof title === "string" ? title : null;
+      })
       .filter((title): title is string => typeof title === "string"),
   );
 }
@@ -93,6 +101,7 @@ export async function handleDemoSeed(input: {
   const trustedTableId =
     process.env.BRAIN_TRUSTED_TRUTH_TABLE_ID ?? BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth;
   const today = new Date().toISOString().slice(0, 10);
+  const f = BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS;
 
   const trustedRecordIds: string[] = [];
   const draftRecordIds: string[] = [];
@@ -128,15 +137,22 @@ export async function handleDemoSeed(input: {
       trustedRecordIds.push(`skipped_existing:${truth.title}`);
       continue;
     }
-    const created = await airtableCreate(trustedBaseId, trustedTableId, token, {
-      Title: truth.title,
-      "Canonical Text": truth.canonicalText,
-      Category: truth.category,
-      Scope: truth.scope,
-      Authority: actor,
-      Freshness: "Current",
-      "Last Reviewed": today,
-    });
+    const created = await airtableCreate(
+      trustedBaseId,
+      trustedTableId,
+      token,
+      {
+        [f.title]: truth.title,
+        [f.canonicalText]: truth.canonicalText,
+        [f.canonicalTextForHumans]: deriveHumanText(truth.canonicalText),
+        [f.category]: truth.category,
+        [f.scope]: truth.scope,
+        [f.authority]: actor,
+        [f.freshness]: "Current",
+        [f.lastReviewed]: today,
+      },
+      { returnFieldsByFieldId: true },
+    );
     trustedRecordIds.push(created.id);
   }
 

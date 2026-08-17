@@ -109,7 +109,8 @@ describe("handleReceivingWallRecords", () => {
     expectDraftOnlyRequest(String(mockFetch.mock.calls[0]?.[0]));
     expect(buildReceivingWallFieldIds()).toEqual([
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title,
-      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText,
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalTextForAgents,
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalTextForHumans,
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainSlug,
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.systemBrainName,
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.systemBrainSlug,
@@ -117,18 +118,19 @@ describe("handleReceivingWallRecords", () => {
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status,
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedByAgent,
       BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.createdBy,
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.captureSource,
     ]);
   });
 
-  it("includes Capture Source only when the field id env is set", () => {
-    process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID = "fldCaptureSource";
-    expect(buildReceivingWallFieldIds()).toContain("fldCaptureSource");
+  it("always includes Capture Source by its live field id", () => {
+    expect(buildReceivingWallFieldIds()).toContain(
+      BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.captureSource,
+    );
   });
 
   it("maps live Capture Source values and reports source as live", async () => {
     process.env.BRAIN_WORKSHOP_READ_TOKEN = "patRead";
-    process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID = "fldCaptureSource";
-    const mockFetch = mockAirtableRecords([
+        const mockFetch = mockAirtableRecords([
       {
         id: "recExternal",
         fields: {
@@ -186,7 +188,7 @@ describe("handleReceivingWallRecords", () => {
     expect(decodeURIComponent(requestedUrl)).toContain(
       `filterByFormula=${RECEIVING_WALL_DRAFT_FILTER}`,
     );
-    expect(requestedUrl).toContain("fldCaptureSource");
+    expect(requestedUrl).toContain(BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.captureSource);
   });
 
   it("paginates through an Airtable offset cursor and returns every page", async () => {
@@ -331,8 +333,7 @@ describe("handleReceivingWallRecords", () => {
 
   it("skips untitled rows, truncates long snippets, and falls back to seed on empty mapping", async () => {
     process.env.BRAIN_WORKSHOP_READ_TOKEN = "patRead";
-    process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID = "fldCaptureSource";
-    const longBody = "x".repeat(200);
+        const longBody = "x".repeat(200);
     mockAirtableRecords([
       {
         id: "recNoTitle",

@@ -728,24 +728,25 @@ def reused_run_id_collides_zero_writes():
 truthy("reused-run-id-collides-zero-writes", reused_run_id_collides_zero_writes())
 
 
-def unique_run_id_10_unique_ids():
+def unique_run_id_cap_unique_ids():
     posts = []
+    cap = cfg.CAP_V1_AMENDMENTS
     au._req = lambda m, p, tok, body=None, retries=1: (
         posts.append(body["records"][0]["fields"]) if m == "POST" and cfg.T_AMENDMENT_VERSIONS in p else {"tables": []})
     au.write_fingerprints = lambda fps, prior, tok: len(fps)
     ds = [{"id": f"rec{i}", "fields": {cfg.F["title"]: f"T{i}", cfg.F["brain_slug"]: "s",
                                        cfg.F["canonical_text"]: f"b{i}",
                                        cfg.F["status"]: {"name": "Draft"}, cfg.F["created"]: "2020-01-01T00:00:00Z"}}
-          for i in range(20)]
+          for i in range(cap + 10)]
     au.list_all = lambda b, t, tok, fids=None, page_cap=None: (
         brains() if t == cfg.T_REGISTRY_BRAINS else ds if t == cfg.T_DRAFT_TRUTH else [])
     au.run_audit("rt", "ct", sample=1, run_id="r", write=True,
                  v1_report_record_id="recRep", execution_run_id="exec-unique-1")
     ids = [f.get(cfg.AV["amendment_version_id"]) for f in posts]
-    return len(posts) == 10 and len(set(ids)) == 10 and all("exec-unique-1" in i for i in ids)
+    return len(posts) == cap and len(set(ids)) == cap and all("exec-unique-1" in i for i in ids)
 
 
-truthy("unique-run-id-10-unique-ids", unique_run_id_10_unique_ids())
+truthy("unique-run-id-cap-unique-ids", unique_run_id_cap_unique_ids())
 
 
 def within_batch_duplicate_zero():

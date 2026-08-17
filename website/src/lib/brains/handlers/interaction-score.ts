@@ -1,4 +1,7 @@
-import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
+import {
+  BRAIN_WORKSHOP_INTERACTION_FIELDS,
+  BRAIN_WORKSHOP_TABLES,
+} from "../airtable-ids";
 import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
 import { resolveReviewFieldsAfterScore } from "../interaction-upkeep";
 import { assertSafeForPersistence } from "../secrets";
@@ -102,13 +105,14 @@ export async function handleInteractionScore(body: InteractionScoreBody) {
         {
           id: recordId,
           fields: {
-            "Quality Score": qualityScore,
-            Reviewer: reviewer,
-            "Review Notes": reviewNotes ?? "",
-            "Reviewed At": reviewedAt,
-            "Suspected Context Issue": suspectedContextIssue,
-            "Review Status": reviewStatus,
-            "Context Flagged": contextFlagged,
+            [BRAIN_WORKSHOP_INTERACTION_FIELDS.qualityScore]: qualityScore,
+            [BRAIN_WORKSHOP_INTERACTION_FIELDS.reviewer]: reviewer,
+            [BRAIN_WORKSHOP_INTERACTION_FIELDS.reviewNotes]: reviewNotes ?? "",
+            [BRAIN_WORKSHOP_INTERACTION_FIELDS.reviewedAt]: reviewedAt,
+            [BRAIN_WORKSHOP_INTERACTION_FIELDS.suspectedContextIssue]:
+              suspectedContextIssue,
+            [BRAIN_WORKSHOP_INTERACTION_FIELDS.reviewStatus]: reviewStatus,
+            [BRAIN_WORKSHOP_INTERACTION_FIELDS.contextFlagged]: contextFlagged,
           },
         },
       ],

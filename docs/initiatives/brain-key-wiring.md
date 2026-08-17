@@ -402,7 +402,9 @@ Server-side `BRAIN_WORKSHOP_WRITE_TOKEN` only.
 }
 ```
 
-Reads draft **Title** and **Canonical Text** from Workshop only. **Category** and **Scope** come from the promote payload (Trusted-only fields). Creates new Trusted rows, quarantines drafts, writes Change Log, revokes related grants.
+Reads draft **Title** and **both text registers** (Canonical Text for Agents + Canonical Text for Humans) from Workshop only, by field ID. Writes both Trusted registers by field ID (Trusted keeps the live column name **Canonical Text** for the agent register — do not rename). **Category** and **Scope** come from the promote payload (Trusted-only fields). Creates new Trusted rows, quarantines drafts, writes Change Log, revokes related grants.
+
+**Website Draft capture door (shipped on branch `doc/draft-truth-field-id-writes`, 17 Aug 2026 — not merged at capture):** [`website/src/lib/brains/draft-truth-write.ts`](../../website/src/lib/brains/draft-truth-write.ts) is the one door for Workshop Draft creates. Contract: Airtable REST writes key on **field IDs**; every create writes both texts; Brain Registry link required; builder-review overlay untouched; Status Draft or Quarantined only. Trusted dual-register helper: [`trusted-truth-write.ts`](../../website/src/lib/brains/trusted-truth-write.ts). Working brief: [`draft-truth-platform-doc-handoff.md`](./draft-truth-platform-doc-handoff.md).
 
 ### `POST /api/auth/request-code`
 

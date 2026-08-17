@@ -1,6 +1,13 @@
 /**
  * Server-only Airtable REST helpers for Brain Key persistence.
  * Never import from client components.
+ *
+ * Airtable accepts either field names or field IDs as `fields` keys. Names break
+ * the moment a column is renamed — on 17 Aug 2026 `Canonical Text` became
+ * `Canonical Text for Agents` and every name-keyed capture write started failing
+ * with UNKNOWN_FIELD_NAME. Write payloads in this app are keyed on field IDs;
+ * `returnFieldsByFieldId` keeps the response and read paths on IDs too.
+ * `filterByFormula` and `sort` are the exception — Airtable only accepts names there.
  */
 
 const AIRTABLE_TIMEOUT_MS = 10_000;
@@ -77,12 +84,17 @@ export async function airtableSelect(
     sortDirection?: "asc" | "desc";
     /** Follow Airtable `offset` across pages (page size 100). Default off. */
     paginate?: boolean;
+    /** Return cell keys as field IDs so a column rename cannot blank a read. */
+    returnFieldsByFieldId?: boolean;
   },
 ): Promise<AirtableRecord[]> {
   const paginate = options?.paginate === true;
   const params: Record<string, string | number | undefined> = {
     pageSize: paginate ? 100 : (options?.maxRecords ?? 100),
   };
+  if (options?.returnFieldsByFieldId) {
+    params.returnFieldsByFieldId = "true";
+  }
   if (options?.filterByFormula) {
     params.filterByFormula = options.filterByFormula;
   }
@@ -135,15 +147,24 @@ export async function airtableSelect(
   return collected;
 }
 
+export type AirtableWriteOptions = {
+  /** Return cell keys as field IDs so callers never re-read by name. */
+  returnFieldsByFieldId?: boolean;
+};
+
 export async function airtableCreate(
   baseId: string,
   tableId: string,
   token: string,
   fields: Record<string, unknown>,
+  options?: AirtableWriteOptions,
 ): Promise<AirtableRecord> {
   const response = await airtableRequest(buildUrl(baseId, tableId), token, {
     method: "POST",
-    body: JSON.stringify({ fields }),
+    body: JSON.stringify({
+      fields,
+      ...(options?.returnFieldsByFieldId ? { returnFieldsByFieldId: true } : {}),
+    }),
   });
   return (await response.json()) as AirtableRecord;
 }
@@ -154,11 +175,15 @@ export async function airtableUpdate(
   token: string,
   recordId: string,
   fields: Record<string, unknown>,
+  options?: AirtableWriteOptions,
 ): Promise<AirtableRecord> {
   const url = `${buildUrl(baseId, tableId)}/${recordId}`;
   const response = await airtableRequest(url, token, {
     method: "PATCH",
-    body: JSON.stringify({ fields }),
+    body: JSON.stringify({
+      fields,
+      ...(options?.returnFieldsByFieldId ? { returnFieldsByFieldId: true } : {}),
+    }),
   });
   return (await response.json()) as AirtableRecord;
 }
@@ -169,11 +194,13 @@ export async function airtableFindOne(
   token: string,
   filterByFormula: string,
   fields?: string[],
+  options?: { returnFieldsByFieldId?: boolean },
 ): Promise<AirtableRecord | null> {
   const records = await airtableSelect(baseId, tableId, token, {
     filterByFormula,
     fields,
     maxRecords: 1,
+    returnFieldsByFieldId: options?.returnFieldsByFieldId,
   });
   return records[0] ?? null;
 }

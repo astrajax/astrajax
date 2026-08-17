@@ -2,6 +2,8 @@ import { normalizeCreatedBy } from "../airtable-field-values";
 import { airtableCreate } from "../airtable-rest";
 import {
   BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS,
+  BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS,
+  BRAIN_WORKSHOP_SOURCE_DOCUMENTS_MINE_STATUS,
   BRAIN_WORKSHOP_TABLES,
   DRAFT_TRUTH_STATUS,
 } from "../airtable-ids";
@@ -11,6 +13,14 @@ import {
   getWorkshopWriteToken,
   useMemoryStore,
 } from "../config";
+import {
+  createDraftTruthRecord,
+  deriveHumanText,
+  DRAFT_TRUTH_CAPTURE_SOURCE,
+  DRAFT_TRUTH_FIELD_NAMES,
+  readDraftTruthText,
+  type DraftTruthCaptureSource,
+} from "../draft-truth-write";
 import type { ContextDestination } from "@/lib/curation/destinations";
 import type { InteractionRecordSource } from "../types";
 import { handleInteractionAction } from "./interaction-action";
@@ -21,6 +31,7 @@ type MemoryDraft = {
   recordId: string;
   title: string;
   canonicalText: string;
+  canonicalTextForHumans?: string;
   brainSlug: string;
   status: string;
   supersedesTrustedTruthId?: string;
@@ -58,32 +69,47 @@ export function assertDraftEligibleForPromote(input: {
   draftRecordId: string;
   brainSlug: string;
   fields: Record<string, unknown>;
-}): { title: string; canonicalText: string } {
-  const recordBrain = String(input.fields["Brain Slug"] ?? "").trim();
+}): { title: string; canonicalText: string; canonicalTextForHumans: string } {
+  const recordBrain = readDraftTruthText(input.fields, "brainSlug");
   if (recordBrain !== input.brainSlug.trim()) {
     throw new Error("Brain does not match this draft.");
   }
-  const status = String(input.fields.Status ?? "").trim();
+  const status = readDraftTruthText(input.fields, "status");
   if (!isPromoteEligibleStatus(status)) {
     throw new Error(
       `Draft ${input.draftRecordId} is not eligible to promote (current status: ${status || "empty"}).`,
     );
   }
-  const title = String(input.fields.Title ?? "").trim();
-  const canonicalText = String(input.fields["Canonical Text"] ?? "").trim();
+  const title = readDraftTruthText(input.fields, "title");
+  const canonicalText = readDraftTruthText(input.fields, "canonicalTextForAgents");
   if (!title || !canonicalText) {
-    throw new Error("Draft is missing Title or Canonical Text.");
+    throw new Error("Draft is missing Title or Canonical Text for Agents.");
   }
-  return { title, canonicalText };
+  // Both registers travel to Trusted. Blank here means the draft predates the
+  // dual-text contract; the promote path derives it rather than writing blank.
+  const canonicalTextForHumans = readDraftTruthText(
+    input.fields,
+    "canonicalTextForHumans",
+  );
+  return { title, canonicalText, canonicalTextForHumans };
 }
 
 export async function createDraftTruth(input: {
   brainSlug: string;
   title: string;
   canonicalText: string;
+  /** Plain register of the same claim. Derived from canonicalText when omitted. */
+  canonicalTextForHumans?: string;
   proposedCategory: string;
+  recordType?: string;
+  horizon?: string;
+  captureSource?: DraftTruthCaptureSource;
   proposedByAgent?: string;
   supersedesTrustedTruthId?: string;
+  sourceDocumentRecordIds?: string[];
+  contextAmendmentVersionRecordIds?: string[];
+  /** Live Projects record IDs from proposer judgement. Blank is legal. */
+  relatedProjectRecordIds?: string[];
   actor?: string;
 }): Promise<{ recordId: string; destination: ContextDestination; mode: "airtable" | "memory" }> {
   const title = input.title.trim();
@@ -96,6 +122,8 @@ export async function createDraftTruth(input: {
       recordId,
       title,
       canonicalText,
+      canonicalTextForHumans:
+        input.canonicalTextForHumans?.trim() || deriveHumanText(canonicalText),
       brainSlug: input.brainSlug,
       status: "Draft",
       supersedesTrustedTruthId: input.supersedesTrustedTruthId,
@@ -104,27 +132,27 @@ export async function createDraftTruth(input: {
   }
 
   const token = writeToken()!;
-  const fields: Record<string, string> = {
-    Title: title,
-    "Canonical Text": canonicalText,
-    "Brain Slug": input.brainSlug,
-    Status: "Draft",
-    "Proposed Category": input.proposedCategory,
-    "Proposed By Agent": input.proposedByAgent ?? "Clive",
-    "Created By": normalizeCreatedBy(input.actor),
-  };
-  if (input.supersedesTrustedTruthId) {
-    fields["Supersedes Trusted Truth ID"] = input.supersedesTrustedTruthId;
-  }
+  const created = await createDraftTruthRecord(getWorkshopBaseId()!, token, {
+    title,
+    canonicalTextForAgents: canonicalText,
+    canonicalTextForHumans: input.canonicalTextForHumans,
+    brainSlug: input.brainSlug,
+    proposedCategory: input.proposedCategory,
+    recordType: input.recordType ?? "Truth Claim",
+    horizon: input.horizon,
+    captureSource: input.captureSource ?? DRAFT_TRUTH_CAPTURE_SOURCE.chatSession,
+    proposedByAgent: input.proposedByAgent ?? "Clive",
+    createdBy: normalizeCreatedBy(input.actor),
+    supersedesTrustedTruthId: input.supersedesTrustedTruthId,
+    sourceDocumentRecordIds: input.sourceDocumentRecordIds,
+    contextAmendmentVersionRecordIds: input.contextAmendmentVersionRecordIds,
+    relatedProjectRecordIds: input.relatedProjectRecordIds,
+    tableId:
+      process.env.BRAIN_WORKSHOP_DRAFT_TRUTH_TABLE_ID ??
+      BRAIN_WORKSHOP_TABLES.draftBrainTruth,
+  });
 
-  const created = await airtableCreate(
-    getWorkshopBaseId()!,
-    BRAIN_WORKSHOP_TABLES.draftBrainTruth,
-    token,
-    fields,
-  );
-
-  return { recordId: created.id, destination: "workshop-draft-truth", mode: "airtable" };
+  return { recordId: created.recordId, destination: "workshop-draft-truth", mode: "airtable" };
 }
 
 /**
@@ -158,10 +186,10 @@ export async function promoteDraftToTrustedDemo(input: {
     draftRecordId: input.draftRecordId,
     brainSlug: input.brainSlug,
     fields: {
-      Title: draft.title,
-      "Canonical Text": draft.canonicalText,
-      "Brain Slug": draft.brainSlug,
-      Status: draft.status,
+      [DRAFT_TRUTH_FIELD_NAMES.title]: draft.title,
+      [DRAFT_TRUTH_FIELD_NAMES.canonicalTextForAgents]: draft.canonicalText,
+      [DRAFT_TRUTH_FIELD_NAMES.brainSlug]: draft.brainSlug,
+      [DRAFT_TRUTH_FIELD_NAMES.status]: draft.status,
     },
   });
   const recordId = nextMemoryId("mem_trusted");
@@ -249,13 +277,16 @@ export async function routeIntakeItem(input: {
     BRAIN_WORKSHOP_TABLES.sourceDocuments,
     token,
     {
-      Title: input.title.trim(),
-      "Attachment Summary": input.canonicalText.trim(),
-      "Brain Slug": input.brainSlug,
-      "Mine Status": "Pending",
-      "Proposed By Agent": "Clive's Man",
-      "Created By": normalizeCreatedBy(input.actor),
+      [BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS.title]: input.title.trim(),
+      [BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS.attachmentSummary]:
+        input.canonicalText.trim(),
+      [BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS.brainSlug]: input.brainSlug,
+      [BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS.mineStatus]:
+        BRAIN_WORKSHOP_SOURCE_DOCUMENTS_MINE_STATUS.pending,
+      [BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS.proposedByAgent]: "Clive's Man",
+      [BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS.createdBy]: normalizeCreatedBy(input.actor),
     },
+    { returnFieldsByFieldId: true },
   );
 
   return { recordId: created.id, destination: "workshop-source-document", mode: "airtable" };

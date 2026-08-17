@@ -5,6 +5,10 @@ Trimmed subset: only what the Challenger needs. No V1 writer, no fingerprint
 mutation, no executor, no Draft/Trusted write config.
 """
 
+import sys
+
+assert sys.version_info >= (3, 9), "Daily Context Review scripts require Python >= 3.9"
+
 # v1.2 contract repair: the Amendment Version "Adapter Version" field is the
 # EXECUTOR adapter contract version ONLY. The Challenger's own implementation
 # version is recorded in report/evidence, never in that field.
@@ -63,7 +67,8 @@ AV = {
     "tier": "fldtAci9wgwcihcZb", "challenger_verdict": "fldPUsdAy9FXmYeAh",
     "confidence": "fld2ypDkBf8qo3Qmu", "human_decision_needed": "fldoZDmZPz8iVoqUg",
     "dedupe_key": "fldm9DV7zrjlbiM3D", "created_by_agent": "fldSQdzOLrl4tqVQB",
-    "execution_events": "fldvekhFz1CLBi3sp",
+    # D9b (2026-08-17): dead AV reciprocal execution_events → fldvekhFz1CLBi3sp
+    # removed. Event-side amendment_version → fldZeOm6wYcDZWEKz is preserved.
     "v1_report_record_id": "fldQvrUp6UAh5kqKC", "v2_report_record_id": "fld3fOFooui0ATmUv",
 }
 
@@ -91,3 +96,31 @@ CHALLENGER_WRITE_TABLES = {T_AMENDMENT_VERSIONS}
 
 ENV_CHALLENGE_READ = "CONTEXT_CHALLENGE_READ"
 ENV_V2_CONTROL_WRITE = "CONTEXT_V2_CONTROL_WRITE"
+
+# D2 (2026-08-17): identical locked projection to the Executor. Excludes the
+# Context Amendment Versions backlink (fldAeXTX1uLgkNa5d) that changes every run.
+SNAPSHOT_PROJECTION = (
+    "fld8BVmRBSsVuXD8I",
+    "fld8wdl04NOs8CwpX",
+    "fld9zhLHPvjnq8lHT",
+    "fldB1vIzRA6NBxEYs",
+    "fldCViiokjEMdp3vb",
+    "fldD4gLnHeihH7yCd",
+    "fldEonKVeEsrbiwkm",
+    "fldIm3bUPNLBflyJc",
+    "fldYcgzaE3FwxziBT",
+    "flddfROfNcP1u6gCy",
+    "flde1d1sda9lWwrj9",
+    "fldeKn3fxdilUw4YK",
+    "fldiMCxuBITyZIOXW",
+)
+
+
+def project_snapshot(record_fields):
+    return {k: record_fields[k] for k in SNAPSHOT_PROJECTION if k in record_fields}
+
+
+def canonical_snapshot(record_fields):
+    import json
+    return json.dumps(project_snapshot(record_fields), sort_keys=True,
+                      separators=(",", ":"), ensure_ascii=False)

@@ -6,6 +6,7 @@ import {
 import {
   BRAIN_INTERACTION_CONTEXT_FLAGGED,
   BRAIN_INTERACTION_REVIEW_STATUS,
+  BRAIN_WORKSHOP_INTERACTION_FIELDS,
   BRAIN_WORKSHOP_TABLES,
 } from "../airtable-ids";
 import { validatePersona } from "../guards";
@@ -100,18 +101,24 @@ async function writeToWorkshop(
     },
     body: JSON.stringify({
       fields: {
-        "Interaction ID": interactionId,
-        "Session ID": entry.sessionId,
-        Persona: entry.persona,
-        "Brain Slug": entry.brainSlug,
-        "User Message": entry.userMessage,
-        "Assistant Reply": entry.assistantReply,
-        Channel: entry.channel ?? "website",
-        "Manifest Record IDs": (entry.manifest?.recordIds ?? []).join(", "),
-        "Manifest Hashes": (entry.manifest?.hashes ?? []).join(", "),
-        "Grant ID": entry.manifest?.grantId ?? "",
-        "Review Status": BRAIN_INTERACTION_REVIEW_STATUS.new,
-        "Context Flagged": BRAIN_INTERACTION_CONTEXT_FLAGGED.none,
+        [BRAIN_WORKSHOP_INTERACTION_FIELDS.interactionId]: interactionId,
+        [BRAIN_WORKSHOP_INTERACTION_FIELDS.sessionId]: entry.sessionId,
+        [BRAIN_WORKSHOP_INTERACTION_FIELDS.persona]: entry.persona,
+        [BRAIN_WORKSHOP_INTERACTION_FIELDS.brainSlug]: entry.brainSlug,
+        [BRAIN_WORKSHOP_INTERACTION_FIELDS.userMessage]: entry.userMessage,
+        [BRAIN_WORKSHOP_INTERACTION_FIELDS.assistantReply]: entry.assistantReply,
+        [BRAIN_WORKSHOP_INTERACTION_FIELDS.channel]: entry.channel ?? "website",
+        [BRAIN_WORKSHOP_INTERACTION_FIELDS.manifestRecordIds]: (
+          entry.manifest?.recordIds ?? []
+        ).join(", "),
+        [BRAIN_WORKSHOP_INTERACTION_FIELDS.manifestHashes]: (
+          entry.manifest?.hashes ?? []
+        ).join(", "),
+        [BRAIN_WORKSHOP_INTERACTION_FIELDS.grantId]: entry.manifest?.grantId ?? "",
+        [BRAIN_WORKSHOP_INTERACTION_FIELDS.reviewStatus]:
+          BRAIN_INTERACTION_REVIEW_STATUS.new,
+        [BRAIN_WORKSHOP_INTERACTION_FIELDS.contextFlagged]:
+          BRAIN_INTERACTION_CONTEXT_FLAGGED.none,
       },
     }),
   });

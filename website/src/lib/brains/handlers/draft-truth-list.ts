@@ -1,9 +1,12 @@
 import { getWorkshopBaseId, getWorkshopWriteToken } from "../config";
 import {
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS,
   BRAIN_WORKSHOP_TABLES,
   CHAPTER1_BRAIN_SLUG,
 } from "../airtable-ids";
 import { airtableSelect, escapeAirtableString } from "../airtable-rest";
+import { readDraftTruthText } from "../draft-truth-write";
+import { scopeForDraft } from "@/lib/aie-demo/draft-truth-utils";
 
 export type WorkshopDraftTruth = {
   recordId: string;
@@ -17,25 +20,19 @@ export type WorkshopDraftTruth = {
   source: "workshop" | "fallback";
 };
 
-type DraftFields = {
-  Title?: string;
-  "Canonical Text"?: string;
-  "Proposed Category"?: string;
-  "Brain Theme"?: string;
-  Status?: string;
-  "Proposed By Agent"?: string;
-  "Brain Slug"?: string;
-};
-
-import { scopeForDraft } from "@/lib/aie-demo/draft-truth-utils";
-
-function mapRecord(record: { id: string; fields: DraftFields }): WorkshopDraftTruth | null {
-  const title = record.fields.Title?.trim();
-  const canonicalText = record.fields["Canonical Text"]?.trim();
+function mapRecord(record: {
+  id: string;
+  fields: Record<string, unknown>;
+}): WorkshopDraftTruth | null {
+  const title = readDraftTruthText(record.fields, "title");
+  const canonicalText =
+    readDraftTruthText(record.fields, "canonicalTextForAgents") ||
+    readDraftTruthText(record.fields, "canonicalTextForHumans");
   if (!title || !canonicalText) return null;
 
-  const proposedCategory = record.fields["Proposed Category"]?.trim() ?? "Definition";
-  const brainTheme = record.fields["Brain Theme"]?.trim();
+  const proposedCategory =
+    readDraftTruthText(record.fields, "proposedCategory") || "Definition";
+  const brainTheme = readDraftTruthText(record.fields, "brainTheme") || undefined;
 
   return {
     recordId: record.id,
@@ -43,8 +40,8 @@ function mapRecord(record: { id: string; fields: DraftFields }): WorkshopDraftTr
     canonicalText,
     proposedCategory,
     brainTheme,
-    status: record.fields.Status?.trim() ?? "Draft",
-    proposedByAgent: record.fields["Proposed By Agent"]?.trim(),
+    status: readDraftTruthText(record.fields, "status") || "Draft",
+    proposedByAgent: readDraftTruthText(record.fields, "proposedByAgent") || undefined,
     scope: scopeForDraft({ brainTheme, proposedCategory }),
     source: "workshop",
   };
@@ -60,6 +57,7 @@ export async function handleDraftTruthList(brainSlug: string): Promise<{
   const workshopToken = getWorkshopWriteToken();
   const tableId =
     process.env.BRAIN_WORKSHOP_DRAFT_TRUTH_TABLE_ID ?? BRAIN_WORKSHOP_TABLES.draftBrainTruth;
+  const f = BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS;
 
   if (!workshopBaseId || !workshopToken) {
     return {
@@ -73,9 +71,20 @@ export async function handleDraftTruthList(brainSlug: string): Promise<{
   try {
     const records = await airtableSelect(workshopBaseId, tableId, workshopToken, {
       filterByFormula: `AND({Brain Slug}='${escapeAirtableString(slug)}', {Status}='Draft')`,
+      fields: [
+        f.title,
+        f.canonicalTextForAgents,
+        f.canonicalTextForHumans,
+        f.proposedCategory,
+        f.brainTheme,
+        f.status,
+        f.proposedByAgent,
+        f.brainSlug,
+      ],
       maxRecords: 20,
       sortField: "Title",
       sortDirection: "asc",
+      returnFieldsByFieldId: true,
     });
 
     const drafts = records

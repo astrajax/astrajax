@@ -17,6 +17,10 @@ import {
   getWorkshopBaseId,
   getWorkshopReadToken,
 } from "../config";
+import {
+  readDraftTruthField,
+  readDraftTruthText,
+} from "../draft-truth-write";
 import { handleBrainList } from "./brain-list";
 import type { BrainShelfEntry } from "@/lib/platform/brains";
 import type {
@@ -44,20 +48,6 @@ import {
  * `source: "derived"` tells the UI the tint was inferred rather than read.
  */
 
-type DraftTruthFields = {
-  Title?: string;
-  "Canonical Text"?: string;
-  "Brain Slug"?: string;
-  "System Brain Name"?: unknown;
-  "System Brain Slug"?: unknown;
-  "Proposed Category"?: string;
-  Status?: string;
-  "Proposed By Agent"?: string;
-  "Created By"?: string;
-  /** New single-select, to be added by Matthew. */
-  "Capture Source"?: string;
-};
-
 function truncate(text: string, max = 160): string {
   const trimmed = text.trim();
   return trimmed.length > max ? `${trimmed.slice(0, max)}…` : trimmed;
@@ -76,8 +66,8 @@ function normaliseCaptureSource(raw: unknown): CaptureSource | null {
 }
 
 /** Infer a source from provenance when the field isn't set yet. */
-function inferCaptureSource(fields: DraftTruthFields): CaptureSource {
-  const proposer = `${fields["Proposed By Agent"] ?? ""} ${fields["Created By"] ?? ""}`.toLowerCase();
+function inferCaptureSource(fields: Record<string, unknown>): CaptureSource {
+  const proposer = `${readDraftTruthText(fields, "proposedByAgent")} ${readDraftTruthText(fields, "createdBy")}`.toLowerCase();
   if (proposer.includes("sentinel") || proposer.includes("scanner") || proposer.includes("intake"))
     return "external";
   if (proposer.includes("interaction") || proposer.includes("chat") || proposer.includes("clive"))
@@ -100,39 +90,43 @@ function firstLookupString(raw: unknown): string | undefined {
   return undefined;
 }
 
-function readProposedCategory(raw: unknown): string | undefined {
-  if (typeof raw !== "string") return undefined;
-  const trimmed = raw.trim();
-  return trimmed || undefined;
-}
-
+/**
+ * The wall reads by field ID. It used to request field IDs but then look cells up
+ * by name, including the retired `Canonical Text` — which is why every letter
+ * opened blank after the 17 Aug rename.
+ *
+ * The human register is what the wall shows: this is Matthew reading, not an agent.
+ * The agent register is the fallback when a row predates dual text.
+ */
 export function mapDraftTruthToReceivingRecord(record: {
   id: string;
   fields: Record<string, unknown>;
 }): ReceivingRecord | null {
-  const fields = record.fields as DraftTruthFields;
-  const title = fields.Title?.trim();
+  const fields = record.fields;
+  const title = readDraftTruthText(fields, "title");
   if (!title) return null;
-  const canonicalText = fields["Canonical Text"]?.trim() ?? "";
-  const read = normaliseCaptureSource(fields["Capture Source"]);
-  const legacyBrainSlug = fields["Brain Slug"]?.trim() || undefined;
-  const systemBrainName = firstLookupString(fields["System Brain Name"]);
+  const humanText = readDraftTruthText(fields, "canonicalTextForHumans");
+  const agentText = readDraftTruthText(fields, "canonicalTextForAgents");
+  const canonicalText = humanText || agentText;
+  const read = normaliseCaptureSource(readDraftTruthField(fields, "captureSource"));
+  const legacyBrainSlug = readDraftTruthText(fields, "brainSlug") || undefined;
+  const systemBrainName = firstLookupString(readDraftTruthField(fields, "systemBrainName"));
   const systemBrainSlug =
-    firstLookupString(fields["System Brain Slug"]) || legacyBrainSlug;
+    firstLookupString(readDraftTruthField(fields, "systemBrainSlug")) || legacyBrainSlug;
   return {
     recordId: record.id,
     title,
     snippet: truncate(canonicalText || title),
     provenance:
-      fields["Proposed By Agent"]?.trim() ||
-      fields["Created By"]?.trim() ||
+      readDraftTruthText(fields, "proposedByAgent") ||
+      readDraftTruthText(fields, "createdBy") ||
       "Clive's Man",
     captureSource: read ?? inferCaptureSource(fields),
-    category: readProposedCategory(fields["Proposed Category"]),
+    category: readDraftTruthText(fields, "proposedCategory") || undefined,
     systemBrainName,
     systemBrainSlug,
     brainSlug: legacyBrainSlug,
-    status: fields.Status?.trim() || undefined,
+    status: readDraftTruthText(fields, "status") || undefined,
     canonicalText,
   };
 }
@@ -197,11 +191,12 @@ const SEED_RECORDS: ReceivingRecord[] = [
   },
 ];
 
-/** Field list for the wall read. Capture Source is optional until configured. */
+/** Field list for the wall read — IDs only, both text registers. */
 export function buildReceivingWallFieldIds(): string[] {
-  const fields: string[] = [
+  return [
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title,
-    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalTextForAgents,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalTextForHumans,
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainSlug,
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.systemBrainName,
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.systemBrainSlug,
@@ -209,12 +204,8 @@ export function buildReceivingWallFieldIds(): string[] {
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status,
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedByAgent,
     BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.createdBy,
+    BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.captureSource,
   ];
-  const captureSourceFieldId = process.env.BRAIN_WORKSHOP_CAPTURE_SOURCE_FIELD_ID?.trim();
-  if (captureSourceFieldId) {
-    fields.push(captureSourceFieldId);
-  }
-  return fields;
 }
 
 export const RECEIVING_WALL_DRAFT_FILTER = "{Status}='Draft'";
@@ -243,6 +234,7 @@ export async function handleReceivingWallRecords(): Promise<{
       sortField: "Title",
       sortDirection: "asc",
       paginate: true,
+      returnFieldsByFieldId: true,
     });
 
     const mapped = records
@@ -260,7 +252,7 @@ export async function handleReceivingWallRecords(): Promise<{
     // If every row's tint came from inference (the field isn't populated yet),
     // tell the UI the tints are derived, not read.
     const anyExplicit = records.some((r) =>
-      normaliseCaptureSource(r.fields["Capture Source"]),
+      normaliseCaptureSource(readDraftTruthField(r.fields, "captureSource")),
     );
 
     return { records: mapped, source: anyExplicit ? "live" : "derived" };

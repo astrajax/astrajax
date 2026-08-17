@@ -1,8 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { handleDocPromote, clearMemoryPromotionsForTests } from "./doc-promote";
 import {
+  BRAIN_REGISTRY_CHANGE_LOG_FIELDS,
   BRAIN_REGISTRY_TABLES,
   BRAIN_TRUSTED_CHAPTER1_TABLES,
+  BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS,
   BRAIN_WORKSHOP_TABLES,
 } from "../airtable-ids";
 
@@ -78,7 +81,7 @@ describe("Doc promote (airtable mode)", () => {
       if (method === "PATCH" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
         callOrder.push("draft-quarantine");
         const body = JSON.parse(String(init?.body)) as { fields: Record<string, string> };
-        expect(body.fields.Status).toBe("Quarantined");
+        expect(body.fields[BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status]).toBe("Quarantined");
         return new Response(JSON.stringify({ id: "recDraft1", fields: body.fields }), {
           status: 200,
         });
@@ -90,8 +93,8 @@ describe("Doc promote (airtable mode)", () => {
 
       if (method === "POST" && url.includes(BRAIN_REGISTRY_TABLES.changeLog)) {
         const body = JSON.parse(String(init?.body)) as { fields: Record<string, string> };
-        expect(body.fields["Change Type"]).toBe("Truth Promote");
-        expect(body.fields["Executing Agent"]).toBe("Doc");
+        expect(body.fields[BRAIN_REGISTRY_CHANGE_LOG_FIELDS.changeType]).toBe("Truth Promote");
+        expect(body.fields[BRAIN_REGISTRY_CHANGE_LOG_FIELDS.executingAgent]).toBe("Doc");
         return new Response(JSON.stringify({ id: "recLog", fields: body.fields }), { status: 200 });
       }
 
@@ -129,9 +132,12 @@ describe("Doc promote (airtable mode)", () => {
     const createBody = JSON.parse(String(trustedCreate?.[1]?.body)) as {
       fields: Record<string, string>;
     };
-    expect(createBody.fields.Category).toBe("Positioning");
-    expect(createBody.fields.Scope).toBe("read:brain-truth:positioning");
-    expect(createBody.fields.Authority).toBe("Matthew");
+    const tf = BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS;
+    expect(createBody.fields[tf.category]).toBe("Positioning");
+    expect(createBody.fields[tf.scope]).toBe("read:brain-truth:positioning");
+    expect(createBody.fields[tf.authority]).toBe("Matthew");
+    expect(createBody.fields[tf.canonicalText]).toBe("Draft canonical body");
+    expect(createBody.fields[tf.canonicalTextForHumans]).toBeTruthy();
   });
 
   it("rejects promote when category or scope missing from payload", async () => {
@@ -258,7 +264,7 @@ describe("Doc promote (airtable mode)", () => {
       if (method === "PATCH" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
         callOrder.push("draft-quarantine");
         const body = JSON.parse(String(init?.body)) as { fields: Record<string, string> };
-        expect(body.fields.Status).toBe("Quarantined");
+        expect(body.fields[BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status]).toBe("Quarantined");
         return new Response(
           JSON.stringify({ id: "recDraftApproved", fields: body.fields }),
           { status: 200 },
@@ -327,7 +333,7 @@ describe("Doc promote (airtable mode)", () => {
 
       if (method === "PATCH" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
         const body = JSON.parse(String(init?.body)) as { fields: Record<string, string> };
-        patchStatuses.push(body.fields.Status);
+        patchStatuses.push(body.fields[BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status]);
         return new Response(JSON.stringify({ id: "recDraft1", fields: body.fields }), {
           status: 200,
         });

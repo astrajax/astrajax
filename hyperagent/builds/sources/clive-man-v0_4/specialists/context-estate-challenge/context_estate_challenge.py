@@ -28,6 +28,9 @@ import time
 import urllib.request
 import urllib.error
 
+# D3 (2026-08-17): fail loudly on a runtime older than 3.9.
+assert sys.version_info >= (3, 9), "Daily Context Review scripts require Python >= 3.9"
+
 from context_config import (
     ADAPTER_VERSION, EXECUTOR_ADAPTER_VERSION, CHALLENGE_IMPLEMENTATION_VERSION,
     SUPPORTED_EXECUTOR_VERSIONS, ROLE, BASE_WORKSHOP, BASE_REGISTRY,
@@ -35,6 +38,7 @@ from context_config import (
     F, AV, EE, BR, REQUIRED_SCHEMA,
     V2_STAGE, V2_VERDICTS, CHALLENGER_WRITE_TABLES,
     ENV_CHALLENGE_READ, ENV_V2_CONTROL_WRITE,
+    canonical_snapshot,
 )
 
 API = "https://api.airtable.com/v0"
@@ -155,6 +159,14 @@ def validate_schema(token):
 
 def _sel(v):
     return v.get("name") if isinstance(v, dict) else v
+
+
+def canonical(record_fields):
+    return json.dumps(record_fields, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def sha(text):
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def discover_trusted_bases(token):
@@ -307,7 +319,8 @@ def verify_capture_source(v1_fields, draft_fields=None):
     return "unclassifiable capture_source"
 
 
-def build_v2_row(v1_fields, v1_record_id, verdict, tier, run_id, repairs=None):
+def build_v2_row(v1_fields, v1_record_id, verdict, tier, run_id, repairs=None,
+                 live_draft_fields=None):
     repairs = repairs or {}
     fields = {
         AV["amendment_version_id"]: v1_fields.get(AV["amendment_version_id"], "").replace("-v1", "-v2") or None,
@@ -328,9 +341,43 @@ def build_v2_row(v1_fields, v1_record_id, verdict, tier, run_id, repairs=None):
     if v1_record_id:
         fields[AV["supersedes_version_link"]] = [v1_record_id]
     for opt in ("target_record_id", "target_field_id", "v1_report_url", "v1_report_record_id",
-                "before_snapshot", "before_hash", "after_payload", "confidence", "target_draft"):
+                "after_payload", "confidence", "target_draft"):
         if v1_fields.get(AV[opt]) is not None:
             fields[AV[opt]] = repairs.get(opt, v1_fields.get(AV[opt]))
+
+    action_class = fields.get(AV["action_class"])
+    stale_hold = None
+    if action_class == "CREATE_DRAFT_TRUTH":
+        pass
+    elif live_draft_fields is None:
+        if v1_fields.get(AV["target_record_id"]):
+            stale_hold = "target gone or unreadable at V2-write"
+    else:
+        status = _sel(live_draft_fields.get(F["status"]))
+        if action_class == "QUARANTINE_DRAFT" and status and status != "Draft":
+            stale_hold = "premise broken: status no longer Draft"
+        elif action_class == "FILL_BLANK_DRAFT_METADATA":
+            tfid = fields.get(AV["target_field_id"]) or v1_fields.get(AV["target_field_id"])
+            cur = live_draft_fields.get(tfid) if tfid else None
+            if cur not in (None, ""):
+                stale_hold = "premise broken: target field no longer blank"
+        if stale_hold is None:
+            before_snap = canonical_snapshot(live_draft_fields)
+            fields[AV["before_snapshot"]] = before_snap
+            fields[AV["before_hash"]] = sha(before_snap)
+            old_hash = v1_fields.get(AV["before_hash"])
+            if old_hash and old_hash != fields[AV["before_hash"]]:
+                fields[AV["reason"]] = (fields.get(AV["reason"]) or "") + " rebuilt from live read"
+
+    if stale_hold:
+        verdict = "Held"
+        fields[AV["challenger_verdict"]] = verdict
+        fields[AV["tier"]] = "Amber"
+        fields[AV["reason"]] = stale_hold
+        for fid in (AV["before_snapshot"], AV["before_hash"], AV["after_payload"],
+                    AV["target_field_id"]):
+            fields.pop(fid, None)
+
     if verdict == "Held":
         fields[AV["human_decision_needed"]] = True
     return fields
@@ -393,7 +440,8 @@ def main():
                 defects = list(defects) + [cs_defect]
             if defects:
                 verdict = "Rejected" if item.get("proposed_verdict") == "Rejected" else "Held"
-                v2_fields = build_v2_row(v1_fields, rec_id, verdict, "Amber", args.run_id)
+                v2_fields = build_v2_row(v1_fields, rec_id, verdict, "Amber", args.run_id,
+                                         live_draft_fields=draft_fields)
                 # strip any executable payload so the Executor sees nothing actionable
                 for fid in (AV["before_snapshot"], AV["before_hash"], AV["after_payload"],
                             AV["target_field_id"]):
@@ -415,7 +463,7 @@ def main():
             if verdict == "Held" or v1_fields.get(AV["human_decision_needed"]):
                 tier = "Amber"
             v2_fields = build_v2_row(v1_fields, rec_id, verdict, tier, args.run_id,
-                                     item.get("repairs"))
+                                     item.get("repairs"), live_draft_fields=draft_fields)
             if args.v2_report_record_id:
                 v2_fields[AV["v2_report_record_id"]] = args.v2_report_record_id
             if args.write:

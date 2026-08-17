@@ -3,8 +3,13 @@ import {
   BRAIN_WORKSHOP_SOURCE_DOCUMENTS_MINE_STATUS,
   BRAIN_WORKSHOP_TABLES,
 } from "../airtable-ids";
-import { airtableCreate, airtableSelect, airtableUpdate, escapeAirtableString } from "../airtable-rest";
+import { airtableSelect, airtableUpdate, escapeAirtableString } from "../airtable-rest";
 import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
+import {
+  createDraftTruthRecord,
+  DRAFT_TRUTH_CAPTURE_SOURCE,
+  resolveBrainRegistryRecordId,
+} from "../draft-truth-write";
 import {
   buildSummarisedEligibilityFormula,
   structureProposalsFromSummary,
@@ -72,26 +77,45 @@ export async function handleSourceDocumentMine(
     const createdDraftIds: string[] = [];
 
     for (const proposal of structured) {
-      const draft = await airtableCreate(workshopBaseId, draftTableId, workshopToken, {
-        Title: proposal.title,
-        "Canonical Text": proposal.canonicalText,
-        "Brain Slug": proposal.brainSlug,
-        ...(proposal.brainTheme ? { "Brain Theme": proposal.brainTheme } : {}),
-        "Proposed Category": proposal.proposedCategory,
-        Status: "Draft",
-        "Proposed By Agent": PROPOSED_BY_AGENT,
-        "Created By": "Agent",
+      // Mining used to POST its own name-keyed payload here, which is how the
+      // 17 Aug rename made file mining fail quietly. It goes through the door now:
+      // both registers, live brain link, field IDs, and the source file attached.
+      const brainRegistryRecordId = await resolveBrainRegistryRecordId(
+        workshopBaseId,
+        workshopToken,
+        proposal.brainSlug,
+      );
+      const draft = await createDraftTruthRecord(workshopBaseId, workshopToken, {
+        title: proposal.title,
+        canonicalTextForAgents: proposal.canonicalText,
+        brainSlug: proposal.brainSlug,
+        brainRegistryRecordId: brainRegistryRecordId ?? undefined,
+        brainTheme: proposal.brainTheme,
+        proposedCategory: proposal.proposedCategory,
+        captureSource: DRAFT_TRUTH_CAPTURE_SOURCE.external,
+        proposedByAgent: PROPOSED_BY_AGENT,
+        createdBy: "Agent",
+        sourceDocumentRecordIds: [source.recordId],
+        tableId: draftTableId,
       });
-      createdDraftIds.push(draft.id);
-      draftRecordIds.push(draft.id);
+      createdDraftIds.push(draft.recordId);
+      draftRecordIds.push(draft.recordId);
     }
 
-    await airtableUpdate(workshopBaseId, sourceTableId, workshopToken, source.recordId, {
-      "Mine Status": BRAIN_WORKSHOP_SOURCE_DOCUMENTS_MINE_STATUS.proposed,
-      ...(createdDraftIds.length > 0
-        ? { [SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.linkedDrafts]: createdDraftIds }
-        : {}),
-    });
+    await airtableUpdate(
+      workshopBaseId,
+      sourceTableId,
+      workshopToken,
+      source.recordId,
+      {
+        [BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS.mineStatus]:
+          BRAIN_WORKSHOP_SOURCE_DOCUMENTS_MINE_STATUS.proposed,
+        ...(createdDraftIds.length > 0
+          ? { [BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS.linkedDrafts]: createdDraftIds }
+          : {}),
+      },
+      { returnFieldsByFieldId: true },
+    );
     minedSourceDocumentIds.push(source.recordId);
   }
 
@@ -118,14 +142,25 @@ async function listEligibleSourceDocuments(
     filterByFormula: formula,
     maxRecords: limit,
     fields: [
-      SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.title,
-      SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.attachmentSummary,
-      SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.mineStatus,
-      SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.brainSlug,
+      BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS.title,
+      BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS.attachmentSummary,
+      BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS.mineStatus,
+      BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS.brainSlug,
     ],
+    returnFieldsByFieldId: true,
   });
 
   return records.map(mapSourceDocumentRecord);
+}
+
+/** Read either shape: field IDs from a live read, names from an older fixture. */
+function readSourceField(
+  fields: Record<string, unknown>,
+  key: keyof typeof SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES,
+): unknown {
+  const byId = fields[BRAIN_WORKSHOP_SOURCE_DOCUMENTS_FIELDS[key]];
+  if (byId !== undefined) return byId;
+  return fields[SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES[key]];
 }
 
 function mapSourceDocumentRecord(record: {
@@ -135,13 +170,13 @@ function mapSourceDocumentRecord(record: {
   const fields = record.fields;
   return {
     recordId: record.id,
-    documentTitle: String(fields[SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.title] ?? "Untitled source"),
-    summary: String(fields[SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.attachmentSummary] ?? ""),
+    documentTitle: String(readSourceField(fields, "title") ?? "Untitled source"),
+    summary: String(readSourceField(fields, "attachmentSummary") ?? ""),
     mineStatus: String(
-      fields[SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.mineStatus] ??
+      readSourceField(fields, "mineStatus") ??
         BRAIN_WORKSHOP_SOURCE_DOCUMENTS_MINE_STATUS.pending,
     ) as SourceDocumentRow["mineStatus"],
-    brainSlug: String(fields[SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.brainSlug] ?? ""),
+    brainSlug: String(readSourceField(fields, "brainSlug") ?? ""),
   };
 }
 

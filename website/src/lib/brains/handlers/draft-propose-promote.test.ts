@@ -23,6 +23,7 @@ describe("assertDraftEligibleForPromote", () => {
     ).toEqual({
       title: "Positioning line",
       canonicalText: "Approved wording.",
+      canonicalTextForHumans: "",
     });
   });
 
@@ -41,6 +42,7 @@ describe("assertDraftEligibleForPromote", () => {
     ).toEqual({
       title: "Wall-accepted line",
       canonicalText: "Human confirmed on the Receiving Wall.",
+      canonicalTextForHumans: "",
     });
   });
 
@@ -61,6 +63,7 @@ describe("assertDraftEligibleForPromote", () => {
       ).toEqual({
         title: "Custom accept status",
         canonicalText: "Accepted under a custom status label.",
+        canonicalTextForHumans: "",
       });
     } finally {
       delete process.env.BRAIN_WORKSHOP_RECEIVING_WALL_ACCEPT_STATUS;

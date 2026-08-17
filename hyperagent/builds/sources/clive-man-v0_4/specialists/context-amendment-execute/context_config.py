@@ -6,6 +6,10 @@ V2 loading, preflight, typed mutations, readback, Change Log). No audit/fingerpr
 or V1/V2 control-writer config. Credential: CONTEXT_AMENDMENT_EXECUTE only.
 """
 
+import sys
+
+assert sys.version_info >= (3, 9), "Context Amendment Execute config requires Python >= 3.9"
+
 ADAPTER_VERSION = "context-amendment-adapters-v2.0"
 EXECUTOR_IMPLEMENTATION_VERSION = "context-amendment-execute-v2.1"
 ROLE = "clive-man-context-executor"
@@ -74,7 +78,8 @@ AV = {
     "tier": "fldtAci9wgwcihcZb", "challenger_verdict": "fldPUsdAy9FXmYeAh",
     "confidence": "fld2ypDkBf8qo3Qmu", "human_decision_needed": "fldoZDmZPz8iVoqUg",
     "dedupe_key": "fldm9DV7zrjlbiM3D", "created_by_agent": "fldSQdzOLrl4tqVQB",
-    "execution_events": "fldvekhFz1CLBi3sp",
+    # D9b (2026-08-17): dead AV reciprocal execution_events → fldvekhFz1CLBi3sp
+    # removed. Event-side amendment_version → fldZeOm6wYcDZWEKz is preserved.
 }
 
 EE = {
@@ -137,3 +142,31 @@ CAP_FAILURES = {"intake": 2, "maintenance": 2}
 TERMINAL_EVENT_TYPES = frozenset({"Applied", "Skipped", "Blocked", "Failed", "Compensated"})
 
 ENV_EXECUTE = "CONTEXT_AMENDMENT_EXECUTE"
+
+# D2 (2026-08-17): before-hash over this pinned field set only. Excludes the
+# Context Amendment Versions backlink (fldAeXTX1uLgkNa5d) that changes every run.
+SNAPSHOT_PROJECTION = (
+    "fld8BVmRBSsVuXD8I",
+    "fld8wdl04NOs8CwpX",
+    "fld9zhLHPvjnq8lHT",
+    "fldB1vIzRA6NBxEYs",
+    "fldCViiokjEMdp3vb",
+    "fldD4gLnHeihH7yCd",
+    "fldEonKVeEsrbiwkm",
+    "fldIm3bUPNLBflyJc",
+    "fldYcgzaE3FwxziBT",
+    "flddfROfNcP1u6gCy",
+    "flde1d1sda9lWwrj9",
+    "fldeKn3fxdilUw4YK",
+    "fldiMCxuBITyZIOXW",
+)
+
+
+def project_snapshot(record_fields):
+    return {k: record_fields[k] for k in SNAPSHOT_PROJECTION if k in record_fields}
+
+
+def canonical_snapshot(record_fields):
+    import json
+    return json.dumps(project_snapshot(record_fields), sort_keys=True,
+                      separators=(",", ":"), ensure_ascii=False)

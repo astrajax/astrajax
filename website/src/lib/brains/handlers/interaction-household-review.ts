@@ -5,6 +5,7 @@ import {
   getHouseholdActivityReviewToken,
   getHouseholdActivityTableId,
 } from "../config";
+import { HOUSEHOLD_ACTIVITY_FIELDS } from "@/lib/platform-activity/ids";
 import { updateAirtableReview } from "@/lib/platform-activity/airtable-review";
 import { mapHouseholdRecord } from "./interaction-household";
 import type {
@@ -59,10 +60,14 @@ async function updateHouseholdInteraction(input: {
     recordId: input.record.id,
     reviewToken: token,
     fields: {
-      ...(input.agentQuality !== undefined ? { "Agent Quality": input.agentQuality } : {}),
-      ...(input.humanQuality !== undefined ? { "Human Quality": input.humanQuality } : {}),
-      "Review Status": input.reviewStatus,
-      Detail: JSON.stringify({
+      ...(input.agentQuality !== undefined
+        ? { [HOUSEHOLD_ACTIVITY_FIELDS.agentQuality]: input.agentQuality }
+        : {}),
+      ...(input.humanQuality !== undefined
+        ? { [HOUSEHOLD_ACTIVITY_FIELDS.humanQuality]: input.humanQuality }
+        : {}),
+      [HOUSEHOLD_ACTIVITY_FIELDS.reviewStatus]: input.reviewStatus,
+      [HOUSEHOLD_ACTIVITY_FIELDS.detail]: JSON.stringify({
         ...detail,
         review: {
           reviewer: input.reviewer,

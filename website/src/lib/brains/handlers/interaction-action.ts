@@ -1,6 +1,7 @@
 import {
   BRAIN_INTERACTION_CONTEXT_FLAGGED,
   BRAIN_INTERACTION_REVIEW_STATUS,
+  BRAIN_WORKSHOP_INTERACTION_FIELDS,
   BRAIN_WORKSHOP_TABLES,
 } from "../airtable-ids";
 import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
@@ -87,9 +88,11 @@ export async function handleInteractionAction(body: InteractionActionBody) {
         {
           id: recordId,
           fields: {
-            "Review Status": fields.reviewStatus,
-            "Context Flagged": fields.contextFlagged,
-            ...(actor ? { Reviewer: actor } : {}),
+            [BRAIN_WORKSHOP_INTERACTION_FIELDS.reviewStatus]: fields.reviewStatus,
+            [BRAIN_WORKSHOP_INTERACTION_FIELDS.contextFlagged]: fields.contextFlagged,
+            ...(actor
+              ? { [BRAIN_WORKSHOP_INTERACTION_FIELDS.reviewer]: actor }
+              : {}),
           },
         },
       ],
