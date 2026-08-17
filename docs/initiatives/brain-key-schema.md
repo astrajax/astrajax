@@ -229,16 +229,27 @@ Primary field: **User Label** (singleLineText)
 
 Primary field: **Title** (singleLineText). **Workshop only** — never approved canonical truth.
 
+One row is one proposed claim. Dual text is **one claim, two registers** — both can be canon if they keep the same meaning. Human-review fields are an **AstraJax platform-builder loop for Doc** (skills / agent configs). Not for clients. Not a per-row promotion queue. Recorded 17 Aug 2026 (`rpt-draft-truth-builder-overlay-20260817`, `rec7CebyrzBHYzELy`).
+
 | Field | Type | Notes |
 |-------|------|-------|
 | Title | singleLineText | Primary |
-| Canonical Text | multilineText | Proposed content only |
+| Canonical Text for Agents | multilineText | Complete register for agents. Same meaning as the human text; do not strip facts. Field ID `fld95ls0LG26rCNx4` |
+| Canonical Text for Humans | multilineText | Plain register of the same claim (no record IDs). Capture agents write this at create. Field ID `fldbnsCNSXmLXE51y` |
 | Brain Slug | singleLineText | |
 | Brain Theme | singleLineText | Theme slug, e.g. `core`, `sales-forecasting` |
 | Proposed Category | singleSelect | Workshop sorting only — not access control. See universal set below. |
-| Status | singleSelect | Draft, Quarantined, Rejected, Promoted — agents write **Draft** / **Quarantined** only; **Rejected** / **Promoted** read-and-respect; **Approved** is observed drift (never write); distinct from Source Document Mine Status **Proposed** |
+| Status | singleSelect | Draft, Quarantined, Rejected, Promoted — agents write **Draft** / **Quarantined** only; **Rejected** / **Promoted** read-and-respect; **Approved** and **Accepted with amendments** are observed drift (never write); distinct from Source Document Mine Status **Proposed** |
 | Proposed By Agent | singleLineText | e.g. clive |
 | Created By | singleSelect | Matthew, Agent, Website, TL |
+| Human Reviewed | checkbox | Sole “looked at” signal. Unticked = ignore overrides, scores, and notes. Does not mean approved or promoted. `fldi0T3Kq4psOpLoi` |
+| Human Chosen Brain / Category / Record Type / Horizon | link or singleSelect | Overrides. Empty + reviewed = no correction. Empty + not reviewed = ignore |
+| Readability Rating / Capture Quality / Context Importance | rating 1–5 | Optional builder scores. Ignore unless Human Reviewed. Blank + unreviewed is not a kill |
+| Readability Notes / Capture Quality Notes / Builder Notes | multilineText | Why the score, or Matthew’s note for Doc. Ignore unless Human Reviewed |
+| Should Have Been Auto-Handled | checkbox | Ticked = should have landed in Draft without human attention. Never a Trusted auto-promote. Ignore unless Human Reviewed. Was `Needed Human Review?`. `fldWEGX7L3cGuqxe9` |
+| Follow-up Candidate | checkbox | Digest input only — not an instruction to ask |
+
+**Do not copy the builder-review overlay into client brain bases.**
 
 **Workshop Draft Brain Truth — Proposed Category options (canonical, 29 Jun 2026):**  
 Definition, Goals & Priorities, Workflow, Data & Metrics, Rules & Guardrails, Knowledge, Examples & Edge Cases, Open Questions, Business Context, Adjacent Functions

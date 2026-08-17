@@ -152,6 +152,21 @@ export const BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS = {
   supersedesTrustedTruthId: "fldbWiOWBg5nmNMJv",
   /** Receiving Wall source tint — single-select (2 Aug 2026). */
   captureSource: "fld9zhLHPvjnq8lHT",
+  /** Dual-register human text — same claim as canonicalText. */
+  canonicalTextForHumans: "fldbnsCNSXmLXE51y",
+  humanChosenBrain: "fldDmfyM7wK6k8DKj",
+  humanChosenCategory: "fldepH6sz70MAl1lJ",
+  humanChosenRecordType: "fld8RMUWe9grDx9F6",
+  humanChosenHorizon: "fldjkIGcHIbw0ucGs",
+  readabilityRating: "fld9VYQEf4b0PMSJm",
+  captureQuality: "fldaEEJvOK3YMepwK",
+  readabilityNotes: "fldV4xwixcBhcpnHv",
+  captureQualityNotes: "fld7iMmXepwsZ3ieD",
+  contextImportance: "fld31KoLoNuuYUx6V",
+  shouldHaveBeenAutoHandled: "fldWEGX7L3cGuqxe9",
+  followUpCandidate: "fldqxz6XyOQwCwyCz",
+  builderNotes: "fld6SLo2yjscSEU5v",
+  humanReviewed: "fldi0T3Kq4psOpLoi",
 } as const;
 
 /** Workshop Approval Decisions — human judgement before Doc acts. */
