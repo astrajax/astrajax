@@ -110,7 +110,7 @@ agent and reuse it.
    when a branch is needed; still one job per PR.
 
 **New-chat brief (when starting work):** Goal · Lane · Branch from latest `main` ·
-What not to touch · Done when.
+What not to touch · Done when · Session ID (or `none` if generic).
 
 ## Generic is legitimate
 
