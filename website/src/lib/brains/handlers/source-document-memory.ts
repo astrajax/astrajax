@@ -5,6 +5,10 @@ import {
   type SourceDocumentRow,
   type SourceMineProposal,
 } from "../source-document-mining";
+import {
+  buildDraftTruthCreateFields,
+  DRAFT_TRUTH_CAPTURE_SOURCE,
+} from "../draft-truth-write";
 import type { SourceDocumentMineResult } from "../types";
 
 interface MemorySourceDocument extends SourceDocumentRow {
@@ -72,14 +76,18 @@ export function mineMemorySourceDocuments(
       memoryDrafts.push({
         recordId: draftId,
         fields: {
-          Title: proposal.title,
-          "Canonical Text": proposal.canonicalText,
-          "Brain Slug": proposal.brainSlug,
-          "Brain Theme": proposal.brainTheme ?? "",
-          "Proposed Category": proposal.proposedCategory,
-          Status: "Draft",
-          "Proposed By Agent": "clive-man",
-          "Created By": "Agent",
+          ...buildDraftTruthCreateFields({
+            title: proposal.title,
+            canonicalTextForAgents: proposal.canonicalText,
+            brainSlug: proposal.brainSlug || brainSlug,
+            brainTheme: proposal.brainTheme,
+            proposedCategory: proposal.proposedCategory,
+            recordType:
+              proposal.proposedCategory === "Open Questions" ? "Open Question" : "Truth Claim",
+            captureSource: DRAFT_TRUTH_CAPTURE_SOURCE.external,
+            proposedByAgent: "clive-man",
+            sourceDocumentRecordIds: [proposal.sourceDocumentRecordId],
+          }),
           "Source Document Record ID": proposal.sourceDocumentRecordId,
         },
       });

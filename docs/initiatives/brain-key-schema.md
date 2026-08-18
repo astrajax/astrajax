@@ -2,7 +2,7 @@
 
 **Status:** Replicable schema reference (context-agnostic)  
 **Owner:** Matthew  
-**Last updated:** 29 June 2026 (Context Health Phase 2 schema pending); Operator State table added 4 Aug 2026  
+**Last updated:** 17 August 2026 (Draft Brain Truth write contract); Context Health Phase 2 schema pending
 **Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance), [`chapter1-context-structure.md`](./chapter1-context-structure.md) (canonical brain themes + categories), [`doc-brain-base-builder.md`](./doc-brain-base-builder.md) (scaffold/extend bases via Doc Brain Base Builder)
 
 Any agent (especially **@doc-brain-base-builder**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
@@ -229,16 +229,43 @@ Primary field: **User Label** (singleLineText)
 
 Primary field: **Title** (singleLineText). **Workshop only** — never approved canonical truth.
 
+One row is one proposed claim. Dual text is **one claim, two registers** — both can be canon if they keep the same meaning. Human-review fields are an **AstraJax platform-builder loop for Doc** (skills / agent configs). Not for clients. Not a per-row promotion queue. Recorded 17 Aug 2026 (`rpt-draft-truth-builder-overlay-20260817`, `rec7CebyrzBHYzELy`).
+
 | Field | Type | Notes |
 |-------|------|-------|
 | Title | singleLineText | Primary |
-| Canonical Text | multilineText | Proposed content only |
-| Brain Slug | singleLineText | |
+| Canonical Text for Agents | multilineText | Complete register for agents. Same meaning as the human text; do not strip facts. Field ID `fld95ls0LG26rCNx4` |
+| Canonical Text for Humans | multilineText | Plain register of the same claim (no record IDs). Capture agents write this at create. Field ID `fldbnsCNSXmLXE51y` |
+| Brain Slug | singleLineText | Free text. **Not** a destination on its own — always link Brain Registry too |
+| Brain Registry | link → Workshop Brain Registry (`tblsI93ayQm4hq5bw`) | The destination. Capture agents link a live brain at create. Field ID `fldB1vIzRA6NBxEYs` |
 | Brain Theme | singleLineText | Theme slug, e.g. `core`, `sales-forecasting` |
 | Proposed Category | singleSelect | Workshop sorting only — not access control. See universal set below. |
-| Status | singleSelect | Draft, Quarantined, Rejected, Promoted — agents write **Draft** / **Quarantined** only; **Rejected** / **Promoted** read-and-respect; **Approved** is observed drift (never write); distinct from Source Document Mine Status **Proposed** |
+| Record Type | singleSelect | Truth Claim, Amendment, Open Question, Next Step, Test, Parked Idea. Field ID `fldCViiokjEMdp3vb` |
+| Horizon | singleSelect | Persistent, Long-term, Short-term, Fleeting. Field ID `fldEgLQcvc6L4c9p1` |
+| Capture Source | singleSelect | Chat Session, User Guided Capture, External Context Capture. Field ID `fld9zhLHPvjnq8lHT` |
+| Source Documents | link → Source Documents | Inverse of that table's **Linked Drafts**. Link when a file is the evidence. Field ID `fldsspqpNL4vDUU50` |
+| Context Amendment Versions | link → Context Amendment Versions | Inverse of **Target Draft**. Link when the row came from the V1 queue. Field ID `fldAeXTX1uLgkNa5d` |
+| Status | singleSelect | Draft, Quarantined, Rejected, Promoted — agents write **Draft** / **Quarantined** only; **Rejected** / **Promoted** read-and-respect; **Approved** and **Accepted with amendments** are observed drift (never write); distinct from Source Document Mine Status **Proposed** |
 | Proposed By Agent | singleLineText | e.g. clive |
 | Created By | singleSelect | Matthew, Agent, Website, TL |
+| Human Reviewed | checkbox | Sole “looked at” signal. Unticked = ignore overrides, scores, and notes. Does not mean approved or promoted. `fldi0T3Kq4psOpLoi` |
+| Human Chosen Brain / Category / Record Type / Horizon | link or singleSelect | Overrides. Empty + reviewed = no correction. Empty + not reviewed = ignore |
+| Readability Rating / Capture Quality / Context Importance | rating 1–5 | Optional builder scores. Ignore unless Human Reviewed. Blank + unreviewed is not a kill |
+| Readability Notes / Capture Quality Notes / Builder Notes | multilineText | Why the score, or Matthew’s note for Doc. Ignore unless Human Reviewed |
+| Should Have Been Auto-Handled | checkbox | Ticked = should have landed in Draft without human attention. Never a Trusted auto-promote. Ignore unless Human Reviewed. Was `Needed Human Review?`. `fldWEGX7L3cGuqxe9` |
+| Follow-up Candidate | checkbox | Digest input only — not an instruction to ask |
+
+**Do not copy the builder-review overlay into client brain bases.**
+
+**Rename warning (17 Aug 2026):** `Canonical Text` on this table was renamed to
+**Canonical Text for Agents**. Airtable REST writes key on field *names*, so any
+caller still sending `Canonical Text` gets `UNKNOWN_FIELD_NAME` and any reader
+gets an empty body. Website callers go through
+`website/src/lib/brains/draft-truth-write.ts`. HyperAgent field-ID writes are
+unaffected by the rename itself, but the current v0.4 executor allowlists do not
+yet accept the human register or Brain Registry link; regeneration and human
+re-import remain open. Trusted **Brain Truth** still uses `Canonical Text` — do
+not rename it there.
 
 **Workshop Draft Brain Truth — Proposed Category options (canonical, 29 Jun 2026):**  
 Definition, Goals & Priorities, Workflow, Data & Metrics, Rules & Guardrails, Knowledge, Examples & Edge Cases, Open Questions, Business Context, Adjacent Functions
@@ -315,7 +342,7 @@ Field and choice IDs: `AMBIENT_CHECKPOINT_*` in `airtable-ids.ts`. Signed build:
 Doc promote is a **copy-out**, not a status flip on one table.
 
 1. Human approves via **Approval Decisions** (+ Pam at action gate if required).
-2. Doc route reads draft **Title** and **Canonical Text** from Workshop only.
+2. Doc route reads draft **Title** and **Canonical Text for Agents** from Workshop only.
 3. Doc **creates a new row** in Trusted **Brain Truth** with human-specified **Category** and **Scope** (from promote payload — not from draft fields).
 4. Workshop draft **Status → Quarantined** (consumed proposal, not “Approved”).
 5. **Change Log** + grant revoke on Registry.

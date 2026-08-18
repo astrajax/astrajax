@@ -57,7 +57,7 @@ describe("Doc promote (airtable mode)", () => {
                 id: "recDraft1",
                 fields: {
                   Title: "Draft title",
-                  "Canonical Text": "Draft canonical body",
+                  "Canonical Text for Agents": "Draft canonical body",
                   "Brain Slug": "astrajax-chapter-1",
                   Status: "Draft",
                   "Proposed Category": "Positioning",
@@ -156,7 +156,7 @@ describe("Doc promote (airtable mode)", () => {
               id: "recDraft1",
               fields: {
                 Title: "Draft title",
-                "Canonical Text": "Draft canonical body",
+                "Canonical Text for Agents": "Draft canonical body",
                 "Brain Slug": "astrajax-brand",
                 Status: "Draft",
               },
@@ -194,7 +194,7 @@ describe("Doc promote (airtable mode)", () => {
               id: "recDraft1",
               fields: {
                 Title: "Draft title",
-                "Canonical Text": "Draft canonical body",
+                "Canonical Text for Agents": "Draft canonical body",
                 "Brain Slug": "astrajax-chapter-1",
                 Status: "Quarantined",
               },
@@ -237,7 +237,7 @@ describe("Doc promote (airtable mode)", () => {
                 id: "recDraftApproved",
                 fields: {
                   Title: "Wall-accepted title",
-                  "Canonical Text": "Human confirmed on the Receiving Wall.",
+                  "Canonical Text for Agents": "Human confirmed on the Receiving Wall.",
                   "Brain Slug": "astrajax-chapter-1",
                   Status: "Approved",
                 },
@@ -314,7 +314,7 @@ describe("Doc promote (airtable mode)", () => {
                 id: "recDraft1",
                 fields: {
                   Title: "Draft title",
-                  "Canonical Text": "Draft canonical body",
+                  "Canonical Text for Agents": "Draft canonical body",
                   "Brain Slug": "astrajax-chapter-1",
                   Status: "Approved",
                 },

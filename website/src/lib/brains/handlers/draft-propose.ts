@@ -11,6 +11,14 @@ import {
   getWorkshopWriteToken,
   useMemoryStore,
 } from "../config";
+import {
+  buildDraftTruthCreateFields,
+  deriveHumanText,
+  DRAFT_TRUTH_CAPTURE_SOURCE,
+  DRAFT_TRUTH_FIELD_NAMES,
+  resolveBrainRegistryRecordId,
+  type DraftTruthCaptureSource,
+} from "../draft-truth-write";
 import type { ContextDestination } from "@/lib/curation/destinations";
 import type { InteractionRecordSource } from "../types";
 import { handleInteractionAction } from "./interaction-action";
@@ -21,6 +29,7 @@ type MemoryDraft = {
   recordId: string;
   title: string;
   canonicalText: string;
+  canonicalTextForHumans?: string;
   brainSlug: string;
   status: string;
   supersedesTrustedTruthId?: string;
@@ -70,9 +79,11 @@ export function assertDraftEligibleForPromote(input: {
     );
   }
   const title = String(input.fields.Title ?? "").trim();
-  const canonicalText = String(input.fields["Canonical Text"] ?? "").trim();
+  const canonicalText = String(
+    input.fields[DRAFT_TRUTH_FIELD_NAMES.canonicalTextForAgents] ?? "",
+  ).trim();
   if (!title || !canonicalText) {
-    throw new Error("Draft is missing Title or Canonical Text.");
+    throw new Error("Draft is missing Title or Canonical Text for Agents.");
   }
   return { title, canonicalText };
 }
@@ -81,9 +92,16 @@ export async function createDraftTruth(input: {
   brainSlug: string;
   title: string;
   canonicalText: string;
+  /** Plain register of the same claim. Derived from canonicalText when omitted. */
+  canonicalTextForHumans?: string;
   proposedCategory: string;
+  recordType?: string;
+  horizon?: string;
+  captureSource?: DraftTruthCaptureSource;
   proposedByAgent?: string;
   supersedesTrustedTruthId?: string;
+  sourceDocumentRecordIds?: string[];
+  contextAmendmentVersionRecordIds?: string[];
   actor?: string;
 }): Promise<{ recordId: string; destination: ContextDestination; mode: "airtable" | "memory" }> {
   const title = input.title.trim();
@@ -96,6 +114,8 @@ export async function createDraftTruth(input: {
       recordId,
       title,
       canonicalText,
+      canonicalTextForHumans:
+        input.canonicalTextForHumans?.trim() || deriveHumanText(canonicalText),
       brainSlug: input.brainSlug,
       status: "Draft",
       supersedesTrustedTruthId: input.supersedesTrustedTruthId,
@@ -104,18 +124,27 @@ export async function createDraftTruth(input: {
   }
 
   const token = writeToken()!;
-  const fields: Record<string, string> = {
-    Title: title,
-    "Canonical Text": canonicalText,
-    "Brain Slug": input.brainSlug,
-    Status: "Draft",
-    "Proposed Category": input.proposedCategory,
-    "Proposed By Agent": input.proposedByAgent ?? "Clive",
-    "Created By": normalizeCreatedBy(input.actor),
-  };
-  if (input.supersedesTrustedTruthId) {
-    fields["Supersedes Trusted Truth ID"] = input.supersedesTrustedTruthId;
-  }
+  const brainRegistryRecordId = await resolveBrainRegistryRecordId(
+    getWorkshopBaseId()!,
+    token,
+    input.brainSlug,
+  );
+  const fields = buildDraftTruthCreateFields({
+    title,
+    canonicalTextForAgents: canonicalText,
+    canonicalTextForHumans: input.canonicalTextForHumans,
+    brainSlug: input.brainSlug,
+    brainRegistryRecordId: brainRegistryRecordId ?? undefined,
+    proposedCategory: input.proposedCategory,
+    recordType: input.recordType ?? "Truth Claim",
+    horizon: input.horizon,
+    captureSource: input.captureSource ?? DRAFT_TRUTH_CAPTURE_SOURCE.chatSession,
+    proposedByAgent: input.proposedByAgent ?? "Clive",
+    createdBy: normalizeCreatedBy(input.actor),
+    supersedesTrustedTruthId: input.supersedesTrustedTruthId,
+    sourceDocumentRecordIds: input.sourceDocumentRecordIds,
+    contextAmendmentVersionRecordIds: input.contextAmendmentVersionRecordIds,
+  });
 
   const created = await airtableCreate(
     getWorkshopBaseId()!,
@@ -159,7 +188,7 @@ export async function promoteDraftToTrustedDemo(input: {
     brainSlug: input.brainSlug,
     fields: {
       Title: draft.title,
-      "Canonical Text": draft.canonicalText,
+      [DRAFT_TRUTH_FIELD_NAMES.canonicalTextForAgents]: draft.canonicalText,
       "Brain Slug": draft.brainSlug,
       Status: draft.status,
     },

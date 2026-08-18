@@ -197,6 +197,19 @@ Then you review. Approval to Trusted is still you (or the human-only promote pat
 
 `docs/initiatives/source-document-mining.md` covers the file path. `docs/context/clive-operating-rules.md` covers who may approve.
 
+### Draft Brain Truth write contract
+
+Every route that creates a Draft Brain Truth row must write both text registers,
+link the live Workshop Brain Registry record, and leave Matthew's builder-review
+fields untouched. A Brain Slug is a label, not the destination. Website routes use
+`website/src/lib/brains/draft-truth-write.ts`, which also refuses any status other
+than Draft or Quarantined.
+
+The HyperAgent Context Executor has not caught up with this contract: its current
+allowlist rejects the human register and Brain Registry link. Fixing that requires
+a regenerated build and human re-import. Until then, do not describe the scheduled
+V1 → executor route as able to materialise a contract-complete Draft row.
+
 ---
 
 ## Technical contracts (do not start here)
@@ -205,6 +218,7 @@ Then you review. Approval to Trusted is still you (or the human-only promote pat
 |---|---|
 | `.cursor/agents/clive-man-activity-intake-cursor.md` | Cursor agent |
 | `.cursor/skills/clive-man-activity-intake/SKILL.md` | Cursor skill |
+| `website/src/lib/brains/draft-truth-write.ts` | Shared website write contract for Draft Brain Truth |
 | `agents/registry/cursor/clive/activity-intake/build-pack-v0.1.md` | Cursor build pack |
 | `agents/registry/hyperagent/clive/activity-intake/build-pack-v0.1.md` | HyperAgent build pack |
 | `hyperagent/exports/agents/agent-clive-man-activity-intake-hyperagent-v0_1.json` | Import file |

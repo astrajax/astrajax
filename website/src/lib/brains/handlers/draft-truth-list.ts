@@ -19,7 +19,8 @@ export type WorkshopDraftTruth = {
 
 type DraftFields = {
   Title?: string;
-  "Canonical Text"?: string;
+  "Canonical Text for Agents"?: string;
+  "Canonical Text for Humans"?: string;
   "Proposed Category"?: string;
   "Brain Theme"?: string;
   Status?: string;
@@ -31,7 +32,7 @@ import { scopeForDraft } from "@/lib/aie-demo/draft-truth-utils";
 
 function mapRecord(record: { id: string; fields: DraftFields }): WorkshopDraftTruth | null {
   const title = record.fields.Title?.trim();
-  const canonicalText = record.fields["Canonical Text"]?.trim();
+  const canonicalText = record.fields["Canonical Text for Agents"]?.trim();
   if (!title || !canonicalText) return null;
 
   const proposedCategory = record.fields["Proposed Category"]?.trim() ?? "Definition";

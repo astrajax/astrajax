@@ -46,7 +46,8 @@ import {
 
 type DraftTruthFields = {
   Title?: string;
-  "Canonical Text"?: string;
+  "Canonical Text for Agents"?: string;
+  "Canonical Text for Humans"?: string;
   "Brain Slug"?: string;
   "System Brain Name"?: unknown;
   "System Brain Slug"?: unknown;
@@ -113,7 +114,11 @@ export function mapDraftTruthToReceivingRecord(record: {
   const fields = record.fields as DraftTruthFields;
   const title = fields.Title?.trim();
   if (!title) return null;
-  const canonicalText = fields["Canonical Text"]?.trim() ?? "";
+  // The wall is Matthew's surface, so it reads the human register first.
+  const canonicalText =
+    fields["Canonical Text for Humans"]?.trim() ||
+    fields["Canonical Text for Agents"]?.trim() ||
+    "";
   const read = normaliseCaptureSource(fields["Capture Source"]);
   const legacyBrainSlug = fields["Brain Slug"]?.trim() || undefined;
   const systemBrainName = firstLookupString(fields["System Brain Name"]);

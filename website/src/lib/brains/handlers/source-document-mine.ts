@@ -11,6 +11,11 @@ import {
   type SourceDocumentRow,
   type SourceMineProposal,
 } from "../source-document-mining";
+import {
+  buildDraftTruthCreateFields,
+  DRAFT_TRUTH_CAPTURE_SOURCE,
+  resolveBrainRegistryRecordId,
+} from "../draft-truth-write";
 import type { SourceDocumentMineBody, SourceDocumentMineResult } from "../types";
 import { mineMemorySourceDocuments } from "./source-document-memory";
 
@@ -71,17 +76,32 @@ export async function handleSourceDocumentMine(
 
     const createdDraftIds: string[] = [];
 
+    const brainRegistryRecordId = await resolveBrainRegistryRecordId(
+      workshopBaseId,
+      workshopToken,
+      source.brainSlug || brainSlug,
+    );
+
     for (const proposal of structured) {
-      const draft = await airtableCreate(workshopBaseId, draftTableId, workshopToken, {
-        Title: proposal.title,
-        "Canonical Text": proposal.canonicalText,
-        "Brain Slug": proposal.brainSlug,
-        ...(proposal.brainTheme ? { "Brain Theme": proposal.brainTheme } : {}),
-        "Proposed Category": proposal.proposedCategory,
-        Status: "Draft",
-        "Proposed By Agent": PROPOSED_BY_AGENT,
-        "Created By": "Agent",
-      });
+      const draft = await airtableCreate(
+        workshopBaseId,
+        draftTableId,
+        workshopToken,
+        buildDraftTruthCreateFields({
+          title: proposal.title,
+          canonicalTextForAgents: proposal.canonicalText,
+          brainSlug: proposal.brainSlug || brainSlug,
+          brainRegistryRecordId: brainRegistryRecordId ?? undefined,
+          brainTheme: proposal.brainTheme,
+          proposedCategory: proposal.proposedCategory,
+          recordType:
+            proposal.proposedCategory === "Open Questions" ? "Open Question" : "Truth Claim",
+          // A file is the evidence, so the draft carries the document link itself.
+          captureSource: DRAFT_TRUTH_CAPTURE_SOURCE.external,
+          proposedByAgent: PROPOSED_BY_AGENT,
+          sourceDocumentRecordIds: [proposal.sourceDocumentRecordId],
+        }),
+      );
       createdDraftIds.push(draft.id);
       draftRecordIds.push(draft.id);
     }

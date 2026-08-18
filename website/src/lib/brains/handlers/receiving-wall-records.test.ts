@@ -93,7 +93,7 @@ describe("handleReceivingWallRecords", () => {
         id: "recDraft1",
         fields: {
           Title: "Core · Definition",
-          "Canonical Text": "A working definition.",
+          "Canonical Text for Agents": "A working definition.",
           Status: "Draft",
           "Proposed By Agent": "Clive",
           "Brain Slug": "astrajax-chapter-1",
@@ -133,7 +133,7 @@ describe("handleReceivingWallRecords", () => {
         id: "recExternal",
         fields: {
           Title: " Sentinel finding ",
-          "Canonical Text": "A short canonical body.",
+          "Canonical Text for Agents": "A short canonical body.",
           "Brain Slug": "astrajax-chapter-1",
           Status: "Draft",
           "Proposed By Agent": "External Context Scanner",
@@ -144,7 +144,7 @@ describe("handleReceivingWallRecords", () => {
         id: "recGuided",
         fields: {
           Title: "Manual note",
-          "Canonical Text": "Human asked for this.",
+          "Canonical Text for Agents": "Human asked for this.",
           Status: "Draft",
           "Created By": "Matthew",
           "Capture Source": "User Guided Capture",
@@ -154,7 +154,7 @@ describe("handleReceivingWallRecords", () => {
         id: "recChat",
         fields: {
           Title: "Chat extract",
-          "Canonical Text": "From a reviewed session.",
+          "Canonical Text for Agents": "From a reviewed session.",
           Status: "Draft",
           "Proposed By Agent": "Clive's Man",
           "Capture Source": "Chat Session",
@@ -201,7 +201,7 @@ describe("handleReceivingWallRecords", () => {
                 id: "recPage1",
                 fields: {
                   Title: "Page one",
-                  "Canonical Text": "First page body.",
+                  "Canonical Text for Agents": "First page body.",
                   Status: "Draft",
                   "Proposed Category": "Governance",
                   "Proposed By Agent": "Clive",
@@ -221,7 +221,7 @@ describe("handleReceivingWallRecords", () => {
                 id: "recPage2",
                 fields: {
                   Title: "Page two",
-                  "Canonical Text": "Second page body.",
+                  "Canonical Text for Agents": "Second page body.",
                   Status: "Draft",
                   "Proposed Category": "Method",
                   "Proposed By Agent": "Clive",
@@ -257,7 +257,7 @@ describe("handleReceivingWallRecords", () => {
         id: "recCategorised",
         fields: {
           Title: "Governance note",
-          "Canonical Text": "A governance draft.",
+          "Canonical Text for Agents": "A governance draft.",
           Status: "Draft",
           "Proposed Category": "Governance",
           "Proposed By Agent": "Clive's Man",
@@ -267,7 +267,7 @@ describe("handleReceivingWallRecords", () => {
         id: "recUncategorised",
         fields: {
           Title: "Loose note",
-          "Canonical Text": "No category yet.",
+          "Canonical Text for Agents": "No category yet.",
           Status: "Draft",
           "Proposed Category": "   ",
           "Proposed By Agent": "Clive's Man",
@@ -290,7 +290,7 @@ describe("handleReceivingWallRecords", () => {
         id: "recInferredExternal",
         fields: {
           Title: "Intake scrape",
-          "Canonical Text": "Found by the scanner.",
+          "Canonical Text for Agents": "Found by the scanner.",
           Status: "Draft",
           "Proposed By Agent": "Context Sentinel",
           // Airtable can surface unexpected types; the PR #43 fix must not throw.
@@ -301,7 +301,7 @@ describe("handleReceivingWallRecords", () => {
         id: "recInferredChat",
         fields: {
           Title: "Session note",
-          "Canonical Text": "From Clive.",
+          "Canonical Text for Agents": "From Clive.",
           Status: "Draft",
           "Created By": "Chat Interaction Logger",
           "Capture Source": 12,
@@ -311,7 +311,7 @@ describe("handleReceivingWallRecords", () => {
         id: "recDefaultGuided",
         fields: {
           Title: "Untitled human ask",
-          "Canonical Text": "Someone submitted this.",
+          "Canonical Text for Agents": "Someone submitted this.",
           Status: "Draft",
           "Created By": "Matthew",
           "Capture Source": null,
@@ -338,7 +338,7 @@ describe("handleReceivingWallRecords", () => {
         id: "recNoTitle",
         fields: {
           Title: "   ",
-          "Canonical Text": "Should be ignored.",
+          "Canonical Text for Agents": "Should be ignored.",
           Status: "Draft",
           "Capture Source": "External",
         },
@@ -347,7 +347,7 @@ describe("handleReceivingWallRecords", () => {
         id: "recLong",
         fields: {
           Title: "Long truth",
-          "Canonical Text": longBody,
+          "Canonical Text for Agents": longBody,
           Status: "Draft",
           "Proposed By Agent": "Doc Brain Base Builder",
           "Capture Source": "external sentinel",
@@ -364,7 +364,7 @@ describe("handleReceivingWallRecords", () => {
     mockAirtableRecords([
       {
         id: "recBlank",
-        fields: { Title: "", "Canonical Text": "No title means drop.", Status: "Draft" },
+        fields: { Title: "", "Canonical Text for Agents": "No title means drop.", Status: "Draft" },
       },
     ]);
     const emptyMapped = await handleReceivingWallRecords();
@@ -796,7 +796,7 @@ describe("mapDraftTruthToReceivingRecord — Proposed Category", () => {
       id: "recCat",
       fields: {
         Title: "Positioning draft",
-        "Canonical Text": "Body.",
+        "Canonical Text for Agents": "Body.",
         Status: "Draft",
         "Proposed Category": "Positioning",
         "Proposed By Agent": "Clive's Man",
@@ -810,7 +810,7 @@ describe("mapDraftTruthToReceivingRecord — Proposed Category", () => {
       id: "recNone",
       fields: {
         Title: "Loose draft",
-        "Canonical Text": "Body.",
+        "Canonical Text for Agents": "Body.",
         Status: "Draft",
         "Proposed Category": "",
         "Proposed By Agent": "Clive's Man",
@@ -827,7 +827,7 @@ describe("mapDraftTruthToReceivingRecord — System Brain destination", () => {
       id: "recLinked",
       fields: {
         Title: "Linked draft",
-        "Canonical Text": "Body.",
+        "Canonical Text for Agents": "Body.",
         "Brain Slug": "legacy-slug",
         "System Brain Name": ["AstraJax Chapter 1"],
         "System Brain Slug": ["astrajax-chapter-1"],
@@ -849,7 +849,7 @@ describe("mapDraftTruthToReceivingRecord — System Brain destination", () => {
       id: "recLegacy",
       fields: {
         Title: "Unlinked draft",
-        "Canonical Text": "Body.",
+        "Canonical Text for Agents": "Body.",
         "Brain Slug": "astrajax-chapter-1",
         "System Brain Name": [],
         "System Brain Slug": [],
@@ -871,7 +871,7 @@ describe("mapDraftTruthToReceivingRecord — System Brain destination", () => {
       id: "recBare",
       fields: {
         Title: "Bare draft",
-        "Canonical Text": "Body.",
+        "Canonical Text for Agents": "Body.",
         Status: "Draft",
         "Proposed By Agent": "Clive's Man",
       },

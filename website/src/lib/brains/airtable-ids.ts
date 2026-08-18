@@ -85,6 +85,8 @@ export const BRAIN_WORKSHOP_TABLES = {
   contextAmendments: "tblsuOKGjSGYv0Vov",
   contextAmendmentEvents: "tblM7gxcsWYijdaM8",
   contextAuditFingerprints: "tblakbMPiim1K13Ru",
+  /** Workshop-local brain index — link target for Draft Brain Truth destinations. */
+  brainRegistry: "tblsI93ayQm4hq5bw",
   /** Ambient durable UTC checkpoint — Ruth V2 build 12 Aug 2026 (live-observed). */
   ambientCheckpointVersions: "tblRbjD0PHtuTWsIL",
 } as const;
@@ -143,16 +145,83 @@ export const BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS = {
   systemBrainName: "fldeKn3fxdilUw4YK",
   /** Lookup via Brain Registry link — short slug for card (fallback: brainSlug text). */
   systemBrainSlug: "fldIm3bUPNLBflyJc",
+  /** Live brain link — the destination. Slug text alone is not a destination. */
+  brainRegistry: "fldB1vIzRA6NBxEYs",
   brainTheme: "fld8wdl04NOs8CwpX",
   proposedCategory: "fldD4gLnHeihH7yCd",
+  recordType: "fldCViiokjEMdp3vb",
   horizon: "fldEgLQcvc6L4c9p1",
   status: "fldiMCxuBITyZIOXW",
+  /** Link → Workshop Source Documents (inverse of that table's Linked Drafts). */
+  sourceDocuments: "fldsspqpNL4vDUU50",
+  /** Link → Context Amendment Versions (inverse of Target Draft). */
+  contextAmendmentVersions: "fldAeXTX1uLgkNa5d",
   proposedByAgent: "flde1d1sda9lWwrj9",
   createdBy: "fldEonKVeEsrbiwkm",
   supersedesTrustedTruthId: "fldbWiOWBg5nmNMJv",
   /** Receiving Wall source tint — single-select (2 Aug 2026). */
   captureSource: "fld9zhLHPvjnq8lHT",
+  /** Dual-register human text — same claim as canonicalText. */
+  canonicalTextForHumans: "fldbnsCNSXmLXE51y",
+  humanChosenBrain: "fldDmfyM7wK6k8DKj",
+  humanChosenCategory: "fldepH6sz70MAl1lJ",
+  humanChosenRecordType: "fld8RMUWe9grDx9F6",
+  humanChosenHorizon: "fldjkIGcHIbw0ucGs",
+  readabilityRating: "fld9VYQEf4b0PMSJm",
+  captureQuality: "fldaEEJvOK3YMepwK",
+  readabilityNotes: "fldV4xwixcBhcpnHv",
+  captureQualityNotes: "fld7iMmXepwsZ3ieD",
+  contextImportance: "fld31KoLoNuuYUx6V",
+  shouldHaveBeenAutoHandled: "fldWEGX7L3cGuqxe9",
+  followUpCandidate: "fldqxz6XyOQwCwyCz",
+  builderNotes: "fld6SLo2yjscSEU5v",
+  humanReviewed: "fldi0T3Kq4psOpLoi",
 } as const;
+
+/** Workshop-local Brain Registry — resolves a brain slug to the link record. */
+export const BRAIN_WORKSHOP_BRAIN_REGISTRY_FIELDS = {
+  brainSlug: "flda7wdzniHrZf2SC",
+  brainName: "fldBdwGWgUmxYM9rs",
+} as const;
+
+/**
+ * Matthew's builder-review overlay on Draft Brain Truth. Capture agents must never
+ * write these — an agent-set value would make the review signal meaningless, since
+ * Human Reviewed is the only thing that says a human looked at the row.
+ * Recorded 17 Aug 2026 (`rpt-draft-truth-builder-overlay-20260817`).
+ */
+export const DRAFT_TRUTH_HUMAN_ONLY_FIELDS = [
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.humanReviewed,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.humanChosenBrain,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.humanChosenCategory,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.humanChosenRecordType,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.humanChosenHorizon,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.readabilityRating,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.captureQuality,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.contextImportance,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.readabilityNotes,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.captureQualityNotes,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.builderNotes,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.shouldHaveBeenAutoHandled,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.followUpCandidate,
+] as const;
+
+/** Same overlay, by Airtable field name — REST writes key on names. */
+export const DRAFT_TRUTH_HUMAN_ONLY_FIELD_NAMES = [
+  "Human Reviewed",
+  "Human Chosen Brain",
+  "Human Chosen Category",
+  "Human Chosen Record Type",
+  "Human Chosen Horizon",
+  "Readability Rating",
+  "Capture Quality",
+  "Context Importance",
+  "Readability Notes",
+  "Capture Quality Notes",
+  "Builder Notes",
+  "Should Have Been Auto-Handled",
+  "Follow-up Candidate",
+] as const;
 
 /**
  * Workshop Context Amendment Versions — morning-pipe control plane
