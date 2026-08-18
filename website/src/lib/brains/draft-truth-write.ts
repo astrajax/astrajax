@@ -5,15 +5,21 @@
  * that creates a Draft row must link a live brain, write both text registers, and
  * leave Matthew's builder-review overlay untouched.
  *
+ * Airtable REST writes key on **field IDs** so a rename cannot break capture again.
+ *
  * Server-only. Never import from a client component.
  */
 
 import {
   BRAIN_WORKSHOP_BRAIN_REGISTRY_FIELDS,
+  BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS,
+  BRAIN_WORKSHOP_PROJECT_LIFECYCLE,
+  BRAIN_WORKSHOP_PROJECTS_FIELDS,
   BRAIN_WORKSHOP_TABLES,
   DRAFT_TRUTH_HUMAN_ONLY_FIELD_NAMES,
+  DRAFT_TRUTH_HUMAN_ONLY_FIELDS,
 } from "./airtable-ids";
-import { airtableFindOne, escapeAirtableString } from "./airtable-rest";
+import { airtableFindOne, airtableSelect, escapeAirtableString } from "./airtable-rest";
 
 /** Live Capture Source choices — exact names, nothing else is accepted. */
 export const DRAFT_TRUTH_CAPTURE_SOURCE = {
@@ -40,8 +46,8 @@ export interface DraftTruthWriteInput {
    */
   canonicalTextForHumans?: string;
   brainSlug: string;
-  /** Brain Registry record id. Resolve with `resolveBrainRegistryRecordId`. */
-  brainRegistryRecordId?: string;
+  /** Brain Registry record id. Required on create — resolve with `resolveBrainRegistryRecordId`. */
+  brainRegistryRecordId: string;
   proposedCategory?: string;
   recordType?: string;
   horizon?: string;
@@ -54,13 +60,42 @@ export interface DraftTruthWriteInput {
   sourceDocumentRecordIds?: string[];
   /** Link when the row came from the V1 proposal queue. */
   contextAmendmentVersionRecordIds?: string[];
+  /**
+   * Live Projects record IDs already chosen by Clive's Man the HEAD in the brief.
+   * Cheap proposer/challenger/executor copy or write these IDs only — they do not
+   * choose. Blank is legal.
+   */
+  relatedProjectRecordIds?: string[];
   supersedesTrustedTruthId?: string;
 }
 
 /**
- * Airtable REST keys on field names, and the agent/human text fields were renamed
- * on 17 Aug 2026 — `Canonical Text` no longer exists on this table. Read and write
- * Draft Brain Truth through this map so a future rename is a one-line change.
+ * Field-ID keys for Draft Brain Truth creates. Prefer this over display names so
+ * a rename (like Canonical Text → Canonical Text for Agents) cannot break capture.
+ */
+export const DRAFT_TRUTH_FIELD_IDS = {
+  title: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.title,
+  canonicalTextForAgents: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalText,
+  canonicalTextForHumans: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.canonicalTextForHumans,
+  brainSlug: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainSlug,
+  brainRegistry: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainRegistry,
+  brainTheme: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.brainTheme,
+  proposedCategory: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedCategory,
+  recordType: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.recordType,
+  horizon: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.horizon,
+  status: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.status,
+  proposedByAgent: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.proposedByAgent,
+  createdBy: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.createdBy,
+  captureSource: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.captureSource,
+  sourceDocuments: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.sourceDocuments,
+  contextAmendmentVersions: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.contextAmendmentVersions,
+  relatedProjects: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.relatedProjects,
+  supersedesTrustedTruthId: BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.supersedesTrustedTruthId,
+} as const;
+
+/**
+ * @deprecated Display names only — do not use for Airtable REST writes.
+ * Kept for memory-store / promote eligibility helpers that still key UI snapshots by name.
  */
 export const DRAFT_TRUTH_FIELD_NAMES = {
   title: "Title",
@@ -78,8 +113,11 @@ export const DRAFT_TRUTH_FIELD_NAMES = {
   captureSource: "Capture Source",
   sourceDocuments: "Source Documents",
   contextAmendmentVersions: "Context Amendment Versions",
+  relatedProjects: "Related Projects",
   supersedesTrustedTruthId: "Supersedes Trusted Truth ID",
 } as const;
+
+const LIVE_RECORD_ID = /^rec[A-Za-z0-9]{14}$/;
 
 const RECORD_ID_PATTERN = /\b(?:rec|tbl|app|fld|sel|usr|wsp)[A-Za-z0-9]{14}\b/g;
 
@@ -107,6 +145,7 @@ export function containsRecordId(text: string): boolean {
 /**
  * Build the create payload for one Draft Brain Truth row.
  * Throws rather than writing a row that breaks the capture contract.
+ * Keys are Airtable field IDs.
  */
 export function buildDraftTruthCreateFields(
   input: DraftTruthWriteInput,
@@ -118,6 +157,13 @@ export function buildDraftTruthCreateFields(
 
   const brainSlug = input.brainSlug.trim();
   if (!brainSlug) throw new Error("Draft Brain Truth requires a brain slug.");
+
+  const brainRegistryRecordId = input.brainRegistryRecordId.trim();
+  if (!LIVE_RECORD_ID.test(brainRegistryRecordId)) {
+    throw new Error(
+      "Draft Brain Truth requires a live Brain Registry link. A Brain Slug alone is not a destination.",
+    );
+  }
 
   const status = input.status ?? "Draft";
   if (!(AGENT_WRITABLE_DRAFT_STATUS as readonly string[]).includes(status)) {
@@ -144,35 +190,55 @@ export function buildDraftTruthCreateFields(
   }
 
   const fields: Record<string, unknown> = {
-    [DRAFT_TRUTH_FIELD_NAMES.title]: title,
-    [DRAFT_TRUTH_FIELD_NAMES.canonicalTextForAgents]: agentText,
-    [DRAFT_TRUTH_FIELD_NAMES.canonicalTextForHumans]: humanText,
-    [DRAFT_TRUTH_FIELD_NAMES.brainSlug]: brainSlug,
-    [DRAFT_TRUTH_FIELD_NAMES.status]: status,
-    [DRAFT_TRUTH_FIELD_NAMES.proposedByAgent]: proposedByAgent,
-    [DRAFT_TRUTH_FIELD_NAMES.createdBy]: input.createdBy ?? "Agent",
-    [DRAFT_TRUTH_FIELD_NAMES.captureSource]: captureSource,
+    [DRAFT_TRUTH_FIELD_IDS.title]: title,
+    [DRAFT_TRUTH_FIELD_IDS.canonicalTextForAgents]: agentText,
+    [DRAFT_TRUTH_FIELD_IDS.canonicalTextForHumans]: humanText,
+    [DRAFT_TRUTH_FIELD_IDS.brainSlug]: brainSlug,
+    [DRAFT_TRUTH_FIELD_IDS.brainRegistry]: [brainRegistryRecordId],
+    [DRAFT_TRUTH_FIELD_IDS.status]: status,
+    [DRAFT_TRUTH_FIELD_IDS.proposedByAgent]: proposedByAgent,
+    [DRAFT_TRUTH_FIELD_IDS.createdBy]: input.createdBy ?? "Agent",
+    [DRAFT_TRUTH_FIELD_IDS.captureSource]: captureSource,
   };
 
-  if (input.brainRegistryRecordId) {
-    fields[DRAFT_TRUTH_FIELD_NAMES.brainRegistry] = [input.brainRegistryRecordId];
-  }
-  if (input.brainTheme) fields[DRAFT_TRUTH_FIELD_NAMES.brainTheme] = input.brainTheme;
-  if (input.proposedCategory) fields[DRAFT_TRUTH_FIELD_NAMES.proposedCategory] = input.proposedCategory;
-  if (input.recordType) fields[DRAFT_TRUTH_FIELD_NAMES.recordType] = input.recordType;
-  if (input.horizon) fields[DRAFT_TRUTH_FIELD_NAMES.horizon] = input.horizon;
+  if (input.brainTheme) fields[DRAFT_TRUTH_FIELD_IDS.brainTheme] = input.brainTheme;
+  if (input.proposedCategory) fields[DRAFT_TRUTH_FIELD_IDS.proposedCategory] = input.proposedCategory;
+  if (input.recordType) fields[DRAFT_TRUTH_FIELD_IDS.recordType] = input.recordType;
+  if (input.horizon) fields[DRAFT_TRUTH_FIELD_IDS.horizon] = input.horizon;
   if (input.supersedesTrustedTruthId) {
-    fields[DRAFT_TRUTH_FIELD_NAMES.supersedesTrustedTruthId] = input.supersedesTrustedTruthId;
+    fields[DRAFT_TRUTH_FIELD_IDS.supersedesTrustedTruthId] = input.supersedesTrustedTruthId;
   }
   if (input.sourceDocumentRecordIds?.length) {
-    fields[DRAFT_TRUTH_FIELD_NAMES.sourceDocuments] = input.sourceDocumentRecordIds;
+    fields[DRAFT_TRUTH_FIELD_IDS.sourceDocuments] = input.sourceDocumentRecordIds;
   }
   if (input.contextAmendmentVersionRecordIds?.length) {
-    fields[DRAFT_TRUTH_FIELD_NAMES.contextAmendmentVersions] = input.contextAmendmentVersionRecordIds;
+    fields[DRAFT_TRUTH_FIELD_IDS.contextAmendmentVersions] =
+      input.contextAmendmentVersionRecordIds;
+  }
+  const relatedProjectIds = uniqueLiveRecordIds(input.relatedProjectRecordIds);
+  if (relatedProjectIds.length) {
+    fields[DRAFT_TRUTH_FIELD_IDS.relatedProjects] = relatedProjectIds;
   }
 
   assertNoBuilderReviewFields(fields);
   return fields;
+}
+
+function uniqueLiveRecordIds(ids: string[] | undefined): string[] {
+  if (!ids?.length) return [];
+  const unique: string[] = [];
+  for (const raw of ids) {
+    const id = raw.trim();
+    if (!id) continue;
+    if (!LIVE_RECORD_ID.test(id)) {
+      throw new Error(
+        `Related Projects accepts live record IDs only, not ${id}. ` +
+          "Clive's Man the HEAD puts IDs (or none) in the brief; cheap hands copy or write those IDs only.",
+      );
+    }
+    if (!unique.includes(id)) unique.push(id);
+  }
+  return unique;
 }
 
 /**
@@ -180,10 +246,13 @@ export function buildDraftTruthCreateFields(
  * An agent filling it in would make that signal a lie, so refuse the whole write.
  */
 export function assertNoBuilderReviewFields(fields: Record<string, unknown>): void {
-  const offenders = DRAFT_TRUTH_HUMAN_ONLY_FIELD_NAMES.filter((name) => name in fields);
+  const offenders = [
+    ...DRAFT_TRUTH_HUMAN_ONLY_FIELDS.filter((id) => id in fields),
+    ...DRAFT_TRUTH_HUMAN_ONLY_FIELD_NAMES.filter((name) => name in fields),
+  ];
   if (offenders.length > 0) {
     throw new Error(
-      `Agents must not write Matthew's builder-review fields: ${offenders.join(", ")}`,
+      `Agents must not write Matthew's builder-review fields: ${[...new Set(offenders)].join(", ")}`,
     );
   }
 }
@@ -193,7 +262,7 @@ const registryCache = new Map<string, string | null>();
 /**
  * Resolve a brain slug to its Workshop Brain Registry record so the draft has a
  * real destination rather than free text. Returns null when no brain matches —
- * callers decide whether that is a refusal or a slug-only fallback.
+ * callers must refuse create rather than write a slug-only row.
  */
 export async function resolveBrainRegistryRecordId(
   baseId: string,
@@ -221,4 +290,68 @@ export async function resolveBrainRegistryRecordId(
 
 export function clearBrainRegistryCacheForTests(): void {
   registryCache.clear();
+}
+
+export type ActiveProject = {
+  recordId: string;
+  projectName: string;
+};
+
+const activeProjectsCache = new Map<string, ActiveProject[]>();
+
+/**
+ * Live Active Projects roster for Clive's Man the HEAD (Sol) when deciding a
+ * project link. Not for proposer/executor judgement. Blank is legal on a claim.
+ * Inventing a project or creating a Projects row is forbidden.
+ */
+export async function listActiveProjects(
+  baseId: string,
+  token: string,
+): Promise<ActiveProject[]> {
+  const cached = activeProjectsCache.get(baseId);
+  if (cached) return cached;
+
+  const records = await airtableSelect(baseId, BRAIN_WORKSHOP_TABLES.projects, token, {
+    filterByFormula: `{Lifecycle}='${BRAIN_WORKSHOP_PROJECT_LIFECYCLE.active.name}'`,
+    fields: [
+      BRAIN_WORKSHOP_PROJECTS_FIELDS.projectName,
+      BRAIN_WORKSHOP_PROJECTS_FIELDS.lifecycle,
+    ],
+    paginate: true,
+  }).catch(() => []);
+
+  const rows: ActiveProject[] = [];
+  for (const record of records) {
+    const projectName = String(
+      record.fields[BRAIN_WORKSHOP_PROJECTS_FIELDS.projectName] ??
+        record.fields["Project Name"] ??
+        "",
+    ).trim();
+    if (!record.id || !LIVE_RECORD_ID.test(record.id)) continue;
+    rows.push({ recordId: record.id, projectName });
+  }
+
+  activeProjectsCache.set(baseId, rows);
+  return rows;
+}
+
+/**
+ * Confirm a record ID is on the live Active Projects list. Does not match
+ * names or claim text. Returns null when the ID is blank, missing, paused,
+ * or closed — callers leave Related Projects blank.
+ * Used by the HEAD (or challenger veto), not by cheap executors to invent links.
+ */
+export async function resolveProjectRecordId(
+  baseId: string,
+  token: string,
+  projectRecordId: string,
+): Promise<string | null> {
+  const id = projectRecordId.trim();
+  if (!LIVE_RECORD_ID.test(id)) return null;
+  const active = await listActiveProjects(baseId, token);
+  return active.some((project) => project.recordId === id) ? id : null;
+}
+
+export function clearProjectCacheForTests(): void {
+  activeProjectsCache.clear();
 }

@@ -102,6 +102,8 @@ export async function createDraftTruth(input: {
   supersedesTrustedTruthId?: string;
   sourceDocumentRecordIds?: string[];
   contextAmendmentVersionRecordIds?: string[];
+  /** Live Projects record IDs from the HEAD brief only. Blank is legal. */
+  relatedProjectRecordIds?: string[];
   actor?: string;
 }): Promise<{ recordId: string; destination: ContextDestination; mode: "airtable" | "memory" }> {
   const title = input.title.trim();
@@ -129,12 +131,17 @@ export async function createDraftTruth(input: {
     token,
     input.brainSlug,
   );
+  if (!brainRegistryRecordId) {
+    throw new Error(
+      `No Workshop Brain Registry row for brain slug "${input.brainSlug}". A slug alone is not a destination.`,
+    );
+  }
   const fields = buildDraftTruthCreateFields({
     title,
     canonicalTextForAgents: canonicalText,
     canonicalTextForHumans: input.canonicalTextForHumans,
     brainSlug: input.brainSlug,
-    brainRegistryRecordId: brainRegistryRecordId ?? undefined,
+    brainRegistryRecordId,
     proposedCategory: input.proposedCategory,
     recordType: input.recordType ?? "Truth Claim",
     horizon: input.horizon,
@@ -144,6 +151,7 @@ export async function createDraftTruth(input: {
     supersedesTrustedTruthId: input.supersedesTrustedTruthId,
     sourceDocumentRecordIds: input.sourceDocumentRecordIds,
     contextAmendmentVersionRecordIds: input.contextAmendmentVersionRecordIds,
+    relatedProjectRecordIds: input.relatedProjectRecordIds,
   });
 
   const created = await airtableCreate(

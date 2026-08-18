@@ -81,6 +81,11 @@ export async function handleSourceDocumentMine(
       workshopToken,
       source.brainSlug || brainSlug,
     );
+    if (!brainRegistryRecordId) {
+      throw new Error(
+        `No Workshop Brain Registry row for brain slug "${source.brainSlug || brainSlug}". A slug alone is not a destination.`,
+      );
+    }
 
     for (const proposal of structured) {
       const draft = await airtableCreate(
@@ -91,7 +96,7 @@ export async function handleSourceDocumentMine(
           title: proposal.title,
           canonicalTextForAgents: proposal.canonicalText,
           brainSlug: proposal.brainSlug || brainSlug,
-          brainRegistryRecordId: brainRegistryRecordId ?? undefined,
+          brainRegistryRecordId,
           brainTheme: proposal.brainTheme,
           proposedCategory: proposal.proposedCategory,
           recordType:
