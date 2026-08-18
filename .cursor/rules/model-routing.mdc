@@ -14,7 +14,7 @@ Cursor bills from two separate pools. Getting this wrong is the main way spend l
 
 | Pool | Models | Behaviour |
 |---|---|---|
-| **First-party** (subsidised, generous) | Grok 4.5, Composer 2.5, Auto | Cheap. Website and repo hands live here. |
+| **First-party** (subsidised, generous) | Grok 4.5, Grok 4.6, Composer 2.5, Auto | Cheap. Website and repo hands live here. |
 | **Frontier / Other Models** (metered) | GPT Sol, Claude Opus 5, Sonnet 5, Kimi K3 | Scarce. Reserve for judgement. |
 
 Matthew has repeatedly emptied the frontier pool while leaving first-party unused.
@@ -64,6 +64,43 @@ mirror the **doctrine**, not the slug.
 
 Runtime work belongs to **HyperAgent**, not the coding lane.
 
+## Frontier drought — keep the agent, swap the model
+
+Canonical pins above stay. Do **not** rewrite `.cursor/agents/` frontmatter for a dry
+pool. The next parent that follows this rule would just put Sol/Opus back.
+
+**Drought is ON** when any of these is true in this conversation:
+
+- Matthew says frontier credits are out / dry / empty
+- A Task (or `@` spawn) fails with `Other Models usage limit reached`
+- Cursor reports it switched off a frontier model because that pool is empty
+
+Once ON, it stays ON for the rest of the conversation. Do not probe Sol or Opus
+again to "check". **Drought is OFF** when Matthew says credits are back, or a
+frontier spawn actually succeeds.
+
+**While drought is ON:**
+
+| Lane | Still dispatch | Task `model` |
+|---|---|---|
+| Think + challenge + structured verification (Clive, Clive's Man, Pam, Doc triage, Ruth Hadley, Lazlo, Kathryn, Workshop Proposer/Challenger, Ruth challengers) | The **named** agent | `cursor-grok-4.6-xhigh-fast` |
+| Build | Named builder (Kate, Vercel, Brain-base) | `cursor-grok-4.5-high-fast` or inherit — already first-party |
+| Grind / hands (executors, Workshop builders, mechanical edits) | The **named** minion | `composer-2.5-fast` |
+
+- **Never skip the lane.** Empty credits are not a reason to answer as Clive, Pam, or
+  Doc yourself. Same agent, cheaper model.
+- **Never pass** `gpt-5.6-sol-xhigh`, `claude-opus-5-thinking-high`,
+  `claude-sonnet-5-thinking-xhigh`, or Kimi in the Task `model` field while dry.
+  That is what empties the spawn.
+- If a spawn fails on the usage-limit error, **retry once immediately** with the
+  same `subagent_type` and brief, `model` set to the drought row above. Then tell
+  Matthew in one line that the head is running on Grok until credits refill.
+- If the catalog rejects `cursor-grok-4.6-xhigh-fast`, use `inherit` when the
+  parent is already Grok. Do not invent a third slug.
+
+This is a spend fallback, not a new doctrine. Independent judgement (OpenAI vs
+Anthropic) waits until the frontier pool has money again.
+
 ## Dispatch gate — check the roster first
 
 **This is a precondition, not advice.** Before launching any generic worker (explore, generalPurpose, shell, or a plain Composer subagent), check whether a named AstraJax agent owns that lane. If one does, invoke that agent instead. Generic exploration is the fallback, never the opening move.
@@ -98,7 +135,8 @@ If no named agent owns the lane, a generic worker is the right answer. Say so in
 
 Say something briefly, once, if:
 
-- Heavy reasoning or strategy is happening on a build model → move it to Sol.
+- Heavy reasoning or strategy is happening on a build model **and frontier is not in drought** → move it to Sol.
+- Drought just engaged → one line that the named head is on Grok until credits refill. Do not also nag to "move it to Sol".
 - A frontier head is doing mechanical edits → dispatch Grok or Composer instead.
 - A task is clearly mechanical and repeatable → offer to hand it to a Composer subagent.
 - Website building has started in an expensive frontier chat → suggest Grok.
