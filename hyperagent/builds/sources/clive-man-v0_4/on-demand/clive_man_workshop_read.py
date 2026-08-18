@@ -12,6 +12,7 @@ import json
 import os
 import sys
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Any
 
@@ -20,7 +21,10 @@ from clive_man_config import (
     BASE_WORKSHOP,
     BR,
     CRED_READ,
+    F_PROJECT,
+    PROJECT_LIFECYCLE_ACTIVE,
     READ_TABLES,
+    T_PROJECTS,
     T_REGISTRY_BRAINS,
 )
 
@@ -120,13 +124,54 @@ def read_evidence(
     }
 
 
+def list_active_projects(token: str | None = None) -> list[dict[str, str]]:
+    """Live Active Projects only. A read for Clive's Man the HEAD (Sol). Never create.
+
+    Cheap proposer/executor must not use this list to choose a link.
+    """
+    tok = token or _token()
+    _validate_read_target(BASE_WORKSHOP, T_PROJECTS, tok)
+    rows: list[dict[str, str]] = []
+    offset = None
+    formula = urllib.parse.quote("{Lifecycle}='Active'")
+    while True:
+        path = (
+            f"/{BASE_WORKSHOP}/{T_PROJECTS}"
+            f"?filterByFormula={formula}"
+            f"&pageSize=100&returnFieldsByFieldId=true"
+        )
+        if offset:
+            path += f"&offset={offset}"
+        res = _req("GET", path, tok)
+        for rec in res.get("records") or []:
+            fields = rec.get("fields") or {}
+            rid = str(rec.get("id") or "").strip()
+            if not rid.startswith("rec"):
+                continue
+            lifecycle = _sel(fields.get(F_PROJECT["lifecycle"]) or fields.get("Lifecycle"))
+            if lifecycle != PROJECT_LIFECYCLE_ACTIVE:
+                continue
+            name = fields.get(F_PROJECT["project_name"]) or fields.get("Project Name") or ""
+            rows.append({"record_id": rid, "project_name": str(name).strip()})
+        offset = res.get("offset")
+        if not offset:
+            break
+    return rows
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--table", required=True)
-    parser.add_argument("--record", required=True)
+    parser.add_argument("--list-active-projects", action="store_true")
+    parser.add_argument("--table")
+    parser.add_argument("--record")
     parser.add_argument("--base", default=BASE_WORKSHOP)
     args = parser.parse_args()
     try:
+        if args.list_active_projects:
+            print(json.dumps({"projects": list_active_projects()}, ensure_ascii=False))
+            return
+        if not args.table or not args.record:
+            parser.error("--table and --record are required unless --list-active-projects")
         print(json.dumps(read_evidence(args.table, args.record, base_id=args.base), ensure_ascii=False))
     except (ReadError, WriteRefused) as exc:
         print(json.dumps({"ok": False, "error": str(exc)}))

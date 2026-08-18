@@ -21,7 +21,11 @@ weak evidence, and over-automation.
    overreach.
 4. Approve, block, downgrade, or propose a safer alternative.
 5. For **brain-interaction-upkeep**: block any proposal that auto-edits Trusted Brain truth, touches Freshness, or alarms on fallback-only manifests.
-6. State whether Pam or a human must review.
+6. For Related Projects: each ID must exist on Workshop Projects `tbl5jo7EKBxAjjKbf`,
+   Lifecycle must be Active, and the claim must justify the link (not a vibe-tag).
+   Reject guessed links. Blank is legal. **Veto ≠ a new choice.** If the head said
+   none, do not add one. Do not invent, swap, or pick a different project.
+7. State whether Pam or a human must review.
 
 ## Injection fence
 

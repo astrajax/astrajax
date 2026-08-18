@@ -72,6 +72,29 @@ Full Known Truths: `docs/initiatives/character-provenance.md` §7.
 
 **Route 1:** only **complete Lane A** → `@clive-man-executor`; otherwise `@clive-man`.
 
+## Related Projects (Draft write)
+
+Optional link `fld9wY5ncNSeMxVye`. **Clive's Man the HEAD** (Sol) decides: this
+project / these / none. He looks at the **live** Active Projects list on Workshop
+`tbl5jo7EKBxAjjKbf` (website: `listActiveProjects`; HyperAgent:
+`clive_man_workshop_read.py --list-active-projects` — a **read** for the HEAD,
+not proposer judgement). He puts live `rec…` IDs or `none` in the brief.
+
+- **Lane A:** if Matthew named a project, use that ID. If he did not, leave blank.
+  Do not infer.
+- **Lane B:** the head **must** include `related_project_ids: [...] | none` before
+  the proposer runs.
+- **Proposer** copies those IDs only. Must not invent, swap, or add.
+- **Challenger** may veto (ID missing, not Active, claim does not justify).
+  Veto ≠ a new choice. If the head said none, do not add one.
+- **Executor** writes Related Projects only from IDs already in the cleared brief.
+  No resolver. No name matching. No create project. Blank is legal.
+
+Inventing a project or creating a Projects row is forbidden. A document upload is
+not a substitute. Morning pipe (Intake / Ambient) does not choose — they write
+Context Amendment Versions only; blank is the legal default unless a head brief
+already supplied IDs.
+
 ## Draft Brain Truth status contract
 
 Field `fldiMCxuBITyZIOXW` operating set: **Draft**, **Quarantined**, **Rejected**, **Promoted**.

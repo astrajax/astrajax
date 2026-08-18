@@ -326,8 +326,10 @@ class OnDemandExecutorTest(unittest.TestCase):
                         "id": "recDR",
                         "fields": {
                             "fld95ls0LG26rCNx4": "verbatim text 0",
+                            "fldbnsCNSXmLXE51y": "verbatim text 0",
                             "fld8BVmRBSsVuXD8I": "Title 0",
                             "flddfROfNcP1u6gCy": "clive",
+                            "fldB1vIzRA6NBxEYs": ["recBrainCliveXXXX"],
                             "fldiMCxuBITyZIOXW": "Draft",
                             "fld9zhLHPvjnq8lHT": "Chat Session",
                         },
@@ -342,8 +344,10 @@ class OnDemandExecutorTest(unittest.TestCase):
             {
                 "fields": {
                     "fld95ls0LG26rCNx4": "verbatim text 0",
+                    "fldbnsCNSXmLXE51y": "verbatim text 0",
                     "fld8BVmRBSsVuXD8I": "Title 0",
                     "flddfROfNcP1u6gCy": "clive",
+                    "fldB1vIzRA6NBxEYs": ["recBrainCliveXXXX"],
                     "fldiMCxuBITyZIOXW": "Draft",
                     "fld9zhLHPvjnq8lHT": "Chat Session",
                 }
@@ -351,7 +355,13 @@ class OnDemandExecutorTest(unittest.TestCase):
         ).encode()
         read_resp.__enter__ = lambda s: read_resp
         read_resp.__exit__ = MagicMock(return_value=False)
-        mock_urlopen.side_effect = [list_resp, create_resp, read_resp]
+        resolve_resp = MagicMock()
+        resolve_resp.read.return_value = json.dumps(
+            {"records": [{"id": "recBrainCliveXXXX"}]}
+        ).encode()
+        resolve_resp.__enter__ = lambda s: resolve_resp
+        resolve_resp.__exit__ = MagicMock(return_value=False)
+        mock_urlopen.side_effect = [list_resp, resolve_resp, create_resp, read_resp]
         out = self.ex.execute(self._lane_a_brief(1), dry_run=False)
         self.assertTrue(out["executed"])
         self.assertEqual(out["idempotency_key"], "lane-a-1")
@@ -377,6 +387,11 @@ class WorkshopReadTest(unittest.TestCase):
 
         with self.assertRaises(rd.ReadError):
             rd.read_evidence("tblTRUSTED", "recX", token="fake")
+
+    def test_projects_table_is_readable(self) -> None:
+        import clive_man_workshop_read as rd  # noqa: E402
+
+        self.assertIn("tbl5jo7EKBxAjjKbf", rd.READ_TABLES)
 
 
 if __name__ == "__main__":

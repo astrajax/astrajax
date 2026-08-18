@@ -93,6 +93,7 @@ misses one is a defect, not a partial success. Control-plane record:
 | Capture Source | `fld9zhLHPvjnq8lHT` | Chat Session / User Guided Capture / External Context Capture |
 | Source Documents | `fldsspqpNL4vDUU50` | Link when a file is the evidence. Never invent an upload for a chat-only capture |
 | Context Amendment Versions | `fldAeXTX1uLgkNa5d` | Link when the row came from the V1 proposal queue |
+| Related Projects | `fld9wY5ncNSeMxVye` | Optional. **Clive's Man the HEAD** (Sol) looks at the live Active list (`tbl5jo7EKBxAjjKbf`) and puts `rec…` IDs or `none` in the brief. **Proposer** copies those IDs only. **Challenger** may veto (missing, not Active, unjustified) — veto ≠ a new choice. **Executor** writes IDs already in the cleared brief. No resolver. No name matching. No create project. Blank is legal. Lane A: named project or blank — do not infer. Lane B: head must include `related_project_ids` before proposer runs. Morning pipe does not choose. A document upload is not a substitute. |
 
 **Never write** — this is Matthew's builder-review loop with Doc, and an agent-set
 value would make the review signal a lie: Human Reviewed, Human Chosen

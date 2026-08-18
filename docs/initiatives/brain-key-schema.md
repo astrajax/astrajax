@@ -254,18 +254,40 @@ One row is one proposed claim. Dual text is **one claim, two registers** — bot
 | Readability Notes / Capture Quality Notes / Builder Notes | multilineText | Why the score, or Matthew’s note for Doc. Ignore unless Human Reviewed |
 | Should Have Been Auto-Handled | checkbox | Ticked = should have landed in Draft without human attention. Never a Trusted auto-promote. Ignore unless Human Reviewed. Was `Needed Human Review?`. `fldWEGX7L3cGuqxe9` |
 | Follow-up Candidate | checkbox | Digest input only — not an instruction to ask |
+| Related Projects | link → Projects | Optional. **Clive's Man the HEAD** (Sol) looks at the live Active Projects list and puts `rec…` IDs or none in the brief. Cheap proposer/challenger/executor copy, veto, or write those IDs only — they do not choose. Blank is legal. Inventing a project or creating a Projects row is forbidden. Challenger may veto (missing, not Active, unjustified) but veto is not a new choice. A document upload is not a substitute. Persistent truths may have none. `fld9wY5ncNSeMxVye` |
 
 **Do not copy the builder-review overlay into client brain bases.**
 
-**Rename warning (17 Aug 2026):** `Canonical Text` on this table was renamed to
-**Canonical Text for Agents**. Airtable REST writes key on field *names*, so any
-caller still sending `Canonical Text` gets `UNKNOWN_FIELD_NAME` and any reader
-gets an empty body. Website callers go through
-`website/src/lib/brains/draft-truth-write.ts`. HyperAgent field-ID writes are
-unaffected by the rename itself, but the current v0.4 executor allowlists do not
-yet accept the human register or Brain Registry link; regeneration and human
-re-import remain open. Trusted **Brain Truth** still uses `Canonical Text` — do
-not rename it there.
+**Draft Brain Truth rename warning (17 Aug 2026):** `Canonical Text` on this
+table was renamed to **Canonical Text for Agents**. Website creates go through
+`website/src/lib/brains/draft-truth-write.ts` and key Airtable REST writes on
+**field IDs**, so a future rename cannot break capture again. HyperAgent writes
+already use field IDs. The v0.4 family pack accepts the human register, Brain
+Registry link, and optional Related Projects from HEAD-chosen IDs only, and
+refuses the builder-review overlay; human re-import of the pack remains open.
+Trusted **Brain Truth** still uses
+`Canonical Text` — do not rename it there.
+
+### Table: Projects
+
+Primary field: **Project Name** (singleLineText). **Workshop only.** Live table `tbl5jo7EKBxAjjKbf` (17 Aug 2026). One row is one bounded piece of work Matthew has recognised, with a named outcome and a close point. Not a task tracker. Soft retire = Lifecycle Closed. Hard retire = delete the table.
+
+| Field | Type | Notes |
+|-------|------|-------|
+| Project Name | singleLineText | Primary. Only home for the name. `fldonDAGcLRG2GEzD` |
+| Intended Outcome | multilineText | What done looks like. `fldrb5LY13Feofm2l` |
+| Lifecycle | singleSelect | Active / Paused / Closed. `fld4SAa3XCObipxa8` |
+| Related Drafts | link → Draft Brain Truth | Reciprocal of Related Projects. `fldHUpN0X5IlvClU8` |
+
+No owner, deadline, priority, next action, or weekly auto-create. Agents never create a project row. The HEAD decides the link; cheap hands copy or write IDs only. Auditor, Activity Intake, and Ambient must not invent a project or write a guessed link. Do not copy into client brain bases. Recorded `rpt-projects-thin-table-20260817`.
+
+**Seed projects (Active, live-observed 17 Aug 2026):**
+
+| Project Name | Record ID |
+|---|---|
+| Establish K3 Open-Weights Fine-Tuning for AstraJax | `rec9deYmfHS8s39za` |
+| Manage AstraJax Context On-Platform | `rechmkpaan4o4R6CT` |
+| Prove Autonomous Agent Self-Improvement | `recH3hh1hPrLhsyVH` |
 
 **Workshop Draft Brain Truth — Proposed Category options (canonical, 29 Jun 2026):**  
 Definition, Goals & Priorities, Workflow, Data & Metrics, Rules & Guardrails, Knowledge, Examples & Edge Cases, Open Questions, Business Context, Adjacent Functions

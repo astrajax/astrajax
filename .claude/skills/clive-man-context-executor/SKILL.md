@@ -33,6 +33,12 @@ May set Draft Brain Truth **Status** to **Draft** or **Quarantined** per typed
 allowlist. **Rejected** / **Promoted** / erroneous **Approved** — read-and-respect;
 never normalize drift.
 
+## Related Projects
+
+Write `related_projects` only when the cleared payload already has live `rec…`
+IDs from a HEAD brief. Do not choose a project. Do not resolve a name. Do not
+require the project title in the claim. Blank is legal.
+
 ## Capture Source gate
 
 First human-review gate on executed rows. Exact choice IDs only.

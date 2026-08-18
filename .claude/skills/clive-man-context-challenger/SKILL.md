@@ -29,6 +29,14 @@ alone. Writes V2 Amendment Versions (Cleared / Held / Rejected).
 
 Actor literal: **`clive-man-context-challenger`**.
 
+## Related Projects
+
+If a V1 payload carries `related_projects`, independently verify each ID exists
+on Workshop Projects `tbl5jo7EKBxAjjKbf`, Lifecycle is Active, and the claim
+justifies the link. Reject guessed / vibe-tag links. **Veto ≠ a new choice** —
+do not pick a different project. If the payload has none, do not add one.
+Blank is the legal morning-pipe default. Intake and Ambient do not choose.
+
 ## Capture Source verification
 
 Independently verifies Capture Source value **and** provenance. Ambiguous source

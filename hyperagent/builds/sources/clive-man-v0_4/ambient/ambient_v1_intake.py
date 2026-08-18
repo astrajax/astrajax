@@ -676,7 +676,20 @@ def build_after_payload(candidate: dict[str, Any]) -> dict[str, Any]:
         "brain_slug": candidate["brain_slug"],
         "capture_source": CAPTURE_SOURCE_CHAT,
     }
-    for key in ("proposed_category", "brain_theme", "record_type", "horizon"):
+    for key in (
+        "canonical_text_for_agents",
+        "canonical_text_for_humans",
+        "brain_registry",
+        "proposed_category",
+        "brain_theme",
+        "record_type",
+        "horizon",
+        "source_documents",
+        "supersedes_trusted_truth_id",
+        # related_projects: copy only if already present. Do not judge or invent.
+        "related_projects",
+        "context_amendment_versions",
+    ):
         if candidate.get(key):
             payload[key] = candidate[key]
     return payload

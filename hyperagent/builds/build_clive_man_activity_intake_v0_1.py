@@ -150,6 +150,7 @@ do not fork the stream. The legacy HyperAgent thread stream
 - Create V2, Trusted, or Approved records
 - Leave Capture Source Chat Session blank on any V1 create
 - Touch v0.4 legacy thread-intake artifacts
+- Choose or invent Related Project IDs
 - Commit, push, deploy, mint credentials, or write Airtable outside sealed pens
 
 ## Tone
@@ -204,6 +205,14 @@ Every V1 create must include:
 | v1_report_record_id | Reports row from run report — required when checkpoint append is live |
 
 **Never:** Draft/Trusted/V2 stages; updates; deletes; blank Capture Source Chat Session.
+
+### Carry the Draft write contract into `after_payload`
+
+This lane still never writes Draft Brain Truth. Dual text and Brain Registry
+belong in the payload so the executor can materialise them. **Do not choose
+Related Projects.** Leave `related_projects` blank unless a Clive's Man HEAD
+brief already supplied live `rec…` IDs. Never load the Active list to judge.
+Morning pipe default is blank.
 
 ## Phase-one eligibility (Activity rows)
 
@@ -321,6 +330,7 @@ in UI after pen mint + Cursor/HA parity verified. **Export carries empty** `sche
 - Alias the actor slug.
 - Omit Capture Source Chat Session on any V1 create.
 - Modify legacy v0.4 thread-intake artifacts (hash-preservation list in build pack).
+- Choose or invent Related Project IDs.
 - Mint credentials, import agents, or enable schedules (human gates).
 
 ## Acceptance tests

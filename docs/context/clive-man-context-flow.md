@@ -205,10 +205,23 @@ fields untouched. A Brain Slug is a label, not the destination. Website routes u
 `website/src/lib/brains/draft-truth-write.ts`, which also refuses any status other
 than Draft or Quarantined.
 
-The HyperAgent Context Executor has not caught up with this contract: its current
-allowlist rejects the human register and Brain Registry link. Fixing that requires
-a regenerated build and human re-import. Until then, do not describe the scheduled
-V1 → executor route as able to materialise a contract-complete Draft row.
+`Related Projects` is optional. **Clive's Man the HEAD** looks at the live Active
+Projects list and puts real record IDs or none in the brief. Cheap proposer,
+challenger, and executor copy, veto, or write those IDs only — they do not
+choose. Blank is legal. Inventing a project or creating a Projects row is
+forbidden. The challenger may veto (ID missing, not Active, unjustified) but
+must not pick a replacement. A document upload is not a substitute. Agents do
+not retro-link existing drafts. Morning pipe (Activity Intake / Ambient) does
+not choose projects; blank is the legal default unless a head brief already
+supplied IDs.
+
+The regenerated HyperAgent v0.4 family pack must tell the same HEAD-decides
+story (head, proposer, challenger, both executors, matching skills — never
+executors only). Ambient Capture and Activity Intake still write Context
+Amendment Versions only; the executor materialises the Draft row. Matthew must
+import/merge the pack in HyperAgent before the live agents use it. Leave 08:00
+off until he is happy with live rows. Until he imports, do not describe the
+scheduled V1 → executor route as live-updated.
 
 ---
 
