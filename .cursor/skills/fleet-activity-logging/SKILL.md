@@ -40,7 +40,8 @@ python3 hyperagent/scripts/log_fleet_activity.py --payload /tmp/events.json
 - **How Cursor gets it:** Cursor has no credential injector, so the script resolves the
   credential itself — environment first (`FLEET_ACTIVITY_WRITE`,
   `HOUSEHOLD_ACTIVITY_WRITE_TOKEN`, `AIRTABLE_WRITE_TOKEN`), then the repo's gitignored
-  `.env` / `website/.env.local` in the same order. Agents do NOT export anything or read
+  `.env` / `website/.env.local` in the same order (current checkout first, then the
+  primary git checkout if this is a worktree). Agents do NOT export anything or read
   `.env` themselves; just run the script. Confirm with `--check` (source name only; no rows).
 - **Silent operation:** logging is background bookkeeping. Never announce, narrate, or discuss
   it in conversation or PR bodies. The sole permitted trace is the §6 failure line in the

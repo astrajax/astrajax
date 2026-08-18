@@ -59,6 +59,8 @@ Contract (Matthew Airtable redesign, 2026-08-08):
   first, then HOUSEHOLD_ACTIVITY_WRITE_TOKEN, then AIRTABLE_WRITE_TOKEN. Only the
   SOURCE NAME is ever reported; the value is never printed.
   `--check` resolves the credential and probes write access without creating rows.
+  From a git worktree, .env is also read from the primary checkout (gitignored
+  files are not copied into worktrees).
 """
 import argparse
 import datetime
@@ -159,16 +161,83 @@ CREDENTIAL_KEYS = ("FLEET_ACTIVITY_WRITE", "HOUSEHOLD_ACTIVITY_WRITE_TOKEN",
 ENV_FILES = (".env", "website/.env.local")
 
 
+def _is_git_checkout(path: str) -> bool:
+    """True for a primary clone (.git dir) or a linked worktree (.git file)."""
+    git = os.path.join(path, ".git")
+    return os.path.isdir(git) or os.path.isfile(git)
+
+
 def _repo_root() -> str:
-    """Walk up from this script until a directory holding .git is found."""
+    """Walk up from this script until a git checkout is found."""
     path = os.path.dirname(os.path.abspath(__file__))
     while True:
-        if os.path.isdir(os.path.join(path, ".git")):
+        if _is_git_checkout(path):
             return path
         parent = os.path.dirname(path)
         if parent == path:
             return os.getcwd()
         path = parent
+
+
+def _gitdir_from_pointer(git_file: str):
+    """Read a worktree `.git` pointer file. Returns an absolute gitdir or None."""
+    try:
+        with open(git_file, "r", encoding="utf-8", errors="replace") as handle:
+            for line in handle:
+                line = line.strip()
+                if line.lower().startswith("gitdir:"):
+                    raw = line.split(":", 1)[1].strip()
+                    if not raw:
+                        return None
+                    if not os.path.isabs(raw):
+                        raw = os.path.abspath(os.path.join(os.path.dirname(git_file), raw))
+                    return raw
+    except OSError:
+        return None
+    return None
+
+
+def _primary_checkout_root(repo_root: str):
+    """If repo_root is a linked worktree, return the primary working tree.
+
+    Git worktrees do not copy gitignored files. The logging credential lives in
+    the primary checkout's .env; worktrees must be allowed to read it from there.
+    """
+    git = os.path.join(repo_root, ".git")
+    if os.path.isdir(git) or not os.path.isfile(git):
+        return None
+    gitdir = _gitdir_from_pointer(git)
+    if not gitdir:
+        return None
+    common = None
+    try:
+        with open(os.path.join(gitdir, "commondir"), "r", encoding="utf-8",
+                  errors="replace") as handle:
+            common = handle.read().strip()
+    except OSError:
+        common = None
+    if common:
+        common_abs = common if os.path.isabs(common) else os.path.abspath(
+            os.path.join(gitdir, common)
+        )
+        if os.path.basename(common_abs) == ".git" and os.path.isdir(common_abs):
+            return os.path.dirname(common_abs)
+    marker = os.sep + ".git" + os.sep + "worktrees" + os.sep
+    if marker in (gitdir + os.sep):
+        main_git = gitdir.split(marker)[0] + os.sep + ".git"
+        if os.path.isdir(main_git):
+            return os.path.dirname(main_git)
+    return None
+
+
+def _credential_search_roots():
+    """Current checkout first, then the primary checkout when this is a worktree."""
+    root = _repo_root()
+    roots = [root]
+    primary = _primary_checkout_root(root)
+    if primary and os.path.abspath(primary) != os.path.abspath(root):
+        roots.append(primary)
+    return roots, root, primary
 
 
 def _read_env_file(path: str) -> dict:
@@ -200,12 +269,14 @@ def resolve_credential():
         token = os.environ.get(key)
         if token:
             return token, f"env:{key}"
-    root = _repo_root()
-    for rel in ENV_FILES:
-        values = _read_env_file(os.path.join(root, rel))
-        for key in CREDENTIAL_KEYS:
-            if values.get(key):
-                return values[key], f"{rel}:{key}"
+    roots, current_root, _primary = _credential_search_roots()
+    for root in roots:
+        prefix = "" if os.path.abspath(root) == os.path.abspath(current_root) else "primary:"
+        for rel in ENV_FILES:
+            values = _read_env_file(os.path.join(root, rel))
+            for key in CREDENTIAL_KEYS:
+                if values.get(key):
+                    return values[key], f"{prefix}{rel}:{key}"
     return None, None
 
 
@@ -389,7 +460,8 @@ def main() -> None:
         fail("--payload is required (or use --check)")
     if not token:
         fail("No logging credential found: set FLEET_ACTIVITY_WRITE in the "
-             "environment or in the repo's gitignored .env")
+             "environment or in the repo's gitignored .env (primary checkout "
+             "if this is a worktree)")
 
     with open(args.payload, "r", encoding="utf-8") as f:
         payload = json.load(f)
