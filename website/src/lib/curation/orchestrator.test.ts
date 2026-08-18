@@ -185,4 +185,120 @@ describe("runCurationChat", () => {
       }),
     );
   });
+
+  it("accepts a source-qualified quarantine proposal that matches the docket", async () => {
+    docketMock.mockResolvedValue({
+      ...emptyDocket,
+      flaggedInteractions: [
+        {
+          recordId: "recFlaggedTurn0001",
+          source: "household_activity",
+          stableId: "household_activity:recFlaggedTurn0001",
+          userMessage: "Should this be quarantined?",
+          assistantReply: "Maybe.",
+        },
+      ],
+    });
+
+    const fetchMock = vi.mocked(globalThis.fetch);
+    fetchMock
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            id: "msg_tools",
+            model: "claude-test",
+            stop_reason: "tool_use",
+            usage: { input_tokens: 12, output_tokens: 8 },
+            content: [
+              {
+                type: "tool_use",
+                id: "toolu_q1",
+                name: "propose_quarantine",
+                input: {
+                  recordId: "recFlaggedTurn0001",
+                  source: "household_activity",
+                  reason: "Looks off-scope for this brain.",
+                },
+              },
+            ],
+          }),
+          { status: 200, headers: { "content-type": "application/json" } },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(anthropicTextReply("Queued quarantine for confirmation.")), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        }),
+      );
+
+    const result = await runCurationChat({
+      brainSlug: "astrajax-chapter-1",
+      sessionId: "sess-curate",
+      message: "Quarantine the flagged turn",
+      history: [],
+    });
+
+    expect(result.proposals).toHaveLength(1);
+    expect(result.proposals[0]).toMatchObject({
+      toolName: "propose_quarantine",
+      destination: "household-activity",
+      payload: {
+        recordId: "recFlaggedTurn0001",
+        source: "household_activity",
+      },
+      status: "pending",
+    });
+    expect(result.reply).toBe("Queued quarantine for confirmation.");
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("rejects quarantine proposals that do not match a source-qualified docket record", async () => {
+    docketMock.mockResolvedValue({
+      ...emptyDocket,
+      flaggedInteractions: [
+        {
+          recordId: "recFlaggedTurn0001",
+          source: "brain_interactions",
+          stableId: "brain_interactions:recFlaggedTurn0001",
+          userMessage: "On the workshop table",
+          assistantReply: "Noted.",
+        },
+      ],
+    });
+
+    vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          id: "msg_bad_tool",
+          model: "claude-test",
+          stop_reason: "tool_use",
+          usage: { input_tokens: 12, output_tokens: 8 },
+          content: [
+            {
+              type: "tool_use",
+              id: "toolu_bad",
+              name: "propose_quarantine",
+              input: {
+                // Same id, wrong source — must not invent a Workshop action.
+                recordId: "recFlaggedTurn0001",
+                source: "household_activity",
+                reason: "Wrong table.",
+              },
+            },
+          ],
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      ),
+    );
+
+    await expect(
+      runCurationChat({
+        brainSlug: "astrajax-chapter-1",
+        sessionId: "sess-curate",
+        message: "Quarantine that turn",
+        history: [],
+      }),
+    ).rejects.toThrow(/source-qualified docket record/);
+  });
 });
