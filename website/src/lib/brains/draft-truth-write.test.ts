@@ -116,6 +116,22 @@ describe("buildDraftTruthCreateFields", () => {
     ).toThrow(/live record IDs only/);
   });
 
+  it("dedupes Related Projects IDs and ignores blank entries", () => {
+    const fields = buildDraftTruthCreateFields({
+      ...base,
+      relatedProjectRecordIds: [
+        "rechmkpaan4o4R6CT",
+        "  ",
+        "rechmkpaan4o4R6CT",
+        "rec9deYmfHS8s39za",
+      ],
+    });
+    expect(fields[F.relatedProjects]).toEqual([
+      "rechmkpaan4o4R6CT",
+      "rec9deYmfHS8s39za",
+    ]);
+  });
+
   it("refuses builder-review fields keyed by ID or name", () => {
     expect(() =>
       assertNoBuilderReviewFields({ [F.humanReviewed]: true }),

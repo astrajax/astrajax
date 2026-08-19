@@ -88,4 +88,38 @@ describe("listActiveProjects", () => {
       ),
     ).resolves.toBeNull();
   });
+
+  it("caches the Active roster so a second resolve does not re-hit Airtable", async () => {
+    selectMock.mockResolvedValue([
+      {
+        id: "rechmkpaan4o4R6CT",
+        fields: {
+          [BRAIN_WORKSHOP_PROJECTS_FIELDS.projectName]: "Manage AstraJax Context On-Platform",
+        },
+      },
+    ]);
+
+    await expect(
+      resolveProjectRecordId("appL2fdnGmhA02WXd", "pat", "rechmkpaan4o4R6CT"),
+    ).resolves.toBe("rechmkpaan4o4R6CT");
+    await expect(
+      resolveProjectRecordId("appL2fdnGmhA02WXd", "pat", "rechmkpaan4o4R6CT"),
+    ).resolves.toBe("rechmkpaan4o4R6CT");
+    expect(selectMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns null for an ID that is not on the Active list", async () => {
+    selectMock.mockResolvedValue([
+      {
+        id: "rechmkpaan4o4R6CT",
+        fields: {
+          [BRAIN_WORKSHOP_PROJECTS_FIELDS.projectName]: "Manage AstraJax Context On-Platform",
+        },
+      },
+    ]);
+
+    await expect(
+      resolveProjectRecordId("appL2fdnGmhA02WXd", "pat", "recClosedProject01"),
+    ).resolves.toBeNull();
+  });
 });
