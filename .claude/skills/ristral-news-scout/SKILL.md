@@ -131,7 +131,8 @@ Lens nor Theme Label, skip that theme and say so in the output.
 
 - Base: `theme_picks_base_id`
 - Table: resolved ID (config or env)
-- Fields: `theme_key`, `theme_label`, `watch`, `search_lens` (human names in config)
+- Fields: `theme_key`, `theme_label`, `watch`, `search_lens` (AstraJax tenant uses
+  field IDs; other tenants may use human names until IDs are known)
 - Scout never creates, updates, or deletes theme rows
 
 ## Theme inference and authority
