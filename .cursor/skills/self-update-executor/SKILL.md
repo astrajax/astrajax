@@ -1,0 +1,187 @@
+---
+name: self-update-executor
+description: >-
+  Self-Update Executor — shared method so a live Hyperagent agent applies a
+  Cursor-cleared config brief to itself, dumps full before/after state, and
+  lets Cursor persist draft_save, verify, restore on fail, and write the
+  household register. Skill create/body change is Skill Forge Executor, not
+  this skill. Invoke as /self-update-executor.
+---
+
+# Self-Update Executor
+
+**Runtime split**
+
+| Surface | Role |
+|---|---|
+| **Hyperagent skill** (this body, exported) | Target agent applies the brief to **itself** only; posts full before/after state into the thread |
+| **Cursor twin** (this skill in Cursor) | Starts the thread via hosted MCP, persists `draft_save`, verifies after-state, restores on fail, writes Airtable register + repo sync |
+
+**Platform fact:** a live Hyperagent agent can only update itself. Factory creates drafts; it does not patch other live agents. Hosted MCP (`https://hyperagent.com/api/mcp`) can start threads and read them; it does **not** edit agent config. Cursor persists drafts with `resolve_approval`. Do not add a custom MCP server.
+
+**Uncommitted files (locked):** if a file is not committed to the repo, Hyperagent agents cannot source it from GitHub. Do not tell the target agent to read `.cursor/skills/…` or any other path from the attached repo for uncommitted work. Send the bytes: **MCP attach** (`create_attachment_upload`, PUT the file, pass `fileId` on `create_thread` / `send_message`) or **Airtable upload** on a register/skill row they can already read.
+
+**Not a personality swap.** The agent stays itself. This skill is a method.
+
+**Locked split:** this skill is **agent identity / system prompt / agent config** on **that** agent. Skill create or skill body change → `skill-forge-executor` → Skill Forge. Do not ask this agent to edit a shared skill for the fleet.
+
+## Persist step (locked)
+
+Agents often cannot auto-save. **All four `autoSave*` flags stay off** (governed default). Cursor persists the draft:
+
+1. After the agent dumps after-state / creates a draft, call hosted MCP `list_pending_approvals`.
+2. Match the **agent** draft (`scripts/match_pending_approval.py --entity agent`).
+3. If `canResolve` and `kind` is `draft_save`, call `resolve_approval` with `decision: approve`. That **saves the draft exactly as the agent authored it**.
+4. Matthew does **not** click Learning.
+5. Then verify after-state and write Airtable.
+6. On verify fail: `resolve_approval` `deny` any new matching draft, then send BEFORE-STATE restore. Do not update live Members / Minions / Skills.
+
+Skip rows with `canResolve: false` — those must be handled in the Hyperagent thread (break-glass only).
+
+Do **not** require `autoSaveAgents` on. Do not turn memory / skill / prompt auto-save on. This MCP approve is the persist step.
+
+## When to use
+
+- Cursor has a cleared, self-contained brief for **this** agent's own config.
+- The thread was started by Cursor via hosted MCP for a Self-Update job.
+- Auto-save flags stay off; Cursor will persist `draft_save`.
+
+## Refuse (hard)
+
+Refuse and stop (one plain line naming why) if any of these are true:
+
+1. Trigger is Slack, schedule, Live mode, webhook, email, or any unattended run.
+2. The brief asks you to update a **different** agent.
+3. There is no Cursor Self-Update brief (do not invent the change).
+4. Anyone asks you to turn any auto-save flag **on**.
+5. The brief is identity mutation (become another character / swap personality). Stay yourself.
+6. The brief is a **skill create or skill body change** for a shared/workspace skill. That is Skill Forge.
+
+## Hyperagent apply flow (target agent)
+
+1. Confirm this is a Cursor Self-Update thread with a self-contained brief. Else refuse.
+2. Read **own** current agent config (native agent-config read).
+3. Post a fenced **JSON** block into the thread tagged exactly:
+
+```text
+### SELF-UPDATE BEFORE-STATE
+```
+
+The JSON object must include **every** material field (full text, not a summary): `name`, `description`, `systemPrompt`, `toolSettings`, `allowedIntegrations`, `skillScope`, `skillLoadMode`, `modelId`, `effort`, `maxThinkingTokens`, `autoSaveMemories`, `autoSaveSkills`, `autoSaveAgents`, `autoSavePrompts`, `enableMemorySuggestions`, `enableSkillSuggestions`, `enablePromptSuggestions`, and `skills` (array of `{name, description, whenToUse, documentation, scripts, tags, authType}`).
+
+4. Apply the brief to **yourself** only. Leave a draft if the platform will not auto-save. Do not wait for Matthew. Do not turn auto-save on.
+5. Re-read own config. Post:
+
+```text
+### SELF-UPDATE AFTER-STATE
+```
+
+Same JSON shape and completeness as before-state. Every field.
+
+6. Stop. Do not write Airtable. Do not edit the repo. Cursor owns verify + register.
+
+### Restore path (same skill)
+
+If Cursor sends the BEFORE-STATE back with an explicit restore instruction:
+
+1. Re-apply that before-state to yourself. Leave a draft if needed. Auto-save stays off.
+2. Post `### SELF-UPDATE AFTER-STATE` of the restored config.
+3. Stop. Still no Airtable live-row writes from you.
+
+## Cursor twin flow (orchestrator)
+
+Hosted MCP tools only: `list_agents`, `create_thread`, `send_message`, `get_thread`, `list_threads`, `list_pending_approvals`, `resolve_approval` (and upload if needed). Never a custom MCP.
+
+Scripts (this skill):
+
+- `scripts/hosted_mcp_handoff.py` — build the MCP thread brief (apply / restore / bootstrap). Does not call a custom server.
+- `scripts/verify_self_update.py` — extract BEFORE/AFTER JSON from `get_thread`, diff against the brief.
+- `scripts/match_pending_approval.py` — pick the `draft_save` row to approve or deny. Shared with Skill Forge.
+
+```bash
+python3 .cursor/skills/self-update-executor/scripts/hosted_mcp_handoff.py \
+  --mode apply --target-name "Doc Albright" --brief /tmp/self-update-brief.json
+python3 .cursor/skills/self-update-executor/scripts/verify_self_update.py \
+  --thread /tmp/get_thread.json --brief /tmp/self-update-brief.json
+```
+
+1. Build a self-contained brief (desired end-state for **this** agent's config). Do not ask Matthew to paste or approve-each-apply.
+2. `create_thread` on the **target** agent; `send_message` with the brief and an instruction to run Self-Update Executor.
+3. Wait for completion; `get_thread`; extract BEFORE-STATE and AFTER-STATE blocks.
+4. Persist: `list_pending_approvals` → match agent draft → `resolve_approval` approve `draft_save`.
+5. Diff AFTER-STATE against the brief (every required field). Pass or fail.
+6. **Pass:** run the register writer (below). Sync repo exports as already patterned. Do not ask Matthew to import, pin, or click Learning.
+7. **Fail:** `resolve_approval` deny if a new draft appears; `send_message` restore brief carrying the BEFORE-STATE; wait; confirm AFTER-STATE matches before. Do **not** update live Members / Minions / Skills. Optional: append-only Versions row that says rolled back (`change_reason` Broken/failing or What changed notes rollback).
+8. Bootstrap attachment: once the skill exists in the Hyperagent workspace, Cursor tells each target agent to attach Self-Update Executor. Auto-save stays off. Matthew does not pin twelve agents by hand.
+
+## Airtable register (Cursor only, AFTER verify pass)
+
+Base: `appPrpfvsAr71RPP3` (`HOUSEHOLD_VERSIONS_BASE_ID`).
+
+Writer: `hyperagent/scripts/sync_hyperagent_fleet_to_airtable.py` with `--verify-pass-payload`.
+
+Write by **field ID** where names are unsafe (Skill Versions Change Reason has a leading space).
+
+| Table | ID | Action |
+|---|---|---|
+| Household Members | `tblJ70qtHUc1dUHhi` | Update live head (System Prompt `fldKKvps3FIAvJdhh`) |
+| Household Minions | `tbl6aVm9rgWoOBVfd` | Update live minion (System Prompt `fldex5K15FTjEWoM7`) |
+| Household Versions | `tbleX09zbkUNKTGBz` | Always **create** snapshot. Change Source `fldx2PG3DUZA24wST` required. Skill Versions link `fldjOtUjHqWFkuTF4` when a skill also changed |
+| Skills | `tblAIXtDBBMrLuEYc` | Update live skill. Skill Versions link `fldVVfWjiWcgjG86x` |
+| Skill Versions | `tbllp30BraLWgslhk` | Always **create**. Link Skills `fldcNVX4NnfhcAYL8`. Change Source `fldLL07K8ZOaVKJIw`. Change Reason ID `fldEh3aXTh12qzrog` |
+
+Change Source defaults to **Matthew Directed** when Matthew asked in Cursor. Do **not** write Persona Config on each agent base. Do not create Agent bases for minions.
+
+### Verify-pass payload shape
+
+```json
+{
+  "slug": "doc",
+  "kind": "head",
+  "agent_name": "Doc Albright",
+  "system_prompt": "...",
+  "purpose": "...",
+  "what_changed": "...",
+  "version": "2026-08-19T084100Z",
+  "change_reason": "Improvement",
+  "change_source": "Matthew Directed",
+  "rolled_back": false,
+  "skills": [
+    {
+      "name": "Self-Update Executor",
+      "description": "...",
+      "when_to_use": "...",
+      "documentation": "...",
+      "what_changed": "...",
+      "version": "2026-08-19T084100Z",
+      "change_reason": "Improvement",
+      "change_source": "Matthew Directed"
+    }
+  ]
+}
+```
+
+```bash
+python3 hyperagent/scripts/sync_hyperagent_fleet_to_airtable.py \
+  --verify-pass-payload /tmp/self-update-pass.json \
+  --apply
+```
+
+Dry-run omits `--apply`. On `rolled_back: true`, only create a Versions (and optional Skill Versions) snapshot noting rollback; skip live Members/Minions/Skills updates.
+
+## Must never
+
+- Invent a change without a Cursor brief.
+- Update another agent.
+- Run unattended / Slack / schedule / Live.
+- Turn on any auto-save flag. Persist is `draft_save` + `resolve_approval`.
+- Write the household register from the Hyperagent side (Cursor only, after verify).
+- Store credentials in git or chat.
+
+## Acceptance
+
+- Skill never invents a change; never updates another agent; never runs unattended.
+- After-state dump is complete enough for Cursor to verify.
+- Airtable writes only on verify pass; restore does not update live Members/Minions/Skills.
+- Versions rows are append-only with Change Source set.
+- Skill Versions rows link to live Skills.

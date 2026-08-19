@@ -48,19 +48,27 @@ def _handoff_card(path: Path, export: dict) -> None:
     skills = data.get("skills") if isinstance(data.get("skills"), list) else []
     embedded = export_type == "agent" and len(skills) > 0
 
-    # Heuristic: credentials owed if any skill declares api_key auth
     creds = False
+    if export_type == "skill" and data.get("authType") == "api_key":
+        creds = True
     for skill in skills:
         if isinstance(skill, dict) and skill.get("authType") == "api_key":
             creds = True
             break
 
     webhook_hint = "yes if auto-run / Airtable automation needs a URL; else no"
-    import_type = (
-        "agent-only (embedded skills[] — preferred first-time import)"
-        if embedded
-        else "agent JSON; add separate skill JSON only if shared/credentialed/skill-only update"
-    )
+    if export_type == "skill":
+        import_type = (
+            "skill JSON only — one workspace landing. Cursor attaches it to agents "
+            "and turns agent-config auto-save on. Do not pin agents by hand."
+        )
+        webhook_hint = "no (shared method skill; no schedule/Slack/Live)"
+    else:
+        import_type = (
+            "agent-only (embedded skills[] — preferred first-time import)"
+            if embedded
+            else "agent JSON; add separate skill JSON only if shared/credentialed/skill-only update"
+        )
 
     print()
     print("=== HyperAgent handoff card (Lane B — manual UI import) ===")
@@ -76,15 +84,25 @@ def _handoff_card(path: Path, export: dict) -> None:
     print()
     print("=== Ordered checklist ===")
     print("1. Confirm validation OK (above).")
-    print("2. HyperAgent UI → Import agent JSON (or skill-only update per playbook).")
-    print("3. Verify Skills tab / /skills attachment.")
-    if creds:
-        print("4. Add credentials on skill (UI only).")
-        print("5. Create webhook only if needed; never delete agent to 'refresh'.")
-        print("6. Smoke-test; keep stable export filename for re-import.")
+    if export_type == "skill":
+        print("2. HyperAgent UI → Import this skill JSON once into the Skills library (or Cursor/on-platform create).")
+        print("3. Stop. Cursor tells each target agent to attach the skill and turn only agent-config auto-save on.")
+        print("4. Do not pin twelve agents. Do not approve-each-apply. No webhook for this skill.")
+        if creds:
+            print("5. Add credentials on skill (UI only) before first run.")
+            print("6. Keep this export filename stable for any later skill-only refresh.")
+        else:
+            print("5. Keep this export filename stable for any later skill-only refresh.")
     else:
-        print("4. Create webhook only if needed; never delete agent to 'refresh'.")
-        print("5. Smoke-test; keep stable export filename for re-import.")
+        print("2. HyperAgent UI → Import agent JSON (or skill-only update per playbook).")
+        print("3. Verify Skills tab / /skills attachment.")
+        if creds:
+            print("4. Add credentials on skill (UI only).")
+            print("5. Create webhook only if needed; never delete agent to 'refresh'.")
+            print("6. Smoke-test; keep stable export filename for re-import.")
+        else:
+            print("4. Create webhook only if needed; never delete agent to 'refresh'.")
+            print("5. Smoke-test; keep stable export filename for re-import.")
     print()
     print("handoff_hyperagent_export: OK — Phase B may cite this card")
 
