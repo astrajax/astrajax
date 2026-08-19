@@ -217,6 +217,7 @@ class ExecutorQueueMockTest(unittest.TestCase):
         "append_change_log",
         "_verify_readback",
         "check_amber_green",
+        "_resolve_brain_registry",
     )
 
     @classmethod
@@ -281,6 +282,7 @@ class ExecutorQueueMockTest(unittest.TestCase):
         self.ex.load_authoritative_v2 = lambda am, _t: next(r for r in v2s if r["id"] == am["amendment_version_record_id"])
         self.ex.check_amber_green = lambda *_a, **_k: None
         self.ex.check_replay_and_attempt = lambda *_a, **_k: (1, [])
+        self.ex._resolve_brain_registry = lambda *_a, **_k: "recBrainCliveXXXX"
         created = {"n": 0}
 
         def _create(base, table, fields, token):
@@ -402,6 +404,7 @@ class ExecutorQueueMockTest(unittest.TestCase):
         )
         self.ex.check_amber_green = lambda *_a, **_k: None
         self.ex.check_replay_and_attempt = lambda *_a, **_k: (1, [])
+        self.ex._resolve_brain_registry = lambda *_a, **_k: "recBrainCliveXXXX"
         self.ex._create = lambda *a, **k: {"records": [{"id": "recNew"}]}
         self.ex._get_record = _get_record
         self.ex._update = _update
@@ -452,6 +455,7 @@ class ExecutorQueueMockTest(unittest.TestCase):
         )
         self.ex.check_amber_green = lambda *_a, **_k: None
         self.ex.check_replay_and_attempt = lambda *_a, **_k: (1, [])
+        self.ex._resolve_brain_registry = lambda *_a, **_k: "recBrainCliveXXXX"
         self.ex._create = lambda *a, **k: {"records": [{"id": "recX"}]}
         self.ex._get_record = _get_record
         self.ex._update = _update
@@ -597,6 +601,20 @@ class OnDemandBoundaryTest(unittest.TestCase):
         }
         self.assertTrue(self.ex.preview(brief)["ok"])
 
+    def test_refuses_builder_review_fields(self) -> None:
+        brief = self._lane_a()
+        brief["actions"][0]["fields"]["fldi0T3Kq4psOpLoi"] = True
+        preview = self.ex.preview(brief)
+        self.assertFalse(preview["ok"])
+        self.assertTrue(any("human-only" in err for err in preview["errors"]))
+
+    def test_accepts_human_register_and_registry(self) -> None:
+        brief = self._lane_a()
+        brief["actions"][0]["fields"]["fldbnsCNSXmLXE51y"] = "Plain claim"
+        brief["actions"][0]["fields"]["fldB1vIzRA6NBxEYs"] = ["recBrainCliveXXXX"]
+        brief["actions"][0]["fields"]["fld9wY5ncNSeMxVye"] = ["rec9deYmfHS8s39za"]
+        self.assertTrue(self.ex.preview(brief)["ok"])
+
     @patch.dict(os.environ, {"CLIVE_MAN_ON_DEMAND_WRITE": "pat"})
     @patch("urllib.request.urlopen")
     def test_create_replay_skips(self, mock_urlopen: MagicMock) -> None:
@@ -708,6 +726,42 @@ class ReadHelperTest(unittest.TestCase):
         rd = _load_module("workshop_read3", ON_DEMAND_DIR / "clive_man_workshop_read.py", ON_DEMAND_DIR)
         with self.assertRaises(rd.WriteRefused):
             rd._req("POST", "/x", "fake")
+
+    def test_projects_table_is_readable(self) -> None:
+        rd = _load_module("workshop_read4", ON_DEMAND_DIR / "clive_man_workshop_read.py", ON_DEMAND_DIR)
+        self.assertIn(rd.T_PROJECTS, rd.READ_TABLES)
+
+    def test_list_active_projects(self) -> None:
+        rd = _load_module("workshop_read5", ON_DEMAND_DIR / "clive_man_workshop_read.py", ON_DEMAND_DIR)
+        rd.discover_trusted_allowlist = lambda _t: {}
+        rd._req = lambda m, p, t, body=None: {
+            "records": [
+                {
+                    "id": "rechmkpaan4o4R6CT",
+                    "fields": {
+                        rd.F_PROJECT["project_name"]: "Manage AstraJax Context On-Platform",
+                        rd.F_PROJECT["lifecycle"]: {"name": "Active"},
+                    },
+                },
+                {
+                    "id": "recPausedProject01",
+                    "fields": {
+                        rd.F_PROJECT["project_name"]: "Paused work",
+                        rd.F_PROJECT["lifecycle"]: {"name": "Paused"},
+                    },
+                },
+            ]
+        }
+        rows = rd.list_active_projects(token="fake")
+        self.assertEqual(
+            rows,
+            [
+                {
+                    "record_id": "rechmkpaan4o4R6CT",
+                    "project_name": "Manage AstraJax Context On-Platform",
+                }
+            ],
+        )
 
 
 class HouseholdEmbedTest(unittest.TestCase):

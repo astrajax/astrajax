@@ -67,14 +67,11 @@ include the material for the 17 Aug 2026 contract (see `clive-man` skill):
 | `canonical_text` | Complete agent register |
 | `canonical_text_for_humans` | Plain register of the same claim, no record IDs |
 | `brain_slug` **and** `brain_registry` | The executor links a live brain; a slug alone is not a destination |
+| `related_projects` | Do **not** choose. Leave blank unless a HEAD brief already supplied live `rec…` IDs. Never load the Active list to judge. Never invent. A document is not a substitute. |
 | `record_type`, `proposed_category`, `horizon` | Routing the reviewer relies on |
 
-**Blocked today:** the HyperAgent executor's payload allowlist
-(`hyperagent/builds/sources/clive-man-v0_4/specialists/context-amendment-execute/context_config.py`)
-does not yet accept `canonical_text_for_humans` or `brain_registry`, and will refuse
-a payload carrying them. Until that build is regenerated and re-imported, carry the
-human register in `reason`/`evidence` and say so in the run summary — do not silently
-drop it.
+The executor writes `related_projects` only when the payload already has live
+`rec…` IDs. Do not pass a project name. Morning pipe default is blank.
 
 ## Phase-one eligibility (Activity rows)
 

@@ -169,12 +169,21 @@ SEMANTIC_AFTER_KEYS = frozenset(
     {
         "title",
         "canonical_text",
+        "canonical_text_for_agents",
+        "canonical_text_for_humans",
         "brain_slug",
+        "brain_registry",
         "capture_source",
         "proposed_category",
         "brain_theme",
         "record_type",
         "horizon",
+        "source_documents",
+        "supersedes_trusted_truth_id",
+        # Pass-through only if a HEAD brief already supplied IDs. Morning pipe
+        # must not populate this by judging the Active list. Blank is the default.
+        "related_projects",
+        "context_amendment_versions",
     }
 )
 REQUIRED_CANDIDATE_KEYS = (

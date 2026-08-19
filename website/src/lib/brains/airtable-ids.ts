@@ -89,6 +89,8 @@ export const BRAIN_WORKSHOP_TABLES = {
   brainRegistry: "tblsI93ayQm4hq5bw",
   /** Ambient durable UTC checkpoint — Ruth V2 build 12 Aug 2026 (live-observed). */
   ambientCheckpointVersions: "tblRbjD0PHtuTWsIL",
+  /** Evolving-work register — thin Projects table (17 Aug 2026). */
+  projects: "tbl5jo7EKBxAjjKbf",
 } as const;
 
 /** Workshop User Brains — identity + operator development (Phase B, 29 Jun 2026). */
@@ -176,6 +178,38 @@ export const BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS = {
   followUpCandidate: "fldqxz6XyOQwCwyCz",
   builderNotes: "fld6SLo2yjscSEU5v",
   humanReviewed: "fldi0T3Kq4psOpLoi",
+  /** Optional link → Projects. Persistent truths may have none. */
+  relatedProjects: "fld9wY5ncNSeMxVye",
+} as const;
+
+/** Workshop Projects — evolving work, not draft truth (17 Aug 2026). */
+export const BRAIN_WORKSHOP_PROJECTS_FIELDS = {
+  projectName: "fldonDAGcLRG2GEzD",
+  intendedOutcome: "fldrb5LY13Feofm2l",
+  lifecycle: "fld4SAa3XCObipxa8",
+  relatedDrafts: "fldHUpN0X5IlvClU8",
+} as const;
+
+export const BRAIN_WORKSHOP_PROJECT_LIFECYCLE = {
+  active: { id: "seljDftZRizDXWaK8", name: "Active" },
+  paused: { id: "selbbJnwjmjnSCR8M", name: "Paused" },
+  closed: { id: "selED0i2J4g8kJGaE", name: "Closed" },
+} as const;
+
+/** Seed projects — live-observed 17 Aug 2026. All three Active. Agents never create rows. */
+export const BRAIN_WORKSHOP_PROJECTS_SEEDS = {
+  k3OpenWeightsFineTuning: {
+    recordId: "rec9deYmfHS8s39za",
+    projectName: "Establish K3 Open-Weights Fine-Tuning for AstraJax",
+  },
+  manageContextOnPlatform: {
+    recordId: "rechmkpaan4o4R6CT",
+    projectName: "Manage AstraJax Context On-Platform",
+  },
+  proveAutonomousSelfImprovement: {
+    recordId: "recH3hh1hPrLhsyVH",
+    projectName: "Prove Autonomous Agent Self-Improvement",
+  },
 } as const;
 
 /** Workshop-local Brain Registry — resolves a brain slug to the link record. */
@@ -206,7 +240,7 @@ export const DRAFT_TRUTH_HUMAN_ONLY_FIELDS = [
   BRAIN_WORKSHOP_DRAFT_TRUTH_FIELDS.followUpCandidate,
 ] as const;
 
-/** Same overlay, by Airtable field name — REST writes key on names. */
+/** Same overlay, by Airtable field name — refuse if a caller still keys by name. */
 export const DRAFT_TRUTH_HUMAN_ONLY_FIELD_NAMES = [
   "Human Reviewed",
   "Human Chosen Brain",

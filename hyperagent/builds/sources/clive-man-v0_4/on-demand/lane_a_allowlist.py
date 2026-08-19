@@ -24,6 +24,7 @@ LANE_A_SOURCE_ACTORS = frozenset(
         'clive',
         'clive-hyperagent-release-scanner',
         'clive-man',
+        'clive-man-activity-intake-cursor',
         'clive-man-challenger',
         'clive-man-context-auditor',
         'clive-man-context-challenger',
@@ -68,6 +69,7 @@ LANE_A_SOURCE_ACTORS = frozenset(
         'ruth-hadley',
         'ruth-maintenance-challenger',
         'ruth-maintenance-executor',
+        'ruth-steward',
         'skill-forge',
         'skill-forge-astrajax',
     }

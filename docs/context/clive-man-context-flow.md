@@ -58,7 +58,7 @@ Work happens
    Stage V1 · Verdict Proposed             (Workshop drafts — still not canon)
               │
               ▼
-   Context Auditor 06:00 → Challenger 07:00 → Executor 08:00
+   Context Auditor 06:00 → Head project-link 06:30 (off) → Challenger 07:00 → Executor 08:00 (off)
    (HyperAgent machine chain — estate review, not a substitute for you)
               │
               ▼
@@ -205,10 +205,27 @@ fields untouched. A Brain Slug is a label, not the destination. Website routes u
 `website/src/lib/brains/draft-truth-write.ts`, which also refuses any status other
 than Draft or Quarantined.
 
-The HyperAgent Context Executor has not caught up with this contract: its current
-allowlist rejects the human register and Brain Registry link. Fixing that requires
-a regenerated build and human re-import. Until then, do not describe the scheduled
-V1 → executor route as able to materialise a contract-complete Draft row.
+`Related Projects` is optional. **Clive's Man the HEAD** looks at the live Active
+Projects list and puts real record IDs or none in the brief. Cheap proposer,
+challenger, and executor copy, veto, or write those IDs only — they do not
+choose. Blank is legal. Inventing a project or creating a Projects row is
+forbidden. The challenger may veto (ID missing, not Active, unjustified) but
+must not pick a replacement. A document upload is not a substitute. Agents do
+not retro-link existing drafts.
+
+Morning project links come from the **scheduled head pass** (06:30 Europe/London,
+**leave OFF**) after Auditor 06:00 and before Challenger 07:00. Same Clive's Man
+(Sol). Only job: `related_project_ids: [rec…] | none` on the Auditor's already
+cleared payload. Auditor, Activity Intake, and Ambient do not choose. If the
+head said none, the draft stays blank. Executor 08:00 stays **off**.
+
+The regenerated HyperAgent v0.4 family pack must tell the same HEAD-decides
+story (head, proposer, challenger, both executors, matching skills — never
+executors only). Ambient Capture and Activity Intake still write Context
+Amendment Versions only; the executor materialises the Draft row. Matthew must
+import/merge the pack in HyperAgent before the live agents use it. Leave the
+06:30 head pass and 08:00 executor **off**. Until he imports, do not describe the
+scheduled V1 → executor route as live-updated.
 
 ---
 

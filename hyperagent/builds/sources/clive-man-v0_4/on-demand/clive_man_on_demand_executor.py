@@ -7,9 +7,11 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from typing import Any
 
@@ -24,6 +26,7 @@ from clive_man_config import (
     CRED_WRITE,
     DRAFT_ALLOWED_FIELDS,
     DRAFT_CREATE_FIELDS,
+    DRAFT_HUMAN_ONLY_FIELDS,
     F,
     FORBIDDEN_DRAFT_STATUSES,
     FORBIDDEN_ORIGINS,
@@ -32,7 +35,14 @@ from clive_man_config import (
     MAX_429_RETRIES,
     T_BRAIN_INTERACTIONS,
     T_DRAFT_TRUTH,
+    T_WORKSHOP_BRAIN_REGISTRY,
     WRITE_TABLES,
+)
+
+LIVE_RECORD_ID = re.compile(r"^rec[A-Za-z0-9]{14}$")
+RECORD_ID_IN_TEXT = re.compile(r"\b(?:rec|tbl|app|fld|sel|usr|wsp)[A-Za-z0-9]{14}\b")
+BRACKETED_IDS = re.compile(
+    r"\s*[([]\s*(?:`?(?:rec|tbl|app|fld|sel)[A-Za-z0-9]{14}`?[,;/\s]*)+\)?\]?"
 )
 from lane_a_allowlist import (
     LANE_A_AMBIENT_EXCLUDED,
@@ -96,6 +106,54 @@ def _hash_fields(fields: dict[str, Any]) -> str:
 
 def _sel(v):
     return v.get("name") if isinstance(v, dict) else v
+
+
+def derive_human_text(agent_text: str) -> str:
+    text = BRACKETED_IDS.sub("", agent_text or "")
+    text = RECORD_ID_IN_TEXT.sub("", text)
+    text = re.sub(r"`\s*`", "", text)
+    text = re.sub(r"[ \t]{2,}", " ", text)
+    text = re.sub(r"[ \t]+([.,;:])", r"\1", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def _escape_formula(value: str) -> str:
+    return str(value).replace("\\", "\\\\").replace("'", "\\'")
+
+
+def _link_ids(value: Any, label: str) -> list[str]:
+    if value in (None, "", [], {}):
+        return []
+    raw = value if isinstance(value, list) else [value]
+    ids: list[str] = []
+    for item in raw:
+        rid = item.get("id") if isinstance(item, dict) else item
+        rid = str(rid or "").strip()
+        if not LIVE_RECORD_ID.match(rid):
+            raise PenError(
+                f"{label} accepts live record IDs only, not {rid!r}. "
+                "Clive's Man the HEAD puts IDs (or none) in the brief; cheap hands copy or write those IDs only."
+            )
+        if rid not in ids:
+            ids.append(rid)
+    return ids
+
+
+def _resolve_brain_registry(slug: str | None, token: str) -> str | None:
+    slug = (slug or "").strip()
+    if not slug or not token:
+        return None
+    formula = f"{{Brain Slug}}='{_escape_formula(slug)}'"
+    path = (
+        f"/{BASE_WORKSHOP}/{T_WORKSHOP_BRAIN_REGISTRY}"
+        f"?filterByFormula={urllib.parse.quote(formula)}&maxRecords=2"
+    )
+    res = _req("GET", path, token)
+    recs = res.get("records") or []
+    if len(recs) != 1:
+        return None
+    return recs[0].get("id")
 
 
 def _lane_a_actor_ok(source_actor: str | None) -> bool:
@@ -224,13 +282,30 @@ def _validate_action(action: dict[str, Any], *, lane: str) -> list[str]:
             errors.append(f"forbidden Draft status {status!r}")
         if status and status not in ALLOWED_DRAFT_STATUSES:
             errors.append(f"Draft status must be Draft or Quarantined, got {status!r}")
+        human_only = [k for k in fields if k in DRAFT_HUMAN_ONLY_FIELDS]
+        if human_only:
+            errors.append(f"builder-review fields are human-only: {human_only}")
         unknown = [k for k in fields if k not in DRAFT_ALLOWED_FIELDS]
         if unknown:
             errors.append(f"unknown Draft field ids: {unknown}")
         if op == "create":
             if lane == "A":
                 if not fields.get(F["canonical_text"]):
-                    errors.append("Lane A create requires canonical_text")
+                    errors.append("Lane A create requires Canonical Text for Agents")
+            agent_text = fields.get(F["canonical_text"])
+            if agent_text and not fields.get(F["canonical_text_for_humans"]):
+                derived = derive_human_text(str(agent_text))
+                if derived:
+                    fields[F["canonical_text_for_humans"]] = derived
+                else:
+                    errors.append("create requires Canonical Text for Humans")
+            if fields.get(F["related_projects"]):
+                try:
+                    fields[F["related_projects"]] = _link_ids(
+                        fields.get(F["related_projects"]), "related_projects"
+                    )
+                except PenError as exc:
+                    errors.append(str(exc))
             cs = fields.get(F["capture_source"])
             cs_name = _sel(cs) if isinstance(cs, dict) else cs
             if cs_name and cs_name not in CAPTURE_SOURCE_CHOICES:
@@ -340,6 +415,11 @@ def execute(brief: dict[str, Any], *, dry_run: bool = False) -> dict[str, Any]:
             if existing_id:
                 results.append({"record_id": existing_id, "outcome": "Skipped", "reason": "dedupe match"})
                 continue
+            if table == T_DRAFT_TRUTH and not fields.get(F["brain_registry"]):
+                resolved = _resolve_brain_registry(fields.get(F["brain_slug"]), token)
+                if not resolved:
+                    raise PenError("brain_registry required; Brain Slug is a label, not a destination")
+                fields[F["brain_registry"]] = [resolved]
             path = f"/{BASE_WORKSHOP}/{table}"
             resp = _req("POST", path, token, {"records": [{"fields": fields}]})
             rec = (resp.get("records") or [{}])[0]

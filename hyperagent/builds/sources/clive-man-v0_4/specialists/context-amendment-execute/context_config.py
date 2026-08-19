@@ -7,7 +7,7 @@ or V1/V2 control-writer config. Credential: CONTEXT_AMENDMENT_EXECUTE only.
 """
 
 ADAPTER_VERSION = "context-amendment-adapters-v2.0"
-EXECUTOR_IMPLEMENTATION_VERSION = "context-amendment-execute-v2.1"
+EXECUTOR_IMPLEMENTATION_VERSION = "context-amendment-execute-v2.2"
 ROLE = "clive-man-context-executor"
 ACTOR_SCHEDULED = ROLE
 ACTOR_INTAKE = "clive-man-ambient-capture"
@@ -36,29 +36,106 @@ CAPTURE_SOURCE_CHOICES = {
 T_EXECUTION_EVENTS = "tblM7gxcsWYijdaM8"
 T_REGISTRY_CHANGE_LOG = "tbliAMUuKKW4DDRXF"
 T_REGISTRY_BRAINS = "tblAUtpgSjtKf3BBr"
+T_WORKSHOP_BRAIN_REGISTRY = "tblsI93ayQm4hq5bw"
+T_PROJECTS = "tbl5jo7EKBxAjjKbf"
 
 F = {
-    "title": "fld8BVmRBSsVuXD8I", "canonical_text": "fld95ls0LG26rCNx4",
-    "brain_slug": "flddfROfNcP1u6gCy", "status": "fldiMCxuBITyZIOXW",
-    "proposed_by_agent": "flde1d1sda9lWwrj9", "created_by": "fldEonKVeEsrbiwkm",
-    "proposed_category": "fldD4gLnHeihH7yCd", "brain_theme": "fld8wdl04NOs8CwpX",
-    "record_type": "fldCViiokjEMdp3vb", "horizon": "fldEgLQcvc6L4c9p1",
+    "title": "fld8BVmRBSsVuXD8I",
+    "canonical_text": "fld95ls0LG26rCNx4",  # Canonical Text for Agents (renamed 17 Aug 2026)
+    "canonical_text_for_humans": "fldbnsCNSXmLXE51y",
+    "brain_slug": "flddfROfNcP1u6gCy",
+    "brain_registry": "fldB1vIzRA6NBxEYs",
+    "status": "fldiMCxuBITyZIOXW",
+    "proposed_by_agent": "flde1d1sda9lWwrj9",
+    "created_by": "fldEonKVeEsrbiwkm",
+    "proposed_category": "fldD4gLnHeihH7yCd",
+    "brain_theme": "fld8wdl04NOs8CwpX",
+    "record_type": "fldCViiokjEMdp3vb",
+    "horizon": "fldEgLQcvc6L4c9p1",
     "source_documents": "fldsspqpNL4vDUU50",
+    "context_amendment_versions": "fldAeXTX1uLgkNa5d",
+    "related_projects": "fld9wY5ncNSeMxVye",
     "supersedes_trusted_truth_id": "fldbWiOWBg5nmNMJv",
-    "created": "fldYcgzaE3FwxziBT", "capture_source": "fld9zhLHPvjnq8lHT",
+    "created": "fldYcgzaE3FwxziBT",
+    "capture_source": "fld9zhLHPvjnq8lHT",
 }
+
+F_REGISTRY_SLUG = "flda7wdzniHrZf2SC"
+F_PROJECT_NAME = "fldonDAGcLRG2GEzD"
+F_PROJECT_LIFECYCLE = "fld4SAa3XCObipxa8"
+PROJECT_LIFECYCLE_ACTIVE = "Active"
+
+# Matthew → Doc builder-review overlay. Agents must never write these.
+HUMAN_ONLY_FIELD_IDS = frozenset({
+    "fldi0T3Kq4psOpLoi",  # Human Reviewed
+    "fldDmfyM7wK6k8DKj",  # Human Chosen Brain
+    "fldepH6sz70MAl1lJ",  # Human Chosen Category
+    "fld8RMUWe9grDx9F6",  # Human Chosen Record Type
+    "fldjkIGcHIbw0ucGs",  # Human Chosen Horizon
+    "fld9VYQEf4b0PMSJm",  # Readability Rating
+    "fldaEEJvOK3YMepwK",  # Capture Quality
+    "fld31KoLoNuuYUx6V",  # Context Importance
+    "fldV4xwixcBhcpnHv",  # Readability Notes
+    "fld7iMmXepwsZ3ieD",  # Capture Quality Notes
+    "fld6SLo2yjscSEU5v",  # Builder Notes
+    "fldWEGX7L3cGuqxe9",  # Should Have Been Auto-Handled
+    "fldqxz6XyOQwCwyCz",  # Follow-up Candidate
+})
+HUMAN_ONLY_PAYLOAD_KEYS = frozenset({
+    "human_reviewed", "Human Reviewed",
+    "human_chosen_brain", "Human Chosen Brain",
+    "human_chosen_category", "Human Chosen Category",
+    "human_chosen_record_type", "Human Chosen Record Type",
+    "human_chosen_horizon", "Human Chosen Horizon",
+    "readability_rating", "Readability Rating",
+    "capture_quality", "Capture Quality",
+    "context_importance", "Context Importance",
+    "readability_notes", "Readability Notes",
+    "capture_quality_notes", "Capture Quality Notes",
+    "builder_notes", "Builder Notes",
+    "should_have_been_auto_handled", "Should Have Been Auto-Handled",
+    "follow_up_candidate", "Follow-up Candidate",
+})
+
+CREATE_DRAFT_TRUTH_PAYLOAD_KEYS = frozenset({
+    "title",
+    "canonical_text",
+    "canonical_text_for_agents",
+    "canonical_text_for_humans",
+    "brain_slug",
+    "brain_registry",
+    "proposed_category",
+    "brain_theme",
+    "record_type",
+    "horizon",
+    "capture_source",
+    "supersedes_trusted_truth_id",
+    "source_documents",
+    # HEAD-chosen IDs only. Cheap hands copy or write; they do not choose.
+    "related_projects",
+    "context_amendment_versions",
+})
 
 BLANK_METADATA_ALLOWLIST = {
     "brain_slug": F["brain_slug"], "proposed_category": F["proposed_category"],
     "brain_theme": F["brain_theme"], "record_type": F["record_type"],
     "horizon": F["horizon"], "supersedes_trusted_truth_id": F["supersedes_trusted_truth_id"],
     "capture_source": F["capture_source"],
+    "brain_registry": F["brain_registry"],
+    "related_projects": F["related_projects"],
 }
 BLANK_METADATA_FORBIDDEN = {
-    "title": F["title"], "canonical_text": F["canonical_text"], "status": F["status"],
-    "proposed_by_agent": F["proposed_by_agent"], "created_by": F["created_by"],
-    "created": F["created"], "source_documents": F["source_documents"],
+    "title": F["title"],
+    "canonical_text": F["canonical_text"],
+    "canonical_text_for_humans": F["canonical_text_for_humans"],
+    "status": F["status"],
+    "proposed_by_agent": F["proposed_by_agent"],
+    "created_by": F["created_by"],
+    "created": F["created"],
+    "source_documents": F["source_documents"],
 }
+BLANK_METADATA_FORBIDDEN.update({key: key for key in HUMAN_ONLY_PAYLOAD_KEYS})
+BLANK_METADATA_FORBIDDEN.update({fid: fid for fid in HUMAN_ONLY_FIELD_IDS})
 
 AV = {
     "amendment_version_id": "fldQxEy1xkA6cW4ns", "run_id": "fld013GgbDvipHaoO",

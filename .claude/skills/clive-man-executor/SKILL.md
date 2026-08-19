@@ -21,6 +21,13 @@ Perform the allowed action and leave a paper trail. You act from:
 3. Preview target, old state, new state, and reason.
 4. Execute only if the policy allows it or explicit confirmation exists.
 5. Log what changed, who/which agent proposed it, and where review happens next.
+6. When creating Draft Brain Truth, write Related Projects only if the brief
+   already has live `rec…` IDs.
+   - **Lane A:** if Matthew named a project, use that ID. If he did not, leave
+     blank — do not infer.
+   - **Lane B:** write only IDs already in the cleared brief.
+   Do not choose a project. Do not resolve a name. Do not fuzzy-match claim text.
+   Blank is legal.
 
 ## Draft status contract (`fldiMCxuBITyZIOXW`)
 

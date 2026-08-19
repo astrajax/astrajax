@@ -252,6 +252,87 @@ def create_exact_source_writes():
 truthy("create-exact-source-writes", create_exact_source_writes())
 
 
+def create_derives_human_text():
+    out, _ = ex.act_create_draft_truth(
+        _create_am({"title": "x", "canonical_text": "Claim (recABCDEFGHIJKLMN).",
+                    "brain_slug": "clive", "capture_source": "Chat Session"}), "t", True)
+    created = out["would_create"]
+    return (
+        created.get(cfg.F["canonical_text"]) == "Claim (recABCDEFGHIJKLMN)."
+        and created.get(cfg.F["canonical_text_for_humans"]) == "Claim."
+    )
+
+
+truthy("create-derives-human-text", create_derives_human_text())
+
+
+def create_accepts_registry_and_projects():
+    out, _ = ex.act_create_draft_truth(
+        _create_am({
+            "title": "x",
+            "canonical_text": "y",
+            "canonical_text_for_humans": "plain y",
+            "brain_slug": "clive",
+            "brain_registry": ["recBrainCliveXXXX"],
+            "related_projects": ["rec9deYmfHS8s39za"],
+            "capture_source": "Chat Session",
+        }), "t", True)
+    created = out["would_create"]
+    return (
+        created.get(cfg.F["brain_registry"]) == ["recBrainCliveXXXX"]
+        and created.get(cfg.F["related_projects"]) == ["rec9deYmfHS8s39za"]
+        and created.get(cfg.F["canonical_text_for_humans"]) == "plain y"
+    )
+
+
+truthy("create-accepts-registry-and-projects", create_accepts_registry_and_projects())
+
+
+expect("create-refuses-human-reviewed",
+       lambda: ex.act_create_draft_truth(
+           _create_am({"title": "x", "canonical_text": "y", "brain_slug": "s",
+                       "capture_source": "Chat Session",
+                       "human_reviewed": True}), "t", True),
+       ex.Refusal, "human-only")
+
+expect("create-refuses-related-projects-guess",
+       lambda: ex.act_create_draft_truth(
+           _create_am({"title": "x", "canonical_text": "y", "brain_slug": "s",
+                       "capture_source": "Chat Session",
+                       "related_projects": ["Manage AstraJax Context On-Platform"]}),
+           "t", True),
+       ex.Refusal, "live record IDs")
+
+expect("create-refuses-related-project-name",
+       lambda: ex.act_create_draft_truth(
+           _create_am({"title": "x", "canonical_text": "y", "brain_slug": "s",
+                       "capture_source": "Chat Session",
+                       "related_project_name": "Manage AstraJax Context On-Platform"}),
+           "t", True),
+       ex.Refusal, "forbidden/unknown")
+
+
+def create_blank_related_projects_ok():
+    out, _ = ex.act_create_draft_truth(
+        _create_am({"title": "x", "canonical_text": "y", "brain_slug": "s",
+                    "capture_source": "Chat Session"}), "t", True)
+    return cfg.F["related_projects"] not in out["would_create"]
+
+
+truthy("create-blank-related-projects-ok", create_blank_related_projects_ok())
+
+
+def create_head_none_blank_draft():
+    out, _ = ex.act_create_draft_truth(
+        _create_am({"title": "x", "canonical_text": "y", "brain_slug": "s",
+                    "capture_source": "Chat Session",
+                    "related_projects": []}), "t", True)
+    return cfg.F["related_projects"] not in out["would_create"]
+
+
+truthy("create-head-none-blank-draft", create_head_none_blank_draft())
+
+
 def fill_blank_capture_source():
     am2 = am(action_class="FILL_BLANK_DRAFT_METADATA", target_record_id="r", before_hash="h",
              payload={"fields": {"capture_source": "Chat Session"}})

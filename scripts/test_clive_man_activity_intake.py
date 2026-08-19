@@ -129,7 +129,10 @@ class ActivityIntakeCapabilityTests(unittest.TestCase):
         executor_allowed = {
             "title",
             "canonical_text",
+            "canonical_text_for_agents",
+            "canonical_text_for_humans",
             "brain_slug",
+            "brain_registry",
             "proposed_category",
             "brain_theme",
             "record_type",
@@ -137,6 +140,8 @@ class ActivityIntakeCapabilityTests(unittest.TestCase):
             "capture_source",
             "supersedes_trusted_truth_id",
             "source_documents",
+            "related_projects",
+            "context_amendment_versions",
         }
         self.assertTrue(set(after) <= executor_allowed, after)
 
@@ -364,6 +369,21 @@ class ActivityIntakeBoundaryTests(unittest.TestCase):
         ok2, reason2 = self.intake.is_eligible_exchange_row(af_end, None)
         self.assertFalse(ok2)
         self.assertIn("Session End", reason2)
+
+    def test_boundary_no_related_projects_chooser(self) -> None:
+        cand = self._candidate()
+        after = self.intake.build_after_payload(cand)
+        self.assertNotIn("related_projects", after)
+        src = (SOURCE_DIR / "household_activity_intake.py").read_text(encoding="utf-8")
+        self.assertIn("Do not judge or invent", src)
+        self.assertNotIn("listActiveProjects", src)
+        self.assertNotIn("list_active_projects", src)
+        self.assertNotIn("related_project_ids", src)
+        skill = REPO / ".cursor" / "skills" / "clive-man-activity-intake" / "SKILL.md"
+        if skill.is_file():
+            text = skill.read_text(encoding="utf-8")
+            self.assertIn("Do **not** choose", text)
+            self.assertNotIn("after loading the live Active list and judging", text)
 
     def test_boundary_manifest_forbids_draft_truth_target(self) -> None:
         manifest = {

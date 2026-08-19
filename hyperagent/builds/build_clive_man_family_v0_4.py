@@ -44,6 +44,7 @@ from _clive_man_v0_4_contract import (  # noqa: E402
     ACTOR_AUDITOR,
     ACTOR_CHALLENGER,
     ACTOR_EXECUTOR,
+    ACTOR_HEAD,
     AGENT_EXPORTS,
     CAP_DAILY_MUTATIONS,
     CAP_FAILURES,
@@ -161,10 +162,16 @@ RUNTIME (Hyperagent v0.4):
 - Option 3 lanes: Lane A direct Executor (complete verbatim capture); Lane B Trinity;
   Lane C human gates. Route 1: only complete Lane A → clive-man-executor.
 - Invoke minions via InvokeNamedAgent sequentially for Lane B.
-- Head does NOT carry a direct Airtable read credential: evidence for Lane B is gathered
-  by on-demand Proposer/Challenger via clive_man_workshop_read.py ({read_cred}).
+- Head carries Workshop READ only ({read_cred}) so the morning project-link pass
+  and Lane B briefing can see the live Active Projects list. No write pen.
+  On-demand Proposer/Challenger still gather the rest of Lane B evidence via
+  clive_man_workshop_read.py.
 - Scheduled family (repo contract): Ambient 05:00 disabled; Context Auditor 06:00;
-  Context Challenger 07:00; Context Executor 08:00 Europe/London.
+  Head project-link pass 06:30 (same Clive's Man, Sol; **leave OFF**);
+  Context Challenger 07:00; Context Executor 08:00 Europe/London (**leave OFF**).
+- Morning 06:30 job is only `related_project_ids: [rec…] | none` on the Auditor's
+  cleared payload. Head looks at the live Active Projects list. Does not write
+  drafts. Does not write builder-review fields. Auditor / Intake / Ambient do not choose.
 - Checkpoint table tblRbjD0PHtuTWsIL (schema resolved); bootstrap recHsDmDx00c636BP.
   Live Ambient enable blocked: AMBIENT_CHECKPOINT_APPEND not minted; 05:00 disabled;
   initial scan boundary + UI verification pending.
@@ -355,6 +362,9 @@ def _build_skills(persona: PersonaSource, export_paths: ExportPaths) -> dict[str
             f"\n\n> Persona source at build: `{persona.record_id}` "
             f"sha256 `{persona.content_sha256}`\n"
         ),
+        auth_type="api_key",
+        credential_schema=read_credential_schema(),
+        scripts=read_scripts_json(),
     )
 
     blocks["clive-man-proposer"] = _cursor_skill_block(
@@ -424,6 +434,7 @@ def _scheduled_invocations(actor: str, prompt: str) -> list[dict]:
             f"{actor} daily",
             contract["hour"],
             prompt,
+            minute=contract.get("minute", 0),
             read_only_mode=contract.get("read_only_mode", False),
         )
     ]
@@ -452,6 +463,12 @@ def build_exports(persona: PersonaSource, *, export_paths: ExportPaths | None = 
         "personaSource": persona.source,
     }
     observed_head = _load_observed_agent("agent-clive-s-man.json")
+    head_schedule_prompt = (
+        "Morning project-link pass only. Read the Auditor's cleared morning payload "
+        "and the live Active Projects list. Write related_project_ids: [rec…] or none. "
+        "Do not write Draft Brain Truth. Do not write builder-review fields. "
+        "Do not invent a project. Leave this schedule OFF until Matthew enables it."
+    )
     head = agent_data(
         "Clive's Man",
         "Brain steward for the Clive context lane on Hyperagent v0.4; Option 3 orchestrator; never approves canonical truth.",
@@ -462,7 +479,12 @@ def build_exports(persona: PersonaSource, *, export_paths: ExportPaths | None = 
         model_id=MODEL_HEAD,
         max_thinking_tokens=16000,
         effort="high",
-        extra_fields=_merge_safe_unknown_keys(head_extra, observed_head, ("disableAliveScopeOverlay", "executionMode")),
+        scheduled_invocations=_scheduled_invocations(ACTOR_HEAD, head_schedule_prompt),
+        extra_fields=_merge_safe_unknown_keys(
+            {**head_extra, "scheduleContract": SCHEDULE_CONTRACT[ACTOR_HEAD]},
+            observed_head,
+            ("disableAliveScopeOverlay", "executionMode"),
+        ),
     )
     _write_json(export_paths.agents_dir / "agent-clive-man-v0_4.json", agent_export(head))
 

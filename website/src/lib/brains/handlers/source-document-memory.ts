@@ -21,6 +21,9 @@ const memoryDrafts: Array<{
   fields: Record<string, unknown>;
 }> = [];
 
+/** Memory-store stand-in for a live Workshop Brain Registry row. */
+const MEMORY_BRAIN_REGISTRY_RECORD_ID = "recMemoryReg00001";
+
 function nextMemoryId(prefix: string): string {
   return `${prefix}_${Date.now()}_${memorySourceDocuments.size + memoryDrafts.length}`;
 }
@@ -80,6 +83,7 @@ export function mineMemorySourceDocuments(
             title: proposal.title,
             canonicalTextForAgents: proposal.canonicalText,
             brainSlug: proposal.brainSlug || brainSlug,
+            brainRegistryRecordId: MEMORY_BRAIN_REGISTRY_RECORD_ID,
             brainTheme: proposal.brainTheme,
             proposedCategory: proposal.proposedCategory,
             recordType:
