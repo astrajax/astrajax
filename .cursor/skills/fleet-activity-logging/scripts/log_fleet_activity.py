@@ -12,10 +12,13 @@ Payload (SEMANTIC KEYS — the script owns the field-ID mapping):
   }
 
 Sessions keys: session_id, parent_session_id, root_session_id, agent_slug,
-  agent_name, runtime, trigger, user, thread_url, model
+  agent_name, runtime, trigger, user, thread_url, model,
+  dispatch_ticket (REQUIRED when parent_session_id is set), and the optional
+  dispatch_ticket_event_id / dispatch_ticket_sequence / dispatch_ticket_context
 Activity keys: summary, event_id, sequence, session_id, event_type,
   user_message, reply_digest, context_referenced, detail, outcome, target_url,
-  model, cost_usd (Session End only), review_status (defaulted "Unreviewed")
+  model, cost_usd (Session End only), review_status (defaulted "Unreviewed"),
+  dispatch_ticket (verbatim brief; writes User Message, waives reply_digest)
 Reports keys: title, report_type, agent_slug, headline, body, period_start,
   period_end (YYYY-MM-DD dates), evidence, supersedes (list of Reports rec ids)
 
@@ -41,6 +44,21 @@ Contract (Matthew Airtable redesign, 2026-08-08):
   Typed mechanical rows (except Session End): require summary.
   Session End: require outcome; summary optional.
   Completion/Decision (when typed): require context_referenced.
+- DISPATCH TICKET (Halvard equip, 2026-08-19): a child session — one whose
+  parent_session_id is set — must record the verbatim brief it was dispatched
+  with as its first-turn User Message, so the job ticket is readable and can be
+  scored. The pen refuses a child Sessions row without `dispatch_ticket`, then
+  FILLS the ticket itself: it creates the session's first Activity row with
+  user_message = the brief, sequence 0 (override with
+  dispatch_ticket_sequence), no event_type and no reply_digest. The ticket row
+  is deliberately untyped, so AI still owns User/Agent Turn Type; nothing here
+  writes Agent Quality, Human Quality, or a review score. The agent-to-agent
+  marker is Parent Session ID + a first-turn User Message — NOT User Turn Type
+  = "Brief", which is mostly Matthew briefing a head. Root sessions have no
+  dispatcher, so `dispatch_ticket` is refused on them. An agent that writes the
+  first row itself may instead pass `dispatch_ticket` on an Activity row: the
+  pen writes it into User Message and waives reply_digest (a ticket has no
+  reply yet).
 - Do not write AI-owned fields (Session Summary, AI Turn Summary, Headline).
 - Defaults: review_status="Unreviewed". Session link is injected from
   session_record_id. Reviewer-owned score fields are rejected.
@@ -149,6 +167,22 @@ TYPED_REQUIRE_SUMMARY = {
     "Decision", "Action", "Blocker", "Question", "Escalation", "Error", "Completion",
 }
 CONTEXT_REQUIRED_TYPES = {"Completion", "Decision"}
+
+# Dispatch ticket keys are consumed by the pen; they are never Airtable fields.
+# `dispatch_ticket` carries the verbatim brief a child session was dispatched
+# with. On a Sessions row it is required whenever parent_session_id is set, and
+# the pen turns it into that session's first Activity row. On an Activity row it
+# writes User Message and waives reply_digest.
+TICKET_KEY = "dispatch_ticket"
+TICKET_OPTION_KEYS = ("dispatch_ticket_event_id", "dispatch_ticket_sequence",
+                      "dispatch_ticket_context")
+TICKET_KEYS = (TICKET_KEY,) + TICKET_OPTION_KEYS
+TICKET_DEFAULT_CONTEXT = "dispatch brief"
+TICKET_DEFAULT_SEQUENCE = 0
+TICKET_MISSING_HINT = (
+    'dispatch_ticket (the verbatim brief your dispatcher sent — a child session '
+    "must log its job ticket as the first-turn User Message)"
+)
 
 
 # Credential resolution order. FLEET_ACTIVITY_WRITE is the intended base-scoped,
@@ -293,6 +327,64 @@ def _empty(value) -> bool:
     return value in (None, "", [])
 
 
+def split_ticket_keys(rec: dict):
+    """Return (airtable_keys, ticket_keys) — ticket keys never reach Airtable."""
+    fields, ticket = {}, {}
+    for key, value in rec.items():
+        if key in TICKET_KEYS:
+            ticket[key] = value
+        else:
+            fields[key] = value
+    return fields, ticket
+
+
+def _ticket_event_id(session_id: str, agent_slug: str) -> str:
+    """Deterministic id so an at-least-once retry re-sends the SAME event_id.
+
+    Session IDs look like `<slug>--<YYYYMMDD>T<HHMM>Z--<suffix>`; fall back to
+    today's UTC date and a "0" suffix when a caller uses another shape.
+    """
+    parts = [p for p in str(session_id).split("--") if p]
+    date = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d")
+    for part in parts[1:]:
+        head = part[:8]
+        if len(head) == 8 and head.isdigit():
+            date = head
+            break
+    suffix = "".join(c for c in parts[-1] if c.isalnum() or c == "-") if len(parts) > 2 else ""
+    return f"evt-{agent_slug}-{date}-ticket-{suffix or '0'}"
+
+
+def derive_ticket_row(session_fields: dict, ticket: dict, problems: list, idx: int):
+    """Build the first-turn Activity row for a child session from its ticket.
+
+    Untyped on purpose: AI keeps User/Agent Turn Type, and no reviewer-owned or
+    AI-owned field is written. The Session link is injected after the Sessions
+    row exists.
+    """
+    sequence = ticket.get("dispatch_ticket_sequence", TICKET_DEFAULT_SEQUENCE)
+    try:
+        sequence = int(sequence)
+    except (TypeError, ValueError):
+        problems.append({"record_index": idx,
+                         "error": "dispatch_ticket_sequence must be a whole number"})
+        return None
+    session_id = session_fields.get(SESSIONS_MAP["session_id"]) or ""
+    agent_slug = session_fields.get(SESSIONS_MAP["agent_slug"]) or "agent"
+    event_id = (ticket.get("dispatch_ticket_event_id")
+                or _ticket_event_id(session_id, agent_slug))
+    return {
+        ACTIVITY_MAP["event_id"]: event_id,
+        ACTIVITY_MAP["sequence"]: sequence,
+        ACTIVITY_MAP["session_id"]: session_id,
+        ACTIVITY_MAP["model"]: session_fields.get(SESSIONS_MAP["model"]),
+        ACTIVITY_MAP["user_message"]: ticket.get(TICKET_KEY),
+        ACTIVITY_MAP["context_referenced"]: (ticket.get("dispatch_ticket_context")
+                                            or TICKET_DEFAULT_CONTEXT),
+        ACTIVITY_MAP["review_status"]: "Unreviewed",
+    }
+
+
 def normalise(table: str, rec: dict, problems: list, idx: int) -> dict:
     """Map semantic keys to field IDs; pass raw fld* keys through; reject unknowns."""
     mapping = MAPS[table]
@@ -324,11 +416,22 @@ def normalise(table: str, rec: dict, problems: list, idx: int) -> dict:
 
 
 def validate_and_default(table: str, records: list, session_record_id):
-    problems, ready = [], []
+    """Return (ready_rows, ticket_rows); ticket_rows aligns index-for-index."""
+    problems, ready, tickets = [], [], []
     mapping = MAPS[table]
     for idx, rec in enumerate(records):
+        rec, ticket = split_ticket_keys(rec)
         fields = normalise(table, rec, problems, idx)
         missing = []
+        ticket_row = None
+        if ticket and table == "reports":
+            for key in ticket:
+                problems.append({"record_index": idx, "error": f"unknown key: {key}"})
+            ticket = {}
+        stray = [k for k in TICKET_OPTION_KEYS if k in ticket]
+        if stray and _empty(ticket.get(TICKET_KEY)):
+            problems.append({"record_index": idx,
+                             "error": f"{', '.join(stray)} needs dispatch_ticket"})
         if table == "sessions":
             # Pure default: a session with no root_session_id given is its own root.
             if fields.get(mapping["root_session_id"]) in (None, ""):
@@ -336,6 +439,18 @@ def validate_and_default(table: str, records: list, session_record_id):
             for k in SESSIONS_REQUIRED:
                 if fields.get(mapping[k]) in (None, "", []):
                     missing.append(k)
+            is_child = not _empty(fields.get(mapping["parent_session_id"]))
+            has_ticket = not _empty(ticket.get(TICKET_KEY))
+            if is_child and not has_ticket:
+                missing.append(TICKET_MISSING_HINT)
+            elif has_ticket and not is_child:
+                problems.append({
+                    "record_index": idx,
+                    "error": "dispatch_ticket belongs to child sessions only — set "
+                             "parent_session_id, or drop the ticket on a root session",
+                })
+            elif has_ticket:
+                ticket_row = derive_ticket_row(fields, ticket, problems, idx)
         elif table == "reports":
             if not fields.get(mapping["session_link"]):
                 if session_record_id:
@@ -356,9 +471,31 @@ def validate_and_default(table: str, records: list, session_record_id):
                 if fields.get(mapping[k]) in (None, "", []):
                     missing.append(k)
 
+            ticket_text = ticket.get(TICKET_KEY)
+            is_ticket = not _empty(ticket_text)
+            if is_ticket:
+                current = fields.get(mapping["user_message"])
+                if _empty(current):
+                    fields[mapping["user_message"]] = ticket_text
+                elif str(current).strip() != str(ticket_text).strip():
+                    problems.append({
+                        "record_index": idx,
+                        "error": "dispatch_ticket and user_message disagree — send the "
+                                 "brief once",
+                    })
+                if _empty(fields.get(mapping["context_referenced"])):
+                    fields[mapping["context_referenced"]] = TICKET_DEFAULT_CONTEXT
+                if not _empty(fields.get(mapping["event_type"])):
+                    problems.append({
+                        "record_index": idx,
+                        "error": "a dispatch ticket row stays untyped so AI keeps User "
+                                 "and Agent Turn Type — remove event_type",
+                    })
+
             etype = fields.get(mapping["event_type"])
             has_user = not _empty(fields.get(mapping["user_message"]))
-            has_reply = not _empty(fields.get(mapping["reply_digest"]))
+            # A ticket is the prompt a child was handed; its reply comes later.
+            has_reply = not _empty(fields.get(mapping["reply_digest"])) or is_ticket
 
             if has_user or has_reply:
                 if not has_user:
@@ -389,15 +526,18 @@ def validate_and_default(table: str, records: list, session_record_id):
                     missing.append("summary")
 
         if missing:
-            problems.append({"record_index": idx, "missing": missing})
+            # dict.fromkeys keeps first-seen order while dropping repeats, so a key
+            # flagged by two rules is reported once.
+            problems.append({"record_index": idx, "missing": list(dict.fromkeys(missing))})
         ready.append(fields)
+        tickets.append(ticket_row)
     if problems:
         fail({"validation": problems,
               "hint": "Fix the listed keys and retry with the SAME event_ids."})
-    return ready
+    return ready, tickets
 
 
-def post_batch(token: str, table_id: str, records: list) -> dict:
+def post_batch(token: str, table_id: str, records: list, context: dict = None) -> dict:
     body = json.dumps({"records": [{"fields": r} for r in records]}).encode("utf-8")
     req = urllib.request.Request(
         f"{API}/{BASE_ID}/{table_id}", data=body, method="POST",
@@ -413,8 +553,18 @@ def post_batch(token: str, table_id: str, records: list) -> dict:
                 with urllib.request.urlopen(req, timeout=30) as resp:
                     return json.load(resp)
             except urllib.error.HTTPError as e2:
-                fail(f"HTTP {e2.code} after 429 retry: {e2.read().decode()[:300]}")
-        fail(f"HTTP {e.code}: {e.read().decode()[:300]}")
+                _fail_http(e2, "after 429 retry", context)
+        _fail_http(e, None, context)
+
+
+def _fail_http(error, note, context: dict = None) -> None:
+    detail = f"HTTP {error.code}"
+    if note:
+        detail += f" {note}"
+    detail += f": {error.read().decode()[:300]}"
+    if context:
+        fail(dict(context, http=detail))
+    fail(detail)
 
 
 def check_credential(token: str) -> str:
@@ -475,7 +625,8 @@ def main() -> None:
     if not records:
         fail("no records in payload")
 
-    records = validate_and_default(table, records, payload.get("session_record_id"))
+    records, tickets = validate_and_default(table, records,
+                                            payload.get("session_record_id"))
 
     created = []
     for i in range(0, len(records), BATCH):
@@ -483,8 +634,33 @@ def main() -> None:
         created += [r["id"] for r in out.get("records", [])]
         if i + BATCH < len(records):
             time.sleep(0.25)
-    print(json.dumps({"success": True, "table": table, "created": created,
-                      "credential_source": source}))
+
+    # Child sessions carry their dispatch ticket; write it as the first Activity
+    # row now that the Session record exists to link to.
+    ticket_rows = []
+    for session_record, ticket_row in zip(created, tickets):
+        if ticket_row:
+            ticket_rows.append(dict(ticket_row,
+                                    **{ACTIVITY_MAP["session_link"]: [session_record]}))
+    ticket_created = []
+    for i in range(0, len(ticket_rows), BATCH):
+        out = post_batch(
+            token, TABLES["activity"], ticket_rows[i : i + BATCH],
+            context={"sessions_created": created,
+                     "dispatch_tickets_written": ticket_created,
+                     "hint": "Sessions rows exist. Retry ONLY the ticket rows as an "
+                             "activity payload with session_record_id and the same "
+                             "event_ids; do not re-send the sessions row."},
+        )
+        ticket_created += [r["id"] for r in out.get("records", [])]
+        if i + BATCH < len(ticket_rows):
+            time.sleep(0.25)
+
+    result = {"success": True, "table": table, "created": created,
+              "credential_source": source}
+    if ticket_created:
+        result["dispatch_tickets"] = ticket_created
+    print(json.dumps(result))
 
 
 if __name__ == "__main__":
