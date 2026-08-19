@@ -110,7 +110,7 @@ agent and reuse it.
    when a branch is needed; still one job per PR.
 
 **New-chat brief (when starting work):** Goal · Lane · Branch from latest `main` ·
-What not to touch · Done when.
+What not to touch · Done when · Session ID (or `none` if generic).
 
 ## Generic is legitimate
 
@@ -141,7 +141,9 @@ wrong would waste real work. One question, naming both candidates.
 ## Model discipline
 
 Dispatch does not override `.cursor/rules/model-routing.mdc`. Each agent carries its own
-pin. When you keep work inline, the same rule applies: mechanical edits belong on a
+pin. When frontier is in **drought** (credits empty), still dispatch the named agent;
+pass Grok 4.6 for reasoning heads and Composer for hands — see that rule's drought
+section. When you keep work inline, the same rule applies: mechanical edits belong on a
 first-party-pool model, never a frontier one.
 
 ## Known limitation

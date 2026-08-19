@@ -176,6 +176,10 @@ The target cannot see your conversation. Every invocation is self-contained:
    builds; the naked question for challenges and briefs.
 3. **Provenance** — who said it, where, when (thread URL if useful).
 4. **Tier note** — name the tier you believe it is, so the target doesn't re-derive it.
+5. **Session IDs** — your `session_id` and `root_session_id` (root is your own session
+   if you are the top of the chain). The target starts its own session and sets yours
+   as parent. If you have no session (generic parent), write `session_id: none` so they
+   start their own and do not wait.
 
 One job per invocation. Two jobs → two briefs.
 
@@ -212,3 +216,4 @@ Targets' own NEVER lists stand unchanged.
 - Website work? Use the **Website build flow** stage table — then Man exit if durable.
 - Have I added ANY step the structure doesn't demand? Remove it.
 - Is anything here actually Red? Then it's a proposal to Matthew, not a silent routing.
+- Did I pass `session_id` and `root_session_id`, or `session_id: none` if I have no session?

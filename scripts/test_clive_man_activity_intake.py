@@ -170,6 +170,38 @@ class ActivityIntakeCapabilityTests(unittest.TestCase):
         self.assertEqual(json.loads(data["allowedIntegrations"]), [])
         self.assertEqual(data["scheduledInvocations"], [])
 
+    def test_act_int_013_export_scripts_match_executor_safe_source(self) -> None:
+        """HA runs the embedded export scripts — not the repo source tree.
+
+        #163 fixed source after_payload / Agent Turn Type / live dedupe, but left
+        the export stale. Lock the deployable artifact to those invariants so a
+        rebuild skip cannot silently revive executor Refusal + duplicate V1s.
+        """
+        if not EXPORT_PATH.is_file():
+            self.skipTest("export not built yet — run build generator first")
+        export = json.loads(EXPORT_PATH.read_text(encoding="utf-8"))
+        scripts = {
+            row["filename"]: row["content"]
+            for row in json.loads(export["data"]["skills"][0]["scripts"])
+        }
+        config = scripts["household_activity_config.py"]
+        intake = scripts["household_activity_intake.py"]
+
+        self.assertIn('"event_type": "fldvskIDzutu4JzQt"', config)
+        self.assertNotIn('"event_type": "fldTCd93XF8XhsVoZ"', config)
+        self.assertNotIn('"capture_source_chat_session"', config.split("SEMANTIC_AFTER_KEYS", 1)[1].split(")", 1)[0])
+
+        after_fn = intake.split("def build_after_payload", 1)[1].split("\ndef ", 1)[0]
+        self.assertNotIn('"capture_source_chat_session"', after_fn)
+        self.assertNotIn("candidate[\"capture_source_chat_session\"]", after_fn)
+        self.assertIn('"capture_source": CAPTURE_SOURCE_CHAT', after_fn)
+        payload_block = after_fn.split("payload:", 1)[1].split("return payload", 1)[0]
+        self.assertNotIn("capture_source_chat_session", payload_block)
+
+        dedupe_fn = intake.split("def list_existing_by_dedupe", 1)[1].split("\ndef ", 1)[0]
+        self.assertIn("return None", dedupe_fn)
+        self.assertIn("dedupe_unavailable", intake)
+
 
 class ActivityIntakeBoundaryTests(unittest.TestCase):
     @classmethod
