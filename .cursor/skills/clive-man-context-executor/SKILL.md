@@ -17,7 +17,7 @@ Execute Cleared V2 amendment batches only. Kimi K3 **low** — no material judge
 
 ## Schedule
 
-**08:00** Europe/London — after Challenger (07:00).
+**08:00** Europe/London — after Challenger (07:00). **Leave this schedule OFF.**
 
 ## Pen
 
@@ -35,9 +35,10 @@ never normalize drift.
 
 ## Related Projects
 
-Write `related_projects` only when the cleared payload already has live `rec…`
-IDs from a HEAD brief. Do not choose a project. Do not resolve a name. Do not
-require the project title in the claim. Blank is legal.
+Write `related_projects` only from IDs already in the cleared brief (the
+scheduled head pass named them, or an on-demand head brief). Do not choose a
+project. Do not resolve a name. Do not require the project title in the claim.
+If the head said none, leave Related Projects blank. Blank is legal.
 
 ## Capture Source gate
 

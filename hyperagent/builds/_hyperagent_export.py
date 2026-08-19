@@ -130,6 +130,15 @@ def exported_at_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
 
 
+def _schema_as_json_string(value: Any) -> Any:
+    """HyperAgent credentialSchema must be a JSON string or null."""
+    if value is None or value == "":
+        return None
+    if isinstance(value, str):
+        return value
+    return json.dumps(value)
+
+
 def json_string(value: Any) -> str:
     """Serialize for toolSettings / allowedIntegrations (JSON string in export)."""
     return json.dumps(value)
@@ -198,7 +207,7 @@ def embed_skill(skill_data_block: Mapping[str, Any], *, pinned: bool) -> dict[st
         "tags": skill_data_block["tags"],
         "whenToUse": skill_data_block["whenToUse"],
         "authType": skill_data_block["authType"],
-        "credentialSchema": skill_data_block.get("credentialSchema"),
+        "credentialSchema": _schema_as_json_string(skill_data_block.get("credentialSchema")),
         "skillMdBody": skill_data_block["skillMdBody"],
         "scripts": skill_data_block.get("scripts"),
         "references": skill_data_block.get("references"),

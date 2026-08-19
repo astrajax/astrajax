@@ -370,6 +370,21 @@ class ActivityIntakeBoundaryTests(unittest.TestCase):
         self.assertFalse(ok2)
         self.assertIn("Session End", reason2)
 
+    def test_boundary_no_related_projects_chooser(self) -> None:
+        cand = self._candidate()
+        after = self.intake.build_after_payload(cand)
+        self.assertNotIn("related_projects", after)
+        src = (SOURCE_DIR / "household_activity_intake.py").read_text(encoding="utf-8")
+        self.assertIn("Do not judge or invent", src)
+        self.assertNotIn("listActiveProjects", src)
+        self.assertNotIn("list_active_projects", src)
+        self.assertNotIn("related_project_ids", src)
+        skill = REPO / ".cursor" / "skills" / "clive-man-activity-intake" / "SKILL.md"
+        if skill.is_file():
+            text = skill.read_text(encoding="utf-8")
+            self.assertIn("Do **not** choose", text)
+            self.assertNotIn("after loading the live Active list and judging", text)
+
     def test_boundary_manifest_forbids_draft_truth_target(self) -> None:
         manifest = {
             "created_by_agent": self.cfg.ACTOR_HYPERAGENT,

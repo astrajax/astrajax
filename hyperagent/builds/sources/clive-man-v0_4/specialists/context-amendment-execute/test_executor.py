@@ -322,6 +322,17 @@ def create_blank_related_projects_ok():
 truthy("create-blank-related-projects-ok", create_blank_related_projects_ok())
 
 
+def create_head_none_blank_draft():
+    out, _ = ex.act_create_draft_truth(
+        _create_am({"title": "x", "canonical_text": "y", "brain_slug": "s",
+                    "capture_source": "Chat Session",
+                    "related_projects": []}), "t", True)
+    return cfg.F["related_projects"] not in out["would_create"]
+
+
+truthy("create-head-none-blank-draft", create_head_none_blank_draft())
+
+
 def fill_blank_capture_source():
     am2 = am(action_class="FILL_BLANK_DRAFT_METADATA", target_record_id="r", before_hash="h",
              payload={"fields": {"capture_source": "Chat Session"}})

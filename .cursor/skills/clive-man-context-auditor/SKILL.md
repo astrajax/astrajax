@@ -18,7 +18,8 @@ writes V1 Amendment Versions (Proposed) and audit fingerprints only.
 
 ## Schedule
 
-**06:00** Europe/London — independent from Ambient Capture (05:00).
+**06:00** Europe/London — independent from Ambient Capture (05:00). The head
+project-link pass (06:30, **off**) runs after this; Challenger is 07:00.
 
 ## Pens
 
@@ -34,11 +35,18 @@ Actor literal: **`clive-man-context-auditor`**.
 `fld9zhLHPvjnq8lHT` is mandatory routing evidence. Classifier uses exact live
 choices with proven provenance — never infer from Created By alone.
 
+## Related Projects
+
+Do **not** choose projects. Leave `related_project_ids` empty on the V1 payload
+so the scheduled head pass can name IDs or none. Do not load the Active list to
+judge. Blank is what you hand the head.
+
 ## Must not
 
 - Execute Draft Brain Truth mutations (Executor lane).
 - Write V2 or Cleared amendments (Challenger lane).
 - Cross read/write credential boundaries.
+- Choose, invent, or write Related Project IDs.
 
 ## Implementation reference
 

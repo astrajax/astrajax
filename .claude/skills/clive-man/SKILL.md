@@ -93,7 +93,7 @@ misses one is a defect, not a partial success. Control-plane record:
 | Capture Source | `fld9zhLHPvjnq8lHT` | Chat Session / User Guided Capture / External Context Capture |
 | Source Documents | `fldsspqpNL4vDUU50` | Link when a file is the evidence. Never invent an upload for a chat-only capture |
 | Context Amendment Versions | `fldAeXTX1uLgkNa5d` | Link when the row came from the V1 proposal queue |
-| Related Projects | `fld9wY5ncNSeMxVye` | Optional. **Clive's Man the HEAD** (Sol) looks at the live Active list (`tbl5jo7EKBxAjjKbf`) and puts `rec…` IDs or `none` in the brief. **Proposer** copies those IDs only. **Challenger** may veto (missing, not Active, unjustified) — veto ≠ a new choice. **Executor** writes IDs already in the cleared brief. No resolver. No name matching. No create project. Blank is legal. Lane A: named project or blank — do not infer. Lane B: head must include `related_project_ids` before proposer runs. Morning pipe does not choose. A document upload is not a substitute. |
+| Related Projects | `fld9wY5ncNSeMxVye` | Optional. **Clive's Man the HEAD** (Sol) looks at the live Active list (`tbl5jo7EKBxAjjKbf`) and puts `rec…` IDs or `none` in the brief. On-demand Lane B: head must include IDs or none before proposer runs. Morning: the **scheduled head pass** (06:30, **off**) names IDs or none on the Auditor's cleared payload — Auditor / Intake / Ambient do not choose. **Proposer** copies. **Challenger** may veto (missing, not Active, unjustified) — veto ≠ a new choice. **Executor** writes IDs already in the cleared brief. Blank legal if head said none. No create project. |
 
 **Never write** — this is Matthew's builder-review loop with Doc, and an agent-set
 value would make the review signal a lie: Human Reviewed, Human Chosen
@@ -115,12 +115,16 @@ Field `fldiMCxuBITyZIOXW` operating set: **Draft**, **Quarantined**, **Rejected*
 
 ## Scheduled automated family (HyperAgent contract)
 
-Europe/London: Ambient Capture **05:00**; Context Auditor **06:00**; Context Challenger **07:00**; Context Executor **08:00**.
+Europe/London: Ambient Capture **05:00** (off); Context Auditor **06:00**; Head
+project-link pass **06:30** (**off**); Context Challenger **07:00**; Context
+Executor **08:00** (**off**).
 
 - Ambient: actor `clive-man-ambient-capture`; V1-only `CREATE_DRAFT_TRUTH`; Kimi K3 low; $20 cap; uncapped thread drain with requeue.
+- Head 06:30: same Clive's Man (Sol). Only job is `related_project_ids: [rec…] | none` on the Auditor's cleared payload. Looks at the live Active list. Does not write drafts or builder-review fields.
 - Intake / maintenance separated; maintenance cap **5**; per-lane failure cap **2**; three-run backlog report alarm only.
 - Checkpoint table `tblRbjD0PHtuTWsIL` (bootstrap `recHsDmDx00c636BP`) — schema resolved; live 05:00 enablement blocked on `AMBIENT_CHECKPOINT_APPEND` not minted, initial scan boundary, UI verification.
 - Ambient schedule: present, **disabled**, `readOnlyMode=false` until UI verification.
+- Head 06:30 and Executor 08:00: slots wired in the export; **do not enable live**.
 
 ## Airtable architecture stewardship
 

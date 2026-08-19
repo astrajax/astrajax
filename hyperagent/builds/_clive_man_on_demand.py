@@ -37,7 +37,8 @@ def read_credential_schema() -> str:
             "required": True,
             "type": "password",
             "hint": (
-                f"Read-only Airtable PAT for on-demand Proposer/Challenger evidence reads. "
+                f"Read-only Airtable PAT for Clive's Man the HEAD (morning project-link "
+                f"pass + Lane B briefing) and on-demand Proposer/Challenger evidence reads. "
                 f"Scopes: data.records:read + schema.bases:read. "
                 f"Grant read to Brain Workshop {BRAIN_WORKSHOP_BASE}, Registry Brains table, "
                 f"and active Trusted bases discovered via Registry (GET-only allowlist enforced "

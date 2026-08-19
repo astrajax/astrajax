@@ -18,7 +18,8 @@ alone. Writes V2 Amendment Versions (Cleared / Held / Rejected).
 
 ## Schedule
 
-**07:00** Europe/London — after Auditor (06:00), before Executor (08:00).
+**07:00** Europe/London — after Auditor (06:00) and the head project-link pass
+(06:30, **off**), before Executor (08:00, **off**).
 
 ## Pens
 
@@ -31,11 +32,12 @@ Actor literal: **`clive-man-context-challenger`**.
 
 ## Related Projects
 
-If a V1 payload carries `related_projects`, independently verify each ID exists
-on Workshop Projects `tbl5jo7EKBxAjjKbf`, Lifecycle is Active, and the claim
-justifies the link. Reject guessed / vibe-tag links. **Veto ≠ a new choice** —
-do not pick a different project. If the payload has none, do not add one.
-Blank is the legal morning-pipe default. Intake and Ambient do not choose.
+If the cleared payload carries `related_projects` / `related_project_ids` from
+the scheduled head pass, independently verify each ID exists on Workshop
+Projects `tbl5jo7EKBxAjjKbf`, Lifecycle is Active, and the claim justifies the
+link. Reject guessed / vibe-tag links. **Veto ≠ a new choice** — do not pick a
+different project. If the head said none, do not add one. Auditor, Intake, and
+Ambient do not choose.
 
 ## Capture Source verification
 

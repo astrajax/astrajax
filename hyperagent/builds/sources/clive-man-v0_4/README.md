@@ -6,9 +6,10 @@ Governed copies extracted from observed-live evidence (`agents/registry/hyperage
 
 | Path | Role |
 |------|------|
-| `specialists/context-estate-audit-propose/` | Context Auditor scheduled skill (06:00) |
-| `specialists/context-estate-challenge/` | Context Challenger scheduled skill (07:00) |
-| `specialists/context-amendment-execute/` | Context Executor scheduled skill (08:00) |
+| `specialists/context-estate-audit-propose/` | Context Auditor scheduled skill (06:00) — does not choose projects |
+| Head agent (existing `clive-man`) | Project-link pass 06:30 — **leave OFF**; IDs or none only |
+| `specialists/context-estate-challenge/` | Context Challenger scheduled skill (07:00) — veto only |
+| `specialists/context-amendment-execute/` | Context Executor scheduled skill (08:00) — **leave OFF**; writes given IDs |
 | `ambient/` | Ambient V1 intake HTTP writer |
 | `on-demand/` | Lane B read helper + on-demand Executor pen |
 

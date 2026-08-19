@@ -91,9 +91,21 @@ not proposer judgement). He puts live `rec…` IDs or `none` in the brief.
   No resolver. No name matching. No create project. Blank is legal.
 
 Inventing a project or creating a Projects row is forbidden. A document upload is
-not a substitute. Morning pipe (Intake / Ambient) does not choose — they write
-Context Amendment Versions only; blank is the legal default unless a head brief
-already supplied IDs.
+not a substitute. Intake and Ambient do not choose — they write Context Amendment
+Versions only. Auditor 06:00 does not choose; it leaves `related_project_ids`
+empty for the head. Morning project links come from the **scheduled head pass**
+(06:30 Europe/London, **leave OFF**) that names `related_project_ids: [rec…] | none`
+on the Auditor's already-cleared payload. Cheap family only copy, veto, or write.
+
+## Scheduled morning project-link pass (HyperAgent — leave OFF)
+
+Same Clive's Man the HEAD (Sol). Not a second agent. After Auditor **06:00**,
+before Challenger **07:00**. Slot time **06:30** Europe/London. **Leave this
+schedule OFF**, same operational gate as Executor 08:00.
+
+**Only job:** look at the live Active Projects list and the amendment/draft
+claim; write `related_project_ids: [rec…] | none`. Do not write Draft Brain
+Truth. Do not write builder-review fields. Do not invent or create a project.
 
 ## Draft Brain Truth status contract
 
@@ -106,12 +118,16 @@ Field `fldiMCxuBITyZIOXW` operating set: **Draft**, **Quarantined**, **Rejected*
 
 ## Scheduled automated family (HyperAgent contract)
 
-Europe/London: Ambient Capture **05:00**; Context Auditor **06:00**; Context Challenger **07:00**; Context Executor **08:00**.
+Europe/London: Ambient Capture **05:00** (off); Context Auditor **06:00**; Head
+project-link pass **06:30** (**off**); Context Challenger **07:00**; Context
+Executor **08:00** (**off**).
 
 - Ambient: actor `clive-man-ambient-capture`; V1-only `CREATE_DRAFT_TRUTH`; Kimi K3 low; $20 cap; uncapped thread drain with requeue.
+- Head 06:30: same `clive-man` (Sol). Names `related_project_ids` or none only. Does not write drafts.
 - Intake / maintenance separated; maintenance cap **5**; per-lane failure cap **2**; three-run backlog report alarm only.
 - Checkpoint table `tblRbjD0PHtuTWsIL` (bootstrap `recHsDmDx00c636BP`) — schema resolved; live 05:00 enablement blocked on `AMBIENT_CHECKPOINT_APPEND` not minted, initial scan boundary, UI verification.
 - Ambient schedule: present, **disabled**, `readOnlyMode=false` until UI verification.
+- Head 06:30 and Executor 08:00: slots wired in the export; **do not enable live**.
 
 ## Airtable architecture stewardship
 

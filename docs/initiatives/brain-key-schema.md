@@ -254,7 +254,7 @@ One row is one proposed claim. Dual text is **one claim, two registers** — bot
 | Readability Notes / Capture Quality Notes / Builder Notes | multilineText | Why the score, or Matthew’s note for Doc. Ignore unless Human Reviewed |
 | Should Have Been Auto-Handled | checkbox | Ticked = should have landed in Draft without human attention. Never a Trusted auto-promote. Ignore unless Human Reviewed. Was `Needed Human Review?`. `fldWEGX7L3cGuqxe9` |
 | Follow-up Candidate | checkbox | Digest input only — not an instruction to ask |
-| Related Projects | link → Projects | Optional. **Clive's Man the HEAD** (Sol) looks at the live Active Projects list and puts `rec…` IDs or none in the brief. Cheap proposer/challenger/executor copy, veto, or write those IDs only — they do not choose. Blank is legal. Inventing a project or creating a Projects row is forbidden. Challenger may veto (missing, not Active, unjustified) but veto is not a new choice. A document upload is not a substitute. Persistent truths may have none. `fld9wY5ncNSeMxVye` |
+| Related Projects | link → Projects | Optional. **Clive's Man the HEAD** (Sol) looks at the live Active Projects list and puts `rec…` IDs or none in the brief. Morning links come from the **scheduled head pass** (06:30, leave OFF) — not Auditor, not Intake, not the proposer. Cheap proposer/challenger/executor copy, veto, or write those IDs only — they do not choose. Blank is legal if the head said none. Inventing a project or creating a Projects row is forbidden. Challenger may veto (missing, not Active, unjustified) but veto is not a new choice. A document upload is not a substitute. Persistent truths may have none. `fld9wY5ncNSeMxVye` |
 
 **Do not copy the builder-review overlay into client brain bases.**
 
@@ -279,7 +279,7 @@ Primary field: **Project Name** (singleLineText). **Workshop only.** Live table 
 | Lifecycle | singleSelect | Active / Paused / Closed. `fld4SAa3XCObipxa8` |
 | Related Drafts | link → Draft Brain Truth | Reciprocal of Related Projects. `fldHUpN0X5IlvClU8` |
 
-No owner, deadline, priority, next action, or weekly auto-create. Agents never create a project row. The HEAD decides the link; cheap hands copy or write IDs only. Auditor, Activity Intake, and Ambient must not invent a project or write a guessed link. Do not copy into client brain bases. Recorded `rpt-projects-thin-table-20260817`.
+No owner, deadline, priority, next action, or weekly auto-create. Agents never create a project row. The HEAD decides the link (on-demand brief, or the scheduled 06:30 pass — leave that slot OFF). Cheap hands copy or write IDs only. Auditor, Activity Intake, and Ambient must not invent a project or write a guessed link. Do not copy into client brain bases. Recorded `rpt-projects-thin-table-20260817`.
 
 **Seed projects (Active, live-observed 17 Aug 2026):**
 

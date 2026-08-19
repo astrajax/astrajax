@@ -24,6 +24,7 @@ FIELD_CAPTURE_SOURCE = "fld9zhLHPvjnq8lHT"
 CAPTURE_SOURCE_CHAT_SESSION = "sel16ONJz9yPx76hH"
 
 # Actors (immutable literals — never alias)
+ACTOR_HEAD = "clive-man"
 ACTOR_AMBIENT = "clive-man-ambient-capture"
 ACTOR_AUDITOR = "clive-man-context-auditor"
 ACTOR_CHALLENGER = "clive-man-context-challenger"
@@ -84,7 +85,9 @@ STANDALONE_SKILL_EXPORTS = (
 
 EXPECTED_EXPORT_COUNT = len(AGENT_EXPORTS) + len(STANDALONE_SKILL_EXPORTS)
 
-# Schedules (Europe/London) — Ambient contract only; omitted from import JSON
+# Schedules (Europe/London) — Ambient and the head project-link pass stay
+# contractually off. The head slot is still importable (same shape as 08:00)
+# so Matthew can enable it later; do not enable live.
 SCHEDULE_CONTRACT = {
     ACTOR_AMBIENT: {
         "hour": 5,
@@ -100,6 +103,18 @@ SCHEDULE_CONTRACT = {
         "enabled": True,
         "read_only_mode": False,
         "importable": True,
+    },
+    ACTOR_HEAD: {
+        "hour": 6,
+        "minute": 30,
+        "enabled": False,
+        "read_only_mode": True,
+        "importable": True,
+        "reason": (
+            "Morning project-link pass on the existing head (Sol). "
+            "Slot is wired after Auditor and before Challenger. Leave disabled "
+            "until Matthew enables it. Same operational gate as 08:00."
+        ),
     },
     ACTOR_CHALLENGER: {
         "hour": 7,
@@ -120,7 +135,6 @@ SCHEDULE_CONTRACT = {
 LEGACY_SCHEDULE_MARKERS = (
     "LEGACY PAUSED",
     "nested route unsupported",
-    "06:30",
     "07:00 Europe/London nested",
 )
 
@@ -134,11 +148,12 @@ def schedule_invocation(
     hour: int,
     prompt: str,
     *,
+    minute: int = 0,
     read_only_mode: bool = False,
 ) -> dict:
     return {
         "name": name,
-        "rrule": daily_rrule(hour),
+        "rrule": daily_rrule(hour, minute),
         "timezone": "Europe/London",
         "prompt": prompt,
         "threadNamingHint": None,

@@ -35,6 +35,7 @@ from _clive_man_v0_4_contract import (  # noqa: E402
     ACTOR_AUDITOR,
     ACTOR_CHALLENGER,
     ACTOR_EXECUTOR,
+    ACTOR_HEAD,
     AGENT_EXPORTS,
     CAP_DAILY_MUTATIONS,
     CAP_FAILURES,
@@ -187,13 +188,21 @@ class FixtureProductionIsolationTest(unittest.TestCase):
 class GeneratorGateTest(unittest.TestCase):
     def test_cm_ha_001_pending_gate_fails_closed(self) -> None:
         env = {**dict(**{k: v for k, v in __import__("os").environ.items()}), "AIRTABLE_READ_TOKEN": ""}
-        proc = subprocess.run(
-            [sys.executable, str(BUILDS / "build_clive_man_family_v0_4.py"), "--pin-persona", "Operational v0.4"],
-            cwd=REPO,
-            env=env,
-            capture_output=True,
-            text=True,
-        )
+        with tempfile.TemporaryDirectory(prefix="clive-man-gate-") as tmp:
+            proc = subprocess.run(
+                [
+                    sys.executable,
+                    str(BUILDS / "build_clive_man_family_v0_4.py"),
+                    "--pin-persona",
+                    "Operational v0.4",
+                    "--output-root",
+                    tmp,
+                ],
+                cwd=REPO,
+                env=env,
+                capture_output=True,
+                text=True,
+            )
         self.assertNotEqual(proc.returncode, 0)
         combined = proc.stdout + proc.stderr
         self.assertTrue(
@@ -423,9 +432,32 @@ class ScheduledFamilyTest(unittest.TestCase):
             for marker in LEGACY_SCHEDULE_MARKERS:
                 self.assertNotIn(marker, blob, f"{path.name} contains {marker}")
 
-    def test_cm_ha_026_head_no_schedule(self) -> None:
-        inv = _read_json(EXPORTS_AGENTS / "agent-clive-man-v0_4.json")["data"]["scheduledInvocations"]
-        self.assertEqual(inv, [])
+    def test_cm_ha_026_head_project_link_schedule_off(self) -> None:
+        data = _read_json(EXPORTS_AGENTS / "agent-clive-man-v0_4.json")["data"]
+        inv = data["scheduledInvocations"]
+        self.assertEqual(len(inv), 1)
+        self.assertIn("BYHOUR=6", inv[0]["rrule"])
+        self.assertIn("BYMINUTE=30", inv[0]["rrule"])
+        self.assertEqual(inv[0]["timezone"], "Europe/London")
+        self.assertTrue(inv[0]["readOnlyMode"])
+        contract = data.get("scheduleContract") or {}
+        self.assertEqual(contract.get("hour"), 6)
+        self.assertEqual(contract.get("minute"), 30)
+        self.assertFalse(contract.get("enabled"))
+        self.assertEqual(SCHEDULE_CONTRACT[ACTOR_HEAD]["enabled"], False)
+        prompt = data["systemPrompt"].lower() + inv[0]["prompt"].lower()
+        self.assertIn("related_project_ids", prompt)
+        self.assertIn("leave this schedule off", inv[0]["prompt"].lower())
+        self.assertIn("do not write builder-review fields", inv[0]["prompt"].lower())
+        self.assertIn("do not write draft brain truth", inv[0]["prompt"].lower())
+        # Cheap family must not carry the 06:30 head slot.
+        for fname in (
+            "agent-clive-man-context-auditor-v0_4.json",
+            "agent-clive-man-context-challenger-v0_4.json",
+            "agent-clive-man-context-executor-v0_4.json",
+        ):
+            cheap = _read_json(EXPORTS_AGENTS / fname)["data"]["scheduledInvocations"][0]["rrule"]
+            self.assertNotIn("BYMINUTE=30", cheap, fname)
 
     def test_cm_ha_027_on_demand_executor_no_schedule(self) -> None:
         inv = _read_json(EXPORTS_AGENTS / "agent-clive-man-executor-v0_4.json")["data"]["scheduledInvocations"]
@@ -598,13 +630,12 @@ class SpecialistCapabilityTest(unittest.TestCase):
 
     def test_cm_ha_043_head_no_write_or_scheduled_creds(self) -> None:
         export = _read_json(EXPORTS_AGENTS / "agent-clive-man-v0_4.json")
-        blob = json.dumps(export)
-        for cred in (
-            CRED_AMBIENT_V1_CREATE,
-            CRED_CLIVE_MAN_ON_DEMAND_WRITE,
-            "CONTEXT_AMENDMENT_EXECUTE",
-        ):
-            self.assertNotIn(cred, blob)
+        skill = _embedded_skills(export)[0]
+        schema = skill.get("credentialSchema") or ""
+        self.assertIn(CRED_CLIVE_MAN_WORKSHOP_READ, schema)
+        self.assertNotIn(CRED_CLIVE_MAN_ON_DEMAND_WRITE, schema)
+        self.assertNotIn(CRED_AMBIENT_V1_CREATE, schema)
+        self.assertNotIn("CONTEXT_AMENDMENT_EXECUTE", schema)
         self.assertIn(CRED_CLIVE_MAN_WORKSHOP_READ, export["data"]["systemPrompt"])
 
 

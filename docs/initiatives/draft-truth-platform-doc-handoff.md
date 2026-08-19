@@ -255,7 +255,7 @@ That instruction was **wrong**. If the chooser is the head (or was the proposer)
 
 **Lane B** (derived / untrusted / batches): the head **must** include `related_project_ids: [...] | none` **before** the proposer runs.
 
-**Morning pipe** (Activity Intake / Ambient → Auditor 06:00 → Challenger 07:00 → Executor 08:00): Intake and Ambient **do not** choose projects. They write Context Amendment Versions only. If the cleared V2 payload has no IDs, the draft’s Related Projects stays blank. Do not let Auditor, Activity Intake, or Ambient “load the live list and judge.” That is the same cheap-minion leak. Blank is the legal default on the scheduled path unless a head brief already supplied IDs.
+**Morning pipe** (Activity Intake / Ambient → Auditor 06:00 → **Head project-link 06:30 (off)** → Challenger 07:00 → Executor 08:00 **off**): Intake, Ambient, and Auditor **do not** choose projects. They write Context Amendment Versions only; Auditor leaves `related_project_ids` empty for the head. Morning project links come from the **scheduled head pass** on the existing Clive's Man (Sol) — IDs or none — not from Auditor, Intake, or the proposer. If the head said none, the draft stays blank. Challenger may veto a link; veto ≠ a new choice. Executor writes only IDs already in the cleared brief. Do not let Auditor, Activity Intake, or Ambient “load the live list and judge.” That is the same cheap-minion leak. Leave the 06:30 and 08:00 slots **off**.
 
 Current repo leftovers you must overwrite (they still teach failed instruction 2):
 
@@ -277,7 +277,7 @@ Work happens
   → Household Activity (this conversation happened)
   → Activity Intake + Thread Ambient write Context Amendment Versions only
        (Stage V1 · Verdict Proposed — still a proposal queue)
-  → Auditor 06:00 → Challenger 07:00 → Executor 08:00 materialise Draft Brain Truth
+  → Auditor 06:00 → Head project-link 06:30 (off) → Challenger 07:00 → Executor 08:00 (off) materialise Draft Brain Truth
   → Matthew approves (rare) → Trusted Brain Truth
 ```
 
@@ -288,7 +288,7 @@ Work happens
 | On-demand `@clive-man` (Lane A–B) | May create Draft Brain Truth | Trusted; builder-review fields; new Projects |
 | Source-document mining | May create Draft Brain Truth (and link the file) | Trusted; builder-review fields |
 
-Leave the HyperAgent **08:00** schedule **off** until Matthew is happy with live rows. Keep existing credentials. Do not mint new ones for this job. Ambient 05:00 stays off until its own bookmark / credential gate (already recorded in wiring).
+Leave the HyperAgent **06:30** head pass and **08:00** executor **off** until Matthew is happy with live rows. Keep existing credentials. The head now needs the existing Workshop read credential (`CLIVE_MAN_WORKSHOP_READ`) for the project-link pass — do not mint a new one. Ambient 05:00 stays off until its own bookmark / credential gate (already recorded in wiring).
 
 ---
 
