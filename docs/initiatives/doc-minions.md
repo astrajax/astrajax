@@ -74,6 +74,8 @@ HyperAgent is **not** a minion. HyperAgent runs **deployed fleet agents**. Minio
 **Doc Brain Base Builder canonical sources (Mode 1 — brain):** `brain-key-schema.md` (fields) → `brain-key-wiring.md` (access) → `doc-brain-base-builder.md` (invoke + inventory) → `airtable-ids.ts` (live IDs). Do not treat the initiative doc as a second schema — it is the runbook.
 | **Vercel Minion** | `@doc-vercel-minion` (or via `@doc`) | `website/` Next.js app, API routes, env, deploy | v0.1 shipped |
 | **Doc's Workshop** | via `@doc` → `@doc-workshop-proposer` | Agent-making place (Trinity below) | v0.1 shipped |
+| **Self-Update Executor** | via `@doc` (`self-update-executor`) | Live Hyperagent **agent** config; Cursor `draft_save` persist | working 19 Aug 2026 |
+| **Skill Forge Executor** | via `@doc` (`skill-forge-executor`) | Live Hyperagent **skill** create/update via Skill Forge; Cursor `draft_save` persist | working 19 Aug 2026 |
 
 ### Doc's Workshop (Trinity)
 
