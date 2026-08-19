@@ -187,18 +187,18 @@ Do **not** treat synced Workshop tables as independent SSOTs for synced columns.
 
 **Confirmed pairs**
 
-1. Registry **User Brains** `tblgUEXEDfTl8RugA` → Workshop **User Brains New** `tbl8ovE5njOh1c6iK` (canonical live workshop mirror)
+1. Registry **User Brains** `tblgUEXEDfTl8RugA` → Workshop **User Brains** `tbl8ovE5njOh1c6iK` (canonical live workshop mirror; live name already User Brains)
 2. Registry **System Brains** → Workshop **Brain Registry** (same pattern)
 
-**Naming transition:** Workshop legacy **User Brains** `tblm6MqTYRPk8sA9o` is a stale local copy — **not** the sync destination. Matthew will delete it and rename User Brains New → User Brains; table ID stays `tbl8ovE5njOh1c6iK`.
+**Naming:** Workshop legacy **User Brains** `tblm6MqTYRPk8sA9o` was a stale local copy — **not** the sync destination. Live table is gone; keep the Retired Estate Tables row as history. Do not `delete_table`.
 
-**Authority:** edit user-brain facts in **Registry**. Workshop synced columns are read-mostly. Workshop may keep extra local-writable fields (e.g. Draft Brain Truth on User Brains New). Other Registry tables (Change Log, Agents, etc.) were **not** observed as Workshop sync mirrors.
+**Authority:** edit user-brain facts in **Registry**. Workshop synced columns are read-mostly. Workshop may keep extra local-writable fields (e.g. Draft Brain Truth on User Brains). Other Registry tables (Change Log, Agents, etc.) were **not** observed as Workshop sync mirrors.
 
 **MCP sync detection:** `list_tables_for_base` does **not** flag sync. Reliable check = write probe on a suspected synced field → 403-style `Edits to synced field "…" are not allowed from this origin`. Prefer a field that will reject if synced; revert any accidental successful write on non-synced tables. UI sync config is not readable via MCP.
 
 **Estate map:** Household Register already records this topology (example Change Key `estate-sync:registry-to-workshop:user-brains:2026-08-12`). Do not re-map unless stale.
 
-**Repo lag (awareness only):** `website/src/lib/brains/airtable-ids.ts` and household-communication-standard skill copies still cite legacy `tblm6MqTYRPk8sA9o`. Doc follow-up after Matthew's rename/delete — not Steward rewrite unless asked.
+**Repo consumers (observed 2026-08-19):** `website/src/lib/brains/airtable-ids.ts` and household-communication-standard read Workshop `tbl8ovE5njOh1c6iK`; User Brain *writes* go to Registry `tblgUEXEDfTl8RugA`.
 
 ## Scanner contract (behaviour, not schedule)
 
