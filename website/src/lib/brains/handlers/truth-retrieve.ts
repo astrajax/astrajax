@@ -1,4 +1,5 @@
 import { GrantValidationError, assertRouteMayReadTrusted, validateGrant, ROUTE_IDS } from "../guards";
+import { getTrustedBrainConfig, getTrustedReadToken } from "../config";
 import { consumeGrantUse, getGrant, restoreGrantUse } from "../grants-store";
 import { isFallbackManifest } from "../interaction-upkeep";
 import { retrieveTrustedSnippets } from "../trusted-truth";
@@ -44,12 +45,16 @@ export async function handleTruthRetrieve(body: TruthRetrieveBody) {
     throw error;
   }
 
-  // retrieveTrustedSnippets substitutes public placeholder copy when the table
-  // is empty, the read token is missing, or the brain is unwired — without
-  // throwing. That is fine for ungated demo reads, but a Brain Key use must
-  // only be spent on real Trusted rows.
   const recordIds = snippets.map((s) => s.recordId);
-  if (isFallbackManifest(recordIds)) {
+  // When Trusted is unwired (no read token), public placeholders are the demo
+  // path. When a read token is configured and we still only got placeholders,
+  // the scope was empty or unreadable — restore the use rather than pretend
+  // the caller received Trusted Brain access.
+  const trustedConfig = getTrustedBrainConfig(body.brainSlug.trim());
+  const trustedReadWired = Boolean(
+    trustedConfig?.truthTableId && getTrustedReadToken(trustedConfig),
+  );
+  if (trustedReadWired && isFallbackManifest(recordIds)) {
     await restoreGrantUse(grant.grantId);
     throw new Error("No Trusted Brain truth is available for this scope.");
   }

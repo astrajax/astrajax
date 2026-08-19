@@ -4,6 +4,7 @@ describe("handleTruthRetrieve restore on Trusted fetch failure", () => {
   beforeEach(() => {
     vi.resetModules();
     process.env.BRAIN_KEY_USE_MEMORY = "true";
+    delete process.env.BRAIN_TRUSTED_READ_TOKEN;
   });
 
   afterEach(() => {
@@ -78,7 +79,10 @@ describe("handleTruthRetrieve restore on Trusted fetch failure", () => {
     expect(recovered.remainingUses).toBe(0);
   });
 
-  it("restores the spent use when Trusted returns only fallback snippets", async () => {
+  it("restores the spent use when a wired Trusted read returns only fallback snippets", async () => {
+    process.env.BRAIN_KEY_USE_MEMORY = "true";
+    process.env.BRAIN_TRUSTED_READ_TOKEN = "patTrustedRead";
+
     vi.doMock("../trusted-truth", () => ({
       retrieveTrustedSnippets: vi
         .fn()
