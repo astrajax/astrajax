@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "tenant_key": "astrajax",
+  "tenant_display_name": "AstraJax",
+  "brain_base_id": "app6tjzzG0L0lOeVb",
+  "brain_truth_table_id": "tblipHzCl905T7o5F",
+  "brain_truth_approval_mode": "trusted_table_membership",
+  "brain_truth_fields": {
+    "title": "fldVxNhopdtZTjR6n",
+    "canonical_text": "fldX79BWrIGBUccHT",
+    "canonical_text_for_humans": "fld8EiI0tAZh8tIs0",
+    "authority": "fldX0V2cpvYlwiWxh",
+    "freshness": "fld0eIdJ9UEjSbstx",
+    "category": "fld4gG1ZjH3ETmqa3",
+    "scope": "fldtQVETmrrHUiYMw",
+    "brain_theme": "fldFGVJhAUHTq7Xco",
+    "horizon": "fldU57ic2fZWwFmlU"
+  },
+  "brain_tables_excluded": ["tbl5clS3OPwuABsGC"],
+  "projects_base_id": "appL2fdnGmhA02WXd",
+  "projects_table_id": "tbl5jo7EKBxAjjKbf",
+  "lifecycle_active_choice": "seljDftZRizDXWaK8",
+  "project_fields": {
+    "name": "fldonDAGcLRG2GEzD",
+    "intended_outcome": "fldrb5LY13Feofm2l",
+    "lifecycle": "fld4SAa3XCObipxa8"
+  },
+  "theme_picks_base_id": "appL2fdnGmhA02WXd",
+  "theme_picks_table_id": null,
+  "theme_picks_table_id_env": "RISTRAL_NEWS_THEME_PICKS_TABLE_ID",
+  "theme_picks_fields": {
+    "theme_key": "Theme Key",
+    "theme_label": "Theme Label",
+    "watch": "Watch?",
+    "search_lens": "Search Lens"
+  },
+  "theme_authority": "operator_checked_is_authoritative",
+  "max_operator_only_themes": 3,
+  "reports_base_id": "appF7jQD4ZKrDC7e1",
+  "reports_table_id": "tblFzWUIPSiIGZPln",
+  "reports_agent_slug": "ristral-news-scout",
+  "reports_type": "Other",
+  "brief_title_prefix": "Ristral news briefing",
+  "menu_title_prefix": "Ristral news theme menu",
+  "reports_write_mode": "pen_or_paste_ready",
+  "reports_writer": {
+    "kind": "household_activity_pen",
+    "script": "hyperagent/scripts/log_fleet_activity.py",
+    "credential_env": "FLEET_ACTIVITY_WRITE",
+    "requires_session_row": true,
+    "required_fields": ["title", "report_type", "agent_slug", "headline", "body", "session_record_id"]
+  },
+  "source_allowlist": [
+    "anthropic.com",
+    "openai.com",
+    "deepmind.google",
+    "ai.google",
+    "mistral.ai",
+    "airtable.com",
+    "vercel.com",
+    "cursor.com",
+    "hyperagent.com",
+    "reuters.com",
+    "ft.com",
+    "bbc.com"
+  ],
+  "search_budget": {
+    "max_queries_per_theme": 2,
+    "max_queries_per_run": 12
+  },
+  "cadence": {
+    "runtime": "manual_cursor",
+    "preferred": "weekday morning",
+    "timezone": "Europe/London"
+  },
+  "max_items": 3
+}

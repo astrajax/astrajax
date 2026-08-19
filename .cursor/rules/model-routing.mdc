@@ -122,6 +122,7 @@ Anthropic) waits until the frontier pool has money again.
 | Character motion, timing, previz | **@milo-cadence** |
 | Agent quality — rubrics, vitals, ward rounds | **@halvard-bjornson** |
 | Weekly best-practice scan of the fleet | **@ristral** |
+| Tenant news-theme scout | **@ristral-news-scout** |
 
 Several of these run a proposer → challenger → executor family (Clive's Man, Ruth, Lazlo, Doc's Workshop). Invoke the head; it calls its own team. Don't summon a minion directly unless Matthew names it.
 
