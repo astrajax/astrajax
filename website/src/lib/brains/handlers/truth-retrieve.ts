@@ -1,5 +1,6 @@
 import { GrantValidationError, assertRouteMayReadTrusted, validateGrant, ROUTE_IDS } from "../guards";
 import { consumeGrantUse, getGrant, restoreGrantUse } from "../grants-store";
+import { isFallbackManifest } from "../interaction-upkeep";
 import { retrieveTrustedSnippets } from "../trusted-truth";
 import type { TruthRetrieveBody, RetrievalManifest } from "../types";
 
@@ -43,10 +44,20 @@ export async function handleTruthRetrieve(body: TruthRetrieveBody) {
     throw error;
   }
 
+  // retrieveTrustedSnippets substitutes public placeholder copy when the table
+  // is empty, the read token is missing, or the brain is unwired — without
+  // throwing. That is fine for ungated demo reads, but a Brain Key use must
+  // only be spent on real Trusted rows.
+  const recordIds = snippets.map((s) => s.recordId);
+  if (isFallbackManifest(recordIds)) {
+    await restoreGrantUse(grant.grantId);
+    throw new Error("No Trusted Brain truth is available for this scope.");
+  }
+
   const retrievedAt = new Date().toISOString();
 
   const manifest: RetrievalManifest = {
-    recordIds: snippets.map((s) => s.recordId),
+    recordIds,
     hashes: snippets.map((s) => s.contentHash),
     grantId: grant.grantId,
     retrievedAt,
