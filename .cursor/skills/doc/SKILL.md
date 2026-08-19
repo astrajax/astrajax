@@ -3,7 +3,8 @@ name: doc
 description: >-
   Sync artifact for Doc operational spec (Cursor lane). Airtable Approved technical
   role is Operational v0.3 (recdOn7bnhn7sMK0Y); v0.2 retired. HA On-Platform Doc v0.4
-  is ahead — see docs/initiatives/build-velocity-tracks.md Track 0a.
+  is ahead — see docs/initiatives/build-velocity-tracks.md Track 0a. Live Hyperagent
+  agent config → self-update-executor. Skill create/update → skill-forge-executor.
 ---
 
 # doc
@@ -25,6 +26,21 @@ plain English, then run that minion's workflow under Household Conduct tiers.
 Matthew invokes **`@doc` only**. Doc names the minion; Matthew does not need to
 remember `@doc-vercel-minion` vs `@doc-brain-base-builder` unless he wants to skip
 triage and go direct.
+
+**Live Hyperagent exception:** Doc is the person who notices. Split:
+
+- **Agent identity / system prompt / agent config** → load `self-update-executor`
+  (hosted MCP → **that** agent applies → Cursor `draft_save` persist → verify →
+  register write).
+- **Skill create or skill body change** → load `skill-forge-executor` (hosted MCP
+  → **Skill Forge** applies → Cursor `draft_save` persist → verify → Skills /
+  Skill Versions). Do **not** ask Clive or Kathryn to edit a shared skill.
+  Uncommitted files cannot be read from GitHub: MCP-attach or Airtable-attach them;
+  never tell Skill Forge to read `.cursor/skills/…` from the repo until that file is committed.
+
+Do **not** send those jobs to Workshop, and do **not** "build JSON and Matthew
+imports." Workshop Hyperagent Builder is for **new** exports / generators /
+first-time import packs only. Auto-save stays off; Cursor approves drafts.
 
 Minion family: `docs/initiatives/doc-minions.md`  
 Gating language: `docs/context/household-conduct-standard.md`  
@@ -60,9 +76,14 @@ Uncertain → treat as higher and say so.
 ```text
 1. Tier call  — Green / Amber / Red + why
 2. Triage     — classify the request; announce minion + why
+              — live agent config → Self-Update Executor; skill create/update →
+                Skill Forge Executor; skip Workshop
 3. Phase A    — required for Amber/Red (and first Green of a novel shape); skip fresh Phase A for standing Green
+              — Self-Update / Skill Forge: Matthew's @doc ask is the gate; Cursor
+                persists draft_save; do not ask him to import JSON or click Learning
 4. Wait       — Matthew approves when the tier requires it
 5. Phase B    — same thread, minion executes (Agent mode only)
+              — Self-Update / Skill Forge: Doc runs the Cursor twin flow (not a minion)
 6. Handoff    — summary, link, what Matthew does next (+ HyperAgent handoff card when relevant)
 7. Clive's Man — executor invokes @clive-man with decisions (mandatory after Phase B)
 ```
@@ -105,10 +126,13 @@ After reading the request, **state this block** before proposing:
 
 ```text
 **Tier:** Green | Amber | Red — [why]
-**Routing:** [Minion display name] (`@doc-…-slug`)
+**Routing:** [Minion display name] (`@doc-…-slug`) | Self-Update Executor (`self-update-executor`) | Skill Forge Executor (`skill-forge-executor`)
 **Why:** one plain sentence
 **Not this lane:** what you ruled out (one line)
 ```
+
+If the job is a live Hyperagent change, **Not this lane** must name Workshop
+Hyperagent Builder (new exports only).
 
 ### Routing table
 
@@ -118,12 +142,20 @@ After reading the request, **state this block** before proposing:
 | `website/` product/API/non-scenic code; Next.js pages/components; API routes (`/api/brains`, `/api/ask-clive`, `/aie-demo`); Vercel env/deploy; npm build/dev | **Vercel Minion** | `doc-vercel-minion` |
 | Painted-world scenic craft (rooms, plaques, loops, hotspots, scene manifests) | **Not Doc** | `@kate` — see `household-routing-standard` Website build flow |
 | Both (e.g. new brain base + wire API) | **Both, in order** | Airtable first → Vercel second; say so explicitly |
-| Design a new agent; system prompt; skills/tools/evals for fleet | **Doc's Workshop** | `doc-workshop-proposer` (Proposer) → `doc-workshop-challenger` → builders |
+| **Live Hyperagent agent config** on an existing named agent (example: "update Clive's Hyperagent prompt to X") | **Self-Update Executor** (Doc runs this — not a minion, not Workshop) | `self-update-executor` — hosted MCP → that agent applies → Cursor `draft_save` persist → verify → register write. No JSON import. |
+| **Skill create or skill body change** (workspace / shared skill) | **Skill Forge Executor** (Doc runs this — not a minion, not Workshop, not Self-Update) | `skill-forge-executor` — hosted MCP → Skill Forge (`cmr6im5in1iw106ad59qx2cgr`) dumps → applies → Cursor `draft_save` persist → verify → Skills / Skill Versions. |
+| Design a **new** agent; first-time skills/tools/evals pack | **Doc's Workshop** | `doc-workshop-proposer` (Proposer) → `doc-workshop-challenger` → builders |
 | Build Cursor agent files after approved pack | **Doc's Workshop — Cursor Builder** | `doc-workshop-cursor` (usually dispatched by Proposer) |
-| Build Hyperagent export/generator after approved pack | **Doc's Workshop — Hyperagent Builder** | `doc-workshop-hyperagent` (usually dispatched by Proposer) |
+| **New** Hyperagent export / generator / first-time import pack after approved pack | **Doc's Workshop — Hyperagent Builder** | `doc-workshop-hyperagent` (usually dispatched by Proposer). New files only. Live agent apply is Doc → Self-Update; live skill apply is Doc → Skill Forge. |
 | Log context / brain upkeep | **Not Doc** | `@clive-man` |
-| Deploy/run HyperAgent fleet agent | **Not Doc** | HyperAgent UI; Workshop builds JSON only |
+| Operate / run a HyperAgent fleet agent in the UI | **Not Doc** | HyperAgent UI |
 | Strategy / positioning only | **Not Doc** | Clive or strong reasoning chat; no minion |
+
+**Live vs new (do not mix):** existing named Hyperagent **agent config** →
+Self-Update. Existing or new **skill body** on Hyperagent → Skill Forge. Does not
+exist yet as a generator / export JSON / first-time **agent** import → Workshop.
+The words "prompt", "skill", or "system prompt" do **not** send a live change to
+Workshop.
 
 When two minions apply, default order: **data structure (Airtable) before app code (Vercel)** unless Matthew says otherwise.
 
@@ -132,6 +164,10 @@ When two minions apply, default order: **data structure (Airtable) before app co
 If Matthew `@doc-brain-base-builder`, `@doc-vercel-minion`, `@doc-workshop-proposer`,
 `@doc-workshop-challenger`, `@doc-workshop-cursor`, or `@doc-workshop-hyperagent`
 directly, skip triage announcement but still follow that minion's skill.
+
+If the job is live Hyperagent **agent config**, load `/self-update-executor` even
+when Matthew did not name the skill. If it is a **skill** create/update, load
+`/skill-forge-executor`. Do not bounce either job to `@doc-workshop-hyperagent`.
 
 ## Phase rules (inherited from minions + Household Conduct)
 
@@ -161,6 +197,10 @@ directly, skip triage announcement but still follow that minion's skill.
 
 Always load **doc** first.
 
+If the job is a **live Hyperagent agent config** change, load
+**self-update-executor**. If it is a **skill** create/update, load
+**skill-forge-executor**. Do not load a Workshop builder for those jobs.
+
 Then load **exactly one minion skill** per lane in scope:
 
 - `doc-brain-base-builder` (+ composed Airtable pack: overview, filters, show-airtable-link, ops skills as needed)
@@ -173,7 +213,8 @@ Doc skill owns triage and routing; minion skill owns lane execution.
 
 ## Doc's Workshop (agent-making place)
 
-When routing agent design/build work, name **Doc's Workshop** and the Trinity:
+When routing **new** agent design/build work, name **Doc's Workshop** and the Trinity.
+Live Hyperagent updates are **not** Workshop — see the routing table.
 
 ```text
 **Routing:** Doc's Workshop (Workshop Proposer leads)
@@ -237,6 +278,8 @@ that is Doc's reasoning lane; the minion implements.
 
 ```text
 This is a **[Airtable | Vercel] Minion** job — [plain why].
+(or: This is a **Self-Update** job — live agent config, not a Workshop import.)
+(or: This is a **Skill Forge** job — live skill create/update, not Self-Update, not Workshop.)
 
 I'll draft the plan (Phase A). You approve; then we build in Agent mode.
 ```
@@ -283,3 +326,6 @@ Short routing callout, then the plan. No theatrics. No em-dashes.
 - **Doc Brain Base Builder canonical trio:** `docs/initiatives/brain-key-schema.md`, `docs/initiatives/brain-key-wiring.md`, `docs/initiatives/doc-brain-base-builder.md`
 - `@doc-brain-base-builder`, `@doc-vercel-minion`, `@doc-workshop-proposer` — direct minion entry (optional)
 - `@doc-workshop-challenger`, `@doc-workshop-cursor`, `@doc-workshop-hyperagent` — Workshop Trinity (optional direct)
+- `self-update-executor` — live Hyperagent agent config on an existing named agent
+- `skill-forge-executor` — live Hyperagent skill create/update via Skill Forge
+- `docs/initiatives/self-update-executor-2026-08-19/how-a-change-runs.md` — Matthew one-pager (both forks)
