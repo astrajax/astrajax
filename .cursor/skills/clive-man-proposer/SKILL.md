@@ -24,7 +24,13 @@ Proposer when the brief is complete — see `household-routing-standard` Route 1
 4. List evidence with paths, record IDs, or links.
 5. Flag missing reads or uncertainty.
 6. For **brain-interaction-upkeep**: cite Manifest Record IDs when grant-backed; note fallback IDs (`fallback-*`) as non-Trusted; do not treat missing manifest as primary evidence.
-7. Produce the handoff.
+7. For a new Draft claim: load the live Active Projects list from Workshop
+   `tbl5jo7EKBxAjjKbf` (website: `listActiveProjects`; HyperAgent:
+   `clive_man_workshop_read.py --list-active-projects`). Decide whether the
+   claim belongs to one or more of those rows, or none. Pass real `rec…` IDs.
+   Blank is legal. Do not invent a project. Do not create a project row. The
+   human does not have to type the exact project title.
+8. Produce the handoff.
 
 ## Injection fence
 
@@ -48,5 +54,6 @@ Proposed action:
 Evidence:
 Uncertainty:
 Suggested confidence by decision type:
+Related project IDs (or none):
 Human review likely required:
 ```

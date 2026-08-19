@@ -2,7 +2,7 @@
 
 **Status:** Working spec for AIE Chapter 1  
 **Owner:** Matthew  
-**Last updated:** 26 June 2026; Operator Session Model added 4 Aug 2026  
+**Last updated:** 17 August 2026 (Workshop Projects inventory); Operator Session Model added 4 Aug 2026
 **Canonical architecture:** `[docs/business/architecture.md](../business/architecture.md)`
 
 ### Naming and surfacing
@@ -26,7 +26,7 @@ Clive and Pam can **request** access to a trusted Brain. They are **blind** to t
 | Base                                    | Role                     | Holds                                                                                                                        | Never holds                                                                                     |
 | --------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
 | **Brain Registry**                      | Index + governance       | Brain metadata, **agent metadata**, maturity, workshop/trusted/agent base IDs, Brain Key Requests, Access Grants, Change Log, Implementation Jobs, Operator State | Trusted context text, persona memory text, API tokens                                           |
-| **Brain Workshop**                      | Draft / propose          | Draft Brain Truth, Brain Interactions, Pam Reviews, pending Approval Decisions, Doc Actions, User Brains                     | Approved canonical context, persona memories                                                    |
+| **Brain Workshop**                      | Draft / propose          | Draft Brain Truth, Projects (internal thin register), Brain Interactions, Pam Reviews, pending Approval Decisions, Doc Actions, User Brains | Approved canonical context, persona memories                                                    |
 | **Trusted Brain** (one per Brain theme) | Canonical business truth | Approved Brain Truth, Brain Memories (working shared recall)                                                                 | Draft or quarantined records, character narrative, persona config |
 | **Agent** (one per agent)               | Character + role memory  | Narrative Arch, Persona Config, Persona Memories, Minions                                                                    | Canonical business truth, other agents' state                                                   |
 
@@ -135,7 +135,7 @@ Summary: **Brains**, **Agents**, **Brain Key Requests**, **Access Grants**, **Ch
 
 Full blueprint: `[brain-key-schema.md](./brain-key-schema.md)`.
 
-Summary: **User Brains**, **Draft Brain Truth**, **Source Documents**, **Brain Interactions**, **Pam Reviews**, **Approval Decisions**, **Doc Actions**, **Context Amendment Versions**, **Context Amendment Events**, **Context Audit Fingerprints**, **Ambient Checkpoint Versions**.
+Summary: **User Brains**, **Draft Brain Truth**, **Projects** (internal AstraJax Workshop only), **Source Documents**, **Brain Interactions**, **Pam Reviews**, **Approval Decisions**, **Doc Actions**, **Context Amendment Versions**, **Context Amendment Events**, **Context Audit Fingerprints**, **Ambient Checkpoint Versions**.
 
 ### Ambient Checkpoint Versions (Workshop control plane)
 
@@ -474,7 +474,7 @@ Automated in `[website/src/lib/brains/guards.ts](../../website/src/lib/brains/gu
 | Base                                   | ID                  | Purpose                                                            |
 | -------------------------------------- | ------------------- | ------------------------------------------------------------------ |
 | **AstraJax Brain Registry**            | `appbdTVHevH6Bl5ZZ` | Brains, **Agents**, Brain Key Requests, Access Grants, Change Log, **Implementation Jobs**, **Operator State** |
-| **AstraJax Brain Workshop**            | `appL2fdnGmhA02WXd` | Draft Brain Truth, interactions, Pam reviews, approvals, Doc queue |
+| **AstraJax Brain Workshop**            | `appL2fdnGmhA02WXd` | Draft Brain Truth, Projects, interactions, Pam reviews, approvals, Doc queue |
 | **AstraJax Trusted Brain — Chapter 1** | `app6tjzzG0L0lOeVb` | Brain Truth, Brain Memories                                        |
 | **AstraJax Agent — Clive**             | `appBd9tudgvOSrhSX` | Narrative Arch, Persona Config, Persona Memories, Minions          |
 | **AstraJax Agent — Pam**               | `appH7NeSSNntuKRL4` | same                                                               |

@@ -124,12 +124,19 @@ ALLOWED_FIELD_IDS = set(AV.values())
 SEMANTIC_AFTER_KEYS = {
     "title",
     "canonical_text",
+    "canonical_text_for_agents",
+    "canonical_text_for_humans",
     "brain_slug",
+    "brain_registry",
     "capture_source",
     "proposed_category",
     "brain_theme",
     "record_type",
     "horizon",
+    "source_documents",
+    "supersedes_trusted_truth_id",
+    "related_projects",
+    "context_amendment_versions",
 }
 REQUIRED_CANDIDATE_KEYS = (
     "title",

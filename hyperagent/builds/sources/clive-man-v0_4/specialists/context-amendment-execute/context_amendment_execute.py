@@ -38,26 +38,39 @@ Dry-run: validates every amendment and prints decisions WITHOUT any writes
 (reads still occur for preflight/before-hashes).
 """
 
+from __future__ import annotations
+
 import argparse
 import hashlib
 import json
 import os
+import re
 import sys
 import time
-import urllib.request
 import urllib.error
+import urllib.parse
+import urllib.request
 
 from context_config import (
     ADAPTER_VERSION, BASE_WORKSHOP, BASE_REGISTRY,
     T_DRAFT_TRUTH, T_AMENDMENT_VERSIONS, T_EXECUTION_EVENTS,
     T_REGISTRY_CHANGE_LOG, T_REGISTRY_BRAINS,
+    T_WORKSHOP_BRAIN_REGISTRY,
     F, AV, EE, CL, BR, REQUIRED_SCHEMA,
+    HUMAN_ONLY_FIELD_IDS, HUMAN_ONLY_PAYLOAD_KEYS,
+    CREATE_DRAFT_TRUTH_PAYLOAD_KEYS,
     BLANK_METADATA_ALLOWLIST, BLANK_METADATA_FORBIDDEN,
     ACTION_CLASSES, WRITE_ALLOWLIST,
     EXISTING_RECORD_ACTIONS, CREATE_ACTIONS,
     QUARANTINE_ALLOWED_FROM,
     CAP_DAILY_MUTATIONS, CAP_FAILURES, ENV_EXECUTE,
     ACTOR_SCHEDULED, ACTOR_INTAKE, INTAKE_ACTORS, TERMINAL_EVENT_TYPES,
+)
+
+LIVE_RECORD_ID = re.compile(r"^rec[A-Za-z0-9]{14}$")
+RECORD_ID_IN_TEXT = re.compile(r"\b(?:rec|tbl|app|fld|sel|usr|wsp)[A-Za-z0-9]{14}\b")
+BRACKETED_IDS = re.compile(
+    r"\s*[([]\s*(?:`?(?:rec|tbl|app|fld|sel)[A-Za-z0-9]{14}`?[,;/\s]*)+\)?\]?"
 )
 
 API = "https://api.airtable.com/v0"
@@ -324,6 +337,62 @@ def _validate_payload_keys(payload, allowed):
         raise Refusal(f"forbidden/unknown payload keys: {sorted(extra)}")
 
 
+def derive_human_text(agent_text):
+    """Same-claim plain register: strip Airtable IDs, keep the sentences."""
+    text = BRACKETED_IDS.sub("", agent_text or "")
+    text = RECORD_ID_IN_TEXT.sub("", text)
+    text = re.sub(r"`\s*`", "", text)
+    text = re.sub(r"[ \t]{2,}", " ", text)
+    text = re.sub(r"[ \t]+([.,;:])", r"\1", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def _escape_formula(value):
+    return str(value).replace("\\", "\\\\").replace("'", "\\'")
+
+
+def _link_ids(value, label):
+    if value in (None, "", [], {}):
+        return []
+    raw = value if isinstance(value, list) else [value]
+    ids = []
+    for item in raw:
+        rid = item.get("id") if isinstance(item, dict) else item
+        rid = str(rid or "").strip()
+        if not LIVE_RECORD_ID.match(rid):
+            raise Refusal(
+                f"{label} accepts live record IDs only, not {rid!r}. "
+                "The proposer passes IDs from the live Active list, or leaves the link blank."
+            )
+        if rid not in ids:
+            ids.append(rid)
+    return ids
+
+
+def _refuse_builder_review_payload(payload):
+    offenders = [k for k in payload if k in HUMAN_ONLY_PAYLOAD_KEYS or k in HUMAN_ONLY_FIELD_IDS]
+    if offenders:
+        raise Refusal(f"builder-review fields are human-only: {sorted(set(offenders))}")
+
+
+def _resolve_brain_registry(slug, token):
+    """Exact Brain Slug match on Workshop Brain Registry. None if missing or ambiguous."""
+    slug = (slug or "").strip()
+    if not slug or not token:
+        return None
+    formula = f"{{Brain Slug}}='{_escape_formula(slug)}'"
+    path = (
+        f"/{BASE_WORKSHOP}/{T_WORKSHOP_BRAIN_REGISTRY}"
+        f"?filterByFormula={urllib.parse.quote(formula)}&maxRecords=2"
+    )
+    res = _req("GET", path, token)
+    recs = res.get("records") or []
+    if len(recs) != 1:
+        return None
+    return recs[0].get("id")
+
+
 # --- Capture Source gate (v2.1) ------------------------------------------------
 from context_config import CAPTURE_SOURCE_FIELD, CAPTURE_SOURCE_CHOICES
 
@@ -358,15 +427,21 @@ def _gate_existing_capture_source(cur_fields, payload, will_fill_cs):
 
 # --- Action adapters (return the fields written; readback done by caller) -----
 
-def _draft_create_fields(am):
+def _draft_create_fields(am, token=None, dry=False):
     p = am["payload"]
-    _validate_payload_keys(p, {"title", "canonical_text", "brain_slug", "proposed_category",
-                               "brain_theme", "record_type", "horizon", "capture_source",
-                               "supersedes_trusted_truth_id", "source_documents"})
+    _refuse_builder_review_payload(p)
+    _validate_payload_keys(p, CREATE_DRAFT_TRUTH_PAYLOAD_KEYS)
     _gate_create_capture_source(p)  # v2.1: mandatory, exact allowed choice
+    agent_text = (p.get("canonical_text_for_agents") or p.get("canonical_text") or "").strip()
+    if not agent_text:
+        raise Refusal("create requires Canonical Text for Agents")
+    human_text = (p.get("canonical_text_for_humans") or "").strip() or derive_human_text(agent_text)
+    if not human_text:
+        raise Refusal("create requires Canonical Text for Humans")
     fields = {
         F["title"]: p["title"],
-        F["canonical_text"]: p.get("canonical_text", ""),
+        F["canonical_text"]: agent_text,
+        F["canonical_text_for_humans"]: human_text,
         F["brain_slug"]: p.get("brain_slug", ""),
         F["status"]: "Draft",
         F["created_by"]: "Agent",
@@ -379,11 +454,29 @@ def _draft_create_fields(am):
                      ("source_documents", F["source_documents"])):
         if p.get(sem):
             fields[fid] = p[sem]
+    registry_ids = _link_ids(p.get("brain_registry"), "brain_registry") if p.get("brain_registry") else []
+    if registry_ids:
+        fields[F["brain_registry"]] = registry_ids
+    elif not dry:
+        resolved = _resolve_brain_registry(p.get("brain_slug", ""), token)
+        if not resolved:
+            raise Refusal("brain_registry required; Brain Slug is a label, not a destination")
+        fields[F["brain_registry"]] = [resolved]
+    project_ids = _link_ids(p.get("related_projects"), "related_projects") if p.get("related_projects") else []
+    if project_ids:
+        fields[F["related_projects"]] = project_ids
+    cav_ids = _link_ids(p.get("context_amendment_versions"), "context_amendment_versions") if p.get("context_amendment_versions") else []
+    if not cav_ids:
+        ancestor = am.get("amendment_version_record_id")
+        if ancestor and LIVE_RECORD_ID.match(str(ancestor)):
+            cav_ids = [ancestor]
+    if cav_ids:
+        fields[F["context_amendment_versions"]] = cav_ids
     return fields
 
 
 def act_create_draft_truth(am, token, dry):
-    fields = _draft_create_fields(am)
+    fields = _draft_create_fields(am, token=token, dry=dry)
     if dry:
         return {"would_create": fields}, None
     res = _create(am["target_base_id"], T_DRAFT_TRUTH, fields, token)

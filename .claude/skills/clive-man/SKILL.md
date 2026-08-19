@@ -93,6 +93,7 @@ misses one is a defect, not a partial success. Control-plane record:
 | Capture Source | `fld9zhLHPvjnq8lHT` | Chat Session / User Guided Capture / External Context Capture |
 | Source Documents | `fldsspqpNL4vDUU50` | Link when a file is the evidence. Never invent an upload for a chat-only capture |
 | Context Amendment Versions | `fldAeXTX1uLgkNa5d` | Link when the row came from the V1 proposal queue |
+| Related Projects | `fld9wY5ncNSeMxVye` | Optional. **Proposer / Clive's Man** loads the live Active Projects list (`tbl5jo7EKBxAjjKbf`) and decides whether the claim belongs to one or more of those rows, or none. Pass real `rec…` IDs. Blank is legal. The human does not have to type the exact project title. Inventing a project or creating a Projects row is forbidden. **Executor** writes only the IDs it was given — no choosing, no fuzzy-match, no title-in-claim requirement. **Challenger** checks: IDs exist, Lifecycle is Active, the link is justified by the claim (not a vibe-tag). Reject guessed links. A document upload is not a substitute. |
 
 **Never write** — this is Matthew's builder-review loop with Doc, and an agent-set
 value would make the review signal a lie: Human Reviewed, Human Chosen

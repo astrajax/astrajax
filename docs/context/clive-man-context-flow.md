@@ -205,10 +205,21 @@ fields untouched. A Brain Slug is a label, not the destination. Website routes u
 `website/src/lib/brains/draft-truth-write.ts`, which also refuses any status other
 than Draft or Quarantined.
 
-The HyperAgent Context Executor has not caught up with this contract: its current
-allowlist rejects the human register and Brain Registry link. Fixing that requires
-a regenerated build and human re-import. Until then, do not describe the scheduled
-V1 → executor route as able to materialise a contract-complete Draft row.
+`Related Projects` is optional. Clive's Man (proposer) loads the live Active
+Projects list and decides whether a new Draft claim belongs to one or more of
+those rows, or none. He passes real record IDs. Blank is legal. The human does
+not have to type the exact project title. Inventing a project or creating a
+Projects row is forbidden. The executor writes only the IDs it was given. The
+challenger checks those IDs exist, are Active, and are justified by the claim.
+A document upload is not a substitute. Agents do not retro-link existing drafts.
+
+The regenerated HyperAgent v0.4 family pack accepts this contract on executor
+create (`hyperagent/exports/agents/agent-clive-man-context-executor-v0_4.json`
+and `hyperagent/exports/agents/agent-clive-man-executor-v0_4.json`). Ambient
+Capture and Activity Intake still write Context Amendment Versions only; the
+executor materialises the Draft row. Matthew must import/merge the pack in
+HyperAgent before the live agents use it. Until he does, do not describe the
+scheduled V1 → executor route as live-updated.
 
 ---
 

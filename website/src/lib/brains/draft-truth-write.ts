@@ -10,10 +10,12 @@
 
 import {
   BRAIN_WORKSHOP_BRAIN_REGISTRY_FIELDS,
+  BRAIN_WORKSHOP_PROJECT_LIFECYCLE,
+  BRAIN_WORKSHOP_PROJECTS_FIELDS,
   BRAIN_WORKSHOP_TABLES,
   DRAFT_TRUTH_HUMAN_ONLY_FIELD_NAMES,
 } from "./airtable-ids";
-import { airtableFindOne, escapeAirtableString } from "./airtable-rest";
+import { airtableFindOne, airtableSelect, escapeAirtableString } from "./airtable-rest";
 
 /** Live Capture Source choices — exact names, nothing else is accepted. */
 export const DRAFT_TRUTH_CAPTURE_SOURCE = {
@@ -54,6 +56,12 @@ export interface DraftTruthWriteInput {
   sourceDocumentRecordIds?: string[];
   /** Link when the row came from the V1 proposal queue. */
   contextAmendmentVersionRecordIds?: string[];
+  /**
+   * Live Projects record IDs chosen by the proposer from `listActiveProjects`.
+   * The executor writes these IDs only — it does not choose, fuzzy-match, or
+   * require the project title in the claim. Blank is legal.
+   */
+  relatedProjectRecordIds?: string[];
   supersedesTrustedTruthId?: string;
 }
 
@@ -78,8 +86,11 @@ export const DRAFT_TRUTH_FIELD_NAMES = {
   captureSource: "Capture Source",
   sourceDocuments: "Source Documents",
   contextAmendmentVersions: "Context Amendment Versions",
+  relatedProjects: "Related Projects",
   supersedesTrustedTruthId: "Supersedes Trusted Truth ID",
 } as const;
+
+const LIVE_RECORD_ID = /^rec[A-Za-z0-9]{14}$/;
 
 const RECORD_ID_PATTERN = /\b(?:rec|tbl|app|fld|sel|usr|wsp)[A-Za-z0-9]{14}\b/g;
 
@@ -170,9 +181,29 @@ export function buildDraftTruthCreateFields(
   if (input.contextAmendmentVersionRecordIds?.length) {
     fields[DRAFT_TRUTH_FIELD_NAMES.contextAmendmentVersions] = input.contextAmendmentVersionRecordIds;
   }
+  const relatedProjectIds = uniqueLiveRecordIds(input.relatedProjectRecordIds);
+  if (relatedProjectIds.length) {
+    fields[DRAFT_TRUTH_FIELD_NAMES.relatedProjects] = relatedProjectIds;
+  }
 
   assertNoBuilderReviewFields(fields);
   return fields;
+}
+
+function uniqueLiveRecordIds(ids: string[] | undefined): string[] {
+  if (!ids?.length) return [];
+  const unique: string[] = [];
+  for (const raw of ids) {
+    const id = raw.trim();
+    if (!id) continue;
+    if (!LIVE_RECORD_ID.test(id)) {
+      throw new Error(
+        `Related Projects accepts live record IDs only, not ${id}. The proposer passes IDs from the live Active list, or leaves the link blank.`,
+      );
+    }
+    if (!unique.includes(id)) unique.push(id);
+  }
+  return unique;
 }
 
 /**
@@ -221,4 +252,66 @@ export async function resolveBrainRegistryRecordId(
 
 export function clearBrainRegistryCacheForTests(): void {
   registryCache.clear();
+}
+
+export type ActiveProject = {
+  recordId: string;
+  projectName: string;
+};
+
+const activeProjectsCache = new Map<string, ActiveProject[]>();
+
+/**
+ * Live Active Projects roster for proposer judgement. Blank is legal on a
+ * claim. Inventing a project or creating a Projects row is forbidden.
+ */
+export async function listActiveProjects(
+  baseId: string,
+  token: string,
+): Promise<ActiveProject[]> {
+  const cached = activeProjectsCache.get(baseId);
+  if (cached) return cached;
+
+  const records = await airtableSelect(baseId, BRAIN_WORKSHOP_TABLES.projects, token, {
+    filterByFormula: `{Lifecycle}='${BRAIN_WORKSHOP_PROJECT_LIFECYCLE.active.name}'`,
+    fields: [
+      BRAIN_WORKSHOP_PROJECTS_FIELDS.projectName,
+      BRAIN_WORKSHOP_PROJECTS_FIELDS.lifecycle,
+    ],
+    paginate: true,
+  }).catch(() => []);
+
+  const rows: ActiveProject[] = [];
+  for (const record of records) {
+    const projectName = String(
+      record.fields[BRAIN_WORKSHOP_PROJECTS_FIELDS.projectName] ??
+        record.fields["Project Name"] ??
+        "",
+    ).trim();
+    if (!record.id || !LIVE_RECORD_ID.test(record.id)) continue;
+    rows.push({ recordId: record.id, projectName });
+  }
+
+  activeProjectsCache.set(baseId, rows);
+  return rows;
+}
+
+/**
+ * Confirm a record ID is on the live Active Projects list. Does not match
+ * names or claim text. Returns null when the ID is blank, missing, paused,
+ * or closed — callers leave Related Projects blank.
+ */
+export async function resolveProjectRecordId(
+  baseId: string,
+  token: string,
+  projectRecordId: string,
+): Promise<string | null> {
+  const id = projectRecordId.trim();
+  if (!LIVE_RECORD_ID.test(id)) return null;
+  const active = await listActiveProjects(baseId, token);
+  return active.some((project) => project.recordId === id) ? id : null;
+}
+
+export function clearProjectCacheForTests(): void {
+  activeProjectsCache.clear();
 }

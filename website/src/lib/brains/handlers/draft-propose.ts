@@ -102,6 +102,8 @@ export async function createDraftTruth(input: {
   supersedesTrustedTruthId?: string;
   sourceDocumentRecordIds?: string[];
   contextAmendmentVersionRecordIds?: string[];
+  /** Live Projects record IDs from proposer judgement. Blank is legal. */
+  relatedProjectRecordIds?: string[];
   actor?: string;
 }): Promise<{ recordId: string; destination: ContextDestination; mode: "airtable" | "memory" }> {
   const title = input.title.trim();
@@ -144,6 +146,7 @@ export async function createDraftTruth(input: {
     supersedesTrustedTruthId: input.supersedesTrustedTruthId,
     sourceDocumentRecordIds: input.sourceDocumentRecordIds,
     contextAmendmentVersionRecordIds: input.contextAmendmentVersionRecordIds,
+    relatedProjectRecordIds: input.relatedProjectRecordIds,
   });
 
   const created = await airtableCreate(

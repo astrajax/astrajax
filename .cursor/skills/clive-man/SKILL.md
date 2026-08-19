@@ -72,6 +72,16 @@ Full Known Truths: `docs/initiatives/character-provenance.md` §7.
 
 **Route 1:** only **complete Lane A** → `@clive-man-executor`; otherwise `@clive-man`.
 
+## Related Projects (Draft write)
+
+Optional link `fld9wY5ncNSeMxVye`. **Proposer / Clive's Man** loads the live Active
+Projects list from Workshop `tbl5jo7EKBxAjjKbf` and decides whether a new Draft
+claim belongs to one or more of those rows, or none. Pass real `rec…` IDs.
+Blank is legal. The human does not have to type the exact project title.
+Inventing a project or creating a Projects row is forbidden. **Executor** writes
+only the IDs it was given. **Challenger** checks IDs exist, Lifecycle is Active,
+and the claim justifies the link — reject vibe-tags and guessed links.
+
 ## Draft Brain Truth status contract
 
 Field `fldiMCxuBITyZIOXW` operating set: **Draft**, **Quarantined**, **Rejected**, **Promoted**.

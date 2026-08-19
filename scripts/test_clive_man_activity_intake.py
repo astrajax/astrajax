@@ -129,7 +129,10 @@ class ActivityIntakeCapabilityTests(unittest.TestCase):
         executor_allowed = {
             "title",
             "canonical_text",
+            "canonical_text_for_agents",
+            "canonical_text_for_humans",
             "brain_slug",
+            "brain_registry",
             "proposed_category",
             "brain_theme",
             "record_type",
@@ -137,6 +140,8 @@ class ActivityIntakeCapabilityTests(unittest.TestCase):
             "capture_source",
             "supersedes_trusted_truth_id",
             "source_documents",
+            "related_projects",
+            "context_amendment_versions",
         }
         self.assertTrue(set(after) <= executor_allowed, after)
 

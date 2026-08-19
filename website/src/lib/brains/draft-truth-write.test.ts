@@ -73,6 +73,39 @@ describe("buildDraftTruthCreateFields", () => {
     expect(fields["Created By"]).toBe("Agent");
     expect(fields.Status).toBe("Draft");
   });
+
+  it("leaves Related Projects blank unless live IDs are passed", () => {
+    const blank = buildDraftTruthCreateFields(base);
+    expect(blank["Related Projects"]).toBeUndefined();
+
+    const empty = buildDraftTruthCreateFields({ ...base, relatedProjectRecordIds: [] });
+    expect(empty["Related Projects"]).toBeUndefined();
+
+    const linked = buildDraftTruthCreateFields({
+      ...base,
+      relatedProjectRecordIds: ["rec9deYmfHS8s39za"],
+    });
+    expect(linked["Related Projects"]).toEqual(["rec9deYmfHS8s39za"]);
+  });
+
+  it("writes Related Projects from IDs even when the claim does not name the project", () => {
+    const fields = buildDraftTruthCreateFields({
+      ...base,
+      title: "Context should live on the platform",
+      canonicalTextForAgents: "Durable context belongs in Workshop, not chat.",
+      relatedProjectRecordIds: ["rechmkpaan4o4R6CT"],
+    });
+    expect(fields["Related Projects"]).toEqual(["rechmkpaan4o4R6CT"]);
+  });
+
+  it("refuses a guessed project name in place of a record ID", () => {
+    expect(() =>
+      buildDraftTruthCreateFields({
+        ...base,
+        relatedProjectRecordIds: ["Manage AstraJax Context On-Platform"],
+      }),
+    ).toThrow(/live record IDs only/);
+  });
 });
 
 describe("deriveHumanText", () => {
