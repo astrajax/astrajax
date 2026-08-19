@@ -103,11 +103,11 @@ Failure to progress is an agent-quality defect for Halvard, not a reason to stop
 
 ## Airtable capture handoff — Draft
 
-**Capture status:** Pending. Airtable was unreadable from the capturing Cursor
-Cloud run, so this is the repo-side digest for a later Workshop **Draft Brain
-Truth** create. It is not Trusted, promoted, or an approval record.
+**Capture status:** Live Workshop **Draft Brain Truth**
+[`rectLG0m9XgPdkIXC`](https://airtable.com/appL2fdnGmhA02WXd/tblswvXNYFDqnl6af/rectLG0m9XgPdkIXC).
+It remains Draft. It is not Trusted, promoted, or an approval record.
 
-| Draft field | Pending value |
+| Draft field | Live value |
 |---|---|
 | Title | Household single-successor decision — 19 Aug 2026 |
 | Canonical Text for Agents | Interactive Trinity leaves one current executable candidate; Green/Amber continue; Red waits once; no round cap; Airtable remains SSOT when promoted. Repo evidence is branch `cursor/household-single-successor-skill-1e9e`, commit `75b7712`: `.cursor/skills/household-single-successor/SKILL.md`, its `.claude` twin, this repo carrier, and Household Conduct Standard Part 2. Still open: Airtable Persona Config / `core-governance` promotion (Red); Workshop builders still accept literal `proceed` only; `UNVERIFIED-LIVE` HyperAgent stubs remain untouched. |
