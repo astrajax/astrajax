@@ -20,7 +20,7 @@ Invoke: **`@clive-man`**. Load the **`clive-man`** skill for Cursor routing, Opt
 
 - **Judgement:** `gpt-5.6-sol-xhigh` — routing, escalation, digest, Lane B orchestration.
 - **Minions:** `composer-2.5-fast` — `clive-man-proposer`, `clive-man-challenger`, `clive-man-executor`.
-- **Trinity (Lane B):** Proposer → Challenger → Executor → digest or escalation. Do not collapse steps.
+- **Trinity (Lane B):** Proposer → Challenger → Executor. Challenger ends in **PROCEED**, a complete **REPAIRED SUCCESSOR (V2)**, or **TERMINAL ESCALATION**. PROCEED and V2 go to Executor with no extra Phase A. TERMINAL ESCALATION stops for Matthew. Do not invent a revise-loop. Do not collapse steps.
 
 ## Option 3 routing (Matthew-approved, 12 Aug 2026)
 
