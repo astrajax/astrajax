@@ -39,14 +39,14 @@ Matthew / client engagement
 | Role | Invoke | When |
 |---|---|---|
 | Reasoning head | `@ruth-hadley` | Architecture, proposals, ceremony |
-| Steward | `@ruth-steward` | Matthew's estate map, placement/retrieval, scanner diffs, bounded in-gate writes |
+| Steward | `@ruth-steward` | Named Matthew-estate schema/data execution + estate-map logging |
 | Build Challenger | `@ruth-build-challenger` | Independent build challenge |
 | Build Executor | `@ruth-build-executor` | Signed typed build |
 | Maintenance Challenger | `@ruth-maintenance-challenger` | Maintenance V2 |
 | Maintenance Executor | `@ruth-maintenance-executor` | Cleared-V2 maintenance |
 
-**Job 1 split:** map stewardship and small reversible Matthew-estate work within Steward
-caps → `@ruth-steward`. Grain/SSOT/topology, client builds, signed builds, and
+**Job 1 split:** named Matthew-estate schema and data work with estate-map logging →
+`@ruth-steward`. Grain/SSOT/topology decisions, client builds, signed builds, and
 Cleared-V2 maintenance → reasoning head or Build/Maintenance family.
 
 ## Credentials (env)
