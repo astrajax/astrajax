@@ -101,6 +101,36 @@ Failure to progress is an agent-quality defect for Halvard, not a reason to stop
 - Patch repo mirrors as source of truth ahead of Persona Config / `core-governance`
 - Overwrite HyperAgent exports marked `UNVERIFIED-LIVE`
 
+## Airtable capture handoff — Draft
+
+**Capture status:** Pending. Airtable was unreadable from the capturing Cursor
+Cloud run, so this is the repo-side digest for a later Workshop **Draft Brain
+Truth** create. It is not Trusted, promoted, or an approval record.
+
+| Draft field | Pending value |
+|---|---|
+| Title | Household single-successor decision — 19 Aug 2026 |
+| Canonical Text for Agents | Interactive Trinity leaves one current executable candidate; Green/Amber continue; Red waits once; no round cap; Airtable remains SSOT when promoted. Repo evidence is branch `cursor/household-single-successor-skill-1e9e`, commit `75b7712`: `.cursor/skills/household-single-successor/SKILL.md`, its `.claude` twin, this repo carrier, and Household Conduct Standard Part 2. Still open: Airtable Persona Config / `core-governance` promotion (Red); Workshop builders still accept literal `proceed` only; `UNVERIFIED-LIVE` HyperAgent stubs remain untouched. |
+| Canonical Text for Humans | Interactive Trinity now leaves one current candidate that can be acted on. Green and Amber continue; Red waits for one human decision; there is no challenge-round cap. Airtable becomes the source of truth only after promotion. Persona Config and core-governance promotion, Workshop builder wiring, and the untouched HyperAgent stubs remain open. |
+| Proposed Category | Rules & Guardrails |
+| Record Type | Truth Claim |
+| Horizon | Persistent |
+| Status | Draft |
+| Proposed By Agent | `clive-man` |
+| Created By | Agent |
+| Capture Source | Chat Session |
+| Source Documents | None — repo evidence only; no Airtable upload record was supplied |
+| Context Amendment Versions | None |
+| Related Projects | None — head decision; no project link is required for this persistent governance claim |
+| Human-only builder fields | Leave untouched |
+
+**Provenance:** Matthew Hopkinson, Cursor Cloud thread, 19 Aug 2026. Parent
+encoded the skill after Clive brief `bc-da9988b7-9a8a-5040-a84e-7acbd550ef30`.
+`session_id: none`; `root_session_id: none`.
+
+**Next human gate:** promotion to Persona Config / Trusted Brain
+`core-governance` is Red and was not requested.
+
 ## Self-check
 
 - Is there one current candidate, and can an executor act from it at this tier?
