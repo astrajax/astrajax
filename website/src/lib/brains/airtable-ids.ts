@@ -797,6 +797,68 @@ export const CLIVE_MAN_PERSONA_CONFIG = {
 export const HOUSEHOLD_VERSIONS_BASE_ID = "appPrpfvsAr71RPP3";
 export const HOUSEHOLD_VERSIONS_TABLE_ID = "tbleX09zbkUNKTGBz";
 
+/** Household register tables on HOUSEHOLD_VERSIONS_BASE_ID (Self-Update Executor writer). */
+export const HOUSEHOLD_REGISTER_TABLES = {
+  members: "tblJ70qtHUc1dUHhi",
+  minions: "tbl6aVm9rgWoOBVfd",
+  versions: "tbleX09zbkUNKTGBz",
+  skills: "tblAIXtDBBMrLuEYc",
+  skillVersions: "tbllp30BraLWgslhk",
+} as const;
+
+export const HOUSEHOLD_MEMBERS_FIELDS = {
+  agentSlug: "fld3adhxC9WwS935R",
+  agentName: "fldYQIYPYklMv9o25",
+  systemPrompt: "fldKKvps3FIAvJdhh",
+  purpose: "fldHCX9GT7fQsODDU",
+  agentBaseId: "fldpdAqXBb58MAZH9",
+  status: "fld9I4XUi9jiu8xjZ",
+} as const;
+
+export const HOUSEHOLD_MINIONS_FIELDS = {
+  agentSlug: "fldqd8ddmvGTtQh3M",
+  agentName: "fldlTDUvIG596QC00",
+  purpose: "fld4FS5mDtZd3vRBP",
+  systemPrompt: "fldex5K15FTjEWoM7",
+  status: "fldwLZTA2v3F5PLhU",
+} as const;
+
+export const HOUSEHOLD_VERSIONS_FIELDS = {
+  agentSlug: "fldy0d0D6zEip82p8",
+  agentName: "fldtGIHVsK3y28nmm",
+  version: "fldDvg20ewtEjrniW",
+  whatChanged: "flduZ8UkPVR9WE18d",
+  systemPrompt: "fldfAv8yx5qm2IcBy",
+  purpose: "fldcsXSMnxXCZNCXb",
+  changeReason: "fldEy4G0Mz1417wDg",
+  changeSource: "fldx2PG3DUZA24wST",
+  activeMember: "fldpkuwk9h7oJOHGt",
+  activeMinions: "fldtzdMncynCN0eoa",
+  skillVersions: "fldjOtUjHqWFkuTF4",
+} as const;
+
+export const HOUSEHOLD_SKILLS_FIELDS = {
+  skillName: "fldz3v4xnWrwJtHTg",
+  whenToUse: "fldn1mJwSeW931428",
+  documentation: "fldjhLDOP6gVh9GQW",
+  description: "fld75VHY6E0Zr0xrC",
+  skillVersions: "fldVVfWjiWcgjG86x",
+} as const;
+
+/** Skill Versions. Change Reason name has a leading space — always write by ID. */
+export const HOUSEHOLD_SKILL_VERSIONS_FIELDS = {
+  skillName: "fldkKBBvdvq1eroco",
+  whenToUse: "fld8IsguINVEyZLlg",
+  version: "fldV91UJWexPlUH5y",
+  whatChanged: "fldXzNy92Ydz0Spwx",
+  changeReason: "fldEh3aXTh12qzrog",
+  changeSource: "fldLL07K8ZOaVKJIw",
+  documentation: "fld4YRaMFFfqM7n94",
+  description: "fldSM1eWWdZuWYeKK",
+  skills: "fldcNVX4NnfhcAYL8",
+} as const;
+
+
 /** Head → minion archive pairs (What changed blank until post-build parent update). */
 export const CLIVE_MAN_HOUSEHOLD_ARCHIVE_LEDGER = {
   head: { head: "recAYg5sOLH1JHYdK", minion: "reclxxOUDOW6FoztJ" },
