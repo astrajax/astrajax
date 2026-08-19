@@ -101,8 +101,10 @@ export function getWorkshopWriteToken(): string | undefined {
 
 /** Read path for Workshop tables — falls back to write/promote tokens when no read PAT is set. */
 export function getWorkshopReadToken(): string | undefined {
+  // Empty/whitespace is a common Vercel misconfig; treat as unset so fallbacks work.
+  const readToken = process.env.BRAIN_WORKSHOP_READ_TOKEN?.trim();
   return (
-    process.env.BRAIN_WORKSHOP_READ_TOKEN ??
+    (readToken || undefined) ??
     process.env.BRAIN_WORKSHOP_WRITE_TOKEN ??
     process.env.BRAIN_DOC_PROMOTE_TOKEN
   );

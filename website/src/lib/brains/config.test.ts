@@ -29,4 +29,15 @@ describe("getWorkshopReadToken", () => {
     delete process.env.BRAIN_DOC_PROMOTE_TOKEN;
     expect(getWorkshopReadToken()).toBeUndefined();
   });
+
+  it("treats empty or whitespace read PAT as unset so write fallback still works", () => {
+    process.env.BRAIN_WORKSHOP_WRITE_TOKEN = "patWrite";
+    delete process.env.BRAIN_DOC_PROMOTE_TOKEN;
+
+    process.env.BRAIN_WORKSHOP_READ_TOKEN = "";
+    expect(getWorkshopReadToken()).toBe("patWrite");
+
+    process.env.BRAIN_WORKSHOP_READ_TOKEN = "   ";
+    expect(getWorkshopReadToken()).toBe("patWrite");
+  });
 });
