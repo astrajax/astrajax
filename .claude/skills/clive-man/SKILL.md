@@ -165,12 +165,43 @@ transcripts, or minion summaries as the lasting source of truth.
 Always use separate subagents for meaningful context actions:
 
 1. `clive-man-proposer` drafts the candidate action with evidence.
-2. `clive-man-challenger` red-teams it and sets confidence by decision type.
-3. `clive-man-executor` acts only from the final brief.
+2. `clive-man-challenger` red-teams it and ends in exactly one finish line.
+3. `clive-man-executor` acts from **PROCEED** or a complete **REPAIRED SUCCESSOR (V2)**.
 
 Do not collapse Trinity into one self-review step for anything that can change
 context state. The separation is the safety mechanism and the context-window
 control.
+
+## Trinity finish line (locked 19 Aug 2026)
+
+On-demand Lane B Challenger ends in exactly one of:
+
+1. **PROCEED** — Executor runs the current proposal as-is (executor brief included).
+   No extra Phase A.
+2. **REPAIRED SUCCESSOR (V2)** — Executor runs the complete repaired pack
+   (executor brief included). No extra Phase A. Do not send V2 back through
+   Proposer for a second loop.
+3. **TERMINAL ESCALATION** — stop. Hand Matthew the decision, the choices, and
+   the consequences. Do not invent a revise-loop.
+
+Map old language: proceed → PROCEED; complete repaired pack → V2;
+block / escalate-to-human → TERMINAL ESCALATION. Do not keep "revise and loop"
+as the default. Do not use proceed / revise / block / escalate as the required
+handoff.
+
+Scheduled family (Ambient / Context Auditor / Context Challenger / Context
+Executor) keeps **Cleared / Held / Rejected**. Do not mix that vocabulary into
+on-demand Trinity.
+
+After Challenger:
+
+| Tier | Behaviour |
+|------|-----------|
+| Green | Execute |
+| Amber | Execute, then notify |
+| Red | One decision from Matthew, then execute |
+
+Pam only when Red and genuinely novel.
 
 ## Durable-outcome handoffs (incoming)
 
@@ -313,8 +344,9 @@ Do not delete scripts just because their old agent was retired.
 ## Failure recovery
 
 - Missing source or read failure: stop and report the exact missing surface.
-- Low confidence: quarantine or escalate, do not pretend certainty.
-- Proposer/Challenger disagreement: escalate.
+- Low confidence: quarantine, or TERMINAL ESCALATION if no safe successor exists.
+- Challenger **PROCEED** or complete **V2**: dispatch Executor. Do not re-run Proposer.
+- Challenger **TERMINAL ESCALATION**: stop and give Matthew the decision, choices, and consequences.
 - Executor write failure: report the error verbatim and stop.
 - User asks for old agent: explain it has been consolidated into Clive's Man and
   route to the matching workflow.
@@ -325,7 +357,7 @@ Do not delete scripts just because their old agent was retired.
 - CM-002: Duplicate context is caught by Challenger before Executor writes.
 - CM-003: Low-confidence stale context is quarantined or escalated, not deleted.
 - CM-004: Publish-prep refuses any item lacking human approval.
-- CM-005: Proposer/Challenger disagreement escalates to Matthew or Pam.
+- CM-005: TERMINAL ESCALATION goes to Matthew with decision, choices, and consequences. A complete V2 is executable, not a loop.
 - CM-006: Humans receive a digest, not one approval request per routine item.
 - CM-AIR-001: Airtable schema or access-model changes update the matching source
   file before session close, or the digest names the exact deferred update.
