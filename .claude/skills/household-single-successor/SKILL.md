@@ -1,0 +1,153 @@
+---
+name: household-single-successor
+description: >-
+  Household Single-Successor flow. After a Trinity challenge there is one
+  current executable candidate; Green/Amber keep moving; Red waits once.
+  Load on interactive proposer, challenger, and executor jobs.
+---
+
+# Household Single-Successor
+
+> **Runtime carrier** for the 19 Aug 2026 successor rule. Binding short form also
+> lives in Household Conduct Standard Part 2. Canonical home: Trusted Brain
+> `core-governance` (promotion pending) and, for agent operational contracts,
+> Airtable Persona Config. Promoted Airtable wins over this file. Repo mirrors
+> follow Airtable; do not treat markdown as the interesting source of truth.
+
+## Cursor runtime
+
+Hyperagent `RunWithCredentials` is optional here. In Cursor:
+
+1. Put required tokens in the environment the agent shell inherits (never print them).
+2. Run skill scripts via `python3 .cursor/skills/<skill>/scripts/<file.py> ...` (mirrors under `.claude/skills/`).
+3. Prefer Airtable MCP for discovery reads when available; pens remain the only mutation path for signed builds / Cleared-V2 maintenance.
+4. If a credential or control-plane base is missing, refuse mutation and report the gap — do not improvise.
+
+**Owner:** Matthew. **Date:** 19 Aug 2026. Replaces the Workshop habit of `revise` → Phase A loop and builders that only accept the word `proceed`. There is no numeric cap on challenge rounds. Stall is a quality defect, not a stop-rule.
+
+Load this skill when you are the **proposer**, **challenger**, or **executor** on an interactive Trinity job. Household Conduct Standard still owns Green / Amber / Red. This skill owns what happens *after* a challenge.
+
+Exempt (keep their own statuses): **Ruth Maintenance Challenger** and **Clive's Man Context Challenger**. The exemption follows the named agent, including interactive Cursor threads.
+
+## Purpose
+
+A challenge must leave **one current executable candidate**. The next real step runs from that candidate. Matthew is not asked to accept a repair, restart a loop, or ration further challenge.
+
+```text
+Proposer
+  → Challenger
+  → PROCEED:    V1 is current
+  → SUCCESSOR:  complete V2 is current (proposing lane adopts it)
+  → ESCALATE:   no honest repair, or repair changes tier / scope / authority
+  → tier router
+  → Green:  execute
+  → Amber:  execute, then notify
+  → Red:    one human decision on the current candidate, then execute
+  → Executor accepts the current candidate
+```
+
+SUCCESSOR adoption is **not** Airtable promotion, Trusted canon, or human approval. It only replaces V1 as the working proposal in this job.
+
+## Material blocker
+
+Default to **PROCEED**. Taste, optional polish, and "I found another hole" are not blockers.
+
+A material blocker is only one of:
+
+- the proposal breaches policy, credential, or scope
+- evidence shows it cannot meet the stated acceptance test
+- repairing it changes the intended outcome, tier, or authority
+
+If you cannot name which of those three it is, it is not a blocker. Return PROCEED. Scepticism without a repair is failure.
+
+## Challenger outcomes (exactly one)
+
+Output the verdict first, unsoftened. Then the candidate.
+
+1. **PROCEED** — no material blocker. V1 is current. Include the executor brief for V1.
+2. **SUCCESSOR** — a complete repaired V2 becomes current. It must include every required decision, constraint, artifact path, and conditional executor handoff. The human must not have to perform the repair. Mark it as the challenger's proposal: severable, never silent scope-expansion. If the repair would change outcome, tier, or authority, do not call it SUCCESSOR; **ESCALATE**.
+3. **ESCALATE** — name the human owner, the exact unresolved decision, the viable choices, and the consequence of each. Bare `revise`, `block`, `hold`, `stop`, or `escalate` without that handoff is a policy violation.
+
+The challenger never decides or approves.
+
+**Delta:** a later look reviews only what changed. A later *material* change may receive another successor repair. Nobody is told they have "used up" their challenges. Do not invent a round cap, a timeout-as-permission, or a "delta may not emit V2" rationing rule.
+
+**No self-review:** a challenger's own SUCCESSOR is not challenged. No challenge-of-the-challenge. The current candidate goes to the tier router.
+
+**Court mode** (Pam only, Matthew-summoned): no repair duty. Terminal result is still PROCEED or a named ESCALATE.
+
+## Proposer
+
+On SUCCESSOR, adopt V2 as the current proposal immediately. Do not restart Phase A. Do not iterate "until proceed". Do not send the SUCCESSOR back through the same challenger.
+
+On PROCEED, keep V1.
+
+On ESCALATE, stop the agent loop and return the named choices to the human owner.
+
+## Executor
+
+Accept the **current candidate**: PROCEED (V1) or SUCCESSOR (V2).
+
+A gate that tests only for the literal word `proceed` is misconfigured. Copy the Ruth wording: accept `PROCEED` or a cleared successor.
+
+Do not execute from an ESCALATE. Do not execute a Red candidate until the one human decision for that flow has been recorded.
+
+Named Red gates (the human decides once, on the current candidate):
+
+- Doc's Workshop: Matthew's approval of the pack
+- Ruth Build: Matthew or client signature by decision ID and proposal hash
+- Clive's Man Lane B: Matthew's promotion decision
+- Lazlo: Matthew's "ready" call before any Airtable Pending write
+- Pam embedded flow: Matthew's decision between v1, successor, or synthesis
+
+Green and Amber do not wait for that click. Green executes; Amber executes then notifies.
+
+## Pam
+
+Only the **head that owns the underlying decision** may summon Pam, and only when the decision is **Red and genuinely novel**. Red tier alone is not a Pam trigger. Ordinary approval, agent creation, deployment, and Doc handoff carry no second Pam tax.
+
+Family proposers, challengers, and executors must not invoke or recommend Pam. They must not create a nested challenge. Matthew may summon Pam or Court Mode directly.
+
+## After-the-fact quality (not a gate)
+
+Failure to progress is an agent-quality defect for Halvard, not a reason to stop the job. Useful signals: challenge completions that never reach the next real step; extra Matthew actions beyond the tier minimum; SUCCESSOR-shaped output labelled as revise; Green/Amber work returned to Matthew.
+
+## Do not
+
+- Add a numeric cap (`1 full + 1 delta` or any cousin)
+- Ask the human to accept a repair as a separate click
+- Insert a Green or Amber confirmation gate
+- Summon Pam from a family challenger
+- Hand-edit generated registry packs; regenerate from Airtable
+- Patch repo mirrors as source of truth ahead of Persona Config / `core-governance`
+- Overwrite HyperAgent exports marked `UNVERIFIED-LIVE`
+
+## Self-check
+
+- Is there one current candidate, and can an executor act from it at this tier?
+- Did I name a material blocker, or am I performing scepticism?
+- If I repaired: is the SUCCESSOR complete, and did I avoid changing tier/scope/authority?
+- Am I about to send this around Phase A, demand the word `proceed`, or ask Matthew to do the repair?
+- Would this create a nested Pam pass?
+
+## Acceptance tests
+
+Capability (must pass):
+
+- **SS-CAP-001:** Bare `revise` is refused; the pass returns SUCCESSOR or named ESCALATE.
+- **SS-CAP-002:** A complete SUCCESSOR is executor-eligible without the word `proceed`.
+- **SS-CAP-003:** The proposer adopts SUCCESSOR and does not restart Phase A.
+- **SS-CAP-004:** Taste-only findings return PROCEED.
+- **SS-CAP-005:** A repair that changes tier or authority returns ESCALATE, not SUCCESSOR.
+- **SS-CAP-006:** Green executes from the current candidate; Amber executes then notifies; Red waits once.
+- **SS-CAP-007:** Family challengers do not invoke or recommend Pam.
+- **SS-CAP-008:** Ruth Maintenance Challenger and Clive's Man Context Challenger keep Cleared / Held / Rejected.
+
+Boundary (must refuse):
+
+- **SS-BND-001:** No numeric challenge cap.
+- **SS-BND-002:** No extra human click to "accept the V2".
+- **SS-BND-003:** No self-review of the challenger's SUCCESSOR.
+- **SS-BND-004:** No treating repo markdown as winning over promoted Airtable Persona Config.
+- **SS-BND-005:** No overwrite of `UNVERIFIED-LIVE` HyperAgent stubs.
+- **SS-BND-006:** No executor run from ESCALATE or from an unapproved Red candidate.

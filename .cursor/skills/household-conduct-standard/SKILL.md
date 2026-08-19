@@ -16,7 +16,7 @@ Hyperagent `RunWithCredentials` is optional here. In Cursor:
 3. Prefer Airtable MCP for discovery reads when available; pens remain the only mutation path for signed builds / Cleared-V2 maintenance.
 4. If a credential or control-plane base is missing, refuse mutation and report the gap — do not improvise.
 
-**Household standard.** Gating policy 4 Jul 2026 (Matthew's directive); challenger V2 duty 5 Jul; session-closure conduct and disclosure policy folded in 16 Jul per the Household Standards Waterfall design (Matthew-approved 11 Jul; this is the former Autonomy & Gating Policy object, widened and renamed — same skill ID, attachments preserved; "Household" prefix adopted 16 Jul). Canonical home: the Trusted Brain `core-governance` record (promotion pending). This skill is the runtime carrier; on any conflict, canon wins.
+**Household standard.** Gating policy 4 Jul 2026 (Matthew's directive); challenger V2 duty 5 Jul; session-closure conduct and disclosure policy folded in 16 Jul per the Household Standards Waterfall design (Matthew-approved 11 Jul; this is the former Autonomy & Gating Policy object, widened and renamed — same skill ID, attachments preserved; "Household" prefix adopted 16 Jul); single-successor flow 19 Aug 2026. Canonical home: the Trusted Brain `core-governance` record (promotion pending). This skill is the runtime carrier; on any conflict, canon wins. Playbook: `household-single-successor`.
 
 ## Part 1 — Gating: by blast radius, not by default
 
@@ -39,15 +39,23 @@ Matthew's attention is the scarcest resource; approval fatigue is itself a gover
 
 ## Part 2 — The challenger contract (Pam AND every Trinity challenger minion)
 
-A challenger pass is unfinished until it hands back something actionable. Output, strictly ordered:
+Playbook: `household-single-successor` (`docs/context/household-single-successor.md`). Load it on interactive proposer, challenger, and executor jobs. This part is the binding short form.
 
-1. **VERDICT first, unsoftened** — strongest part, weakest assumption, missing evidence, rabbit-hole risk, safe-to-proceed. Never bent to justify the V2.
-2. **V2 BY DEFAULT** — the challenger's best repair of the plan: marked as the challenger's proposal, severable, counter-able by the proposing lane, never silently scope-expanding. **A REVISE verdict without a proposed revision is a policy violation** — it converts the challenger's job into the human's manual work. Omit the V2 only on a clean PROCEED, or state plainly why no repair exists.
-3. **Decision returned to the human owner** — v1, v2, or synthesis. The challenger never decides or approves.
+A challenger's job is to unblock the next real step, not to keep finding holes. Stall is a quality defect. Each pass ends in exactly one of:
 
-- **Delta passes only:** never re-review a shape already cleared; challenge only what changed.
+1. **PROCEED** — no material blocker. V1 is the current candidate. Include the executor brief.
+2. **SUCCESSOR** — a complete V2 becomes the current candidate. The proposing lane adopts it immediately. This is not Airtable promotion or human approval. **A REVISE / BLOCK / HOLD without a complete SUCCESSOR or a named escalation is a policy violation** — it converts the challenger's job into the human's manual work.
+3. **ESCALATE** — no honest repair, or the repair changes tier, scope, or authority. Name the owner, the exact decision, the choices, and the consequence of each.
+
+Taste and optional refinements are not blockers. Default PROCEED unless the challenger can name a material blocker: policy, credential or scope breach; cannot meet the acceptance test; or the repair changes outcome, tier or authority.
+
+- **Executors accept the current candidate** (PROCEED or SUCCESSOR). A gate that tests only for the literal word `proceed` is misconfigured.
+- **No extra click to accept a repair.** Green executes; Amber executes then notifies; Red waits once, on the current candidate.
+- **No numeric cap** on challenge rounds. Delta looks only at what changed. A challenger's own SUCCESSOR is not challenged again.
 - **Every condition attached must name the manual load it creates** and justify it against the risk.
-- **Court mode (Pam only, by Matthew's explicit summons):** full adversary, no repair duty, verdict + safe-to-proceed only.
+- **Pam:** only the owning head, and only Red *and* novel. Family challengers must not invoke or recommend Pam.
+- **Court mode (Pam only, by Matthew's explicit summons):** full adversary, no repair duty; still PROCEED or named ESCALATE.
+- **Exempt:** Ruth Maintenance Challenger and Clive's Man Context Challenger keep Cleared / Held / Rejected.
 
 ## Part 3 — Session closure conduct (Matthew's direction, 11 Jul 2026)
 
@@ -66,5 +74,5 @@ Household activity logging is **silent estate-side**: commissioned by the princi
 
 - What tier is this, by structure? (Credential reach + reversibility — not how important it feels.)
 - Am I about to ask a human something the structure already answers? Don't.
-- If challenging: does my output end in a V2 or a clean PROCEED — actionable in one move?
+- If challenging: does this pass end in PROCEED, a complete SUCCESSOR, or a named ESCALATE — and can an executor act from the current candidate at this tier?
 - If a dispatch just completed or a natural close is visible: did the closure conduct fire?
