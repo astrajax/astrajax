@@ -110,8 +110,10 @@ It remains Draft. It is not Trusted, promoted, or an approval record.
 | Draft field | Live value |
 |---|---|
 | Title | Household single-successor decision — 19 Aug 2026 |
-| Canonical Text for Agents | Interactive Trinity leaves one current executable candidate; Green/Amber continue; Red waits once; no round cap; Airtable remains SSOT when promoted. Repo evidence is branch `cursor/household-single-successor-skill-1e9e`, commit `75b7712`: `.cursor/skills/household-single-successor/SKILL.md`, its `.claude` twin, this repo carrier, and Household Conduct Standard Part 2. Still open: Airtable Persona Config / `core-governance` promotion (Red); Workshop builders still accept literal `proceed` only; `UNVERIFIED-LIVE` HyperAgent stubs remain untouched. |
+| Canonical Text for Agents | Interactive Trinity leaves one current executable candidate; Green/Amber continue; Red waits once; no round cap; Airtable remains SSOT when promoted. Repo evidence is branch `cursor/household-single-successor-skill-1e9e`, commit `75b7712` plus later digest commit: `.cursor/skills/household-single-successor/SKILL.md`, its `.claude` twin, `docs/context/household-single-successor.md`, and Household Conduct Standard Part 2. Still open: Airtable Persona Config / `core-governance` promotion (Red); Workshop builders still accept literal `proceed` only; `UNVERIFIED-LIVE` HyperAgent stubs remain untouched. |
 | Canonical Text for Humans | Interactive Trinity now leaves one current candidate that can be acted on. Green and Amber continue; Red waits for one human decision; there is no challenge-round cap. Airtable becomes the source of truth only after promotion. Persona Config and core-governance promotion, Workshop builder wiring, and the untouched HyperAgent stubs remain open. |
+| Brain Registry | [`rec7njkkYBWzZbe4n`](https://airtable.com/appL2fdnGmhA02WXd/tblsI93ayQm4hq5bw/rec7njkkYBWzZbe4n) — AstraJax Chapter 1 / `astrajax-core` |
+| Brain Slug | `astrajax-core` |
 | Proposed Category | Rules & Guardrails |
 | Record Type | Truth Claim |
 | Horizon | Persistent |
