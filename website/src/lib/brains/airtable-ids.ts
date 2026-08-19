@@ -91,6 +91,8 @@ export const BRAIN_WORKSHOP_TABLES = {
   ambientCheckpointVersions: "tblRbjD0PHtuTWsIL",
   /** Evolving-work register — thin Projects table (17 Aug 2026). */
   projects: "tbl5jo7EKBxAjjKbf",
+  /** Operator-chosen news themes for ristral-news-scout (19 Aug 2026). */
+  newsWatchThemes: "tblAdsvI5tDNERXQK",
 } as const;
 
 /** Workshop User Brains — identity + operator development (Phase B, 29 Jun 2026). */
@@ -188,6 +190,15 @@ export const BRAIN_WORKSHOP_PROJECTS_FIELDS = {
   intendedOutcome: "fldrb5LY13Feofm2l",
   lifecycle: "fld4SAa3XCObipxa8",
   relatedDrafts: "fldHUpN0X5IlvClU8",
+} as const;
+
+/** Workshop News Watch Themes — operator-chosen scout themes (19 Aug 2026). */
+export const BRAIN_WORKSHOP_NEWS_WATCH_THEMES_FIELDS = {
+  themeKey: "fldNagHPssfv1Lqof",
+  themeLabel: "fldHqXNuU9CYVoqMC",
+  watch: "flduuqfPOSsJNpfu3",
+  searchLens: "fldhoOI72CPk5odAf",
+  notes: "fldoulvrxVjUkPqdB",
 } as const;
 
 export const BRAIN_WORKSHOP_PROJECT_LIFECYCLE = {

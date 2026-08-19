@@ -61,6 +61,7 @@ Required keys: `schema_version`, `tenant_key`, `brain_base_id`, `brain_truth_tab
 
 Theme table ID resolves from `theme_picks_table_id` when set, else from the environment
 variable named in `theme_picks_table_id_env` (AstraJax: `RISTRAL_NEWS_THEME_PICKS_TABLE_ID`).
+AstraJax v0.2 tenant JSON pins table `tblAdsvI5tDNERXQK` (News Watch Themes, live 19 Aug 2026).
 
 ## Security and query fence
 
@@ -245,19 +246,20 @@ news only. Never write Agent Quality, Human Quality, or Review Status.
 
 Never print, log, echo, or persist tokens.
 
-## Ruth schema ask (document only — do not build)
+## Ruth schema ask (provisioned 19 Aug 2026)
 
-Create **News Watch Themes** in base `appL2fdnGmhA02WXd`:
+**News Watch Themes** exists in `appL2fdnGmhA02WXd` as `tblAdsvI5tDNERXQK`:
 
-| Field | Type | Notes |
+| Field | Type | Field ID |
 |---|---|---|
-| Theme Key | single-line text, unique | primary key |
-| Theme Label | single-line text | fallback query source |
-| Watch? | checkbox | human-owned |
-| Search Lens | long text, optional | **only** text allowed in web queries |
-| Notes | long text, optional | operator notes |
+| Theme Key | single-line text, primary | `fldNagHPssfv1Lqof` |
+| Theme Label | single-line text | `fldHqXNuU9CYVoqMC` |
+| Watch? | checkbox | `flduuqfPOSsJNpfu3` |
+| Search Lens | long text, optional | `fldhoOI72CPk5odAf` |
+| Notes | long text, optional | `fldoulvrxVjUkPqdB` |
 
-Scout is read-only on this table. Return table ID for `RISTRAL_NEWS_THEME_PICKS_TABLE_ID`.
+Scout is read-only. Empty table / zero Watch? → theme menu, no sweep. Env
+`RISTRAL_NEWS_THEME_PICKS_TABLE_ID` may override the tenant JSON table id.
 
 ## Evals
 

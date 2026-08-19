@@ -75,7 +75,7 @@ Key bindings:
 
 - Brain Truth: `app6tjzzG0L0lOeVb` / `tblipHzCl905T7o5F`
 - Projects (Active only): `appL2fdnGmhA02WXd` / `tbl5jo7EKBxAjjKbf`
-- Theme Picks: env `RISTRAL_NEWS_THEME_PICKS_TABLE_ID` (table not yet provisioned)
+- Theme Picks: `tblAdsvI5tDNERXQK` (News Watch Themes; env `RISTRAL_NEWS_THEME_PICKS_TABLE_ID` may override)
 - Reports: Household Activity `appF7jQD4ZKrDC7e1` / `tblFzWUIPSiIGZPln`
 - Writer: `household_activity_pen` → `hyperagent/scripts/log_fleet_activity.py`
 
@@ -86,19 +86,19 @@ From `hyperagent/scripts/log_fleet_activity.py` (`REPORTS_REQUIRED`):
 - `title`, `report_type`, `agent_slug`, `headline`, `body`
 - Plus payload-level `session_record_id` for Session link (Sessions row first)
 
-## Ruth schema ask (do not build in this pack)
+## Ruth schema (provisioned 19 Aug 2026)
 
-Create **News Watch Themes** in base `appL2fdnGmhA02WXd`:
+**News Watch Themes** in base `appL2fdnGmhA02WXd`, table `tblAdsvI5tDNERXQK`:
 
-| Field | Type | Notes |
+| Field | Type | Field ID |
 |---|---|---|
-| Theme Key | single-line text, unique | primary |
-| Theme Label | single-line text | query fallback |
-| Watch? | checkbox | human-owned |
-| Search Lens | long text, optional | **only** text allowed in web queries |
-| Notes | long text, optional | |
+| Theme Key | single-line text, primary | `fldNagHPssfv1Lqof` |
+| Theme Label | single-line text | `fldHqXNuU9CYVoqMC` |
+| Watch? | checkbox | `flduuqfPOSsJNpfu3` |
+| Search Lens | long text, optional | `fldhoOI72CPk5odAf` |
+| Notes | long text, optional | `fldoulvrxVjUkPqdB` |
 
-Scout is read-only. Return table ID → set `RISTRAL_NEWS_THEME_PICKS_TABLE_ID`.
+Scout is read-only. Empty / zero Watch? → theme menu, no sweep.
 
 ## Search Lens query fence
 
@@ -144,10 +144,9 @@ queries, verbatim or paraphrased.
 
 ## Smoke tests
 
-1. **`@ristral-news-scout` (Green, no theme table):** With
-   `RISTRAL_NEWS_THEME_PICKS_TABLE_ID` unset, expect theme menu Report (or
-   paste-ready) stating table unprovisioned, inferred candidates listed, no web
-   sweep, query fence described if asked.
+1. **`@ristral-news-scout` (Green, empty theme table):** With News Watch Themes
+   present but zero Watch? rows, expect theme menu Report (or paste-ready)
+   stating no themes selected, inferred candidates listed, no web sweep.
 
 2. **Query fence (Green):** Given brain text that would tempt a direct query,
    confirm search uses Search Lens / Theme Label only; brain text absent from
@@ -181,9 +180,8 @@ No Airtable table creation or row writes during this build.
 
 ## Honest gaps remaining
 
-- **News Watch Themes** table does not exist yet (Ruth Hadley lane).
-- `RISTRAL_NEWS_THEME_PICKS_TABLE_ID` must be set after Ruth returns table ID.
-- Live sweep blocked until at least one Watch? row exists.
+- Table exists empty: operator must add rows and tick Watch? before a news sweep.
+- `RISTRAL_NEWS_THEME_PICKS_TABLE_ID` may override tenant JSON; AstraJax JSON now pins `tblAdsvI5tDNERXQK`.
 - Non-AstraJax tenants need their own tenant JSON and writer provisioning.
 - No Hyperagent schedule or export in v0.2.
 - Clive pull workflow assumes Reports visible by Agent Slug + title prefix.

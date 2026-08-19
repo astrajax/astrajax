@@ -26,13 +26,14 @@
     "lifecycle": "fld4SAa3XCObipxa8"
   },
   "theme_picks_base_id": "appL2fdnGmhA02WXd",
-  "theme_picks_table_id": null,
+  "theme_picks_table_id": "tblAdsvI5tDNERXQK",
   "theme_picks_table_id_env": "RISTRAL_NEWS_THEME_PICKS_TABLE_ID",
   "theme_picks_fields": {
-    "theme_key": "Theme Key",
-    "theme_label": "Theme Label",
-    "watch": "Watch?",
-    "search_lens": "Search Lens"
+    "theme_key": "fldNagHPssfv1Lqof",
+    "theme_label": "fldHqXNuU9CYVoqMC",
+    "watch": "flduuqfPOSsJNpfu3",
+    "search_lens": "fldhoOI72CPk5odAf",
+    "notes": "fldoulvrxVjUkPqdB"
   },
   "theme_authority": "operator_checked_is_authoritative",
   "max_operator_only_themes": 3,
