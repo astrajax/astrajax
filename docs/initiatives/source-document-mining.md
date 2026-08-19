@@ -22,6 +22,45 @@ Upload (Matthew) → Airtable AI summary → Mine Status = Summarised
 
 ---
 
+## Website onboarding intake (19 Aug 2026)
+
+Files uploaded during `/onboarding` — both "Bring your material" and the optional
+supporting file on "Talk it through" — now arrive as **Source Documents** rows
+automatically. Nothing about the gates above changes: rows land **Pending**, no
+summary, and the website never calls the mine route.
+
+```text
+Browser → private Vercel Blob (staging, onboarding-uploads/)
+        → POST /api/onboarding/source-document (staging key only, no bytes)
+        → server reads the private blob → Source Documents row
+           (Title = filename, Mine Status = Pending, Created By = Website,
+            Brain Slug = astrajax-chapter-1, Attachment = the file)
+        → staging blob deleted once the attachment is confirmed
+        → [unchanged] Matthew summarises → Summarised → Clive's Man mines
+```
+
+**Storage decision:** Airtable Source Documents is the durable home; private Blob
+is temporary staging. Deletion happens **only after** Airtable confirms the
+attachment, so any failure leaves the staged blob intact and retryable. A retry
+attaches to the row created by the earlier attempt rather than filing twice.
+
+**Honest failure states:** if the Workshop write token is missing, if Airtable
+refuses the attachment, or if the file exceeds Airtable's 5 MB direct-attachment
+limit, the route returns `saved: false` with the reason and the Source Pack row
+reads "uploaded, not filed" with a Retry filing action. It never looks
+successful.
+
+**Still Matthew's manual step:** converting **Attachment Summary** to an Airtable
+AI summarise field in the Airtable UI (MCP cannot create `aiText`). Until that
+exists, filed rows stay Pending and no mining is possible — which is the intended
+gate, not a bug.
+
+**Code:** `website/src/lib/brains/handlers/onboarding-source-document.ts`,
+`website/src/app/api/onboarding/source-document/route.ts`,
+`website/src/lib/onboarding/upload-path.ts`.
+
+---
+
 ## Pam V1 gates (non-negotiable)
 
 | # | Gate | V1 behaviour |
