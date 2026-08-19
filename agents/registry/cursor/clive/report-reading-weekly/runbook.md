@@ -53,16 +53,34 @@ That covers everything filed since the last pass plus anything an earlier pass
 missed. Rows that already carry a reading are finished — do not re-read, top up,
 or improve them. If nothing is empty, write nothing and say the week was quiet.
 
-Airtable filter (MCP `list_records_for_table`):
+Airtable MCP `list_records_for_table` takes structured filters, not
+`filterByFormula`. Oldest unread first:
 
-```text
-filterByFormula: {Clive's Reading} = ''
-sort: Created desc
-pageSize: 25
+```json
+{
+  "baseId": "appF7jQD4ZKrDC7e1",
+  "tableId": "tblFzWUIPSiIGZPln",
+  "filters": {
+    "operands": [
+      { "operator": "isEmpty", "operands": ["fld8sWV4YYI8oJ0o1"] }
+    ]
+  },
+  "sort": [{ "fieldId": "fldR1wg7uZMrY1Ooi", "direction": "asc" }],
+  "pageSize": 25,
+  "fieldIds": [
+    "fldr0pNUAYm9jEITx", "fld3uIBw78HahcUms", "fldijGsAXxwMikENa",
+    "fldyI1UVIyIcSVhkj", "fldnbnJgwJhjpOPz2", "fldc1uSKfB1wE0MfE",
+    "fldR1wg7uZMrY1Ooi", "fldt5UAqRVsm0mICy"
+  ]
+}
 ```
 
-Cap a single run at roughly 25 readings. If more are waiting, do the oldest
-unread first and say in the session close how many are still empty.
+The response `metadata.totalRecordCount` is how many readings are still
+outstanding — report it at session close.
+
+Cap a single run at roughly 25 readings. There was a standing backlog of 88
+unread reports when the field was created on 19 Aug 2026, so the first few runs
+will hit the cap; that is expected, and the oldest-first sort works through it.
 
 ---
 
@@ -159,3 +177,7 @@ After a scheduled Monday run, Matthew should see **Clive's Reading** filled on
 last week's reports in
 `https://airtable.com/appF7jQD4ZKrDC7e1/tblFzWUIPSiIGZPln/viw8QcT43VAfp85jZ`,
 with Body untouched and no new rows.
+
+Two readings were written by hand on 19 Aug 2026 to prove the path end to end —
+`recm3omZMoslHczpD` and `recevkcVSRiyUt9RC`, both Context Estate Daily Reviews.
+They are the reference for tone and length.

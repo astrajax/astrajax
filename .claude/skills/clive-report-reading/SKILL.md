@@ -117,7 +117,9 @@ A reading that is longer than the report it describes has failed at its own seco
 ## Write path
 
 Airtable MCP `update_records_for_table` on `appF7jQD4ZKrDC7e1` / `tblFzWUIPSiIGZPln`,
-one field in the payload: `Clive's Reading`.
+one field in the payload: `fld8sWV4YYI8oJ0o1`. Selection uses structured `filters` with
+`isEmpty` on that field — the MCP tool does not accept `filterByFormula`. Exact call
+shapes are in the runbook.
 
 `hyperagent/scripts/log_fleet_activity.py` is a create-only writer and cannot do this —
 do not extend it, and do not stand up a new credential for a one-field patch. If no write
