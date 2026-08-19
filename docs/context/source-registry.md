@@ -1,6 +1,6 @@
 # Context Bootstrap Source Registry
 
-**Status:** Current inventory (updated 17 Aug 2026).
+**Status:** Current inventory (updated 19 Aug 2026).
 **Owner:** Matthew.  
 **Purpose:** Source inventory for Clive context surfaces — bootstrap packs, skills, and operational docs.
 
@@ -22,7 +22,7 @@ the current roster.
 | `SRC-CLIVE-SCHEMA-V1` | `hyperagent/context_architecture_schema_v1.json` | Schema file | Matthew | Archived reference | Historical | Context Architecture V1 schema file |
 | `SRC-CLIVE-APPROVAL` | `docs/context/clive-operating-rules.md` § Human approval rule; `docs/business/architecture.md` §4–§7 | Operational doc | Matthew | Canonical | Current | Human approval gates after Clive's Man consolidation |
 | `SRC-CLIVE-EMAIL-INBOX` | `docs/context/email-inbox-setup.md` | Operational doc | Matthew | Canonical | Current | Clive Operating Rules |
-| `SRC-HYPERAGENT-PLATFORM` | `docs/context/hyperagent-platform.md` | Repo doc | Matthew | Canonical candidate | Current | Hyperagent Platform |
+| `SRC-HYPERAGENT-PLATFORM` | `docs/context/hyperagent-platform.md` | Repo doc | Matthew | Canonical candidate | Current | Hyperagent Platform; hosted MCP is the Self-Update Executor drive path (threads only, no config edit) — AstraJax overlay 19 Aug 2026 |
 | `SRC-HYPERAGENT-RELEASES` | `docs/context/hyperagent-releases.json` | Raw log | Agent | Unverified | Rolling | Hyperagent Platform |
 
 ## Airtable architecture sources (Chapter 1)
@@ -33,7 +33,7 @@ the current roster.
 | `SRC-AJ-BRAIN-WIRING` | `docs/initiatives/brain-key-wiring.md` | Working spec | Matthew | Working current | Current | Brain Key access model, storage boundaries, API contracts |
 | `SRC-AJ-BRAIN-SCHEMA` | `docs/initiatives/brain-key-schema.md` | Schema blueprint | Matthew | Current implementation reference | Current | Replicable Airtable table and field blueprint; Workshop **Source Documents** (29 Jun 2026); Trusted Creative + **Media Assets** (10 Aug 2026); Draft Brain Truth dual-register, Brain Registry link, builder-review overlay contract, and thin **Projects** register (17 Aug 2026) |
 | `SRC-AJ-CONTEXT-STRUCTURE` | `docs/initiatives/chapter1-context-structure.md` | Working spec | Matthew | Working current | Current | Chapter 1 canonical operator profile, brain themes, universal categories, progressive disclosure L0–L3 |
-| `SRC-AJ-BRAIN-IDS` | `website/src/lib/brains/airtable-ids.ts` | Code ID map | Matthew | Live implementation | Current | Live Chapter 1 Airtable base, table, and field IDs; Draft Brain Truth destination/link fields and human-only builder overlay denylist (17 Aug 2026); Clive + Clive's Man + Pam + Doc spines Approved-Canonical 27 Jun 2026; Kathryn Goodchild Agent base + Persona Config (11 Aug 2026) |
+| `SRC-AJ-BRAIN-IDS` | `website/src/lib/brains/airtable-ids.ts` | Code ID map | Matthew | Live implementation | Current | Live Chapter 1 Airtable base, table, and field IDs; Draft Brain Truth destination/link fields and human-only builder overlay denylist (17 Aug 2026); Clive + Clive's Man + Pam + Doc spines Approved-Canonical 27 Jun 2026; Kathryn Goodchild Agent base + Persona Config (11 Aug 2026); household register tables + field IDs on `appPrpfvsAr71RPP3` (Self-Update Executor writer, 19 Aug 2026) |
 | `SRC-AJ-DRAFT-TRUTH-WRITE` | `website/src/lib/brains/draft-truth-write.ts`; `.claude/skills/clive-man/SKILL.md`; `.cursor/skills/clive-man-activity-intake/SKILL.md`; `docs/context/clive-man-context-flow.md` | Website write contract / agent contracts / operator doc | Matthew | Current implementation reference | Current | One Draft Brain Truth create contract: dual text, live Brain Registry destination, Draft/Quarantined only, builder-review fields human-only, optional Related Projects from HEAD-chosen IDs only (proposer copies; challenger may veto; executors write IDs only; morning pipe does not choose); website REST writes by field ID; HyperAgent v0.4 family pack regenerated in-repo, human re-import still required |
 | `SRC-AJ-BRAIN-BUILDER` | `docs/initiatives/doc-brain-base-builder.md` | Working spec | Matthew | Current implementation reference | Current | Doc Brain Base Builder status, runbook, credential notes |
 | `SRC-AJ-DOC-MINIONS` | `docs/initiatives/doc-minions.md` | Working spec | Matthew | Current implementation reference | Current | Doc minion roster, two-phase build rule, mandatory Clive's Man handoff |
@@ -73,10 +73,12 @@ the current roster.
 | `SRC-CLIVE-MAN-ACTIVITY-INTAKE` | `.cursor/skills/clive-man-activity-intake/SKILL.md`; `.cursor/agents/clive-man-activity-intake-cursor.md`; `agents/registry/hyperagent/clive/activity-intake/build-pack-v0.1.md`; `hyperagent/exports/agents/agent-clive-man-activity-intake-hyperagent-v0_1.json` | Cursor skill / agent / HA export | Matthew | Working current | Current | Household Activity exchange → V1 Proposed; Cursor on-demand + HA twin |
 | `SRC-CLIVE-MAN-CONTEXT-FLOW` | `docs/context/clive-man-context-flow.md` | Operational doc | Matthew | Working current | Current | Founder walkthrough of the context lane (intake doors, secrets, cap, bookmark) |
 | `SRC-CLIVE-MAN-CONTEXT-SPECIALISTS` | `.cursor/skills/clive-man-context-auditor/SKILL.md`; `.cursor/skills/clive-man-context-challenger/SKILL.md`; `.cursor/skills/clive-man-context-executor/SKILL.md` | Cursor skills | Matthew | Working current | Current | Scheduled Context Auditor 06:00 / Challenger 07:00 / Executor 08:00 |
-| `SRC-DOC-SKILL` | `.cursor/skills/doc/SKILL.md` | Cursor skill | Matthew | Sync artifact | Current | Repo copy until generator syncs from Persona Config |
+| `SRC-DOC-SKILL` | `.cursor/skills/doc/SKILL.md` | Cursor skill | Matthew | Sync artifact | Current | Repo copy until generator syncs from Persona Config; live agent config → `self-update-executor`; skill create/update → `skill-forge-executor` (19 Aug 2026) |
 | `SRC-DOC-BRAIN-BASE-BUILDER-SKILL` | `.cursor/skills/doc-brain-base-builder/SKILL.md` | Cursor skill | Matthew | Current implementation reference | Current | Doc Brain Base Builder Mode 1 and Airtable MCP build checklist |
 | `SRC-DOC-WORKSHOP-PROPOSER-SKILL` | `.cursor/skills/doc-workshop-proposer/SKILL.md` | Cursor skill | Matthew | Canonical | Current | Doc minions |
 | `SRC-DOC-WORKSHOP-HYPERAGENT-SKILL` | `.cursor/skills/doc-workshop-hyperagent/SKILL.md`; `.cursor/skills/doc-workshop-hyperagent/reference.md`; `hyperagent/builds/_hyperagent_export.py`; `hyperagent/scripts/validate_hyperagent_export.py`; `agents/registry/cursor/doc/workshop-hyperagent/build-pack-v0.2.md` | Cursor skill / build tooling | Matthew | Current implementation reference | Current | Doc's Workshop Hyperagent Builder, shared export helper, and validation gate |
+| `SRC-SELF-UPDATE-EXECUTOR` | `.cursor/skills/self-update-executor/SKILL.md`; `.cursor/skills/self-update-executor/scripts/verify_self_update.py`; `.cursor/skills/self-update-executor/scripts/hosted_mcp_handoff.py`; `.cursor/skills/self-update-executor/scripts/match_pending_approval.py`; `hyperagent/exports/skills/skill-self-update-executor-v0_1.json`; `hyperagent/builds/build_self_update_executor_v0_1.py`; `agents/registry/hyperagent/astrajax/self-update-executor/build-pack-v0.1.md`; `agents/registry/cursor/astrajax/self-update-executor/build-pack-v0.1.md` | Cursor skill / HA export / build pack | Matthew | Working current (Matthew-approved Cursor contract 19 Aug 2026; persist is `draft_save` + `resolve_approval`) | Current | Shared method skill: live Hyperagent agents update themselves only; hosted MCP orchestration; Cursor persists drafts then verifies; household register after pass |
+| `SRC-SKILL-FORGE-EXECUTOR` | `.cursor/skills/skill-forge-executor/SKILL.md`; `.cursor/skills/skill-forge-executor/scripts/verify_skill_forge.py`; `.cursor/skills/skill-forge-executor/scripts/hosted_mcp_handoff.py`; `hyperagent/exports/skills/skill-skill-forge-executor-v0_1.json`; `hyperagent/builds/build_skill_forge_executor_v0_1.py`; `agents/registry/hyperagent/astrajax/skill-forge-executor/build-pack-v0.1.md`; `agents/registry/cursor/astrajax/skill-forge-executor/build-pack-v0.1.md` | Cursor skill / HA export / build pack | Matthew | Working current (Matthew-directed 19 Aug 2026) | Current | Skill create/update via hosted MCP to Skill Forge (`cmr6im5in1iw106ad59qx2cgr`); Cursor `draft_save` persist; Skills / Skill Versions after verify |
 
 ## Model and strategy docs (archived — reference only)
 
@@ -95,6 +97,7 @@ the current roster.
 | `SRC-JOURNEY-EDIT` | `docs/context/astrajax-journey-video-edit-guide-2026-05-31.md` | Draft doc | Matthew | Working draft | Current | Video edit guide |
 | `SRC-TALK-TRACK` | `docs/context/matthew-talk-track-v3.md` | Draft doc | Matthew | Working draft | Current | Founder talk script |
 | `SRC-CLIVE-TRINITY-FLOW` | `docs/context/trinity-agent-flow.md` | Repo doc | Matthew | Working reference | Current | Proposer / challenger / executor pattern from Claude chat |
+| `SRC-SELF-UPDATE-ONE-PAGER` | `docs/initiatives/self-update-executor-2026-08-19/how-a-change-runs.md` | Working one-pager | Matthew | Working current | Current | Matthew-facing how a change runs: agent vs skill fork + `draft_save` persist; not canonical architecture |
 
 ## Bootstrap notes
 
