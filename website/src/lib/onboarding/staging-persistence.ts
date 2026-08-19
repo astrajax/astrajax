@@ -7,7 +7,8 @@
  */
 import type { OnboardingState, SourcePackFile } from "./machine";
 
-export const ONBOARDING_STAGING_KEY = "astrajax.onboarding.staging.v1";
+/** v2 adds Workshop filing state (`filing`, `filingError`, `sourceDocumentRecordId`). */
+export const ONBOARDING_STAGING_KEY = "astrajax.onboarding.staging.v2";
 
 type StagingSnapshot = {
   files: SourcePackFile[];
@@ -29,15 +30,25 @@ function isSourcePackFile(value: unknown): value is SourcePackFile {
   );
 }
 
-/** Drop in-flight rows; keep uploaded + failed metadata. */
+/**
+ * Drop in-flight rows; keep uploaded + failed metadata. A filing that was still
+ * in flight cannot have finished, so it is restored as retryable rather than
+ * left looking like it was filed.
+ */
 export function sanitizeRestoredFiles(files: SourcePackFile[]): SourcePackFile[] {
   return files
     .filter((f) => f.state === "uploaded" || f.state === "failed")
-    .map((f) =>
-      f.state === "uploaded"
-        ? f
-        : { ...f, error: f.error || "Upload interrupted — remove or pick again" },
-    );
+    .map((f) => {
+      if (f.state !== "uploaded") {
+        return { ...f, error: f.error || "Upload interrupted — remove or pick again" };
+      }
+      if (f.filing !== "filing") return f;
+      return {
+        ...f,
+        filing: "not-filed" as const,
+        filingError: "Filing interrupted — retry to file it",
+      };
+    });
 }
 
 export function readOnboardingStaging(): Pick<OnboardingState, "files" | "supportingFile"> | null {

@@ -14,6 +14,8 @@ import {
   SOURCE_PACK_LIMITS,
   canAddFile,
   filesCountingTowardLimit,
+  filingStatusLabel,
+  needsFilingRetry,
   type OnboardingState,
   type SourcePackFile,
 } from "@/lib/onboarding/machine";
@@ -47,6 +49,39 @@ function buildUploadPathname(filename: string): string {
   return `${SOURCE_PACK_LIMITS.uploadPrefix}${unique}-${safeFilename}`;
 }
 
+type FilingResponse = {
+  saved?: boolean;
+  recordId?: string;
+  blobRetained?: boolean;
+  message?: string;
+  error?: string;
+};
+
+/**
+ * Ask the server to file an already-staged upload into Workshop Source
+ * Documents. Bytes never travel through here — only the staging key does.
+ */
+async function fileToWorkshop(input: {
+  blobUrl: string;
+  filename: string;
+  recordId?: string;
+}): Promise<FilingResponse> {
+  const response = await fetch("/api/onboarding/source-document", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      blobUrl: input.blobUrl,
+      filename: input.filename,
+      ...(input.recordId ? { recordId: input.recordId } : {}),
+    }),
+  });
+  const payload = (await response.json().catch(() => ({}))) as FilingResponse;
+  if (!response.ok && !payload.error) {
+    throw new Error(`Filing failed (${response.status})`);
+  }
+  return payload;
+}
+
 async function deleteOrphanBlob(blobUrl: string): Promise<void> {
   try {
     await fetch("/api/onboarding/upload", {
@@ -69,6 +104,47 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
   /** Browser-side rejections are not staged into the file list (they must not burn slots). */
   const [rejectionNotice, setRejectionNotice] = useState<string | null>(null);
   const effectiveMaxFiles = maxFiles ?? SOURCE_PACK_LIMITS.maxFiles;
+
+  /**
+   * Upload staging and Workshop filing are reported separately: a file can be
+   * uploaded and still unfiled, and the row must say so rather than imply the
+   * material landed somewhere durable.
+   */
+  const runFiling = useCallback(
+    async (
+      fileId: string,
+      args: { blobUrl: string; filename: string; recordId?: string },
+    ) => {
+      onFileUpdate(fileId, { filing: "filing", filingError: undefined });
+      try {
+        const result = await fileToWorkshop(args);
+        if (removedIds.current.has(fileId)) return;
+
+        if (result.saved) {
+          onFileUpdate(fileId, {
+            filing: "filed",
+            filingError: undefined,
+            sourceDocumentRecordId: result.recordId,
+            blobDeleted: result.blobRetained === false,
+          });
+          return;
+        }
+
+        onFileUpdate(fileId, {
+          filing: "not-filed",
+          filingError: result.error || result.message || "Uploaded, not filed",
+          sourceDocumentRecordId: result.recordId,
+        });
+      } catch (error) {
+        if (removedIds.current.has(fileId)) return;
+        onFileUpdate(fileId, {
+          filing: "failed",
+          filingError: error instanceof Error ? error.message : "Filing failed",
+        });
+      }
+    },
+    [onFileUpdate],
+  );
 
   const postUpload = useCallback(
     async (fileId: string, file: File) => {
@@ -98,6 +174,8 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
           progress: 100,
           error: undefined,
         });
+
+        await runFiling(fileId, { blobUrl: result.url, filename: file.name });
       } catch (error) {
         if (removedIds.current.has(fileId)) return;
         if (error instanceof DOMException && error.name === "AbortError") return;
@@ -109,7 +187,7 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
         abortControllers.current.delete(fileId);
       }
     },
-    [onFileUpdate],
+    [onFileUpdate, runFiling],
   );
 
   /**
@@ -157,6 +235,21 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
       await postUpload(fileId, file);
     },
     [postUpload],
+  );
+
+  /** Retry filing only — the bytes are already staged, so no re-upload. */
+  const retryFiling = useCallback(
+    async (file: SourcePackFile) => {
+      if (!file.blobUrl) return;
+      await runFiling(file.id, {
+        blobUrl: file.blobUrl,
+        filename: file.name,
+        ...(file.sourceDocumentRecordId
+          ? { recordId: file.sourceDocumentRecordId }
+          : {}),
+      });
+    },
+    [runFiling],
   );
 
   const handleFiles = useCallback(
@@ -217,7 +310,7 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
       abortControllers.current.get(file.id)?.abort();
       abortControllers.current.delete(file.id);
       fileHandles.current.delete(file.id);
-      if (file.blobUrl) {
+      if (file.blobUrl && !file.blobDeleted) {
         void deleteOrphanBlob(file.blobUrl);
       }
       onFileRemove(file.id);
@@ -254,6 +347,7 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
                 {f.state === "uploading" && " · uploading…"}
                 {f.state === "uploaded" && " · uploaded"}
                 {f.state === "failed" && ` · ${f.error || "failed"}`}
+                {filingStatusLabel(f) ? ` · ${filingStatusLabel(f)}` : ""}
               </span>
               {f.state === "failed" && fileHandles.current.has(f.id) && (
                 <button
@@ -262,6 +356,15 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
                   onClick={() => void retryFile(f.id)}
                 >
                   Retry
+                </button>
+              )}
+              {needsFilingRetry(f) && (
+                <button
+                  type="button"
+                  className="source-pack-uploader__retry"
+                  onClick={() => void retryFiling(f)}
+                >
+                  Retry filing
                 </button>
               )}
               <button
@@ -294,6 +397,10 @@ export function SourcePackUploader({ state, onFileSelect, onFileUpdate, onFileRe
           <p className="source-pack-uploader__hint">
             {SOURCE_PACK_LIMITS.allowedExtensions.join(", ")} · max{" "}
             {formatBytes(SOURCE_PACK_LIMITS.maxBytesPerFile)} each
+          </p>
+          <p className="source-pack-uploader__hint">
+            Filed into your own Workshop as evidence — never trusted truth until
+            you approve it, and never training data for public models.
           </p>
         </div>
       )}

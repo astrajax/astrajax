@@ -178,6 +178,58 @@ export async function airtableFindOne(
   return records[0] ?? null;
 }
 
+/**
+ * Airtable's direct attachment upload accepts file bytes up to 5 MB. Larger
+ * files must be reachable at a public URL, which private Blob staging is not —
+ * callers refuse instead of widening Blob access.
+ */
+export const AIRTABLE_ATTACHMENT_UPLOAD_MAX_BYTES = 5 * 1024 * 1024;
+
+/**
+ * Airtable has served this endpoint from both hosts. Try the content host
+ * first, fall back once when it answers 404/405 so a host migration does not
+ * silently break filing.
+ */
+const ATTACHMENT_UPLOAD_HOSTS = [
+  "https://content.airtable.com",
+  "https://api.airtable.com",
+] as const;
+
+/**
+ * Upload file bytes straight into an attachment cell.
+ * https://airtable.com/developers/web/api/upload-attachment
+ */
+export async function airtableUploadAttachment(
+  baseId: string,
+  recordId: string,
+  attachmentFieldIdOrName: string,
+  token: string,
+  file: { filename: string; contentType: string; base64: string },
+): Promise<AirtableRecord> {
+  const body = JSON.stringify({
+    contentType: file.contentType,
+    file: file.base64,
+    filename: file.filename,
+  });
+
+  let lastError: unknown;
+  for (const host of ATTACHMENT_UPLOAD_HOSTS) {
+    const url = `${host}/v0/${baseId}/${recordId}/${attachmentFieldIdOrName}/uploadAttachment`;
+    try {
+      const response = await airtableRequest(url, token, { method: "POST", body });
+      return (await response.json()) as AirtableRecord;
+    } catch (error) {
+      lastError = error;
+      const message = error instanceof Error ? error.message : "";
+      const hostMissing = message.includes("error 404") || message.includes("error 405");
+      if (!hostMissing) throw error;
+    }
+  }
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Airtable attachment upload failed");
+}
+
 /** Escape a string for use inside an Airtable formula single-quoted literal. */
 export function escapeAirtableString(value: string): string {
   return value.replace(/'/g, "''");

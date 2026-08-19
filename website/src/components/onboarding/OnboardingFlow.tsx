@@ -194,7 +194,7 @@ export function OnboardingFlow() {
                   ? "You, and only you — this brain is yours."
                   : t === "Authority"
                     ? "You approve what becomes trusted. Clive proposes; you decide."
-                    : "Your material stays yours. Nothing here leaves this page or trains anything."}
+                    : "Your material stays yours. Files you upload are filed as evidence in your own Workshop, never straight into trusted truth, and never used to train public models."}
               </p>
             </div>
           ))}
