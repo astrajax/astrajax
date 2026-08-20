@@ -151,10 +151,29 @@ Synced Workshop tables are **not** independent SSOTs for synced columns.
 
 - Edit synced facts in **Registry**; Workshop synced columns are read-mostly.
 - Workshop may have extra local-writable fields (e.g. Draft Brain Truth on User Brains New).
-- Other Registry tables (Change Log, Agents, …) were **not** observed as Workshop sync mirrors.
+- Other Registry tables (Change Log, Agents, …) were **not** observed as Workshop sync mirrors. Registry **Agents** is also not a household roster SSOT — see Pending Household Members → Registry sync below.
 - MCP: `list_tables_for_base` does **not** flag sync. Detect with a write probe → synced fields reject with `Edits to synced field "…" are not allowed from this origin`. Prefer a field that will reject if synced; revert accidental successful writes. UI sync config not readable via MCP.
 - Estate map already reflects this (e.g. Change Key `estate-sync:registry-to-workshop:user-brains:2026-08-12`) — do not redo unless stale.
 - Repo lag: `website/src/lib/brains/airtable-ids.ts` + household-communication-standard still cite legacy `tblm6MqTYRPk8sA9o` — Doc after rename/delete; Steward awareness only.
+
+## Known Household Register → Brain Registry roster sync (Pending 2026-08-20)
+
+Matthew configures this in the **Airtable UI**. Agents do **not** create the sync (MCP cannot; Steward forbids fleet sync).
+
+| Role | Base / table | ID |
+|---|---|---|
+| Source (roster SSOT) | Household Register / Household Members | `appPrpfvsAr71RPP3` / `tblJ70qtHUc1dUHhi` |
+| Destination | AstraJax Brain Registry | `appbdTVHevH6Bl5ZZ` (synced table ID pending Matthew) |
+
+**Authority**
+
+- Household Members owns identity and operating state (slug, name, purpose, Agent Base ID, repo path, status, owner, plus character/ops facts).
+- Registry Agents `tblmb7syHipyWfBzu` is Brain Key index only. Owns no native roster fact. Native columns are copies until sync is live — not a second SSOT.
+- Do not recreate roster columns. Do not write synced fields. Do not delete Agents.
+
+**After Matthew sends the destination table ID:** verify; map the new Estate Tables row; mark Change Key `estate-sync:household-register-to-brain-registry:household-members:2026-08-20` Applied.
+
+**Estate map:** `estate-map:household-members:roster-ssot:2026-08-20` and `estate-map:registry-agents:brain-key-only:2026-08-20` (Applied). Do not redo unless stale.
 
 ## Allowed operations
 

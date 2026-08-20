@@ -192,13 +192,32 @@ Do **not** treat synced Workshop tables as independent SSOTs for synced columns.
 
 **Naming transition:** Workshop legacy **User Brains** `tblm6MqTYRPk8sA9o` is a stale local copy — **not** the sync destination. Matthew will delete it and rename User Brains New → User Brains; table ID stays `tbl8ovE5njOh1c6iK`.
 
-**Authority:** edit user-brain facts in **Registry**. Workshop synced columns are read-mostly. Workshop may keep extra local-writable fields (e.g. Draft Brain Truth on User Brains New). Other Registry tables (Change Log, Agents, etc.) were **not** observed as Workshop sync mirrors.
+**Authority:** edit user-brain facts in **Registry**. Workshop synced columns are read-mostly. Workshop may keep extra local-writable fields (e.g. Draft Brain Truth on User Brains New). Other Registry tables (Change Log, Agents, etc.) were **not** observed as Workshop sync mirrors. Registry **Agents** is also not a household roster SSOT — see the Pending Household Members → Registry sync below.
 
 **MCP sync detection:** `list_tables_for_base` does **not** flag sync. Reliable check = write probe on a suspected synced field → 403-style `Edits to synced field "…" are not allowed from this origin`. Prefer a field that will reject if synced; revert any accidental successful write on non-synced tables. UI sync config is not readable via MCP.
 
 **Estate map:** Household Register already records this topology (example Change Key `estate-sync:registry-to-workshop:user-brains:2026-08-12`). Do not re-map unless stale.
 
 **Repo lag (awareness only):** `website/src/lib/brains/airtable-ids.ts` and household-communication-standard skill copies still cite legacy `tblm6MqTYRPk8sA9o`. Doc follow-up after Matthew's rename/delete — not Steward rewrite unless asked.
+
+## Known Household Register → Brain Registry roster sync (Pending 2026-08-20)
+
+Matthew configures this in the **Airtable UI**. Agents do **not** create the sync (MCP cannot; Steward forbids fleet sync).
+
+| Role | Base / table | ID |
+|---|---|---|
+| Source (roster SSOT) | The Household Register / Household Members | `appPrpfvsAr71RPP3` / `tblJ70qtHUc1dUHhi` |
+| Destination | AstraJax Brain Registry | `appbdTVHevH6Bl5ZZ` (synced table ID pending Matthew) |
+
+**Authority**
+
+- **Household Members** owns identity and operating state: Agent Slug, Agent Name, Purpose, Agent Base ID, Repo Path, Status, Owner, plus character/ops facts.
+- Registry **Agents** `tblmb7syHipyWfBzu` is Brain Key's agent index. It owns **no native roster fact**. Native roster columns remain copies until the synced table is live — not a second SSOT.
+- Do not recreate those columns. Do not write synced fields. Do not delete Agents to “make room” for sync.
+
+**After Matthew sends the destination table ID:** verify with a read (write-probe only if needed); add an Estate Tables row; mark Change Key `estate-sync:household-register-to-brain-registry:household-members:2026-08-20` Applied.
+
+**Estate map:** Change Keys `estate-map:household-members:roster-ssot:2026-08-20` and `estate-map:registry-agents:brain-key-only:2026-08-20` (Applied). Do not redo unless stale.
 
 ## Scanner contract (behaviour, not schedule)
 
