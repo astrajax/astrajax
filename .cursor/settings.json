@@ -3,7 +3,10 @@
     "vercel": {
       "enabled": true
     },
-    "vercel/vercel-plugin": {
+    "neon-postgres": {
+      "enabled": true
+    },
+    "airtable": {
       "enabled": true
     }
   }
