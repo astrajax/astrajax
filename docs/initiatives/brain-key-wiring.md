@@ -378,9 +378,14 @@ Workshop-only upkeep action for the `/brain/review` Needs Review shortlist. Does
 
 Files an onboarding upload into Workshop **Source Documents**. The browser
 uploads bytes straight to the private Blob store, then posts only the staging
-key; the server reads those bytes with `BLOB_READ_WRITE_TOKEN` and creates one
-row via `BRAIN_WORKSHOP_WRITE_TOKEN`. Keys outside `onboarding-uploads/` are
-refused, so arbitrary URLs cannot be filed.
+key. The server does **not** pull the file body into memory: it `head()`s the
+staging object, mints a short-lived private signed GET URL (`issueSignedToken` +
+`presignUrl`, get-only, pathname-scoped, ~12 minutes), and PATCHes the Workshop
+row via `BRAIN_WORKSHOP_WRITE_TOKEN` with
+`Attachment: [{ url: <presignedUrl>, filename }]`. Airtable's servers fetch that
+URL and copy the bytes into attachment storage. Keys outside
+`onboarding-uploads/` are refused, so arbitrary URLs cannot be filed. The Blob
+store stays private.
 
 ```json
 {
@@ -393,8 +398,9 @@ refused, so arbitrary URLs cannot be filed.
 Rows are created **Pending** with `Created By = Website` and Brain Slug
 `astrajax-chapter-1`; nothing here sets **Summarised** or mines. Staging is
 deleted only after the attachment is confirmed, so Airtable is the single
-durable copy and every failure stays retryable. Missing Workshop token returns
-`saved: false` with an honest message rather than crashing the upload. Detail:
+durable copy and every failure stays retryable. Missing Workshop token, signed-URL
+failure, or Airtable attach failure returns `saved: false` with an honest message
+(and staging retained for Retry) — never “attach by hand”. Detail:
 [`source-document-mining.md`](./source-document-mining.md) § Website onboarding intake.
 
 ### `POST /api/brains/source-documents/mine`

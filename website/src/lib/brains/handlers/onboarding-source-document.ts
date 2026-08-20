@@ -3,23 +3,20 @@
  *
  * Private Blob is upload staging only; Airtable Workshop **Source Documents**
  * is the durable home. The browser uploads bytes straight to Blob, then calls
- * this handler with the staging key. The server fetches those bytes with the
- * Blob read-write token and creates one Pending Source Documents row with the
- * file attached, so Airtable AI can summarise it later.
+ * this handler with the staging key. The server never streams those bytes
+ * through Next.js: it mints a short-lived signed GET URL for the private
+ * staging object and asks Airtable to fetch and attach it. After the record
+ * shows an attachment, staging is deleted.
  *
  * Deliberately NOT done here: mining, setting Mine Status to Summarised, or any
  * Trusted Brain write. A filed row is evidence awaiting a human, nothing more.
  */
-import { del, get } from "@vercel/blob";
+import { del, head, issueSignedToken, presignUrl } from "@vercel/blob";
 import {
   BRAIN_WORKSHOP_SOURCE_DOCUMENTS_MINE_STATUS,
   BRAIN_WORKSHOP_TABLES,
 } from "../airtable-ids";
-import {
-  AIRTABLE_ATTACHMENT_UPLOAD_MAX_BYTES,
-  airtableCreate,
-  airtableUploadAttachment,
-} from "../airtable-rest";
+import { airtableAttachFromUrl, airtableCreate } from "../airtable-rest";
 import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
 import { SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES } from "./source-document-mine";
 import { createMemorySourceDocument } from "./source-document-memory";
@@ -32,7 +29,9 @@ export const ONBOARDING_SOURCE_DOCUMENT_DEFAULTS = {
 } as const;
 
 const ATTACHMENT_FIELD_NAME = "Attachment";
-const DEFAULT_CONTENT_TYPE = "application/octet-stream";
+
+/** Long enough for Airtable to finish GETting up to ~20 MB from Blob. */
+const STAGING_SIGNED_GET_TTL_MS = 12 * 60 * 1000;
 
 export type OnboardingSourceDocumentBody = {
   /** Blob URL or staging pathname returned by the client upload. */
@@ -64,29 +63,46 @@ function isRecordId(value: string | undefined): value is string {
   return typeof value === "string" && /^rec[a-zA-Z0-9]{10,}$/.test(value);
 }
 
-async function readStagedBlob(
-  pathname: string,
-): Promise<{ bytes: Uint8Array; contentType: string }> {
+function blobTokenOptions(): { token: string } | Record<string, never> {
   const token = process.env.BLOB_READ_WRITE_TOKEN;
-  const staged = await get(pathname, {
-    access: "private",
-    ...(token ? { token } : {}),
-  });
-  if (!staged?.stream) {
+  return token ? { token } : {};
+}
+
+/**
+ * Confirm the staging object still exists without pulling the body into memory.
+ */
+async function assertStagedBlobExists(pathname: string): Promise<void> {
+  try {
+    await head(pathname, blobTokenOptions());
+  } catch {
     throw new Error("Staged upload is no longer available. Upload the file again.");
   }
+}
 
-  const bytes = new Uint8Array(await new Response(staged.stream).arrayBuffer());
-  return {
-    bytes,
-    contentType: staged.blob?.contentType || DEFAULT_CONTENT_TYPE,
-  };
+/**
+ * Mint a short-lived private GET URL scoped to this staging key so Airtable
+ * can fetch the file without making the Blob store public.
+ */
+async function mintStagingGetUrl(pathname: string): Promise<string> {
+  const validUntil = Date.now() + STAGING_SIGNED_GET_TTL_MS;
+  const signedToken = await issueSignedToken({
+    pathname,
+    operations: ["get"],
+    validUntil,
+    ...blobTokenOptions(),
+  });
+  const { presignedUrl } = await presignUrl(signedToken, {
+    operation: "get",
+    pathname,
+    access: "private",
+    validUntil,
+  });
+  return presignedUrl;
 }
 
 async function deleteStagedBlob(pathname: string): Promise<boolean> {
   try {
-    const token = process.env.BLOB_READ_WRITE_TOKEN;
-    await del(pathname, token ? { token } : undefined);
+    await del(pathname, blobTokenOptions());
     return true;
   } catch {
     // Airtable already holds the durable copy; a surviving staging blob is a
@@ -135,16 +151,7 @@ export async function handleOnboardingSourceDocument(
     };
   }
 
-  const { bytes, contentType } = await readStagedBlob(pathname);
-
-  if (bytes.byteLength > AIRTABLE_ATTACHMENT_UPLOAD_MAX_BYTES) {
-    return {
-      mode: "airtable",
-      saved: false,
-      blobRetained: true,
-      message: `Airtable accepts direct attachments up to ${AIRTABLE_ATTACHMENT_UPLOAD_MAX_BYTES / 1024 / 1024} MB. This file is larger, so it stays in upload staging and needs attaching by hand.`,
-    };
-  }
+  await assertStagedBlobExists(pathname);
 
   // Retry path: attach to the row created by an earlier attempt rather than
   // filing the same file twice.
@@ -160,17 +167,29 @@ export async function handleOnboardingSourceDocument(
         })
       ).id;
 
+  let presignedUrl: string;
   try {
-    await airtableUploadAttachment(
+    presignedUrl = await mintStagingGetUrl(pathname);
+  } catch (error) {
+    return {
+      mode: "airtable",
+      saved: false,
+      recordId,
+      blobRetained: true,
+      message: `Could not mint a temporary download link for Airtable: ${
+        error instanceof Error ? error.message : "unknown error"
+      }. The file stays in upload staging — retry filing.`,
+    };
+  }
+
+  try {
+    await airtableAttachFromUrl(
       workshopBaseId,
+      tableId,
       recordId,
       ATTACHMENT_FIELD_NAME,
       workshopToken,
-      {
-        filename: title,
-        contentType,
-        base64: Buffer.from(bytes).toString("base64"),
-      },
+      { url: presignedUrl, filename: title },
     );
   } catch (error) {
     // The row exists but carries no evidence yet. Keep the staging blob and

@@ -32,23 +32,28 @@ summary, and the website never calls the mine route.
 ```text
 Browser → private Vercel Blob (staging, onboarding-uploads/)
         → POST /api/onboarding/source-document (staging key only, no bytes)
-        → server reads the private blob → Source Documents row
-           (Title = filename, Mine Status = Pending, Created By = Website,
-            Brain Slug = astrajax-chapter-1, Attachment = the file)
+        → server mints a short-lived signed GET URL for that private blob
+        → Source Documents row (Title = filename, Mine Status = Pending,
+           Created By = Website, Brain Slug = astrajax-chapter-1)
+           with Attachment = [{ url: signedUrl, filename }]
+        → Airtable GETs the signed URL and copies the file into the cell
         → staging blob deleted once the attachment is confirmed
         → [unchanged] Matthew summarises → Summarised → Clive's Man mines
 ```
 
 **Storage decision:** Airtable Source Documents is the durable home; private Blob
-is temporary staging. Deletion happens **only after** Airtable confirms the
-attachment, so any failure leaves the staged blob intact and retryable. A retry
-attaches to the row created by the earlier attempt rather than filing twice.
+is temporary staging (never made public). Filing never streams file bytes through
+Next.js and never uses Airtable's 5 MB base64 `uploadAttachment` path. One signed-URL
+attach path covers every Source Pack size (up to the existing 20 MB / file cap).
+Deletion happens **only after** Airtable confirms the attachment, so any failure
+leaves the staged blob intact and retryable. A retry attaches to the row created by
+the earlier attempt rather than filing twice.
 
-**Honest failure states:** if the Workshop write token is missing, if Airtable
-refuses the attachment, or if the file exceeds Airtable's 5 MB direct-attachment
-limit, the route returns `saved: false` with the reason and the Source Pack row
-reads "uploaded, not filed" with a Retry filing action. It never looks
-successful.
+**Honest failure states:** if the Workshop write token is missing, if signed-URL
+minting fails, or if Airtable cannot fetch/attach the file, the route returns
+`saved: false` with the reason and the Source Pack row reads "uploaded, not filed"
+with a Retry filing action. It never looks successful and never tells anyone to
+attach by hand (clients do not have Airtable).
 
 **Still Matthew's manual step:** converting **Attachment Summary** to an Airtable
 AI summarise field in the Airtable UI (MCP cannot create `aiText`). Until that
