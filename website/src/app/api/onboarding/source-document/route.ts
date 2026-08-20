@@ -20,6 +20,8 @@ import {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+/** Airtable fetches the signed Blob URL inside this request — match that 60s budget. */
+export const maxDuration = 60;
 
 function clientIp(request: NextRequest): string | undefined {
   return (
