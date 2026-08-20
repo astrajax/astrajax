@@ -40,7 +40,7 @@ class LogFleetActivityWorktreeTests(unittest.TestCase):
             pointer.write_text("gitdir: rel-git\n", encoding="utf-8")
             self.assertEqual(
                 self.mod._gitdir_from_pointer(str(pointer)),
-                str(relative_target.resolve()),
+                os.path.abspath(str(relative_target)),
             )
 
             pointer.write_text("not-a-pointer\n", encoding="utf-8")
