@@ -26,6 +26,8 @@ Builders in Cursor still **never** paste secrets or create webhooks. On-platform
 
 Used when the artifact is a **repo export JSON** Matthew imports in the HyperAgent UI (client fleets, first-time agents, or when write-back is unavailable).
 
+**Existing household skill refresh:** do not default to UI import, and do not send the JSON to Doc. Cursor MCP → **Skill Forge** with the skill JSON attached (overwrite in place; keep the live agent and its kite). Agent JSON import stays Lane B (new agent, rebuild, or recovery).
+
 **Phase B is incomplete** until:
 
 1. Generator ran (no hand-edited export JSON).

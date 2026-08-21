@@ -88,6 +88,7 @@ Doc (usually Vercel minion).
 | External best-practice scout, "what's the current thinking on" (fleet operating practice) | **Ristral** (`ristral`) |
 | Tenant news-theme scout (Core Brain + Active Projects + operator-chosen themes) | **Ristral News Scout** (`ristral-news-scout`) |
 | Human literacy, CRAFT coaching, citizen-builder knowledge gaps | **Luwani** (`luwani`) |
+| Live HyperAgent skill body (existing skill, not a new agent) | **Skill Forge** on HyperAgent MCP (`create_thread` + skill JSON) — not Doc |
 
 ## Branches and parallel work
 

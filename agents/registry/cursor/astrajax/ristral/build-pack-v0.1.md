@@ -48,7 +48,7 @@ Cursor agent uses `model: inherit` — Matthew picks model per session.
 | Env | Purpose | Scope |
 |---|---|---|
 | `RISTRAL_SCOUT_CURSOR_WRITE` | Last Scanned cursor write (D1) | Workshop base `appL2fdnGmhA02WXd` read+write |
-| `RISTRAL_SCOUT_ROSTER_TABLE_ID` | Scout Watch Roster table | `tbl...` after Ruth build |
+| `RISTRAL_SCOUT_ROSTER_TABLE_ID` | Workshop Household Members overlay | defaults to `tblUXYgkTpbxakFjc` |
 | `RISTRAL_SCOUT_CHANGE_LOG_TABLE_ID` | Scout cursor change log table | `tbl...` after Ruth build |
 | `FLEET_ACTIVITY_WRITE` | Session/Activity logging | Fleet Activity base `appF7jQD4ZKrDC7e1` write-only |
 
@@ -56,15 +56,12 @@ Workshop create-only writes (Scout Reports, Recommendations) require Airtable MC
 access to the Brain Workshop base — grant via Cursor MCP / PAT when Ruth's tables
 are live. Without credentials, Ristral delivers paste-ready row blocks only.
 
-## Table IDs (pending Ruth build)
+## Table IDs
 
-Set env vars after Ruth Hadley resolves scout tables (no code edit required):
-
-- `RISTRAL_SCOUT_ROSTER_TABLE_ID`
-- `RISTRAL_SCOUT_CHANGE_LOG_TABLE_ID`
-
-Until then, the cursor-write script refuses with a clear configuration error after
-payload preflight and credential checks.
+Last Scanned writes target Workshop Household Members (`tblUXYgkTpbxakFjc`)
+unless `RISTRAL_SCOUT_ROSTER_TABLE_ID` overrides. `RISTRAL_SCOUT_CHANGE_LOG_TABLE_ID`
+is still required for the append-only cursor log; without it the helper refuses
+after preflight.
 
 ## Smoke tests
 
@@ -91,9 +88,10 @@ payload preflight and credential checks.
 
 ## Honest gaps remaining
 
-- Scout Watch Roster / Scout Reports / Recommendations tables must exist (Ruth
-  Hadley lane) before live writes succeed.
-- Table ID env vars must be set once Ruth resolves scout tables.
+- Fly list is Workshop Household Members overlay (Scout Active, Topics,
+  Trusted Sources, Delta Format, Last Scanned). Watch Roster is retired.
+- Findings link to Household Members. Recommendations Target Agent Slug
+  Snapshot is a Members link; Base ID and Register rec are lookups.
 - No dedicated Workshop create-only PAT documented for Cursor yet (MCP or future
   pen may be needed for Scout Reports + Recommendations creates).
 - Doc scheduled queue pull remains Hyperagent/Vercel-side — Cursor Ristral only
