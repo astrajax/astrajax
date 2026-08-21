@@ -2,7 +2,7 @@
 
 **Status:** Replicable schema reference (context-agnostic)  
 **Owner:** Matthew  
-**Last updated:** 21 August 2026 (Household Members → Registry sync `tblTfxGnA5xWx2nAG` confirmed); 20 August 2026 (Household Members owns roster identity; Registry Agents is Brain Key index only); 17 August 2026 Draft Brain Truth write contract; Context Health Phase 2 schema pending
+**Last updated:** 21 August 2026 (Household Members → Registry sync `tblTfxGnA5xWx2nAG` confirmed); 20 August 2026 (Chapter 1 incubation mode on Brain Truth; Household Members owns roster identity; Registry Agents is Brain Key index only); 17 August 2026 Draft Brain Truth write contract; Context Health Phase 2 schema pending
 **Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance), [`chapter1-context-structure.md`](./chapter1-context-structure.md) (canonical brain themes + categories), [`doc-brain-base-builder.md`](./doc-brain-base-builder.md) (scaffold/extend bases via Doc Brain Base Builder)
 
 Any agent (especially **@doc-brain-base-builder**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
@@ -470,13 +470,17 @@ Primary field: **Title** (singleLineText). **Approved rows only** — if it is i
 | Field | Type | Notes |
 |-------|------|-------|
 | Title | singleLineText | Primary |
-| Canonical Text | multilineText | |
+| Canonical Text | multilineText | Agent-facing approved text. Incubation cap counts this field only. |
+| Canonical Text for Humans | multilineText | Dual-register human text. Live on Chapter 1 Trusted (`fld8EiI0tAZh8tIs0`). Not counted by Text Characters. |
 | Category | singleSelect | Canonical taxonomy — set at promote, not copied from draft |
 | Scope | singleSelect | Grant match key — Trusted only. Format: `read:brain-truth:<area>` |
 | Brain Theme | singleLineText | Theme slug matching Registry Brains / operator brain set |
 | Authority | singleLineText | Approver or source doc |
 | Freshness | singleSelect | Current, Review soon, Stale |
 | Last Reviewed | date | ISO date |
+| Text Characters | formula | `LEN({Canonical Text}&"")`. Human-visible incubation cap. Chapter 1 live id `fldUnZSHrKHFcZQDz`. |
+
+**Incubation mode (Chapter 1, 20 Aug 2026):** not a second Trusted base. Early test-user filings share this Brain Truth table, tagged by Brain Theme. Volume cap is an application constant (100,000 Canonical Text characters primary; 100 rows watched; warn at 80k / 80 rows) — not Registry fields. Scope option to add (add-only, keep every existing choice/ID): `read:brain-truth:incubation`. Signed remaining schema job: `scripts/ruth/jobs/incubation-mode-chapter1-truth.json`.
 
 **Trusted Brain Truth — Category options (canonical, 29 Jun 2026):**  
 Definition, Goals & Priorities, Workflow, Data & Metrics, Rules & Guardrails, Knowledge, Examples & Edge Cases, Open Questions, Business Context, Adjacent Functions
@@ -489,12 +493,15 @@ Business Definition, Positioning, Method, Offers, Proof, Workflow Rule, Governan
 **Trusted Brain Truth — Scope options (Chapter 1 demo, legacy):**  
 `read:brain-truth:positioning`, `read:brain-truth:governance` (canonical — use for grants until Core scope areas migrate)
 
+**Incubation Scope option (add-only; do not retire legacy):**  
+`read:brain-truth:incubation`
+
 **Scope options (brain theme areas — add via Airtable UI as templates roll out):**  
 `read:brain-truth:core-identity`, `read:brain-truth:core-principles`, `read:brain-truth:core-governance`, `read:brain-truth:core-people`, `read:brain-truth:core-glossary`, `read:brain-truth:core-direction`, `read:brain-truth:core-business-context` (Function Leader overlay), `read:brain-truth:core-adjacent-functions` (Function Leader overlay), plus domain slugs from `chapter1-context-structure.md` §3.3
 
 Legacy options still present in live Airtable (retire when unused): `read:brain-context:positioning`, `read:brain-context:governance`. Also delete the **LEGACY Scope (delete in UI)** text field on Brain Truth when convenient.
 
-**Manual UI follow-up (Phase B):** MCP `update_field` cannot bulk-add singleSelect choices. Universal Category options and Scope options were only partially applied — add any missing choices and retire legacy options in the Airtable UI (not via MCP).
+**Manual UI follow-up (Phase B, still true 20 Aug 2026):** MCP `update_field` cannot add singleSelect choices. Text Characters was created via MCP `create_field`. Universal Category options and `read:brain-truth:incubation` still need the Ruth build pen (`AIRTABLE_BUILD_TARGET_WRITE` on `app6tjzzG0L0lOeVb`) or a human adding them in the Airtable UI. Do **not** retire legacy Category/Scope options in this job.
 
 Per brain theme: document Category and Scope option sets in this file when standing up a new Trusted Brain. New scopes require human adding a select option (governance), not agent free text.
 

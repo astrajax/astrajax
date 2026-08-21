@@ -534,6 +534,8 @@ export const BRAIN_TRUSTED_CHAPTER1_TABLES = {
 export const BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS = {
   title: "fldVxNhopdtZTjR6n",
   canonicalText: "fldX79BWrIGBUccHT",
+  /** Dual-register human text — live on Trusted (observed 20 Aug 2026). */
+  canonicalTextForHumans: "fld8EiI0tAZh8tIs0",
   category: "fld4gG1ZjH3ETmqa3",
   scope: "fldtQVETmrrHUiYMw",
   brainTheme: "fldFGVJhAUHTq7Xco",
@@ -541,6 +543,8 @@ export const BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS = {
   authority: "fldX0V2cpvYlwiWxh",
   freshness: "fld0eIdJ9UEjSbstx",
   lastReviewed: "fldvBsrSKoy6YKjUf",
+  /** Incubation cap meter. Formula LEN(Canonical Text). Live 20 Aug 2026. */
+  textCharacters: "fldUnZSHrKHFcZQDz",
   legacyScopeText: "fldIo20j7jpJNL03f",
 } as const;
 
