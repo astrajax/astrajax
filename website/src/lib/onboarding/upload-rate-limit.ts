@@ -84,7 +84,43 @@ export function refundOnboardingUploadRateLimit(input: {
   buckets.set(key, existing);
 }
 
+/**
+ * Filing an already-staged upload into Workshop costs no new bytes, so it gets
+ * its own count-only bucket. The allowance is deliberately larger than the
+ * upload cap so honest retries after an Airtable hiccup are not punished.
+ */
+const FILING_MAX_PER_WINDOW = SOURCE_PACK_LIMITS.maxFiles * 3;
+const filingBuckets = new Map<string, { count: number; windowStart: number }>();
+
+export function checkOnboardingFilingRateLimit(input: { ip?: string }): {
+  allowed: boolean;
+  retryAfterSeconds?: number;
+  reason?: string;
+} {
+  const key = clientKey(input.ip);
+  const now = Date.now();
+  const existing = filingBuckets.get(key);
+
+  if (!existing || now - existing.windowStart >= WINDOW_MS) {
+    filingBuckets.set(key, { count: 1, windowStart: now });
+    return { allowed: true };
+  }
+
+  if (existing.count >= FILING_MAX_PER_WINDOW) {
+    return {
+      allowed: false,
+      retryAfterSeconds: Math.ceil((existing.windowStart + WINDOW_MS - now) / 1000),
+      reason: `Maximum ${FILING_MAX_PER_WINDOW} filings per hour`,
+    };
+  }
+
+  existing.count += 1;
+  filingBuckets.set(key, existing);
+  return { allowed: true };
+}
+
 /** Reset limiter state — tests only */
 export function resetOnboardingUploadRateLimitForTests(): void {
   buckets.clear();
+  filingBuckets.clear();
 }

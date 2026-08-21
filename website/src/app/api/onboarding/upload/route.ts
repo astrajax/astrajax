@@ -20,6 +20,11 @@ import { type HandleUploadBody, handleUpload } from "@vercel/blob/client";
 import { NextResponse, type NextRequest } from "next/server";
 import { SOURCE_PACK_LIMITS } from "@/lib/onboarding/machine";
 import {
+  assertOnboardingUploadExtension,
+  assertOnboardingUploadPathname,
+  toOnboardingUploadPathname,
+} from "@/lib/onboarding/upload-path";
+import {
   checkOnboardingUploadRateLimit,
   refundOnboardingUploadRateLimit,
 } from "@/lib/onboarding/upload-rate-limit";
@@ -50,35 +55,6 @@ function parseClientPayload(raw: string | null): ClientPayload {
     };
   } catch {
     return {};
-  }
-}
-
-function assertUploadPathname(pathname: string): void {
-  const prefix = SOURCE_PACK_LIMITS.uploadPrefix;
-  if (
-    !pathname.startsWith(prefix) ||
-    pathname.includes("..") ||
-    pathname.includes("//")
-  ) {
-    throw new Error(`Uploads must use the ${prefix} prefix`);
-  }
-  const rest = pathname.slice(prefix.length);
-  if (!rest || rest.includes("/")) {
-    throw new Error("Invalid upload pathname");
-  }
-}
-
-function getExtension(pathname: string): string {
-  const idx = pathname.lastIndexOf(".");
-  return idx >= 0 ? pathname.slice(idx).toLowerCase() : "";
-}
-
-function assertAllowedExtension(pathname: string): void {
-  const ext = getExtension(pathname);
-  if (
-    !(SOURCE_PACK_LIMITS.allowedExtensions as readonly string[]).includes(ext)
-  ) {
-    throw new Error(`File type not allowed: ${ext || "(none)"}`);
   }
 }
 
@@ -124,8 +100,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       request,
       ...(token ? { token } : {}),
       onBeforeGenerateToken: async (pathname, clientPayload) => {
-        assertUploadPathname(pathname);
-        assertAllowedExtension(pathname);
+        assertOnboardingUploadPathname(pathname);
+        assertOnboardingUploadExtension(pathname);
 
         const payload = parseClientPayload(clientPayload);
         const sizeBytes = payload.sizeBytes;
@@ -230,10 +206,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const pathname = target.includes("://")
-      ? new URL(target).pathname.replace(/^\//, "")
-      : target;
-    assertUploadPathname(pathname);
+    toOnboardingUploadPathname(target);
 
     const token = process.env.BLOB_READ_WRITE_TOKEN;
     await del(target, token ? { token } : undefined);

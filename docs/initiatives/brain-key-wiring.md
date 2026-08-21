@@ -374,6 +374,35 @@ Workshop-only upkeep action for the `/brain/review` Needs Review shortlist. Does
 
 `action: "propose"` sets **Review Status** to `Action proposed` and **Context Flagged** to `Flagged for review` or `Quarantine proposed` when `quarantine` is true. `action: "dismiss"` sets **Review Status** to `No action` and **Context Flagged** to `None`.
 
+### `POST /api/onboarding/source-document`
+
+Files an onboarding upload into Workshop **Source Documents**. The browser
+uploads bytes straight to the private Blob store, then posts only the staging
+key. The server does **not** pull the file body into memory: it `head()`s the
+staging object, mints a short-lived private signed GET URL (`issueSignedToken` +
+`presignUrl`, get-only, pathname-scoped, ~12 minutes), and PATCHes the Workshop
+row via `BRAIN_WORKSHOP_WRITE_TOKEN` with
+`Attachment: [{ url: <presignedUrl>, filename }]`. Airtable's servers fetch that
+URL and copy the bytes into attachment storage. Keys outside
+`onboarding-uploads/` are refused, so arbitrary URLs cannot be filed. The Blob
+store stays private.
+
+```json
+{
+  "blobUrl": "https://….blob.vercel-storage.com/onboarding-uploads/…-notes.pdf",
+  "filename": "notes.pdf",
+  "recordId": "rec… (optional — retry attaches to this row instead of filing twice)"
+}
+```
+
+Rows are created **Pending** with `Created By = Website` and Brain Slug
+`astrajax-chapter-1`; nothing here sets **Summarised** or mines. Staging is
+deleted only after the attachment is confirmed, so Airtable is the single
+durable copy and every failure stays retryable. Missing Workshop token, signed-URL
+failure, or Airtable attach failure returns `saved: false` with an honest message
+(and staging retained for Retry) — never “attach by hand”. Detail:
+[`source-document-mining.md`](./source-document-mining.md) § Website onboarding intake.
+
 ### `POST /api/brains/source-documents/mine`
 
 Clive's Man V1 attachment mining — Workshop only. Reads **Attachment Summary** on **Source Documents** rows where **Mine Status = Summarised**; creates **Draft Brain Truth** proposals; sets source row to **Proposed** + **Linked Drafts**. Never reads Attachment bytes; never writes Trusted Brain. Pam gates: [`source-document-mining.md`](./source-document-mining.md).
