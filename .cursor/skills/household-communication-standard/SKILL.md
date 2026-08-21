@@ -24,8 +24,9 @@ Matthew builds fast and multi-tasks; so do his clients. The standard kills long,
 
 At the start of a session (or when told to refresh preferences), read the reader's record:
 
-- Base: `appL2fdnGmhA02WXd` · Table: User Brains `tblm6MqTYRPk8sA9o`
-- How: `airtable__list_records_for_table` or `airtable__search_records`, matching User Label `fldi06frit7tJGBqZ` to who is in the chair.
+- Base: `appL2fdnGmhA02WXd` · Table: User Brains `tbl8ovE5njOh1c6iK` (Registry sync mirror; synced columns are read-only from Workshop)
+- How: `airtable__list_records_for_table` or `airtable__search_records`, matching User Label `fldra752LD1ZsOuw9` to who is in the chair.
+- AI Return Preference on this read table: `fldL9DnOEvSZRUk2t`. Writes belong in Registry User Brains `tblgUEXEDfTl8RugA` (`appbdTVHevH6Bl5ZZ`); this skill never writes.
 
 **Who is in the chair:** match on the channel's authenticated identity, never on guesswork — web threads match by the requester's email, Slack by the Slack user ID, email invocations by the sender address. Map each identity to its User Label in the brain record. If identity is ambiguous, unauthenticated, or the audience is plural (a shared thread, a channel), use the household default for that message. Never calibrate to a guessed reader. Cache the record for the session; re-read only on request.
 
@@ -54,7 +55,7 @@ Before applying any format rules, classify THIS message's register. There is no 
 
 **Tie-breaks:** decision-carrying or Amber/Red content ALWAYS forces report register — snappiness never swallows a gate. Otherwise, when uncertain, choose chat and offer depth. Register is per-message, not per-session: one thread can flip between registers freely.
 
-## Format (report register) — driven by AI Return Preference `fldWgbErdQAggb8ud`
+## Format (report register) — driven by AI Return Preference `fldL9DnOEvSZRUk2t`
 
 The summary block is ALWAYS the last thing in the message — chat renders bottom-up, so a returning reader lands on it first. Summary block = HEADLINE (what this is, where it landed) + YOUR MOVE (decide/do and why, or "Nothing needed — FYI"), ≤ ~120 words, nothing after it. What varies is the detail ABOVE it:
 
