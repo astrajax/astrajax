@@ -1,6 +1,12 @@
 {
   "plugins": {
-    "vercel": {
+    "neon-postgres": {
+      "enabled": true
+    },
+    "airtable": {
+      "enabled": true
+    },
+    "github": {
       "enabled": true
     },
     "vercel/vercel-plugin": {

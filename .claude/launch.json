@@ -20,7 +20,7 @@
         "run",
         "dev",
         "--prefix",
-        "/Users/matthewhopkinson/Documents/AstraJax/.claude/worktrees/phase1-state-contract/website",
+        "/Users/matthewhopkinson/Developer/AstraJax/.claude/worktrees/phase1-state-contract/website",
         "--",
         "--port",
         "3001"
