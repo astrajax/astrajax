@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import ModuleType
 
 SKILL_SCRIPTS = (
     Path(__file__).resolve().parents[2]
@@ -16,11 +18,26 @@ SKILL_SCRIPTS = (
     / "self-update-executor"
     / "scripts"
 )
-sys.path.insert(0, str(SKILL_SCRIPTS))
 
-import hosted_mcp_handoff  # noqa: E402
-import match_pending_approval  # noqa: E402
-import verify_self_update  # noqa: E402
+
+def _load_script(module_name: str, filename: str) -> ModuleType:
+    """Load by unique module name so Skill Forge's same-named scripts cannot collide."""
+    path = SKILL_SCRIPTS / filename
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+hosted_mcp_handoff = _load_script(
+    "self_update_hosted_mcp_handoff", "hosted_mcp_handoff.py"
+)
+match_pending_approval = _load_script(
+    "self_update_match_pending_approval", "match_pending_approval.py"
+)
+verify_self_update = _load_script("self_update_verify", "verify_self_update.py")
 
 
 def _state(**overrides: object) -> dict:
@@ -241,6 +258,57 @@ class MatchPendingApprovalTest(unittest.TestCase):
         )
         self.assertFalse(result["matched"])
         self.assertIsNotNone(result["break_glass"])
+
+    def test_empty_target_name_matches_nothing(self) -> None:
+        pending = {
+            "rows": [
+                {
+                    "kind": "draft_save",
+                    "approvalId": "apd_agent",
+                    "canResolve": True,
+                    "entity": "agent",
+                    "name": "Doc Albright",
+                }
+            ]
+        }
+        result = match_pending_approval.match_draft_save(
+            pending, target_name="   ", entity="agent"
+        )
+        self.assertFalse(result["matched"])
+        self.assertEqual(result["match_count"], 0)
+
+    def test_deny_decision_and_first_of_ambiguous_matches(self) -> None:
+        pending = {
+            "rows": [
+                {
+                    "kind": "draft_save",
+                    "approvalId": "apd_first",
+                    "canResolve": True,
+                    "entity": "agent",
+                    "name": "Doc Albright",
+                },
+                {
+                    "kind": "draft_save",
+                    "approvalId": "apd_second",
+                    "canResolve": True,
+                    "entity": "agent_update",
+                    "name": "Doc Albright (copy)",
+                },
+            ]
+        }
+        result = match_pending_approval.match_draft_save(
+            pending, target_name="Doc Albright", entity="agent", decision="deny"
+        )
+        self.assertTrue(result["matched"])
+        self.assertEqual(result["match_count"], 2)
+        self.assertEqual(result["resolve"]["approvalId"], "apd_first")
+        self.assertEqual(result["resolve"]["decision"], "deny")
+
+    def test_rejects_invalid_decision(self) -> None:
+        with self.assertRaises(ValueError):
+            match_pending_approval.match_draft_save(
+                {"rows": []}, target_name="Doc", decision="maybe"
+            )
 
 
 if __name__ == "__main__":

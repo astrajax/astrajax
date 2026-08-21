@@ -142,19 +142,19 @@ Synced Workshop tables are **not** independent SSOTs for synced columns.
 
 **Pairs**
 
-1. Registry User Brains `tblgUEXEDfTl8RugA` → Workshop **User Brains New** `tbl8ovE5njOh1c6iK` (canonical live workshop mirror)
+1. Registry User Brains `tblgUEXEDfTl8RugA` → Workshop **User Brains** `tbl8ovE5njOh1c6iK` (canonical live workshop mirror; live name already User Brains)
 2. Registry System Brains → Workshop **Brain Registry** (same pattern)
 
-**Naming:** Workshop legacy User Brains `tblm6MqTYRPk8sA9o` = stale local copy, **not** sync destination. Pending: delete legacy; rename New → User Brains (ID stays `tbl8ovE5njOh1c6iK`).
+**Naming:** Workshop legacy User Brains `tblm6MqTYRPk8sA9o` was a stale local copy, **not** the sync destination. Live table is gone; keep the Retired Estate Tables row as history. Do not `delete_table`.
 
 **Rules**
 
 - Edit synced facts in **Registry**; Workshop synced columns are read-mostly.
-- Workshop may have extra local-writable fields (e.g. Draft Brain Truth on User Brains New).
+- Workshop may have extra local-writable fields (e.g. Draft Brain Truth on User Brains).
 - Other Registry tables (Change Log, Agents, …) were **not** observed as Workshop sync mirrors. Registry **Agents** is also not a household roster SSOT — see confirmed Household Members → Registry sync below.
 - MCP: `list_tables_for_base` does **not** flag sync. Detect with a write probe → synced fields reject with `Edits to synced field "…" are not allowed from this origin`. Prefer a field that will reject if synced; revert accidental successful writes. UI sync config not readable via MCP.
 - Estate map already reflects this (e.g. Change Key `estate-sync:registry-to-workshop:user-brains:2026-08-12`) — do not redo unless stale.
-- Repo lag: `website/src/lib/brains/airtable-ids.ts` + household-communication-standard still cite legacy `tblm6MqTYRPk8sA9o` — Doc after rename/delete; Steward awareness only.
+- Repo consumers (observed 2026-08-19): `website/src/lib/brains/airtable-ids.ts` + household-communication-standard read Workshop `tbl8ovE5njOh1c6iK`; User Brain *writes* go to Registry `tblgUEXEDfTl8RugA`.
 
 ## Known Household Register → Brain Registry roster sync (confirmed 2026-08-21)
 
