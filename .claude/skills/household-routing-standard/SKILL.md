@@ -26,7 +26,7 @@ Every route uses the same brief shape (see below). Pick the first method that wo
 2. **`@` handoff** — if Task cannot spawn that agent, paste the brief and ask Matthew
    to open `@<name>` (or switch to that agent). Do not pretend you invoked them.
 3. **Do not** call Hyperagent IDs or `InvokeNamedAgent` for Cursor household work.
-   **Exception — Route 12:** live HyperAgent skill-body apply goes to Skill Forge
+   **Exception — Route 14:** live HyperAgent skill-body apply goes to Skill Forge
    via HyperAgent MCP (`create_thread` + attachment). Never send that job to Doc.
 
 Notify, don't ask: after routing, one line in your reply is enough
