@@ -247,10 +247,14 @@ def build_digest(
         "actions": [],
         "blockers": [],
         "human_turns": [],
+        # Dispatch tickets stay in their own bucket: an agent's brief to a minion
+        # is not a human turn, and the two must not be conflated.
+        "dispatch_tickets": [],
         "session_count": 0,
     })
     blockers: list[dict[str, str]] = []
     notable: list[dict[str, str]] = []
+    dispatch_tickets: list[dict[str, str]] = []
     human_turns: list[dict[str, str]] = []
     questions: list[dict[str, str]] = []
     skipped_session_end = 0
@@ -274,7 +278,15 @@ def build_digest(
         if agent_turn in SKIP_AGENT_TURN_TYPES:
             skipped_session_end += 1
             continue
-        if user_turn in SKIP_USER_TURN_TYPES and not agent_turn:
+        # A dispatch ticket — a child session's first turn, carrying the brief in
+        # User Message with no reply yet — is the job the agent was handed. It is
+        # never filler, so it survives the Open Ended skip.
+        is_dispatch_ticket = bool(
+            not agent_turn
+            and _plain_text(fields.get(ACTIVITY_FIELDS["user_message"]))
+            and not _plain_text(fields.get(ACTIVITY_FIELDS["reply_digest"]))
+        )
+        if user_turn in SKIP_USER_TURN_TYPES and not agent_turn and not is_dispatch_ticket:
             skipped_open_ended += 1
             continue
         sid = str(fields.get(ACTIVITY_FIELDS["session_id"]) or "")
@@ -316,7 +328,10 @@ def build_digest(
             not agent_turn and not user_turn and bool(line) and not user_ask
         )
         tagged = {"agent_slug": slug, **item}
-        if is_blocker:
+        if is_dispatch_ticket:
+            bucket["dispatch_tickets"].append(item)
+            dispatch_tickets.append(tagged)
+        elif is_blocker:
             bucket["blockers"].append(item)
             blockers.append(tagged)
         elif is_human:
@@ -342,9 +357,13 @@ def build_digest(
             "action_count": len(bucket["actions"]),
             "blocker_count": len(bucket["blockers"]),
             "human_turn_count": len(bucket["human_turns"]),
+            "dispatch_ticket_count": len(bucket["dispatch_tickets"]),
             "actions": [row["summary"] for row in bucket["actions"][:8] if row.get("summary")],
             "blockers": [row["summary"] for row in bucket["blockers"][:8] if row.get("summary")],
             "human_turns": [row["summary"] for row in bucket["human_turns"][:8] if row.get("summary")],
+            "dispatch_tickets": [
+                row["summary"] for row in bucket["dispatch_tickets"][:8] if row.get("summary")
+            ],
         })
 
     return {
@@ -356,6 +375,7 @@ def build_digest(
         "skipped_open_ended": skipped_open_ended,
         "blocked_count": len(blockers),
         "human_turn_count": len(human_turns),
+        "dispatch_ticket_count": len(dispatch_tickets),
         "question_count": len(questions),
         "exchange_count": exchange_count,
         "user_turn_counts": dict(user_turn_counts),
@@ -364,6 +384,7 @@ def build_digest(
         "by_agent": agents,
         "blockers": blockers[:20],
         "human_turns": human_turns[:40],
+        "dispatch_tickets": dispatch_tickets[:40],
         "questions": questions[:20],
         "notable": notable[:40],
         "activity_view": (
@@ -617,17 +638,39 @@ def _self_test() -> None:
                 ACTIVITY_FIELDS["turn_started"]: "2026-08-13T04:40:00.000Z",
             },
         },
+        {
+            # Dispatch ticket: a child session's first turn, brief in User Message
+            # and no reply yet. Even misclassified as Open Ended it must survive,
+            # or the sweep cannot read what the child was asked to do.
+            "id": "recA8",
+            "createdTime": "2026-08-13T04:45:00.000Z",
+            "cellValuesByFieldId": {
+                ACTIVITY_FIELDS["session_id"]: "doc-workshop-proposer--20260812T0931Z--b1",
+                ACTIVITY_FIELDS["user_turn_type"]: {"name": "Open Ended"},
+                ACTIVITY_FIELDS["user_message"]: "Draft the Ruth Steward pack for challenge.",
+                ACTIVITY_FIELDS["turn_started"]: "2026-08-13T04:45:00.000Z",
+            },
+        },
     ]
     digest = build_digest(
         sessions=sessions, activity=activity,
         window_start=window_start, window_end=window_end,
     )
-    assert digest["activity_count"] == 7, digest
+    assert digest["activity_count"] == 8, digest
     assert digest["skipped_session_end"] == 1, digest
     assert digest["skipped_open_ended"] == 1, digest
     assert digest["blocked_count"] == 1, digest
     assert digest["human_turn_count"] == 3, digest
-    assert digest["exchange_count"] == 3, digest
+    assert digest["exchange_count"] == 4, digest
+    # The ticket is readable, and kept out of the human-narrative lane.
+    assert digest["dispatch_ticket_count"] == 1, digest
+    ticket_lines = [row["summary"] for row in digest["dispatch_tickets"]]
+    assert ticket_lines == ["Draft the Ruth Steward pack for challenge."], digest["dispatch_tickets"]
+    assert "Draft the Ruth Steward pack for challenge." not in [
+        row["summary"] for row in digest["human_turns"]
+    ], digest["human_turns"]
+    proposer = next(row for row in digest["by_agent"] if row["slug"] == "doc-workshop-proposer")
+    assert proposer["dispatch_ticket_count"] == 1, proposer
     slugs = {row["slug"] for row in digest["by_agent"]}
     assert slugs == {
         "kate",
@@ -648,7 +691,7 @@ def _self_test() -> None:
     try_now = next(row for row in digest["human_turns"] if row["summary"] == "Try now")
     assert try_now["line_source"] == "user_message", try_now
     assert digest["line_source_counts"]["ai_turn_summary"] == 2, digest["line_source_counts"]
-    assert digest["line_source_counts"]["user_message"] == 1, digest["line_source_counts"]
+    assert digest["line_source_counts"]["user_message"] == 2, digest["line_source_counts"]
     assert digest["line_source_counts"]["summary"] == 2, digest["line_source_counts"]
     assert digest["user_turn_counts"]["Decision"] == 2, digest["user_turn_counts"]
     assert digest["user_turn_counts"]["Brief"] == 1, digest["user_turn_counts"]
