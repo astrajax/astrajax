@@ -110,6 +110,80 @@ describe("handleReceivingWallAccept", () => {
     ).rejects.toThrow(/BRAIN_WORKSHOP_WRITE_TOKEN/);
   });
 
+  it("falls back to the write token when the read token env is empty", async () => {
+    process.env.BRAIN_WORKSHOP_READ_TOKEN = "";
+    const mockFetch = mockFetchSequence([
+      {
+        status: 200,
+        body: {
+          records: [
+            {
+              id: VALID_RECORD_ID,
+              fields: { Title: "Test draft", Status: DRAFT_TRUTH_STATUS.draft },
+            },
+          ],
+        },
+      },
+      {
+        status: 200,
+        body: {
+          id: VALID_RECORD_ID,
+          fields: { Title: "Test draft", Status: DRAFT_TRUTH_STATUS.approved },
+        },
+      },
+      {
+        status: 200,
+        body: {
+          id: "recApproval1234567",
+          fields: { "Decision ID": "apd_rw_test" },
+        },
+      },
+    ]);
+
+    await handleReceivingWallAccept({ recordId: VALID_RECORD_ID });
+
+    expect(
+      (mockFetch.mock.calls[0]?.[1] as RequestInit | undefined)?.headers,
+    ).toMatchObject({ Authorization: "Bearer patWriteTest" });
+  });
+
+  it("falls back to the write token when the read token env is whitespace", async () => {
+    process.env.BRAIN_WORKSHOP_READ_TOKEN = "   ";
+    const mockFetch = mockFetchSequence([
+      {
+        status: 200,
+        body: {
+          records: [
+            {
+              id: VALID_RECORD_ID,
+              fields: { Title: "Test draft", Status: DRAFT_TRUTH_STATUS.draft },
+            },
+          ],
+        },
+      },
+      {
+        status: 200,
+        body: {
+          id: VALID_RECORD_ID,
+          fields: { Title: "Test draft", Status: DRAFT_TRUTH_STATUS.approved },
+        },
+      },
+      {
+        status: 200,
+        body: {
+          id: "recApproval1234567",
+          fields: { "Decision ID": "apd_rw_test" },
+        },
+      },
+    ]);
+
+    await handleReceivingWallAccept({ recordId: VALID_RECORD_ID });
+
+    expect(
+      (mockFetch.mock.calls[0]?.[1] as RequestInit | undefined)?.headers,
+    ).toMatchObject({ Authorization: "Bearer patWriteTest" });
+  });
+
   it("rejects seeded demo record ids", async () => {
     await expect(
       handleReceivingWallAccept({ recordId: "seed-core-definition" }),
