@@ -1,5 +1,7 @@
 import { GrantValidationError, assertRouteMayReadTrusted, validateGrant, ROUTE_IDS } from "../guards";
+import { getTrustedBrainConfig, getTrustedReadToken } from "../config";
 import { consumeGrantUse, getGrant, restoreGrantUse } from "../grants-store";
+import { isFallbackManifest } from "../interaction-upkeep";
 import { retrieveTrustedSnippets } from "../trusted-truth";
 import type { TruthRetrieveBody, RetrievalManifest } from "../types";
 
@@ -43,10 +45,24 @@ export async function handleTruthRetrieve(body: TruthRetrieveBody) {
     throw error;
   }
 
+  const recordIds = snippets.map((s) => s.recordId);
+  // When Trusted is unwired (no read token), public placeholders are the demo
+  // path. When a read token is configured and we still only got placeholders,
+  // the scope was empty or unreadable — restore the use rather than pretend
+  // the caller received Trusted Brain access.
+  const trustedConfig = getTrustedBrainConfig(body.brainSlug.trim());
+  const trustedReadWired = Boolean(
+    trustedConfig?.truthTableId && getTrustedReadToken(trustedConfig),
+  );
+  if (trustedReadWired && isFallbackManifest(recordIds)) {
+    await restoreGrantUse(grant.grantId);
+    throw new Error("No Trusted Brain truth is available for this scope.");
+  }
+
   const retrievedAt = new Date().toISOString();
 
   const manifest: RetrievalManifest = {
-    recordIds: snippets.map((s) => s.recordId),
+    recordIds,
     hashes: snippets.map((s) => s.contentHash),
     grantId: grant.grantId,
     retrievedAt,
