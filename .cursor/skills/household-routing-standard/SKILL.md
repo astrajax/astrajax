@@ -133,6 +133,11 @@ watch themes; portable client-shippable briefing packs; "keep me informed" on se
 Never live-invokes Clive/Doc. Never writes Circuit A Recommendations. Query text may come
 only from Search Lens or Theme Label. Unprovisioned or empty theme picks → theme menu, no sweep.
 
+### Route 13 — Human literacy / knowledge-gap coaching
+**Trigger:** weekly knowledge-gap report; CRAFT coaching; "what should I know as a citizen-builder"; human-side prompt fluency (not agent quality, not spend).
+**Target:** `@luwani`
+**Notes:** grows from Activity review vs NEED from stored operator / business / function context. Coaching, not grading. Never rewrite Activity. Never Agent Quality (Hal) or spend (Horace).
+
 ## Website build flow (Routes 2 / 5 / 3 / 7 / 9 → 1)
 
 `website/` is not one lane. It is a **sequenced handoff chain**. Pick the stage
@@ -233,8 +238,9 @@ Targets' own NEVER lists stand unchanged.
 - Is the brief self-contained — could the target act with zero access to this thread?
 - Right lane? (Truth → Clive's Man. Repo/product build → Doc. Painted-world scenic →
   Kate. Red+novel → Pam. Spine → Lazlo. Thinking → Clive. Agent health → Hal.
-  Research → Ristral. Data-layer → Ruth. Skin → Kathryn. Motion → Milo.
-  Nothing fits → generic; name the lane you considered and why.)
+  Human literacy / knowledge gaps → Luwani. Research → Ristral. Data-layer → Ruth.
+  Skin → Kathryn. Motion → Milo. Nothing fits → generic; name the lane you considered
+  and why.)
 - Website work? Use the **Website build flow** stage table — then Man exit if durable.
 - Have I added ANY step the structure doesn't demand? Remove it.
 - Is anything here actually Red? Then it's a proposal to Matthew, not a silent routing.
