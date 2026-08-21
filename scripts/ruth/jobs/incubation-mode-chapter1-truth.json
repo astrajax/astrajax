@@ -1,0 +1,363 @@
+{
+  "manifestId": "ruth-incubation-mode-chapter1-truth",
+  "manifestVersion": "0.4",
+  "proposalDecisionId": "RUTH-INCUBATION-MODE-CHAPTER1-TRUTH-v0.4",
+  "proposalStatus": "signed-in-thread",
+  "commissionSessionId": "bc-01a01a38-112e-70f4-b0be-2825fcc882f6",
+  "sourceDesignThread": "ruth-incubation-mode-grain-v0.4",
+  "pamDeltaThread": "bc-07155bee-590b-52c6-bd2d-9821918d3c93",
+  "successorOf": "unsigned-v0.3-cut-text-characters",
+  "materialChange": "Matthew restored Text Characters and signed the remaining add-only Category and Scope options.",
+  "target": {
+    "baseId": "app6tjzzG0L0lOeVb",
+    "baseName": "AstraJax Trusted Brain — Chapter 1",
+    "tableId": "tblipHzCl905T7o5F",
+    "tableName": "Brain Truth"
+  },
+  "scope": {
+    "createTables": [],
+    "extendTables": [],
+    "reconcileExistingTables": [
+      "tblipHzCl905T7o5F"
+    ],
+    "createAutomations": [],
+    "createInterfaces": [],
+    "seedRecords": [],
+    "mutateExistingRecords": false,
+    "externalWrites": false
+  },
+  "beforeState": {
+    "abortOnMismatch": true,
+    "requiredTables": [
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "name": "Brain Truth",
+        "description": "Approved context only — no draft rows.",
+        "primaryFieldId": "fldVxNhopdtZTjR6n",
+        "requiredFields": [
+          {
+            "fieldId": "fldVxNhopdtZTjR6n",
+            "name": "Title",
+            "type": "singleLineText"
+          },
+          {
+            "fieldId": "fldX79BWrIGBUccHT",
+            "name": "Canonical Text",
+            "type": "multilineText"
+          },
+          {
+            "fieldId": "fld8EiI0tAZh8tIs0",
+            "name": "Canonical Text for Humans",
+            "type": "multilineText"
+          },
+          {
+            "fieldId": "fldX0V2cpvYlwiWxh",
+            "name": "Authority",
+            "type": "singleLineText"
+          },
+          {
+            "fieldId": "fld0eIdJ9UEjSbstx",
+            "name": "Freshness",
+            "type": "singleSelect",
+            "requiredChoices": [
+              "Current",
+              "Review soon",
+              "Stale"
+            ],
+            "requiredChoiceIds": [
+              "seluZp2jXA3gyDRDs",
+              "selHPd72zNDa3BMUD",
+              "sell9AEUQdnWJKRWG"
+            ]
+          },
+          {
+            "fieldId": "fldvBsrSKoy6YKjUf",
+            "name": "Last Reviewed",
+            "type": "date"
+          },
+          {
+            "fieldId": "fld4gG1ZjH3ETmqa3",
+            "name": "Category",
+            "type": "singleSelect",
+            "requiredChoices": [
+              "Business Definition",
+              "Positioning",
+              "Method",
+              "Offers",
+              "Proof",
+              "Workflow Rule",
+              "Governance"
+            ],
+            "requiredChoiceIds": [
+              "sel3vG79j7WiIFuUD",
+              "selG3c2Q2g9O9wlzC",
+              "selVcX67fDhAvQE1m",
+              "selyCb87pEVyJdEDO",
+              "sel8Wh6voGqMHwpaD",
+              "seleaWcxpWx7qNuv3",
+              "selTdeRSRwiNwDIjI"
+            ]
+          },
+          {
+            "fieldId": "fldtQVETmrrHUiYMw",
+            "name": "Scope",
+            "type": "singleSelect",
+            "requiredChoices": [
+              "read:brain-context:positioning",
+              "read:brain-context:governance",
+              "read:brain-truth:positioning",
+              "read:brain-truth:governance"
+            ],
+            "requiredChoiceIds": [
+              "selpysJrADmEkbIW1",
+              "selZSWqbcNbJv6i8j",
+              "selTRwllj2BivXIwC",
+              "selHt0EaTVOphQCS7"
+            ]
+          },
+          {
+            "fieldId": "fldFGVJhAUHTq7Xco",
+            "name": "Brain Theme",
+            "type": "singleLineText"
+          },
+          {
+            "fieldId": "fldU57ic2fZWwFmlU",
+            "name": "Horizon",
+            "type": "singleSelect",
+            "requiredChoices": [
+              "Long-term",
+              "Active"
+            ],
+            "requiredChoiceIds": [
+              "sel6GhvO65a5rAuKb",
+              "selBZP0kPkmxkquIo"
+            ]
+          }
+        ]
+      }
+    ],
+    "requiredAbsentTables": [],
+    "requiredAbsentFields": [
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "name": "Text Characters"
+      }
+    ],
+    "requiredAbsentSelectChoices": [
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "fieldId": "fld4gG1ZjH3ETmqa3",
+        "choice": "Definition"
+      },
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "fieldId": "fld4gG1ZjH3ETmqa3",
+        "choice": "Goals & Priorities"
+      },
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "fieldId": "fld4gG1ZjH3ETmqa3",
+        "choice": "Workflow"
+      },
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "fieldId": "fld4gG1ZjH3ETmqa3",
+        "choice": "Data & Metrics"
+      },
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "fieldId": "fld4gG1ZjH3ETmqa3",
+        "choice": "Rules & Guardrails"
+      },
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "fieldId": "fld4gG1ZjH3ETmqa3",
+        "choice": "Knowledge"
+      },
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "fieldId": "fld4gG1ZjH3ETmqa3",
+        "choice": "Examples & Edge Cases"
+      },
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "fieldId": "fld4gG1ZjH3ETmqa3",
+        "choice": "Open Questions"
+      },
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "fieldId": "fld4gG1ZjH3ETmqa3",
+        "choice": "Business Context"
+      },
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "fieldId": "fld4gG1ZjH3ETmqa3",
+        "choice": "Adjacent Functions"
+      },
+      {
+        "tableId": "tblipHzCl905T7o5F",
+        "fieldId": "fldtQVETmrrHUiYMw",
+        "choice": "read:brain-truth:incubation"
+      }
+    ]
+  },
+  "reconcileExistingTables": [
+    {
+      "logicalKey": "brainTruth",
+      "tableId": "tblipHzCl905T7o5F",
+      "name": "Brain Truth",
+      "preserveWithoutDeleteOrRecreate": true,
+      "exactExistingFields": [
+        {
+          "fieldId": "fldVxNhopdtZTjR6n"
+        },
+        {
+          "fieldId": "fldX79BWrIGBUccHT"
+        },
+        {
+          "fieldId": "fld8EiI0tAZh8tIs0"
+        },
+        {
+          "fieldId": "fldX0V2cpvYlwiWxh"
+        },
+        {
+          "fieldId": "fld0eIdJ9UEjSbstx"
+        },
+        {
+          "fieldId": "fldvBsrSKoy6YKjUf"
+        },
+        {
+          "fieldId": "fld4gG1ZjH3ETmqa3"
+        },
+        {
+          "fieldId": "fldtQVETmrrHUiYMw"
+        },
+        {
+          "fieldId": "fldFGVJhAUHTq7Xco"
+        },
+        {
+          "fieldId": "fldU57ic2fZWwFmlU"
+        }
+      ],
+      "allowedDelta": [
+        {
+          "name": "Text Characters",
+          "type": "formula",
+          "description": "Human-visible incubation cap. Counts Canonical Text only — not Canonical Text for Humans.",
+          "options": {
+            "formula": "LEN({fldX79BWrIGBUccHT}&\"\")"
+          }
+        }
+      ]
+    }
+  ],
+  "tableCreates": [],
+  "postCreateComputedFields": [
+    {
+      "tableId": "tblipHzCl905T7o5F",
+      "name": "Text Characters",
+      "type": "formula",
+      "description": "Human-visible incubation cap. Counts Canonical Text only — not Canonical Text for Humans.",
+      "expectedResultType": "number",
+      "options": {
+        "formula": "LEN({fldX79BWrIGBUccHT}&\"\")"
+      }
+    }
+  ],
+  "existingFieldExtensions": [
+    {
+      "tableId": "tblipHzCl905T7o5F",
+      "fieldId": "fld4gG1ZjH3ETmqa3",
+      "addSingleSelectChoice": "Definition"
+    },
+    {
+      "tableId": "tblipHzCl905T7o5F",
+      "fieldId": "fld4gG1ZjH3ETmqa3",
+      "addSingleSelectChoice": "Goals & Priorities"
+    },
+    {
+      "tableId": "tblipHzCl905T7o5F",
+      "fieldId": "fld4gG1ZjH3ETmqa3",
+      "addSingleSelectChoice": "Workflow"
+    },
+    {
+      "tableId": "tblipHzCl905T7o5F",
+      "fieldId": "fld4gG1ZjH3ETmqa3",
+      "addSingleSelectChoice": "Data & Metrics"
+    },
+    {
+      "tableId": "tblipHzCl905T7o5F",
+      "fieldId": "fld4gG1ZjH3ETmqa3",
+      "addSingleSelectChoice": "Rules & Guardrails"
+    },
+    {
+      "tableId": "tblipHzCl905T7o5F",
+      "fieldId": "fld4gG1ZjH3ETmqa3",
+      "addSingleSelectChoice": "Knowledge"
+    },
+    {
+      "tableId": "tblipHzCl905T7o5F",
+      "fieldId": "fld4gG1ZjH3ETmqa3",
+      "addSingleSelectChoice": "Examples & Edge Cases"
+    },
+    {
+      "tableId": "tblipHzCl905T7o5F",
+      "fieldId": "fld4gG1ZjH3ETmqa3",
+      "addSingleSelectChoice": "Open Questions"
+    },
+    {
+      "tableId": "tblipHzCl905T7o5F",
+      "fieldId": "fld4gG1ZjH3ETmqa3",
+      "addSingleSelectChoice": "Business Context"
+    },
+    {
+      "tableId": "tblipHzCl905T7o5F",
+      "fieldId": "fld4gG1ZjH3ETmqa3",
+      "addSingleSelectChoice": "Adjacent Functions"
+    },
+    {
+      "tableId": "tblipHzCl905T7o5F",
+      "fieldId": "fldtQVETmrrHUiYMw",
+      "addSingleSelectChoice": "read:brain-truth:incubation"
+    }
+  ],
+  "postCreateLinks": [],
+  "desiredFinalTables": [
+    {
+      "logicalKey": "brainTruth",
+      "tableId": "tblipHzCl905T7o5F",
+      "name": "Brain Truth"
+    }
+  ],
+  "buildSequence": [
+    "Reconcile existing Brain Truth; do not delete or recreate.",
+    "Create Text Characters formula if absent; skip if the live formula already matches.",
+    "Add universal Category choices; keep every legacy choice and ID.",
+    "Add Scope choice read:brain-truth:incubation; keep every existing choice and ID."
+  ],
+  "killCriteria": [
+    "No new base.",
+    "No record writes.",
+    "No deletes, renames, or recreates.",
+    "No Registry, Workshop, or Source Documents schema changes.",
+    "No automations, interfaces, or website behaviour changes.",
+    "Abort if Text Characters exists in a different shape."
+  ],
+  "contracts": {
+    "textCharactersCounts": "Canonical Text only, never Canonical Text for Humans",
+    "category": "add-only; preserve legacy choice IDs",
+    "scope": "add-only; preserve existing choice IDs"
+  },
+  "evidence": {
+    "matthewQuote": "Keep text characters, go ahead with the rest",
+    "challenger": "bc-07155bee-590b-52c6-bd2d-9821918d3c93 PROCEED",
+    "liveTextCharactersFieldId": "fldUnZSHrKHFcZQDz"
+  },
+  "gates": {
+    "buildChallenger": "PENDING_DELTA_PASS",
+    "exactProposalSignature": "PENDING_FRESH_MATTHEW_OR_CLIENT_SIGNATURE",
+    "proposalHash": "sha256-canonical-excluding-gates.proposalHash:3124d3a719e0cec6c0c6fbefa148a49271ebc7b5fbc865ba9cbe836ef210abbe",
+    "amberBuildJob": "NOT_AUTHORISED",
+    "automationActivation": "inert-saved-off"
+  }
+}

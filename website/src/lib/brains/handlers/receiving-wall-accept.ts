@@ -54,7 +54,7 @@ function userFacingAcceptError(
     if (detail.includes("403")) {
       // getWorkshopReadToken() falls back to WRITE_TOKEN when READ is unset;
       // name the credential that was actually used for the failing request.
-      if (process.env.BRAIN_WORKSHOP_READ_TOKEN) {
+      if (process.env.BRAIN_WORKSHOP_READ_TOKEN?.trim()) {
         return new Error(
           "This record could not be loaded for approval — the Workshop read token on the server may be missing or lack access. Check BRAIN_WORKSHOP_READ_TOKEN in Vercel.",
         );
@@ -132,7 +132,7 @@ export async function handleReceivingWallAccept(input: {
     existing = await airtableFindOne(
       baseId,
       tableId,
-      readToken ?? writeToken,
+      readToken || writeToken,
       `RECORD_ID()='${escapeAirtableString(recordId)}'`,
     );
   } catch (cause) {

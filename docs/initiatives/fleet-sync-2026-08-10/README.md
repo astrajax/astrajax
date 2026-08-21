@@ -19,6 +19,19 @@ python3 hyperagent/scripts/sync_hyperagent_fleet_to_airtable.py \
 
 Default is dry-run. Pass `--apply` to write.
 
+### Self-Update Executor (verify-pass)
+
+After Cursor verifies a Hyperagent self-update, write the household register without a Matthew click:
+
+```bash
+python3 hyperagent/scripts/sync_hyperagent_fleet_to_airtable.py \
+  --verify-pass-payload /tmp/self-update-pass.json
+```
+
+`--apply` updates live Members or Minions (System Prompt by field ID), updates live Skills, then **creates** Household Versions + Skill Versions (append-only, Change Source required). Rollback payloads (`rolled_back: true`) skip live Members/Minions/Skills and only snapshot Versions.
+
+Persona Config is not written on this path. Minions still never get Agent bases.
+
 ### What the writer still refuses
 
 These are safety rails, not a freeze:

@@ -151,18 +151,24 @@ export async function handleDocPromote(body: DocPromoteBody) {
     promotedRecordIds.push(trusted.id);
   }
 
-  await appendChangeLog({
-    changeSummary: `Promoted ${promotedRecordIds.length} draft(s) to Trusted Brain`,
-    changeType: "Truth Promote",
-    changedBy: body.approver.trim(),
-    approvedBy: body.approver.trim(),
-    executingAgent: "Doc",
-    reason: body.reason.trim(),
-    affectedRecords: promotedRecordIds.join(", "),
-    source: "Brain Key API",
-  });
-
+  // Revoke before the promote paper trail. Trusted rows and quarantined drafts
+  // already committed — a change-log failure must not leave Active keys alive.
   const revoked = await revokeGrantsForBrain(body.brainSlug.trim());
+
+  try {
+    await appendChangeLog({
+      changeSummary: `Promoted ${promotedRecordIds.length} draft(s) to Trusted Brain`,
+      changeType: "Truth Promote",
+      changedBy: body.approver.trim(),
+      approvedBy: body.approver.trim(),
+      executingAgent: "Doc",
+      reason: body.reason.trim(),
+      affectedRecords: promotedRecordIds.join(", "),
+      source: "Brain Key API",
+    });
+  } catch {
+    // Best-effort audit only — promote + revoke already succeeded.
+  }
 
   return {
     status: "promoted" as const,

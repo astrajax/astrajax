@@ -4,6 +4,10 @@
 Reads agent export JSONs (HyperAgent Downloads shape), upserts Household Register
 rows and existing Head Agent bases only. Minions never get Agent bases.
 
+Also supports Self-Update Executor verify-pass payloads: update live Members /
+Minions / Skills, then append-only Household Versions + Skill Versions (field IDs).
+Persona Config is skipped on the verify-pass path.
+
 Default is dry-run. Pass --apply to write. Every apply run writes a reversal log JSON
 under docs/initiatives/fleet-sync-2026-08-10/ and verifies it on disk.
 
@@ -13,6 +17,9 @@ Usage:
 
   python3 hyperagent/scripts/sync_hyperagent_fleet_to_airtable.py \\
     --input-dir ~/Downloads --apply
+
+  python3 hyperagent/scripts/sync_hyperagent_fleet_to_airtable.py \\
+    --verify-pass-payload /tmp/self-update-pass.json --apply
 
 Env: AIRTABLE_READ_TOKEN (dry-run reads), AIRTABLE_WRITE_TOKEN (--apply writes).
 Roster: hyperagent/scripts/fleet_sync_roster.json (Head/Minion classification).
@@ -42,11 +49,66 @@ REVERSAL_DIR = REPO_ROOT / "docs" / "initiatives" / "fleet-sync-2026-08-10"
 
 HOUSEHOLD_MEMBERS_TABLE = "tblJ70qtHUc1dUHhi"
 HOUSEHOLD_MINIONS_TABLE = "tbl6aVm9rgWoOBVfd"
+HOUSEHOLD_VERSIONS_TABLE = "tbleX09zbkUNKTGBz"
 REGISTER_SKILLS_TABLE = "tblAIXtDBBMrLuEYc"
+SKILL_VERSIONS_TABLE = "tbllp30BraLWgslhk"
 
 DEFAULT_CONFIG_NAME = "Operational v1.0 (HyperAgent sync)"
 ACTIVE_STATUSES = {"Approved", "Pending"}
+DEFAULT_CHANGE_SOURCE = "Matthew Directed"
+SKILL_FORGE_CHANGE_SOURCE = "Skill Forge Suggested - Matthew Approved"
+DEFAULT_CHANGE_REASON = "Improvement"
+ROLLBACK_CHANGE_REASON = "Broken/failing"
+VERIFY_PASS_KINDS = {"head", "minion", "skill"}
+VERIFY_PASS_PHASES = {"before", "after"}
 
+# Field IDs — write by ID for Versions / Skill Versions (Change Reason has a leading space).
+MEMBERS_FLD = {
+    "agent_slug": "fld3adhxC9WwS935R",
+    "agent_name": "fldYQIYPYklMv9o25",
+    "system_prompt": "fldKKvps3FIAvJdhh",
+    "purpose": "fldHCX9GT7fQsODDU",
+    "agent_base_id": "fldpdAqXBb58MAZH9",
+    "status": "fld9I4XUi9jiu8xjZ",
+}
+MINIONS_FLD = {
+    "agent_slug": "fldqd8ddmvGTtQh3M",
+    "agent_name": "fldlTDUvIG596QC00",
+    "purpose": "fld4FS5mDtZd3vRBP",
+    "system_prompt": "fldex5K15FTjEWoM7",
+    "status": "fldwLZTA2v3F5PLhU",
+}
+VERSIONS_FLD = {
+    "agent_slug": "fldy0d0D6zEip82p8",
+    "agent_name": "fldtGIHVsK3y28nmm",
+    "version": "fldDvg20ewtEjrniW",
+    "what_changed": "flduZ8UkPVR9WE18d",
+    "system_prompt": "fldfAv8yx5qm2IcBy",
+    "purpose": "fldcsXSMnxXCZNCXb",
+    "change_reason": "fldEy4G0Mz1417wDg",
+    "change_source": "fldx2PG3DUZA24wST",
+    "active_member": "fldpkuwk9h7oJOHGt",
+    "active_minions": "fldtzdMncynCN0eoa",
+    "skill_versions": "fldjOtUjHqWFkuTF4",
+}
+SKILLS_FLD = {
+    "skill_name": "fldz3v4xnWrwJtHTg",
+    "when_to_use": "fldn1mJwSeW931428",
+    "documentation": "fldjhLDOP6gVh9GQW",
+    "description": "fld75VHY6E0Zr0xrC",
+    "skill_versions": "fldVVfWjiWcgjG86x",
+}
+SKILL_VERSIONS_FLD = {
+    "skill_name": "fldkKBBvdvq1eroco",
+    "when_to_use": "fld8IsguINVEyZLlg",
+    "version": "fldV91UJWexPlUH5y",
+    "what_changed": "fldXzNy92Ydz0Spwx",
+    "change_reason": "fldEh3aXTh12qzrog",  # name has leading space
+    "change_source": "fldLL07K8ZOaVKJIw",
+    "documentation": "fld4YRaMFFfqM7n94",
+    "description": "fldSM1eWWdZuWYeKK",
+    "skills": "fldcNVX4NnfhcAYL8",
+}
 
 def fail(message: str, code: int = 1) -> None:
     print(json.dumps({"success": False, "error": message}), file=sys.stderr)
@@ -416,11 +478,14 @@ def plan_household_minion(
     rows = client.list_records(
         register_base,
         HOUSEHOLD_MINIONS_TABLE,
-        fields=["Agent Slug", "Agent Name", "Purpose", "Status"],
+        fields=["Agent Slug", "Agent Name", "Purpose", "System Prompt", "Status"],
         formula=formula,
     )
-    purpose = bundle.system_prompt or bundle.description
-    desired = {"Agent Name": bundle.name, "Purpose": purpose}
+    desired = {
+        "Agent Name": bundle.name,
+        "Purpose": bundle.description or "",
+        "System Prompt": bundle.system_prompt,
+    }
     if rows:
         row = rows[0]
         fields = row.get("fields") or {}
@@ -588,6 +653,360 @@ def plan_skills_for_table(
         )
 
 
+def _slugify(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", value.lower()).strip("-")
+
+
+def load_verify_pass_payload(path: Path) -> dict[str, Any]:
+    if not path.is_file():
+        fail(f"Verify-pass payload not found: {path}")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        fail("Verify-pass payload must be a JSON object")
+    kind = normalize_text(payload.get("kind")).lower()
+    if kind not in VERIFY_PASS_KINDS:
+        fail(f"Verify-pass payload kind must be head|minion|skill (got {kind!r})")
+    payload["kind"] = kind
+    payload["rolled_back"] = bool(payload.get("rolled_back"))
+    phase = normalize_text(payload.get("phase")).lower() or "after"
+    if phase not in VERIFY_PASS_PHASES:
+        fail(f"Verify-pass payload phase must be before|after (got {phase!r})")
+    payload["phase"] = phase
+    payload["change_source"] = normalize_text(payload.get("change_source")) or DEFAULT_CHANGE_SOURCE
+    payload["change_reason"] = normalize_text(payload.get("change_reason")) or (
+        ROLLBACK_CHANGE_REASON if payload["rolled_back"] else DEFAULT_CHANGE_REASON
+    )
+    payload["version"] = normalize_text(payload.get("version")) or datetime.now(timezone.utc).strftime(
+        "%Y%m%dT%H%M%SZ"
+    )
+    skills = payload.get("skills") or []
+    if not isinstance(skills, list):
+        fail("Verify-pass payload skills must be an array")
+    payload["skills"] = skills
+
+    if kind == "skill":
+        if not skills:
+            fail("Verify-pass payload kind=skill requires a non-empty skills array")
+        first_name = normalize_text((skills[0] or {}).get("name")) if isinstance(skills[0], dict) else ""
+        payload["slug"] = normalize_text(payload.get("slug")).lower() or _slugify(first_name)
+        if not payload["slug"]:
+            fail("Verify-pass payload kind=skill missing slug and skill name")
+        payload["what_changed"] = normalize_text(payload.get("what_changed")) or (
+            "Skill Forge rollback"
+            if payload["rolled_back"]
+            else ("Skill Forge before-snapshot" if phase == "before" else "Skill Forge verify pass")
+        )
+        payload["agent_name"] = normalize_text(payload.get("agent_name")) or payload["slug"]
+        payload["purpose"] = normalize_text(payload.get("purpose"))
+        payload["system_prompt"] = normalize_text(payload.get("system_prompt"))
+        return payload
+
+    for key in ("slug", "system_prompt"):
+        if not normalize_text(payload.get(key)):
+            fail(f"Verify-pass payload missing required key: {key}")
+    payload["slug"] = normalize_text(payload.get("slug")).lower()
+    payload["what_changed"] = normalize_text(payload.get("what_changed")) or (
+        "Self-Update rollback" if payload["rolled_back"] else "Self-Update verify pass"
+    )
+    payload["agent_name"] = normalize_text(payload.get("agent_name")) or payload["slug"]
+    payload["purpose"] = normalize_text(payload.get("purpose"))
+    return payload
+
+
+def find_live_row(
+    client: AirtableClient,
+    register_base: str,
+    table_id: str,
+    slug: str,
+) -> dict[str, Any] | None:
+    rows = client.list_records(
+        register_base,
+        table_id,
+        formula=eq_formula("Agent Slug", slug),
+    )
+    return rows[0] if rows else None
+
+
+def find_skill_row(
+    client: AirtableClient,
+    register_base: str,
+    skill_name: str,
+) -> dict[str, Any] | None:
+    rows = client.list_records(
+        register_base,
+        REGISTER_SKILLS_TABLE,
+        formula=eq_formula("Skill Name", skill_name),
+    )
+    return rows[0] if rows else None
+
+
+def plan_skill_register_writes(
+    client: AirtableClient,
+    register_base: str,
+    payload: dict[str, Any],
+    plan: SyncPlan,
+    *,
+    update_live: bool,
+) -> None:
+    """Skills + Skill Versions for Self-Update and Skill Forge. Same writer."""
+    slug = payload["slug"]
+    for skill in payload["skills"]:
+        if not isinstance(skill, dict):
+            continue
+        skill_name = normalize_text(skill.get("name"))
+        if not skill_name:
+            continue
+        skill_desired = {
+            SKILLS_FLD["when_to_use"]: normalize_text(skill.get("when_to_use") or skill.get("whenToUse")),
+            SKILLS_FLD["documentation"]: normalize_text(
+                skill.get("documentation") or skill.get("skillMdBody")
+            ),
+        }
+        description = normalize_text(skill.get("description"))
+        if description:
+            skill_desired[SKILLS_FLD["description"]] = description
+        existing_skill = find_skill_row(client, register_base, skill_name)
+        if update_live:
+            if existing_skill:
+                fields = existing_skill.get("fields") or {}
+                compare = {
+                    "When to Use": skill_desired[SKILLS_FLD["when_to_use"]],
+                    "Documentation": skill_desired[SKILLS_FLD["documentation"]],
+                }
+                if description:
+                    compare["Description"] = description
+                if all(normalize_text(fields.get(k)) == normalize_text(v) for k, v in compare.items()):
+                    plan.add(
+                        PlannedAction(
+                            action="skip",
+                            target="register_skill",
+                            slug=slug,
+                            record_id=existing_skill["id"],
+                            reason=skill_name,
+                        )
+                    )
+                else:
+                    plan.add(
+                        PlannedAction(
+                            action="update",
+                            target="register_skill",
+                            slug=slug,
+                            record_id=existing_skill["id"],
+                            fields=skill_desired,
+                            reason=skill_name,
+                        )
+                    )
+            else:
+                create_skill = {
+                    SKILLS_FLD["skill_name"]: skill_name,
+                    **skill_desired,
+                    "Provenance Status": "Pending",
+                    "Created By": "Agent",
+                    "Status": "Proposed",
+                }
+                plan.add(
+                    PlannedAction(
+                        action="create",
+                        target="register_skill",
+                        slug=slug,
+                        fields=create_skill,
+                        reason=skill_name,
+                    )
+                )
+        elif existing_skill:
+            plan.add(
+                PlannedAction(
+                    action="skip",
+                    target="register_skill",
+                    slug=slug,
+                    record_id=existing_skill["id"],
+                    reason=skill_name,
+                )
+            )
+
+        skill_version_fields = {
+            SKILL_VERSIONS_FLD["skill_name"]: skill_name,
+            SKILL_VERSIONS_FLD["when_to_use"]: skill_desired[SKILLS_FLD["when_to_use"]],
+            SKILL_VERSIONS_FLD["documentation"]: skill_desired[SKILLS_FLD["documentation"]],
+            SKILL_VERSIONS_FLD["version"]: normalize_text(skill.get("version")) or payload["version"],
+            SKILL_VERSIONS_FLD["what_changed"]: normalize_text(skill.get("what_changed"))
+            or payload["what_changed"],
+            SKILL_VERSIONS_FLD["change_reason"]: normalize_text(skill.get("change_reason"))
+            or payload["change_reason"],
+            SKILL_VERSIONS_FLD["change_source"]: normalize_text(skill.get("change_source"))
+            or payload["change_source"],
+        }
+        if description:
+            skill_version_fields[SKILL_VERSIONS_FLD["description"]] = description
+        plan.add(
+            PlannedAction(
+                action="create",
+                target="skill_version",
+                slug=slug,
+                fields=skill_version_fields,
+                reason=skill_name,
+            )
+        )
+
+
+def plan_verify_pass(
+    client: AirtableClient,
+    roster_raw: dict[str, Any],
+    agents: dict[str, AgentEntry],
+    payload: dict[str, Any],
+) -> SyncPlan:
+    """Plan register writes after Cursor verify. Never writes Persona Config."""
+    plan = SyncPlan()
+    register_base = roster_raw["household_register_base_id"]
+    slug = payload["slug"]
+    kind = payload["kind"]
+    rolled_back = payload["rolled_back"]
+    if kind == "skill":
+        update_live = (not rolled_back) and payload.get("phase") != "before"
+        plan_skill_register_writes(
+            client,
+            register_base,
+            payload,
+            plan,
+            update_live=update_live,
+        )
+        if rolled_back:
+            plan.skipped.append(f"{slug}: rolled_back — skipped live Skills updates")
+        elif payload.get("phase") == "before":
+            plan.skipped.append(f"{slug}: phase=before — Skill Versions snapshot only")
+        return plan
+
+    roster_entry = agents.get(slug)
+    if roster_entry and roster_entry.kind != kind:
+        plan.errors.append(f"{slug}: payload kind {kind!r} != roster kind {roster_entry.kind!r}")
+        return plan
+    if roster_entry and roster_entry.base_id and roster_entry.base_id in set(roster_raw.get("blocked_base_ids") or []):
+        plan.errors.append(f"{slug}: blocked base {roster_entry.base_id}")
+        return plan
+
+    live_table = HOUSEHOLD_MEMBERS_TABLE if kind == "head" else HOUSEHOLD_MINIONS_TABLE
+    live_target = "household_member" if kind == "head" else "household_minion"
+    live_row = find_live_row(client, register_base, live_table, slug)
+
+    if not rolled_back:
+        if kind == "head":
+            desired = {
+                MEMBERS_FLD["agent_name"]: payload["agent_name"],
+                MEMBERS_FLD["system_prompt"]: payload["system_prompt"],
+                MEMBERS_FLD["purpose"]: payload["purpose"],
+            }
+            if roster_entry and roster_entry.base_id:
+                desired[MEMBERS_FLD["agent_base_id"]] = roster_entry.base_id
+        else:
+            desired = {
+                MINIONS_FLD["agent_name"]: payload["agent_name"],
+                MINIONS_FLD["system_prompt"]: payload["system_prompt"],
+                MINIONS_FLD["purpose"]: payload["purpose"],
+            }
+
+        if live_row:
+            fields = live_row.get("fields") or {}
+            # Compare using human names when present in list response; IDs on write.
+            name_map = (
+                {
+                    MEMBERS_FLD["agent_name"]: "Agent Name",
+                    MEMBERS_FLD["system_prompt"]: "System Prompt",
+                    MEMBERS_FLD["purpose"]: "Purpose",
+                    MEMBERS_FLD["agent_base_id"]: "Agent Base ID",
+                }
+                if kind == "head"
+                else {
+                    MINIONS_FLD["agent_name"]: "Agent Name",
+                    MINIONS_FLD["system_prompt"]: "System Prompt",
+                    MINIONS_FLD["purpose"]: "Purpose",
+                }
+            )
+            if all(
+                normalize_text(fields.get(name_map[fid])) == normalize_text(value)
+                for fid, value in desired.items()
+                if fid in name_map
+            ):
+                plan.add(
+                    PlannedAction(
+                        action="skip",
+                        target=live_target,
+                        slug=slug,
+                        record_id=live_row["id"],
+                        reason="already up to date",
+                    )
+                )
+            else:
+                plan.add(
+                    PlannedAction(
+                        action="update",
+                        target=live_target,
+                        slug=slug,
+                        record_id=live_row["id"],
+                        fields=desired,
+                    )
+                )
+        else:
+            create_fields = dict(desired)
+            if kind == "head":
+                create_fields[MEMBERS_FLD["agent_slug"]] = slug
+                create_fields[MEMBERS_FLD["status"]] = "Active"
+            else:
+                create_fields[MINIONS_FLD["agent_slug"]] = slug
+                create_fields[MINIONS_FLD["status"]] = "Active"
+            plan.add(
+                PlannedAction(
+                    action="create",
+                    target=live_target,
+                    slug=slug,
+                    fields=create_fields,
+                )
+            )
+
+        plan_skill_register_writes(
+            client,
+            register_base,
+            payload,
+            plan,
+            update_live=True,
+        )
+    elif payload["skills"]:
+        plan_skill_register_writes(
+            client,
+            register_base,
+            payload,
+            plan,
+            update_live=False,
+        )
+
+    # Always append Household Versions (pass or rollback log).
+    version_fields = {
+        VERSIONS_FLD["agent_slug"]: slug,
+        VERSIONS_FLD["agent_name"]: payload["agent_name"],
+        VERSIONS_FLD["version"]: payload["version"],
+        VERSIONS_FLD["what_changed"]: payload["what_changed"],
+        VERSIONS_FLD["system_prompt"]: payload["system_prompt"],
+        VERSIONS_FLD["purpose"]: payload["purpose"],
+        VERSIONS_FLD["change_reason"]: payload["change_reason"],
+        VERSIONS_FLD["change_source"]: payload["change_source"],
+    }
+    if live_row:
+        link_key = VERSIONS_FLD["active_member"] if kind == "head" else VERSIONS_FLD["active_minions"]
+        version_fields[link_key] = [live_row["id"]]
+    plan.add(
+        PlannedAction(
+            action="create",
+            target="household_version",
+            slug=slug,
+            fields=version_fields,
+        )
+    )
+
+    if rolled_back:
+        plan.skipped.append(f"{slug}: rolled_back — skipped live Members/Minions/Skills updates")
+
+    return plan
+
+
 def build_plan(
     client: AirtableClient,
     roster_raw: dict[str, Any],
@@ -671,7 +1090,13 @@ def apply_plan(
         "errors": list(plan.errors),
     }
 
-    table_ids: dict[tuple[str, str], str] = {}
+    table_ids: dict[tuple[str, str], str] = {
+        (register_base, "Household Members"): HOUSEHOLD_MEMBERS_TABLE,
+        (register_base, "Household Minions"): HOUSEHOLD_MINIONS_TABLE,
+        (register_base, "Household Versions"): HOUSEHOLD_VERSIONS_TABLE,
+        (register_base, "Skills"): REGISTER_SKILLS_TABLE,
+        (register_base, "Skill Versions"): SKILL_VERSIONS_TABLE,
+    }
 
     def tid(base_id: str, table_name: str) -> str:
         key = (base_id, table_name)
@@ -682,14 +1107,43 @@ def apply_plan(
             table_ids[key] = resolved
         return table_ids[key]
 
+    # Skill name → live Skills record id (for Skill Versions link).
+    skill_ids_by_name: dict[str, str] = {}
+    created_skill_version_ids: list[str] = []
+    # slug → ("head"|"minion", record_id) so Versions can link newly created live rows.
+    live_ids_by_slug: dict[str, tuple[str, str]] = {}
+
+    # First pass: live rows + skills (so version links can resolve).
+    deferred_versions: list[PlannedAction] = []
+    deferred_skill_versions: list[PlannedAction] = []
+
+    def remember_live(item: PlannedAction, record_id: str | None) -> None:
+        if not record_id:
+            return
+        if item.target == "household_member":
+            live_ids_by_slug[item.slug] = ("head", record_id)
+        elif item.target == "household_minion":
+            live_ids_by_slug[item.slug] = ("minion", record_id)
+
     for item in plan.actions:
         if item.action == "skip":
             reversal["skipped"].append(
                 {"target": item.target, "slug": item.slug, "record_id": item.record_id, "reason": item.reason}
             )
+            remember_live(item, item.record_id)
+            if item.target == "register_skill" and item.record_id:
+                name = normalize_text(item.reason or "")
+                if name:
+                    skill_ids_by_name[name] = item.record_id
             continue
         if item.action == "refuse":
             reversal["refused"].append({"target": item.target, "slug": item.slug, "reason": item.reason})
+            continue
+        if item.target == "household_version":
+            deferred_versions.append(item)
+            continue
+        if item.target == "skill_version":
+            deferred_skill_versions.append(item)
             continue
 
         if item.target == "household_member":
@@ -718,6 +1172,13 @@ def apply_plan(
                 reversal["created"].append(
                     {"target": item.target, "slug": item.slug, "base_id": base, "record_id": row["id"], "fields": item.fields}
                 )
+                remember_live(item, row["id"])
+                if item.target == "register_skill":
+                    name = normalize_text(
+                        item.fields.get(SKILLS_FLD["skill_name"]) or item.fields.get("Skill Name")
+                    )
+                    if name:
+                        skill_ids_by_name[name] = row["id"]
         elif item.action == "update":
             if not item.record_id:
                 fail(f"Update missing record_id for {item.slug}/{item.target}")
@@ -731,8 +1192,95 @@ def apply_plan(
                     "fields": item.fields,
                 }
             )
+            remember_live(item, item.record_id)
+            if item.target == "register_skill" and item.record_id:
+                name = normalize_text(item.reason or "")
+                if name:
+                    skill_ids_by_name[name] = item.record_id
         else:
             fail(f"Unknown action {item.action}")
+
+    # Skill Versions (append-only), then link from live Skills and Household Versions.
+    skill_versions_table = tid(register_base, "Skill Versions")
+    new_version_ids_by_skill: dict[str, list[str]] = {}
+    for item in deferred_skill_versions:
+        fields = dict(item.fields)
+        skill_name = normalize_text(item.reason) or normalize_text(fields.get(SKILL_VERSIONS_FLD["skill_name"]))
+        skill_id = skill_ids_by_name.get(skill_name)
+        if not skill_id and skill_name:
+            existing = find_skill_row(client, register_base, skill_name)
+            if existing:
+                skill_id = existing["id"]
+                skill_ids_by_name[skill_name] = skill_id
+        if skill_id:
+            fields[SKILL_VERSIONS_FLD["skills"]] = [skill_id]
+        created = client.create_records(register_base, skill_versions_table, [fields])
+        for row in created:
+            created_skill_version_ids.append(row["id"])
+            if skill_name:
+                new_version_ids_by_skill.setdefault(skill_name, []).append(row["id"])
+            reversal["created"].append(
+                {
+                    "target": item.target,
+                    "slug": item.slug,
+                    "base_id": register_base,
+                    "record_id": row["id"],
+                    "fields": fields,
+                }
+            )
+
+    skills_table = tid(register_base, "Skills")
+    for skill_name, version_ids in new_version_ids_by_skill.items():
+        skill_id = skill_ids_by_name.get(skill_name)
+        if not skill_id:
+            continue
+        existing = find_skill_row(client, register_base, skill_name)
+        raw_links = []
+        if existing:
+            fields = existing.get("fields") or {}
+            raw_links = fields.get("Skill Versions") or fields.get(SKILLS_FLD["skill_versions"]) or []
+        existing_ids = [
+            link if isinstance(link, str) else str((link or {}).get("id") or "")
+            for link in raw_links
+        ]
+        merged = [item for item in list(dict.fromkeys([*existing_ids, *version_ids])) if item]
+        client.update_records(
+            register_base,
+            skills_table,
+            [(skill_id, {SKILLS_FLD["skill_versions"]: merged})],
+        )
+        reversal["updated"].append(
+            {
+                "target": "register_skill_versions_link",
+                "slug": skill_name,
+                "base_id": register_base,
+                "record_id": skill_id,
+                "fields": {SKILLS_FLD["skill_versions"]: merged},
+            }
+        )
+
+    versions_table = tid(register_base, "Household Versions")
+    for item in deferred_versions:
+        fields = dict(item.fields)
+        if created_skill_version_ids:
+            fields[VERSIONS_FLD["skill_versions"]] = list(created_skill_version_ids)
+        if VERSIONS_FLD["active_member"] not in fields and VERSIONS_FLD["active_minions"] not in fields:
+            live = live_ids_by_slug.get(item.slug)
+            if live:
+                kind, record_id = live
+                link_key = VERSIONS_FLD["active_member"] if kind == "head" else VERSIONS_FLD["active_minions"]
+                fields[link_key] = [record_id]
+        created = client.create_records(register_base, versions_table, [fields])
+        for row in created:
+            reversal["created"].append(
+                {
+                    "target": item.target,
+                    "slug": item.slug,
+                    "base_id": register_base,
+                    "record_id": row["id"],
+                    "fields": fields,
+                }
+            )
 
     return reversal
 
@@ -777,8 +1325,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--input-dir",
         type=Path,
-        required=True,
         help="Directory of HyperAgent agent export JSON files",
+    )
+    parser.add_argument(
+        "--verify-pass-payload",
+        type=Path,
+        help="Self-Update Executor verify-pass JSON (register write after Cursor verify)",
     )
     parser.add_argument(
         "--roster",
@@ -801,17 +1353,56 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Reserved: only for explicit Head base creation (not used for minions)",
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    if bool(args.input_dir) == bool(args.verify_pass_payload):
+        fail("Provide exactly one of --input-dir or --verify-pass-payload")
+    return args
 
 
 def main() -> None:
     args = parse_args()
     roster_raw, agents = load_roster(args.roster)
+    client = AirtableClient(token_for_mode(args.apply))
+
+    if args.verify_pass_payload:
+        payload = load_verify_pass_payload(args.verify_pass_payload.expanduser())
+        plan = plan_verify_pass(client, roster_raw, agents, payload)
+        print_plan_summary(plan, apply=args.apply)
+        if plan.errors:
+            fail("Plan has blocking errors — fix before apply")
+        if not args.apply:
+            print(
+                json.dumps(
+                    {
+                        "success": True,
+                        "mode": "dry-run",
+                        "path": "verify-pass",
+                        "slug": payload["slug"],
+                        "rolled_back": payload["rolled_back"],
+                    },
+                    indent=2,
+                )
+            )
+            return
+        reversal = apply_plan(client, roster_raw, agents, plan)
+        log_path = write_reversal_log(reversal)
+        print(
+            json.dumps(
+                {
+                    "success": True,
+                    "mode": "apply",
+                    "path": "verify-pass",
+                    "reversal_log": str(log_path.relative_to(REPO_ROOT)),
+                },
+                indent=2,
+            )
+        )
+        return
+
     exports = load_exports(args.input_dir.expanduser(), roster_raw, agents)
     if not exports:
         fail(f"No roster-matched exports found in {args.input_dir}")
 
-    client = AirtableClient(token_for_mode(args.apply))
     plan = build_plan(
         client,
         roster_raw,

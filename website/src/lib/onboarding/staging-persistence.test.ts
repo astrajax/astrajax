@@ -55,4 +55,41 @@ describe("onboarding staging persistence", () => {
     expect(restored?.files).toHaveLength(1);
     expect(restored?.files[0]?.blobUrl).toContain("private.blob");
   });
+
+  it("restores an interrupted filing as retryable, not filed", () => {
+    const restored = sanitizeRestoredFiles([
+      {
+        id: "a",
+        name: "done.pdf",
+        extension: ".pdf",
+        sizeBytes: 10,
+        state: "uploaded",
+        blobUrl: "https://example.private.blob.vercel-storage.com/a",
+        filing: "filing",
+      },
+    ]);
+    expect(restored[0]?.filing).toBe("not-filed");
+    expect(restored[0]?.filingError).toMatch(/retry/i);
+  });
+
+  it("keeps a completed filing intact across reload", () => {
+    writeOnboardingStaging({
+      files: [
+        {
+          id: "a",
+          name: "done.pdf",
+          extension: ".pdf",
+          sizeBytes: 10,
+          state: "uploaded",
+          filing: "filed",
+          sourceDocumentRecordId: "recFiled1234567",
+          blobDeleted: true,
+        },
+      ],
+      supportingFile: null,
+    });
+    const restored = readOnboardingStaging();
+    expect(restored?.files[0]?.filing).toBe("filed");
+    expect(restored?.files[0]?.sourceDocumentRecordId).toBe("recFiled1234567");
+  });
 });

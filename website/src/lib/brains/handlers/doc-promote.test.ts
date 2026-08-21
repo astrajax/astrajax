@@ -380,4 +380,91 @@ describe("Doc promote (airtable mode)", () => {
       }),
     ).rejects.toThrow(/BRAIN_DOC_PROMOTE_TOKEN is not configured/);
   });
+
+  it("still revokes Active grants when the promote change-log write fails", async () => {
+    const mockFetch = vi.mocked(fetch);
+    const revokedIds: string[] = [];
+
+    mockFetch.mockImplementation(async (input, init) => {
+      const url = String(input);
+      const method = init?.method ?? "GET";
+
+      if (method === "GET" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
+        return new Response(
+          JSON.stringify({
+            records: [
+              {
+                id: "recDraft1",
+                fields: {
+                  Title: "Draft title",
+                  "Canonical Text for Agents": "Draft canonical body",
+                  "Brain Slug": "astrajax-chapter-1",
+                  Status: "Approved",
+                },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
+
+      if (method === "PATCH" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
+        return new Response(JSON.stringify({ id: "recDraft1", fields: { Status: "Quarantined" } }), {
+          status: 200,
+        });
+      }
+
+      if (method === "POST" && url.includes(BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth)) {
+        return new Response(JSON.stringify({ id: "recTrusted1", fields: {} }), { status: 200 });
+      }
+
+      if (method === "GET" && url.includes(BRAIN_REGISTRY_TABLES.accessGrants)) {
+        return new Response(
+          JSON.stringify({
+            records: [{ id: "recGrantAlive", fields: { "Grant ID": "grant_alive" } }],
+          }),
+          { status: 200 },
+        );
+      }
+
+      if (method === "PATCH" && url.includes(BRAIN_REGISTRY_TABLES.accessGrants)) {
+        const id = url.split("/").pop() ?? "";
+        revokedIds.push(id);
+        return new Response(JSON.stringify({ id, fields: { Status: "Revoked" } }), {
+          status: 200,
+        });
+      }
+
+      if (method === "GET" && url.includes(BRAIN_REGISTRY_TABLES.changeLog)) {
+        return new Response(JSON.stringify({ records: [] }), { status: 200 });
+      }
+
+      if (method === "POST" && url.includes(BRAIN_REGISTRY_TABLES.changeLog)) {
+        return new Response(JSON.stringify({ error: { message: "change log down" } }), {
+          status: 503,
+        });
+      }
+
+      return new Response(JSON.stringify({ records: [] }), { status: 200 });
+    });
+
+    const result = await handleDocPromote({
+      approvalDecisionId: "apd_revoke_despite_log",
+      brainSlug: "astrajax-chapter-1",
+      promotions: [
+        {
+          draftRecordId: "recDraft1",
+          category: "Positioning",
+          scope: "read:brain-truth:positioning",
+        },
+      ],
+      approver: "Matthew",
+      reason: "promote must revoke even if audit fails",
+    });
+
+    expect(result.status).toBe("promoted");
+    expect(result.promotedRecordIds).toEqual(["recTrusted1"]);
+    expect(result.revokedGrants).toBe(1);
+    expect(revokedIds).toEqual(["recGrantAlive"]);
+  });
 });

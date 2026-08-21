@@ -275,13 +275,16 @@ export async function resolveBrainRegistryRecordId(
   const cached = registryCache.get(cacheKey);
   if (cached !== undefined) return cached;
 
+  // Do not .catch→null here: a transient Airtable failure must not be cached as
+  // "brain missing". Warm serverless instances would keep refusing every Draft
+  // create for that slug until the process recycled.
   const record = await airtableFindOne(
     baseId,
     BRAIN_WORKSHOP_TABLES.brainRegistry,
     token,
     `{Brain Slug}='${escapeAirtableString(slug)}'`,
     [BRAIN_WORKSHOP_BRAIN_REGISTRY_FIELDS.brainSlug],
-  ).catch(() => null);
+  );
 
   const recordId = record?.id ?? null;
   registryCache.set(cacheKey, recordId);
@@ -311,6 +314,8 @@ export async function listActiveProjects(
   const cached = activeProjectsCache.get(baseId);
   if (cached) return cached;
 
+  // Same poison rule as registry resolve: never cache an empty roster from a
+  // failed fetch, or the HEAD would keep deciding "no projects" after a blip.
   const records = await airtableSelect(baseId, BRAIN_WORKSHOP_TABLES.projects, token, {
     filterByFormula: `{Lifecycle}='${BRAIN_WORKSHOP_PROJECT_LIFECYCLE.active.name}'`,
     fields: [
@@ -318,7 +323,7 @@ export async function listActiveProjects(
       BRAIN_WORKSHOP_PROJECTS_FIELDS.lifecycle,
     ],
     paginate: true,
-  }).catch(() => []);
+  });
 
   const rows: ActiveProject[] = [];
   for (const record of records) {

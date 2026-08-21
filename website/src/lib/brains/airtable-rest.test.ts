@@ -1,6 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   AIRTABLE_MAX_PAGES,
+  AIRTABLE_URL_ATTACH_TIMEOUT_MS,
+  airtableAttachFromUrl,
   airtableCreate,
   airtableFindOne,
   airtableSelect,
@@ -112,6 +114,50 @@ describe("airtable-rest", () => {
     await expect(
       airtableFindOne("appTest", "tblTest", "patToken", "{ID}='x'"),
     ).rejects.toThrow("Airtable API error 403");
+  });
+
+  it("attaches from a URL with the longer URL-attach timeout budget", async () => {
+    const mockFetch = vi.mocked(fetch);
+    mockFetch.mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          id: "recAttach1",
+          fields: { Attachment: [{ url: "https://cdn.example/f.pdf" }] },
+        }),
+        { status: 200 },
+      ),
+    );
+
+    const record = await airtableAttachFromUrl(
+      "appTest",
+      "tblTest",
+      "recAttach1",
+      "Attachment",
+      "patToken",
+      {
+        url: "https://signed.example/onboarding-uploads/f.pdf?sig=1",
+        filename: "f.pdf",
+      },
+    );
+
+    expect(record.id).toBe("recAttach1");
+    expect(AIRTABLE_URL_ATTACH_TIMEOUT_MS).toBe(60_000);
+    expect(mockFetch).toHaveBeenCalledWith(
+      "https://api.airtable.com/v0/appTest/tblTest/recAttach1",
+      expect.objectContaining({
+        method: "PATCH",
+        body: JSON.stringify({
+          fields: {
+            Attachment: [
+              {
+                url: "https://signed.example/onboarding-uploads/f.pdf?sig=1",
+                filename: "f.pdf",
+              },
+            ],
+          },
+        }),
+      }),
+    );
   });
 
   it("escapes single quotes for Airtable formula literals", () => {

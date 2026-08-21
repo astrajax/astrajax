@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ristral cursor-write helper (D1) — Scout Watch Roster Last Scanned only.
+"""Ristral cursor-write helper (D1) — Household Members Last Scanned only.
 
 Structural bound (Pam D1; mirrors the Context Amendment Execute rail):
 
@@ -32,9 +32,11 @@ import urllib.request
 from datetime import datetime, timezone
 
 WORKSHOP_BASE_ID = "appL2fdnGmhA02WXd"  # AstraJax Brain Workshop base
+# Workshop Household Members overlay — the fly list after Watch Roster retired.
+DEFAULT_MEMBERS_TABLE_ID = "tblUXYgkTpbxakFjc"
 ROSTER_TABLE_PLACEHOLDER = "SCOUT_WATCH_ROSTER_TABLE_ID"
 CHANGE_LOG_TABLE_PLACEHOLDER = "SCOUT_CHANGE_LOG_TABLE_ID"
-ROSTER_TABLE_ID = os.environ.get("RISTRAL_SCOUT_ROSTER_TABLE_ID", ROSTER_TABLE_PLACEHOLDER)
+ROSTER_TABLE_ID = os.environ.get("RISTRAL_SCOUT_ROSTER_TABLE_ID", DEFAULT_MEMBERS_TABLE_ID)
 CHANGE_LOG_TABLE_ID = os.environ.get(
     "RISTRAL_SCOUT_CHANGE_LOG_TABLE_ID", CHANGE_LOG_TABLE_PLACEHOLDER
 )
@@ -54,8 +56,8 @@ def _fail(message: str) -> None:
 def _require_table_id(table_id: str, env_key: str, placeholder: str) -> str:
     if table_id == placeholder or not table_id.startswith("tbl"):
         _fail(
-            f"{env_key} not configured — set after Ruth resolves scout table ids "
-            f"(expected Airtable table id tbl...)"
+            f"{env_key} not configured — expected Airtable table id tbl... "
+            f"(Household Members overlay {DEFAULT_MEMBERS_TABLE_ID})"
         )
     return table_id
 
@@ -95,7 +97,7 @@ def _resolve_last_scanned_field_id(roster_table_id: str) -> str:
             for field in table.get("fields", []):
                 if field.get("name") == "Last Scanned":
                     return field.get("id")
-    _fail("could not resolve 'Last Scanned' field ID on the roster table")
+    _fail("could not resolve 'Last Scanned' field ID on Household Members")
 
 
 def _preflight(payload: dict) -> tuple[str, dict]:

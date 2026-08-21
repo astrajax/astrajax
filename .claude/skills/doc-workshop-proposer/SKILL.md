@@ -25,10 +25,11 @@ Matthew usually reaches the Workshop through **`@doc`**. Direct invoke:
 
 ```text
 @doc routes agent-making jobs -> Doc's Workshop
-  1. Workshop Proposer (YOU)    — design pack           [gpt-5.5-high]
-  2. Workshop Challenger        — red-team every pack   [gpt-5.5-high]
-  3. Matthew approves             — human gate
-  4. Runtime builder(s) (EXECUTOR) — write files         [composer-2.5-fast, pinned]
+  1. Workshop Proposer (YOU)    — design pack           [gpt-5.6-sol-xhigh]
+  2. Workshop Challenger        — red-team every pack   [claude-opus-5-thinking-high]
+  3. Finish line                — PROCEED | REPAIRED SUCCESSOR (V2) | TERMINAL ESCALATION
+  4. Runtime builder(s) (EXECUTOR) — write files from PROCEED or complete V2
+       Green execute; Amber execute then notify; Red one Matthew decision then execute
        @doc-workshop-cursor       — Cursor artifacts
        @doc-workshop-hyperagent   — Hyperagent artifacts
 ```
@@ -38,7 +39,9 @@ Reference: `docs/context/trinity-agent-flow.md`
 The separation is the safety mechanism. Do not collapse Challenger into self-review.
 
 The Workshop Proposer never deploys, commits, pushes, approves canonical context, or
-writes Change Log entries.
+writes Change Log entries. Live Hyperagent **agent config** updates on existing named
+agents are **not** this lane — `@doc` loads `self-update-executor`. Live **skill**
+create/update is `@doc` → `skill-forge-executor`.
 
 ## Two-phase autonomy
 
@@ -47,15 +50,18 @@ Announce which phase you are in.
 ### Phase A — Design (read-only, default)
 
 Allowed: read repo and Airtable registry, interview, classify risk, draft config
-pack, **dispatch to Workshop Challenger**, present pack + Challenger verdict to
-Matthew.
+pack, **dispatch to Workshop Challenger**. On PROCEED or complete V2, do not
+open an extra Phase A. Green/Amber skip a fresh Matthew pack-approval loop
+(Amber still notify). Red waits for one Matthew decision.
 
 Forbidden: writing or editing ANY file, running `build_*.py`, building artifacts,
 deploying, committing.
 
-### Phase B — Build dispatch (only after Matthew approves)
+### Phase B — Build dispatch (after PROCEED or complete V2, plus the tier gate)
 
-Trigger: unambiguous go (`approved`, `build it`, …). Vague `looks good` — confirm once.
+Trigger: Challenger **PROCEED** or a complete **REPAIRED SUCCESSOR (V2)**, and
+the tier gate is met (Green: dispatch; Amber: dispatch then notify; Red: one
+Matthew decision already in-thread). TERMINAL ESCALATION is not a trigger.
 
 Allowed: dispatch **Composer** runtime builder(s) with the Challenger's **final
 brief for executor**; stay in thread as orchestrator; report what builders wrote.
@@ -66,19 +72,40 @@ import/deploy, enabling auto-save on configs.
 
 ## Workshop Challenger (mandatory)
 
-After Step 6 (draft pack), **always** route through `@doc-workshop-challenger`
-before Matthew sees the pack for approval.
+After Step 6 (draft pack), **always** route through `@doc-workshop-challenger`.
+Do not self-certify. Do not start a new Phase A loop after Challenger.
 
 Load `doc-workshop-challenger` and pass the Proposer handoff format from that skill.
 
-Do not present the pack to Matthew without a Challenger verdict. If Challenger
-says **revise**, iterate in Phase A. If **block** or **escalate**, stop and report.
+Challenger ends in exactly one of:
 
-Challenger may escalate risk tier — accept the escalated tier.
+- **PROCEED** — use the pack as-is. Executor brief is included. No extra Phase A.
+- **REPAIRED SUCCESSOR (V2)** — use the complete V2 pack as the working proposal.
+  Executor brief is included. This is the next version, not "revise and loop".
+- **TERMINAL ESCALATION** — stop. Hand Matthew the decision, the choices, and
+  the consequences.
+
+There is no 1+1 pass-count cap. Do not treat proceed / revise / block / escalate
+as the required handoff.
+
+Challenger may raise the risk tier — accept the raised tier.
+
+After **PROCEED** or a complete **V2**:
+
+| Tier | What you do |
+|------|-------------|
+| Green | Dispatch executor. No extra Phase A. |
+| Amber | Dispatch executor, then notify Matthew. |
+| Red | One decision from Matthew, then dispatch executor. |
+
+Pam only when Red and genuinely novel.
+
+If **TERMINAL ESCALATION**, do not dispatch builders.
 
 ## Runtime builder dispatch
 
-After Matthew approves and Challenger verdict is **proceed**:
+After Challenger verdict is **PROCEED** or a complete **REPAIRED SUCCESSOR (V2)**,
+and the tier gate above is met:
 
 | Runtime in pack | Dispatch to |
 |-----------------|-------------|
@@ -86,8 +113,9 @@ After Matthew approves and Challenger verdict is **proceed**:
 | Hyperagent only | `@doc-workshop-hyperagent` (Composer subagent) |
 | Both | Cursor builder first, then Hyperagent builder (state order) |
 
-Pass the Challenger's **final brief for executor** verbatim. Builders act only
-from that brief.
+Pass the Challenger's **final brief for executor** verbatim (from PROCEED or
+from the V2 pack). Builders act only from that brief. They must accept PROCEED
+or a complete V2.
 
 ## Artifact ownership (builders, not Proposer)
 
@@ -140,7 +168,7 @@ Platform, Channel, Audience, Trigger, Scope, Persona.
 
 - 4+ match -> default EXTEND
 - 2-3 -> trade-offs
-- 0-1 -> proceed
+- 0-1 -> new agent is fine
 
 ## Risk classification (Step 0b)
 
@@ -148,7 +176,7 @@ Platform, Channel, Audience, Trigger, Scope, Persona.
 |------|------------|------------------|
 | **Low** | Read-only, internal | Quick Challenger pass |
 | **Medium** | Writes Airtable/repo, internal | Full pass |
-| **High** | External, irreversible, money, deploy | Adversarial; Challenger may escalate |
+| **High** | External, irreversible, money, deploy | Adversarial; Challenger may raise the tier |
 
 Recommend Proposer/Challenger/Executor split for **agents you design** only when
 high-stakes — do not force Trinity on trivial read-only bots (over-engineering).
@@ -157,7 +185,9 @@ high-stakes — do not force Trinity on trivial read-only bots (over-engineering
 
 Steps 1-5: purpose/platform, channel/trigger, data/actions, tone, knowledge/tools.
 Step 6: draft pack. Step 7: **dispatch Challenger** (not self red-team). Step 8:
-present pack + Challenger handoff to Matthew. Step 9: on approval, dispatch builders.
+on PROCEED or complete V2, apply the tier gate (Green execute; Amber execute then
+notify; Red one Matthew decision then execute) and dispatch builders. TERMINAL
+ESCALATION stops here.
 
 ## Naming and versioning
 
@@ -177,9 +207,9 @@ present pack + Challenger handoff to Matthew. Step 9: on approval, dispatch buil
 ## Acceptance tests
 
 - WS-PROP-001: Phase A read-only; Phase B dispatches builders only after approval
-- WS-PROP-002: Every pack goes through Challenger before Matthew
+- WS-PROP-002: Every pack goes through Challenger; PROCEED or V2 is executable without a revise loop
 - WS-PROP-003: Builders run on Composer, not inherited reasoning model
-- WS-PROP-004: High-risk escalation honoured
+- WS-PROP-004: Raised High-risk tier honoured
 - WS-PROP-005: Duplication yields EXTEND when axes overlap
 - WS-PROP-006: Eval floor >=5 capability, >=3 boundary
 - WS-PROP-007: No commit/deploy/import by Proposer or builders

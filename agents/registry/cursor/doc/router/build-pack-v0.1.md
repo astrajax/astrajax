@@ -23,6 +23,13 @@ that minion's skill. Opus-class reasoning for routing; Composer for Phase B buil
 | Doc Brain Base Builder | `doc-brain-base-builder` | `doc-brain-base-builder` |
 | Vercel Minion | `doc-vercel-minion` | `doc-vercel-minion` |
 
+## Live Hyperagent updates
+
+Not a minion. Existing named **agent config** → `@doc` loads `self-update-executor`.
+**Skill** create/update → `@doc` loads `skill-forge-executor` (Skill Forge via hosted
+MCP; Cursor persists `draft_save`). Workshop Hyperagent Builder stays first-time
+exports only.
+
 ## Invoke
 
 ```text

@@ -88,4 +88,27 @@ describe("listActiveProjects", () => {
       ),
     ).resolves.toBeNull();
   });
+
+  it("does not cache an empty roster when Airtable fails", async () => {
+    selectMock
+      .mockRejectedValueOnce(new Error("Airtable API error 503: unavailable"))
+      .mockResolvedValueOnce([
+        {
+          id: "rechmkpaan4o4R6CT",
+          fields: {
+            [BRAIN_WORKSHOP_PROJECTS_FIELDS.projectName]: "Manage AstraJax Context On-Platform",
+          },
+        },
+      ]);
+
+    await expect(listActiveProjects("appL2fdnGmhA02WXd", "pat")).rejects.toThrow(/503/);
+
+    await expect(listActiveProjects("appL2fdnGmhA02WXd", "pat")).resolves.toEqual([
+      {
+        recordId: "rechmkpaan4o4R6CT",
+        projectName: "Manage AstraJax Context On-Platform",
+      },
+    ]);
+    expect(selectMock).toHaveBeenCalledTimes(2);
+  });
 });

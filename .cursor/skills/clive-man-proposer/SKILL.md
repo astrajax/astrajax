@@ -12,6 +12,11 @@ description: >-
 Draft the first context action (**Lane B only**). Preserve sources, state
 uncertainty, and hand off to Challenger.
 
+Challenger will return exactly one of **PROCEED**, a complete **REPAIRED
+SUCCESSOR (V2)**, or **TERMINAL ESCALATION**. Produce a complete first proposal.
+Do not ask Challenger to "revise and loop". If you cannot form a complete
+proposal, say so in Uncertainty.
+
 **Lane A** verbatim capture (1–3 rows, trusted human/household source) bypasses
 Proposer when the brief is complete — see `household-routing-standard` Route 1.
 

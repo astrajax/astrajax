@@ -5,6 +5,13 @@
 
 const AIRTABLE_TIMEOUT_MS = 10_000;
 
+/**
+ * URL-based attachment attach can take longer: Airtable fetches the file from
+ * our signed Blob URL before answering. Isolated from the default 10s budget so
+ * ordinary Brain Key calls stay snappy.
+ */
+export const AIRTABLE_URL_ATTACH_TIMEOUT_MS = 60_000;
+
 /** Max pages when `paginate: true` (100 records each → 2,000 ceiling). */
 export const AIRTABLE_MAX_PAGES = 20;
 
@@ -33,9 +40,10 @@ async function airtableRequest(
   url: string,
   token: string,
   init?: RequestInit,
+  timeoutMs: number = AIRTABLE_TIMEOUT_MS,
 ): Promise<Response> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), AIRTABLE_TIMEOUT_MS);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(url, {
       ...init,
@@ -176,6 +184,94 @@ export async function airtableFindOne(
     maxRecords: 1,
   });
   return records[0] ?? null;
+}
+
+/**
+ * Airtable's direct `uploadAttachment` (base64 bytes) caps at 5 MB. Prefer
+ * {@link airtableAttachFromUrl} for onboarding / large files: Airtable GETs a
+ * short-lived URL and copies into attachment storage (up to plan limits).
+ */
+export const AIRTABLE_ATTACHMENT_UPLOAD_MAX_BYTES = 5 * 1024 * 1024;
+
+/**
+ * Airtable has served this endpoint from both hosts. Try the content host
+ * first, fall back once when it answers 404/405 so a host migration does not
+ * silently break filing.
+ */
+const ATTACHMENT_UPLOAD_HOSTS = [
+  "https://content.airtable.com",
+  "https://api.airtable.com",
+] as const;
+
+/**
+ * Upload file bytes straight into an attachment cell (≤5 MB).
+ * https://airtable.com/developers/web/api/upload-attachment
+ *
+ * Kept for callers that already hold small base64 payloads. Onboarding Source
+ * Pack filing uses {@link airtableAttachFromUrl} instead so large files never
+ * stream through Next.js.
+ */
+export async function airtableUploadAttachment(
+  baseId: string,
+  recordId: string,
+  attachmentFieldIdOrName: string,
+  token: string,
+  file: { filename: string; contentType: string; base64: string },
+): Promise<AirtableRecord> {
+  const body = JSON.stringify({
+    contentType: file.contentType,
+    file: file.base64,
+    filename: file.filename,
+  });
+
+  let lastError: unknown;
+  for (const host of ATTACHMENT_UPLOAD_HOSTS) {
+    const url = `${host}/v0/${baseId}/${recordId}/${attachmentFieldIdOrName}/uploadAttachment`;
+    try {
+      const response = await airtableRequest(url, token, { method: "POST", body });
+      return (await response.json()) as AirtableRecord;
+    } catch (error) {
+      lastError = error;
+      const message = error instanceof Error ? error.message : "";
+      const hostMissing = message.includes("error 404") || message.includes("error 405");
+      if (!hostMissing) throw error;
+    }
+  }
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Airtable attachment upload failed");
+}
+
+/**
+ * Attach a file Airtable can fetch itself (signed or public URL).
+ * Uses a longer timeout so a ~20 MB fetch from Blob can finish.
+ * https://airtable.com/developers/web/api/field-model#multipleattachment
+ */
+export async function airtableAttachFromUrl(
+  baseId: string,
+  tableId: string,
+  recordId: string,
+  attachmentFieldIdOrName: string,
+  token: string,
+  file: { url: string; filename: string },
+): Promise<AirtableRecord> {
+  const url = `${buildUrl(baseId, tableId)}/${recordId}`;
+  const response = await airtableRequest(
+    url,
+    token,
+    {
+      method: "PATCH",
+      body: JSON.stringify({
+        fields: {
+          [attachmentFieldIdOrName]: [
+            { url: file.url, filename: file.filename },
+          ],
+        },
+      }),
+    },
+    AIRTABLE_URL_ATTACH_TIMEOUT_MS,
+  );
+  return (await response.json()) as AirtableRecord;
 }
 
 /** Escape a string for use inside an Airtable formula single-quoted literal. */

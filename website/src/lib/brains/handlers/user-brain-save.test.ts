@@ -9,25 +9,25 @@ vi.mock("../airtable-rest", async () => {
 });
 
 vi.mock("../config", () => ({
-  getWorkshopBaseId: vi.fn(() => "appWorkshop"),
-  getWorkshopWriteToken: vi.fn(() => "pat_workshop_write"),
+  getRegistryBaseId: vi.fn(() => "appRegistry"),
+  getRegistryWriteToken: vi.fn(() => "pat_registry_write"),
 }));
 
 import { airtableCreate } from "../airtable-rest";
-import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
-import { getWorkshopBaseId, getWorkshopWriteToken } from "../config";
+import { BRAIN_REGISTRY_TABLES } from "../airtable-ids";
+import { getRegistryBaseId, getRegistryWriteToken } from "../config";
 import { handleUserBrainSave } from "./user-brain-save";
 
 const createMock = vi.mocked(airtableCreate);
-const baseIdMock = vi.mocked(getWorkshopBaseId);
-const writeTokenMock = vi.mocked(getWorkshopWriteToken);
+const baseIdMock = vi.mocked(getRegistryBaseId);
+const writeTokenMock = vi.mocked(getRegistryWriteToken);
 
 describe("handleUserBrainSave", () => {
   beforeEach(() => {
     createMock.mockReset();
-    baseIdMock.mockReturnValue("appWorkshop");
-    writeTokenMock.mockReturnValue("pat_workshop_write");
-    delete process.env.BRAIN_WORKSHOP_USER_BRAINS_TABLE_ID;
+    baseIdMock.mockReturnValue("appRegistry");
+    writeTokenMock.mockReturnValue("pat_registry_write");
+    delete process.env.BRAIN_REGISTRY_USER_BRAINS_TABLE_ID;
   });
 
   afterEach(() => {
@@ -40,7 +40,7 @@ describe("handleUserBrainSave", () => {
     );
   });
 
-  it("returns fallback without writing when Workshop is unwired", async () => {
+  it("returns fallback without writing when Registry is unwired", async () => {
     writeTokenMock.mockReturnValue(undefined);
 
     const result = await handleUserBrainSave({ sessionId: "sess-12345678" });
@@ -50,10 +50,10 @@ describe("handleUserBrainSave", () => {
       mode: "fallback",
       saved: false,
     });
-    expect(result.message).toMatch(/BRAIN_WORKSHOP_WRITE_TOKEN/);
+    expect(result.message).toMatch(/BRAIN_REGISTRY_WRITE_TOKEN/);
   });
 
-  it("maps confidence and guide-mode labels into Workshop User Brains fields", async () => {
+  it("maps confidence and guide-mode labels into Registry User Brains fields", async () => {
     createMock.mockResolvedValue({ id: "recUserBrain", fields: {} });
 
     const result = await handleUserBrainSave({
@@ -69,9 +69,9 @@ describe("handleUserBrainSave", () => {
     });
 
     expect(createMock).toHaveBeenCalledWith(
-      "appWorkshop",
-      BRAIN_WORKSHOP_TABLES.userBrains,
-      "pat_workshop_write",
+      "appRegistry",
+      BRAIN_REGISTRY_TABLES.userBrains,
+      "pat_registry_write",
       {
         "User Label": "Matthew",
         Notes:
@@ -97,9 +97,9 @@ describe("handleUserBrainSave", () => {
     await handleUserBrainSave({ sessionId: "sess-xyz98765" });
 
     expect(createMock).toHaveBeenCalledWith(
-      "appWorkshop",
-      BRAIN_WORKSHOP_TABLES.userBrains,
-      "pat_workshop_write",
+      "appRegistry",
+      BRAIN_REGISTRY_TABLES.userBrains,
+      "pat_registry_write",
       {
         "User Label": "Session sess-xyz",
         Notes: "Chapter 1 session: sess-xyz98765",
