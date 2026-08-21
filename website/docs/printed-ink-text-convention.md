@@ -51,6 +51,25 @@ never take the ink texture — don't add `.no-ink` to them.
   `text-shadow` per preset. Identical in Chromium and Safari.
 - Base ink is **Ink #23271B** — the surface palette, not sepia.
 
+## If you ever reach for `-webkit-text-stroke`
+
+The shared layer does not use text stroke today — everything above is fibre
+plus restrained `text-shadow`. If a future letterpress or outlined-text
+treatment genuinely needs `-webkit-text-stroke` (still required unprefixed-
+less for all browsers), be aware of the known centre-alignment artifact:
+the stroke straddles the glyph outline, so half the stroke width paints
+*inside* the fill, muddying counters and thin serifs at small sizes.
+
+The house fix is paint ordering, not pixel-tuning: set
+`paint-order: stroke fill` so the fill paints over the stroke's inner half
+(the outer half remains as the visible outline). This does not change the
+centre-aligned geometry — it only corrects which paint lands on top — so it
+pairs with the same restrained-strength habit as the shadows: keep stroke
+widths thin, and let the fibre/veil layers marry the result to the page.
+
+Reference: CSS-Tricks, "What's !important #17" (14 Aug 2026), citing Tyler
+Sticka — https://css-tricks.com/whats-important-17/
+
 ## Regression check
 
 `website/src/components/chapter1/printed-ink.test.ts` (vitest) asserts the
