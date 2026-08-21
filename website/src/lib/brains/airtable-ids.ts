@@ -354,7 +354,10 @@ export const HOUSEHOLD_ACTIVITY_TABLES = {
   reports: "tblFzWUIPSiIGZPln",
 } as const;
 
-/** Household Activity Reports — field IDs (live-observed 13 Aug 2026). */
+/**
+ * Household Activity Reports — field IDs (live-observed 13 Aug 2026;
+ * Created and Clive's Reading re-observed 19 Aug 2026).
+ */
 export const HOUSEHOLD_ACTIVITY_REPORT_FIELDS = {
   title: "fldr0pNUAYm9jEITx",
   reportType: "fld3uIBw78HahcUms",
@@ -365,6 +368,14 @@ export const HOUSEHOLD_ACTIVITY_REPORT_FIELDS = {
   periodEnd: "fldc1uSKfB1wE0MfE",
   evidence: "fldGnweCWJkjXVRxu",
   supersedes: "fldGbXhILELIuJ0vZ",
+  created: "fldR1wg7uZMrY1Ooi",
+  /**
+   * Clive's weekly read of the report: standalone clarity and whether the
+   * length is earned. The only cell the weekly reading pass writes, and the
+   * one exception to Reports being create-only. Not shown on the Receiving
+   * Wall — the wall still shows Body (added 19 Aug 2026).
+   */
+  clivesReading: "fld8sWV4YYI8oJ0o1",
 } as const;
 
 /** Household Activity Reports — field names for REST cell keys and sorts. */
@@ -376,6 +387,8 @@ export const HOUSEHOLD_ACTIVITY_REPORT_FIELD_NAMES = {
   body: "Body",
   periodStart: "Period Start",
   periodEnd: "Period End",
+  created: "Created",
+  clivesReading: "Clive's Reading",
 } as const;
 
 /**
