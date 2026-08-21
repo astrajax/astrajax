@@ -2,7 +2,7 @@
 name: fleet-activity-logging
 description: >-
   Cursor/Claude twin of Hyperagent **Household Activity Logging** (renamed from
-  Fleet Activity Logging 2026-07-16). The logging mechanics for the AstraJax Household Activity base: session flow, event identity, semantic-key write path via the validating script, content and failure rules, Session End semantics, cost capture. Pure mechanics — closure conduct and disclosure policy live in the Household Conduct Standard. 2026-08-08: verbatim replies; AI owns Turn Type + summaries; agents stop classifying ordinary exchanges.
+  Fleet Activity Logging 2026-07-16). The logging mechanics for the AstraJax Household Activity base: session flow, event identity, semantic-key write path via the validating script, content and failure rules, Session End semantics, cost capture. Pure mechanics — closure conduct and disclosure policy live in the Household Conduct Standard. 2026-08-08: verbatim replies; AI owns Turn Type + summaries; agents stop classifying ordinary exchanges. 2026-08-19: child sessions must log their dispatch ticket (`dispatch_ticket` — the verbatim brief) as the first-turn User Message; the pen refuses a child Sessions row without it.
   Invoke as `/fleet-activity-logging`; Hyperagent display name is
   "Household Activity Logging". Writes via validating script +
   `FLEET_ACTIVITY_WRITE`. Closure conduct: `household-conduct-standard`.
@@ -65,7 +65,7 @@ python3 hyperagent/scripts/log_fleet_activity.py --payload /tmp/events.json
 
 1. At session start, generate a **Session ID** once: `<agent-slug>--<YYYYMMDD>T<HHMM>Z--<2-4 char suffix>`. One session per agent invocation — a thread ID alone is NOT a session. Reuse the same ID on any retry.
 2. Create the Sessions row first; carry its record id; every Activity row links to it (the script injects the link from payload-level `session_record_id`).
-3. **Minions:** write **parent_session_id** from your dispatch brief and create your OWN Sessions row. **Orchestrators: ALWAYS include your Session ID (and your Root Session ID — see §8) in every dispatch brief.**
+3. **Minions:** write **parent_session_id** from your dispatch brief, pass the brief itself as **dispatch_ticket** (§10 — the pen refuses a child Sessions row without it), and create your OWN Sessions row. **Orchestrators: ALWAYS include your Session ID (and your Root Session ID — see §8) in every dispatch brief.**
 4. **Follow-up invocations:** a new message arriving in a thread whose session already closed (a minion answering a post-completion clarification, or an interactive head resuming after a long gap) is a NEW invocation → new Session ID, new Sessions row, same thread_url; carry the same parent_session_id/root_session_id as the original where they existed.
 5. **Session End** is an Activity row carrying the session's Outcome (Sessions rows are never updated). Set `event_type` to **Session End** on that row only — it is a closure event, not a summary. Class semantics: **mandatory** for minions, proposer/challengers, executors, and scheduled runs; **mechanical** for the AstraJax Platform pipeline; **best-effort** for interactive reasoning heads when a close is visible. An interactive session without one is normal; Session Status is inferred from last Activity age (>30 min) + pause flag. No agent ever polls.
 
@@ -84,6 +84,8 @@ python3 hyperagent/scripts/log_fleet_activity.py --payload /tmp/events.json
 | Proposer / Challenger minions | One row for the handoff/verdict; may set `event_type` **Completion**; **Error** / **Blocker** when known; **Session End** |
 | Scheduled / unattended runs | May set **Completion** or **Error** when known; **Session End**. Integration-writes toggle must be on or logging lands only in the digest |
 | Cursor agents | May set **Action** per commit/PR; **Blocker** / **Error** when known; **Session End** — same script, base-scoped PAT |
+
+**Any class, when you were dispatched by another agent:** your session's FIRST row is the job ticket — the verbatim brief in **User Message**. Pass `dispatch_ticket` on your Sessions row and the pen writes that row for you (§10). Without it a reviewer cannot see what you were actually asked to do.
 
 Meaningful events, never every tool call. An **exchange row is one full exchange** (message + reply in one row; no speaker field). **Do not categorise ordinary chat** — omit `event_type` and let AI fill **User Turn Type** / **Agent Turn Type**. When you *know* a mechanical class, set `event_type` (lands in **Agent Turn Type** only: Decision, Action, Blocker, Question, Escalation, Error, Completion, Session End). Never write User Turn Type. **Write `model` on every row.**
 
@@ -123,11 +125,25 @@ Stage the payload, then `RunWithCredentials("Household Activity Logging", "pytho
 ]}
 ```
 
-Sessions keys: session_id, parent_session_id, root_session_id (optional, §8), agent_slug, agent_name, runtime (Hyperagent/Cursor), trigger (Interactive/Scheduled/Webhook/Email/Slack), user (Matthew/Tara-Lee/System), thread_url, model. Do **not** write `started` — Sessions start time is Airtable's **Created** (`createdTime`); the pen strips `started` / retired timestamp keys if a legacy payload still sends them. Activity also accepts: summary (required only when you set a mechanical `event_type` other than Session End), detail, target_url, cost_usd (Session End only), review_status.
+**Child session row** (dispatched by another agent — the ticket is mandatory, §10):
+
+```json
+{"table": "sessions", "records": [
+  {"session_id": "<your-session-id>", "parent_session_id": "<dispatcher session id>",
+   "root_session_id": "<top-level session id>", "agent_slug": "<slug>",
+   "agent_name": "<name>", "runtime": "Hyperagent", "trigger": "Interactive",
+   "user": "Matthew", "thread_url": "<url>", "model": "<model-id>",
+   "dispatch_ticket": "<the verbatim brief you were dispatched with>"}
+]}
+```
+
+The pen creates the Sessions row and then writes the ticket as that session's first Activity row (User Message, sequence 0, untyped, no reply). Nothing else to do.
+
+Sessions keys: session_id, parent_session_id, root_session_id (optional, §8), agent_slug, agent_name, runtime (Hyperagent/Cursor), trigger (Interactive/Scheduled/Webhook/Email/Slack), user (Matthew/Tara-Lee/System), thread_url, model, **dispatch_ticket** (required when parent_session_id is set; optional companions `dispatch_ticket_event_id`, `dispatch_ticket_sequence`, `dispatch_ticket_context` — §10). Do **not** write `started` — Sessions start time is Airtable's **Created** (`createdTime`); the pen strips `started` / retired timestamp keys if a legacy payload still sends them. Activity also accepts: summary (required only when you set a mechanical `event_type` other than Session End), detail, target_url, cost_usd (Session End only), review_status.
 
 **Semantic key note:** `event_type` maps to Airtable **Agent Turn Type** (`fldvskIDzutu4JzQt`) only — Session End and known mechanical classes. Never write **User Turn Type** (`fldTCd93XF8XhsVoZ`); AI owns it (pen rejects it). `reply_digest` maps to Airtable **Reply Digest** (`fldBj92Hu9gDesX6u`) — keep the key; write the **verbatim** agent response (strip secrets), not a short paraphrase.
 
-**Validation:** refuses incomplete rows with a precise missing-keys error (fix and retry, SAME event_ids). Required — sessions: session_id, agent_slug, agent_name, runtime, trigger, user, thread_url, model; activity always: event_id, sequence, session_id, model. Exchanges (no event_type): user_message + reply_digest + context_referenced. Session End: event_type + outcome. Other agent-typed mechanical classes: summary (+ context_referenced for Completion/Decision). Defaults: review_status "Unreviewed", root_session_id (self-reference, §8). Timestamp / `started` keys and AI-owned summary fields are STRIPPED/REJECTED. Reviewer-owned fields rejected. Batches of 10; single 30 s retry on 429.
+**Validation:** refuses incomplete rows with a precise missing-keys error (fix and retry, SAME event_ids). Required — sessions: session_id, agent_slug, agent_name, runtime, trigger, user, thread_url, model, **plus dispatch_ticket whenever parent_session_id is set** (§10); activity always: event_id, sequence, session_id, model. Exchanges (no event_type): user_message + reply_digest + context_referenced. Session End: event_type + outcome. Other agent-typed mechanical classes: summary (+ context_referenced for Completion/Decision). Defaults: review_status "Unreviewed", root_session_id (self-reference, §8). Timestamp / `started` keys and AI-owned summary fields are STRIPPED/REJECTED. Reviewer-owned fields rejected. Batches of 10; single 30 s retry on 429.
 
 **Alternative — platform integration** (only agents already holding suitable Airtable access, e.g. Doc): `airtable__create_records_for_table` with field IDs from the script's mapping tables; create actions ONLY, never update or delete this base; the required-key lists above are self-enforced.
 
@@ -153,7 +169,7 @@ Complete reports are documents, not events: `{"table": "reports", "session_recor
 
 ## 7. Status
 
-Doc Albright wired (integration path); Workshop Executor wired (script path); full-household Route B wiring cards saved by Matthew 2026-07-16/26. Reviewer lanes commissioned 2026-07-26: Hal (Agent Quality + Review Status), Clive Wigglesworth (Human Quality + Review Status), Horace (spend, read-only) — reviewer reads AND two-field score updates ride the separate **Household Activity Review** skill (FLEET_ACTIVITY_REVIEW, read+update, base-scoped); the logging credential stays write-only and NEVER updates. Reports table + timestamp retirement landed 2026-07-26. **2026-08-08:** agents capture verbatim replies; stop classifying turns; stop writing AI summary fields; pen makes `event_type` optional except Session End. The pipeline flip (Kate's lane) brings AstraJax Platform rows with mechanical tokens and exact cost.
+Doc Albright wired (integration path); Workshop Executor wired (script path); full-household Route B wiring cards saved by Matthew 2026-07-16/26. Reviewer lanes commissioned 2026-07-26: Hal (Agent Quality + Review Status), Clive Wigglesworth (Human Quality + Review Status), Horace (spend, read-only) — reviewer reads AND two-field score updates ride the separate **Household Activity Review** skill (FLEET_ACTIVITY_REVIEW, read+update, base-scoped); the logging credential stays write-only and NEVER updates. Reports table + timestamp retirement landed 2026-07-26. **2026-08-08:** agents capture verbatim replies; stop classifying turns; stop writing AI summary fields; pen makes `event_type` optional except Session End. The pipeline flip (Kate's lane) brings AstraJax Platform rows with mechanical tokens and exact cost. **2026-08-19 (Halvard equip):** child sessions must carry their dispatch ticket (§10) — the pen refuses a child Sessions row without `dispatch_ticket` and writes the first-turn User Message itself. Repo mirrors landed first; the live Hyperagent skill body follows through Skill Forge.
 
 ## 8. Root Session ID — added 2026-07-16 (Matthew's challenge on Trinity/minion chains)
 
@@ -166,3 +182,22 @@ A Trinity or dispatch chain (orchestrator → minions) is several genuinely sepa
 ## 9. Operational note — drafts do not chain (2026-07-16)
 
 UpdateSkillAndScripts calls on this skill do NOT cumulatively build on prior unsaved drafts: any call that omits a field (documentation, scripts, tags, whenToUse) reverts that field to the last MATTHEW-CONFIRMED-SAVED version, not the most recent draft. Every future edit to this skill must resubmit the complete current documentation, not an addition assumed to layer onto an unsaved prior call.
+
+## 10. Dispatch ticket — child sessions (added 2026-08-19, Halvard equip)
+
+**Why:** agent-to-agent prompting could not be read, let alone graded. Real chains (Clive's Man → Executor, Doc → Workshop Challenger, Clive → Ruth) logged Action and Reports rows with **no User Message anywhere**, so the dispatch ticket — the thing the child was actually asked to do — was invisible. Halvard's discharge criterion: the next sweep can read the prompt on every child session.
+
+**The rule.** A **child session** is any session whose **Parent Session ID** is filled. Every child session records the verbatim brief it was dispatched with as its **first-turn User Message**. You do not hand-build that row:
+
+- Pass `dispatch_ticket` on your Sessions row (§5 child-session example). The pen **refuses** the row without it and tells you exactly what is missing.
+- The pen then **fills** the first Activity row: `user_message` = your brief, `sequence` 0, `context_referenced` = "dispatch brief", **no** `event_type`, **no** `reply_digest`. Your own rows keep numbering from 1.
+- Overrides when you need them: `dispatch_ticket_event_id` (default `evt-<slug>-<YYYYMMDD>-ticket-<session suffix>`, deterministic so a retry dedupes), `dispatch_ticket_sequence`, `dispatch_ticket_context`.
+- Writing the first row yourself instead? Put the brief in `dispatch_ticket` on that **Activity** row: the pen writes it into User Message and waives `reply_digest`, because a ticket has no reply yet. Such a row must stay untyped.
+- **Root sessions** have no dispatcher, so `dispatch_ticket` is refused on them. Matthew's own opening message is an ordinary exchange row.
+- Strip secrets from the brief exactly as you would from any `user_message`. Never paste a credential value into a ticket.
+
+**The marker is Parent Session ID + a first-turn User Message.** User Turn Type = **Brief** is not the agent-to-agent marker: that classifier is mostly Matthew briefing a head, and nothing should key agent-to-agent scoring off it. The ticket row stays deliberately untyped so **AI keeps User Turn Type and Agent Turn Type**, and loggers still never write **Agent Quality**, **Human Quality**, or **Review Status** — the dispatch-ticket rubric is Halvard's, and it lands through Household Activity Review, not through this pen.
+
+**Orchestrators:** keep forwarding your Session ID and Root Session ID (§8). The brief you send *is* the ticket your minion logs, so write briefs you would be content to have read back to you.
+
+**Reading tickets:** the daily window digest (`hyperagent/scripts/household_activity_window.py`) carries tickets in their own `dispatch_tickets` bucket, per agent and estate-wide, so an agent's brief to a minion never lands in the human-narrative lane and is never dropped as filler.

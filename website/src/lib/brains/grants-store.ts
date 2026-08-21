@@ -150,13 +150,18 @@ export async function restoreGrantUse(grantId: string): Promise<AccessGrant | nu
 export async function revokeGrantsForBrain(brainSlug: string): Promise<number> {
   const count = await getStore().revokeGrantsForBrain(brainSlug);
   if (count > 0) {
-    await appendChangeLog({
-      changeSummary: `Revoked ${count} grant(s) for ${brainSlug}`,
-      changeType: "Grant Revoked",
-      changedBy: "Brain Key API",
-      affectedRecords: brainSlug,
-      source: "Brain Key API",
-    });
+    // Audit must not undo a completed revoke (e.g. after Trusted promote).
+    try {
+      await appendChangeLog({
+        changeSummary: `Revoked ${count} grant(s) for ${brainSlug}`,
+        changeType: "Grant Revoked",
+        changedBy: "Brain Key API",
+        affectedRecords: brainSlug,
+        source: "Brain Key API",
+      });
+    } catch {
+      // Best-effort paper trail only.
+    }
   }
   return count;
 }

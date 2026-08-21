@@ -247,11 +247,21 @@ describe("resolveBrainRegistryRecordId", () => {
     expect(findOneMock).toHaveBeenCalledTimes(2);
   });
 
-  it("treats Airtable failures as a miss so capture can refuse rather than guess", async () => {
-    findOneMock.mockRejectedValue(new Error("401"));
+  it("does not cache Airtable failures — a warm instance must retry after a blip", async () => {
+    findOneMock
+      .mockRejectedValueOnce(new Error("Airtable API error 503: unavailable"))
+      .mockResolvedValueOnce({
+        id: "recLiveBrain00001",
+        fields: { "Brain Slug": "astrajax-core" },
+      });
 
     await expect(
       resolveBrainRegistryRecordId("appWorkshop", "pat", "astrajax-core"),
-    ).resolves.toBeNull();
+    ).rejects.toThrow(/503/);
+
+    await expect(
+      resolveBrainRegistryRecordId("appWorkshop", "pat", "astrajax-core"),
+    ).resolves.toBe("recLiveBrain00001");
+    expect(findOneMock).toHaveBeenCalledTimes(2);
   });
 });

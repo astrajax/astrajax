@@ -9,6 +9,8 @@ export const BRAIN_REGISTRY_BASE_ID = "appbdTVHevH6Bl5ZZ";
 
 export const BRAIN_REGISTRY_TABLES = {
   brains: "tblAUtpgSjtKf3BBr",
+  /** SSOT for user-brain facts. Workshop User Brains is the sync mirror (read-mostly). */
+  userBrains: "tblgUEXEDfTl8RugA",
   agents: "tblmb7syHipyWfBzu",
   keyRequests: "tblhaWR5UNd8n01tn",
   accessGrants: "tblWLRYSGfLipR53P",
@@ -74,7 +76,12 @@ export const BRAIN_REGISTRY_BRAINS_FIELDS = {
 export const BRAIN_WORKSHOP_BASE_ID = "appL2fdnGmhA02WXd";
 
 export const BRAIN_WORKSHOP_TABLES = {
-  userBrains: "tblm6MqTYRPk8sA9o",
+  /**
+   * Live Workshop User Brains — Airtable sync mirror of Registry User Brains
+   * (`tblgUEXEDfTl8RugA`). Synced columns are read-only from this origin.
+   * Legacy local copy `tblm6MqTYRPk8sA9o` is retired and gone from live schema.
+   */
+  userBrains: "tbl8ovE5njOh1c6iK",
   draftBrainTruth: "tblswvXNYFDqnl6af",
   sourceDocuments: "tblfWdhwbq4QsCjUf",
   brainInteractions: "tblNqNSuIJ2akHyA1",
@@ -93,29 +100,36 @@ export const BRAIN_WORKSHOP_TABLES = {
   projects: "tbl5jo7EKBxAjjKbf",
 } as const;
 
-/** Workshop User Brains — identity + operator development (Phase B, 29 Jun 2026). */
+/**
+ * Workshop User Brains — identity + operator development.
+ * Field IDs are the live sync-mirror table (`tbl8ovE5njOh1c6iK`), observed 19 Aug 2026.
+ * Synced columns: edit in Registry. `draftBrainTruth` is Workshop-local and writable.
+ */
 export const BRAIN_WORKSHOP_USER_BRAINS_FIELDS = {
-  userLabel: "fldi06frit7tJGBqZ",
-  archetype: "fldK3PP8kdgLwcjPd",
-  primaryFunction: "fldN5rZRjgEgzBWT4",
-  brainSet: "fldRa47ySX1yWui2A",
-  oneLineRemit: "fldEgPO6TXmBpDVaI",
-  roleDomain: "fldjO5b8ZkZ6fLUrw",
-  guideMode: "fldtkpb76WqRX4KDb",
-  aiConfidence: "fldxhhjBkFsI1AnPk",
-  contextEnvironmentConfidence: "fldM4WRnlbuzynXR2",
-  strengths: "fldPn5Bv0ouRgCi0T",
-  weaknesses: "fldFoXvkSAF1EYfqS",
-  coachingPreferences: "fldbMUmiaKHSP4UNb",
-  developmentFocus: "fldAGVdVxp0JFe4BL",
-  developmentNotes: "fldWWPyNMYAVzfLtO",
-  psychometricReference: "fldYF3O7dFOJTHWUt",
-  notes: "fldTn2QCcji7c3cPv",
+  userLabel: "fldra752LD1ZsOuw9",
+  archetype: "fldkTPj5BKcdvF4Fh",
+  primaryFunction: "fldwr8lvzXy3uM1zX",
+  brainSet: "fldYqphoZP5w173sV",
+  oneLineRemit: "flda0Pz3oB5t1EQ2y",
+  roleDomain: "fldR7Fdu182eSjURv",
+  guideMode: "fldM3t8cHqqfttM8G",
+  aiConfidence: "fldSdUQ8wFflVKsUc",
+  contextEnvironmentConfidence: "fldmLDlKsqMn9vhl9",
+  strengths: "fldVzCR0SKR47HT9Y",
+  weaknesses: "fldeXrbfbAX2h8IA0",
+  coachingPreferences: "fldEm4ojoR8cRpk5S",
+  developmentFocus: "fld6PghfGhFuyPd0F",
+  developmentNotes: "fldx1xxGVBfMiSUXt",
+  psychometricReference: "fldMiH2Xpz677PY29",
+  notes: "fldBB777wX4FnYdon",
+  aiReturnPreference: "fldL9DnOEvSZRUk2t",
+  /** Workshop-local link — not a synced Registry column. */
+  draftBrainTruth: "fldD1vejxoQyE3xal",
 } as const;
 
-/** Matthew demo row — Workshop User Brains (Phase B seed). */
+/** Matthew row — live Workshop User Brains sync mirror (observed 19 Aug 2026). */
 export const BRAIN_WORKSHOP_USER_BRAINS_DEMO = {
-  matthew: "recj9eQY8y6lqxEV9",
+  matthew: "recpLovK4TIiORYcW",
 } as const;
 
 /** Workshop Source Documents — Clive's Man attachment mining (Phase B, 29 Jun 2026). */

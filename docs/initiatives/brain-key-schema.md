@@ -2,7 +2,7 @@
 
 **Status:** Replicable schema reference (context-agnostic)  
 **Owner:** Matthew  
-**Last updated:** 20 August 2026 (Chapter 1 incubation mode on Brain Truth); Context Health Phase 2 schema pending
+**Last updated:** 21 August 2026 (Household Members → Registry sync `tblTfxGnA5xWx2nAG` confirmed); 20 August 2026 (Chapter 1 incubation mode on Brain Truth; Household Members owns roster identity; Registry Agents is Brain Key index only); 17 August 2026 Draft Brain Truth write contract; Context Health Phase 2 schema pending
 **Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance), [`chapter1-context-structure.md`](./chapter1-context-structure.md) (canonical brain themes + categories), [`doc-brain-base-builder.md`](./doc-brain-base-builder.md) (scaffold/extend bases via Doc Brain Base Builder)
 
 Any agent (especially **@doc-brain-base-builder**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
@@ -17,14 +17,14 @@ Any agent (especially **@doc-brain-base-builder**) can recreate or extend Brain 
 
 | Base shape | Name pattern | Purpose |
 |------------|--------------|---------|
-| **Registry** | `AstraJax Brain Registry` | Index, Brain Key Requests, Access Grants, Change Log, **Agents** index. No trusted context text. |
+| **Registry** | `AstraJax Brain Registry` | Index, Brain Key Requests, Access Grants, Change Log, **Agents** index (Brain Key only — household roster identity lives on Household Members). No trusted context text. |
 | **Workshop** | `AstraJax Brain Workshop` | Draft/propose only. One shared Workshop per environment (not per brain theme). |
 | **Trusted Brain** | `AstraJax Trusted Brain — {Theme Label}` | Approved business context only. **One base per brain theme** (token scoping). |
 | **Agent** | `AstraJax Agent — {Agent Label}` | Character + role memory for one agent. **One base per agent** (token scoping). |
 
 After creating a new Trusted Brain: add a row to Registry **Brains** and update `airtable-ids.ts`.
 
-After creating a new Agent base: add a row to Registry **Agents** and update `airtable-ids.ts`.
+After creating a new Agent base: add the household member on **Household Members** (Register `appPrpfvsAr71RPP3` / `tblJ70qtHUc1dUHhi`) — that table owns slug, name, purpose, Agent Base ID, repo path, status, and owner. Brain Registry mirrors that table as synced **Household Members** `tblTfxGnA5xWx2nAG`. Native Registry **Agents** (`tblmb7syHipyWfBzu`) is still the Brain Key index the website reads — not a second roster. Do not treat its native columns as a second source of truth. Update `airtable-ids.ts` only when Doc rewires consumers to the synced table.
 
 **Product agents (Chapter 1):** Clive, Pam, Doc, Clive's Man (`clive-man`). Each gets its own Agent base.
 
@@ -82,17 +82,19 @@ Primary field: **Brain Slug** (singleLineText)
 
 ### Table: Agents
 
-Primary field: **Agent Slug** (singleLineText). Index of product and fleet agents with Agent bases.
+Primary field: **Agent Slug** (singleLineText). Brain Key index of product and fleet agents with Agent bases.
+
+**Roster authority (21 August 2026).** Shared identity and status — Agent Slug, Agent Name, Purpose, Agent Base ID, Repo Path, Status, Owner — are owned by Household Register **Household Members** (`tblJ70qtHUc1dUHhi`). Brain Registry mirrors that table as synced **Household Members** `tblTfxGnA5xWx2nAG` (do not write those synced columns). Registry **Agents** owns no native roster fact. Native columns below remain on this live table as copies until Doc rewires `airtable-ids.ts`. Do not recreate those columns. Do not delete this table to “make room” for sync.
 
 | Field | Type | Notes |
 |-------|------|-------|
-| Agent Slug | singleLineText | Primary. e.g. `clive`, `pam`, `doc`, `clive-man` |
-| Agent Name | singleLineText | Display name |
-| Purpose | multilineText | |
-| Agent Base ID | singleLineText | `app…` ID of the Agent base |
-| Repo Path | singleLineText | Canonical build pack / agent definition in repo |
-| Status | singleSelect | Active, Paused, Retired |
-| Owner | singleLineText | |
+| Agent Slug | singleLineText | Primary. e.g. `clive`, `pam`, `doc`, `clive-man`. Supplied by Household Members. |
+| Agent Name | singleLineText | Display name. Supplied by Household Members. |
+| Purpose | multilineText | Supplied by Household Members. |
+| Agent Base ID | singleLineText | `app…` ID of the Agent base. Supplied by Household Members. |
+| Repo Path | singleLineText | Canonical build pack / agent definition in repo. Supplied by Household Members. |
+| Status | singleSelect | Active, Paused, Retired. Supplied by Household Members. |
+| Owner | singleLineText | Supplied by Household Members. |
 
 ### Table: Brain Key Requests
 
@@ -688,7 +690,7 @@ Empty Minions table is valid (Pam may have zero minions). Shape must be consiste
 3. Create **Trusted Brain** base for the theme with **Brain Truth** + **Brain Memories** (no Personas table).
 4. Create **Agent** base per agent with four tables: Narrative Arch, Persona Config, Persona Memories, Minions. For the tiered character-context model, add to **Narrative Arch**: `Provenance Status` (Pending / Approved-Canonical), `Tier`, `Known Truth Slot`, `Injection Priority`; and to **Persona Memories**: the `Known Truth` link field (→ Narrative Arch). Seed one Pending Super Objective and five Pending Known Truth slot records as structure (not canonical content).
 5. Registry **Brains** row: slug, name, workshop + trusted base IDs, maturity Seedling, status Active.
-6. Registry **Agents** row per agent: slug, name, agent base ID, repo path, status Active.
+6. Household Members row per agent (slug, name, purpose, agent base ID, repo path, status Active, owner). Brain Registry mirrors that table at `tblTfxGnA5xWx2nAG`. Native Registry **Agents** is still the Brain Key index the website reads — do not invent a second roster.
 7. Seed Trusted **Brain Truth** with scopes using `read:brain-truth:<area>` convention.
 8. Seed Agent bases with structure/placeholders only — not client-approved narrative or business truth.
 9. Update [`airtable-ids.ts`](../../website/src/lib/brains/airtable-ids.ts) with new `app` / `tbl` IDs.
