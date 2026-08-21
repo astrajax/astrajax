@@ -116,6 +116,7 @@ Anthropic) waits until the frontier pool has money again.
 | Wiring to data, API routes, env, build and deploy — "get this working and shipped" | **@doc-vercel-minion** |
 | Airtable base scaffolding for brains | **@doc-brain-base-builder** |
 | Creating or changing agents themselves | **@doc-workshop-proposer** |
+| Updating a live HyperAgent skill body/scripts | **Skill Forge** via HyperAgent MCP (`create_thread` + attached skill JSON) — not Doc |
 | Airtable data layer — schema, doctrine, control plane | **@ruth-hadley** |
 | Character spine, voice, dramaturgy | **@lazlo-marlowe** |
 | Visual identity, palette, art direction — sets the look, does not implement | **@kathryn-goodchild** |

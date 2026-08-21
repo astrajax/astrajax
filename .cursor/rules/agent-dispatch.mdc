@@ -86,6 +86,7 @@ Doc (usually Vercel minion).
 | Character motion, fal previz, animation timing | **Milo Cadence** (`milo-cadence`) |
 | Painted-world scenic craft in `website/` — rooms, plaques, loops, hotspots | **Kate** (`kate`) |
 | External best-practice scout, "what's the current thinking on" | **Ristral** (`ristral`) |
+| Live HyperAgent skill body (existing skill, not a new agent) | **Skill Forge** on HyperAgent MCP (`create_thread` + skill JSON) — not Doc |
 
 ## Branches and parallel work
 

@@ -25,7 +25,9 @@ Every route uses the same brief shape (see below). Pick the first method that wo
    `.cursor/agents/<name>.md` when that type exists in the Task catalog.
 2. **`@` handoff** — if Task cannot spawn that agent, paste the brief and ask Matthew
    to open `@<name>` (or switch to that agent). Do not pretend you invoked them.
-3. **Never** call Hyperagent IDs or `InvokeNamedAgent` from Cursor.
+3. **Do not** call Hyperagent IDs or `InvokeNamedAgent` for Cursor household work.
+   **Exception — Route 12:** live HyperAgent skill-body apply goes to Skill Forge
+   via HyperAgent MCP (`create_thread` + attachment). Never send that job to Doc.
 
 Notify, don't ask: after routing, one line in your reply is enough
 ("routed context capture to `@clive-man-executor`").
@@ -120,7 +122,35 @@ safe field changes, ≤100 record writes, reversible, no grain/SSOT/topology/cer
 mutation domains. Signed builds and Cleared-V2 maintenance stay on Build/Maintenance
 executors; Steward never substitutes for ceremony. Doc owns AstraJax *repo* builds; Ruth
 owns Airtable *data-layer* architecture and her family. Clive's Man owns context-content
-truth state.
+truth state. Skill Forge owns **live HyperAgent skill bodies** (Route 12). Doc does not
+apply skill JSON on HyperAgent.
+
+### Route 12 — Live HyperAgent skill body (not a new agent)
+**Trigger:** a household skill that already exists on HyperAgent needs its body or
+scripts updated — Cursor twin already edited, dual-runtime skill export ready, or
+Matthew says send the skill to HyperAgent / Skill Forge.
+**Target:** **Skill Forge** on HyperAgent via MCP `create_thread` (agent
+`🛠️ Skill Forge (AstraJax)`, id `cmr6im5in1iw106ad59qx2cgr`). Attach the skill
+export JSON. There is no Cursor `@skill-forge` twin.
+**Notes:** Editing `.cursor/skills/` does not update the live HyperAgent kite.
+Skill-only refresh overwrites the existing skill in place. Do not import agent JSON.
+Do not delete the live agent or its schedules. MCP cannot import skills itself — it
+only starts a Skill Forge thread with the file attached. Skill Forge is
+propose-then-build: the opening message must carry Matthew's explicit apply-approval.
+
+**How to send (mechanical — do not skip):**
+1. `create_attachment_upload` with the skill JSON filename, mimeType
+   `application/json`, and exact `sizeBytes`.
+2. PUT the file bytes to `uploadUrl` with every `requiredHeaders` (usually
+   `If-None-Match: *`). Use Python `urllib` with the URL as a raw string, or
+   `curl -T` reading the URL from a file. Never rewrite, wrap, or truncate the
+   signed URL — a mangled token is why the 2026-08-20 Ristral send failed.
+3. Confirm the PUT returned HTTP 200 **before** opening a thread.
+4. `create_thread` to Skill Forge with `attachmentIds` and a self-contained brief:
+   overwrite this named skill in place; do not delete the agent; do not touch its
+   kite; do not hand the job to Doc.
+5. Poll `get_thread` until done. Give Matthew the thread id. If PUT is not 200,
+   stop and say the file never arrived.
 
 **Split rule:** a job spanning lanes ("add this field AND record why") becomes one brief
 per lane. Never send one lane another's work.
@@ -212,6 +242,7 @@ Targets' own NEVER lists stand unchanged.
 - Right lane? (Truth → Clive's Man. Repo/product build → Doc. Painted-world scenic →
   Kate. Red+novel → Pam. Spine → Lazlo. Thinking → Clive. Agent health → Hal.
   Research → Ristral. Data-layer → Ruth. Skin → Kathryn. Motion → Milo.
+  Live HyperAgent skill body → Skill Forge (Route 12), never Doc.
   Nothing fits → generic; name the lane you considered and why.)
 - Website work? Use the **Website build flow** stage table — then Man exit if durable.
 - Have I added ANY step the structure doesn't demand? Remove it.
