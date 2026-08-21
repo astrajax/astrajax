@@ -3,11 +3,13 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from types import ModuleType
 
 SKILL_SCRIPTS = (
     Path(__file__).resolve().parents[2]
@@ -23,14 +25,32 @@ SELF_UPDATE_SCRIPTS = (
     / "self-update-executor"
     / "scripts"
 )
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-sys.path.insert(0, str(SELF_UPDATE_SCRIPTS))
-sys.path.insert(0, str(SKILL_SCRIPTS))
 
-import hosted_mcp_handoff  # noqa: E402
-import match_pending_approval  # noqa: E402
-import verify_skill_forge  # noqa: E402
-import sync_hyperagent_fleet_to_airtable as fleet_sync  # noqa: E402
+
+def _load_script(module_name: str, path: Path) -> ModuleType:
+    """Load by unique module name so Self-Update's same-named scripts cannot collide."""
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    assert spec and spec.loader
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
+hosted_mcp_handoff = _load_script(
+    "skill_forge_hosted_mcp_handoff", SKILL_SCRIPTS / "hosted_mcp_handoff.py"
+)
+verify_skill_forge = _load_script(
+    "skill_forge_verify", SKILL_SCRIPTS / "verify_skill_forge.py"
+)
+match_pending_approval = _load_script(
+    "skill_forge_match_pending_approval",
+    SELF_UPDATE_SCRIPTS / "match_pending_approval.py",
+)
+fleet_sync = _load_script(
+    "skill_forge_fleet_sync",
+    Path(__file__).resolve().parent / "sync_hyperagent_fleet_to_airtable.py",
+)
 
 
 def _skill(**overrides: object) -> dict:

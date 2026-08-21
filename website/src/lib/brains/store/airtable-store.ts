@@ -329,9 +329,12 @@ export const airtableStore: GrantStore = {
   async revokeGrantsForBrain(brainSlug) {
     const { baseId, token } = getRegistryConfig();
     const escaped = escapeAirtableString(brainSlug);
+    // Paginate: a single page caps at 100 rows. Promote must revoke every
+    // Active grant for the brain, or leftover keys keep reading Trusted truth.
     const records = await airtableSelect(baseId, BRAIN_REGISTRY_TABLES.accessGrants, token, {
       filterByFormula: `AND({Brain Slug}='${escaped}', {Status}='Active')`,
       fields: ["Grant ID"],
+      paginate: true,
     });
 
     for (const record of records) {

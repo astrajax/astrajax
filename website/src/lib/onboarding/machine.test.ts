@@ -16,7 +16,9 @@ import {
   canContinueSupportingFile,
   canSwitchRoute,
   chooseRoute,
+  filingStatusLabel,
   initialOnboardingState,
+  needsFilingRetry,
   nextStep,
   probeProgress,
   setConfirmation,
@@ -27,6 +29,7 @@ import {
   stageFile,
   stopProbingEarly,
   supportingFileContinueLabel,
+  type SourcePackFile,
 } from "./machine";
 
 const INF_IDS = ["inf_role_v1", "inf_competency_v1"];
@@ -250,5 +253,40 @@ describe("onboarding state machine", () => {
     expect(canSwitchRoute(s)).toBe(false);
     const s2 = chooseRoute(s, "bring-material");
     expect(s2.route).toBe("talk-through");
+  });
+});
+
+describe("Workshop filing state on staged files", () => {
+  const uploaded = (over: Partial<SourcePackFile> = {}): SourcePackFile => ({
+    id: "f1",
+    name: "notes.pdf",
+    extension: ".pdf",
+    sizeBytes: 100,
+    state: "uploaded",
+    blobUrl: "https://example.private.blob.vercel-storage.com/onboarding-uploads/f1-notes.pdf",
+    ...over,
+  });
+
+  it("does not claim a file is filed just because it uploaded", () => {
+    expect(filingStatusLabel(uploaded())).toBeNull();
+    expect(filingStatusLabel(uploaded({ filing: "filing" }))).toMatch(/filing/);
+    expect(filingStatusLabel(uploaded({ filing: "filed" }))).toMatch(/filed to your Workshop/);
+  });
+
+  it("surfaces the filing failure verbatim rather than looking successful", () => {
+    const file = uploaded({ filing: "not-filed", filingError: "Workshop not wired" });
+    expect(filingStatusLabel(file)).toBe("Workshop not wired");
+    expect(needsFilingRetry(file)).toBe(true);
+  });
+
+  it("offers no filing retry without staged bytes to retry from", () => {
+    expect(needsFilingRetry(uploaded({ filing: "filed" }))).toBe(false);
+    expect(
+      needsFilingRetry(uploaded({ filing: "failed", blobUrl: undefined })),
+    ).toBe(false);
+  });
+
+  it("reports nothing about filing before the upload finishes", () => {
+    expect(filingStatusLabel(uploaded({ state: "uploading", filing: "filing" }))).toBeNull();
   });
 });

@@ -255,6 +255,8 @@ In production, Doc is also a **router**: he chooses the right executor for each 
 
 Clive's Man is the **brain steward** — same person as The Man in Clive's cast (`character-provenance.md` §7). He keeps the Clive context lane in order: intake, curation, quarantine, publish-prep. **Attachment mining** (Workshop **Source Documents** only): uploaded files are summarised (Airtable AI), then Clive's Man proposes Draft Brain Truth rows — never Trusted without human promote. He orchestrates Proposer → Challenger → Executor for context actions, produces digests, and escalates exceptions. He drafts and proposes context state; he never approves canonical truth.
 
+**Website onboarding intake:** `/onboarding` now files uploads as **Pending** Workshop **Source Documents** from private Blob staging; the website does not auto-mine them.
+
 Clive thinks with the user. Clive's Man keeps the study and the brain. Doc's execution minions invoke Clive's Man as the **mandatory last Phase B step** so architecture and context sources stay synced in repo — not only in chat.
 
 **Technical role (canonical):** Clive's Man Agent base Persona Config `Operational v0.3` (`rect04amPJAZrWCi4`, Approved). **`Operational v0.4`** (`recSKTT8NTTJOmuRu`) is **Pending** — repo sync and runtime promotion fail-closed until Matthew approves in Airtable. Minion roster: Minions table on the same base. **Option 3 lanes** (A direct Executor / B Trinity / C human): see `.cursor/skills/clive-man/SKILL.md`.

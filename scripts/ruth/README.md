@@ -21,6 +21,16 @@ python3 scripts/ruth/build_pen_decl.py \
 python3 scripts/ruth/build_pen_decl.py --fixture-drive ...
 ```
 
+Chapter 1 incubation-mode job (Text Characters + add-only Category/Scope):
+
+```bash
+export AIRTABLE_BUILD_TARGET_WRITE=...   # schema.bases:write on app6tjzzG0L0lOeVb only
+python3 scripts/ruth/build_pen_decl.py \
+  --manifest scripts/ruth/jobs/incubation-mode-chapter1-truth.json \
+  --approval scripts/ruth/jobs/approval-incubation-mode-chapter1-truth.json \
+  --out /tmp/incubation-mode-chapter1-truth-run.json
+```
+
 ## Maintenance pen
 
 ```bash

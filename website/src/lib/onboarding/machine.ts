@@ -12,6 +12,13 @@ import type { ConfirmationDecision } from "./contract-v1";
 /** Shared confirmation decision (Ruth's Human Confirmation choices). */
 export type ConfirmationChoice = ConfirmationDecision;
 
+/**
+ * Where an uploaded file has got to on its way into Workshop Source Documents.
+ * Upload staging and durable filing are separate facts: a file can be uploaded
+ * and still not filed, and the UI must never imply otherwise.
+ */
+export type SourcePackFilingState = "filing" | "filed" | "not-filed" | "failed";
+
 /** A file the user is staging into their Source Pack (UI-side staging state). */
 export type SourcePackFile = {
   id: string;
@@ -25,7 +32,40 @@ export type SourcePackFile = {
   error?: string;
   /** Upload progress 0-100 (not always available). */
   progress?: number;
+  /** Progress of the Workshop Source Documents filing, once upload succeeds. */
+  filing?: SourcePackFilingState;
+  /** Why filing did not complete — shown verbatim rather than swallowed. */
+  filingError?: string;
+  /** Workshop Source Documents row id, once one exists. */
+  sourceDocumentRecordId?: string;
+  /** True once staging was cleared because Airtable holds the durable copy. */
+  blobDeleted?: boolean;
 };
+
+/** True when the file is uploaded but its Workshop filing still needs a retry. */
+export function needsFilingRetry(file: SourcePackFile): boolean {
+  return (
+    file.state === "uploaded" &&
+    (file.filing === "failed" || file.filing === "not-filed") &&
+    Boolean(file.blobUrl)
+  );
+}
+
+/** Plain-English filing line for one staged file. */
+export function filingStatusLabel(file: SourcePackFile): string | null {
+  if (file.state !== "uploaded") return null;
+  switch (file.filing) {
+    case "filing":
+      return "filing to your Workshop…";
+    case "filed":
+      return "filed to your Workshop";
+    case "not-filed":
+    case "failed":
+      return file.filingError || "uploaded, not filed";
+    default:
+      return null;
+  }
+}
 
 export type RouteId = "bring-material" | "talk-through";
 

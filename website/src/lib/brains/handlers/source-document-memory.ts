@@ -51,6 +51,28 @@ export function seedMemorySourceDocument(row: Omit<SourceDocumentRow, "recordId"
   return stored;
 }
 
+/**
+ * Local stand-in for a freshly filed Workshop Source Documents row: Pending,
+ * no summary, attachment present. Mirrors what the Airtable path creates so
+ * memory-mode onboarding does not pretend Airtable succeeded.
+ */
+export function createMemorySourceDocument(input: {
+  documentTitle: string;
+  brainSlug: string;
+}): SourceDocumentRow {
+  return seedMemorySourceDocument({
+    documentTitle: input.documentTitle,
+    summary: "",
+    mineStatus: SOURCE_DOCUMENT_MINE_STATUS.pending,
+    brainSlug: input.brainSlug,
+    attachmentPresent: true,
+  });
+}
+
+export function getMemorySourceDocument(recordId: string): SourceDocumentRow | undefined {
+  return memorySourceDocuments.get(recordId);
+}
+
 export function listMemoryEligibleSourceDocuments(brainSlug: string, limit: number): SourceDocumentRow[] {
   return [...memorySourceDocuments.values()]
     .filter((row) => row.brainSlug === brainSlug)

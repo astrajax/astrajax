@@ -9,6 +9,8 @@ export const BRAIN_REGISTRY_BASE_ID = "appbdTVHevH6Bl5ZZ";
 
 export const BRAIN_REGISTRY_TABLES = {
   brains: "tblAUtpgSjtKf3BBr",
+  /** SSOT for user-brain facts. Workshop User Brains is the sync mirror (read-mostly). */
+  userBrains: "tblgUEXEDfTl8RugA",
   agents: "tblmb7syHipyWfBzu",
   keyRequests: "tblhaWR5UNd8n01tn",
   accessGrants: "tblWLRYSGfLipR53P",
@@ -74,7 +76,12 @@ export const BRAIN_REGISTRY_BRAINS_FIELDS = {
 export const BRAIN_WORKSHOP_BASE_ID = "appL2fdnGmhA02WXd";
 
 export const BRAIN_WORKSHOP_TABLES = {
-  userBrains: "tblm6MqTYRPk8sA9o",
+  /**
+   * Live Workshop User Brains — Airtable sync mirror of Registry User Brains
+   * (`tblgUEXEDfTl8RugA`). Synced columns are read-only from this origin.
+   * Legacy local copy `tblm6MqTYRPk8sA9o` is retired and gone from live schema.
+   */
+  userBrains: "tbl8ovE5njOh1c6iK",
   draftBrainTruth: "tblswvXNYFDqnl6af",
   sourceDocuments: "tblfWdhwbq4QsCjUf",
   brainInteractions: "tblNqNSuIJ2akHyA1",
@@ -91,31 +98,40 @@ export const BRAIN_WORKSHOP_TABLES = {
   ambientCheckpointVersions: "tblRbjD0PHtuTWsIL",
   /** Evolving-work register — thin Projects table (17 Aug 2026). */
   projects: "tbl5jo7EKBxAjjKbf",
+  /** Operator-chosen news themes for ristral-news-scout (19 Aug 2026). */
+  newsWatchThemes: "tblAdsvI5tDNERXQK",
 } as const;
 
-/** Workshop User Brains — identity + operator development (Phase B, 29 Jun 2026). */
+/**
+ * Workshop User Brains — identity + operator development.
+ * Field IDs are the live sync-mirror table (`tbl8ovE5njOh1c6iK`), observed 19 Aug 2026.
+ * Synced columns: edit in Registry. `draftBrainTruth` is Workshop-local and writable.
+ */
 export const BRAIN_WORKSHOP_USER_BRAINS_FIELDS = {
-  userLabel: "fldi06frit7tJGBqZ",
-  archetype: "fldK3PP8kdgLwcjPd",
-  primaryFunction: "fldN5rZRjgEgzBWT4",
-  brainSet: "fldRa47ySX1yWui2A",
-  oneLineRemit: "fldEgPO6TXmBpDVaI",
-  roleDomain: "fldjO5b8ZkZ6fLUrw",
-  guideMode: "fldtkpb76WqRX4KDb",
-  aiConfidence: "fldxhhjBkFsI1AnPk",
-  contextEnvironmentConfidence: "fldM4WRnlbuzynXR2",
-  strengths: "fldPn5Bv0ouRgCi0T",
-  weaknesses: "fldFoXvkSAF1EYfqS",
-  coachingPreferences: "fldbMUmiaKHSP4UNb",
-  developmentFocus: "fldAGVdVxp0JFe4BL",
-  developmentNotes: "fldWWPyNMYAVzfLtO",
-  psychometricReference: "fldYF3O7dFOJTHWUt",
-  notes: "fldTn2QCcji7c3cPv",
+  userLabel: "fldra752LD1ZsOuw9",
+  archetype: "fldkTPj5BKcdvF4Fh",
+  primaryFunction: "fldwr8lvzXy3uM1zX",
+  brainSet: "fldYqphoZP5w173sV",
+  oneLineRemit: "flda0Pz3oB5t1EQ2y",
+  roleDomain: "fldR7Fdu182eSjURv",
+  guideMode: "fldM3t8cHqqfttM8G",
+  aiConfidence: "fldSdUQ8wFflVKsUc",
+  contextEnvironmentConfidence: "fldmLDlKsqMn9vhl9",
+  strengths: "fldVzCR0SKR47HT9Y",
+  weaknesses: "fldeXrbfbAX2h8IA0",
+  coachingPreferences: "fldEm4ojoR8cRpk5S",
+  developmentFocus: "fld6PghfGhFuyPd0F",
+  developmentNotes: "fldx1xxGVBfMiSUXt",
+  psychometricReference: "fldMiH2Xpz677PY29",
+  notes: "fldBB777wX4FnYdon",
+  aiReturnPreference: "fldL9DnOEvSZRUk2t",
+  /** Workshop-local link — not a synced Registry column. */
+  draftBrainTruth: "fldD1vejxoQyE3xal",
 } as const;
 
-/** Matthew demo row — Workshop User Brains (Phase B seed). */
+/** Matthew row — live Workshop User Brains sync mirror (observed 19 Aug 2026). */
 export const BRAIN_WORKSHOP_USER_BRAINS_DEMO = {
-  matthew: "recj9eQY8y6lqxEV9",
+  matthew: "recpLovK4TIiORYcW",
 } as const;
 
 /** Workshop Source Documents — Clive's Man attachment mining (Phase B, 29 Jun 2026). */
@@ -188,6 +204,15 @@ export const BRAIN_WORKSHOP_PROJECTS_FIELDS = {
   intendedOutcome: "fldrb5LY13Feofm2l",
   lifecycle: "fld4SAa3XCObipxa8",
   relatedDrafts: "fldHUpN0X5IlvClU8",
+} as const;
+
+/** Workshop News Watch Themes — operator-chosen scout themes (19 Aug 2026). */
+export const BRAIN_WORKSHOP_NEWS_WATCH_THEMES_FIELDS = {
+  themeKey: "fldNagHPssfv1Lqof",
+  themeLabel: "fldHqXNuU9CYVoqMC",
+  watch: "flduuqfPOSsJNpfu3",
+  searchLens: "fldhoOI72CPk5odAf",
+  notes: "fldoulvrxVjUkPqdB",
 } as const;
 
 export const BRAIN_WORKSHOP_PROJECT_LIFECYCLE = {
@@ -329,7 +354,10 @@ export const HOUSEHOLD_ACTIVITY_TABLES = {
   reports: "tblFzWUIPSiIGZPln",
 } as const;
 
-/** Household Activity Reports — field IDs (live-observed 13 Aug 2026). */
+/**
+ * Household Activity Reports — field IDs (live-observed 13 Aug 2026;
+ * Created and Clive's Reading re-observed 19 Aug 2026).
+ */
 export const HOUSEHOLD_ACTIVITY_REPORT_FIELDS = {
   title: "fldr0pNUAYm9jEITx",
   reportType: "fld3uIBw78HahcUms",
@@ -340,6 +368,14 @@ export const HOUSEHOLD_ACTIVITY_REPORT_FIELDS = {
   periodEnd: "fldc1uSKfB1wE0MfE",
   evidence: "fldGnweCWJkjXVRxu",
   supersedes: "fldGbXhILELIuJ0vZ",
+  created: "fldR1wg7uZMrY1Ooi",
+  /**
+   * Clive's weekly read of the report: standalone clarity and whether the
+   * length is earned. The only cell the weekly reading pass writes, and the
+   * one exception to Reports being create-only. Not shown on the Receiving
+   * Wall — the wall still shows Body (added 19 Aug 2026).
+   */
+  clivesReading: "fld8sWV4YYI8oJ0o1",
 } as const;
 
 /** Household Activity Reports — field names for REST cell keys and sorts. */
@@ -351,6 +387,8 @@ export const HOUSEHOLD_ACTIVITY_REPORT_FIELD_NAMES = {
   body: "Body",
   periodStart: "Period Start",
   periodEnd: "Period End",
+  created: "Created",
+  clivesReading: "Clive's Reading",
 } as const;
 
 /**
@@ -520,6 +558,8 @@ export const BRAIN_TRUSTED_CHAPTER1_TABLES = {
 export const BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS = {
   title: "fldVxNhopdtZTjR6n",
   canonicalText: "fldX79BWrIGBUccHT",
+  /** Dual-register human text — live on Trusted (observed 20 Aug 2026). */
+  canonicalTextForHumans: "fld8EiI0tAZh8tIs0",
   category: "fld4gG1ZjH3ETmqa3",
   scope: "fldtQVETmrrHUiYMw",
   brainTheme: "fldFGVJhAUHTq7Xco",
@@ -527,6 +567,8 @@ export const BRAIN_TRUSTED_CHAPTER1_TRUTH_FIELDS = {
   authority: "fldX0V2cpvYlwiWxh",
   freshness: "fld0eIdJ9UEjSbstx",
   lastReviewed: "fldvBsrSKoy6YKjUf",
+  /** Incubation cap meter. Formula LEN(Canonical Text). Live 20 Aug 2026. */
+  textCharacters: "fldUnZSHrKHFcZQDz",
   legacyScopeText: "fldIo20j7jpJNL03f",
 } as const;
 

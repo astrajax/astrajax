@@ -1,5 +1,5 @@
-import { getWorkshopBaseId, getWorkshopWriteToken } from "../config";
-import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
+import { getRegistryBaseId, getRegistryWriteToken } from "../config";
+import { BRAIN_REGISTRY_TABLES } from "../airtable-ids";
 import { airtableCreate } from "../airtable-rest";
 
 export type UserBrainSaveBody = {
@@ -31,10 +31,10 @@ function mapGuideMode(mode?: string): string | undefined {
 export async function handleUserBrainSave(body: UserBrainSaveBody) {
   if (!body.sessionId?.trim()) throw new Error("sessionId is required.");
 
-  const workshopBaseId = getWorkshopBaseId();
-  const workshopToken = getWorkshopWriteToken();
+  const registryBaseId = getRegistryBaseId();
+  const registryToken = getRegistryWriteToken();
   const tableId =
-    process.env.BRAIN_WORKSHOP_USER_BRAINS_TABLE_ID ?? BRAIN_WORKSHOP_TABLES.userBrains;
+    process.env.BRAIN_REGISTRY_USER_BRAINS_TABLE_ID ?? BRAIN_REGISTRY_TABLES.userBrains;
 
   const label = body.name?.trim() || `Session ${body.sessionId.slice(0, 8)}`;
   const notes = [
@@ -58,16 +58,16 @@ export async function handleUserBrainSave(body: UserBrainSaveBody) {
   if (ai) fields["AI Confidence"] = ai;
   if (ctx) fields["Context Environment Confidence"] = ctx;
 
-  if (!workshopBaseId || !workshopToken) {
+  if (!registryBaseId || !registryToken) {
     return {
       mode: "fallback" as const,
       saved: false,
       message:
-        "Workshop User Brains not wired (BRAIN_WORKSHOP_WRITE_TOKEN). Intake stays in this browser session only.",
+        "Registry User Brains not wired (BRAIN_KEY_ADMIN_TOKEN or BRAIN_REGISTRY_WRITE_TOKEN). Intake stays in this browser session only.",
     };
   }
 
-  const record = await airtableCreate(workshopBaseId, tableId, workshopToken, fields);
+  const record = await airtableCreate(registryBaseId, tableId, registryToken, fields);
 
   return {
     mode: "airtable" as const,
