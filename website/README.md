@@ -1,6 +1,6 @@
 # AstraJax website shell
 
-V1 marketing site built from Taralee's architecture mockups and `docs/business/positioning.md`. Static export — deploy anywhere that hosts HTML.
+V1 marketing site built from Taralee's architecture mockups and `docs/business/positioning.md`. This is a Next.js App Router app (Next 16, React 19) with next-auth, Neon, Vercel Blob, and API routes. Not a static export.
 
 ## What's in the shell
 
@@ -24,18 +24,14 @@ npm run dev
 
 Open http://localhost:3000
 
-## Build static files (for upload)
+## Build
 
 ```bash
 npm run build
+npm start
 ```
 
-Output lands in `website/out/` — a folder of HTML, CSS, and JS you can upload to:
-
-- **Vercel** — connect the repo or drag-drop `out/` (or push and let Vercel build)
-- **Netlify** — deploy `out/` as publish directory
-- **Cloudflare Pages** — same
-- **Any static host** — upload the contents of `out/`
+This is a Node server (`next start`), not a static `out/` folder. Deploy on Vercel from `website/` so API routes, next-auth, Neon, and cron can run. Tests: `npm test` (vitest) and `npm run test:e2e` (playwright).
 
 ## Ask Clive env vars (Vercel)
 
@@ -78,4 +74,4 @@ Default brain slug: `northline-field-ops`. Full build spec: [`docs/initiatives/b
 1. Add `ANTHROPIC_API_KEY` (+ `AIRTABLE_READ_TOKEN`) in Vercel and redeploy
 2. Add favicon and OG image
 
-Not designed for Framer import — this is an owned codebase. If you stay on Framer, use this as the section/copy reference while rebuilding visually there.
+This is an owned Next.js codebase, not a Framer export.
