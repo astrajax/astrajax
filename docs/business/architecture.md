@@ -1,6 +1,6 @@
 # AstraJax System Architecture
 
-**Status:** V0.1 source-of-truth draft  
+**Status:** Canonical (current)  
 **Owner:** Matthew  
 **Last updated:** 11 August 2026 (Kathryn Goodchild agent base)
 **Purpose:** Define the architecture for the AstraJax system: what each agent does, where context lives, where humans approve, and how agent runtimes fit in.

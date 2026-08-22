@@ -46,3 +46,6 @@ website/public/agent-cast/halvard-bjornson/*
 qa-screenshots/
 qa-onboarding-upload-report*.json
 website/qa-onboarding-upload.mjs
+
+# iCloud placeholder files
+*.icloud
