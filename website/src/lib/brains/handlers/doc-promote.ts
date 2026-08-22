@@ -90,70 +90,101 @@ export async function handleDocPromote(body: DocPromoteBody) {
 
   const brainSlug = body.brainSlug.trim();
 
-  for (const { draftRecordId, category, scope } of body.promotions) {
-    const draft = await airtableFindOne(
-      workshopBaseId,
-      BRAIN_WORKSHOP_TABLES.draftBrainTruth,
-      docToken,
-      `RECORD_ID()='${draftRecordId.replace(/'/g, "\\'")}'`,
-    );
+  try {
+    for (const { draftRecordId, category, scope } of body.promotions) {
+      const draft = await airtableFindOne(
+        workshopBaseId,
+        BRAIN_WORKSHOP_TABLES.draftBrainTruth,
+        docToken,
+        `RECORD_ID()='${draftRecordId.replace(/'/g, "\\'")}'`,
+      );
 
-    if (!draft) {
-      throw new Error(`Draft record not found: ${draftRecordId}`);
-    }
-
-    const { title, canonicalText } = assertDraftEligibleForPromote({
-      draftRecordId,
-      brainSlug,
-      fields: draft.fields,
-    });
-
-    const authority = body.approver.trim();
-    const priorStatus = String(draft.fields.Status ?? "").trim();
-
-    // Quarantine before Trusted create. Create-then-quarantine left a
-    // promote-eligible draft when the update failed after create succeeded;
-    // retries then duplicated Trusted rows.
-    await airtableUpdate(
-      workshopBaseId,
-      BRAIN_WORKSHOP_TABLES.draftBrainTruth,
-      docToken,
-      draftRecordId,
-      { Status: DRAFT_TRUTH_STATUS.quarantined },
-    );
-
-    let trusted;
-    try {
-      trusted = await airtableCreate(trustedBaseId, trustedTableId, docToken, {
-        Title: title,
-        "Canonical Text": canonicalText,
-        Category: category.trim(),
-        Scope: scope.trim(),
-        Authority: authority,
-        Freshness: "Current",
-        "Last Reviewed": today,
-      });
-    } catch (error) {
-      try {
-        await airtableUpdate(
-          workshopBaseId,
-          BRAIN_WORKSHOP_TABLES.draftBrainTruth,
-          docToken,
-          draftRecordId,
-          { Status: priorStatus },
-        );
-      } catch {
-        // Prefer the create failure; draft may need a manual status restore.
+      if (!draft) {
+        throw new Error(`Draft record not found: ${draftRecordId}`);
       }
-      throw error;
-    }
 
-    promotedRecordIds.push(trusted.id);
+      const { title, canonicalText } = assertDraftEligibleForPromote({
+        draftRecordId,
+        brainSlug,
+        fields: draft.fields,
+      });
+
+      const authority = body.approver.trim();
+      const priorStatus = String(draft.fields.Status ?? "").trim();
+
+      // Quarantine before Trusted create. Create-then-quarantine left a
+      // promote-eligible draft when the update failed after create succeeded;
+      // retries then duplicated Trusted rows.
+      await airtableUpdate(
+        workshopBaseId,
+        BRAIN_WORKSHOP_TABLES.draftBrainTruth,
+        docToken,
+        draftRecordId,
+        { Status: DRAFT_TRUTH_STATUS.quarantined },
+      );
+
+      let trusted;
+      try {
+        trusted = await airtableCreate(trustedBaseId, trustedTableId, docToken, {
+          Title: title,
+          "Canonical Text": canonicalText,
+          Category: category.trim(),
+          Scope: scope.trim(),
+          Authority: authority,
+          Freshness: "Current",
+          "Last Reviewed": today,
+        });
+      } catch (error) {
+        try {
+          await airtableUpdate(
+            workshopBaseId,
+            BRAIN_WORKSHOP_TABLES.draftBrainTruth,
+            docToken,
+            draftRecordId,
+            { Status: priorStatus },
+          );
+        } catch {
+          // Prefer the create failure; draft may need a manual status restore.
+        }
+        throw error;
+      }
+
+      promotedRecordIds.push(trusted.id);
+    }
+  } catch (error) {
+    // A mid-batch failure after one Trusted create must still revoke. The
+    // successful draft is already Quarantined, so retrying the same batch
+    // cannot reach revokeGrantsForBrain — Active keys would keep reading
+    // the newly promoted truth.
+    if (promotedRecordIds.length > 0) {
+      const revoked = await revokeGrantsForBrain(brainSlug);
+      try {
+        await appendChangeLog({
+          changeSummary: `Partial promote: ${promotedRecordIds.length} draft(s) to Trusted Brain before failure`,
+          changeType: "Truth Promote",
+          changedBy: body.approver.trim(),
+          approvedBy: body.approver.trim(),
+          executingAgent: "Doc",
+          reason: body.reason.trim(),
+          affectedRecords: promotedRecordIds.join(", "),
+          source: "Brain Key API",
+          notes:
+            error instanceof Error ? error.message : String(error),
+        });
+      } catch {
+        // Best-effort audit only — revoke already succeeded.
+      }
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new Error(
+        `Promoted ${promotedRecordIds.length} of ${body.promotions.length} draft(s) then failed: ${detail}. Active grants for ${brainSlug} were revoked (${revoked}).`,
+      );
+    }
+    throw error;
   }
 
   // Revoke before the promote paper trail. Trusted rows and quarantined drafts
   // already committed — a change-log failure must not leave Active keys alive.
-  const revoked = await revokeGrantsForBrain(body.brainSlug.trim());
+  const revoked = await revokeGrantsForBrain(brainSlug);
 
   try {
     await appendChangeLog({
