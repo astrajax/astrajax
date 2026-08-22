@@ -2,8 +2,7 @@
 
 > Purpose: give any AI assistant the background it needs to help with AstraJax
 > without re-explaining who Matthew is or what the business does.
-> Positioning source of truth: `docs/business/positioning.md`. Internal execution +
-> AI rules: `docs/business/internal-brief.md`. Do not duplicate them here.
+> Living business notes (what we sell, the household name, proof numbers, first-fleet time) live in Airtable: AstraJax Trusted Brain — Chapter 1 → Brain Truth (https://airtable.com/app6tjzzG0L0lOeVb/tblipHzCl905T7o5F). Origin holds code and this door sign. Files under docs/business/ are leftover copies until they move. Do not update claims in Origin.
 
 ## Who Matthew is (founder)
 
