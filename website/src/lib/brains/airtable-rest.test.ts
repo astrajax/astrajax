@@ -6,6 +6,7 @@ import {
   airtableCreate,
   airtableFindOne,
   airtableSelect,
+  airtableUploadAttachment,
   escapeAirtableString,
 } from "./airtable-rest";
 
@@ -158,6 +159,113 @@ describe("airtable-rest", () => {
         }),
       }),
     );
+  });
+
+  describe("airtableUploadAttachment host fallback", () => {
+    const file = {
+      filename: "brief.pdf",
+      contentType: "application/pdf",
+      base64: "cGRmLWJ5dGVz",
+    };
+
+    it("posts to content.airtable.com first", async () => {
+      const mockFetch = vi.mocked(fetch);
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ id: "recUp1", fields: {} }), { status: 200 }),
+      );
+
+      const record = await airtableUploadAttachment(
+        "appTest",
+        "recUp1",
+        "fldAttach",
+        "patToken",
+        file,
+      );
+
+      expect(record.id).toBe("recUp1");
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(String(mockFetch.mock.calls[0]?.[0])).toBe(
+        "https://content.airtable.com/v0/appTest/recUp1/fldAttach/uploadAttachment",
+      );
+      expect(mockFetch.mock.calls[0]?.[1]).toEqual(
+        expect.objectContaining({
+          method: "POST",
+          body: JSON.stringify({
+            contentType: file.contentType,
+            file: file.base64,
+            filename: file.filename,
+          }),
+        }),
+      );
+    });
+
+    it("falls back to api.airtable.com when content host answers 404", async () => {
+      const mockFetch = vi.mocked(fetch);
+      mockFetch
+        .mockResolvedValueOnce(new Response("gone", { status: 404 }))
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ id: "recUp2", fields: {} }), {
+            status: 200,
+          }),
+        );
+
+      const record = await airtableUploadAttachment(
+        "appTest",
+        "recUp2",
+        "fldAttach",
+        "patToken",
+        file,
+      );
+
+      expect(record.id).toBe("recUp2");
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(String(mockFetch.mock.calls[0]?.[0])).toContain("content.airtable.com");
+      expect(String(mockFetch.mock.calls[1]?.[0])).toBe(
+        "https://api.airtable.com/v0/appTest/recUp2/fldAttach/uploadAttachment",
+      );
+    });
+
+    it("falls back when content host answers 405", async () => {
+      const mockFetch = vi.mocked(fetch);
+      mockFetch
+        .mockResolvedValueOnce(new Response("method not allowed", { status: 405 }))
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify({ id: "recUp3", fields: {} }), {
+            status: 200,
+          }),
+        );
+
+      await expect(
+        airtableUploadAttachment("appTest", "recUp3", "fldAttach", "patToken", file),
+      ).resolves.toMatchObject({ id: "recUp3" });
+      expect(String(mockFetch.mock.calls[1]?.[0])).toContain("api.airtable.com");
+    });
+
+    it("does not retry a non-host-missing failure (e.g. 403)", async () => {
+      const mockFetch = vi.mocked(fetch);
+      mockFetch.mockResolvedValueOnce(
+        new Response(JSON.stringify({ error: { message: "forbidden" } }), {
+          status: 403,
+        }),
+      );
+
+      await expect(
+        airtableUploadAttachment("appTest", "recUp4", "fldAttach", "patToken", file),
+      ).rejects.toThrow(/Airtable API error 403/);
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it("rethrows the last host-missing error when both hosts fail", async () => {
+      const mockFetch = vi.mocked(fetch);
+      mockFetch
+        .mockResolvedValueOnce(new Response("missing", { status: 404 }))
+        .mockResolvedValueOnce(new Response("still missing", { status: 404 }));
+
+      await expect(
+        airtableUploadAttachment("appTest", "recUp5", "fldAttach", "patToken", file),
+      ).rejects.toThrow(/Airtable API error 404/);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    });
   });
 
   it("escapes single quotes for Airtable formula literals", () => {
