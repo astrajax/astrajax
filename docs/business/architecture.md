@@ -1,6 +1,7 @@
 # AstraJax System Architecture
 
-**Status:** Canonical (current)  
+**Leftover copy.** Living notes are in the trusted brain the Brain Registry names. Physical bases are mapped in Household Register → Estate Bases.
+**Status:** Leftover copy only. Not the living source.
 **Owner:** Matthew  
 **Last updated:** 11 August 2026 (Kathryn Goodchild agent base)
 **Purpose:** Define the architecture for the AstraJax system: what each agent does, where context lives, where humans approve, and how agent runtimes fit in.
