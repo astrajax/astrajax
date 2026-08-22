@@ -8,7 +8,7 @@
 **Source of truth:** `docs/business/positioning.md`, `docs/business/proof.md`. This script *points at* them; if anything drifts, those win.
 **Read before recording:** `docs/business/positioning.md` §14 (Claim Control). Canonical numbers are listed at the foot of this doc.
 
-> Refreshed and tightened from the Airspace LA script (`docs/context/matthew-talk-track-v3.md`). Two changes worth knowing: (1) first-fleet timing corrected to **three weeks** to stay canonical; (2) Hyperagent is credited as the runtime — appropriate here, where Airspace deliberately led with Airtable workflows instead.
+> Refreshed and tightened from the Airspace LA script (`docs/context/matthew-talk-track-v3.md`). Two changes worth knowing: (1) first-fleet timing set to **two weeks** as official; (2) Hyperagent is credited as the runtime — appropriate here, where Airspace deliberately led with Airtable workflows instead.
 
 ---
 
@@ -142,7 +142,7 @@ But the real outcome wasn't time. It was leverage. The team could stop coordinat
 
 So that was the foundation. Twelve months of cleaning data, centralising workflows, and getting the team operating from one place.
 
-Once that existed, the next layer moved fast. We built the **first agent fleet in three weeks**.
+Once that existed, the next layer moved fast. We built the **first agent fleet in two weeks**.
 
 [ON SCREEN: Hyperagent — agent build view]
 
@@ -266,7 +266,7 @@ Canonical numbers (do not drift — `docs/business/proof.md` §6, `positioning.m
 
 - **14 agents**
 - **120-person** commercial team
-- **three weeks** — first fleet (not "two weeks" / "11 days")
+- **two weeks** — first fleet (official)
 - **~12 months** — foundation layer
 - **~£8.1m** — Direct Sales channel, three P&Ls (UK, Ireland, sister cat brand)
 - **~£180k/year** travel saving · **~3,000 hours/year** capacity at scale

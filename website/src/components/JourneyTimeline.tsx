@@ -332,7 +332,7 @@ function CloseCard({ close }: { close: JourneyClose }) {
             rel="noopener noreferrer"
             className="btn-primary text-sm"
           >
-            Book an Adoption OS Audit
+            Book The AstraJax Household
             <span aria-hidden>→</span>
           </a>
           <Link

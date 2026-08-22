@@ -325,7 +325,7 @@ Best-fit clients are commercial or operations-heavy teams that want AI their peo
 
 **Platform-led, partnership-supported.**
 
-- **Adoption Readiness Audit** — a diagnostic of where AI adoption is stalling: context readiness, trust gaps, workflow fit, model usage, and an adoption roadmap.
+- **The AstraJax Household** — the stay-behind OS: coaches a non-technical champion and gives them the tools to drive adoption in their own ecosystem.
 - **Brain & Fleet Sprint** — a done-with-you build of the first context brain, agent fleet, approval rules, and deployment package.
 - **Partnership** — the premium tier: hands-on architecture, Architect training, context design, and adoption support for teams that want to move faster.
 
@@ -351,7 +351,7 @@ AstraJax is built from production experience, not a pitch deck. Full detail live
 
 - Matthew Hopkinson: professional actor → London Team Leader → **Head of Sales** at **Butternut Box** (confirmed unicorn) in **seven years** (by July 2026). External reference title: **Director of Sales** (Butternut-sanctioned). The velocity arc is founder-capability evidence — steep learning curve, reinvention under uncertainty — not a logo flex.
 - Working with AI on top of cleaned operational data, Matthew solo-built a production operating layer for the **Direct Sales channel** — a ~£8.1m annual commercial function with a 120-person team. Real adoption pressure.
-- Roughly **12 months on the boring layer first** (data, workflows, architecture), then the build moved fast — the first **14-agent fleet** was built in **three weeks** because the foundation existed.
+- Roughly **12 months on the boring layer first** (data, workflows, architecture), then the build moved fast — the first **14-agent fleet** was built in **two weeks** because the foundation existed.
 - The system handed back **~3,000 hours/year** of operational capacity at scale.
 - A characterful agent fleet used by a non-technical team, with bounded scope, human approval, and audit trails.
 - External validation: Airtable **Airspace LA** keynote, Airtable **MVP** status, and **HyperAgent Founding 500**.
@@ -414,7 +414,7 @@ Numbers to keep canonical for external use:
 
 - **14 agents**
 - **120-person commercial team**
-- **three weeks** for the first fleet
+- **two weeks** for the first fleet
 - **~12 months** on the foundation
 - **~£8.1m** channel
 - **~3,000 hours/year** operational capacity handed back at scale

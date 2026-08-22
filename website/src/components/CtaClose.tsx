@@ -12,7 +12,7 @@ export function CtaClose() {
       <div className="mx-auto max-w-6xl px-6 py-20 lg:py-28">
         <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
           <div>
-            <p className="section-label mb-4 text-parchment/60">Start with an Audit</p>
+            <p className="section-label mb-4 text-parchment/60">Start with The Household</p>
             <h2 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
               Your experts should be shaping the AI already.
             </h2>
@@ -25,7 +25,7 @@ export function CtaClose() {
               rel="noopener noreferrer"
               className="btn-primary mt-8"
             >
-              Book your Adoption Audit
+              Book The AstraJax Household
               <span aria-hidden>→</span>
             </a>
           </div>
