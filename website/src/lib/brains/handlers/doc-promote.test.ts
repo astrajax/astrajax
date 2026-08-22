@@ -381,6 +381,112 @@ describe("Doc promote (airtable mode)", () => {
     ).rejects.toThrow(/BRAIN_DOC_PROMOTE_TOKEN is not configured/);
   });
 
+  it("revokes Active grants when a later item fails after an earlier Trusted create", async () => {
+    const mockFetch = vi.mocked(fetch);
+    const revokedIds: string[] = [];
+    let trustedCreates = 0;
+
+    mockFetch.mockImplementation(async (input, init) => {
+      const url = String(input);
+      const method = init?.method ?? "GET";
+
+      if (method === "GET" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
+        const draftId = url.includes("recDraft2") ? "recDraft2" : "recDraft1";
+        // airtableFindOne uses filterByFormula with RECORD_ID()='…'
+        const formulaMatch = decodeURIComponent(url).match(
+          /RECORD_ID\(\)='(rec[^']+)'/,
+        );
+        const id = formulaMatch?.[1] ?? draftId;
+        return new Response(
+          JSON.stringify({
+            records: [
+              {
+                id,
+                fields: {
+                  Title: id === "recDraft2" ? "Second draft" : "First draft",
+                  "Canonical Text for Agents":
+                    id === "recDraft2" ? "Second body" : "First body",
+                  "Brain Slug": "astrajax-chapter-1",
+                  Status: "Approved",
+                },
+              },
+            ],
+          }),
+          { status: 200 },
+        );
+      }
+
+      if (method === "PATCH" && url.includes(BRAIN_WORKSHOP_TABLES.draftBrainTruth)) {
+        const id = url.split("/").pop() ?? "recDraft";
+        const body = JSON.parse(String(init?.body)) as { fields: Record<string, string> };
+        return new Response(JSON.stringify({ id, fields: body.fields }), { status: 200 });
+      }
+
+      if (method === "POST" && url.includes(BRAIN_TRUSTED_CHAPTER1_TABLES.brainTruth)) {
+        trustedCreates += 1;
+        if (trustedCreates === 1) {
+          return new Response(JSON.stringify({ id: "recTrusted1", fields: {} }), {
+            status: 200,
+          });
+        }
+        return new Response(JSON.stringify({ error: { message: "Trusted write failed" } }), {
+          status: 503,
+        });
+      }
+
+      if (method === "GET" && url.includes(BRAIN_REGISTRY_TABLES.accessGrants)) {
+        return new Response(
+          JSON.stringify({
+            records: [{ id: "recGrantAlive", fields: { "Grant ID": "grant_alive" } }],
+          }),
+          { status: 200 },
+        );
+      }
+
+      if (method === "PATCH" && url.includes(BRAIN_REGISTRY_TABLES.accessGrants)) {
+        const id = url.split("/").pop() ?? "";
+        revokedIds.push(id);
+        return new Response(JSON.stringify({ id, fields: { Status: "Revoked" } }), {
+          status: 200,
+        });
+      }
+
+      if (method === "GET" && url.includes(BRAIN_REGISTRY_TABLES.changeLog)) {
+        return new Response(JSON.stringify({ records: [] }), { status: 200 });
+      }
+
+      if (method === "POST" && url.includes(BRAIN_REGISTRY_TABLES.changeLog)) {
+        return new Response(JSON.stringify({ id: "recLogPartial" }), { status: 200 });
+      }
+
+      return new Response(JSON.stringify({ records: [] }), { status: 200 });
+    });
+
+    await expect(
+      handleDocPromote({
+        approvalDecisionId: "apd_partial_batch",
+        brainSlug: "astrajax-chapter-1",
+        promotions: [
+          {
+            draftRecordId: "recDraft1",
+            category: "Positioning",
+            scope: "read:brain-truth:positioning",
+          },
+          {
+            draftRecordId: "recDraft2",
+            category: "Architecture",
+            scope: "read:brain-truth:architecture",
+          },
+        ],
+        approver: "Matthew",
+        reason: "batch promote must revoke after partial Trusted write",
+      }),
+    ).rejects.toThrow(/Promoted 1 of 2 draft\(s\) then failed/);
+
+    expect(trustedCreates).toBe(2);
+    expect(revokedIds).toEqual(["recGrantAlive"]);
+  });
+
   it("still revokes Active grants when the promote change-log write fails", async () => {
     const mockFetch = vi.mocked(fetch);
     const revokedIds: string[] = [];
