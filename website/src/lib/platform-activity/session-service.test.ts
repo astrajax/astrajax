@@ -42,6 +42,7 @@ import {
   getPlatformIdleMinutes,
   platformSessionEnabled,
 } from "./config";
+import { HOUSEHOLD_SESSION_FIELDS } from "./ids";
 import { createPlatformSessionHandle } from "./signing";
 import {
   closePlatformSession,
@@ -103,6 +104,43 @@ describe("platform session-service", () => {
     sessionEnabledMock.mockReturnValue(false);
     await expect(startPlatformSession({})).resolves.toEqual({ enabled: false });
     expect(createRecordMock).not.toHaveBeenCalled();
+  });
+
+  it("startPlatformSession writes Session Id + Started field IDs (not display names)", async () => {
+    createRecordMock.mockResolvedValueOnce({
+      id: "recNewSession",
+      fields: {},
+    });
+    createLeaseMock.mockResolvedValueOnce(undefined);
+
+    const result = await startPlatformSession({
+      pageUrl: "https://astrajax.com/enter",
+      parentSessionId: "platform--parent",
+    });
+
+    expect(result.enabled).toBe(true);
+    expect(result.sessionRecordId).toBe("recNewSession");
+    expect(createRecordMock).toHaveBeenCalledOnce();
+    const written = createRecordMock.mock.calls[0]?.[0]?.fields as Record<
+      string,
+      unknown
+    >;
+    // Lock the Airtable field IDs — display-name keys would silently drop or
+    // write to the wrong column if the Sessions schema drifts.
+    expect(written[HOUSEHOLD_SESSION_FIELDS.sessionId]).toEqual(
+      expect.stringMatching(/^platform--/),
+    );
+    expect(written[HOUSEHOLD_SESSION_FIELDS.parentSessionId]).toBe(
+      "platform--parent",
+    );
+    expect(written[HOUSEHOLD_SESSION_FIELDS.started]).toEqual(
+      expect.stringMatching(/^\d{4}-\d{2}-\d{2}T/),
+    );
+    expect(written[HOUSEHOLD_SESSION_FIELDS.threadUrl]).toBe(
+      "https://astrajax.com/enter",
+    );
+    expect(written).not.toHaveProperty("Started");
+    expect(written).not.toHaveProperty("Session ID");
   });
 
   it("reservePlatformSequences clamps count into 1..20", async () => {
