@@ -12,14 +12,14 @@ AstraJax context lives in two distinct places. Mixing them is the main cause of 
 
 | System | Location | What it is |
 |--------|----------|------------|
-| **Business brain** | AstraJax Trusted Brain — Chapter 1 → Brain Truth (https://airtable.com/app6tjzzG0L0lOeVb/tblipHzCl905T7o5F) | Living copy for positioning, offers, proof numbers, and the household name. |
+| **Business brain** | Brain Registry → System Brains (https://airtable.com/appbdTVHevH6Bl5ZZ/tblAUtpgSjtKf3BBr); Household Register → Estate Bases (https://airtable.com/appPrpfvsAr71RPP3/tblWygUeD4Qo8vq4s) | Look up the context, then go to the trusted base that row names. Estate Bases maps which physical Airtable base is which. |
 | **Clive context-engine** | `docs/context/` | The live operational machinery for Clive's Man's context workflows: intake, curation, quarantine, publish-prep, and source registry upkeep. Operator walkthrough: `docs/context/clive-man-context-flow.md`. The old Intake, Curator, Publisher, and Scanner agents are retired as active owners; their duties now sit inside Clive's Man. Governed by Airtable + the source registry. **Do not treat as business positioning. Do not restructure without care — live agents read it.** |
 
 ---
 
 ## Canonical business docs (`docs/business/`)
 
-These Origin files are leftover copies, not living truth. Living business notes live in Airtable Brain Truth. This list is a map of leftovers so people can find them until they move.
+These Origin files are leftover copies, not living truth. Living notes are in the trusted brain the register names, not a hardcoded Chapter 1 table. Physical bases are mapped in Household Register → Estate Bases. This list is a map of leftovers so people can find them until they move.
 
 - `positioning.md` — what AstraJax is, who it is for, offers, proof, claim-control.
 - `internal-brief.md` — internal priorities, ownership, launch rules, and AI guardrails (not public positioning).
@@ -59,7 +59,7 @@ Superseded material. **Not truth.** Kept for history and provenance only. Never 
 1. **One canonical doc per concept.** If a concept already has a doc in `docs/business/`, edit it — do not create a second one.
 2. **Version with git, not filenames.** No `_v2`, `_STRONG`, or dates in live filenames. Git holds history. Anything version- or date-suffixed belongs in `docs/archive/`.
 3. **Three states only:** canonical (`business/`) → working (`initiatives/`) → archive. If it is not canonical, it does not drive agents.
-4. **Downloads is never source of truth.** It is a scratchpad. Living business truth lives in Airtable. Origin holds code + this door sign.
+4. **Downloads is never source of truth.** It is a scratchpad. Living business truth lives in Airtable; find the trusted brain via the Brain Registry and the physical base via the Household Register. Origin holds code + this door sign.
 5. **New material gets a home on arrival.** Decide canonical / working / archive immediately. Do not let loose files pile up at the repo root.
 
 > **These rules are enforced.** They live as always-on Cursor rules in `.cursor/rules/`: `context-structure.mdc` (this discipline), `model-routing.mdc` (right model/tool for the job), and `pam-check.mdc` (sceptical pass before high-stakes calls). Every chat and agent in this repo loads them automatically — keep this file and those rules in sync.
