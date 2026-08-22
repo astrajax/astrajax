@@ -5,6 +5,7 @@ description: >-
   role is Operational v0.3 (recdOn7bnhn7sMK0Y); v0.2 retired. HA On-Platform Doc v0.4
   is ahead — see docs/initiatives/build-velocity-tracks.md Track 0a. Live Hyperagent
   agent config → self-update-executor. Skill create/update → skill-forge-executor.
+  Recommendations Execute checkbox → queue-execute-airtable-ssot.
 ---
 
 # doc
@@ -37,6 +38,9 @@ triage and go direct.
   Skill Versions). Do **not** ask Clive or Kathryn to edit a shared skill.
   Uncommitted files cannot be read from GitHub: MCP-attach or Airtable-attach them;
   never tell Skill Forge to read `.cursor/skills/…` from the repo until that file is committed.
+- **Recommendations Execute** ticked (Doc Advised) → load `queue-execute-airtable-ssot`.
+  That skill claims the row, then forks: agent config → `self-update-executor`;
+  skill body → Register Skills then Matthew's Approved-Canonical webhook.
 
 Do **not** send those jobs to Workshop, and do **not** "build JSON and Matthew
 imports." Workshop Hyperagent Builder is for **new** exports / generators /
@@ -126,7 +130,7 @@ After reading the request, **state this block** before proposing:
 
 ```text
 **Tier:** Green | Amber | Red — [why]
-**Routing:** [Minion display name] (`@doc-…-slug`) | Self-Update Executor (`self-update-executor`) | Skill Forge Executor (`skill-forge-executor`)
+**Routing:** [Minion display name] (`@doc-…-slug`) | Self-Update Executor (`self-update-executor`) | Skill Forge Executor (`skill-forge-executor`) | Queue execute (`queue-execute-airtable-ssot`)
 **Why:** one plain sentence
 **Not this lane:** what you ruled out (one line)
 ```
@@ -144,9 +148,10 @@ Hyperagent Builder (new exports only).
 | Both (e.g. new brain base + wire API) | **Both, in order** | Airtable first → Vercel second; say so explicitly |
 | **Live Hyperagent agent config** on an existing named agent (example: "update Clive's Hyperagent prompt to X") | **Self-Update Executor** (Doc runs this — not a minion, not Workshop) | `self-update-executor` — hosted MCP → that agent applies → Cursor `draft_save` persist → verify → register write. No JSON import. |
 | **Skill create or skill body change** (workspace / shared skill) | **Skill Forge Executor** (Doc runs this — not a minion, not Workshop, not Self-Update) | `skill-forge-executor` — hosted MCP → Skill Forge (`cmr6im5in1iw106ad59qx2cgr`) dumps → applies → Cursor `draft_save` persist → verify → Skills / Skill Versions. |
+| **Recommendations Execute** ticked (Doc Advised) | **Queue execute** (Doc runs this — not a minion) | `queue-execute-airtable-ssot` — claim the row from Doc Instructions. Agent config → `self-update-executor` (register **after** verify). Skill body → Register Skills, Provenance Pending; Matthew's Approved-Canonical webhook to Skill Forge. |
 | Design a **new** agent; first-time skills/tools/evals pack | **Doc's Workshop** | `doc-workshop-proposer` (Proposer) → `doc-workshop-challenger` → builders |
 | Build Cursor agent files after approved pack | **Doc's Workshop — Cursor Builder** | `doc-workshop-cursor` (usually dispatched by Proposer) |
-| **New** Hyperagent export / generator / first-time import pack after approved pack | **Doc's Workshop — Hyperagent Builder** | `doc-workshop-hyperagent` (usually dispatched by Proposer). New files only. Live apply is Doc → Self-Update, not this lane. |
+| **New** Hyperagent export / generator / first-time import pack after approved pack | **Doc's Workshop — Hyperagent Builder** | `doc-workshop-hyperagent` (usually dispatched by Proposer). New files only. Live agent apply is Doc → Self-Update; live skill apply is Doc → Skill Forge. |
 | Log context / brain upkeep | **Not Doc** | `@clive-man` |
 | Operate / run a HyperAgent fleet agent in the UI | **Not Doc** | HyperAgent UI |
 | Strategy / positioning only | **Not Doc** | Clive or strong reasoning chat; no minion |
@@ -167,7 +172,8 @@ directly, skip triage announcement but still follow that minion's skill.
 
 If the job is live Hyperagent **agent config**, load `/self-update-executor` even
 when Matthew did not name the skill. If it is a **skill** create/update, load
-`/skill-forge-executor`. Do not bounce either job to `@doc-workshop-hyperagent`.
+`/skill-forge-executor`. If Execute is ticked on Recommendations, load
+`/queue-execute-airtable-ssot` first. Do not bounce those jobs to `@doc-workshop-hyperagent`.
 
 ## Phase rules (inherited from minions + Household Conduct)
 
@@ -199,7 +205,8 @@ Always load **doc** first.
 
 If the job is a **live Hyperagent agent config** change, load
 **self-update-executor**. If it is a **skill** create/update, load
-**skill-forge-executor**. Do not load a Workshop builder for those jobs.
+**skill-forge-executor**. If Execute is ticked, load **queue-execute-airtable-ssot**
+first (it then loads Self-Update or writes Skills). Do not load a Workshop builder for those jobs.
 
 Then load **exactly one minion skill** per lane in scope:
 
@@ -328,4 +335,5 @@ Short routing callout, then the plan. No theatrics. No em-dashes.
 - `@doc-workshop-challenger`, `@doc-workshop-cursor`, `@doc-workshop-hyperagent` — Workshop Trinity (optional direct)
 - `self-update-executor` — live Hyperagent agent config on an existing named agent
 - `skill-forge-executor` — live Hyperagent skill create/update via Skill Forge
+- `queue-execute-airtable-ssot` — Recommendations Execute drain (then Self-Update or Skills webhook)
 - `docs/initiatives/self-update-executor-2026-08-19/how-a-change-runs.md` — Matthew one-pager (both forks)

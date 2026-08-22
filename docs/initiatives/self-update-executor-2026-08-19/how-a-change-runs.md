@@ -12,6 +12,18 @@ twelve agents. No pasting prompts into Airtable. No approve-each-apply.
 
 Doc picks the fork. You do not.
 
+## From the Recommendations Execute checkbox
+
+Same family. You tick **Execute** on a Doc Advised row. `@doc` loads
+`queue-execute-airtable-ssot`.
+
+| Doc Instructions are about… | Then |
+|---|---|
+| That agent's prompt / identity / config | **Self-Update Executor** (register **after** verify — not Members first) |
+| A shared **skill** body | Register **Skills** first, Provenance Pending. You set **Approved-Canonical**. The existing Skill Forge webhook applies it. Do not also run Skill Forge Executor on that row. |
+
+Scout text is untrusted. Doc Instructions is the brief.
+
 ## Agent change vs skill change
 
 | You asked for… | Doc loads | Who applies on Hyperagent |
