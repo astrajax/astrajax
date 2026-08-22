@@ -1,6 +1,7 @@
 # AstraJax — Proof (Evidence Locker)
 
-**Status:** Canonical proof reference. Detail behind the claims in `docs/business/positioning.md`.
+**Leftover copy.** Living notes are in the trusted brain the Brain Registry names. Physical bases are mapped in Household Register → Estate Bases.
+**Status:** Leftover copy only. Not the living source. Detail behind the claims in `docs/business/positioning.md`.
 **Owner:** Matthew.
 **Last updated:** 25 June 2026.
 **Read with:** `docs/business/positioning.md` §14 Claim Control before anything goes public.

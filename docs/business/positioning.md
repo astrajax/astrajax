@@ -1,7 +1,7 @@
-# AstraJax — Positioning (Canonical)
+# AstraJax — Positioning
 
 **Leftover copy.** Living notes are in the trusted brain the Brain Registry names. Physical bases are mapped in Household Register → Estate Bases.
-**Status:** Canonical positioning. Single source of truth for messaging, website copy, decks, one-pagers, and pitches.
+**Status:** Leftover copy only. Not the living source.
 **Supersedes:** `astrajax_positioning.md` (29 May), `AstraJax-company-positioning.md` (22 Jun), and `docs/context/astrajax-core-positioning.md`. Those are kept in `docs/archive/` for history only.
 **Companion docs:** `docs/business/architecture.md` (how the product works), `docs/business/how-we-work.md` (how the company runs), `docs/business/proof.md` (evidence locker).
 **Owner:** Matthew.
