@@ -1,8 +1,8 @@
 const offers = [
   {
-    title: "Adoption OS Audit",
-    body: "Find the adoption gap.",
-    detail: "Where agents will fail: context, ownership, trust, workflow fit and feedback loops.",
+    title: "The AstraJax Household",
+    body: "The stay-behind OS.",
+    detail: "Coaches a non-technical champion and gives them the tools to drive adoption in their own ecosystem.",
   },
   {
     title: "Brain & Fleet Sprint",
@@ -44,7 +44,7 @@ export function Offers() {
         </div>
         <div className="mt-8">
           <a href="#start" className="btn-primary">
-            Start with the Adoption Audit
+            Start with The AstraJax Household
             <span aria-hidden>→</span>
           </a>
         </div>

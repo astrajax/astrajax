@@ -55,7 +55,7 @@ Working with AI on top of cleaned operational data, he solo-built a production o
 | Signal              | Proof                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | Scale               | **~£8.1m** Direct Sales channel; 3 P&Ls; ~15 office FTE + ~90 field salespeople                                                     |
-| Sequencing          | **~12 months** boring layer first (data, workflows, architecture) → **~556 TS/React files** in ~1 month → **14 agents in ~3 weeks** |
+| Sequencing          | **~12 months** boring layer first (data, workflows, architecture) → **~556 TS/React files** in ~1 month → **14 agents in ~2 weeks** |
 | Outcomes            | **~£180k/year** travel saving; **~3,000 hours/year** operational capacity at scale                                                  |
 | Adoption            | Characterful agent fleet used by a non-technical team; training hub, sandboxes, engagement leaderboard, human approval everywhere   |
 | External validation | Airtable **Airspace LA** keynote; **Airtable MVP**; **HyperAgent Founding 500**                                                     |
@@ -118,12 +118,12 @@ A quieter edge worth noting: AstraJax sits where technology, academic craft, and
 We do not sell "AI transformation." We sell a sequence with a low-friction front door.
 
 ```text
-Adoption OS Audit  →  Brain & Fleet Sprint  →  Partnership / Platform
-(diagnostic, paid)    (first brain + fleet)     (ongoing operating layer)
+The AstraJax Household  →  Brain & Fleet Sprint  →  Partnership / Platform
+(stay-behind OS)          (first brain + fleet)     (ongoing operating layer)
 ```
 
 - **Who we chase first.** Commercial or operations-heavy teams (£5m–£100m revenue) where one or two operators hold too much context in their heads, earlier AI experiments stalled after the demo, and a commercial leader — not an IT function — owns the budget. Founder-led SMEs, direct-sales and field operations, multi-site service businesses.
-- **Why us, not a consultancy.** The Audit leaves them with a working brain and a bounded fleet, not a slide deck. The method compounds: every client brain we build sharpens the coaching path and the product.
+- **Why us, not a consultancy.** The Household coaches a non-technical champion and gives them the tools to drive adoption in their own ecosystem, not a slide deck. The method compounds: every client brain we build sharpens the coaching path and the product.
 - **How adoption scales.** Train one AI champion per function, team, or work area — embedded peers who test workflows at the coalface — rather than scaling a large central implementation team. In a solo or very small business, the founder can be the first champion.
 - **Why it becomes a category, not a boutique.** The hands-on partnership funds and de-risks the platform. As the coaching path productises, delivery shifts from founder-led to method-led to self-serve — the consultancy is *how it is delivered today*, not *what it is*.
 
@@ -168,7 +168,7 @@ We would rather name these than have you guess. The bet is attacking them delibe
 **What your capital unlocks (next ~18 months):**
 
 - **Coach the first cohort** of AI-curious operators/creatives to the founder bar — turning N=1 into the first evidence of repeatability.
-- **Land the first paying external clients** through the Audit → Sprint wedge, with case studies that stand on their own without Butternut.
+- **Land the first paying external clients** through the Household → Sprint wedge, with case studies that stand on their own without Butternut.
 - **Productise the coaching path** (user brain → business brain → fleet → maturity) from founder-led delivery toward method-led delivery.
 
 **What will be proven by the next round:** that someone other than the founder can deliver the result, for a paying client, repeatably — the inflection from "remarkable founder" to "scalable company."

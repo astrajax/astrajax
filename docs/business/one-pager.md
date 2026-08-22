@@ -160,7 +160,7 @@ Canonical proof points:
 - Matthew progressed from actor to **Head of Sales** at Butternut Box, a confirmed unicorn, in seven years by July 2026. External reference title: **Director of Sales**.
 - The Butternut Direct Sales system served a 120-person commercial team and supported a ~£8.1m annual channel.
 - Roughly **12 months on the boring layer** - data, workflows, rules, and architecture - made the fast build possible.
-- The first **14-agent fleet** was built in **three weeks** because the foundation already existed.
+- The first **14-agent fleet** was built in **two weeks** because the foundation already existed.
 - The system handed back **~3,000 hours/year** of operational capacity at scale.
 - The system used bounded agents, human approval, audit trails, training, sandboxes, and adoption feedback.
 - External validation includes the Airtable Airspace LA keynote, Airtable MVP status, and HyperAgent Founding 500.
