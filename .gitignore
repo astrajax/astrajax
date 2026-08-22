@@ -22,9 +22,11 @@ website/.screenshots/
 # TypeScript incremental build cache
 website/tsconfig.tsbuildinfo
 
-# macOS/iCloud duplicate artefacts ("file 2.ts", "file 3.md") — never source of truth
+# macOS/iCloud duplicate artefacts ("file 2.ts", "file 3.md", extensionless "file 2") — never source of truth
 *[ ]2.*
 *[ ]3.*
+*[ ]2
+*[ ]3
 
 # Image-generation intermediates (the shipped asset sits beside them)
 website/public/**/*.prev.*
