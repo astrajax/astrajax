@@ -107,10 +107,14 @@ agent and reuse it.
    second long-lived branch for it. Split into two PRs only when the work truly separates.
 4. Two jobs at once → two `<lane>/<job>` branches, ideally two worktrees. Never stack
    unrelated work onto a waiting or finished feature branch.
-5. Before merge, refresh against `main` if other PRs landed. After merge, abandon the
-   branch — do not continue living on it.
+5. Before merge, refresh against `main` if other PRs landed. After merge, delete the
+   remote branch the same day — do not continue living on it.
 6. Mechanical grind (`Lane: none`) may use a short generic name (`fix/...`, `chore/...`)
    when a branch is needed; still one job per PR.
+7. If a job ends with no PR opened, delete the remote branch the same day. Leftover
+   roads are a defect.
+8. Search and retrieve from official `main` only. Leftover / remote feature branches
+   are not context. Do not brief from them.
 
 **New-chat brief (when starting work):** Goal · Lane · Branch from latest `main` ·
 What not to touch · Done when · Session ID (or `none` if generic).
