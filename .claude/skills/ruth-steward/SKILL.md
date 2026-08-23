@@ -167,7 +167,8 @@ Matthew configured this in the **Airtable UI**. Agents do **not** create sync (M
 
 **Authority**
 
-- Household Members (Register) owns identity and operating state (slug, name, purpose, Agent Base ID, repo path, status, owner, plus character/ops facts).
+- Household Members (Register) owns identity and operating state (slug, name, purpose, Agent Base ID, repo path, status, owner, Kind, Reports To, Runtimes, plus character/ops facts). One row is one named worker, head or minion.
+- Household Minions (`tbl6aVm9rgWoOBVfd`) is leftover. Do not write identity there.
 - Registry synced Household Members `tblTfxGnA5xWx2nAG` is a mirror. Owns no native roster fact. Write-probe 2026-08-21: Agent Name rejected from this origin.
 - Registry Agents `tblmb7syHipyWfBzu` is still the Brain Key native index (website still points here). Do not recreate roster columns. Do not delete Agents until Doc rewires.
 

@@ -19,13 +19,14 @@ from sync_hyperagent_fleet_to_airtable import (  # noqa: E402
     HOUSEHOLD_MINIONS_TABLE,
     HOUSEHOLD_VERSIONS_TABLE,
     MEMBERS_FLD,
-    MINIONS_FLD,
     REGISTER_SKILLS_TABLE,
     SKILL_VERSIONS_FLD,
     SKILL_VERSIONS_TABLE,
     SKILLS_FLD,
     VERSIONS_FLD,
     ExportBundle,
+    PlannedAction,
+    SyncPlan,
     apply_plan,
     build_plan,
     load_roster,
@@ -112,7 +113,7 @@ class FleetSyncIdempotencyTest(unittest.TestCase):
                     },
                 }
             ],
-            ("appPrpfvsAr71RPP3", "tbl6aVm9rgWoOBVfd"): [],
+            ("appPrpfvsAr71RPP3", HOUSEHOLD_MINIONS_TABLE): [],  # leftover; never write identity
             ("appPrpfvsAr71RPP3", "tbleX09zbkUNKTGBz"): [],
             ("appPrpfvsAr71RPP3", "tblAIXtDBBMrLuEYc"): [],
             ("appPrpfvsAr71RPP3", "tbllp30BraLWgslhk"): [],
@@ -186,6 +187,7 @@ class FleetSyncIdempotencyTest(unittest.TestCase):
                     "household_member": ("appPrpfvsAr71RPP3", HOUSEHOLD_MEMBERS_TABLE),
                     "persona_config": ("appI5tpwsKNwjfrqR", "tblPC"),
                     "agent_skill": ("appI5tpwsKNwjfrqR", "tblSkills"),
+                    "register_skill": ("appPrpfvsAr71RPP3", "tblAIXtDBBMrLuEYc"),
                 }[item.target]
                 self.state.setdefault(table_key, []).append(
                     {"id": f"recNew{len(self.state[table_key])}", "fields": dict(item.fields)}
@@ -206,6 +208,16 @@ class FleetSyncIdempotencyTest(unittest.TestCase):
         self.assertFalse(first_creates, "fixture should not require creates on first run")
 
     def test_minion_never_plans_agent_base_create(self) -> None:
+        self.state[("appPrpfvsAr71RPP3", HOUSEHOLD_MEMBERS_TABLE)].append(
+            {
+                "id": "recCliveManExport",
+                "fields": {
+                    "Agent Slug": "clive-man",
+                    "Agent Name": "Clive's Man",
+                    "Kind": "Head",
+                },
+            }
+        )
         client = InMemoryAirtableClient(self.state)
         exports = [
             ExportBundle(
@@ -229,10 +241,13 @@ class FleetSyncIdempotencyTest(unittest.TestCase):
         self.assertEqual(forbidden, [])
         refused = [item for item in plan.actions if item.action == "refuse"]
         self.assertEqual(refused, [])
-        minion_writes = [item for item in plan.actions if item.target == "household_minion"]
+        minion_writes = [item for item in plan.actions if item.target == "household_member"]
         self.assertTrue(minion_writes)
-        self.assertIn("System Prompt", minion_writes[0].fields)
-        self.assertEqual(minion_writes[0].fields["System Prompt"], "proposer prompt")
+        self.assertEqual(minion_writes[0].fields[MEMBERS_FLD["kind"]], "Minion")
+        self.assertEqual(minion_writes[0].fields[MEMBERS_FLD["system_prompt"]], "proposer prompt")
+        self.assertEqual(minion_writes[0].fields[MEMBERS_FLD["reports_to"]], ["recCliveManExport"])
+        leftover = [item for item in plan.actions if item.target == "household_minion"]
+        self.assertEqual(leftover, [])
 
 
 class VerifyPassRegisterTest(unittest.TestCase):
@@ -250,9 +265,19 @@ class VerifyPassRegisterTest(unittest.TestCase):
                         "Agent Base ID": "appI5tpwsKNwjfrqR",
                         "Status": "Active",
                     },
-                }
-            ],
-            ("appPrpfvsAr71RPP3", HOUSEHOLD_MINIONS_TABLE): [
+                },
+                {
+                    "id": "recCliveMan",
+                    "fields": {
+                        "Agent Slug": "clive-man",
+                        "Agent Name": "Clive's Man",
+                        "System Prompt": "steward",
+                        "Purpose": "brain steward",
+                        "Agent Base ID": "appZ71CSKBlhnb4hR",
+                        "Status": "Active",
+                        "Kind": "Head",
+                    },
+                },
                 {
                     "id": "recMinion",
                     "fields": {
@@ -262,8 +287,9 @@ class VerifyPassRegisterTest(unittest.TestCase):
                         "System Prompt": "old minion prompt",
                         "Status": "Active",
                     },
-                }
+                },
             ],
+            ("appPrpfvsAr71RPP3", HOUSEHOLD_MINIONS_TABLE): [],
             ("appPrpfvsAr71RPP3", HOUSEHOLD_VERSIONS_TABLE): [],
             ("appPrpfvsAr71RPP3", REGISTER_SKILLS_TABLE): [
                 {
@@ -323,10 +349,13 @@ class VerifyPassRegisterTest(unittest.TestCase):
         member = next(item for item in plan.actions if item.target == "household_member")
         self.assertEqual(member.action, "update")
         self.assertEqual(member.fields[MEMBERS_FLD["system_prompt"]], "new prompt")
+        self.assertEqual(member.fields[MEMBERS_FLD["kind"]], "Head")
+        self.assertEqual(member.fields[MEMBERS_FLD["reports_to"]], [])
         version = next(item for item in plan.actions if item.target == "household_version")
         self.assertEqual(version.action, "create")
         self.assertEqual(version.fields[VERSIONS_FLD["change_source"]], "Matthew Directed")
         self.assertEqual(version.fields[VERSIONS_FLD["active_member"]], ["recHead"])
+        self.assertNotIn(VERSIONS_FLD["active_minions"], version.fields)
         skill_version = next(item for item in plan.actions if item.target == "skill_version")
         self.assertEqual(skill_version.action, "create")
         self.assertEqual(skill_version.fields[SKILL_VERSIONS_FLD["change_reason"]], "Improvement")
@@ -334,7 +363,7 @@ class VerifyPassRegisterTest(unittest.TestCase):
         self.assertEqual(skill_version.fields[SKILL_VERSIONS_FLD["change_reason"]], skill_version.fields[SKILL_VERSIONS_FLD["change_reason"]])
         self.assertEqual(SKILL_VERSIONS_FLD["change_reason"], "fldEh3aXTh12qzrog")
 
-    def test_minion_pass_writes_system_prompt_field_id(self) -> None:
+    def test_minion_pass_writes_members_kind_and_skips_leftover_table(self) -> None:
         payload = self._payload(
             slug="clive-man-proposer",
             kind="minion",
@@ -343,10 +372,23 @@ class VerifyPassRegisterTest(unittest.TestCase):
             skills=[],
         )
         plan = plan_verify_pass(self.client, self.roster_raw, self.agents, payload)
-        minion = next(item for item in plan.actions if item.target == "household_minion")
-        self.assertEqual(minion.fields[MINIONS_FLD["system_prompt"]], "new minion prompt")
-        self.assertEqual(MINIONS_FLD["system_prompt"], "fldex5K15FTjEWoM7")
+        self.assertEqual(plan.errors, [])
+        leftover = [item for item in plan.actions if item.target == "household_minion"]
+        self.assertEqual(leftover, [])
+        member = next(item for item in plan.actions if item.target == "household_member")
+        self.assertEqual(member.record_id, "recMinion")
+        self.assertEqual(member.fields[MEMBERS_FLD["system_prompt"]], "new minion prompt")
+        self.assertEqual(member.fields[MEMBERS_FLD["kind"]], "Minion")
+        self.assertEqual(member.fields[MEMBERS_FLD["reports_to"]], ["recCliveMan"])
+        self.assertNotIn(MEMBERS_FLD["agent_base_id"], member.fields)
+        version = next(item for item in plan.actions if item.target == "household_version")
+        self.assertEqual(version.fields[VERSIONS_FLD["active_member"]], ["recMinion"])
+        self.assertNotIn(VERSIONS_FLD["active_minions"], version.fields)
         self.assertFalse(any(item.target == "persona_config" for item in plan.actions))
+        reversal = apply_plan(self.client, self.roster_raw, self.agents, plan)
+        leftover_rows = self.state[("appPrpfvsAr71RPP3", HOUSEHOLD_MINIONS_TABLE)]
+        self.assertEqual(leftover_rows, [])
+        self.assertFalse(any(row["target"] == "household_minion" for row in reversal["created"] + reversal["updated"]))
 
     def test_rollback_skips_live_rows_but_snapshots_version(self) -> None:
         payload = self._payload(rolled_back=True, change_reason="Broken/failing", skills=[])
@@ -362,6 +404,24 @@ class VerifyPassRegisterTest(unittest.TestCase):
         self.assertEqual(len(versions), 1)
         self.assertEqual(versions[0].action, "create")
         self.assertEqual(versions[0].fields[VERSIONS_FLD["change_source"]], "Matthew Directed")
+        self.assertEqual(versions[0].fields[VERSIONS_FLD["active_member"]], ["recHead"])
+        self.assertNotIn(VERSIONS_FLD["active_minions"], versions[0].fields)
+
+    def test_leftover_household_minion_action_is_refused(self) -> None:
+        plan = SyncPlan()
+        plan.add(
+            PlannedAction(
+                action="create",
+                target="household_minion",
+                slug="ghost-minion",
+                fields={"Agent Slug": "ghost-minion"},
+            )
+        )
+        reversal = apply_plan(self.client, self.roster_raw, self.agents, plan)
+        self.assertEqual(len(reversal["refused"]), 1)
+        self.assertEqual(reversal["refused"][0]["target"], "household_minion")
+        self.assertEqual(self.state[("appPrpfvsAr71RPP3", HOUSEHOLD_MINIONS_TABLE)], [])
+        self.assertEqual(reversal["created"], [])
 
     def test_apply_links_skill_versions_to_live_skill(self) -> None:
         plan = plan_verify_pass(self.client, self.roster_raw, self.agents, self._payload())

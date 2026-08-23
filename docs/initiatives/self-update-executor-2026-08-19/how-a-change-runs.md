@@ -70,7 +70,7 @@ This is the persist step for **both** forks.
 
 | Fork | Tables |
 |---|---|
-| Self-Update (agent) | Household Members or Minions; Household Versions; Skills / Skill Versions only if that job also touched an attached skill definition |
+| Self-Update (agent) | Household Members (Kind on the row; head or minion). Do not update leftover Household Minions. Household Versions; Skills / Skill Versions only if that job also touched an attached skill definition |
 | Skill Forge (skill) | **Skills** live row after verify; **Skill Versions** snapshot (before and/or after). No live Skills write on fail. A Versions row that says rolled back is OK. |
 
 Change Source defaults to **Matthew Directed** when you asked in Cursor.

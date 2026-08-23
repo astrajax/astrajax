@@ -27,11 +27,16 @@ describe("household register Airtable IDs", () => {
     });
   });
 
-  it("locks member, minion, version, and skill field IDs used after verify", () => {
+  it("locks member Kind / Reports To / Runtimes and leftover minion prompt ID", () => {
     expect(HOUSEHOLD_MEMBERS_FIELDS.systemPrompt).toBe("fldKKvps3FIAvJdhh");
+    expect(HOUSEHOLD_MEMBERS_FIELDS.kind).toBe("fldnGanqKXoV5ohJc");
+    expect(HOUSEHOLD_MEMBERS_FIELDS.reportsTo).toBe("fldVVE7LZGhkYuzOn");
+    expect(HOUSEHOLD_MEMBERS_FIELDS.runtimes).toBe("fldOMYUwOBBwx98J0");
+    expect(HOUSEHOLD_MEMBERS_FIELDS.crew).toBe("fldzTkPqsTiTpcqvg");
     expect(HOUSEHOLD_MINIONS_FIELDS.systemPrompt).toBe("fldex5K15FTjEWoM7");
     expect(HOUSEHOLD_VERSIONS_FIELDS.changeReason).toBe("fldEy4G0Mz1417wDg");
     expect(HOUSEHOLD_VERSIONS_FIELDS.changeSource).toBe("fldx2PG3DUZA24wST");
+    expect(HOUSEHOLD_VERSIONS_FIELDS.activeMember).toBe("fldpkuwk9h7oJOHGt");
     expect(HOUSEHOLD_SKILLS_FIELDS.skillName).toBe("fldz3v4xnWrwJtHTg");
     // Leading-space Change Reason — must never be written by display name.
     expect(HOUSEHOLD_SKILL_VERSIONS_FIELDS.changeReason).toBe("fldEh3aXTh12qzrog");

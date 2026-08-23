@@ -259,7 +259,7 @@ Clive's Man is the **brain steward** — same person as The Man in Clive's cast 
 
 Clive thinks with the user. Clive's Man keeps the study and the brain. Doc's execution minions invoke Clive's Man as the **mandatory last Phase B step** so architecture and context sources stay synced in repo — not only in chat.
 
-**Technical role (canonical):** Clive's Man Agent base Persona Config `Operational v0.3` (`rect04amPJAZrWCi4`, Approved). **`Operational v0.4`** (`recSKTT8NTTJOmuRu`) is **Pending** — repo sync and runtime promotion fail-closed until Matthew approves in Airtable. Minion roster: Minions table on the same base. **Option 3 lanes** (A direct Executor / B Trinity / C human): see `.cursor/skills/clive-man/SKILL.md`.
+**Technical role (canonical):** Clive's Man Agent base Persona Config `Operational v0.3` (`rect04amPJAZrWCi4`, Approved). **`Operational v0.4`** (`recSKTT8NTTJOmuRu`) is **Pending** — repo sync and runtime promotion fail-closed until Matthew approves in Airtable. Minion roster: Household Members (`Kind=Minion`, Reports To Clive's Man), not the Minions table on his agent base. That agent-base Minions table is a family list, not roster SSOT. **Option 3 lanes** (A direct Executor / B Trinity / C human): see `.cursor/skills/clive-man/SKILL.md`.
 
 **Source document mining (V1):** Full Pam gates, API, and Matthew manual steps — `[docs/initiatives/source-document-mining.md](../initiatives/source-document-mining.md)`.
 
