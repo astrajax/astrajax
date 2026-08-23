@@ -17,7 +17,7 @@ what forces the Airtable nightmare.
 |-------------|---------|---------------|
 | **Pinned Python script** on a skill | Re-import **skill JSON only**. Same skill name overwrites bundled scripts. | No |
 | **System prompt / skill markdown only** | Hyperagent → agent → **Identity** tab: paste from `.cursor/agents/…` or export JSON `systemPrompt`. Or re-import skill. | No |
-| **Schedule time / schedule prompt** | Hyperagent → **Invocations → Scheduled**: edit in UI. | No |
+| **Schedule time / schedule prompt** | Hyperagent → **Invocations → Scheduled**: edit in UI. Queue execute daily drain is a **Cursor Automation**, not an HA Doc schedule. | No |
 | **Credentials** (Airtable PAT) | Hyperagent → **Skills** → skill → credentials. Never in git. | No |
 | **Slack channel / repo attach** | Hyperagent UI: Slack **Add to channel**, repo/GitHub attach on agent. | No |
 | **New agent version** (rare) | Import **agent JSON** (embedded skills update with it). If Hyperagent offers update/merge on same display name, use that. Re-import skill JSON separately only for skill-only changes. If it only offers duplicate, edit existing agent in UI rather than delete. | Only if unavoidable |

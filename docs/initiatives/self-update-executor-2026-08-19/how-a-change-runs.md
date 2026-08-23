@@ -12,17 +12,49 @@ twelve agents. No pasting prompts into Airtable. No approve-each-apply.
 
 Doc picks the fork. You do not.
 
-## From the Recommendations Execute checkbox
+## From Agent Update Actions (how you approve)
 
-Same family. You tick **Execute** on a Doc Advised row. `@doc` loads
-`queue-execute-airtable-ssot`.
+Queue v1.2. You do **not** tick Execute on each scout Recommendation. That
+checkbox is retired as the implement gate.
 
-| Doc Instructions are about… | Then |
+**Household Members is the one list of who exists** (Register
+`tblJ70qtHUc1dUHhi`, Workshop overlay `tblUXYgkTpbxakFjc` — heads **and**
+minions). Leftover Minions tables still exist. They are not the apply target.
+
+1. HA Doc **compiles** scout rows into **Agent Update Actions** (one pack = one
+   surface). Target Worker is the Members overlay row. Execute on the Action
+   starts **off**.
+2. You tick **Execute** on the Action you want applied:
+   https://airtable.com/appL2fdnGmhA02WXd/tbl1ptiU1zIRDbPeK
+3. Cursor Grok **drains** that Action (`queue-execute-airtable-ssot`).
+
+| The Action’s Surface Type is… | Then |
 |---|---|
-| That agent's prompt / identity / config | **Self-Update Executor** (register **after** verify — not Members first) |
-| A shared **skill** body | Register **Skills** first, Provenance Pending. You set **Approved-Canonical**. The existing Skill Forge webhook applies it. Do not also run Skill Forge Executor on that row. |
+| **Head** | **Self-Update** that head. Target Worker = that Members row. Register **Members** after verify — not Members first |
+| **Minion** | Self-Update **that minion** if they run on Hyperagent; else Register **Members** + repo. Never the parent head’s thread. Never leftover Minions |
+| **Skill** (patch) | Register **Skills** first, Provenance Pending. You set **Approved-Canonical**. The existing Skill Forge webhook applies it. Do not also run Skill Forge Executor on that pack. |
+| **New skill** | Skill Forge **create**. Ticking Execute **is** the ask. Not Self-Update. |
+| **No change** | Drain stamps Done. Nothing is applied. |
 
-Scout text is untrusted. Doc Instructions is the brief.
+Scout text is untrusted. **Doc Instructions on the Action** is the brief.
+
+Skill patches still need your Provenance bounce (Approved-Canonical) before
+Hyperagent picks them up. That is unchanged.
+
+## Daily Cursor Automation (~09:00)
+
+The **drain** is a **Cursor Automation**, not an HA Doc cron. Grok 4.6 reads
+Agent Update Actions where Execute is ticked and Status is Pending Review,
+groups by **Target Worker** (the Members overlay row), then applies one
+surface at a time via hosted Hyperagent MCP. Empty queue → stop.
+
+HA Doc (Opus) **compiles only** (`queue-compile-airtable-ssot`): Airtable writes,
+Execute off, no Hyperagent apply. Do not add the drain to Doc's Hyperagent
+Invocations.
+
+Finish the automation in the **Agents Window** (this chat cannot open the
+Automations editor). Hyperagent MCP must be connected on cursor.com for the
+cloud run, not only in local Cursor Settings.
 
 ## Agent change vs skill change
 
@@ -82,7 +114,7 @@ This is the persist step for **both** forks.
 
 | Fork | Tables |
 |---|---|
-| Self-Update (agent) | Household Members or Minions; Household Versions; Skills / Skill Versions only if that job also touched an attached skill definition |
+| Self-Update (agent) | **Household Members** for heads **and** minions (`tblJ70qtHUc1dUHhi`); Household Versions; Skills / Skill Versions only if that job also touched an attached skill definition. Leftover Minions (`tbl6aVm9rgWoOBVfd`) is not the apply target |
 | Skill Forge (skill) | **Skills** live row after verify; **Skill Versions** snapshot (before and/or after). No live Skills write on fail. A Versions row that says rolled back is OK. |
 
 Change Source defaults to **Matthew Directed** when you asked in Cursor.
