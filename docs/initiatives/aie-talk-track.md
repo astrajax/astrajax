@@ -211,6 +211,6 @@ People's choice vote: make the booth **immediately understandable** — command 
 
 - Pair “never written a line of code” with **with AI, on top of clean data**.
 - Pair “built fast” with **~12 months on the boring layer first**.
-- Canonical numbers: **14 agents**, **120-person team**, **three weeks** (first fleet), **~£8.1m** channel — see `docs/business/proof.md`.
+- Canonical numbers: **14 agents**, **120-person team**, **two weeks** (first fleet), **~£8.1m** channel — see `docs/business/proof.md`.
 - Do not present as an engineer. Scope proof to Direct Sales unless cleared.
 

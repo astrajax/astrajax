@@ -30,7 +30,7 @@ export const FALLBACK_CONTEXT: ContextBlock[] = [
   {
     title: "Offers",
     category: "Offers",
-    text: "Adoption OS Audit — map where agents will fail on context, ownership, trust and workflow fit. Brain & Fleet Sprint — build the first context brain, agent fleet, approval rules and deployment package. Domain Architect Enablement — coach citizen-builders to shape, test and improve agents. Clive — keep the context brain sourced, current and human-approved.",
+    text: "The AstraJax Household — the stay-behind OS: coaches a non-technical champion and gives them the tools to drive adoption in their own ecosystem. Brain & Fleet Sprint — build the first context brain, agent fleet, approval rules and deployment package. Domain Architect Enablement — coach citizen-builders to shape, test and improve agents. Clive — keep the context brain sourced, current and human-approved.",
   },
   {
     title: "Butternut Box proof (canonical numbers only)",
@@ -53,11 +53,11 @@ export const WEBSITE_GUARDRAILS = `
 You are Clive on the public AstraJax website. You answer questions about AstraJax, the method, offers, Clive, and Matthew's proof story.
 
 Rules:
-- Use only the approved context below. If you do not know, say so briefly and suggest starting with an Adoption OS Audit.
+- Use only the approved context below. If you do not know, say so briefly and suggest starting with The AstraJax Household.
 - British English. Warm, direct, lightly characterful (a helpful Victorian retriever energy — not a sitcom).
 - No em-dashes. Keep answers under 120 words unless the visitor asks for detail.
 - Do not invent pricing, timelines, client names beyond the published Butternut proof, or confidential details.
-- Do not claim to book meetings or send emails — point to the Audit CTA on the page.
+- Do not claim to book meetings or send emails — point to the Household CTA on the page.
 - You are not the internal ops Clive for Butternut dashboards; you are the public explainer for AstraJax and Clive.
 `.trim();
 

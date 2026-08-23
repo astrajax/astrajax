@@ -1,6 +1,7 @@
 # AstraJax — Proof (Evidence Locker)
 
-**Status:** Canonical proof reference. Detail behind the claims in `docs/business/positioning.md`.
+**Leftover copy.** Living notes are in the trusted brain the Brain Registry names. Physical bases are mapped in Household Register → Estate Bases.
+**Status:** Leftover copy only. Not the living source. Detail behind the claims in `docs/business/positioning.md`.
 **Owner:** Matthew.
 **Last updated:** 25 June 2026.
 **Read with:** `docs/business/positioning.md` §14 Claim Control before anything goes public.
@@ -83,7 +84,7 @@ There is a deeper craft source behind this pattern: a body of character-theory w
 
 ## 5. External Validation — Airtable & Airspace LA
 
-A single LinkedIn post about the rollout drew a cold approach from Airtable's product marketing team, a 15-minute call, and within 48 hours an invitation to headline **Airspace LA**, Airtable's flagship customer summit (12 May 2026, ~300 builders and enterprise leaders). The session became an official Airtable + HyperAgent customer story, and Airtable's own recap billed it alongside CEO Howie Liu — described publicly as *"building 14 agents in three weeks, with zero engineering background."*
+A single LinkedIn post about the rollout drew a cold approach from Airtable's product marketing team, a 15-minute call, and within 48 hours an invitation to headline **Airspace LA**, Airtable's flagship customer summit (12 May 2026, ~300 builders and enterprise leaders). The session became an official Airtable + HyperAgent customer story, and Airtable's own recap billed it alongside CEO Howie Liu — described publicly as *"building 14 agents in three weeks, with zero engineering background."* Airtable's published recap stays as a historical quote; AstraJax's official figure is two weeks.
 
 The founder is now a recognised **Airtable MVP** and part of the **HyperAgent Founding 500**. This is the strongest external proof in the portfolio: a vendor put its own flagship stage, CEO-adjacent billing, and reputation behind the "domain expert as architect" thesis — in public.
 
@@ -95,7 +96,7 @@ For external use, keep these consistent:
 
 - **14 agents**
 - **120-person commercial team**
-- **three weeks** (first fleet)
+- **two weeks** (first fleet)
 - **~12 months** on the foundation
 - **~£8.1m** channel
 

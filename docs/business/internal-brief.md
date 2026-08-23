@@ -30,7 +30,7 @@ Do not copy raw source material into launch docs unless it is deliberately disti
 
 1. Publish the AstraJax one-page website.
 2. Publish the Butternut Box case study.
-3. Create the Commercial OS Audit one-pager.
+3. Create The AstraJax Household one-pager.
 
 ### B. Build the live proof environment
 
@@ -49,7 +49,7 @@ Default order unless Matthew says otherwise:
 
 1. Positioning and website narrative
 2. Butternut Box case study
-3. Commercial OS Audit one-pager
+3. The AstraJax Household one-pager
 4. AstraJax OS demo build
 5. Outreach and ecosystem relationship assets
 
@@ -123,15 +123,13 @@ The case study should carry the narrative weight that the website cannot:
 - outcomes: cost, time, labour-model insight, adoption
 - lesson: the foundation made the speed possible
 
-### Commercial OS Audit one-pager
+### The AstraJax Household one-pager
 
-The audit should feel practical, not theoretical:
+The Household should feel like a stay-behind OS, not a diagnostic:
 
-- diagnose workflow drag
-- map data/tool fragmentation
-- identify AI-readiness gaps
-- prioritise first operating-layer sprint
-- show the path to bounded AI and context governance
+- coaches a non-technical champion
+- gives them the tools to drive adoption in their own ecosystem
+- leaves the champion able to run the loop after we step back
 
 ---
 
