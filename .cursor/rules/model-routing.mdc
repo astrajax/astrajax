@@ -64,42 +64,73 @@ mirror the **doctrine**, not the slug.
 
 Runtime work belongs to **HyperAgent**, not the coding lane.
 
-## Frontier drought — keep the agent, swap the model
+## Frontier drought — keep the agent, swap the runtime
 
 Canonical pins above stay. Do **not** rewrite `.cursor/agents/` frontmatter for a dry
 pool. The next parent that follows this rule would just put Sol/Opus back.
 
-**Drought is ON** when any of these is true in this conversation:
+**Standing flag:** `.cursor/rules/frontier-drought-flag.mdc` (`Status: ON` or `OFF`).
+That file is always-on. If it says **ON**, do not spawn frontier models — not even
+once “to check”. Matthew’s phrases and the usage-limit error are how the flag flips;
+a lucky frontier spawn is **not** a refill.
 
-- Matthew says frontier credits are out / dry / empty
+**Drought is ON** when any of these is true:
+
+- The standing flag is **ON**
+- Matthew says “Drought is ON”, “frontier is dry”, “out of Other Models”, or
+  “stop using Sol/Opus”
 - A Task (or `@` spawn) fails with `Other Models usage limit reached`
 - Cursor reports it switched off a frontier model because that pool is empty
 
-Once ON, it stays ON for the rest of the conversation. Do not probe Sol or Opus
-again to "check". **Drought is OFF** when Matthew says credits are back, or a
-frontier spawn actually succeeds.
+Once ON, it stays ON for the rest of the conversation. Write-capable agents persist
+it by setting the standing flag to **ON**. Readonly heads obey it and do not edit
+the flag file.
+
+**Drought is OFF** only when Matthew says “Drought is OFF”, “credits are back”, or
+“frontier is back” (and a write-capable agent sets the standing flag to **OFF**).
 
 **While drought is ON:**
 
-| Lane | Still dispatch | Task `model` |
+| Lane | Still dispatch | Where / `model` |
 |---|---|---|
-| Think + challenge + structured verification (Clive, Clive's Man, Pam, Doc triage, Ruth Hadley, Lazlo, Kathryn, Workshop Proposer/Challenger, Ruth challengers) | The **named** agent | `cursor-grok-4.6-xhigh-fast` |
+| **Challengers** (read-only red-team) | The **named** challenger — never skip | **HyperAgent MCP**, not Cursor Task. `create_thread` in namespace `user-hyperagent` using the map below. Self-contained brief. Poll `get_thread` until `isRunning` is false. **Quote them back verbatim**. If MCP fails, fall back once to the Cursor Task twin with `cursor-grok-4.6-xhigh-fast` and say so in one line. |
+| Think + other judgement (Clive, Clive's Man head, Doc triage, Ruth Hadley, Lazlo, Kathryn, Workshop Proposer, Hal) | The **named** agent | Cursor Task `cursor-grok-4.6-xhigh-fast` |
 | Build | Named builder (Kate, Vercel, Brain-base) | `cursor-grok-4.5-high-fast` or inherit — already first-party |
 | Grind / hands (executors, Workshop builders, mechanical edits) | The **named** minion | `composer-2.5-fast` |
 
-- **Never skip the lane.** Empty credits are not a reason to answer as Clive, Pam, or
-  Doc yourself. Same agent, cheaper model.
+**HyperAgent challenger map** (drought only):
+
+| Cursor lane | HyperAgent agent | id |
+|---|---|---|
+| `pam` | Pam Portiscue | `cmr44jnbj0q9907adr2klbp4c` |
+| `doc-workshop-challenger` | Doc's Workshop Challenger | `cmr6g3s0u1jsl06adrit3hsg9` |
+| `clive-man-challenger` | Clive's Man — Challenger | `cmr6w062b1nvw07ad9w24nojt` |
+| `ruth-build-challenger` | Ruth Build Challenger | `cmsexst38035b07ad9nix407l` |
+| `ruth-maintenance-challenger` | Ruth Maintenance Challenger | `cmseyr2vj041707adcjgmpg4j` |
+
+- **Never skip the lane.** Empty Cursor credits are not a reason to answer as Clive,
+  Pam, or Doc yourself.
 - **Never pass** `gpt-5.6-sol-xhigh`, `claude-opus-5-thinking-high`,
   `claude-sonnet-5-thinking-xhigh`, or Kimi in the Task `model` field while dry.
-  That is what empties the spawn.
-- If a spawn fails on the usage-limit error, **retry once immediately** with the
-  same `subagent_type` and brief, `model` set to the drought row above. Then tell
-  Matthew in one line that the head is running on Grok until credits refill.
+  Do not probe those slugs to see if the pool refilled.
+- If a spawn fails on the usage-limit error **and** the job was not an HA-mapped
+  challenger: set the standing flag **ON**, **retry once immediately** with the same
+  `subagent_type` and brief, `model` set to the drought row above. Tell Matthew in
+  one line that the head is on Grok until he says credits are back.
 - If the catalog rejects `cursor-grok-4.6-xhigh-fast`, use `inherit` when the
   parent is already Grok. Do not invent a third slug.
+- **Do not** send Cursor build work to HyperAgent Doc or Kate — those agents can
+  write. **Do not** MCP-spawn Clive's Man — Context Challenger (`cmsbijcjn0xxb07adf0q7cjnt`)
+  as drought overflow: that minion is the scheduled Airtable V2 pipeline, not an
+  on-demand Cursor substitute.
+- There is no Lazlo challenger on HyperAgent. Lazlo's Cursor challenger minion, if
+  invoked in drought, stays on Grok in Cursor. Do not send the Lazlo *head* as a stand-in.
+- HyperAgent cannot see this Cursor chat. Pack Goal / spec / provenance / tier /
+  session ids into the opening message (household routing brief).
 
-This is a spend fallback, not a new doctrine. Independent judgement (OpenAI vs
-Anthropic) waits until the frontier pool has money again.
+This is a spend fallback. Independent challenger passes continue on HyperAgent
+while Cursor Other Models is dry. Cursor Sol/Opus wait until Matthew turns the
+flag **OFF**.
 
 ## Dispatch gate — check the roster first
 
@@ -138,7 +169,9 @@ If no named agent owns the lane, a generic worker is the right answer. Say so in
 Say something briefly, once, if:
 
 - Heavy reasoning or strategy is happening on a build model **and frontier is not in drought** → move it to Sol.
-- Drought just engaged → one line that the named head is on Grok until credits refill. Do not also nag to "move it to Sol".
+- Drought just engaged or the standing flag flipped **ON** → one line. Challengers
+  are on HyperAgent; other heads on Grok. Do not nag to "move it to Sol" until
+  Matthew turns drought **OFF**.
 - A frontier head is doing mechanical edits → dispatch Grok or Composer instead.
 - A task is clearly mechanical and repeatable → offer to hand it to a Composer subagent.
 - Website building has started in an expensive frontier chat → suggest Grok.

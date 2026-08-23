@@ -58,6 +58,14 @@ novel — a shape Pam has not already cleared.
 **Target:** `@pam`
 **Notes:** delta passes only. Verdict returns to Matthew, not to the router. Never route
 to Pam for reassurance or Green/Amber work. Court mode only by Matthew's explicit summons.
+**Drought:** if `.cursor/rules/frontier-drought-flag.mdc` is **ON** (or Matthew declared
+drought this chat), do **not** Cursor-Task any challenger. Spawn the matching
+HyperAgent challenger via MCP (`create_thread`, namespace `user-hyperagent`) using
+the map in `model-routing.mdc`: Pam, Doc's Workshop Challenger, Clive's Man —
+Challenger, Ruth Build Challenger, Ruth Maintenance Challenger. Self-contained
+brief; poll `get_thread`; quote back verbatim. Fallback once to the Cursor Task
+twin on Grok only if MCP fails. Do not send Doc, Kate, or Clive's Man — Context
+Challenger as drought overflow.
 
 ### Route 4 — Character craft (spine)
 **Trigger:** new characters, spine changes, persona questions, cast-drift, voice/inner life.
@@ -124,6 +132,9 @@ executors; **Steward never substitutes for signed Build/Maintenance ceremony or 
 builds.** Doc owns AstraJax *repo* builds; Ruth owns Airtable *data-layer* architecture and
 her family. Clive's Man owns context-content truth state. Skill Forge owns **live
 HyperAgent skill bodies** (Route 14). Doc does not apply skill JSON on HyperAgent.
+**Drought:** Ruth Build/Maintenance Challengers use the HyperAgent map in
+`model-routing.mdc`. Ruth the head stays on Grok in Cursor. Never send executors
+as drought overflow.
 
 ### Route 14 — Live HyperAgent skill body (not a new agent)
 **Trigger:** a household skill that already exists on HyperAgent needs its body or
