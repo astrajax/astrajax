@@ -16,7 +16,12 @@ import {
   BRAIN_WORKSHOP_SOURCE_DOCUMENTS_MINE_STATUS,
   BRAIN_WORKSHOP_TABLES,
 } from "../airtable-ids";
-import { airtableAttachFromUrl, airtableCreate } from "../airtable-rest";
+import {
+  airtableAttachFromUrl,
+  airtableCreate,
+  airtableFindOne,
+  escapeAirtableString,
+} from "../airtable-rest";
 import { getWorkshopBaseId, getWorkshopWriteToken, useMemoryStore } from "../config";
 import { SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES } from "./source-document-mine";
 import { createMemorySourceDocument } from "./source-document-memory";
@@ -61,6 +66,70 @@ function titleFromPathname(pathname: string): string {
 
 function isRecordId(value: string | undefined): value is string {
   return typeof value === "string" && /^rec[a-zA-Z0-9]{10,}$/.test(value);
+}
+
+function attachmentPresent(fields: Record<string, unknown>): boolean {
+  const attachment = fields[ATTACHMENT_FIELD_NAME];
+  return Array.isArray(attachment) && attachment.length > 0;
+}
+
+/**
+ * Retry may only attach to an empty Pending Website row. Otherwise a client
+ * (or anyone who learns a record id) could PATCH-replace Attachment on any
+ * Source Documents row — including Summarised evidence already in the estate.
+ */
+async function assertRetryableOnboardingSourceDocument(input: {
+  baseId: string;
+  tableId: string;
+  token: string;
+  recordId: string;
+}): Promise<void> {
+  const record = await airtableFindOne(
+    input.baseId,
+    input.tableId,
+    input.token,
+    `RECORD_ID()='${escapeAirtableString(input.recordId)}'`,
+    [
+      SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.title,
+      SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.mineStatus,
+      ATTACHMENT_FIELD_NAME,
+      "Created By",
+      "Attachment Summary",
+    ],
+  );
+
+  if (!record) {
+    throw new Error(
+      "Source document row not found for retry. Upload the file again to file a new row.",
+    );
+  }
+
+  const mineStatus = String(
+    record.fields[SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.mineStatus] ?? "",
+  ).trim();
+  const createdBy = String(record.fields["Created By"] ?? "").trim();
+  const summary = String(record.fields["Attachment Summary"] ?? "").trim();
+
+  if (mineStatus !== ONBOARDING_SOURCE_DOCUMENT_DEFAULTS.mineStatus) {
+    throw new Error(
+      "That source document is no longer Pending — retry filing cannot attach to it.",
+    );
+  }
+  if (createdBy !== ONBOARDING_SOURCE_DOCUMENT_DEFAULTS.createdBy) {
+    throw new Error(
+      "That source document was not created by website onboarding — retry filing refused.",
+    );
+  }
+  if (summary) {
+    throw new Error(
+      "That source document already has an attachment summary — retry filing refused.",
+    );
+  }
+  if (attachmentPresent(record.fields)) {
+    throw new Error(
+      "That source document already has an attachment — retry filing refused to avoid overwriting evidence.",
+    );
+  }
 }
 
 function blobTokenOptions(): { token: string } | Record<string, never> {
@@ -154,18 +223,28 @@ export async function handleOnboardingSourceDocument(
   await assertStagedBlobExists(pathname);
 
   // Retry path: attach to the row created by an earlier attempt rather than
-  // filing the same file twice.
-  const recordId = isRecordId(body.recordId)
-    ? body.recordId
-    : (
-        await airtableCreate(workshopBaseId, tableId, workshopToken, {
-          [SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.title]: title,
-          [SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.mineStatus]:
-            ONBOARDING_SOURCE_DOCUMENT_DEFAULTS.mineStatus,
-          [SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.brainSlug]: brainSlug,
-          "Created By": ONBOARDING_SOURCE_DOCUMENT_DEFAULTS.createdBy,
-        })
-      ).id;
+  // filing the same file twice. Guard the record first — Attachment PATCH
+  // replaces the field, so an unchecked recordId is an overwrite IDOR.
+  let recordId: string;
+  if (isRecordId(body.recordId)) {
+    await assertRetryableOnboardingSourceDocument({
+      baseId: workshopBaseId,
+      tableId,
+      token: workshopToken,
+      recordId: body.recordId,
+    });
+    recordId = body.recordId;
+  } else {
+    recordId = (
+      await airtableCreate(workshopBaseId, tableId, workshopToken, {
+        [SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.title]: title,
+        [SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.mineStatus]:
+          ONBOARDING_SOURCE_DOCUMENT_DEFAULTS.mineStatus,
+        [SOURCE_DOCUMENT_AIRTABLE_FIELD_NAMES.brainSlug]: brainSlug,
+        "Created By": ONBOARDING_SOURCE_DOCUMENT_DEFAULTS.createdBy,
+      })
+    ).id;
+  }
 
   let presignedUrl: string;
   try {
