@@ -34,7 +34,7 @@ Agents often cannot auto-save. **All four `autoSave*` flags stay off** (governed
 3. If `canResolve` and `kind` is `draft_save`, call `resolve_approval` with `decision: approve`. That **saves the draft exactly as the agent authored it**.
 4. Matthew does **not** click Learning.
 5. Then verify after-state and write Airtable.
-6. On verify fail: `resolve_approval` `deny` any new matching draft, then send BEFORE-STATE restore. Do not update live Members / Minions / Skills.
+6. On verify fail: `resolve_approval` `deny` any new matching draft, then send BEFORE-STATE restore. Do not update live Members / Skills.
 
 Skip rows with `canResolve: false` — those must be handled in the Hyperagent thread (break-glass only).
 
@@ -111,7 +111,7 @@ python3 .cursor/skills/self-update-executor/scripts/verify_self_update.py \
 4. Persist: `list_pending_approvals` → match agent draft → `resolve_approval` approve `draft_save`.
 5. Diff AFTER-STATE against the brief (every required field). Pass or fail.
 6. **Pass:** run the register writer (below). Sync repo exports as already patterned. Do not ask Matthew to import, pin, or click Learning.
-7. **Fail:** `resolve_approval` deny if a new draft appears; `send_message` restore brief carrying the BEFORE-STATE; wait; confirm AFTER-STATE matches before. Do **not** update live Members / Minions / Skills. Optional: append-only Versions row that says rolled back (`change_reason` Broken/failing or What changed notes rollback).
+7. **Fail:** `resolve_approval` deny if a new draft appears; `send_message` restore brief carrying the BEFORE-STATE; wait; confirm AFTER-STATE matches before. Do **not** update live Members / Skills. Optional: append-only Versions row that says rolled back (`change_reason` Broken/failing or What changed notes rollback).
 8. Bootstrap attachment: once the skill exists in the Hyperagent workspace, Cursor tells each target agent to attach Self-Update Executor. Auto-save stays off. Matthew does not pin twelve agents by hand.
 
 ## Airtable register (Cursor only, AFTER verify pass)
@@ -124,13 +124,12 @@ Write by **field ID** where names are unsafe (Skill Versions Change Reason has a
 
 | Table | ID | Action |
 |---|---|---|
-| Household Members | `tblJ70qtHUc1dUHhi` | Update live head (System Prompt `fldKKvps3FIAvJdhh`) |
-| Household Minions | `tbl6aVm9rgWoOBVfd` | Update live minion (System Prompt `fldex5K15FTjEWoM7`) |
-| Household Versions | `tbleX09zbkUNKTGBz` | Always **create** snapshot. Change Source `fldx2PG3DUZA24wST` required. Skill Versions link `fldjOtUjHqWFkuTF4` when a skill also changed |
+| Household Members | `tblJ70qtHUc1dUHhi` | Update live identity (head or minion). Kind on the row (`fldnGanqKXoV5ohJc`). System Prompt `fldKKvps3FIAvJdhh`. Payload `kind` stays head\|minion as Kind. Do **not** update leftover Household Minions (`tbl6aVm9rgWoOBVfd`) |
+| Household Versions | `tbleX09zbkUNKTGBz` | Always **create** snapshot. Link `active_member` `fldpkuwk9h7oJOHGt`. Change Source `fldx2PG3DUZA24wST` required. Skill Versions link `fldjOtUjHqWFkuTF4` when a skill also changed |
 | Skills | `tblAIXtDBBMrLuEYc` | Update live skill. Skill Versions link `fldVVfWjiWcgjG86x` |
 | Skill Versions | `tbllp30BraLWgslhk` | Always **create**. Link Skills `fldcNVX4NnfhcAYL8`. Change Source `fldLL07K8ZOaVKJIw`. Change Reason ID `fldEh3aXTh12qzrog` |
 
-Change Source defaults to **Matthew Directed** when Matthew asked in Cursor. Do **not** write Persona Config on each agent base. Do not create Agent bases for minions.
+Change Source defaults to **Matthew Directed** when Matthew asked in Cursor. Do **not** write Persona Config on each agent base. Do not create Agent bases for minions. Live identity is always Household Members.
 
 ### Verify-pass payload shape
 
@@ -167,7 +166,7 @@ python3 hyperagent/scripts/sync_hyperagent_fleet_to_airtable.py \
   --apply
 ```
 
-Dry-run omits `--apply`. On `rolled_back: true`, only create a Versions (and optional Skill Versions) snapshot noting rollback; skip live Members/Minions/Skills updates.
+Dry-run omits `--apply`. On `rolled_back: true`, only create a Versions (and optional Skill Versions) snapshot noting rollback; skip live Members / Skills updates.
 
 ## Must never
 
@@ -182,6 +181,6 @@ Dry-run omits `--apply`. On `rolled_back: true`, only create a Versions (and opt
 
 - Skill never invents a change; never updates another agent; never runs unattended.
 - After-state dump is complete enough for Cursor to verify.
-- Airtable writes only on verify pass; restore does not update live Members/Minions/Skills.
+- Airtable writes only on verify pass; restore does not update live Members / Skills.
 - Versions rows are append-only with Change Source set.
 - Skill Versions rows link to live Skills.

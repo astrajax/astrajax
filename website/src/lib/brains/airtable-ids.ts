@@ -842,6 +842,7 @@ export const HOUSEHOLD_VERSIONS_TABLE_ID = "tbleX09zbkUNKTGBz";
 /** Household register tables on HOUSEHOLD_VERSIONS_BASE_ID (Self-Update Executor writer). */
 export const HOUSEHOLD_REGISTER_TABLES = {
   members: "tblJ70qtHUc1dUHhi",
+  /** Leftover table. Do not write identity. Live named workers live on Household Members. */
   minions: "tbl6aVm9rgWoOBVfd",
   versions: "tbleX09zbkUNKTGBz",
   skills: "tblAIXtDBBMrLuEYc",
@@ -855,8 +856,14 @@ export const HOUSEHOLD_MEMBERS_FIELDS = {
   purpose: "fldHCX9GT7fQsODDU",
   agentBaseId: "fldpdAqXBb58MAZH9",
   status: "fld9I4XUi9jiu8xjZ",
+  kind: "fldnGanqKXoV5ohJc",
+  reportsTo: "fldVVE7LZGhkYuzOn",
+  /** Inverse of Reports To. Do not write; Airtable fills it. */
+  crew: "fldzTkPqsTiTpcqvg",
+  runtimes: "fldOMYUwOBBwx98J0",
 } as const;
 
+/** Leftover Household Minions fields. Do not write identity. */
 export const HOUSEHOLD_MINIONS_FIELDS = {
   agentSlug: "fldqd8ddmvGTtQh3M",
   agentName: "fldlTDUvIG596QC00",
@@ -875,6 +882,7 @@ export const HOUSEHOLD_VERSIONS_FIELDS = {
   changeReason: "fldEy4G0Mz1417wDg",
   changeSource: "fldx2PG3DUZA24wST",
   activeMember: "fldpkuwk9h7oJOHGt",
+  /** Leftover link. Writer no longer writes this on new Versions rows. */
   activeMinions: "fldtzdMncynCN0eoa",
   skillVersions: "fldjOtUjHqWFkuTF4",
 } as const;

@@ -2,7 +2,7 @@
 
 **Status:** Replicable schema reference (context-agnostic)  
 **Owner:** Matthew  
-**Last updated:** 21 August 2026 (Household Members → Registry sync `tblTfxGnA5xWx2nAG` confirmed); 20 August 2026 (Chapter 1 incubation mode on Brain Truth; Household Members owns roster identity; Registry Agents is Brain Key index only); 17 August 2026 Draft Brain Truth write contract; Context Health Phase 2 schema pending
+**Last updated:** 23 August 2026 (Household Members is one named worker including minions; Kind / Reports To / Runtimes on that row); 21 August 2026 (Household Members → Registry sync `tblTfxGnA5xWx2nAG` confirmed); 20 August 2026 (Chapter 1 incubation mode on Brain Truth; Household Members owns roster identity; Registry Agents is Brain Key index only); 17 August 2026 Draft Brain Truth write contract; Context Health Phase 2 schema pending
 **Use with:** [`brain-key-wiring.md`](./brain-key-wiring.md) (access model + API), [`architecture.md`](../business/architecture.md) (governance), [`chapter1-context-structure.md`](./chapter1-context-structure.md) (canonical brain themes + categories), [`doc-brain-base-builder.md`](./doc-brain-base-builder.md) (scaffold/extend bases via Doc Brain Base Builder)
 
 Any agent (especially **@doc-brain-base-builder**) can recreate or extend Brain Key bases from this doc alone. No chat history required.
@@ -24,7 +24,7 @@ Any agent (especially **@doc-brain-base-builder**) can recreate or extend Brain 
 
 After creating a new Trusted Brain: add a row to Registry **Brains** and update `airtable-ids.ts`.
 
-After creating a new Agent base: add the household member on **Household Members** (Register `appPrpfvsAr71RPP3` / `tblJ70qtHUc1dUHhi`) — that table owns slug, name, purpose, Agent Base ID, repo path, status, and owner. Brain Registry mirrors that table as synced **Household Members** `tblTfxGnA5xWx2nAG`. Native Registry **Agents** (`tblmb7syHipyWfBzu`) is still the Brain Key index the website reads — not a second roster. Do not treat its native columns as a second source of truth. Update `airtable-ids.ts` only when Doc rewires consumers to the synced table.
+After creating a new Agent base: add the household member on **Household Members** (Register `appPrpfvsAr71RPP3` / `tblJ70qtHUc1dUHhi`) — one named worker per row, head or minion. That table owns slug, name, purpose, Agent Base ID (heads), repo path, status, owner, **Kind**, **Reports To**, and **Runtimes**. Brain Registry mirrors that table as synced **Household Members** `tblTfxGnA5xWx2nAG`. Native Registry **Agents** (`tblmb7syHipyWfBzu`) is still the Brain Key index the website reads — not a second roster. Do not treat its native columns as a second source of truth. Leftover Household Minions is not identity. Update `airtable-ids.ts` only when Doc rewires consumers to the synced table.
 
 **Product agents (Chapter 1):** Clive, Pam, Doc, Clive's Man (`clive-man`). Each gets its own Agent base.
 
@@ -84,7 +84,7 @@ Primary field: **Brain Slug** (singleLineText)
 
 Primary field: **Agent Slug** (singleLineText). Brain Key index of product and fleet agents with Agent bases.
 
-**Roster authority (21 August 2026).** Shared identity and status — Agent Slug, Agent Name, Purpose, Agent Base ID, Repo Path, Status, Owner — are owned by Household Register **Household Members** (`tblJ70qtHUc1dUHhi`). Brain Registry mirrors that table as synced **Household Members** `tblTfxGnA5xWx2nAG` (do not write those synced columns). Registry **Agents** owns no native roster fact. Native columns below remain on this live table as copies until Doc rewires `airtable-ids.ts`. Do not recreate those columns. Do not delete this table to “make room” for sync.
+**Roster authority (23 August 2026).** One Household Members row is one named household worker, including minions. Shared identity and status — Agent Slug, Agent Name, Purpose, Agent Base ID, Repo Path, Status, Owner, Kind, Reports To, Runtimes — are owned by Household Register **Household Members** (`tblJ70qtHUc1dUHhi`). Brain Registry mirrors that table as synced **Household Members** `tblTfxGnA5xWx2nAG` (do not write those synced columns). Registry **Agents** owns no native roster fact. Native columns below remain on this live table as copies until Doc rewires `airtable-ids.ts`. Do not recreate those columns. Do not delete this table to “make room” for sync. Leftover Household Minions is not identity SSOT.
 
 | Field | Type | Notes |
 |-------|------|-------|
@@ -668,7 +668,7 @@ Primary field: **Memory Text** (singleLineText). **Non-canonical tier (Tier 3)**
 
 ### Table: Minions
 
-Primary field: **Minion Name** (singleLineText). Runtime roster for this agent's Composer subagents.
+Primary field: **Minion Name** (singleLineText). Optional family-list shape on an Agent base. **Not identity.** Live named workers (heads and minions) live on Household Members with Kind / Reports To / Runtimes.
 
 | Field | Type | Notes |
 |-------|------|-------|
@@ -679,7 +679,36 @@ Primary field: **Minion Name** (singleLineText). Runtime roster for this agent's
 | Status | singleSelect | Active, Retired |
 | Repo Path | singleLineText | Canonical build pack / `.cursor/agents/` slug |
 
-Empty Minions table is valid (Pam may have zero minions). Shape must be consistent across Agent bases.
+Empty Minions table is valid (Pam may have zero minions). Shape must be consistent across Agent bases when present. Do not treat this table as roster SSOT.
+
+---
+
+## Household Register (roster identity SSOT)
+
+Not a Brain Key base. Live named-worker identity lives here. Writer: Self-Update Executor, after a verify pass. Base `HOUSEHOLD_VERSIONS_BASE_ID` (`appPrpfvsAr71RPP3` in `airtable-ids.ts`).
+
+### Table: Household Members (`tblJ70qtHUc1dUHhi`)
+
+One row = one named worker (head or minion). Payload `kind` stays `head` | `minion` and maps to **Kind** on the row.
+
+| Field | Type | Live ID | Notes |
+|-------|------|---------|-------|
+| Kind | singleSelect | `fldnGanqKXoV5ohJc` | **Head** / **Minion** |
+| Reports To | multipleRecordLinks → Household Members | `fldVVE7LZGhkYuzOn` | From roster `parent_slug` when the parent Member record exists; empty for heads |
+| Crew | multipleRecordLinks | `fldzTkPqsTiTpcqvg` | Inverse of Reports To. Airtable fills it. **Do not write.** |
+| Runtimes | multipleSelects | `fldOMYUwOBBwx98J0` | Signed names only: **Cursor** / **HyperAgent** / **AstraJax Platform**. Write from evidence only; never invent AstraJax Platform. Do not “correct” Sessions spelling. |
+
+Minions still never get Agent bases. Registry Agents remains the Brain Key index only.
+
+### Leftover: Household Minions (`tbl6aVm9rgWoOBVfd`)
+
+Kept in the ID map. **Not identity.** Never write identity here. Writer refuses leftover `household_minion` actions.
+
+### Versions snapshots
+
+Always link `active_member` (`fldpkuwk9h7oJOHGt`). Stop writing `active_minions` (`fldtzdMncynCN0eoa`) on new rows. Field not deleted.
+
+Example minion Member row already live: Vercel Minion `rec4DgrqVudXjXS5L`.
 
 ---
 
@@ -690,7 +719,7 @@ Empty Minions table is valid (Pam may have zero minions). Shape must be consiste
 3. Create **Trusted Brain** base for the theme with **Brain Truth** + **Brain Memories** (no Personas table).
 4. Create **Agent** base per agent with four tables: Narrative Arch, Persona Config, Persona Memories, Minions. For the tiered character-context model, add to **Narrative Arch**: `Provenance Status` (Pending / Approved-Canonical), `Tier`, `Known Truth Slot`, `Injection Priority`; and to **Persona Memories**: the `Known Truth` link field (→ Narrative Arch). Seed one Pending Super Objective and five Pending Known Truth slot records as structure (not canonical content).
 5. Registry **Brains** row: slug, name, workshop + trusted base IDs, maturity Seedling, status Active.
-6. Household Members row per agent (slug, name, purpose, agent base ID, repo path, status Active, owner). Brain Registry mirrors that table at `tblTfxGnA5xWx2nAG`. Native Registry **Agents** is still the Brain Key index the website reads — do not invent a second roster.
+6. Household Members row per named worker, including minions (slug, name, purpose, Kind, Reports To, Runtimes, agent base ID for heads, repo path, status Active, owner). Brain Registry mirrors that table at `tblTfxGnA5xWx2nAG`. Native Registry **Agents** is still the Brain Key index the website reads — do not invent a second roster. Do not write identity to leftover Household Minions.
 7. Seed Trusted **Brain Truth** with scopes using `read:brain-truth:<area>` convention.
 8. Seed Agent bases with structure/placeholders only — not client-approved narrative or business truth.
 9. Update [`airtable-ids.ts`](../../website/src/lib/brains/airtable-ids.ts) with new `app` / `tbl` IDs.

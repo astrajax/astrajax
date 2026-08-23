@@ -4,9 +4,10 @@
 Reads agent export JSONs (HyperAgent Downloads shape), upserts Household Register
 rows and existing Head Agent bases only. Minions never get Agent bases.
 
-Also supports Self-Update Executor verify-pass payloads: update live Members /
-Minions / Skills, then append-only Household Versions + Skill Versions (field IDs).
-Persona Config is skipped on the verify-pass path.
+Also supports Self-Update Executor verify-pass payloads: update live Household
+Members (head or minion Kind on the row) and Skills, then append-only Household
+Versions + Skill Versions (field IDs). Persona Config is skipped on the
+verify-pass path. Never write identity to leftover Household Minions.
 
 Default is dry-run. Pass --apply to write. Every apply run writes a reversal log JSON
 under docs/initiatives/fleet-sync-2026-08-10/ and verifies it on disk.
@@ -48,6 +49,7 @@ ROSTER_PATH = SCRIPT_DIR / "fleet_sync_roster.json"
 REVERSAL_DIR = REPO_ROOT / "docs" / "initiatives" / "fleet-sync-2026-08-10"
 
 HOUSEHOLD_MEMBERS_TABLE = "tblJ70qtHUc1dUHhi"
+# Leftover table. Keep the ID frozen. Never write identity here.
 HOUSEHOLD_MINIONS_TABLE = "tbl6aVm9rgWoOBVfd"
 HOUSEHOLD_VERSIONS_TABLE = "tbleX09zbkUNKTGBz"
 REGISTER_SKILLS_TABLE = "tblAIXtDBBMrLuEYc"
@@ -70,13 +72,34 @@ MEMBERS_FLD = {
     "purpose": "fldHCX9GT7fQsODDU",
     "agent_base_id": "fldpdAqXBb58MAZH9",
     "status": "fld9I4XUi9jiu8xjZ",
+    "kind": "fldnGanqKXoV5ohJc",
+    "reports_to": "fldVVE7LZGhkYuzOn",
+    "crew": "fldzTkPqsTiTpcqvg",  # inverse of Reports To; do not write
+    "runtimes": "fldOMYUwOBBwx98J0",
 }
+# Leftover Household Minions fields. Do not write identity.
 MINIONS_FLD = {
     "agent_slug": "fldqd8ddmvGTtQh3M",
     "agent_name": "fldlTDUvIG596QC00",
     "purpose": "fld4FS5mDtZd3vRBP",
     "system_prompt": "fldex5K15FTjEWoM7",
     "status": "fldwLZTA2v3F5PLhU",
+}
+KIND_LABEL = {"head": "Head", "minion": "Minion"}
+RUNTIME_CURSOR = "Cursor"
+RUNTIME_HYPERAGENT = "HyperAgent"
+RUNTIME_PLATFORM = "AstraJax Platform"
+ALLOWED_RUNTIME_WRITES = {RUNTIME_CURSOR, RUNTIME_HYPERAGENT}
+MEMBER_FIELD_NAMES = {
+    MEMBERS_FLD["agent_slug"]: "Agent Slug",
+    MEMBERS_FLD["agent_name"]: "Agent Name",
+    MEMBERS_FLD["system_prompt"]: "System Prompt",
+    MEMBERS_FLD["purpose"]: "Purpose",
+    MEMBERS_FLD["agent_base_id"]: "Agent Base ID",
+    MEMBERS_FLD["status"]: "Status",
+    MEMBERS_FLD["kind"]: "Kind",
+    MEMBERS_FLD["reports_to"]: "Reports To",
+    MEMBERS_FLD["runtimes"]: "Runtimes",
 }
 VERSIONS_FLD = {
     "agent_slug": "fldy0d0D6zEip82p8",
@@ -151,6 +174,106 @@ def normalize_text(value: Any) -> str:
     if value is None:
         return ""
     return str(value).strip().replace("\r\n", "\n")
+
+
+def normalize_link_ids(value: Any) -> list[str]:
+    if not value:
+        return []
+    if isinstance(value, str):
+        return [value] if value.startswith("rec") else []
+    ids: list[str] = []
+    if isinstance(value, list):
+        for item in value:
+            if isinstance(item, str) and item:
+                ids.append(item)
+            elif isinstance(item, dict):
+                rec_id = item.get("id")
+                if rec_id:
+                    ids.append(str(rec_id))
+    return ids
+
+
+def normalize_select_names(value: Any) -> list[str]:
+    if not value:
+        return []
+    if isinstance(value, str):
+        return [value]
+    names: list[str] = []
+    if isinstance(value, list):
+        for item in value:
+            if isinstance(item, str) and item:
+                names.append(item)
+            elif isinstance(item, dict) and item.get("name"):
+                names.append(str(item["name"]))
+    return names
+
+
+def member_field_get(fields: dict[str, Any], key: str) -> Any:
+    if key in fields:
+        return fields.get(key)
+    name = MEMBER_FIELD_NAMES.get(key)
+    if name and name in fields:
+        return fields.get(name)
+    return None
+
+
+def desired_matches_existing(existing: dict[str, Any], desired: dict[str, Any]) -> bool:
+    link_keys = {MEMBERS_FLD["reports_to"], "Reports To"}
+    select_keys = {MEMBERS_FLD["runtimes"], "Runtimes"}
+    for key, value in desired.items():
+        got = member_field_get(existing, key)
+        if key in link_keys:
+            if normalize_link_ids(got) != normalize_link_ids(value):
+                return False
+        elif key in select_keys:
+            if normalize_select_names(got) != normalize_select_names(value):
+                return False
+        elif normalize_text(got) != normalize_text(value):
+            return False
+    return True
+
+
+def runtimes_from_evidence(source: dict[str, Any] | None) -> list[str] | None:
+    """Return Runtimes choice names to write, or None to leave the field.
+
+    Never invent AstraJax Platform.
+    """
+    if not source:
+        return None
+    raw = source.get("runtimes")
+    if raw is None and "runtime" in source:
+        raw = source.get("runtime")
+    if raw is None:
+        return None
+    names = normalize_select_names(raw)
+    filtered = [name for name in names if name in ALLOWED_RUNTIME_WRITES]
+    return filtered or None
+
+
+def member_identity_fields(
+    *,
+    kind: Literal["head", "minion"],
+    name: str,
+    system_prompt: str,
+    purpose: str,
+    agent_base_id: str | None,
+    parent_member_id: str | None,
+    runtimes: list[str] | None,
+) -> dict[str, Any]:
+    fields: dict[str, Any] = {
+        MEMBERS_FLD["agent_name"]: name,
+        MEMBERS_FLD["system_prompt"]: system_prompt,
+        MEMBERS_FLD["purpose"]: purpose,
+        MEMBERS_FLD["kind"]: KIND_LABEL[kind],
+    }
+    if kind == "head":
+        fields[MEMBERS_FLD["agent_base_id"]] = agent_base_id or ""
+        fields[MEMBERS_FLD["reports_to"]] = []
+    elif parent_member_id:
+        fields[MEMBERS_FLD["reports_to"]] = [parent_member_id]
+    if runtimes:
+        fields[MEMBERS_FLD["runtimes"]] = runtimes
+    return fields
 
 
 def slug_from_filename(path: Path) -> str | None:
@@ -420,23 +543,24 @@ def plan_household_member(
     bundle: ExportBundle,
     plan: SyncPlan,
 ) -> None:
-    formula = eq_formula("Agent Slug", entry.slug)
-    rows = client.list_records(
-        register_base,
-        HOUSEHOLD_MEMBERS_TABLE,
-        fields=["Agent Slug", "Agent Name", "System Prompt", "Purpose", "Agent Base ID", "Status"],
-        formula=formula,
+    """Upsert live identity on Household Members for heads and minions."""
+    row = find_live_row(client, register_base, HOUSEHOLD_MEMBERS_TABLE, entry.slug)
+    parent_id = None
+    if entry.kind == "minion" and entry.parent_slug:
+        parent_row = find_live_row(client, register_base, HOUSEHOLD_MEMBERS_TABLE, entry.parent_slug)
+        parent_id = parent_row["id"] if parent_row else None
+    desired = member_identity_fields(
+        kind=entry.kind,
+        name=bundle.name,
+        system_prompt=bundle.system_prompt,
+        purpose=bundle.description or "",
+        agent_base_id=entry.base_id if entry.kind == "head" else None,
+        parent_member_id=parent_id,
+        runtimes=None,
     )
-    desired = {
-        "Agent Name": bundle.name,
-        "System Prompt": bundle.system_prompt,
-        "Purpose": bundle.description,
-        "Agent Base ID": entry.base_id or "",
-    }
-    if rows:
-        row = rows[0]
+    if row:
         fields = row.get("fields") or {}
-        if all(normalize_text(fields.get(key)) == normalize_text(value) for key, value in desired.items()):
+        if desired_matches_existing(fields, desired):
             plan.add(
                 PlannedAction(
                     action="skip",
@@ -462,60 +586,11 @@ def plan_household_member(
             action="create",
             target="household_member",
             slug=entry.slug,
-            fields={"Agent Slug": entry.slug, **desired, "Status": "Active"},
-        )
-    )
-
-
-def plan_household_minion(
-    client: AirtableClient,
-    register_base: str,
-    entry: AgentEntry,
-    bundle: ExportBundle,
-    plan: SyncPlan,
-) -> None:
-    formula = eq_formula("Agent Slug", entry.slug)
-    rows = client.list_records(
-        register_base,
-        HOUSEHOLD_MINIONS_TABLE,
-        fields=["Agent Slug", "Agent Name", "Purpose", "System Prompt", "Status"],
-        formula=formula,
-    )
-    desired = {
-        "Agent Name": bundle.name,
-        "Purpose": bundle.description or "",
-        "System Prompt": bundle.system_prompt,
-    }
-    if rows:
-        row = rows[0]
-        fields = row.get("fields") or {}
-        if all(normalize_text(fields.get(key)) == normalize_text(value) for key, value in desired.items()):
-            plan.add(
-                PlannedAction(
-                    action="skip",
-                    target="household_minion",
-                    slug=entry.slug,
-                    record_id=row["id"],
-                    reason="already up to date",
-                )
-            )
-            return
-        plan.add(
-            PlannedAction(
-                action="update",
-                target="household_minion",
-                slug=entry.slug,
-                record_id=row["id"],
-                fields=desired,
-            )
-        )
-        return
-    plan.add(
-        PlannedAction(
-            action="create",
-            target="household_minion",
-            slug=entry.slug,
-            fields={"Agent Slug": entry.slug, **desired, "Status": "Active"},
+            fields={
+                MEMBERS_FLD["agent_slug"]: entry.slug,
+                **desired,
+                MEMBERS_FLD["status"]: "Active",
+            },
         )
     )
 
@@ -884,48 +959,34 @@ def plan_verify_pass(
         plan.errors.append(f"{slug}: blocked base {roster_entry.base_id}")
         return plan
 
-    live_table = HOUSEHOLD_MEMBERS_TABLE if kind == "head" else HOUSEHOLD_MINIONS_TABLE
-    live_target = "household_member" if kind == "head" else "household_minion"
+    live_table = HOUSEHOLD_MEMBERS_TABLE
+    live_target = "household_member"
     live_row = find_live_row(client, register_base, live_table, slug)
 
     if not rolled_back:
-        if kind == "head":
-            desired = {
-                MEMBERS_FLD["agent_name"]: payload["agent_name"],
-                MEMBERS_FLD["system_prompt"]: payload["system_prompt"],
-                MEMBERS_FLD["purpose"]: payload["purpose"],
-            }
-            if roster_entry and roster_entry.base_id:
-                desired[MEMBERS_FLD["agent_base_id"]] = roster_entry.base_id
-        else:
-            desired = {
-                MINIONS_FLD["agent_name"]: payload["agent_name"],
-                MINIONS_FLD["system_prompt"]: payload["system_prompt"],
-                MINIONS_FLD["purpose"]: payload["purpose"],
-            }
+        parent_id = None
+        if kind == "minion":
+            parent_slug = None
+            if roster_entry and roster_entry.parent_slug:
+                parent_slug = roster_entry.parent_slug
+            elif payload.get("parent_slug"):
+                parent_slug = normalize_text(payload.get("parent_slug")).lower()
+            if parent_slug:
+                parent_row = find_live_row(client, register_base, live_table, parent_slug)
+                parent_id = parent_row["id"] if parent_row else None
+        desired = member_identity_fields(
+            kind=kind,
+            name=payload["agent_name"],
+            system_prompt=payload["system_prompt"],
+            purpose=payload["purpose"],
+            agent_base_id=roster_entry.base_id if roster_entry and kind == "head" else None,
+            parent_member_id=parent_id,
+            runtimes=runtimes_from_evidence(payload),
+        )
 
         if live_row:
             fields = live_row.get("fields") or {}
-            # Compare using human names when present in list response; IDs on write.
-            name_map = (
-                {
-                    MEMBERS_FLD["agent_name"]: "Agent Name",
-                    MEMBERS_FLD["system_prompt"]: "System Prompt",
-                    MEMBERS_FLD["purpose"]: "Purpose",
-                    MEMBERS_FLD["agent_base_id"]: "Agent Base ID",
-                }
-                if kind == "head"
-                else {
-                    MINIONS_FLD["agent_name"]: "Agent Name",
-                    MINIONS_FLD["system_prompt"]: "System Prompt",
-                    MINIONS_FLD["purpose"]: "Purpose",
-                }
-            )
-            if all(
-                normalize_text(fields.get(name_map[fid])) == normalize_text(value)
-                for fid, value in desired.items()
-                if fid in name_map
-            ):
+            if desired_matches_existing(fields, desired):
                 plan.add(
                     PlannedAction(
                         action="skip",
@@ -946,13 +1007,11 @@ def plan_verify_pass(
                     )
                 )
         else:
-            create_fields = dict(desired)
-            if kind == "head":
-                create_fields[MEMBERS_FLD["agent_slug"]] = slug
-                create_fields[MEMBERS_FLD["status"]] = "Active"
-            else:
-                create_fields[MINIONS_FLD["agent_slug"]] = slug
-                create_fields[MINIONS_FLD["status"]] = "Active"
+            create_fields = {
+                MEMBERS_FLD["agent_slug"]: slug,
+                **desired,
+                MEMBERS_FLD["status"]: "Active",
+            }
             plan.add(
                 PlannedAction(
                     action="create",
@@ -990,8 +1049,7 @@ def plan_verify_pass(
         VERSIONS_FLD["change_source"]: payload["change_source"],
     }
     if live_row:
-        link_key = VERSIONS_FLD["active_member"] if kind == "head" else VERSIONS_FLD["active_minions"]
-        version_fields[link_key] = [live_row["id"]]
+        version_fields[VERSIONS_FLD["active_member"]] = [live_row["id"]]
     plan.add(
         PlannedAction(
             action="create",
@@ -1002,7 +1060,7 @@ def plan_verify_pass(
     )
 
     if rolled_back:
-        plan.skipped.append(f"{slug}: rolled_back — skipped live Members/Minions/Skills updates")
+        plan.skipped.append(f"{slug}: rolled_back — skipped live Members / Skills updates")
 
     return plan
 
@@ -1036,7 +1094,7 @@ def build_plan(
                         reason="minion must not have Agent base writes",
                     )
                 )
-            plan_household_minion(client, register_base, entry, bundle, plan)
+            plan_household_member(client, register_base, entry, bundle, plan)
             plan_skills_for_table(
                 client,
                 base_id=register_base,
@@ -1092,7 +1150,6 @@ def apply_plan(
 
     table_ids: dict[tuple[str, str], str] = {
         (register_base, "Household Members"): HOUSEHOLD_MEMBERS_TABLE,
-        (register_base, "Household Minions"): HOUSEHOLD_MINIONS_TABLE,
         (register_base, "Household Versions"): HOUSEHOLD_VERSIONS_TABLE,
         (register_base, "Skills"): REGISTER_SKILLS_TABLE,
         (register_base, "Skill Versions"): SKILL_VERSIONS_TABLE,
@@ -1110,22 +1167,27 @@ def apply_plan(
     # Skill name → live Skills record id (for Skill Versions link).
     skill_ids_by_name: dict[str, str] = {}
     created_skill_version_ids: list[str] = []
-    # slug → ("head"|"minion", record_id) so Versions can link newly created live rows.
-    live_ids_by_slug: dict[str, tuple[str, str]] = {}
+    # slug → Members record id so Versions can link newly created live rows.
+    live_ids_by_slug: dict[str, str] = {}
 
     # First pass: live rows + skills (so version links can resolve).
     deferred_versions: list[PlannedAction] = []
     deferred_skill_versions: list[PlannedAction] = []
 
     def remember_live(item: PlannedAction, record_id: str | None) -> None:
-        if not record_id:
-            return
-        if item.target == "household_member":
-            live_ids_by_slug[item.slug] = ("head", record_id)
-        elif item.target == "household_minion":
-            live_ids_by_slug[item.slug] = ("minion", record_id)
+        if record_id and item.target == "household_member":
+            live_ids_by_slug[item.slug] = record_id
 
     for item in plan.actions:
+        if item.target == "household_minion":
+            reversal["refused"].append(
+                {
+                    "target": item.target,
+                    "slug": item.slug,
+                    "reason": "leftover Household Minions table — identity writes go to Household Members",
+                }
+            )
+            continue
         if item.action == "skip":
             reversal["skipped"].append(
                 {"target": item.target, "slug": item.slug, "record_id": item.record_id, "reason": item.reason}
@@ -1149,9 +1211,15 @@ def apply_plan(
         if item.target == "household_member":
             table = tid(register_base, "Household Members")
             base = register_base
-        elif item.target == "household_minion":
-            table = tid(register_base, "Household Minions")
-            base = register_base
+            if table == HOUSEHOLD_MINIONS_TABLE:
+                reversal["refused"].append(
+                    {
+                        "target": item.target,
+                        "slug": item.slug,
+                        "reason": "refusing leftover Household Minions table write",
+                    }
+                )
+                continue
         elif item.target == "register_skill":
             table = tid(register_base, "Skills")
             base = register_base
@@ -1262,14 +1330,13 @@ def apply_plan(
     versions_table = tid(register_base, "Household Versions")
     for item in deferred_versions:
         fields = dict(item.fields)
+        fields.pop(VERSIONS_FLD["active_minions"], None)
         if created_skill_version_ids:
             fields[VERSIONS_FLD["skill_versions"]] = list(created_skill_version_ids)
-        if VERSIONS_FLD["active_member"] not in fields and VERSIONS_FLD["active_minions"] not in fields:
-            live = live_ids_by_slug.get(item.slug)
-            if live:
-                kind, record_id = live
-                link_key = VERSIONS_FLD["active_member"] if kind == "head" else VERSIONS_FLD["active_minions"]
-                fields[link_key] = [record_id]
+        if VERSIONS_FLD["active_member"] not in fields:
+            live_id = live_ids_by_slug.get(item.slug)
+            if live_id:
+                fields[VERSIONS_FLD["active_member"]] = [live_id]
         created = client.create_records(register_base, versions_table, [fields])
         for row in created:
             reversal["created"].append(
