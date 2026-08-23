@@ -6,6 +6,7 @@ import { handleInteractionScore } from "./interaction-score";
 import {
   buildActionProposedFormula,
   buildNeedsReviewFormula,
+  hasGrantBackedManifest,
   isFallbackManifest,
   isFallbackRecordId,
   matchesActionProposedShortlist,
@@ -59,6 +60,21 @@ describe("interaction-upkeep helpers", () => {
   it("builds action proposed formula", () => {
     expect(buildActionProposedFormula("chapter-1")).toContain("Action proposed");
     expect(buildActionProposedFormula("chapter-1")).toContain("chapter-1");
+  });
+
+  it("builds needs-review formula and escapes slug quotes", () => {
+    const formula = buildNeedsReviewFormula("o'brian-brain");
+    expect(formula).toContain("Quality Score");
+    expect(formula).toContain("Suspected Context Issue");
+    expect(formula).toContain("No action");
+    expect(formula).toContain("o\\'brian-brain");
+  });
+
+  it("treats grant-backed manifests as non-fallback only", () => {
+    expect(hasGrantBackedManifest(["recTrusted123"], "grant-1")).toBe(true);
+    expect(hasGrantBackedManifest(["fallback-positioning"], "grant-1")).toBe(false);
+    expect(hasGrantBackedManifest(["recTrusted123"], "")).toBe(false);
+    expect(hasGrantBackedManifest([], "grant-1")).toBe(false);
   });
 });
 

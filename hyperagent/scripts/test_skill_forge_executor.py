@@ -133,6 +133,54 @@ class VerifySkillForgeTest(unittest.TestCase):
         self.assertFalse(result["pass"])
         self.assertEqual(result["before"]["documentation"], "# old")
 
+    def test_ascii_none_creating_flag_on_parsed_state(self) -> None:
+        """Em-dash marker is the thread form; ASCII existing still counts as creating."""
+        self.assertTrue(
+            verify_skill_forge.is_none_creating({"existing": "none -- creating"})
+        )
+        self.assertEqual(
+            verify_skill_forge.missing_dump_keys({"existing": "none -- creating"}),
+            [],
+        )
+
+    def test_fail_when_after_name_is_wrong_skill(self) -> None:
+        after = _skill(name="Household Activity Logging")
+        result = verify_skill_forge.verify(
+            thread=_thread(_skill(), after),
+            brief={
+                "skill_name": "Skill Forge Executor",
+                "expected": {"documentation": "# skill"},
+            },
+        )
+        self.assertFalse(result["pass"])
+        self.assertTrue(any("target skill" in err for err in result["errors"]))
+
+    def test_fail_when_required_dump_keys_missing_on_update(self) -> None:
+        after = {"name": "Skill Forge Executor", "documentation": "# skill"}
+        result = verify_skill_forge.verify(
+            thread=_thread(_skill(), after),
+            brief={
+                "skill_name": "Skill Forge Executor",
+                "expected": {"documentation": "# skill"},
+            },
+        )
+        self.assertFalse(result["pass"])
+        self.assertTrue(any("after.scripts missing" in err for err in result["errors"]))
+        self.assertTrue(any("after.authType missing" in err for err in result["errors"]))
+
+    def test_creating_before_skips_required_dump_keys_on_before_only(self) -> None:
+        """AFTER still needs dump keys; BEFORE `none — creating` does not."""
+        after = _skill()
+        result = verify_skill_forge.verify(
+            thread=_thread("none — creating", after),
+            brief={
+                "skill_name": "Skill Forge Executor",
+                "expected": {"name": "Skill Forge Executor"},
+            },
+        )
+        self.assertTrue(result["pass"], result["errors"])
+        self.assertEqual(verify_skill_forge.missing_dump_keys({"existing": "none — creating"}), [])
+
 
 class HostedMcpHandoffTest(unittest.TestCase):
     def test_apply_targets_skill_forge_only(self) -> None:
