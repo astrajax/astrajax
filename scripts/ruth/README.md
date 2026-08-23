@@ -21,7 +21,7 @@ python3 scripts/ruth/build_pen_decl.py \
 python3 scripts/ruth/build_pen_decl.py --fixture-drive ...
 ```
 
-Chapter 1 incubation-mode job (Text Characters + add-only Category/Scope):
+Chapter 1 incubation-mode job (Text Characters live; Scope `read:brain-truth:incubation` live via Matthew UI 23 Aug 2026; remaining Category options still partial — see `docs/initiatives/brain-key-schema.md`):
 
 ```bash
 export AIRTABLE_BUILD_TARGET_WRITE=...   # schema.bases:write on app6tjzzG0L0lOeVb only

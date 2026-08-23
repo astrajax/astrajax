@@ -365,7 +365,7 @@ Do **not** import: their 15-skill taxonomy as business categories, Digital Brain
 
 | Track | Work | Owner lane |
 |-------|------|------------|
-| **Airtable** | **Phase B live** — see [`brain-key-schema.md`](./brain-key-schema.md). Field IDs: `website/src/lib/brains/airtable-ids.ts`. **20 Aug 2026:** Chapter 1 Brain Truth gained **Text Characters** (`fldUnZSHrKHFcZQDz`). **Still pending (MCP cannot add select choices):** universal Category options + Scope `read:brain-truth:incubation` (add-only; keep legacy). Do not retire legacy Category/Scope options in that job. Optional later: delete LEGACY Scope text field. | — |
+| **Airtable** | **Phase B live** — see [`brain-key-schema.md`](./brain-key-schema.md). Field IDs: `website/src/lib/brains/airtable-ids.ts`. **20 Aug 2026:** Chapter 1 Brain Truth gained **Text Characters** (`fldUnZSHrKHFcZQDz`). **23 Aug 2026:** Scope `read:brain-truth:incubation` live (`selyGCBWthBpJPfWc`). **Category still partial:** Definition, Goals (not signed name Goals & Priorities), Workflow; seven canonical buckets still missing. Do not retire legacy Category/Scope options. Optional later: delete LEGACY Scope text field. | — |
 | **Code** | `website/src/lib/brains/context-structure.ts` — types, templates, categories | Doc → Composer after brief approved |
 | **Demo UI** | `aie-demo` steps: archetype → brain set → category skeleton | Doc → Composer |
 | **Clive** | Persona Config interview rules | Matthew in Airtable → generator sync |
