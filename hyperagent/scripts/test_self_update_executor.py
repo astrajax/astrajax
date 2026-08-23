@@ -146,6 +146,49 @@ class VerifySelfUpdateTest(unittest.TestCase):
         self.assertFalse(result["pass"])
         self.assertTrue(any("other-agent" in err for err in result["errors"]))
 
+    def test_fail_when_required_dump_keys_missing(self) -> None:
+        after = {"name": "Doc Albright", "systemPrompt": "new prompt"}
+        result = verify_self_update.verify(
+            thread=_thread({"name": "Doc Albright"}, after),
+            brief={"target_agent_name": "Doc Albright", "expected": {"systemPrompt": "new prompt"}},
+        )
+        self.assertFalse(result["pass"])
+        self.assertTrue(any("after.autoSaveMemories missing" in err for err in result["errors"]))
+        self.assertTrue(any("after.skills missing" in err for err in result["errors"]))
+
+    def test_fail_when_brief_expected_empty(self) -> None:
+        after = _state()
+        result = verify_self_update.verify(
+            thread=_thread(_state(), after),
+            brief={"target_agent_name": "Doc Albright", "expected": {}},
+        )
+        self.assertFalse(result["pass"])
+        self.assertTrue(any("brief.expected" in err for err in result["errors"]))
+
+    def test_normalize_whitespace_when_diffing_expected(self) -> None:
+        after = _state(systemPrompt="new prompt\r\n")
+        result = verify_self_update.verify(
+            thread=_thread(_state(), after),
+            brief={
+                "target_agent_name": "Doc Albright",
+                "expected": {"systemPrompt": "  new prompt  "},
+            },
+        )
+        self.assertTrue(result["pass"], result["errors"])
+
+    def test_extracts_states_from_nested_thread_json(self) -> None:
+        after = _state()
+        thread = {
+            "messages": [
+                {"role": "assistant", "content": _thread(_state(systemPrompt="old"), after)}
+            ]
+        }
+        result = verify_self_update.verify(
+            thread=thread,
+            brief={"target_agent_name": "Doc Albright", "expected": {"systemPrompt": "new prompt"}},
+        )
+        self.assertTrue(result["pass"], result["errors"])
+
 
 class HostedMcpHandoffTest(unittest.TestCase):
     def test_apply_message_is_self_contained(self) -> None:
