@@ -14,6 +14,7 @@ vi.mock("../airtable-rest", async () => {
     airtableCreate: vi.fn(),
     airtableAttachFromUrl: vi.fn(),
     airtableUploadAttachment: vi.fn(),
+    airtableFindOne: vi.fn(),
   };
 });
 
@@ -27,6 +28,7 @@ import { del, head, issueSignedToken, presignUrl } from "@vercel/blob";
 import {
   airtableAttachFromUrl,
   airtableCreate,
+  airtableFindOne,
   airtableUploadAttachment,
 } from "../airtable-rest";
 import { BRAIN_WORKSHOP_TABLES } from "../airtable-ids";
@@ -41,6 +43,7 @@ const presignUrlMock = vi.mocked(presignUrl);
 const createMock = vi.mocked(airtableCreate);
 const attachFromUrlMock = vi.mocked(airtableAttachFromUrl);
 const uploadBytesMock = vi.mocked(airtableUploadAttachment);
+const findOneMock = vi.mocked(airtableFindOne);
 const writeTokenMock = vi.mocked(getWorkshopWriteToken);
 const memoryModeMock = vi.mocked(useMemoryStore);
 
@@ -72,6 +75,7 @@ describe("handleOnboardingSourceDocument", () => {
     createMock.mockReset();
     attachFromUrlMock.mockReset();
     uploadBytesMock.mockReset();
+    findOneMock.mockReset();
     memoryModeMock.mockReturnValue(false);
     writeTokenMock.mockReturnValue("pat_workshop_write");
     delete process.env.BRAIN_WORKSHOP_SOURCE_DOCUMENTS_TABLE_ID;
@@ -170,6 +174,14 @@ describe("handleOnboardingSourceDocument", () => {
 
   it("attaches to an existing row on retry instead of filing twice", async () => {
     stubStagingOk();
+    findOneMock.mockResolvedValue({
+      id: "recExisting1234",
+      fields: {
+        Title: "notes.pdf",
+        "Mine Status": "Pending",
+        "Created By": "Website",
+      },
+    });
     attachFromUrlMock.mockResolvedValue({ id: "recExisting1234", fields: {} });
 
     const result = await handleOnboardingSourceDocument(PATHNAME, {
@@ -178,6 +190,7 @@ describe("handleOnboardingSourceDocument", () => {
     });
 
     expect(createMock).not.toHaveBeenCalled();
+    expect(findOneMock).toHaveBeenCalled();
     expect(attachFromUrlMock).toHaveBeenCalledWith(
       "appWorkshop",
       BRAIN_WORKSHOP_TABLES.sourceDocuments,
@@ -188,6 +201,52 @@ describe("handleOnboardingSourceDocument", () => {
     );
     expect(uploadBytesMock).not.toHaveBeenCalled();
     expect(result.saved).toBe(true);
+  });
+
+  it("refuses retry attach when the row already has an attachment", async () => {
+    stubStagingOk();
+    findOneMock.mockResolvedValue({
+      id: "recVictimDoc12",
+      fields: {
+        Title: "real evidence.pdf",
+        "Mine Status": "Pending",
+        "Created By": "Website",
+        Attachment: [{ id: "attExisting", url: "https://example.com/real.pdf", filename: "real.pdf" }],
+      },
+    });
+
+    await expect(
+      handleOnboardingSourceDocument(PATHNAME, {
+        filename: "attacker.pdf",
+        recordId: "recVictimDoc12",
+      }),
+    ).rejects.toThrow(/already has an attachment/);
+
+    expect(attachFromUrlMock).not.toHaveBeenCalled();
+    expect(createMock).not.toHaveBeenCalled();
+    expect(delMock).not.toHaveBeenCalled();
+  });
+
+  it("refuses retry attach to Summarised or non-Website rows", async () => {
+    stubStagingOk();
+    findOneMock.mockResolvedValue({
+      id: "recSummarised1",
+      fields: {
+        Title: "mined.pdf",
+        "Mine Status": "Summarised",
+        "Created By": "Agent",
+        "Attachment Summary": "Already mined",
+      },
+    });
+
+    await expect(
+      handleOnboardingSourceDocument(PATHNAME, {
+        filename: "attacker.pdf",
+        recordId: "recSummarised1",
+      }),
+    ).rejects.toThrow(/no longer Pending/);
+
+    expect(attachFromUrlMock).not.toHaveBeenCalled();
   });
 
   it("files files above Airtable's direct byte-upload limit via signed URL attach", async () => {
