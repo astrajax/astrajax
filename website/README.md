@@ -1,18 +1,8 @@
-# AstraJax website shell
+# AstraJax website
 
-V1 marketing site built from Taralee's architecture mockups and `docs/business/positioning.md`. Static export — deploy anywhere that hosts HTML.
+Next.js 15 App Router app (React 19). Marketing shell, Chapter 1 Brain Key, Receiving Wall, onboarding, and platform telemetry routes. Deploy on **Vercel** — not a static export (API routes require a Node runtime).
 
-## What's in the shell
-
-Single-page site with sections:
-
-- Hero + illustrative OS panel (Product-systems direction)
-- Founder proof (Founder-led direction)
-- Problem, Method, Proof, Adoption, Offers
-- Clive section with **live Ask Clive** (server-side `/api/ask-clive`)
-- Audit CTA close
-
-Copy uses canonical claims only. Ask Clive reads approved Context Items from Airtable (fallback bundled context if the token is missing). **Chapter 1 Brain Key** routes (`/api/brains/*`) enforce grant-based trusted context access — see [`docs/initiatives/brain-key-wiring.md`](../docs/initiatives/brain-key-wiring.md). Audit booking via Calendly.
+Copy uses canonical claims from `docs/business/positioning.md`. Ask Clive reads approved Context Items from Airtable (bundled fallback if the token is missing). **Chapter 1 Brain Key** routes (`/api/brains/*`) enforce grant-based trusted context access — see [`docs/initiatives/brain-key-wiring.md`](../docs/initiatives/brain-key-wiring.md).
 
 ## Local preview
 
@@ -22,60 +12,54 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000
+Open http://localhost:3000. Copy `website/.env.example` → `.env.local` if missing (startup may do this). Default `BRAIN_KEY_USE_MEMORY=true` runs Brain Key offline without Airtable.
 
-## Build static files (for upload)
+## Static checks / tests
 
 ```bash
-npm run build
+npx tsc --noEmit
+npm run test:brain-key
+npm run test:command-centre
+npm run test:platform-activity
 ```
 
-Output lands in `website/out/` — a folder of HTML, CSS, and JS you can upload to:
-
-- **Vercel** — connect the repo or drag-drop `out/` (or push and let Vercel build)
-- **Netlify** — deploy `out/` as publish directory
-- **Cloudflare Pages** — same
-- **Any static host** — upload the contents of `out/`
+`npm run lint` is not usable non-interactively (no ESLint config). Prefer `tsc` above.
 
 ## Ask Clive env vars (Vercel)
 
-Add in **Vercel → astrajax → Settings → Environment Variables**:
-
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `ANTHROPIC_API_KEY` | Yes | Claude API for replies |
-| `AIRTABLE_READ_TOKEN` | Recommended | Live approved Context Items from base `appYv601Oq7fKTCj0` |
+| `ANTHROPIC_API_KEY` | Yes (live replies) | Claude API; empty → canned `fallback: true` 200 |
+| `AIRTABLE_READ_TOKEN` | Recommended | Live approved Context Items |
 | `CLIVE_MODEL` | No | Override model (default `claude-sonnet-4-6`) |
-
-Copy `website/.env.example` for local dev. Redeploy after adding keys.
 
 ### Brain Key env vars (Chapter 1)
 
 | Variable | Required | Purpose |
 |----------|----------|---------|
-| `BRAIN_KEY_USE_MEMORY` | Local dev | `true` = in-memory grants (no Airtable yet) |
+| `BRAIN_KEY_USE_MEMORY` | Local dev | `true` = in-memory grants (no Airtable) |
 | `BRAIN_KEY_ADMIN_SECRET` | Approve route | Header `x-brain-key-admin` must match |
 | `BRAIN_REGISTRY_*` | Production | Registry base + read/admin tokens |
-| `BRAIN_WORKSHOP_*` | Production | Workshop draft writes + interaction log |
+| `BRAIN_WORKSHOP_WRITE_TOKEN` | Production writes | Drafts, Receiving Wall Accept, onboarding Source Documents |
+| `BRAIN_WORKSHOP_READ_TOKEN` | Production reads | Workbench / wall. **Empty or whitespace = unset** — falls back to write, then `BRAIN_DOC_PROMOTE_TOKEN` |
 | `BRAIN_TRUSTED_*` | Production | Per-theme trusted Brain read token |
 | `BRAIN_DOC_PROMOTE_TOKEN` | Production | Doc promote route (`x-brain-doc-promote`) |
 
-Run invariant tests: `npm run test:brain-key`
+Ops pitfalls (grant restore, promote revoke pagination, draft-write cache): [`brain-key-wiring.md` § Troubleshooting](../docs/initiatives/brain-key-wiring.md#troubleshooting--developer-pitfalls).
 
 ## Platform routes (brain governance)
 
 | Route | Purpose |
 |-------|---------|
-| `/brain` | Brain shrine — browse seeded/registry brains, name new brains, Enter workspace |
+| `/brain` | Brain shrine — browse brains, Enter workspace |
 | `/brain/[slug]?tab=` | Per-brain workspace (`overview`, `truths-memories`, `review`, `context-health`, `paper-trail`) |
 | `/brain/health` | Redirect → default brain overview tab |
 | `/brain/review` | Redirect → default brain review tab (preserves `?view=`) |
 
 Default brain slug: `northline-field-ops`. Full build spec: [`docs/initiatives/brain-shrine-build-plan.md`](../docs/initiatives/brain-shrine-build-plan.md).
 
-## Next steps
+## Related docs
 
-1. Add `ANTHROPIC_API_KEY` (+ `AIRTABLE_READ_TOKEN`) in Vercel and redeploy
-2. Add favicon and OG image
-
-Not designed for Framer import — this is an owned codebase. If you stay on Framer, use this as the section/copy reference while rebuilding visually there.
+- Blob / furniture: [`docs/website-blob-store.md`](./docs/website-blob-store.md)
+- Platform telemetry flip: [`docs/platform-telemetry-flip.md`](./docs/platform-telemetry-flip.md)
+- Onboarding → Source Documents: [`docs/initiatives/source-document-mining.md`](../docs/initiatives/source-document-mining.md)
