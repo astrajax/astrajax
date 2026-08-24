@@ -43,6 +43,10 @@ function workshopRecord(fields: Record<string, unknown> = {}) {
   };
 }
 
+function stubOwnershipLookup(fields: Record<string, unknown> = {}) {
+  guardMock.mockResolvedValue(workshopRecord(fields));
+}
+
 describe("handleInteractionScore (Workshop Airtable path)", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", vi.fn());
@@ -52,7 +56,7 @@ describe("handleInteractionScore (Workshop Airtable path)", () => {
     writeTokenMock.mockReturnValue("pat_workshop_write");
     memoryMock.mockReturnValue(false);
     guardMock.mockReset();
-    guardMock.mockResolvedValue(undefined);
+    stubOwnershipLookup();
     householdMock.mockReset();
     delete process.env.BRAIN_WORKSHOP_INTERACTIONS_TABLE_ID;
   });
@@ -128,6 +132,45 @@ describe("handleInteractionScore (Workshop Airtable path)", () => {
     expect(result.autoProposed).toBe(true);
     expect(result.interaction.reviewStatus).toBe("Action proposed");
     expect(result.interaction.qualityScore).toBe(2);
+  });
+
+  it("keeps Question/Answer when Airtable PATCH returns only changed fields", async () => {
+    stubOwnershipLookup();
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          records: [
+            {
+              id: "recIx1",
+              fields: {
+                "Quality Score": 4,
+                Reviewer: "Matthew",
+                "Review Notes": "",
+                "Reviewed At": "2026-08-15T12:00:00.000Z",
+                "Suspected Context Issue": false,
+                "Review Status": "Reviewed",
+                "Context Flagged": "None",
+              },
+            },
+          ],
+        }),
+        { status: 200 },
+      ),
+    );
+
+    const result = await handleInteractionScore({
+      recordId: "recIx1",
+      source: "brain_interactions",
+      brainSlug: "astrajax-chapter-1",
+      qualityScore: 4,
+      reviewer: "Matthew",
+    });
+
+    expect(result.interaction.userMessage).toBe("What is the thesis?");
+    expect(result.interaction.assistantReply).toBe("Domain experts become architects.");
+    expect(result.interaction.sessionId).toBe("sess-1");
+    expect(result.interaction.createdAt).toBe("2026-08-15T10:00:00.000Z");
+    expect(result.interaction.qualityScore).toBe(4);
   });
 
   it("throws when Workshop rejects the score PATCH", async () => {

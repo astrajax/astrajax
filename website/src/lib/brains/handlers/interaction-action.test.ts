@@ -43,6 +43,10 @@ function workshopRecord(fields: Record<string, unknown> = {}) {
   };
 }
 
+function stubOwnershipLookup(fields: Record<string, unknown> = {}) {
+  guardMock.mockResolvedValue(workshopRecord(fields));
+}
+
 describe("handleInteractionAction (Workshop Airtable path)", () => {
   beforeEach(() => {
     vi.stubGlobal("fetch", vi.fn());
@@ -50,7 +54,7 @@ describe("handleInteractionAction (Workshop Airtable path)", () => {
     writeTokenMock.mockReturnValue("pat_workshop_write");
     memoryMock.mockReturnValue(false);
     guardMock.mockReset();
-    guardMock.mockResolvedValue(undefined);
+    stubOwnershipLookup();
     householdMock.mockReset();
     delete process.env.BRAIN_WORKSHOP_INTERACTIONS_TABLE_ID;
   });
@@ -158,6 +162,42 @@ describe("handleInteractionAction (Workshop Airtable path)", () => {
     expect(result.interaction.reviewStatus).toBe("Action proposed");
     expect(result.interaction.contextFlagged).toBe("Quarantine proposed");
     expect(result.interaction.reviewer).toBe("Matthew");
+  });
+
+  it("keeps Question/Answer when Airtable PATCH returns only changed fields", async () => {
+    stubOwnershipLookup();
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          records: [
+            {
+              id: "recIx1",
+              // Realistic Airtable PATCH: only the fields written come back.
+              fields: {
+                "Review Status": "Action proposed",
+                "Context Flagged": "Flagged for review",
+                Reviewer: "Matthew",
+              },
+            },
+          ],
+        }),
+        { status: 200 },
+      ),
+    );
+
+    const result = await handleInteractionAction({
+      recordId: "recIx1",
+      source: "brain_interactions",
+      brainSlug: "astrajax-chapter-1",
+      action: "propose",
+      actor: "Matthew",
+    });
+
+    expect(result.interaction.userMessage).toBe("Should we quarantine this?");
+    expect(result.interaction.assistantReply).toBe("Only with evidence.");
+    expect(result.interaction.sessionId).toBe("sess-1");
+    expect(result.interaction.createdAt).toBe("2026-08-15T10:00:00.000Z");
+    expect(result.interaction.reviewStatus).toBe("Action proposed");
   });
 
   it("PATCHes dismiss to No action / None without inventing a reviewer", async () => {

@@ -34,7 +34,10 @@ describe("assertBrainInteractionBelongsToBrain", () => {
         recordId: "recIx1",
         brainSlug: "astrajax-chapter-1",
       }),
-    ).resolves.toBeUndefined();
+    ).resolves.toEqual({
+      id: "recIx1",
+      fields: { "Brain Slug": "astrajax-chapter-1" },
+    });
 
     const url = String(mockFetch.mock.calls[0]?.[0]);
     expect(url).toContain("appWorkshop");

@@ -67,7 +67,9 @@ export async function handleInteractionAction(body: InteractionActionBody) {
     throw new Error("Workshop interaction action is not configured.");
   }
 
-  await assertBrainInteractionBelongsToBrain({
+  // Lookup before PATCH — Airtable often returns only the fields we wrote,
+  // which would blank Question/Answer in the review UI (same class as #165).
+  const existing = await assertBrainInteractionBelongsToBrain({
     baseId: workshopBaseId,
     tableId,
     token: workshopToken,
@@ -101,39 +103,42 @@ export async function handleInteractionAction(body: InteractionActionBody) {
   }
 
   const data = (await response.json()) as {
-    records?: Array<{ id: string; fields: Record<string, unknown>; createdTime: string }>;
+    records?: Array<{ id: string; fields: Record<string, unknown>; createdTime?: string }>;
   };
-  const record = data.records?.[0];
-  if (!record) throw new Error("Interaction not found.");
+  const patched = data.records?.[0];
+  if (!patched) throw new Error("Interaction not found.");
+
+  const mergedFields = { ...existing.fields, ...(patched.fields ?? {}) };
+  const createdAt = patched.createdTime ?? existing.createdTime ?? "";
 
   const interaction: InteractionSummary = {
-    recordId: record.id,
+    recordId: patched.id,
     source: "brain_interactions",
-    stableId: `brain_interactions:${record.id}`,
-    interactionId: String(record.fields["Interaction ID"] ?? record.id),
-    sessionId: String(record.fields["Session ID"] ?? ""),
-    persona: String(record.fields.Persona ?? "clive") as InteractionSummary["persona"],
-    brainSlug: String(record.fields["Brain Slug"] ?? brainSlug),
-    userMessage: String(record.fields["User Message"] ?? ""),
-    assistantReply: String(record.fields["Assistant Reply"] ?? ""),
-    channel: String(record.fields.Channel ?? "website"),
-    createdAt: record.createdTime,
+    stableId: `brain_interactions:${patched.id}`,
+    interactionId: String(mergedFields["Interaction ID"] ?? patched.id),
+    sessionId: String(mergedFields["Session ID"] ?? ""),
+    persona: String(mergedFields.Persona ?? "clive") as InteractionSummary["persona"],
+    brainSlug: String(mergedFields["Brain Slug"] ?? brainSlug),
+    userMessage: String(mergedFields["User Message"] ?? ""),
+    assistantReply: String(mergedFields["Assistant Reply"] ?? ""),
+    channel: String(mergedFields.Channel ?? "website"),
+    createdAt,
     qualityScore:
-      typeof record.fields["Quality Score"] === "number"
-        ? record.fields["Quality Score"]
+      typeof mergedFields["Quality Score"] === "number"
+        ? mergedFields["Quality Score"]
         : undefined,
     reviewer:
       actor ??
-      (typeof record.fields.Reviewer === "string" ? record.fields.Reviewer : undefined),
+      (typeof mergedFields.Reviewer === "string" ? mergedFields.Reviewer : undefined),
     reviewNotes:
-      typeof record.fields["Review Notes"] === "string"
-        ? record.fields["Review Notes"]
+      typeof mergedFields["Review Notes"] === "string"
+        ? mergedFields["Review Notes"]
         : undefined,
     reviewedAt:
-      typeof record.fields["Reviewed At"] === "string"
-        ? record.fields["Reviewed At"]
+      typeof mergedFields["Reviewed At"] === "string"
+        ? mergedFields["Reviewed At"]
         : undefined,
-    suspectedContextIssue: Boolean(record.fields["Suspected Context Issue"]),
+    suspectedContextIssue: Boolean(mergedFields["Suspected Context Issue"]),
     reviewStatus: fields.reviewStatus,
     contextFlagged: fields.contextFlagged,
     contentComplete: true,
