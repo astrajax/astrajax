@@ -2,7 +2,7 @@
 
 **Status:** Working spec for AIE Chapter 1  
 **Owner:** Matthew  
-**Last updated:** 18 August 2026 (Draft write contract: field IDs + HEAD-decides project link); Workshop Projects inventory 17 Aug 2026; Operator Session Model added 4 Aug 2026
+**Last updated:** 24 August 2026 (ops pitfalls: empty Workshop read PAT, grant-use restore on Trusted miss, promote revoke pagination, draft-write cache poison); Draft write contract 18 Aug 2026; Operator Session Model 4 Aug 2026  
 **Canonical architecture:** `[docs/business/architecture.md](../business/architecture.md)`
 
 ### Naming and surfacing
@@ -45,10 +45,10 @@ Strictest practical rules:
 | Credential (Vercel env)           | Read               | Write                                                  | Used by                                                                                    |
 | --------------------------------- | ------------------ | ------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
 | `BRAIN_REGISTRY_READ_TOKEN`       | Registry           | —                                                      | Public routes (metadata only)                                                              |
-| `BRAIN_WORKSHOP_WRITE_TOKEN`      | Workshop           | Workshop                                               | Clive/Pam interaction log, draft writes, Clive's Man source-document mine                  |
-| `BRAIN_WORKSHOP_READ_TOKEN`       | Workshop           | —                                                      | Admin workbench                                                                            |
+| `BRAIN_WORKSHOP_WRITE_TOKEN`      | Workshop           | Workshop                                               | Clive/Pam interaction log, draft writes, Clive's Man source-document mine, Receiving Wall Accept, onboarding Source Documents |
+| `BRAIN_WORKSHOP_READ_TOKEN`       | Workshop           | —                                                      | Admin workbench / Receiving Wall reads. **Empty or whitespace is treated as unset** — see Credential resolution below |
 | `BRAIN_TRUSTED_{SLUG}_READ_TOKEN` | That Trusted Brain | —                                                      | Brain Truth retrieve (after grant validation)                                              |
-| `BRAIN_DOC_PROMOTE_TOKEN`         | Workshop + Trusted | Trusted + Registry Change Log                          | Doc promote route only                                                                     |
+| `BRAIN_DOC_PROMOTE_TOKEN`         | Workshop + Trusted | Trusted + Registry Change Log                          | Doc promote route only; also Workshop-read fallback when read/write PATs unset             |
 | `BRAIN_KEY_ADMIN_TOKEN`           | Registry           | Registry (grants)                                      | Human approve route                                                                        |
 | `BRAIN_AGENT_{SLUG}_READ_TOKEN`   | That Agent base    | —                                                      | Server loads Narrative Arch + Persona Config + Persona Memories + Minions for that persona |
 | `BRAIN_AGENT_{SLUG}_WRITE_TOKEN`  | That Agent base    | That Agent base (Persona Memories, Minions state only) | Server-side persona auto-save; never browser or model prompt                               |
@@ -60,6 +60,16 @@ Strictest practical rules:
 **Invariant:** No env var used by Clive/Pam chat routes may read another agent's Agent base.
 
 Browser and model prompts never receive these values. See `[website/src/lib/brains/secrets.ts](../../website/src/lib/brains/secrets.ts)`.
+
+### Credential resolution (`getWorkshopReadToken`)
+
+Code: `website/src/lib/brains/config.ts`.
+
+1. Prefer `BRAIN_WORKSHOP_READ_TOKEN` after `.trim()`.
+2. If that value is missing, empty, or whitespace-only → treat as **unset** (common Vercel misconfig when a var exists but has no value).
+3. Fall back to `BRAIN_WORKSHOP_WRITE_TOKEN`, then `BRAIN_DOC_PROMOTE_TOKEN`.
+
+Without any of those, Workshop-backed reads (Receiving Wall live shelf, draft lists, etc.) degrade to seeded/memory paths rather than calling Airtable with a blank Bearer token.
 
 ---
 
@@ -273,6 +283,13 @@ Grant ID is returned to the **human UI only**, then passed to chat routes as opa
 }
 ```
 
+**Grant-use accounting** (`website/src/lib/brains/handlers/truth-retrieve.ts`):
+
+- Consume one use **before** returning Trusted text (blocks concurrent races on one-use grants).
+- If Trusted fetch throws after consume → **restore** the use, then rethrow.
+- If a Trusted read token **is** wired for that brain and the only results are public fallback placeholders (`fallback-*` manifest IDs) → **restore** the use and error (`No Trusted Brain truth is available for this scope`). Do not burn a paid grant on demo placeholders when production Trusted is configured but empty/unreadable for the scope.
+- If Trusted is **not** wired, fallback snippets remain the intentional offline/demo path and still consume a use.
+
 ### `POST /api/brains/interactions/log`
 
 ```json
@@ -440,7 +457,9 @@ Server-side `BRAIN_WORKSHOP_WRITE_TOKEN` only.
 }
 ```
 
-Reads draft **Title** and **Canonical Text** from Workshop only. **Category** and **Scope** come from the promote payload (Trusted-only fields). Creates new Trusted rows, quarantines drafts, writes Change Log, revokes related grants.
+Reads draft **Title** and **Canonical Text** from Workshop only. **Category** and **Scope** come from the promote payload (Trusted-only fields). Creates new Trusted rows, quarantines drafts, writes Change Log, then **revokes every Active Access Grant for that `brainSlug`**.
+
+**Revoke pagination:** Registry Access Grants are selected with `paginate: true` (`airtable-store.revokeGrantsForBrain`). A single Airtable page caps at 100 rows — promote must walk every page, or leftover Active keys keep reading Trusted truth after the promote. Response includes `revokedGrants` (count).
 
 ### `POST /api/auth/request-code`
 
@@ -497,12 +516,30 @@ Automated in `[website/src/lib/brains/guards.ts](../../website/src/lib/brains/gu
 
 ---
 
+## Troubleshooting / developer pitfalls
+
+Verified against `website/src/lib/brains/` (Aug 2026). Prefer this over guessing env behaviour.
+
+| Symptom | Likely cause | Fix / codepath |
+| --- | --- | --- |
+| Receiving Wall or Workshop reads show seeded data even though write PAT is set | `BRAIN_WORKSHOP_READ_TOKEN` set to `""` or spaces in Vercel | Empty/whitespace is ignored; falls back to write/promote. Clear the empty var or set a real read PAT. `getWorkshopReadToken` |
+| Grant uses drop after failed Trusted retrieve / empty scope | Older expectation that failures were free | Restore-on-failure and restore-on-fallback-when-wired are intentional. `handleTruthRetrieve` |
+| After Doc promote, some sessions still retrieve Trusted truth | Grant revoke stopped at first 100 Active rows | Fixed: full pagination on revoke. `revokeGrantsForBrain` |
+| Draft creates refuse a known brain slug after a brief Airtable blip | Warm serverless instance cached “missing” from a failed lookup | Resolvers **must not** cache thrown failures as null/empty. `resolveBrainRegistryRecordId` / `listActiveProjects` in `draft-truth-write.ts` |
+| Onboarding upload succeeds but `saved: false` | Missing `BRAIN_WORKSHOP_WRITE_TOKEN` (or Blob read for staging) | File stays in private Blob staging; retry after wiring. `/api/onboarding/source-document` — see [`source-document-mining.md`](./source-document-mining.md) |
+| Local Brain Key routes without Airtable | Expected | `BRAIN_KEY_USE_MEMORY=true` (default when Registry read token unset). `npm run test:brain-key` |
+
+Acceptance tests for grant restore and empty-token resolution live next to the handlers (`truth-retrieve.restore.test.ts`, `config.test.ts`, `airtable-store.revoke.test.ts`, `draft-truth-write*.test.ts`).
+
+---
+
 ## Related
 
 - [AIE build plan](./aie-build-plan.md)
 - [Architecture](../business/architecture.md) — Clive drafts, Pam challenges, human approves, Doc acts; §7 four-base model; §9.2 minion routing
 - [Doc Brain Base Builder](./doc-brain-base-builder.md) — runbook + live inventory
 - [Brain upkeep](./brain-upkeep.md) — thin propose-only Needs Review loop
+- [Source document mining](./source-document-mining.md) — Workshop Source Documents + onboarding intake
 
 ---
 
