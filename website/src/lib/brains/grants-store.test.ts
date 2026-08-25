@@ -107,18 +107,31 @@ describe("Airtable grant persistence", () => {
     });
 
     const storeModule = await import("./store/airtable-store");
-    vi.spyOn(storeModule.airtableStore, "getRequest").mockResolvedValue({
+    const pendingRequest = {
       requestId: "bkr_testapprove",
       brainSlug: "astrajax-chapter-1",
-      persona: "clive",
+      persona: "clive" as const,
       purpose: "demo",
       scope: "read:brain-truth:positioning",
       reason: "test",
       sessionId: "session-airtable",
-      status: "pending",
+      status: "pending" as const,
       requestedAt: new Date().toISOString(),
       expiresAt: new Date(Date.now() + 600_000).toISOString(),
-    });
+    };
+    let requestStatus: "pending" | "approved" = "pending";
+    vi.spyOn(storeModule.airtableStore, "getRequest").mockImplementation(async () => ({
+      ...pendingRequest,
+      status: requestStatus,
+    }));
+    vi.spyOn(storeModule.airtableStore, "setRequestStatus").mockImplementation(
+      async (_requestId, status) => {
+        if (status === "approved" || status === "pending") {
+          requestStatus = status;
+        }
+        return true;
+      },
+    );
 
     const grant = await approveKeyRequest({
       requestId: "bkr_testapprove",

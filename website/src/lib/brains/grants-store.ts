@@ -58,6 +58,21 @@ async function resolveGrantForRequest(
   return kept.status === "revoked" ? null : kept;
 }
 
+/** Revoke every Active grant minted for a key request (approve↔reject races). */
+async function revokeActiveGrantsForRequest(
+  store: GrantStore,
+  requestId: string,
+): Promise<number> {
+  const grants = await store.listGrantsByRequestId(requestId);
+  let count = 0;
+  for (const grant of grants) {
+    if (grant.status !== "active") continue;
+    await store.setGrantStatus(grant.grantId, "revoked");
+    count += 1;
+  }
+  return count;
+}
+
 export async function approveKeyRequest(input: {
   requestId: string;
   approver: string;
@@ -82,7 +97,25 @@ export async function approveKeyRequest(input: {
     await store.setRequestStatus(req.requestId, "approved");
 
     const raced = await resolveGrantForRequest(store, req.requestId);
-    if (raced) return raced;
+    if (raced) {
+      // Reject may have flipped Status after minting a peer grant — fail closed.
+      const afterRace = await store.getRequest(req.requestId);
+      if (afterRace?.status === "rejected") {
+        await revokeActiveGrantsForRequest(store, req.requestId);
+        return null;
+      }
+      return raced;
+    }
+  }
+
+  // Reject wins Status races: do not mint when the request is no longer approved.
+  const claimed = await store.getRequest(req.requestId);
+  if (claimed?.status === "rejected") {
+    await revokeActiveGrantsForRequest(store, req.requestId);
+    return null;
+  }
+  if (claimed?.status !== "approved") {
+    return null;
   }
 
   const minutes = input.grantExpiryMinutes ?? getDefaultGrantMinutes();
@@ -102,12 +135,33 @@ export async function approveKeyRequest(input: {
     });
   } catch (error) {
     const peer = await resolveGrantForRequest(store, req.requestId);
-    if (peer) return peer;
-    await store.setRequestStatus(req.requestId, "pending");
+    if (peer) {
+      const afterPeer = await store.getRequest(req.requestId);
+      if (afterPeer?.status === "rejected") {
+        await revokeActiveGrantsForRequest(store, req.requestId);
+        return null;
+      }
+      return peer;
+    }
+    const current = await store.getRequest(req.requestId);
+    // Never roll a concurrent reject back to pending.
+    if (current?.status !== "rejected") {
+      await store.setRequestStatus(req.requestId, "pending");
+    } else {
+      await revokeActiveGrantsForRequest(store, req.requestId);
+    }
     throw error;
   }
 
   const resolved = (await resolveGrantForRequest(store, req.requestId)) ?? grant;
+
+  // Reject may have landed after createGrant — revoke and refuse rather than
+  // hand out a key the request row already marks rejected.
+  const finalReq = await store.getRequest(req.requestId);
+  if (finalReq?.status === "rejected") {
+    await revokeActiveGrantsForRequest(store, req.requestId);
+    return null;
+  }
 
   // Paper trail must not orphan a minted grant from the caller — retry would
   // otherwise see "approved" with no grantId in the failed response.
@@ -128,11 +182,47 @@ export async function approveKeyRequest(input: {
   return resolved;
 }
 
+/**
+ * Reject a Brain Key request. Pending is the normal path; Approved is allowed
+ * so a concurrent/late reject can still kill a raced mint (and as a kill switch).
+ * Always revokes Active grants for the request — Status alone is not enough when
+ * approve and reject race on the same requestId.
+ */
 export async function rejectKeyRequest(requestId: string): Promise<boolean> {
   const store = getStore();
   const req = await store.getRequest(requestId);
-  if (!req || req.status !== "pending") return false;
-  return store.setRequestStatus(requestId, "rejected");
+  if (!req) return false;
+
+  if (req.status === "rejected") {
+    await revokeActiveGrantsForRequest(store, requestId);
+    return true;
+  }
+  if (req.status !== "pending" && req.status !== "approved") {
+    return false;
+  }
+
+  await store.setRequestStatus(requestId, "rejected");
+  await revokeActiveGrantsForRequest(store, requestId);
+
+  // Approve may overwrite Status back to approved and mint after our write.
+  // Re-assert rejected + revoke until status sticks or we exhaust retries.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const after = await store.getRequest(requestId);
+    if (!after) return false;
+    if (after.status === "rejected") {
+      await revokeActiveGrantsForRequest(store, requestId);
+      return true;
+    }
+    if (after.status === "approved") {
+      await store.setRequestStatus(requestId, "rejected");
+      await revokeActiveGrantsForRequest(store, requestId);
+      continue;
+    }
+    return false;
+  }
+
+  await revokeActiveGrantsForRequest(store, requestId);
+  return (await store.getRequest(requestId))?.status === "rejected";
 }
 
 export async function getGrant(grantId: string): Promise<AccessGrant | undefined> {
