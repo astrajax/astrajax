@@ -135,4 +135,111 @@ describe("POST /api/onboarding/upload", () => {
     expect(body.error).toMatch(/not allowed/i);
     expect(body.error).toMatch(/\.exe/);
   });
+
+  it("returns 503 when Blob storage is not configured", async () => {
+    delete process.env.BLOB_READ_WRITE_TOKEN;
+    delete process.env.BLOB_STORE_ID;
+    delete process.env.VERCEL_OIDC_TOKEN;
+
+    const { handleUpload } = await import("@vercel/blob/client");
+    const handleUploadMock = vi.mocked(handleUpload);
+
+    const { POST } = await import("./route");
+    const request = new NextRequest("http://localhost/api/onboarding/upload", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        type: "blob.generate-client-token",
+        payload: {
+          pathname: "onboarding-uploads/abc-note.txt",
+          multipart: false,
+          clientPayload: JSON.stringify({ sizeBytes: 100 }),
+        },
+      }),
+    });
+    const response = await POST(request);
+    expect(response.status).toBe(503);
+    const body = await response.json();
+    expect(body.error).toMatch(/Blob storage is not configured/i);
+    expect(handleUploadMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("DELETE /api/onboarding/upload", () => {
+  beforeEach(() => {
+    process.env.BLOB_READ_WRITE_TOKEN = "vercel_blob_rw_test";
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns 503 when Blob storage is not configured", async () => {
+    delete process.env.BLOB_READ_WRITE_TOKEN;
+    delete process.env.BLOB_STORE_ID;
+    delete process.env.VERCEL_OIDC_TOKEN;
+
+    const { del } = await import("@vercel/blob");
+    const delMock = vi.mocked(del);
+
+    const { DELETE } = await import("./route");
+    const request = new NextRequest("http://localhost/api/onboarding/upload", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ pathname: "onboarding-uploads/abc-note.txt" }),
+    });
+    const response = await DELETE(request);
+    expect(response.status).toBe(503);
+    expect(delMock).not.toHaveBeenCalled();
+  });
+
+  it("requires url or pathname", async () => {
+    const { DELETE } = await import("./route");
+    const request = new NextRequest("http://localhost/api/onboarding/upload", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    const response = await DELETE(request);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toMatch(/url or pathname required/i);
+  });
+
+  it("refuses deletes outside the onboarding-uploads prefix", async () => {
+    const { del } = await import("@vercel/blob");
+    const delMock = vi.mocked(del);
+
+    const { DELETE } = await import("./route");
+    const request = new NextRequest("http://localhost/api/onboarding/upload", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ pathname: "media-assets/logo.png" }),
+    });
+    const response = await DELETE(request);
+    expect(response.status).toBe(400);
+    const body = await response.json();
+    expect(body.error).toMatch(/onboarding-uploads/);
+    expect(delMock).not.toHaveBeenCalled();
+  });
+
+  it("deletes a staging blob under the onboarding prefix", async () => {
+    const { del } = await import("@vercel/blob");
+    const delMock = vi.mocked(del);
+    delMock.mockResolvedValue(undefined);
+
+    const { DELETE } = await import("./route");
+    const request = new NextRequest("http://localhost/api/onboarding/upload", {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ pathname: "onboarding-uploads/abc-note.txt" }),
+    });
+    const response = await DELETE(request);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ success: true });
+    expect(delMock).toHaveBeenCalledWith("onboarding-uploads/abc-note.txt", {
+      token: "vercel_blob_rw_test",
+    });
+  });
 });
