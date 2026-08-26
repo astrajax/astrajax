@@ -124,7 +124,8 @@ class FleetSyncIdempotencyTest(unittest.TestCase):
                         "Operational System Prompt": "old prompt",
                         "Rules Section": "",
                         "Output Format": "",
-                        "Status": "Approved",
+                        # Pending may be updated in place; Approved must not.
+                        "Status": "Pending",
                     },
                 }
             ],
@@ -204,6 +205,86 @@ class FleetSyncIdempotencyTest(unittest.TestCase):
         second_updates = [item for item in second.actions if item.action == "update"]
         self.assertEqual(second_updates, [], "second run must not update identical rows")
         self.assertFalse(first_creates, "fixture should not require creates on first run")
+
+    def test_refuses_inplace_overwrite_of_approved_persona_config(self) -> None:
+        self.state[("appI5tpwsKNwjfrqR", "tblPC")][0]["fields"]["Status"] = "Approved"
+        client = InMemoryAirtableClient(self.state)
+        plan = build_plan(
+            client,
+            self.roster_raw,
+            self.agents,
+            self.exports,
+            config_name=DEFAULT_CONFIG_NAME,
+            allow_create_bases=False,
+        )
+        pc_updates = [
+            item
+            for item in plan.actions
+            if item.target == "persona_config" and item.action == "update"
+        ]
+        self.assertEqual(pc_updates, [], "must not PATCH Approved Persona Config")
+        refused = [
+            item
+            for item in plan.actions
+            if item.target == "persona_config" and item.action == "refuse"
+        ]
+        self.assertEqual(len(refused), 1)
+        self.assertIn("Approved", refused[0].reason or "")
+        self.assertEqual(refused[0].record_id, "recPC")
+        # Live Approved prompt must stay untouched even if apply were run.
+        self.assertEqual(
+            self.state[("appI5tpwsKNwjfrqR", "tblPC")][0]["fields"]["Operational System Prompt"],
+            "old prompt",
+        )
+
+    def test_refuses_inplace_overwrite_of_approved_skill(self) -> None:
+        self.state[("appI5tpwsKNwjfrqR", "tblSkills")][0]["fields"].update(
+            {
+                "Status": "Approved",
+                "Documentation": "# stale approved body",
+            }
+        )
+        self.exports[0] = ExportBundle(
+            slug="doc",
+            path=Path("agent-doc-albright-onplatform-v0_1.json"),
+            name="Doc Albright",
+            description="Dispatcher",
+            system_prompt="old prompt",  # match Pending PC path irrelevant here
+            skills=[
+                {
+                    "name": "doc",
+                    "description": "Doc skill",
+                    "whenToUse": "Always",
+                    "documentation": "# new body from export",
+                }
+            ],
+        )
+        # Keep PC identical so only the skill refuse is under test.
+        self.state[("appI5tpwsKNwjfrqR", "tblPC")][0]["fields"]["Operational System Prompt"] = (
+            "old prompt"
+        )
+        client = InMemoryAirtableClient(self.state)
+        plan = build_plan(
+            client,
+            self.roster_raw,
+            self.agents,
+            self.exports,
+            config_name=DEFAULT_CONFIG_NAME,
+            allow_create_bases=False,
+        )
+        skill_updates = [
+            item
+            for item in plan.actions
+            if item.target == "agent_skill" and item.action == "update"
+        ]
+        self.assertEqual(skill_updates, [], "must not PATCH Approved skill Documentation")
+        refused = [
+            item
+            for item in plan.actions
+            if item.target == "agent_skill" and item.action == "refuse"
+        ]
+        self.assertEqual(len(refused), 1)
+        self.assertIn("Approved skill", refused[0].reason or "")
 
     def test_minion_never_plans_agent_base_create(self) -> None:
         client = InMemoryAirtableClient(self.state)

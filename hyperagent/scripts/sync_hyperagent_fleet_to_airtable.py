@@ -564,6 +564,23 @@ def plan_persona_config(
                 )
             )
             return
+        # Approved is live production config. In-place PATCH would keep Status
+        # Approved while silently replacing the prompt — refuse and leave review
+        # to Self-Update / a human-created Pending row.
+        if normalize_text(fields.get("Status")) == "Approved":
+            plan.add(
+                PlannedAction(
+                    action="refuse",
+                    target="persona_config",
+                    slug=entry.slug,
+                    record_id=existing["id"],
+                    reason=(
+                        "Approved Persona Config differs from export — refuse "
+                        "in-place overwrite; use Self-Update or a Pending row"
+                    ),
+                )
+            )
+            return
         update_fields = {key: desired[key] for key in compare_keys}
         plan.add(
             PlannedAction(
@@ -630,6 +647,22 @@ def plan_skills_for_table(
                         slug=slug,
                         record_id=existing["id"],
                         reason=f"skill {skill_name!r} already up to date",
+                    )
+                )
+                continue
+            # Same blast radius as Persona Config: never PATCH an Approved skill
+            # body while leaving Status Approved.
+            if normalize_text(fields.get("Status")) == "Approved":
+                plan.add(
+                    PlannedAction(
+                        action="refuse",
+                        target=target_label,
+                        slug=slug,
+                        record_id=existing["id"],
+                        reason=(
+                            f"Approved skill {skill_name!r} differs from export — "
+                            "refuse in-place overwrite; use Skill Forge"
+                        ),
                     )
                 )
                 continue
